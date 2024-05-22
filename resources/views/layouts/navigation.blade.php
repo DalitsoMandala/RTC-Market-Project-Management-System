@@ -19,73 +19,65 @@
             </button>
 
             <div class="topnav">
-                <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+                @hasallroles('internal|cip|organiser')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
-                    <div class="collapse navbar-collapse" id="topnav-menu-content">
-                        <ul class="navbar-nav">
-                            <li class="nav-item ">
-                                <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class='bx bx-tachometer'></i>
-                                    <span data-key="t-dashboards">Dashboard</span>
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                    role="button">
-                                    <i class="bx bx-file"></i>
-                                    <span data-key="t-pages">Sections</span>
-                                    <div class="arrow-down"></div>
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="topnav-more">
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-tachometer'></i>
+                                        <span data-key="t-dashboards">Dashboard</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link  dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Indicators</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Manage Data</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
 
 
-                                    <div class="dropdown">
+
                                         <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                             id="topnav-utility" role="button">
                                             <span data-key="t-utility">Forms</span>
-                                            <div class="arrow-down"></div>
-                                        </a>
-                                        <div class="dropdown-menu" aria-labelledby="topnav-utility">
-                                            <a href="/" class="dropdown-item" data-key="t-starter-page">Routine
-                                                forms</a>
-                                            <a href="/" class="dropdown-item" data-key="t-maintenance">Baseline
-                                                forms</a>
 
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
+                                        </a>
+
                                         <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                            id="topnav-auth" role="button">
-                                            <span data-key="t-authentication">Performance Indicators</span>
-                                            <div class="arrow-down"></div>
+                                            id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Submissions</span>
+
                                         </a>
-                                        <div class="dropdown-menu" aria-labelledby="topnav-auth">
-                                            <a href="/" class="dropdown-item" data-key="t-overveiw">Overview</a>
 
-                                        </div>
+
                                     </div>
+                                </li>
 
-                                </div>
-                            </li>
-                            <li class="nav-item d-none ">
-                                <a class="nav-link disabled dropdown-toggle arrow-none " href="#"
-                                    id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false">
-                                    <i class='bx bx-user'></i>
-                                    <span data-key="t-dashboards">Partners</span>
-                                </a>
-                            </li>
-                            <li class="nav-item ">
-                                <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class='bx bx-table'></i>
-                                    <span data-key="t-dashboards">Reports</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-table'></i>
+                                        <span data-key="t-dashboards">Reports</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
             </div>
         </div>
 
