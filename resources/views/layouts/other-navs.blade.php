@@ -8,8 +8,7 @@
                                   <img src="assets/images/logo-sm.svg" alt="" height="22">
                               </span>
                               <span class="logo-lg">
-                                  <img src="assets/images/logo-sm.svg" alt="" height="22"> <span
-                                      class="logo-txt">Symox</span>
+                                  <img src="assets/images/logo-sm.svg" alt="" height="22"> <span class="logo-txt">Symox</span>
                               </span>
                           </a>
 
@@ -18,8 +17,7 @@
                                   <img src="assets/images/logo-sm.svg" alt="" height="22">
                               </span>
                               <span class="logo-lg">
-                                  <img src="assets/images/logo-sm.svg" alt="" height="22"> <span
-                                      class="logo-txt">Symox</span>
+                                  <img src="assets/images/logo-sm.svg" alt="" height="22"> <span class="logo-txt">Symox</span>
                               </span>
                           </a>
 
@@ -41,16 +39,14 @@
 
                   <div class="d-flex">
                       <div class="dropdown d-inline-block d-lg-none">
-                          <button type="button" class="btn header-item" data-bs-toggle="dropdown" aria-haspopup="true"
-                              aria-expanded="false">
+                          <button type="button" class="btn header-item" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <i class="icon-sm" data-feather="search"></i>
                           </button>
                           <div class="p-0 dropdown-menu dropdown-menu-lg dropdown-menu-end">
                               <form class="p-2">
                                   <div class="search-box">
                                       <div class="position-relative">
-                                          <input type="text" class="border-0 rounded form-control bg-light"
-                                              placeholder="Search...">
+                                          <input type="text" class="border-0 rounded form-control bg-light" placeholder="Search...">
                                           <i class="mdi mdi-magnify search-icon"></i>
                                       </div>
                                   </div>
@@ -59,10 +55,8 @@
                       </div>
 
                       <div class="dropdown d-inline-block language-switch">
-                          <button type="button" class="btn header-item" data-bs-toggle="dropdown" aria-haspopup="true"
-                              aria-expanded="false">
-                              <img class="header-lang-img" src="assets/images/flags/us.jpg" alt="Header Language"
-                                  height="16">
+                          <button type="button" class="btn header-item" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <img class="header-lang-img" src="assets/images/flags/us.jpg" alt="Header Language" height="16">
                           </button>
                           <div class="dropdown-menu dropdown-menu-end">
 
@@ -73,39 +67,32 @@
                               </a>
                               <!-- item-->
                               <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="sp">
-                                  <img src="assets/images/flags/spain.jpg" alt="user-image" class="me-1"
-                                      height="12"> <span class="align-middle">Spanish</span>
+                                  <img src="assets/images/flags/spain.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Spanish</span>
                               </a>
 
                               <!-- item-->
                               <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="gr">
-                                  <img src="assets/images/flags/germany.jpg" alt="user-image" class="me-1"
-                                      height="12"> <span class="align-middle">German</span>
+                                  <img src="assets/images/flags/germany.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">German</span>
                               </a>
 
                               <!-- item-->
                               <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="it">
-                                  <img src="assets/images/flags/italy.jpg" alt="user-image" class="me-1"
-                                      height="12"> <span class="align-middle">Italian</span>
+                                  <img src="assets/images/flags/italy.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Italian</span>
                               </a>
 
                               <!-- item-->
                               <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="ru">
-                                  <img src="assets/images/flags/russia.jpg" alt="user-image" class="me-1"
-                                      height="12"> <span class="align-middle">Russian</span>
+                                  <img src="assets/images/flags/russia.jpg" alt="user-image" class="me-1" height="12"> <span class="align-middle">Russian</span>
                               </a>
                           </div>
                       </div>
 
                       <div class="dropdown d-inline-block">
-                          <button type="button" class="btn header-item noti-icon"
-                              id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                              aria-expanded="false">
+                          <button type="button" class="btn header-item noti-icon" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <i class="icon-sm" data-feather="bell"></i>
                               <span class="noti-dot bg-danger rounded-pill">3</span>
                           </button>
-                          <div class="p-0 dropdown-menu dropdown-menu-lg dropdown-menu-end"
-                              aria-labelledby="page-header-notifications-dropdown">
+                          <div class="p-0 dropdown-menu dropdown-menu-lg dropdown-menu-end" aria-labelledby="page-header-notifications-dropdown">
                               <div class="p-3">
                                   <div class="row align-items-center">
                                       <div class="col">
@@ -121,18 +108,15 @@
                                   <a href="#" class="text-reset notification-item">
                                       <div class="d-flex border-bottom align-items-start">
                                           <div class="flex-shrink-0">
-                                              <img src="assets/images/users/avatar-3.jpg"
-                                                  class="me-3 rounded-circle avatar-sm" alt="user-pic">
+                                              <img src="assets/images/users/avatar-3.jpg" class="me-3 rounded-circle avatar-sm" alt="user-pic">
                                           </div>
                                           <div class="flex-grow-1">
                                               <h6 class="mb-1">Justin Verduzco</h6>
                                               <div class="text-muted">
                                                   <p class="mb-1 font-size-13">Your task changed an issue from "In
-                                                      Progress" to <span
-                                                          class="badge text-success bg-success-subtle">Review</span>
+                                                      Progress" to <span class="badge text-success bg-success-subtle">Review</span>
                                                   </p>
-                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                          class="mdi mdi-clock-outline"></i> 1 hour ago</p>
+                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i class="mdi mdi-clock-outline"></i> 1 hour ago</p>
                                               </div>
                                           </div>
                                       </div>
@@ -151,8 +135,7 @@
                                               <div class="text-muted">
                                                   <p class="mb-1 font-size-13">Open the order confirmation or shipment
                                                       confirmation.</p>
-                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                          class="mdi mdi-clock-outline"></i> 5 hours ago</p>
+                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i class="mdi mdi-clock-outline"></i> 5 hours ago</p>
                                               </div>
                                           </div>
                                       </div>
@@ -162,8 +145,7 @@
                                       <div class="d-flex border-bottom align-items-start">
                                           <div class="flex-shrink-0">
                                               <div class="avatar-sm me-3">
-                                                  <span
-                                                      class="avatar-title bg-success-subtle text-success rounded-circle font-size-16">
+                                                  <span class="avatar-title bg-success-subtle text-success rounded-circle font-size-16">
                                                       <i class="bx bx-cart"></i>
                                                   </span>
                                               </div>
@@ -173,8 +155,7 @@
                                               <div class="text-muted">
                                                   <p class="mb-1 font-size-13">Here is somthing that you might light
                                                       like to know.</p>
-                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                          class="mdi mdi-clock-outline"></i> 1 day ago</p>
+                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i class="mdi mdi-clock-outline"></i> 1 day ago</p>
                                               </div>
                                           </div>
                                       </div>
@@ -183,23 +164,20 @@
                                   <a href="#" class="text-reset notification-item">
                                       <div class="d-flex border-bottom align-items-start">
                                           <div class="flex-shrink-0">
-                                              <img src="assets/images/users/avatar-4.jpg"
-                                                  class="me-3 rounded-circle avatar-sm" alt="user-pic">
+                                              <img src="assets/images/users/avatar-4.jpg" class="me-3 rounded-circle avatar-sm" alt="user-pic">
                                           </div>
                                           <div class="flex-grow-1">
                                               <h6 class="mb-1">Salena Layfield</h6>
                                               <div class="text-muted">
                                                   <p class="mb-1 font-size-13">Yay ! Everything worked!</p>
-                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                          class="mdi mdi-clock-outline"></i> 3 days ago</p>
+                                                  <p class="mb-0 font-size-10 text-uppercase fw-bold"><i class="mdi mdi-clock-outline"></i> 3 days ago</p>
                                               </div>
                                           </div>
                                       </div>
                                   </a>
                               </div>
                               <div class="p-2 border-top d-grid">
-                                  <a class="text-center btn btn-sm btn-link font-size-14 btn-block"
-                                      href="javascript:void(0)">
+                                  <a class="text-center btn btn-sm btn-link font-size-14 btn-block" href="javascript:void(0)">
                                       <i class="uil-arrow-circle-right me-1"></i> <span>View More..</span>
                                   </a>
                               </div>
@@ -214,29 +192,16 @@
                       </div>
 
                       <div class="dropdown d-inline-block">
-                          <button type="button" class="btn header-item user text-start d-flex align-items-center"
-                              id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                              aria-expanded="false">
-                              <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg"
-                                  alt="Header Avatar">
+                          <button type="button" class="btn header-item user text-start d-flex align-items-center" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
                           </button>
                           <div class="pt-0 dropdown-menu dropdown-menu-end">
-                              <a class="dropdown-item" href="contacts-profile.html"><i
-                                      class='align-middle bx bx-user-circle text-muted font-size-18 me-1'></i> <span
-                                      class="align-middle">My Account</span></a>
-                              <a class="dropdown-item" href="apps-chat.html"><i
-                                      class='align-middle bx bx-chat text-muted font-size-18 me-1'></i> <span
-                                      class="align-middle">Chat</span></a>
-                              <a class="dropdown-item" href="pages-faqs.html"><i
-                                      class='align-middle bx bx-buoy text-muted font-size-18 me-1'></i> <span
-                                      class="align-middle">Support</span></a>
+                              <a class="dropdown-item" href="contacts-profile.html"><i class='align-middle bx bx-user-circle text-muted font-size-18 me-1'></i> <span class="align-middle">My Account</span></a>
+                              <a class="dropdown-item" href="apps-chat.html"><i class='align-middle bx bx-chat text-muted font-size-18 me-1'></i> <span class="align-middle">Chat</span></a>
+                              <a class="dropdown-item" href="pages-faqs.html"><i class='align-middle bx bx-buoy text-muted font-size-18 me-1'></i> <span class="align-middle">Support</span></a>
                               <div class="dropdown-divider"></div>
-                              <a class="dropdown-item" href="auth-lock-screen.html"><i
-                                      class='align-middle bx bx-lock text-muted font-size-18 me-1'></i> <span
-                                      class="align-middle">Lock screen</span></a>
-                              <a class="dropdown-item" href="auth-logout.html"><i
-                                      class='align-middle bx bx-log-out text-muted font-size-18 me-1'></i> <span
-                                      class="align-middle">Logout</span></a>
+                              <a class="dropdown-item" href="auth-lock-screen.html"><i class='align-middle bx bx-lock text-muted font-size-18 me-1'></i> <span class="align-middle">Lock screen</span></a>
+                              <a class="dropdown-item" href="auth-logout.html"><i class='align-middle bx bx-log-out text-muted font-size-18 me-1'></i> <span class="align-middle">Logout</span></a>
                           </div>
                       </div>
                   </div>
@@ -252,15 +217,13 @@
                           <img src="assets/images/logo-sm.svg" alt="" height="22">
                       </span>
                       <span class="logo-lg">
-                          <img src="assets/images/logo-sm.svg" alt="" height="22"> <span
-                              class="logo-txt">Symox</span>
+                          <img src="assets/images/logo-sm.svg" alt="" height="22"> <span class="logo-txt">Symox</span>
                       </span>
                   </a>
 
                   <a href="index.html" class="logo logo-light">
                       <span class="logo-lg">
-                          <img src="assets/images/logo-sm.svg" alt="" height="22"> <span
-                              class="logo-txt">Symox</span>
+                          <img src="assets/images/logo-sm.svg" alt="" height="22"> <span class="logo-txt">Symox</span>
                       </span>
                       <span class="logo-sm">
                           <img src="assets/images/logo-sm.svg" alt="" height="22">
@@ -445,8 +408,7 @@
                                   <li><a href="extended-sweet-alert.html" data-key="t-sweet-alert">SweetAlert 2</a>
                                   </li>
                                   <li><a href="extended-rating.html" data-key="t-rating">Rating</a></li>
-                                  <li><a href="extended-notifications.html"
-                                          data-key="t-notifications">Notifications</a></li>
+                                  <li><a href="extended-notifications.html" data-key="t-notifications">Notifications</a></li>
                               </ul>
                           </li>
 
@@ -540,3 +502,4 @@
                   <!-- Sidebar -->
               </div>
           </div>
+

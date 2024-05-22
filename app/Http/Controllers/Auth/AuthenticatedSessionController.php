@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
         if ($user->hasAnyRole('admin')) {
 
             return redirect()->intended(route('admin-dashboard'));
-        } else if($user->hasAnyRole('internal')) {
+        } else if ($user->hasAnyRole('internal')) {
 
             //internal users
 
@@ -48,7 +48,7 @@ class AuthenticatedSessionController extends Controller
                 }
 
 
-        }else{
+        } else {
 
             if ($user->hasAnyRole('cip')) {
                 return redirect()->intended(route('cip-external-dashboard'));
@@ -64,7 +64,7 @@ class AuthenticatedSessionController extends Controller
 
         }
 
-       // return redirect()->intended(route('dashboard', absolute: false));
+        // return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
@@ -78,6 +78,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/login');
     }
 }

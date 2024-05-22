@@ -25,16 +25,18 @@
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
                                 </li>
 
                                 <li class="nav-item ">
-                                    <a class="nav-link  dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link  dropdown-toggle arrow-none "
+                                        href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
                                         <span data-key="t-dashboards">Indicators</span>
                                     </a>
@@ -51,14 +53,15 @@
 
 
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                            id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Forms</span>
 
                                         </a>
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                            id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-internal-submissions') }}" id="topnav-utility"
+                                            role="button">
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
@@ -68,8 +71,9 @@
                                 </li>
 
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('cip-internal-reports') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-table'></i>
                                         <span data-key="t-dashboards">Reports</span>
                                     </a>
