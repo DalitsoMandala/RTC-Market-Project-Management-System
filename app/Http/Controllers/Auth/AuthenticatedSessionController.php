@@ -28,7 +28,43 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = auth()->user();
+
+        if ($user->hasAnyRole('admin')) {
+
+            return redirect()->intended(route('admin-dashboard'));
+        } else if($user->hasAnyRole('internal')) {
+
+            //internal users
+
+            if ($user->hasAnyRole('cip')) {
+                return redirect()->intended(route('cip-internal-dashboard'));
+
+            } else
+
+                if ($user->hasAnyRole('desira')) {
+                    return redirect()->intended(route('desira-dashboard'));
+
+                }
+
+
+        }else{
+
+            if ($user->hasAnyRole('cip')) {
+                return redirect()->intended(route('cip-external-dashboard'));
+
+            } else
+
+                if ($user->hasAnyRole('desira')) {
+                    return redirect()->intended(route('desira-external-dashboard'));
+
+                }
+
+
+
+        }
+
+       // return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
