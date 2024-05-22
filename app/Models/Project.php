@@ -9,4 +9,9 @@ class Project extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    public function indicators()
+    {
+        return $this->hasMany(Indicator::class, 'project_id');
+    }
 }

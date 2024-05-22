@@ -2,6 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\Cgiar_Project;
+use App\Models\Indicator;
+use Illuminate\Database\Eloquent\Builder as ModelBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +15,8 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class IndicatorTable extends PowerGridComponent
@@ -35,9 +38,9 @@ final class IndicatorTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
+    public function datasource(): ?ModelBuilder
     {
-        return DB::table('indicators');
+        return Indicator::query()->with('project');
     }
 
     public function fields(): PowerGridFields
@@ -45,8 +48,20 @@ final class IndicatorTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('indicator_no')
-            ->add('indicator_name')
+            ->add('indicator_no_bold', function ($model) {
+
+                return '<b>' . $model->indicator_no . '</b>';
+            })
+
+            ->add('name_link', function ($model) {
+
+                return '<a  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+            })
             ->add('project_id')
+            ->add('project_name', fn($model) => $model->project->name)
+            ->add('cgiar_project', function ($model) {
+                return Cgiar_Project::find($model->project_id)->name ?? null;
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -55,29 +70,17 @@ final class IndicatorTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Indicator no', 'indicator_no')
+
+            Column::make('Indicator #', 'indicator_no_bold')
+                ->sortable()
+                ->searchable(),
+            Column::make('Indicator', 'name_link', 'name')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Indicator name', 'indicator_name')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Project id', 'project_id'),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
-
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
-
+            Column::make('Project name', 'project_name'),
+            Column::make('Cgiar project', 'cgiar_project'),
+            Column::action('Action')
         ];
     }
 
@@ -90,16 +93,16 @@ final class IndicatorTable extends PowerGridComponent
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js('alert(' . $rowId . ')');
     }
 
     public function actions($row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$row->id)
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->class('btn btn-primary')
                 ->dispatch('edit', ['rowId' => $row->id])
         ];
     }
