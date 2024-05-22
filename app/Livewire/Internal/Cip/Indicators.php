@@ -26,7 +26,7 @@ class Indicators extends Component
 
     public function save()
     {
-        $this->dispatch('hideModal');
+        $this->validate();
         try {
 
             Indicator::find($this->rowId)->update([
@@ -34,13 +34,13 @@ class Indicators extends Component
             ]);
 
             $this->alert('success', 'Successfully updated');
-$this->dispatch('refresh');
+            $this->dispatch('refresh');
         } catch (\Throwable $th) {
             $this->alert('danger', 'Something went wrong');
             Log::error($th);
         }
 
-
+        $this->dispatch('hideModal');
         $this->reset();
     }
     public function render()
