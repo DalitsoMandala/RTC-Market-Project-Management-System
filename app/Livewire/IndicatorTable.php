@@ -90,10 +90,10 @@ final class IndicatorTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    #[\Livewire\Attributes\On('refresh')]
+    public function refreshData(): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->refresh();
     }
 
     public function actions($row): array
@@ -103,7 +103,7 @@ final class IndicatorTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal'])
         ];
     }
 
