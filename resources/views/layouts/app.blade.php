@@ -74,18 +74,11 @@
                 <div class="spinner-border text-warning spinner"></div>
             </div>
 
-            @role('super-admin')
-                @include('layouts.navigation')
-            @endrole
 
-            @role('external')
-                @include('layouts.user-navigation')
-            @endrole
+            @include('layouts.navigation')
 
 
-            @role('internal')
-                @include('layouts.user-navigation')
-            @endrole
+
             <!-- Page Content -->
             <div class="main-content">
                 <div class="page-content">

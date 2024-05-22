@@ -24,13 +24,14 @@
                     <div class="collapse navbar-collapse" id="topnav-menu-content">
                         <ul class="navbar-nav">
                             <li class="nav-item ">
-                                <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle arrow-none " href="{{ route('partner-dashboard') }}"
+                                    id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
                                     <i class='bx bx-tachometer'></i>
                                     <span data-key="t-dashboards">Dashboard</span>
                                 </a>
                             </li>
-                            <li class="nav-item dropdown">
+                            <li class="nav-item dropdown d-none">
                                 <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                     role="button">
                                     <i class="bx bx-file"></i>
@@ -47,10 +48,10 @@
                                             <div class="arrow-down"></div>
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="topnav-utility">
-                                            <a href="/" class="dropdown-item" data-key="t-starter-page">Routine
-                                                forms</a>
-                                            <a href="/" class="dropdown-item" data-key="t-maintenance">Baseline
-                                                forms</a>
+                                            <a href="{{ route('admin-routine-forms') }}" class="dropdown-item"
+                                                data-key="t-starter-page">Routine forms</a>
+                                            <a href="{{ route('admin-baseline-forms') }}" class="dropdown-item"
+                                                data-key="t-maintenance">Baseline forms</a>
 
                                         </div>
                                     </div>
@@ -61,24 +62,26 @@
                                             <div class="arrow-down"></div>
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="topnav-auth">
-                                            <a href="/" class="dropdown-item" data-key="t-overveiw">Overview</a>
+                                            <a href="{{ route('admin-indicators') }}" class="dropdown-item"
+                                                data-key="t-overveiw">Overview</a>
 
                                         </div>
                                     </div>
 
                                 </div>
                             </li>
-                            <li class="nav-item d-none ">
-                                <a class="nav-link disabled dropdown-toggle arrow-none " href="#"
+                            <li class="nav-item">
+                                <a class="nav-link dropdown-toggle arrow-none " href="{{ route('partner-indicators') }}"
                                     id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false">
-                                    <i class='bx bx-user'></i>
-                                    <span data-key="t-dashboards">Partners</span>
+                                    <i class='bx bx-trending-up'></i>
+                                    <span data-key="t-dashboards">Indicators</span>
                                 </a>
                             </li>
                             <li class="nav-item ">
-                                <a class="nav-link dropdown-toggle arrow-none " href="/" id="topnav-dashboard"
-                                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle arrow-none " href="{{ route('partner-reports') }}"
+                                    id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
                                     <i class='bx bx-table'></i>
                                     <span data-key="t-dashboards">Reports</span>
                                 </a>
