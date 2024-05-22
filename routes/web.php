@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Livewire\Internal\Cip\Dashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,4 +18,28 @@ Route::get('/dashboard', function () {
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
-require __DIR__.'/auth.php';
+Route::middleware(['auth', 'role:admin'])->group(function () {
+
+});
+
+Route::middleware(['auth', 'role:internal', 'role:desira'])->group(function () {
+
+});
+
+Route::middleware(['auth', 'role:external', 'role:desira'])->group(function () {
+
+});
+
+Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('internal')->prefix('cip')->group(function () {
+    Route::get('/dashboard', [Dashboard::class])->name('cip-internal-dashboard');
+
+
+});
+
+Route::middleware(['auth', 'role:external', 'role:cip'])->prefix('internal')->prefix('cip')->group(function () {
+
+});
+
+
+
+require __DIR__ . '/auth.php';
