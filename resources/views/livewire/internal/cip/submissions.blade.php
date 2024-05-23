@@ -36,7 +36,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -59,6 +59,14 @@
                         <small class="text-muted">You can approve/disapprove submissions here</small>
                         @error('status')
                             <span class="my-1 text-danger">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+
+                        <textarea wire:model='comment' id="" class="form-control"></textarea>
+                        @error('comment')
+                            <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 

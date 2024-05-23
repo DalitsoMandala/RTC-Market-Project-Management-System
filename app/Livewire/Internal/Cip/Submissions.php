@@ -14,6 +14,8 @@ class Submissions extends Component
     use LivewireAlert;
     #[Validate('required')]
     public $status;
+    #[Validate('required')]
+    public $comment;
     public $rowId;
     public function setData($id)
     {
@@ -21,7 +23,7 @@ class Submissions extends Component
         $submission = Submission::find($id);
         $this->rowId = $id;
         $this->status = $submission->status;
-
+        $this->comment = $submission->comments;
     }
 
     public function save()
@@ -33,7 +35,7 @@ class Submissions extends Component
 
             Submission::find($this->rowId)->update([
                 'status' => $this->status,
-
+                'comments' => $this->comment
             ]);
 
             $this->alert('success', 'Successfully updated');

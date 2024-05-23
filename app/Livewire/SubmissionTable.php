@@ -96,7 +96,7 @@ final class SubmissionTable extends PowerGridComponent
             ->add('comments')
             ->add('comments_truncated', function ($model) {
                 $text = $model->comments;
-                $trunc = new TruncateText($text);
+                $trunc = new TruncateText($text, 30);
 
                 return $trunc->truncate();
 
