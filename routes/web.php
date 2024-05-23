@@ -6,6 +6,7 @@ use App\Livewire\Internal\Cip\Forms;
 use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Submissions;
+use App\Livewire\Internal\Cip\SubPeriod;
 use App\Livewire\Internal\Cip\ViewForms;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
@@ -46,6 +47,7 @@ Route::middleware(['auth'])->prefix('cip')->group(function () {
     Route::get('/submissions', Submissions::class)->name('cip-internal-submissions');
     Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
+    Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
 
 });
 

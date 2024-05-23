@@ -34,7 +34,7 @@
                                 </li>
 
                                 <li class="nav-item ">
-                                    <a class="nav-link  dropdown-toggle arrow-none "
+                                    <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
@@ -56,6 +56,12 @@
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Forms</span>
+
+                                        </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-internal-submission-period') }}" id="topnav-utility"
+                                            role="button">
+                                            <span data-key="t-utility">Submission Periods</span>
 
                                         </a>
 
