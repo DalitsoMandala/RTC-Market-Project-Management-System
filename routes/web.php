@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('admin-dashboard');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -25,9 +25,9 @@ Route::get('/dashboard', function () {
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
-// Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
 
-// });
+});
 
 // Route::middleware(['auth', 'role:internal', 'role:desira'])->group(function () {
 
@@ -44,7 +44,7 @@ Route::middleware(['auth'])->prefix('cip')->group(function () {
     Route::get('/forms', Forms::class)->name('cip-internal-forms');
     Route::get('/forms/view/{id}', ViewForms::class)->name('cip-internal-form-view');
     Route::get('/submissions', Submissions::class)->name('cip-internal-submissions');
-    Route::get('/submissions/view/{id}', ViewSubmissions::class)->name('cip-internal-submission-view');
+    Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
 
 });

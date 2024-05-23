@@ -36,7 +36,7 @@ class Indicators extends Component
             $this->alert('success', 'Successfully updated');
             $this->dispatch('refresh');
         } catch (\Throwable $th) {
-            $this->alert('danger', 'Something went wrong');
+            $this->alert('error', 'Something went wrong');
             Log::error($th);
         }
 

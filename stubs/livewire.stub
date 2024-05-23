@@ -28,7 +28,7 @@ $this->resetErrorBag();
             $this->alert('success', 'Successfully updated');
 
         } catch (\Throwable $th) {
-            $this->alert('danger', 'Something went wrong');
+            $this->alert('error', 'Something went wrong');
             Log::error($th);
         }
 $this->reset();
