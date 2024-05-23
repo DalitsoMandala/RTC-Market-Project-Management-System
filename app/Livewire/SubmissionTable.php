@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\TruncateText;
 use App\Models\Form;
 use App\Models\Partner;
 use App\Models\SubmissionPeriod;
@@ -92,6 +93,14 @@ final class SubmissionTable extends PowerGridComponent
 
                 return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
             })
+            ->add('comments')
+            ->add('comments_truncated', function ($model) {
+                $text = $model->comments;
+                $trunc = new TruncateText($text);
+
+                return $trunc->truncate();
+
+            })
             ->add('created_at')
             ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
@@ -116,6 +125,8 @@ final class SubmissionTable extends PowerGridComponent
             Column::make('Submission Period', 'reporting_period')
                 ->sortable()
                 ->searchable(),
+
+            Column::make('Comments', 'comments_truncated'),
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
