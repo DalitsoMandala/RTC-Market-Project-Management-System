@@ -80,7 +80,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-
             Column::action('Action')
 
         ];
