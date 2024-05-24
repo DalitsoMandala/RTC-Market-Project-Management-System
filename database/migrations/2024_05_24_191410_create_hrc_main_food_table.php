@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hrc_rtc_consumptions', function (Blueprint $table) {
+        Schema::create('hrc_main_food', function (Blueprint $table) {
             $table->id();
+            $table->enum('name', ['POTATO', 'SWEET POTATO', 'CASSAVA']);
             $table->foreignId('hrc_id')->constrained('household_rtc_consumption');
-            $table->boolean('total'); // Consumes any RTC product
-            $table->boolean('cassava');
-            $table->boolean('potato');
-            $table->boolean('sweet_potato');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hrc_rtc_consumptions');
+        Schema::dropIfExists('hrc_main_food');
     }
 };

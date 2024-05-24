@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class HrcLocation extends Model
 {
     use HasFactory;
+    protected $table = 'hrc_locations';
+    protected $guarded = [];
 }

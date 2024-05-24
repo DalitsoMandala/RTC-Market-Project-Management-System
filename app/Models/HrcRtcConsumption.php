@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class HrcRtcConsumption extends Model
 {
     use HasFactory;
+    protected $table = 'hrc_rtc_consumptions';
+    protected $guarded = [];
 }
