@@ -9,4 +9,12 @@ class Form extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    protected $casts = [
+        'responsible_people' => 'array',
+    ];
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
 }

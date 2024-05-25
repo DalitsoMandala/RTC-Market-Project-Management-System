@@ -10,4 +10,8 @@ class HrcLocation extends Model
     use HasFactory;
     protected $table = 'hrc_locations';
     protected $guarded = [];
+    public function assessments()
+    {
+        return $this->hasMany(HouseholdRtcConsumption::class, 'location_id');
+    }
 }

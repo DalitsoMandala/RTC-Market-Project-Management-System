@@ -4,12 +4,8 @@ namespace App\Livewire;
 
 use App\Models\Form;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -38,7 +34,7 @@ final class FormTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Form::query();
+        return Form::query()->with('project');
     }
 
     public function fields(): PowerGridFields
@@ -52,6 +48,13 @@ final class FormTable extends PowerGridComponent
             })
             ->add('type')
             ->add('project_id')
+            ->add('project', function ($model) {
+                return $model->project->name;
+            })
+
+            ->add('lead_partner', function ($model) {
+                return '<span class="text-uppercase">' . implode(',', $model->responsible_people) . '</span>';
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -63,6 +66,11 @@ final class FormTable extends PowerGridComponent
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
+            Column::make('Project', 'project')
+                ->sortable(),
+
+            Column::make('Lead partner', 'lead_partner')
+                ->sortable(),
 
             Column::make('Type', 'type')
                 ->sortable()
@@ -82,7 +90,7 @@ final class FormTable extends PowerGridComponent
             // Column::make('Updated at', 'updated_at')
             //     ->sortable()
             //     ->searchable(),
-            Column::action('Action')
+            //  Column::action('Action')
         ];
     }
 
@@ -98,26 +106,26 @@ final class FormTable extends PowerGridComponent
         $this->refresh();
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-form-modal'])
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('<i class="bx bx-pen"></i>')
+    //             ->id()
+    //             ->class('btn btn-primary')
+    //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-form-modal'])
+    //     ];
+    // }
 
     /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+public function actionRules($row): array
+{
+return [
+// Hide button edit for ID 1
+Rule::button('edit')
+->when(fn($row) => $row->id === 1)
+->hide(),
+];
+}
+ */
 }

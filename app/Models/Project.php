@@ -14,4 +14,9 @@ class Project extends Model
     {
         return $this->hasMany(Indicator::class, 'project_id');
     }
+
+    public function forms()
+    {
+        return $this->hasMany(Form::class, 'project_id');
+    }
 }

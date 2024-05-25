@@ -10,4 +10,10 @@ class HouseholdRtcConsumption extends Model
     use HasFactory;
     protected $table = 'household_rtc_consumption';
     protected $guarded = [];
+
+    public function location()
+    {
+        return $this->belongsTo(HrcLocation::class, 'location_id');
+    }
+
 }
