@@ -29,6 +29,8 @@ return new class extends Migration
             $table->integer('rtc_consumers_sw_potato');
             $table->integer('rtc_consumers_cassava');
             $table->tinyInteger('rtc_consumption_frequency')->unsigned(); // Limit to positive values
+            $table->string('uuid');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }

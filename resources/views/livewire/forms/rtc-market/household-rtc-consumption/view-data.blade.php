@@ -47,73 +47,76 @@
                                     <hr>
                                 </div>
                                 <div id="table-form">
-                                    <div class=" col-12 col-md-8">
+                                    <div class="row">
+                                        <div class=" col-12 col-md-8">
 
-                                        <div class="mb-3">
-                                            <label for="" class="form-label">ENTERPRISE</label>
-                                            <x-text-input wire:model='enterprise' />
-                                            @error('enterprise')
-                                                <x-error>{{ $message }}</x-error>
-                                            @enderror
+                                            <div class="mb-3">
+                                                <label for="" class="form-label">ENTERPRISE</label>
+                                                <x-text-input wire:model='enterprise' />
+                                                @error('enterprise')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="" class="form-label">DISTRICT</label>
+                                                <select class="form-select" wire:model='district'>
+                                                    <option selected>Select a district</option>
+                                                    <option>Balaka</option>
+                                                    <option>Blantyre</option>
+                                                    <option>Chikwawa</option>
+                                                    <option>Chiradzulu</option>
+                                                    <option>Chitipa</option>
+                                                    <option>Dedza</option>
+                                                    <option>Dowa</option>
+                                                    <option>Karonga</option>
+                                                    <option>Kasungu</option>
+                                                    <option>Lilongwe</option>
+                                                    <option>Machinga</option>
+                                                    <option>Mangochi</option>
+                                                    <option>Mchinji</option>
+                                                    <option>Mulanje</option>
+                                                    <option>Mwanza</option>
+                                                    <option>Mzimba</option>
+                                                    <option>Neno</option>
+                                                    <option>Nkhata Bay</option>
+                                                    <option>Nkhotakota</option>
+                                                    <option>Nsanje</option>
+                                                    <option>Ntcheu</option>
+                                                    <option>Ntchisi</option>
+                                                    <option>Phalombe</option>
+                                                    <option>Rumphi</option>
+                                                    <option>Salima</option>
+                                                    <option>Thyolo</option>
+                                                    <option>Zomba</option>
+                                                </select>
+                                                @error('district')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="" class="form-label">EPA</label>
+                                                <x-text-input wire:model='epa' />
+                                                @error('epa')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="" class="form-label">SECTION</label>
+                                                <x-text-input wire:model='section' />
+                                                @error('section')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="" class="form-label">DISTRICT</label>
-                                            <select class="form-select" wire:model='district'>
-                                                <option selected>Select a district</option>
-                                                <option>Balaka</option>
-                                                <option>Blantyre</option>
-                                                <option>Chikwawa</option>
-                                                <option>Chiradzulu</option>
-                                                <option>Chitipa</option>
-                                                <option>Dedza</option>
-                                                <option>Dowa</option>
-                                                <option>Karonga</option>
-                                                <option>Kasungu</option>
-                                                <option>Lilongwe</option>
-                                                <option>Machinga</option>
-                                                <option>Mangochi</option>
-                                                <option>Mchinji</option>
-                                                <option>Mulanje</option>
-                                                <option>Mwanza</option>
-                                                <option>Mzimba</option>
-                                                <option>Neno</option>
-                                                <option>Nkhata Bay</option>
-                                                <option>Nkhotakota</option>
-                                                <option>Nsanje</option>
-                                                <option>Ntcheu</option>
-                                                <option>Ntchisi</option>
-                                                <option>Phalombe</option>
-                                                <option>Rumphi</option>
-                                                <option>Salima</option>
-                                                <option>Thyolo</option>
-                                                <option>Zomba</option>
-                                            </select>
-                                            @error('district')
-                                                <x-error>{{ $message }}</x-error>
-                                            @enderror
+                                        <div class="col-12 col-md-4">
+                                            <x-filepond-single wire:model='upload' />
                                         </div>
-
-                                        <div class="mb-3">
-                                            <label for="" class="form-label">EPA</label>
-                                            <x-text-input wire:model='epa' />
-                                            @error('epa')
-                                                <x-error>{{ $message }}</x-error>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="" class="form-label">SECTION</label>
-                                            <x-text-input wire:model='section' />
-                                            @error('section')
-                                                <x-error>{{ $message }}</x-error>
-                                            @enderror
-                                        </div>
-
-
                                     </div>
-                                    <div class="col-12 col-md-4">
 
-                                    </div>
                                 </div>
                             </form>
 

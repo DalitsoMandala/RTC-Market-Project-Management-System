@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
 use App\Models\HrcMainFood;
+use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
@@ -139,6 +140,9 @@ class AddData extends Component
         $this->validate();
 
         try {
+
+            $uuid = Str::random() . '_' . auth()->user()->id;
+            $userId = auth()->user()->id;
             $location = HrcLocation::create([
                 'enterprise' => $this->enterprise,
                 'district' => $this->district,
@@ -166,7 +170,8 @@ class AddData extends Component
                     'rtc_consumers_sw_potato' => $input->rtc_consumers_sw_potato,
                     'rtc_consumers_cassava' => $input->rtc_consumers_cassava,
                     'rtc_consumption_frequency' => $input->rtc_consumption_frequency,
-
+                    'user_id' => $userId,
+                    'uuid' => $uuid,
                 ]);
 
                 foreach ($input->main_food as $mainfood) {
