@@ -35,7 +35,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return HouseholdRtcConsumption::query()->with('location');
+
+        return HouseholdRtcConsumption::query()->with(['location', 'mainFoods']);
     }
 
     public function fields(): PowerGridFields
@@ -66,9 +67,33 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('household_size')
             ->add('under_5_in_household')
             ->add('rtc_consumers')
-            ->add('main_food_potato')
-            ->add('main_food_sw_potato')
-            ->add('main_food_cassava')
+            ->add('rtc_main_food_potato', function ($model) {
+                $data = $model->mainFoods->where('name', 'POTATO')->first();
+                if ($data) {
+                    return 'Yes';
+                } else {
+                    return '';
+                }
+
+            })
+            ->add('rtc_main_food_sw_potato', function ($model) {
+                $data = $model->mainFoods->where('name', 'SWEET POTATO')->first();
+                if ($data) {
+                    return 'Yes';
+                } else {
+                    return '';
+                }
+
+            })
+            ->add('rtc_main_food_cassava', function ($model) {
+                $data = $model->mainFoods->where('name', 'CASSAVA')->first();
+                if ($data) {
+                    return 'Yes';
+                } else {
+                    return '';
+                }
+
+            })
             ->add('rtc_consumption_frequency')
             ->add('created_at')
             ->add('updated_at');
@@ -129,14 +154,13 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Rtc consumption frequency', 'rtc_consumption_frequency')
                 ->sortable()
                 ->searchable(),
-
-            Column::make('Rtc consumers', 'rtc_consumers')
+            Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food_cassava')
                 ->sortable()
                 ->searchable(),
-            Column::make('Rtc consumers', 'rtc_consumers')
+            Column::make('RTC MAIN FOOD/POTATO', 'rtc_main_food_potato')
                 ->sortable()
                 ->searchable(),
-            Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food')
+            Column::make('RTC MAIN FOOD/SWEET POTATO', 'rtc_main_food_sw_potato')
                 ->sortable()
                 ->searchable(),
 

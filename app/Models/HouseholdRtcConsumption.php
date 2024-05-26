@@ -16,4 +16,9 @@ class HouseholdRtcConsumption extends Model
         return $this->belongsTo(HrcLocation::class, 'location_id');
     }
 
+    public function mainFoods()
+    {
+        return $this->hasMany(HrcMainFood::class, 'hrc_id');
+    }
+
 }
