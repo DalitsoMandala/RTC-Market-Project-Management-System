@@ -40,9 +40,10 @@
                                 consumption template & fill some small details in the form below after uploading your
                                 data.</p>
 
-                            <form>
-                                <div>
-                                    <a class="btn btn-soft-primary" href="#" data-toggle="modal" role="button">
+                            <form >
+                                <div x-data>
+                                    <a class="btn btn-soft-primary" href="#" data-toggle="modal" role="button"
+                                        @click="$wire.downloadTemplate()">
                                         Download template <i class="bx bx-download"></i> </a>
                                     <hr>
                                 </div>
@@ -61,33 +62,33 @@
                                                 <label for="" class="form-label">DISTRICT</label>
                                                 <select class="form-select" wire:model='district'>
                                                     <option selected>Select a district</option>
-                                                    <option>Balaka</option>
-                                                    <option>Blantyre</option>
-                                                    <option>Chikwawa</option>
-                                                    <option>Chiradzulu</option>
-                                                    <option>Chitipa</option>
-                                                    <option>Dedza</option>
-                                                    <option>Dowa</option>
-                                                    <option>Karonga</option>
-                                                    <option>Kasungu</option>
-                                                    <option>Lilongwe</option>
-                                                    <option>Machinga</option>
-                                                    <option>Mangochi</option>
-                                                    <option>Mchinji</option>
-                                                    <option>Mulanje</option>
-                                                    <option>Mwanza</option>
-                                                    <option>Mzimba</option>
-                                                    <option>Neno</option>
-                                                    <option>Nkhata Bay</option>
-                                                    <option>Nkhotakota</option>
-                                                    <option>Nsanje</option>
-                                                    <option>Ntcheu</option>
-                                                    <option>Ntchisi</option>
-                                                    <option>Phalombe</option>
-                                                    <option>Rumphi</option>
-                                                    <option>Salima</option>
-                                                    <option>Thyolo</option>
-                                                    <option>Zomba</option>
+                                                    <option>BALAKA</option>
+                                                    <option>BLANTYRE</option>
+                                                    <option>CHIKWAWA</option>
+                                                    <option>CHIRADZULU</option>
+                                                    <option>CHITIPA</option>
+                                                    <option>DEDZA</option>
+                                                    <option>DOWA</option>
+                                                    <option>KARONGA</option>
+                                                    <option>KASUNGU</option>
+                                                    <option>LILONGWE</option>
+                                                    <option>MACHINGA</option>
+                                                    <option>MANGOCHI</option>
+                                                    <option>MCHINJI</option>
+                                                    <option>MULANJE</option>
+                                                    <option>MWANZA</option>
+                                                    <option>MZIMBA</option>
+                                                    <option>NENO</option>
+                                                    <option>NKHATA BAY</option>
+                                                    <option>NKHOTAKOTA</option>
+                                                    <option>NSANJE</option>
+                                                    <option>NTCHEU</option>
+                                                    <option>NTCHISI</option>
+                                                    <option>PHALOMBE</option>
+                                                    <option>RUMPHI</option>
+                                                    <option>SALIMA</option>
+                                                    <option>THYOLO</option>
+                                                    <option>ZOMBA</option>
                                                 </select>
                                                 @error('district')
                                                     <x-error>{{ $message }}</x-error>
@@ -114,6 +115,13 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <x-filepond-single wire:model='upload' />
+
+                                            <div>
+                                                <button type="submit" class="btn btn-primary">
+                                                    Submit data
+                                                </button>
+
+                                            </div>
                                         </div>
                                     </div>
 

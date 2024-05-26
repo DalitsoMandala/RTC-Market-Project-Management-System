@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TestingController;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 use App\Livewire\Internal\Cip\Dashboard;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+Route::get('/export', [TestingController::class,'index']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');

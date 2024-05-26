@@ -2,38 +2,39 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
+use App\Exports\rtcmarket\HrcExport;
+use Carbon\Carbon;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
+
 class ViewData extends Component
 {
-        use LivewireAlert;
-   #[Validate('required')]
-public $variable;
-public $rowId;
+    use LivewireAlert;
+    #[Validate('required')]
+    public $variable;
+    public $rowId;
 
-    public function setData($id){
-$this->resetErrorBag();
+    public function setData($id)
+    {
+        $this->resetErrorBag();
 
     }
 
- public function save(){
+    public function save()
+    {
 
-$this->resetErrorBag();
-    try {
-
-
-
-            $this->alert('success', 'Successfully updated');
-
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
-        }
-$this->reset();
+        $this->reset();
     }
 
+    public function downloadTemplate()
+    {
+        $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
+
+        return Excel::download(new HrcExport, 'household_rtc_consumption_template_' . $time . '.xlsx');
+
+    }
 
     public function render()
     {
