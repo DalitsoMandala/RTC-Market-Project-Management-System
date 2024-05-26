@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('location_id')->constrained('hrc_locations'); // Link to locations table
             $table->date('date_of_assessment');
-            $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'NUTRITION INTERVENTION', 'OTHER']);
+            $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']);
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
             $table->string('producer_organisation')->nullable(); // Allow null for producer organization
             $table->string('actor_name');
@@ -24,7 +24,10 @@ return new class extends Migration
             $table->string('phone_number')->nullable(); // Allow null for phone number
             $table->integer('household_size');
             $table->integer('under_5_in_household');
-            $table->integer('rtc_consumers'); // Renamed for clarity
+            $table->integer('rtc_consumers');
+            $table->integer('rtc_consumers_potato');
+            $table->integer('rtc_consumers_sw_potato');
+            $table->integer('rtc_consumers_cassava');
             $table->tinyInteger('rtc_consumption_frequency')->unsigned(); // Limit to positive values
             $table->timestamps();
         });

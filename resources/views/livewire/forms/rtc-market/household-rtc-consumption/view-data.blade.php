@@ -10,7 +10,8 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Page Name</li>
+                            <li class="breadcrumb-item"><a href="../../forms">Forms</a></li>
+                            <li class="breadcrumb-item active">View</li>
                         </ol>
                     </div>
 
@@ -20,13 +21,25 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <a class="btn btn-primary" href="add" role="button">Add
+                            Data +</a>
+                        <a class="btn btn-primary" href="add" role="button">
+                            Import/Export </a>
+
+                    </div>
+                    <div class="card-body">
+                        <livewire:household-rtc-consumption-table />
+                    </div>
+                </div>
 
             </div>
         </div>
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();

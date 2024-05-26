@@ -66,6 +66,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('household_size')
             ->add('under_5_in_household')
             ->add('rtc_consumers')
+            ->add('main_food_potato')
+            ->add('main_food_sw_potato')
+            ->add('main_food_cassava')
             ->add('rtc_consumption_frequency')
             ->add('created_at')
             ->add('updated_at');
@@ -124,6 +127,16 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Rtc consumption frequency', 'rtc_consumption_frequency')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Rtc consumers', 'rtc_consumers')
+                ->sortable()
+                ->searchable(),
+            Column::make('Rtc consumers', 'rtc_consumers')
+                ->sortable()
+                ->searchable(),
+            Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food')
                 ->sortable()
                 ->searchable(),
 

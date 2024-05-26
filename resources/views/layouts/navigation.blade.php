@@ -8,7 +8,7 @@
                 <a href="index.html" class="logo">
 
                     <span class="logo-xl">
-                        <x-application-logo width="22" /> <span class="logo-txt">{{ config('app.name') }}</span>
+                        <x-application-logo width="22" /> <span class="logo-txt">CDMS</span>
                     </span>
                 </a>
             </div>

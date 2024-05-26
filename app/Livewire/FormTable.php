@@ -43,8 +43,19 @@ final class FormTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('name_formatted', function ($model) {
+                switch ($model->name) {
+                    case 'HOUSEHOLD CONSUMPTION FORM':
+                        return '<a  href="forms/household-rtc-consumption/view" >' . $model->name . '</a>';
 
-                return '<a  href="' . route('cip-internal-form-view', $model->id) . '" >' . $model->name . '</a>';
+                        break;
+
+                    default:
+                        # code...
+                        return '<a  href="#" >' . $model->name . '</a>';
+
+                        break;
+                }
+
             })
             ->add('type')
             ->add('project_id')

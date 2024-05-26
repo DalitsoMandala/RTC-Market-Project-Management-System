@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class HrcMainFood extends Model
 {
     use HasFactory;
+    protected $guarded = ['id'];
+    protected $table = 'hrc_main_food';
 }
