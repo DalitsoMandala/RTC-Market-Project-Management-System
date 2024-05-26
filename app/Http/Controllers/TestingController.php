@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\rtcmarket\HrcExport;
+use App\Exports\rtcmarket\HrcExportTest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -18,7 +18,7 @@ class TestingController extends Controller
 
         $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new HrcExport, 'household_rtc_consumption_template_' . $time . '.xlsx');
+        return Excel::download(new HrcExportTest, 'household_rtc_consumption_template_' . $time . '.xlsx');
     }
 
     /**

@@ -24,9 +24,10 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
         return [
             Exportable::make('export')
+
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -67,6 +68,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('household_size')
             ->add('under_5_in_household')
             ->add('rtc_consumers')
+            ->add('rtc_consumers_potato')
+            ->add('rtc_consumers_sw_potato')
+            ->add('rtc_consumers_cassava')
             ->add('rtc_main_food_potato', function ($model) {
                 $data = $model->mainFoods->where('name', 'POTATO')->first();
                 if ($data) {
@@ -150,6 +154,15 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Rtc consumers', 'rtc_consumers')
                 ->sortable()
                 ->searchable(),
+            Column::make('Rtc consumers/Potato', 'rtc_consumers_potato')
+                ->sortable()
+                ->searchable(),
+            Column::make('Rtc consumers/Sweet Potato', 'rtc_consumers_sw_potato')
+                ->sortable()
+                ->searchable(),
+            Column::make('Rtc consumers/Cassava', 'rtc_consumers_cassava')
+                ->sortable()
+                ->searchable(),
 
             Column::make('Rtc consumption frequency', 'rtc_consumption_frequency')
                 ->sortable()
@@ -178,10 +191,10 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    #[\Livewire\Attributes\On('refresh')]
+    public function refreshData(): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->refresh();
     }
 
     // public function actions($row): array

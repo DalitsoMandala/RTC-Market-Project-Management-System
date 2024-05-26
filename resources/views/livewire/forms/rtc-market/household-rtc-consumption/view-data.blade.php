@@ -40,12 +40,22 @@
                                 consumption template & fill some small details in the form below after uploading your
                                 data.</p>
 
-                            <form >
+                            <form wire:submit='submitUpload'>
                                 <div x-data>
                                     <a class="btn btn-soft-primary" href="#" data-toggle="modal" role="button"
                                         @click="$wire.downloadTemplate()">
                                         Download template <i class="bx bx-download"></i> </a>
                                     <hr>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        @if (session()->has('error'))
+                                            <x-error-alert>{{ session()->get('error') }}</x-error-alert>
+                                        @endif
+                                        @if (session()->has('success'))
+                                            <x-success-alert>{{ session()->get('success') }}</x-success-alert>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div id="table-form">
                                     <div class="row">
@@ -114,10 +124,14 @@
 
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            <x-filepond-single wire:model='upload' />
-
-                                            <div>
-                                                <button type="submit" class="btn btn-primary">
+                                            <x-filepond-single instantUpload="true" wire:model='upload' />
+                                            @error('upload')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                            <div class="mt-2" x-data="{ disableButton: false }">
+                                                <button type="submit" @uploading-files.window="disableButton = true"
+                                                    @finished-uploading.window="disableButton = false"
+                                                    :disabled="disableButton" class="btn btn-primary">
                                                     Submit data
                                                 </button>
 
@@ -131,7 +145,7 @@
                             <small></small>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="#datatable">
                         <livewire:household-rtc-consumption-table />
                     </div>
                 </div>

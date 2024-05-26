@@ -18,16 +18,16 @@ return new class extends Migration
             $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']);
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
             $table->string('producer_organisation')->nullable(); // Allow null for producer organization
-            $table->string('actor_name');
-            $table->enum('age_group', ['YOUTH', 'NOT YOUTH']);
-            $table->enum('sex', ['MALE', 'FEMALE']);
+            $table->string('actor_name')->nullable();
+            $table->enum('age_group', ['YOUTH', 'NOT YOUTH'])->nullable();
+            $table->enum('sex', ['MALE', 'FEMALE'])->nullable();
             $table->string('phone_number')->nullable(); // Allow null for phone number
-            $table->integer('household_size');
-            $table->integer('under_5_in_household');
-            $table->integer('rtc_consumers');
-            $table->integer('rtc_consumers_potato');
-            $table->integer('rtc_consumers_sw_potato');
-            $table->integer('rtc_consumers_cassava');
+            $table->integer('household_size')->nullable();
+            $table->integer('under_5_in_household')->nullable();
+            $table->integer('rtc_consumers')->nullable();
+            $table->integer('rtc_consumers_potato')->nullable();
+            $table->integer('rtc_consumers_sw_potato')->nullable();
+            $table->integer('rtc_consumers_cassava')->nullable();
             $table->tinyInteger('rtc_consumption_frequency')->unsigned(); // Limit to positive values
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users');

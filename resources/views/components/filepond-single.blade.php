@@ -8,29 +8,33 @@ pond = FilePond.create($refs.input, {
 
         },
         revert: (filename, load) => {
-            //  @this.removeUpload('uploadedFile', filename, load)
+            @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load)
 
 
         },
     },
     acceptedFileTypes: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-    labelFileTypeNotAllowed: 'Only Excel files (.xls, .xlsx) are allowed.',
+    labelFileTypeNotAllowed: 'Only Excel files  are allowed.',
+    fileValidateTypeLabelExpectedTypes: 'Expects (.xlsx)',
+    labelInvalidField: 'Invalid file',
     credits: false,
     maxFileSize: '5MB',
-    allowRevert: false,
+    allowRevert: true,
     //  instantUpload: false,
-    allowProcess: false,
-    allowRemove: false,
+    forceRevert: true,
+    allowProcess: true,
+    allowRemove: true,
     onerror: (file, error) => {
         $wire.dispatch('remove-errors');
-    }
+    },
+    instantUpload: {{ $attributes['instantUpload'] }}
 });
 
 $wire.on('removeUploadedFile', function() {
 
     myTimeout = setTimeout(() => {
         pond.removeFiles({ revert: true });
-    }, 1000);
+    }, 5000);
 
 
 });
@@ -41,13 +45,12 @@ pond.on('addfile', (error, file) => {
     $wire.dispatch('uploading-files');
 });
 
-pond.on('processfile', () => {
-    // Check if all files have been uploaded
-    if (pond.getFiles().length === 0) {
-        // Re-enable the ability to interact with files
-        pond.setOptions({ allowProcess: true });
 
-    }
+
+
+pond.on('processfiles', () => {
+    $wire.dispatch('finished-uploading');
+
 });">
 
 

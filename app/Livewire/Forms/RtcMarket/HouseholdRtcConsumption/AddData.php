@@ -174,6 +174,7 @@ class AddData extends Component
                     'uuid' => $uuid,
                 ]);
 
+                // for main food lunch,dinner,breakfast
                 foreach ($input->main_food as $mainfood) {
                     HrcMainFood::create([
                         'name' => $mainfood,
@@ -195,6 +196,7 @@ class AddData extends Component
 
             $this->alert('success', 'successfully submitted!');
         } catch (\Throwable $th) {
+            dd($th);
             $this->alert('error', 'something went wrong!', [
                 'toast' => false,
             ]);

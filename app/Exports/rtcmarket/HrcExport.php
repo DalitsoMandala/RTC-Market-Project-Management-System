@@ -30,17 +30,20 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
             'HOUSEHOLD SIZE',
             'UNDER 5 IN HOUSEHOLD',
             'RTC CONSUMERS',
+            'RTC CONSUMERS/POTATO',
+            'RTC CONSUMERS/SWEET POTATO',
+            'RTC CONSUMERS/CASSAVA',
             'RTC CONSUMPTION FREQUENCY',
             'RTC MAIN FOOD/CASSAVA',
             'RTC MAIN FOOD/POTATO',
             'RTC MAIN FOOD/SWEET POTATO',
-            'SUBMISSION DATE',
+
         ];
 
     }
 
     public function title(): string
     {
-        return 'Household RTC Consumption Template';
+        return 'HRC_Sheet';
     }
 }
