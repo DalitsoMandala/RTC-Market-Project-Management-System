@@ -20,7 +20,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card bg-warning">
+                <div class="card bg-info">
                     <div class="card-body">
                         <div class="py-3 text-center">
                             <ul class="bg-bubbles ps-0">
@@ -44,7 +44,7 @@
                                     experience. We're thrilled to have you on board!"</p>
 
                                 <div class="pt-2 mt-4 mb-2">
-                                    <a href="#" class="btn btn-success">View Profile <i
+                                    <a href="#" class="btn btn-primary">View Profile <i
                                             class="mdi mdi-arrow-right ms-1"></i></a>
                                 </div>
                             </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\rtc_market\indicators\A1;
 use App\Http\Controllers\TestingController;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
@@ -17,7 +18,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/export', [TestingController::class,'index']);
+Route::get('/a1', function () {
+ 
+});
+
+Route::get('/export', [TestingController::class, 'index']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');

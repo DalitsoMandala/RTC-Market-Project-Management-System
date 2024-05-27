@@ -41,16 +41,16 @@ class UserSeeder extends Seeder
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
-            'name' => 'user_staff',
-            'email' => 'user_staff@example.com',
+            'name' => 'cip',
+            'email' => 'cip@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999'
         ])->assignRole(['internal', 'cip', 'staff']);
 
 
         User::create([
-            'name' => 'user_partner',
-            'email' => 'user_partner@example.com',
+            'name' => 'partner',
+            'email' => 'partner@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999'
         ])->assignRole(['external', 'cip', 'staff']);

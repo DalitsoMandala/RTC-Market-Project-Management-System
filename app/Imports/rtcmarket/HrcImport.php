@@ -68,6 +68,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
 // Process the rows if headings are valid
         try {
+            $uuid = Str::random() . '_' . $this->userId;
             foreach ($collection as $row) {
                 $hrc = HouseholdRtcConsumption::create([
                     'location_id' => $this->location,
@@ -87,7 +88,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
                     'rtc_consumers_cassava' => $row['RTC CONSUMERS/CASSAVA'],
                     'rtc_consumption_frequency' => $row['RTC CONSUMPTION FREQUENCY'],
                     'user_id' => $this->userId,
-                    'uuid' => Str::random() . '_' . $this->userId,
+                    'uuid' => $uuid,
                 ]);
                 if ($row['RTC MAIN FOOD/CASSAVA'] == 'Yes') {
                     HrcMainFood::create([
