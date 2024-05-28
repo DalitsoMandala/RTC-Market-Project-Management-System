@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -72,6 +73,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
                 return '<span class="badge ' . $open . ' "> ' . $is_open . '</span>';
             })
+            ->add('is_expired')
+            ->add('is_expired_toggle', function ($model) {
+                $open = $model->is_expired === 1 ? 'bg-danger' : 'bg-secondary';
+                $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
+
+                return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -89,6 +97,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Status', 'is_open_toggle')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Cancelled/Expired', 'is_expired_toggle')
                 ->sortable()
                 ->searchable(),
 
@@ -122,15 +134,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
         ];
     }
 
-    /*
-public function actionRules($row): array
-{
-return [
+    public function actionRules($row): array
+    {
+        return [
 // Hide button edit for ID 1
-Rule::button('edit')
-->when(fn($row) => $row->id === 1)
-->hide(),
-];
-}
- */
+            Rule::button('edit')
+                ->when(fn($row) => $row->is_expired === 1)
+                ->disable(),
+        ];
+    }
+
 }

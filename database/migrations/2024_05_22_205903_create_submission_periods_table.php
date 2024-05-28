@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -16,6 +17,7 @@ return new class extends Migration {
             $table->dateTime('date_established')->nullable();
             $table->dateTime('date_ending')->nullable();
             $table->boolean('is_open')->default(false);
+            $table->boolean('is_expired')->nullable();
             $table->timestamps();
         });
     }

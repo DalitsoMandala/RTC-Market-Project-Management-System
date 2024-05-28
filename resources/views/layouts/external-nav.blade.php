@@ -25,9 +25,9 @@
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-dashboard') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
@@ -88,52 +88,6 @@
                         </div>
                     </nav>
                 @endhasallroles
-                @hasallroles('external')
-                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
-
-                        <div class="collapse navbar-collapse" id="topnav-menu-content">
-                            <ul class="navbar-nav">
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-dashboard') }}"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('external-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="/external/forms"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-book-open'></i>
-                                        <span data-key="t-dashboards">Forms</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-table'></i>
-                                        <span data-key="t-dashboards">Reports</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                @endhasallroles
-
-
             </div>
         </div>
 

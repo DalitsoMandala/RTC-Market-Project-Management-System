@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\TestingController;
-use App\Livewire\External\Cip\Dashboard as ExternalDashboard;
+use App\Livewire\External\Dashboard as ExternalDashboard;
+use App\Livewire\External\ViewIndicator;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 use App\Livewire\Internal\Cip\Dashboard;
@@ -64,6 +65,12 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
 
 Route::middleware(['auth', 'role:external'])->prefix('external')->group(function () {
     Route::get('/dashboard', ExternalDashboard::class)->name('external-dashboard');
+    Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');
+    Route::get('/indicators/view/{id}', ViewIndicator::class)->name('external-indicator-view');
+    Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
+
+    Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
+    Route::get('/forms/household-rtc-consumption/view', HRCViewData::class);
 
 });
 

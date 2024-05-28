@@ -4,14 +4,12 @@ namespace App\Livewire;
 
 use App\Models\Cgiar_Project;
 use App\Models\Indicator;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as ModelBuilder;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -22,7 +20,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class IndicatorTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $userId;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -40,7 +38,17 @@ final class IndicatorTable extends PowerGridComponent
 
     public function datasource(): ?ModelBuilder
     {
-        return Indicator::query()->with('project');
+        $user = User::find($this->userId);
+        if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
+            return Indicator::query()->with(['project']);
+
+        } else {
+            return Indicator::query()->with(['project', 'responsiblePeople'])->whereHas('responsiblePeople', function ($query) {
+                $query->where('user_id', $this->userId);
+            });
+
+        }
+
     }
 
     public function fields(): PowerGridFields
@@ -54,8 +62,16 @@ final class IndicatorTable extends PowerGridComponent
             })
 
             ->add('name_link', function ($model) {
+                $user = User::find($this->userId);
+                if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
 
-                return '<a  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+
+                } else {
+                    return '<a  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+
+                }
+
             })
             ->add('project_id')
             ->add('project_name', fn($model) => $model->project->name)
@@ -80,7 +96,7 @@ final class IndicatorTable extends PowerGridComponent
 
             Column::make('Project name', 'project_name'),
             Column::make('Cgiar project', 'cgiar_project'),
-            Column::action('Action')
+            Column::action('Action'),
         ];
     }
 
@@ -103,19 +119,24 @@ final class IndicatorTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal'])
+                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal']),
         ];
     }
 
-    /*
     public function actionRules($row): array
     {
-       return [
-            // Hide button edit for ID 1
+        return [
+
             Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+                ->when(function ($row) {
+                    $user = User::find($this->userId);
+
+                    if ($user->hasAnyRole('external')) {
+                        return true;
+                    }
+                })
+                ->disable(),
         ];
     }
-    */
+
 }

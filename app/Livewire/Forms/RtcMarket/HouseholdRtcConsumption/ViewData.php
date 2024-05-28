@@ -5,8 +5,11 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Exports\rtcmarket\HrcExport;
 use App\Imports\rtcmarket\HrcImport;
 use App\Livewire\HouseholdRtcConsumptionTable;
+use App\Models\Form;
 use App\Models\HrcLocation;
+use App\Models\Submission;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -29,12 +32,17 @@ class ViewData extends Component
     public $enterprise;
 
     #[Validate('required')]
-    public $upload;
+    public $upload, $period;
 
-    public function setData($id)
+    public function mount()
     {
-        $this->resetErrorBag();
-
+        $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+        $period = $form->submissionPeriods->where('is_open', true)->first();
+        if ($period) {
+            $this->period = $period->id;
+        } else {
+            $this->period = null;
+        }
     }
 
     public function submitUpload()
@@ -55,6 +63,33 @@ class ViewData extends Component
             if ($this->upload) {
 
                 $import = Excel::import(new HrcImport($location->id, $userId), $this->upload);
+
+                $uuid = session()->get('uuid');
+                $name = 'hrc_' . time() . $uuid . '.' . $this->upload->getClientOriginalExtension();
+                $this->upload->storeAs(path: 'imports', name: $name);
+                $currentUser = Auth::user();
+                $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+
+                if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+                    Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $form->id,
+                        'user_id' => $currentUser->id,
+                        'status' => 'approved',
+
+                    ]);
+
+                } else {
+
+                    Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $form->id,
+                        'period_id' => $this->period,
+                        'user_id' => $currentUser->id,
+
+                    ]);
+
+                }
 
                 $this->reset();
                 $this->dispatch('removeUploadedFile');

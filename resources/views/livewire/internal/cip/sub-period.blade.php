@@ -27,7 +27,7 @@
                             top: 0,
                             behavior: 'smooth'
                         });
-                    
+
                     })">
                         <button class="btn btn-primary" @click="is_open = !is_open">Add Submission Period+</button>
 
@@ -79,6 +79,20 @@
 
 
                                     </div>
+
+                                    <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
+                                        x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">
+                                        <input type="checkbox" x-model="expired" class="form-check-input"
+                                            id="customSwitchsizelg">
+                                        <label class="form-check-label" for="customSwitchsizelg">Cancel/Set to Expire
+                                        </label>
+                                        <br>
+                                        <small class="text-danger fs-6 ">Warning: This will make the submission
+                                            period
+                                            inaccessible for updates</small>
+
+                                    </div>
+
                                     <button class="btn btn-primary" type="submit" wire:loading.attr='disabled'>
                                         Submit
                                     </button>
@@ -97,7 +111,7 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })">

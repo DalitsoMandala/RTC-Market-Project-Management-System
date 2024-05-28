@@ -17,13 +17,14 @@ class SubPeriod extends Component
     public $rowId;
     public $forms;
 
-    public $status = false;
+    public $status = true;
     #[Validate('required')]
     public $start_period;
     #[Validate('required')]
     public $end_period;
     #[Validate('required')]
     public $Selected;
+    public $expired;
     public function setData($id)
     {
         $this->resetErrorBag();
@@ -38,17 +39,19 @@ class SubPeriod extends Component
         try {
 
             if ($this->rowId) {
+
                 SubmissionPeriod::find($this->rowId)->update([
                     'date_established' => $this->start_period,
                     'date_ending' => $this->end_period,
-                    'is_open' => $this->status,
+                    'is_open' => $this->expired === true ? false : $this->status,
                     'form_id' => $this->Selected,
+                    'is_expired' => $this->expired,
                 ]);
                 session()->flash('success', 'Updated Successfully');
 
             } else {
 
-                $find = SubmissionPeriod::where('form_id', $this->Selected)->first();
+                $find = SubmissionPeriod::where('form_id', $this->Selected)->where('is_open', true)->first();
 
                 if ($find) {
 

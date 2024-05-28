@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\External\Cip;
+namespace App\Livewire\External;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-class Dashboard extends Component
+class Indicators extends Component
 {
         use LivewireAlert;
    #[Validate('required')]
@@ -37,6 +37,6 @@ $this->reset();
 
     public function render()
     {
-        return view('livewire.external.cip.dashboard');
+        return view('livewire.external.indicators');
     }
 }
