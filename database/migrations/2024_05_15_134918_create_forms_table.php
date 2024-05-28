@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('type');
-            $table->json('responsible_people');
             $table->foreignId('project_id')->constrained('projects', 'id');
             $table->timestamps();
         });

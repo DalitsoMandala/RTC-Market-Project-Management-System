@@ -7,14 +7,12 @@ use App\Models\Form;
 use App\Models\Partner;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
-use Auth;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -90,8 +88,10 @@ final class SubmissionTable extends PowerGridComponent
             ->add('reporting_period', function ($model) {
 
                 $period = SubmissionPeriod::find($model->period_id);
+                if ($period) {
+                    return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
+                }
 
-                return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
             })
             ->add('comments')
             ->add('comments_truncated', function ($model) {
@@ -135,7 +135,7 @@ final class SubmissionTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
 
-            Column::action('Action')
+            Column::action('Action'),
         ];
     }
 
@@ -158,19 +158,19 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal'])
+                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal']),
         ];
     }
 
     /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+public function actionRules($row): array
+{
+return [
+// Hide button edit for ID 1
+Rule::button('edit')
+->when(fn($row) => $row->id === 1)
+->hide(),
+];
+}
+ */
 }

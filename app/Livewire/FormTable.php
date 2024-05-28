@@ -63,9 +63,6 @@ final class FormTable extends PowerGridComponent
                 return $model->project->name;
             })
 
-            ->add('lead_partner', function ($model) {
-                return '<span class="text-uppercase">' . implode(',', $model->responsible_people) . '</span>';
-            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -78,10 +75,7 @@ final class FormTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
             Column::make('Project', 'project')
-                ->sortable(),
-
-            Column::make('Lead partner', 'lead_partner')
-                ->sortable(),
+                ->sortable(),   
 
             Column::make('Type', 'type')
                 ->sortable()

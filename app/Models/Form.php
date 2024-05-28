@@ -17,4 +17,9 @@ class Form extends Model
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
+
+    public function submissionPeriods()
+    {
+        return $this->hasMany(SubmissionPeriod::class, 'form_id');
+    }
 }

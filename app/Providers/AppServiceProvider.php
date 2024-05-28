@@ -28,37 +28,27 @@ class AppServiceProvider extends ServiceProvider
 
             if ($user->hasAnyRole('admin')) {
 
-                return redirect(route('admin-dashboard'));
+                return '/admin/dashboard';
             } else if ($user->hasAnyRole('internal')) {
 
                 //internal users
 
                 if ($user->hasAnyRole('cip')) {
-
-                    return route('cip-internal-dashboard');
+                    return '/cip/dashboard';
 
                 } else
 
-                    if ($user->hasAnyRole('desira')) {
-                        return route('desira-dashboard');
+                if ($user->hasAnyRole('desira')) {
+                    return '/desira/dashboard';
 
-                    }
+                }
 
+            } else if ($user->hasAnyRole('external')) {
+
+                return '/external/dashboard';
 
             } else {
-
-                if ($user->hasAnyRole('cip')) {
-                    return route('cip-external-dashboard');
-
-                } else
-
-                    if ($user->hasAnyRole('desira')) {
-                        return route('desira-external-dashboard');
-
-                    }
-
-
-
+                return '/';
             }
 
         });

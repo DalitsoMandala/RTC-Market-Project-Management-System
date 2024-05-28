@@ -1,7 +1,7 @@
 <?php
 
-use App\Helpers\rtc_market\indicators\A1;
 use App\Http\Controllers\TestingController;
+use App\Livewire\External\Cip\Dashboard as ExternalDashboard;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 use App\Livewire\Internal\Cip\Dashboard;
@@ -19,7 +19,7 @@ Route::get('/', function () {
 });
 
 Route::get('/a1', function () {
- 
+
 });
 
 Route::get('/export', [TestingController::class, 'index']);
@@ -46,7 +46,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // });
 
-Route::middleware(['auth'])->prefix('cip')->group(function () {
+Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-internal-dashboard');
     Route::get('/indicators', Indicators::class)->name('cip-internal-indicators');
     Route::get('/indicators/view/{id}', ViewIndicators::class)->name('cip-internal-indicator-view');
@@ -59,6 +59,11 @@ Route::middleware(['auth'])->prefix('cip')->group(function () {
     //forms
     Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
     Route::get('/forms/household-rtc-consumption/view', HRCViewData::class);
+
+});
+
+Route::middleware(['auth', 'role:external'])->prefix('external')->group(function () {
+    Route::get('/dashboard', ExternalDashboard::class)->name('external-dashboard');
 
 });
 

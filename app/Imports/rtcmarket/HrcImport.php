@@ -116,6 +116,8 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
             }
 
+            session()->put('uuid', $uuid);
+
         } catch (\Throwable $e) {
             throw new \Exception("Something went wrong. There was some errors on some rows." . $e->getMessage());
         }

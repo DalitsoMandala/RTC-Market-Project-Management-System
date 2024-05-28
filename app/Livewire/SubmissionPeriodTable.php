@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -48,17 +47,30 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('form_id')
             ->add('form_name', function ($model) {
                 $form = Form::find($model->form_id);
-                return $form->name;
+
+                switch ($form->name) {
+                    case 'HOUSEHOLD CONSUMPTION FORM':
+                        return '<a  href="forms/household-rtc-consumption/view" >' . $form->name . '</a>';
+
+                        break;
+
+                    default:
+                        # code...
+                        return '<a  href="#" >' . $form->name . '</a>';
+
+                        break;
+                }
+
             })
-            ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y H:i:s'))
-            ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y H:i:s'))
+
+            ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y'))
+            ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y'))
             ->add('is_open')
             ->add('is_open_toggle', function ($model) {
+                $open = $model->is_open === 1 ? 'bg-success' : 'bg-secondary';
+                $is_open = $model->is_open === 1 ? 'Open' : 'Closed';
 
-                return '<div class=" form-check form-switch" dir="ltr">
-                                                        <input type="checkbox" class="form-check-input" id="customSwitchsizesm" checked="">
-
-                                    </div>';
+                return '<span class="badge ' . $open . ' "> ' . $is_open . '</span>';
             })
             ->add('created_at')
             ->add('updated_at');
@@ -76,11 +88,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
                 ->sortable(),
 
-            Column::make('Is open', 'is_open_toggle')
+            Column::make('Status', 'is_open_toggle')
                 ->sortable()
                 ->searchable(),
 
-            Column::action('Action')
+            Column::action('Action'),
 
         ];
     }
@@ -105,19 +117,20 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal'])
+                ->dispatch('editData', ['rowId' => $row->id]),
+
         ];
     }
 
     /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+public function actionRules($row): array
+{
+return [
+// Hide button edit for ID 1
+Rule::button('edit')
+->when(fn($row) => $row->id === 1)
+->hide(),
+];
+}
+ */
 }

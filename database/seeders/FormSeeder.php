@@ -18,33 +18,25 @@ class FormSeeder extends Seeder
             'name' => 'HOUSEHOLD CONSUMPTION FORM',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
 
-            ],
         ]);
         Form::create([
             'name' => 'RTC PRODUCTION AND MARKETING FORM FARMERS',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
 
-            ],
         ]);
         Form::create([
             'name' => 'RTC PRODUCTION AND MARKETING FORM PROCESSORS',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
-
-            ],
+         
         ]);
         Form::create([
             'name' => 'SCHOOL RTC CONSUMPTION FORM',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
 
-            ],
         ]);
 
     }

@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
 use App\Models\HrcMainFood;
+use App\Models\Submission;
 use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -182,6 +183,15 @@ class AddData extends Component
                     ]);
 
                 }
+
+                Submission::create([
+                    'user_id' => $userId,
+                    'batch_no' => Str::random(),
+                    'form_id' => 1,
+                    'status' => null,
+                    'period_id' => 1,
+                    'comments' => null,
+                ]);
 
             }
 

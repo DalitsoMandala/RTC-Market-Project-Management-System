@@ -5,7 +5,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card bg-info">
+                <div class="card bg-secondary">
                     <div class="card-body">
                         <div class="py-3 text-center">
                             <ul class="bg-bubbles ps-0">
@@ -94,7 +94,6 @@
 
             </div>
         </div>
-
 
 
 
