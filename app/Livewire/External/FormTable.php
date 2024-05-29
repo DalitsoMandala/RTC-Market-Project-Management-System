@@ -3,12 +3,11 @@
 namespace App\Livewire\external;
 
 use App\Models\Form;
+use App\Models\Submission;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -19,7 +18,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class FormTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $userId;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -38,24 +37,81 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        $forms = Form::with('submissionPeriods')->whereHas('submissionPeriods', function ($query) {
+        return Form::with(['submissionPeriods', 'indicators'])->whereHas('submissionPeriods', function ($query) {
             $query->where('is_open', 1);
-        })->get();
+        })->whereHas('indicators', function ($query) {
+            $userId = $this->userId;
 
-        dd($forms);
-        return Form::with('submissionPeriod');
+            $query->whereHas('responsiblePeople', function ($query) use ($userId) {
+                $query->where('user_id', $userId); // Filter responsible people by user ID
+            });
+
+        });
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('form_id')
-            ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y H:i:s'))
-            ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y H:i:s'))
-            ->add('is_open')
-            ->add('is_expired')
-            ->add('created_at')
+            ->add('name')
+            ->add('name_formatted', function ($model) {
+                switch ($model->name) {
+                    case 'HOUSEHOLD CONSUMPTION FORM':
+                        return '<a  href="forms/household-rtc-consumption/view" >' . $model->name . '</a>';
+
+                        break;
+
+                    default:
+                        # code...
+                        return '<a  href="#" >' . $model->name . '</a>';
+
+                        break;
+                }
+
+            })
+            ->add('type')
+            ->add('indicators', function ($model) {
+                $indicators = $model->indicators->pluck('indicator_no')->toArray();
+
+                return implode(',', $indicators);
+            })
+            ->add('project_id')
+            ->add('project', function ($model) {
+                return $model->project->name;
+            })
+
+            ->add('submission_duration', function ($model) {
+                $date_start = Carbon::parse($model->submissionPeriods->first()->date_established)->format('d F Y') ?? null;
+                $date_end = Carbon::parse($model->submissionPeriods->first()->date_ending)->format('d F Y') ?? null;
+                return "{$date_start} - {$date_end}";
+
+            })
+
+            ->add('remaining_days', function ($model) {
+                $date = Carbon::create($model->submissionPeriods->first()->date_ending);
+                $now = Carbon::now();
+                $date_end = $date->diffForHumans() ?? null;
+
+                if ($date->isPast()) {
+                    return "<span class='text-danger'>Expired!</span>";
+                } else {
+                    return "<b>{$date_end}</b>";
+
+                }
+
+            })
+            ->add('submission_status', function ($model) {
+                $userId = $this->userId;
+
+                $period = $model->submissionPeriods->first();
+                $submitted = Submission::where('period_id', $period->id)->where('user_id', $userId)->where('form_id', $model->id)->count();
+                if ($submitted === 0) {
+                    return '<span class="badge bg-danger">Not submitted</span>';
+                } else {
+                    return '<span class="badge bg-success">Submitted</span>';
+
+                }
+            })
             ->add('updated_at');
     }
 
@@ -63,36 +119,20 @@ final class FormTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Form id', 'form_id'),
-            Column::make('Date established', 'date_established_formatted', 'date_established')
-                ->sortable(),
-
-            Column::make('Date ending', 'date_ending_formatted', 'date_ending')
-                ->sortable(),
-
-            Column::make('Is open', 'is_open')
+            Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
-
-            Column::make('Is expired', 'is_expired')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Created at', 'created_at_formatted', 'created_at')
+            Column::make('Project', 'project')
                 ->sortable(),
 
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
+            Column::make('Indicators', 'indicators')
+            ,
+            Column::make('Submission Dates', 'submission_duration')
+            ,
 
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
+            Column::make('Time remaining', 'remaining_days'),
 
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
-
-            Column::action('Action'),
+            Column::make('Submission status', 'submission_status'),
 
         ];
     }
@@ -100,8 +140,7 @@ final class FormTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datetimepicker('date_established'),
-            Filter::datetimepicker('date_ending'),
+
         ];
     }
 
@@ -109,17 +148,6 @@ final class FormTable extends PowerGridComponent
     public function edit($rowId): void
     {
         $this->js('alert(' . $rowId . ')');
-    }
-
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('Edit: ' . $row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id]),
-        ];
     }
 
     /*

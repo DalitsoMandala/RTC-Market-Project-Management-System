@@ -22,4 +22,9 @@ class Form extends Model
     {
         return $this->hasMany(SubmissionPeriod::class, 'form_id');
     }
+
+    public function indicators()
+    {
+        return $this->belongsToMany(Indicator::class, 'indicator_form');
+    }
 }

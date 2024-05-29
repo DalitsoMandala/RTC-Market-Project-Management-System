@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Helpers\TruncateText;
 use App\Models\Form;
-use App\Models\Partner;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
 use Illuminate\Database\Query\Builder;
@@ -65,11 +64,36 @@ final class SubmissionTable extends PowerGridComponent
 
                 $user = User::find($model->user_id);
                 if ($user->hasRole('external')) {
-                    $partner = Partner::where('user_id', $user->id)->first();
+                    if ($user->hasRole('iita')) {
+                        return 'IITA';
 
-                    return $partner->organisation_name;
+                    }
+                    if ($user->hasRole('iita')) {
+                        return 'DAES';
+
+                    }
+                    if ($user->hasRole('min_of_trade')) {
+                        return 'MINISTRY OF TRADE';
+
+                    }
+                    if ($user->hasRole('tradeline')) {
+                        return 'TRADELINE';
+
+                    }
+                    if ($user->hasRole('dcd')) {
+                        return 'DCD';
+
+                    }
+
                 } else {
-                    return 'CIP';
+                    if ($user->hasRole('cip')) {
+                        return 'CIP';
+
+                    } else {
+                        return 'DESIRA';
+
+                    }
+
                 }
             })
             ->add('status')
@@ -126,9 +150,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Submission Period', 'reporting_period')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Submission Period', 'reporting_period')
+            //     ->sortable()
+            //     ->searchable(),
 
             Column::make('Comments', 'comments_truncated'),
 

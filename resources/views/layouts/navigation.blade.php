@@ -111,13 +111,31 @@
                                     </a>
                                 </li>
 
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="/external/forms"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-book-open'></i>
-                                        <span data-key="t-dashboards">Forms</span>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Manage Data</span>
+                                        <div class="arrow-down"></div>
                                     </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="/external/forms"
+                                            id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Forms</span>
+
+                                        </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="/external/submissions"
+                                            id="topnav-utility" role="button">
+                                            <span data-key="t-utility">My Submissions</span>
+
+                                        </a>
+
+
+
+                                    </div>
                                 </li>
 
                                 <li class="nav-item ">

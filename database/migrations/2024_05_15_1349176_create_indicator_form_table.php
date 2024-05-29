@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('indicator_form', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('indicator_id')->constrained()->onDelete('cascade');
-            $table->foreignId('form_id')->constrained()->onDelete('cascade');
+            $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade');
+            $table->foreignId('form_id')->constrained('indicators', 'id')->onDelete('cascade');
             $table->timestamps();
         });
     }

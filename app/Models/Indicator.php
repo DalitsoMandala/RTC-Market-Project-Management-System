@@ -20,4 +20,9 @@ class Indicator extends Model
         return $this->hasMany(ResponsiblePerson::class, 'indicator_id');
     }
 
+    public function forms()
+{
+    return $this->belongsToMany(Form::class, 'indicator_form');
+}
+
 }

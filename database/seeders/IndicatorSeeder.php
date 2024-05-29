@@ -148,6 +148,9 @@ class IndicatorSeeder extends Seeder
                     ]);
                 }
             }
+
+            // set forms involved with this indicator
+
         }
 
     }

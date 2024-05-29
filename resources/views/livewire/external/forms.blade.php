@@ -21,21 +21,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header border-bottom-0">
-                        <ul class="nav nav-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#">Available Forms</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Link</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Link</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                            </li>
-                        </ul>
+                    <div class="card-header ">
+                        <h5>Available forms</h5>
                     </div>
                     <div class="card-body">
                         <livewire:external.form-table :userId="auth()->user()->id" />

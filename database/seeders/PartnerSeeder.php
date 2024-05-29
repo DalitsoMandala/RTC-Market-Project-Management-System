@@ -15,21 +15,21 @@ class PartnerSeeder extends Seeder
     {
         //
 
-        $user = User::find(5);
-        Partner::create([
-            'organisation_name' => 'IITA',
-            'user_id' => $user->id,
-        ]);
+        // $user = User::find(5);
+        // Partner::create([
+        //     'organisation_name' => 'IITA',
+        //     'user_id' => $user->id,
+        // ]);
 
-        Partner::create([
-            'organisation_name' => 'DCD',
-            'user_id' => $user->id,
-        ]);
+        // Partner::create([
+        //     'organisation_name' => 'DCD',
+        //     'user_id' => $user->id,
+        // ]);
 
-        Partner::create([
-            'organisation_name' => 'DAES',
-            'user_id' => $user->id,
-        ]);
+        // Partner::create([
+        //     'organisation_name' => 'DAES',
+        //     'user_id' => $user->id,
+        // ]);
 
     }
 }
