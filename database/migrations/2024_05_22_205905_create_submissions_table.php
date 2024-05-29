@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignId('period_id')->nullable()->constrained('submission_periods', 'id');
             $table->foreignId('user_id')->constrained('users', 'id');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
+            $table->json('data');
+            $table->enum('batch_type', ['aggregate', 'single'])->default('single');
             $table->text('comments')->nullable();
             $table->timestamps();
         });

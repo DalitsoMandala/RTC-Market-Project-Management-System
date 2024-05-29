@@ -6,7 +6,9 @@ use App\Exports\rtcmarket\HrcExport;
 use App\Imports\rtcmarket\HrcImport;
 use App\Livewire\HouseholdRtcConsumptionTable;
 use App\Models\Form;
+use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
+use App\Models\HrcMainFood;
 use App\Models\Submission;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -65,19 +67,36 @@ class ViewData extends Component
                 $import = Excel::import(new HrcImport($location->id, $userId), $this->upload);
 
                 $uuid = session()->get('uuid');
+                $batch_data = session()->get('batch_data');
                 $name = 'hrc_' . time() . $uuid . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs(path: 'imports', name: $name);
                 $currentUser = Auth::user();
                 $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
 
                 if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
-                    Submission::create([
+                    $submission = Submission::create([
                         'batch_no' => $uuid,
                         'form_id' => $form->id,
                         'user_id' => $currentUser->id,
                         'status' => 'approved',
-
+                        'data' => json_encode($batch_data),
                     ]);
+
+                    $data = json_decode($submission->data, true);
+
+                    foreach ($data as $row) {
+
+                        $main_food_data = $row['main_food_data'];
+                        unset($row['main_food_data']);
+                        $insert = HouseholdRtcConsumption::create($row);
+                        foreach ($main_food_data as $food) {
+                            HrcMainFood::create([
+                                'name' => $food['name'],
+                                'hrc_id' => $insert->id,
+                            ]);
+
+                        }
+                    }
 
                 } else {
 
@@ -86,7 +105,7 @@ class ViewData extends Component
                         'form_id' => $form->id,
                         'period_id' => $this->period,
                         'user_id' => $currentUser->id,
-
+                        'data' => json_encode($batch_data),
                     ]);
 
                 }

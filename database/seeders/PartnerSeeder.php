@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Partner;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PartnerSeeder extends Seeder
@@ -16,13 +15,21 @@ class PartnerSeeder extends Seeder
     {
         //
 
-        $user = User::find(4);
+        $user = User::find(5);
         Partner::create([
-            'organisation_name' => 'DAES',
-            'user_id' => $user->id
+            'organisation_name' => 'IITA',
+            'user_id' => $user->id,
         ]);
 
+        Partner::create([
+            'organisation_name' => 'DCD',
+            'user_id' => $user->id,
+        ]);
 
+        Partner::create([
+            'organisation_name' => 'DAES',
+            'user_id' => $user->id,
+        ]);
 
     }
 }

@@ -36,7 +36,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -49,21 +49,23 @@
 
             <x-modal id="view-submission-modal" title="update status">
                 <form wire:submit='save'>
+                    @hasallroles('external')
+                        <div class="mb-3">
+
+                            <select class="form-select form-select-sm" wire:model='status'>
+                                <option value="approved">Approved</option>
+                                <option value="denied">Denied</option>
+
+                            </select>
+
+                            <small class="text-muted">You can approve/disapprove submissions here</small>
+                            @error('status')
+                                <span class="my-1 text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    @endhasallroles
                     <div class="mb-3">
-
-                        <select class="form-select form-select-sm" wire:model='status'>
-                            <option value="approved">Approved</option>
-                            <option value="denied">Denied</option>
-
-                        </select>
-                        <small class="text-muted">You can approve/disapprove submissions here</small>
-                        @error('status')
-                            <span class="my-1 text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-
+                        <label for="">Comments</label>
                         <textarea wire:model='comment' id="" class="form-control"></textarea>
                         @error('comment')
                             <x-error>{{ $message }}</x-error>

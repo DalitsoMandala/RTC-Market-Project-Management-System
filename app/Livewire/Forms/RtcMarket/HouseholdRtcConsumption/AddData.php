@@ -5,7 +5,7 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
 use App\Models\HrcMainFood;
-use App\Models\Submission;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -183,15 +183,29 @@ class AddData extends Component
                     ]);
 
                 }
+                // $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+                // $currentUser = Auth::user();
 
-                Submission::create([
-                    'user_id' => $userId,
-                    'batch_no' => Str::random(),
-                    'form_id' => 1,
-                    'status' => null,
-                    'period_id' => 1,
-                    'comments' => null,
-                ]);
+                // if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+                //     Submission::create([
+                //         'batch_no' => $uuid,
+                //         'form_id' => $form->id,
+                //         'user_id' => $currentUser->id,
+                //         'status' => 'approved',
+
+                //     ]);
+
+                // } else {
+
+                //     Submission::create([
+                //         'batch_no' => $uuid,
+                //         'form_id' => $form->id,
+                //         'period_id' => $this->period,
+                //         'user_id' => $currentUser->id,
+
+                //     ]);
+
+                // }
 
             }
 

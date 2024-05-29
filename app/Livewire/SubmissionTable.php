@@ -65,9 +65,11 @@ final class SubmissionTable extends PowerGridComponent
 
                 $user = User::find($model->user_id);
                 if ($user->hasRole('external')) {
-                    $partner = Partner::where('user_id', $user->id)->first() ?? null;
+                    $partner = Partner::where('user_id', $user->id)->first();
 
-                    return $partner->organisation_name ?? null;
+                    return $partner->organisation_name;
+                } else {
+                    return 'CIP';
                 }
             })
             ->add('status')
@@ -90,6 +92,8 @@ final class SubmissionTable extends PowerGridComponent
                 $period = SubmissionPeriod::find($model->period_id);
                 if ($period) {
                     return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
+                } else {
+                    return 'N/A';
                 }
 
             })
