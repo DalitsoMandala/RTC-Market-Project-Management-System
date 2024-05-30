@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Form;
+use App\Models\SubmissionPeriod;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,15 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
+            })
+            ->add('check_expiry', function ($model) {
+                $getDate = Carbon::create($model->date_ending);
+                if ($getDate->isPast()) {
+                    SubmissionPeriod::find($model->id)->update([
+                        'is_expired' => 1,
+                        'is_open' => 0,
+                    ]);
+                }
             })
             ->add('created_at')
             ->add('updated_at');

@@ -4,6 +4,7 @@ use App\Http\Controllers\TestingController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
+use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Details;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\Forms;
@@ -56,6 +57,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
+    Route::get('/submissions/household-rtc-consumption/{id}', Details::class);
 
     //forms
     Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
@@ -68,9 +70,11 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');
     Route::get('/indicators/view/{id}', ViewIndicator::class)->name('external-indicator-view');
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
-
+    Route::get('/submissions', \App\Livewire\External\Submissions::class);
+    
     Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
     Route::get('/forms/household-rtc-consumption/view', HRCViewData::class);
+    Route::get('/submissions/household-rtc-consumption/{id}', Details::class);
 
 });
 

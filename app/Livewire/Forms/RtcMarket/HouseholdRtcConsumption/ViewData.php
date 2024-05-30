@@ -55,14 +55,22 @@ class ViewData extends Component
             //code...
 
             $userId = auth()->user()->id;
-            $location = HrcLocation::create([
-                'enterprise' => $this->enterprise,
-                'district' => $this->district,
-                'epa' => $this->epa,
-                'section' => $this->section,
-            ]);
 
             if ($this->upload) {
+                $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+
+                $submissionCount = Submission::where('period_id', $this->period)->where('form_id', $form->id)->whereNot('status', 'approved')->count();
+
+                if ($submissionCount > 0) {
+                    throw new \Exception("You can not submit your data right now! Wait for your approval");
+
+                }
+                $location = HrcLocation::create([
+                    'enterprise' => $this->enterprise,
+                    'district' => $this->district,
+                    'epa' => $this->epa,
+                    'section' => $this->section,
+                ]);
 
                 $import = Excel::import(new HrcImport($location->id, $userId), $this->upload);
 
@@ -71,7 +79,6 @@ class ViewData extends Component
                 $name = 'hrc_' . time() . $uuid . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs(path: 'imports', name: $name);
                 $currentUser = Auth::user();
-                $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
 
                 if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
                     $submission = Submission::create([
@@ -98,7 +105,7 @@ class ViewData extends Component
                         }
                     }
 
-                } else {
+                } else if ($currentUser->hasAnyRole('external')) {
 
                     Submission::create([
                         'batch_no' => $uuid,

@@ -25,7 +25,9 @@
                     <div class="card-header" x-data="{
                         is_open: false
                     }">
-                        <a class="btn btn-primary" href="add" role="button">Add
+
+
+                        <a class="btn btn-primary  @role('external') d-none @endrole" href="add" role="button">Add
                             Data +</a>
                         <a class="btn btn-primary" href="#" data-toggle="modal" role="button"
                             @click="is_open = !is_open">

@@ -183,29 +183,6 @@ class AddData extends Component
                     ]);
 
                 }
-                // $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
-                // $currentUser = Auth::user();
-
-                // if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
-                //     Submission::create([
-                //         'batch_no' => $uuid,
-                //         'form_id' => $form->id,
-                //         'user_id' => $currentUser->id,
-                //         'status' => 'approved',
-
-                //     ]);
-
-                // } else {
-
-                //     Submission::create([
-                //         'batch_no' => $uuid,
-                //         'form_id' => $form->id,
-                //         'period_id' => $this->period,
-                //         'user_id' => $currentUser->id,
-
-                //     ]);
-
-                // }
 
             }
 
