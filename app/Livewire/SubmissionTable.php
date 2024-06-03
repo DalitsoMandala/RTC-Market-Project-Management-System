@@ -4,14 +4,16 @@ namespace App\Livewire;
 
 use App\Helpers\TruncateText;
 use App\Models\Form;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -22,7 +24,9 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class SubmissionTable extends PowerGridComponent
 {
     use WithExport;
+    public $filter;
 
+    public bool $showFilters = true;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -40,15 +44,52 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('submissions');
+        return Submission::query()->where('batch_type', $this->filter)->select([
+            '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+        ]);
+    }
+
+    public function filters(): array
+    {
+        return [
+            Filter::select('status_formatted', 'status')
+                ->dataSource(function () {
+                    $submission = Submission::select(['status'])->distinct();
+                    // $submissionArray = [];
+
+                    // foreach($submission as $index => $status){
+
+                    // }
+                    // dd($submission->get());
+                    return $submission->get();
+                })
+                ->optionLabel('status')
+                ->optionValue('status')
+            ,
+
+        ];
+
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('row_num')
             ->add('batch_no')
-            ->add('batch_no_formatted', fn($model) => '<a  href="' . route('cip-internal-submission-view', $model->batch_no) . '" >' . $model->batch_no . '</a>')
+            ->add('batch_no_formatted', function ($model) {
+
+                $form = Form::find($model->form_id);
+                switch ($form->name) {
+                    case 'HOUSEHOLD CONSUMPTION FORM':
+                        return '<a  href="submissions/household-rtc-consumption/' . $model->batch_no . '" >' . $model->batch_no . '</a>';
+                        break;
+
+                    default:
+                        return null;
+                }
+
+            })
             ->add('user_id')
             ->add('username', function ($model) {
                 return User::find($model->user_id)->name;
@@ -63,6 +104,7 @@ final class SubmissionTable extends PowerGridComponent
             ->add('organisation_formatted', function ($model) {
 
                 $user = User::find($model->user_id);
+
                 if ($user->hasRole('external')) {
                     if ($user->hasRole('iita')) {
                         return 'IITA';
@@ -85,6 +127,11 @@ final class SubmissionTable extends PowerGridComponent
 
                     }
 
+                    if ($user->hasRole('daes')) {
+                        return 'DAES';
+
+                    }
+
                 } else {
                     if ($user->hasRole('cip')) {
                         return 'CIP';
@@ -97,6 +144,10 @@ final class SubmissionTable extends PowerGridComponent
                 }
             })
             ->add('status')
+            ->add('batch_type')
+            ->add('record_filter', function ($model) {
+
+            })
             ->add('status_formatted', function ($model) {
 
                 if ($model->status === 'approved') {
@@ -137,7 +188,7 @@ final class SubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Id', 'row_num'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
@@ -164,12 +215,6 @@ final class SubmissionTable extends PowerGridComponent
             //     ->searchable(),
 
             Column::action('Action'),
-        ];
-    }
-
-    public function filters(): array
-    {
-        return [
         ];
     }
 

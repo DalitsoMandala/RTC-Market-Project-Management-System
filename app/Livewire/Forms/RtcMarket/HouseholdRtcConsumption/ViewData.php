@@ -4,7 +4,6 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
 use App\Exports\rtcmarket\HrcExport;
 use App\Imports\rtcmarket\HrcImport;
-use App\Livewire\HouseholdRtcConsumptionTable;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
@@ -23,18 +22,18 @@ class ViewData extends Component
     use LivewireAlert;
     use WithFileUploads;
 
-    #[Validate('required')]
     public $epa;
-    #[Validate('required')]
+
     public $section;
-    #[Validate('required')]
+
     public $district;
 
-    #[Validate('required')]
     public $enterprise;
 
     #[Validate('required')]
-    public $upload, $period;
+    public $upload;
+
+    public $period;
 
     public function mount()
     {
@@ -65,14 +64,8 @@ class ViewData extends Component
                     throw new \Exception("You can not submit your data right now! Wait for your approval");
 
                 }
-                $location = HrcLocation::create([
-                    'enterprise' => $this->enterprise,
-                    'district' => $this->district,
-                    'epa' => $this->epa,
-                    'section' => $this->section,
-                ]);
 
-                $import = Excel::import(new HrcImport($location->id, $userId), $this->upload);
+                $import = Excel::import(new HrcImport($userId), $this->upload);
 
                 $uuid = session()->get('uuid');
                 $batch_data = session()->get('batch_data');
@@ -87,6 +80,7 @@ class ViewData extends Component
                         'user_id' => $currentUser->id,
                         'status' => 'approved',
                         'data' => json_encode($batch_data),
+                        'batch_type' => 'batch',
                     ]);
 
                     $data = json_decode($submission->data, true);
@@ -94,7 +88,17 @@ class ViewData extends Component
                     foreach ($data as $row) {
 
                         $main_food_data = $row['main_food_data'];
+                        $location_data = $row['location_data'];
+
                         unset($row['main_food_data']);
+                        unset($row['location_data']);
+                        $location = HrcLocation::create([
+                            'enterprise' => $location_data['enterprise'],
+                            'district' => $location_data['district'],
+                            'epa' => $location_data['epa'],
+                            'section' => $location_data['section'],
+                        ]);
+                        $row['location_id'] = $location->id;
                         $insert = HouseholdRtcConsumption::create($row);
                         foreach ($main_food_data as $food) {
                             HrcMainFood::create([
@@ -113,13 +117,14 @@ class ViewData extends Component
                         'period_id' => $this->period,
                         'user_id' => $currentUser->id,
                         'data' => json_encode($batch_data),
+                        'batch_type' => 'batch',
                     ]);
 
                 }
 
                 $this->reset();
                 $this->dispatch('removeUploadedFile');
-                $this->dispatch('refresh')->to(HouseholdRtcConsumptionTable::class);
+                $this->dispatch('refresh');
                 session()->flash('success', 'Successfully uploaded your data!');
             }
 

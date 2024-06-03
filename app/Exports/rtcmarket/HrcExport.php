@@ -19,6 +19,10 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
+            'ENTERPRISE',
+            'DISTRICT',
+            'EPA',
+            'SECTION',
             'DATE OF ASSESSMENT',
             'ACTOR TYPE',
             'RTC GROUP PLATFORM',

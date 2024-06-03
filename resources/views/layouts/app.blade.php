@@ -115,9 +115,10 @@
                 FilePond.registerPlugin(FilePondPluginFileValidateType);
                 FilePond.registerPlugin(FilePondPluginImagePreview);
             </script>
-
+            <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
             <x-livewire-alert::scripts />
-
+            <script src="https://cdn.jsdelivr.net/npm/jquery-table2excel@1.1.1/dist/jquery.table2excel.min.js"
+                integrity="sha256-UbQOHbRdBiTxFQd7J+zvg9v9eXjTMepIyA+67ohTgtY=" crossorigin="anonymous"></script>
 
             @stack('scripts')
             <script>

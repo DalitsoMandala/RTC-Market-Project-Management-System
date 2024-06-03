@@ -78,4 +78,57 @@ class A1
         }
 
     }
+
+    public static function genderCount(): Builder
+    {
+        return HouseholdRtcConsumption::query()->select([
+            DB::raw('SUM(CASE WHEN sex = "MALE" THEN 1 ELSE 0 END) as male_count'),
+            DB::raw('SUM(CASE WHEN sex = "FEMALE" THEN 1 ELSE 0 END) as female_count'),
+        ]);
+    }
+
+    public function genderCountByRespondent(?string $actor_type): array
+    {
+        $db = self::genderCount();
+
+        if ($actor_type) {
+            $db->where('actor_type', $actor_type);
+            // dd($db->first());
+        }
+
+        $result = $db->first();
+
+        if ($result) {
+            return $result->toArray();
+        }
+
+        return [
+            'male_count' => 0,
+            'female_count' => 0,
+
+        ];
+    }
+
+    public function genderPercentage($sexArray)
+    {
+        $male = $sexArray['male_count'] ?? 0;
+        $female = $sexArray['female_count'] ?? 0;
+        $total = $male + $female;
+        if ($total === 0) {
+            return [
+                'male_count' => 0,
+                'female_count' => 0,
+
+            ];
+
+        } else {
+
+            return [
+                'male_count' => round(($male / $total) * 100, 2),
+                'female_count' => round(($female / $total) * 100, 2),
+
+            ];
+        }
+
+    }
 }

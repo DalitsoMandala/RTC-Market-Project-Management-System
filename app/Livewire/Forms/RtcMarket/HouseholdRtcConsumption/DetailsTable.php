@@ -9,7 +9,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -51,7 +50,7 @@ final class DetailsTable extends PowerGridComponent
             $data['id'] = $count++;
             $anotherArray[] = $data;
         }
-
+  
         return collect($anotherArray);
     }
 
@@ -188,7 +187,7 @@ final class DetailsTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-           // Filter::datepicker('date_of_assessment'),
+            // Filter::datepicker('date_of_assessment'),
         ];
     }
 

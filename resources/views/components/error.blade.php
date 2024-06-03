@@ -1,1 +1,1 @@
-    <span class="my-1 text-danger" {{ $attributes }}>{{ $slot }}</span>
+    <span {{ $attributes->merge(['class' => 'my-1 text-danger']) }}>{{ $slot }}</span>

@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+use Ramsey\Uuid\Uuid;
 
 HeadingRowFormatter::default('none');
 
@@ -44,9 +45,9 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
     public $sheetNames = [];
     public $location, $userId;
-    public function __construct($location, $userId)
+    public function __construct($userId)
     {
-        $this->location = $location;
+
         $this->userId = $userId;
     }
     public function collection(Collection $collection)
@@ -66,13 +67,18 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
 // Process the rows if headings are valid
         try {
-            $uuid = Str::random() . '_' . $this->userId;
+            $uuid = Uuid::uuid4()->toString();
             $main_data = [];
 
             foreach ($collection as $row) {
 
                 $entry = [
-                    'location_id' => $this->location,
+                    'location_data' => [
+                        'epa' => $row['EPA'],
+                        'district' => $row['DISTRICT'],
+                        'section' => $row['SECTION'],
+                        'enterprise' => $row['ENTERPRISE'],
+                    ],
                     'date_of_assessment' => $row['DATE OF ASSESSMENT'],
                     'actor_type' => $row['ACTOR TYPE'],
                     'rtc_group_platform' => $row['RTC GROUP PLATFORM'],
@@ -93,59 +99,13 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
                     'main_food_data' => [],
                 ];
 
-                // $hrc = HouseholdRtcConsumption::create([
-                //     'location_id' => $this->location,
-                //     'date_of_assessment' => $row['DATE OF ASSESSMENT'],
-                //     'actor_type' => $row['ACTOR TYPE'],
-                //     'rtc_group_platform' => $row['RTC GROUP PLATFORM'],
-                //     'producer_organisation' => $row['PRODUCER ORGANISATION'],
-                //     'actor_name' => $row['ACTOR NAME'],
-                //     'age_group' => $row['AGE GROUP'],
-                //     'sex' => $row['SEX'],
-                //     'phone_number' => $row['PHONE NUMBER'],
-                //     'household_size' => $row['HOUSEHOLD SIZE'],
-                //     'under_5_in_household' => $row['UNDER 5 IN HOUSEHOLD'],
-                //     'rtc_consumers' => $row['RTC CONSUMERS'],
-                //     'rtc_consumers_potato' => $row['RTC CONSUMERS/POTATO'],
-                //     'rtc_consumers_sw_potato' => $row['RTC CONSUMERS/SWEET POTATO'],
-                //     'rtc_consumers_cassava' => $row['RTC CONSUMERS/CASSAVA'],
-                //     'rtc_consumption_frequency' => $row['RTC CONSUMPTION FREQUENCY'],
-                //     'user_id' => $this->userId,
-                //     'uuid' => $uuid,
-                // ]);
-                // if ($row['RTC MAIN FOOD/CASSAVA'] == 'Yes') {
-
-                //     // HrcMainFood::create([
-                //     //     'name' => 'CASSAVA',
-                //     //     'hrc_id' => $hrc->id,
-                //     // ]);
-
-                // }
-
-                // if ($row['RTC MAIN FOOD/POTATO'] == 'Yes') {
-
-                //     // HrcMainFood::create([
-                //     //     'name' => 'POTATO',
-                //     //     'hrc_id' => $hrc->id,
-                //     // ]);
-
-                // }
-
-                // if ($row['RTC MAIN FOOD/SWEET POTATO'] == 'Yes') {
-                //     // HrcMainFood::create([
-                //     //     'name' => 'SWEET POTATO',
-                //     //     'hrc_id' => $hrc->id,
-                //     // ]);
-
-                // }
-
-                if ($row['RTC MAIN FOOD/CASSAVA'] == 'Yes') {
+                if ($row['RTC MAIN FOOD/CASSAVA'] === 'Yes') {
                     $entry['main_food_data'][] = ['name' => 'CASSAVA'];
                 }
-                if ($row['RTC MAIN FOOD/POTATO'] == 'Yes') {
+                if ($row['RTC MAIN FOOD/POTATO'] === 'Yes') {
                     $entry['main_food_data'][] = ['name' => 'POTATO'];
                 }
-                if ($row['RTC MAIN FOOD/SWEET POTATO'] == 'Yes') {
+                if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'Yes') {
                     $entry['main_food_data'][] = ['name' => 'SWEET POTATO'];
                 }
 
@@ -153,7 +113,6 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
             }
 
-         
             session()->put('uuid', $uuid);
             session()->put('batch_data', $main_data);
 

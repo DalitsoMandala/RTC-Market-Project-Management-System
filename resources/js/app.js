@@ -10,3 +10,9 @@ window.flatpickr = flatpickr;
 
 import { Decimal } from "decimal.js";
 window.Decimal = Decimal;
+
+import { exceljs } from "exceljs";
+
+window.ExcelJS = exceljs;
+
+import { read, writeFileXLSX } from "xlsx";

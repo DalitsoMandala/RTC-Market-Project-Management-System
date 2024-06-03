@@ -2,15 +2,17 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
+use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
 use App\Models\HrcMainFood;
+use App\Models\Submission;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 
 class AddData extends Component
 {
@@ -29,6 +31,7 @@ class AddData extends Component
     #[Validate('required')]
     public $enterprise;
 
+    public $period;
     protected function rules()
     {
         $validationRules = [];
@@ -141,8 +144,8 @@ class AddData extends Component
         $this->validate();
 
         try {
+            $uuid = Uuid::uuid4()->toString();
 
-            $uuid = Str::random() . '_' . auth()->user()->id;
             $userId = auth()->user()->id;
             $location = HrcLocation::create([
                 'enterprise' => $this->enterprise,
@@ -150,9 +153,36 @@ class AddData extends Component
                 'epa' => $this->epa,
                 'section' => $this->section,
             ]);
-
+            $data = [];
             foreach ($this->inputs as $index => $input) {
                 $input = (object) $input;
+
+                $data[$index] = [
+                    'location_data' => [
+                        'enterprise' => $this->enterprise,
+                        'district' => $this->district,
+                        'epa' => $this->epa,
+                        'section' => $this->section,
+                    ],
+                    'date_of_assessment' => $input->date_of_assessment,
+                    'actor_type' => $input->actor_type,
+                    'rtc_group_platform' => $input->rtc_group_platform,
+                    'producer_organisation' => $input->producer_organisation,
+                    'actor_name' => $input->actor_name,
+                    'age_group' => $input->age_group,
+                    'sex' => $input->sex,
+                    'phone_number' => $input->phone_number,
+                    'household_size' => $input->household_size,
+                    'under_5_in_household' => $input->under_5_in_household,
+                    'rtc_consumers' => $input->rtc_consumers,
+                    'rtc_consumers_potato' => $input->rtc_consumers_potato,
+                    'rtc_consumers_sw_potato' => $input->rtc_consumers_sw_potato,
+                    'rtc_consumers_cassava' => $input->rtc_consumers_cassava,
+                    'rtc_consumption_frequency' => $input->rtc_consumption_frequency,
+                    'user_id' => $userId,
+                    'uuid' => $uuid,
+                    'main_food_data' => [],
+                ];
 
                 $hrc = HouseholdRtcConsumption::create([
                     'location_id' => $location->id,
@@ -177,12 +207,43 @@ class AddData extends Component
 
                 // for main food lunch,dinner,breakfast
                 foreach ($input->main_food as $mainfood) {
+                    $data[$index]['main_food_data'][] = [
+                        'name' => $mainfood,
+                    ];
                     HrcMainFood::create([
                         'name' => $mainfood,
                         'hrc_id' => $hrc->id,
                     ]);
 
                 }
+
+            }
+            $currentUser = Auth::user();
+            $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+
+            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+                $submission = Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $form->id,
+                    'user_id' => $currentUser->id,
+                    'status' => 'approved',
+                    'data' => json_encode($data),
+                    'batch_type' => 'manual',
+                    'is_complete' => 1,
+                ]);
+
+            } else if ($currentUser->hasAnyRole('external')) {
+
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $form->id,
+                    'period_id' => $this->period,
+                    'user_id' => $currentUser->id,
+                    'data' => json_encode($data),
+                    'batch_type' => 'manual',
+                    'status' => 'approved',
+                    'is_complete' => 1,
+                ]);
 
             }
 
@@ -239,6 +300,15 @@ class AddData extends Component
     }
     public function mount()
     {
+
+        $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+        $period = $form->submissionPeriods->where('is_open', true)->first();
+        if ($period) {
+            $this->period = $period->id;
+        } else {
+            $this->period = null;
+        }
+
         //has one
         $this->fill(
             [

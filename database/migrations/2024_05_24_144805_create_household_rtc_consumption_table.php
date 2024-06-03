@@ -30,7 +30,6 @@ return new class extends Migration
             $table->integer('rtc_consumers_cassava')->nullable();
             $table->tinyInteger('rtc_consumption_frequency')->unsigned(); // Limit to positive values
             $table->string('uuid');
-            $table->string('file_link')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });

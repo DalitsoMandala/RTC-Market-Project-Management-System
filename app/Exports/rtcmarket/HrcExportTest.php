@@ -18,11 +18,20 @@ class HrcExportTest implements FromCollection, WithHeadings
         foreach (range(1, 5) as $index) {
 
             $data[] = [
+                'ENTERPRISE' => strtoupper($faker->streetName),
+                'DISTRICT' => $faker->randomElement([
+                    'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
+                    'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
+                    'NENO', 'NKHATA BAY', 'NKHOTAKOTA', 'NSANJE', 'NTCHEU', 'NTCHISI', 'PHALOMBE', 'RUMPHI',
+                    'SALIMA', 'THYOLO', 'ZOMBA',
+                ]),
+                'EPA' => strtoupper($faker->city),
+                'SECTION' => strtoupper($faker->streetName),
                 'DATE OF ASSESSMENT' => $faker->date(),
                 'ACTOR TYPE' => $faker->randomElement(['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']),
                 'RTC GROUP PLATFORM' => $faker->randomElement(['HOUSEHOLD', 'SEED']),
-                'PRODUCER ORGANISATION' => $faker->company,
-                'ACTOR NAME' => $faker->name,
+                'PRODUCER ORGANISATION' => strtoupper($faker->company),
+                'ACTOR NAME' => strtoupper($faker->name),
                 'AGE GROUP' => $faker->randomElement(['YOUTH', 'NOT YOUTH']),
                 'SEX' => $faker->randomElement(['MALE', 'FEMALE']),
                 'PHONE NUMBER' => $faker->phoneNumber,
@@ -36,7 +45,7 @@ class HrcExportTest implements FromCollection, WithHeadings
                 'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['Yes', null]),
                 'RTC MAIN FOOD/POTATO' => $faker->randomElement(['Yes', null]),
                 'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['Yes', null]),
-                // 'SUBMISSION DATE' => $faker->date(),
+
             ];
         }
         return collect([
@@ -47,6 +56,10 @@ class HrcExportTest implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'ENTERPRISE',
+            'DISTRICT',
+            'EPA',
+            'SECTION',
             'DATE OF ASSESSMENT',
             'ACTOR TYPE',
             'RTC GROUP PLATFORM',

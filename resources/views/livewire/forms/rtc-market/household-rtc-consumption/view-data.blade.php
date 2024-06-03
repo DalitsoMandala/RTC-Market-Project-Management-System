@@ -27,11 +27,11 @@
                     }">
 
 
-                        <a class="btn btn-primary  @role('external') d-none @endrole" href="add" role="button">Add
+                        <a class="btn btn-primary " href="add" role="button">Add
                             Data +</a>
                         <a class="btn btn-primary" href="#" data-toggle="modal" role="button"
                             @click="is_open = !is_open">
-                            Import </a>
+                            Import <i class="bx bx-upload"></i> </a>
 
 
 
@@ -39,7 +39,7 @@
                             <h5> Instructions</h5>
                             <p class="alert bg-info-subtle">Download the household
                                 RTC
-                                consumption template & fill some small details in the form below after uploading your
+                                consumption template & uploading your
                                 data.</p>
 
                             <form wire:submit='submitUpload'>
@@ -60,8 +60,8 @@
                                     </div>
                                 </div>
                                 <div id="table-form">
-                                    <div class="row">
-                                        <div class=" col-12 col-md-8">
+                                    <div class="row justify-content-center">
+                                        {{-- <div class=" col-12 col-md-8">
 
                                             <div class="mb-3">
                                                 <label for="" class="form-label">ENTERPRISE</label>
@@ -124,13 +124,15 @@
                                             </div>
 
 
-                                        </div>
+                                        </div> --}}
                                         <div class="col-12 col-md-4">
                                             <x-filepond-single instantUpload="true" wire:model='upload' />
                                             @error('upload')
-                                                <x-error>{{ $message }}</x-error>
+                                                <div class="d-flex justify-content-center">
+                                                    <x-error class="text-center ">{{ $message }}</x-error>
+                                                </div>
                                             @enderror
-                                            <div class="mt-2" x-data="{ disableButton: false }">
+                                            <div class="mt-2 d-flex justify-content-center" x-data="{ disableButton: false }">
                                                 <button type="submit" @uploading-files.window="disableButton = true"
                                                     @finished-uploading.window="disableButton = false"
                                                     :disabled="disableButton" class="btn btn-primary">
@@ -148,7 +150,8 @@
                         </div>
                     </div>
                     <div class="card-body" id="#datatable">
-                        <livewire:household-rtc-consumption-table />
+
+                        <livewire:household-rtc-consumption-table :userId="auth()->user()->id" />
                     </div>
                 </div>
 

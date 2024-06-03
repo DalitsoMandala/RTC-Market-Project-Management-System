@@ -71,7 +71,7 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get('/indicators/view/{id}', ViewIndicator::class)->name('external-indicator-view');
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
     Route::get('/submissions', \App\Livewire\External\Submissions::class);
-    
+
     Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
     Route::get('/forms/household-rtc-consumption/view', HRCViewData::class);
     Route::get('/submissions/household-rtc-consumption/{id}', Details::class);

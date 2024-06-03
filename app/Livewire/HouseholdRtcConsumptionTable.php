@@ -17,7 +17,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $userId;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -37,7 +37,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        return HouseholdRtcConsumption::query()->with(['location', 'mainFoods']);
+        return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId);
     }
 
     public function fields(): PowerGridFields
