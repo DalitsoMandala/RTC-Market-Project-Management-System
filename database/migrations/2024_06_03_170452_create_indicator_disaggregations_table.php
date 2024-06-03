@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indicator_dissaggregations', function (Blueprint $table) {
+        Schema::create('indicator_disaggregations', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->foreignId('indicator_id')->constrained('indicators', 'id');
-            $table->string('name', 400);
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indicator_dissaggregations');
+        Schema::dropIfExists('indicator_disaggregations');
     }
 };

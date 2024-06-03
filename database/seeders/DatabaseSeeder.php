@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -25,6 +24,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CgiarProjectSeeder::class);
         $this->call(ProjectSeeder::class);
         $this->call(IndicatorSeeder::class);
+        $this->call(DisaggregationSeeder::class);
+
         $this->call(FormSeeder::class);
         $this->call(PeriodSeeder::class);
         $this->call(SubmissionSeeder::class);

@@ -44,36 +44,7 @@ class IndicatorA1 extends Component
     public function calculations($actor_type = null)
     {
         $a1 = new A1();
-        $farmerCropCount = $a1->cropCountByRespondent('FARMER');
-        $processorCropCount = $a1->cropCountByRespondent('PROCESSOR');
-        $traderCropCount = $a1->cropCountByRespondent('TRADER');
 
-        $this->data = [
-            'farmerCropCount' => $farmerCropCount,
-            'farmerCropCountTotal' => collect($farmerCropCount)->sum(),
-            'farmerCropCountPercentage' => $a1->cropsPercentage($farmerCropCount),
-            'processorCropCount' => $processorCropCount,
-            'processorCropCountTotal' => collect($processorCropCount)->sum(),
-            'processorCropCountPercentage' => $a1->cropsPercentage($processorCropCount),
-            'traderCropCount' => $traderCropCount,
-            'traderCropCountTotal' => collect($traderCropCount)->sum(),
-            'traderCropCountPercentage' => $a1->cropsPercentage($traderCropCount),
-            'cassavaCount' => $farmerCropCount['cassava_count'] +
-            $processorCropCount['cassava_count'] + $traderCropCount['cassava_count'],
-
-            'potatoCount' => $farmerCropCount['potato_count'] +
-            $processorCropCount['potato_count'] + $traderCropCount['potato_count'],
-
-            'swPotatoCount' => $farmerCropCount['sw_potato_count'] +
-            $processorCropCount['sw_potato_count'] + $traderCropCount['sw_potato_count'],
-
-            'cropCount' => $farmerCropCount['cassava_count'] +
-            $processorCropCount['cassava_count'] + $traderCropCount['cassava_count'] +
-            $farmerCropCount['potato_count'] +
-            $processorCropCount['potato_count'] + $traderCropCount['potato_count'] + $farmerCropCount['sw_potato_count'] +
-            $processorCropCount['sw_potato_count'] + $traderCropCount['sw_potato_count'],
-
-        ];
     }
     public function mount()
     {
