@@ -259,7 +259,7 @@
                                                 <td scope="row">
                                                     {{ $index === 'sweet_potato' ? str_replace('_', ' ', $index) : $index }}
                                                 </td>
-                                                <td scope="row">{{ $value }}</td>
+                                                <td scope="row">{{ (int) $value }}</td>
                                             </tr>
                                         @endforeach
 
@@ -297,7 +297,7 @@
                                             <td scope="row">
                                                 {{ $index === 'sweet_potato' ? str_replace('_', ' ', $index) : $index }}
                                             </td>
-                                            <td scope="row">{{ $value }}</td>
+                                            <td scope="row">{{ (int) $value }}</td>
                                         </tr>
                                     @endforeach
 
@@ -334,7 +334,7 @@
                                                 <td scope="row">
                                                     {{ $index === 'sweet_potato' ? str_replace('_', ' ', $index) : $index }}
                                                 </td>
-                                                <td scope="row">{{ $value }}</td>
+                                                <td scope="row">{{ (int) $value }}</td>
                                             </tr>
                                         @endforeach
 

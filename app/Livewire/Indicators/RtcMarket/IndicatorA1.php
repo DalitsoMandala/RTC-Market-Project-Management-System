@@ -56,20 +56,7 @@ class IndicatorA1 extends Component
     {
         $a1 = new A1();
         try {
-            $this->data = [
-                'Total' => (int) $a1->findTotal(),
-                'Female' => (int) $a1->findGender()['FemaleCount'],
-                'Male' => (int) $a1->findGender()['MaleCount'],
-                'Youth (18-35 yrs)' => (int) $a1->findAge()['youth'],
-                'Not youth (35yrs+)' => (int) $a1->findAge()['not_youth'],
-                'Farmers' => (int) $a1->findActorType()['farmer'],
-                'Processors' => (int) $a1->findActorType()['processor'],
-                'Traders' => (int) $a1->findActorType()['trader'],
-                'Cassava' => (int) $a1->findByCrop()['cassava'],
-                'Potato' => (int) $a1->findByCrop()['potato'],
-                'Sweet potato' => (int) $a1->findByCrop()['sweet_potato'],
-
-            ];
+            $this->data = $a1->getDisaggregations();//
 
             $this->dataByCrop = [
                 'Farmers' => $a1->RtcActorByCrop('FARMER'),
