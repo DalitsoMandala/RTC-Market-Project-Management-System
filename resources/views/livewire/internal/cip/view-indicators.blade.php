@@ -33,7 +33,7 @@
                         @endphp
 
                         @if ($component)
-                            @livewire($component)
+                            @livewire($component, ['indicator_no' => $indicator_no, 'indicator_name' => $indicator_name])
                         @endif
                     </div>
                 </div>

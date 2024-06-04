@@ -9,126 +9,107 @@ use Illuminate\Support\Facades\DB;
 class A1
 {
 
-    public static function cropCount(): Builder
+    protected $disaggregations = [];
+    public static function builder(): Builder
     {
-        return HouseholdRtcConsumption::query()->select([
-            DB::raw('SUM(rtc_consumers_cassava) as cassava_count'),
-            DB::raw('SUM(rtc_consumers_potato) as potato_count'),
-            DB::raw('SUM(rtc_consumers_sw_potato) as sw_potato_count'),
-        ]);
+        return HouseholdRtcConsumption::query();
     }
 
-    public static function overallCropCount(): array
+    public function findTotal()
     {
-        $result = self::cropCount()->first();
+        return self::builder()->count();
+    }
 
-        if ($result) {
-            return $result->toArray();
-        }
+    public function findGender()
+    {
+        return self::builder()
+            ->select([
+                DB::raw('COUNT(*) AS Total'),
+                DB::raw('SUM(CASE WHEN sex = \'MALE\' THEN 1 ELSE 0 END) AS MaleCount'),
+                DB::raw('SUM(CASE WHEN sex = \'FEMALE\' THEN 1 ELSE 0 END) AS FemaleCount'),
+            ])
+
+            ->first()->toArray();
+    }
+    public function findAge()
+    {
+        return self::builder()
+            ->select([
+                DB::raw('COUNT(*) AS Total'),
+                DB::raw('SUM(CASE WHEN age_group = \'YOUTH\' THEN 1 ELSE 0 END) AS youth'),
+                DB::raw('SUM(CASE WHEN age_group = \'NOT YOUTH\' THEN 1 ELSE 0 END) AS not_youth'),
+            ])
+
+            ->first()->toArray();
+    }
+
+    public function findActorType()
+    {
+        return $this->countActor()->first()->toArray();
+    }
+
+    public function countCrop()
+    {
+        return self::builder()
+            ->select([
+                DB::raw('SUM(rtc_consumers_potato) as potato'),
+                DB::raw('SUM(rtc_consumers_cassava) as cassava'),
+                DB::raw('SUM(rtc_consumers_sw_potato) as sweet_potato'),
+            ])
+
+        ;
+    }
+
+    public function countActor()
+    {
+        return self::builder()
+            ->select([
+                DB::raw('COUNT(*) AS Total'),
+                DB::raw('SUM(CASE WHEN actor_type = \'FARMER\' THEN 1 ELSE 0 END) AS farmer'),
+                DB::raw('SUM(CASE WHEN actor_type = \'PROCESSOR\' THEN 1 ELSE 0 END) AS processor'),
+                DB::raw('SUM(CASE WHEN actor_type = \'TRADER\' THEN 1 ELSE 0 END) AS trader'),
+            ])
+
+        ;
+    }
+    public function findByCrop()
+    {
+        return $this->countCrop()->first()->toArray();
+    }
+
+    public function RtcActorByCrop($actor)
+    {
+        return $this->countCrop()->where('actor_type', $actor)->first()->toArray();
+
+    }
+
+    public function RtcActorBySex($sex)
+    {
+        return $this->countActor()->where('sex', $sex)->first()->toArray();
+
+    }
+    public function RtcActorByAge($age)
+    {
+        return $this->countActor()->where('age_group', $age)->first()->toArray();
+
+    }
+
+    public function getDisaggregations()
+    {
 
         return [
-            'cassava_count' => 0,
-            'potato_count' => 0,
-            'sw_potato_count' => 0,
-
+            'Total' => (int) $this->findTotal(),
+            'Female' => (int) $this->findGender()['FemaleCount'],
+            'Male' => (int) $this->findGender()['MaleCount'],
+            'Youth (18-35 yrs)' => (int) $this->findAge()['youth'],
+            'Not youth (35yrs+)' => (int) $this->findAge()['not_youth'],
+            'Farmers' => (int) $this->findActorType()['farmer'],
+            'Processors' => (int) $this->findActorType()['processor'],
+            'Traders' => (int) $this->findActorType()['trader'],
+            'Cassava' => (int) $this->findByCrop()['cassava'],
+            'Potato' => (int) $this->findByCrop()['potato'],
+            'Sweet potato' => (int) $this->findByCrop()['sweet_potato'],
         ];
-    }
-    public function cropCountByRespondent(?string $actor_type): array
-    {
-        $db = self::cropCount();
-
-        if ($actor_type) {
-            $db->where('actor_type', $actor_type);
-            // dd($db->first());
-        }
-
-        $result = $db->first();
-
-        if ($result) {
-            return $result->toArray();
-        }
-
-        return [
-            'cassava_count' => 0,
-            'potato_count' => 0,
-            'sw_potato_count' => 0,
-        ];
-    }
-
-    public function cropsPercentage($cropArray)
-    {
-        $cassava = $cropArray['cassava  _count'] ?? 0;
-        $potato = $cropArray['potato_count'] ?? 0;
-        $sw_potato = $cropArray['sw_potato_count'] ?? 0;
-        $total = $cassava + $potato + $sw_potato;
-        if ($total === 0) {
-            return [
-                'cassava_count' => 0,
-                'potato_count' => 0,
-                'sw_potato_count' => 0,
-            ];
-        } else {
-
-            return [
-                'cassava_count' => round(($cassava / $total) * 100, 2),
-                'potato_count' => round(($potato / $total) * 100, 2),
-                'sw_potato_count' => round(($sw_potato / $total) * 100, 2),
-
-            ];
-        }
-
-    }
-
-    public static function genderCount(): Builder
-    {
-        return HouseholdRtcConsumption::query()->select([
-            DB::raw('SUM(CASE WHEN sex = "MALE" THEN 1 ELSE 0 END) as male_count'),
-            DB::raw('SUM(CASE WHEN sex = "FEMALE" THEN 1 ELSE 0 END) as female_count'),
-        ]);
-    }
-
-    public function genderCountByRespondent(?string $actor_type): array
-    {
-        $db = self::genderCount();
-
-        if ($actor_type) {
-            $db->where('actor_type', $actor_type);
-            // dd($db->first());
-        }
-
-        $result = $db->first();
-
-        if ($result) {
-            return $result->toArray();
-        }
-
-        return [
-            'male_count' => 0,
-            'female_count' => 0,
-
-        ];
-    }
-
-    public function genderPercentage($sexArray)
-    {
-        $male = $sexArray['male_count'] ?? 0;
-        $female = $sexArray['female_count'] ?? 0;
-        $total = $male + $female;
-        if ($total === 0) {
-            return [
-                'male_count' => 0,
-                'female_count' => 0,
-
-            ];
-
-        } else {
-
-            return [
-                'male_count' => round(($male / $total) * 100, 2),
-                'female_count' => round(($female / $total) * 100, 2),
-
-            ];
-        }
 
     }
 }
