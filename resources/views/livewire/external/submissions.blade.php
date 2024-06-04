@@ -43,7 +43,7 @@
                         <!-- Tab panes -->
                         <div class="tab-content">
                             <div class="mt-2 tab-pane active" id="batch" role="tabpanel" aria-labelledby="home-tab">
-                                <livewire:external.batch-submission-table />
+
                             </div>
                             {{-- <div class="tab-pane" id="sub" role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:external.row-submission-table />

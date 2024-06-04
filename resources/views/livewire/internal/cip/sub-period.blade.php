@@ -102,7 +102,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <livewire:submission-period-table>
+                        <livewire:tables.submission-period-table>
                     </div>
                 </div>
             </div>

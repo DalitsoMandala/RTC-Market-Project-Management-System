@@ -25,7 +25,7 @@
                         <h5>Your assigned indicators</h5>
                     </div>
                     <div class="card-body">
-                        <livewire:indicatorTable :userId="auth()->user()->id" />
+                        <livewire:tables.indicatorTable :userId="auth()->user()->id" />
                     </div>
                 </div>
             </div>

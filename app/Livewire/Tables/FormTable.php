@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Tables;
 
 use App\Models\Form;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,7 +75,7 @@ final class FormTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
             Column::make('Project', 'project')
-                ->sortable(),   
+                ->sortable(),
 
             Column::make('Type', 'type')
                 ->sortable()
@@ -133,4 +133,5 @@ Rule::button('edit')
 ];
 }
  */
+
 }

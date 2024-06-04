@@ -22,7 +22,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <livewire:indicatorTable :userId="auth()->user()->id" />
+                        <livewire:tables.indicatorTable :userId="auth()->user()->id" />
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

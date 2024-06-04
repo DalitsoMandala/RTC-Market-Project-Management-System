@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Tables;
+
 
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;

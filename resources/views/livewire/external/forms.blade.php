@@ -25,7 +25,7 @@
                         <h5>Available forms</h5>
                     </div>
                     <div class="card-body">
-                        <livewire:external.form-table :userId="auth()->user()->id" />
+                        <livewire:external.tables.form-table :userId="auth()->user()->id" />
                     </div>
                 </div>
             </div>

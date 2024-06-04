@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Tables;
+
 
 use App\Models\Form;
 use App\Models\SubmissionPeriod;

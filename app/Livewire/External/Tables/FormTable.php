@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\external;
+namespace App\Livewire\external\Tables;
 
 use App\Models\Form;
 use App\Models\Submission;

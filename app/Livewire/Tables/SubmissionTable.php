@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Livewire\external;
+namespace App\Livewire\Tables;
 
 use App\Helpers\TruncateText;
 use App\Models\Form;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -18,10 +21,12 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
-final class batchSubmissionTable extends PowerGridComponent
+final class SubmissionTable extends PowerGridComponent
 {
     use WithExport;
+    public $filter;
 
+    public bool $showFilters = true;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -39,13 +44,38 @@ final class batchSubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Submission::query()->where('user_id', auth()->user()->id);
+        return Submission::query()->where('batch_type', $this->filter)->select([
+            '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+        ]);
+    }
+
+    public function filters(): array
+    {
+        return [
+            Filter::select('status_formatted', 'status')
+                ->dataSource(function () {
+                    $submission = Submission::select(['status'])->distinct();
+                    // $submissionArray = [];
+
+                    // foreach($submission as $index => $status){
+
+                    // }
+                    // dd($submission->get());
+                    return $submission->get();
+                })
+                ->optionLabel('status')
+                ->optionValue('status')
+            ,
+
+        ];
+
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('row_num')
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
 
@@ -55,21 +85,8 @@ final class batchSubmissionTable extends PowerGridComponent
                         return '<a  href="submissions/household-rtc-consumption/' . $model->batch_no . '" >' . $model->batch_no . '</a>';
                         break;
 
-                    case 'RTC PRODUCTION AND MARKETING FORM FARMERS':
-                        return '<a href="submissions/rtc-production-marketing-farmers/' . $model->batch_no . '">' . $model->batch_no . '</a>';
-                        break;
-
-                    case 'RTC PRODUCTION AND MARKETING FORM PROCESSORS':
-                        return '<a href="submissions/rtc-production-marketing-processors/' . $model->batch_no . '">' . $model->batch_no . '</a>';
-                        break;
-
-                    case 'SCHOOL RTC CONSUMPTION FORM':
-                        return '<a href="submissions/school-rtc-consumption/' . $model->batch_no . '">' . $model->batch_no . '</a>';
-                        break;
-
                     default:
-                        # code...
-                        break;
+                        return null;
                 }
 
             })
@@ -87,6 +104,7 @@ final class batchSubmissionTable extends PowerGridComponent
             ->add('organisation_formatted', function ($model) {
 
                 $user = User::find($model->user_id);
+
                 if ($user->hasRole('external')) {
                     if ($user->hasRole('iita')) {
                         return 'IITA';
@@ -109,6 +127,11 @@ final class batchSubmissionTable extends PowerGridComponent
 
                     }
 
+                    if ($user->hasRole('daes')) {
+                        return 'DAES';
+
+                    }
+
                 } else {
                     if ($user->hasRole('cip')) {
                         return 'CIP';
@@ -121,6 +144,10 @@ final class batchSubmissionTable extends PowerGridComponent
                 }
             })
             ->add('status')
+            ->add('batch_type')
+            ->add('record_filter', function ($model) {
+
+            })
             ->add('status_formatted', function ($model) {
 
                 if ($model->status === 'approved') {
@@ -154,14 +181,14 @@ final class batchSubmissionTable extends PowerGridComponent
 
             })
             ->add('created_at')
-            ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('d F Y, H:iA') : null)
+            ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Id', 'row_num'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
@@ -170,7 +197,7 @@ final class batchSubmissionTable extends PowerGridComponent
 
             Column::make('Organisation', 'organisation_formatted'),
             Column::make('Form name', 'form_name'),
-            Column::make('Approval Status', 'status_formatted')
+            Column::make('Status', 'status_formatted')
                 ->sortable()
                 ->searchable(),
 
@@ -187,33 +214,26 @@ final class batchSubmissionTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
 
-            // Column::action('Action'),
-
+            Column::action('Action'),
         ];
     }
 
-    public function filters(): array
+    #[\Livewire\Attributes\On('refresh')]
+    public function refreshData(): void
+    {
+        $this->refresh();
+    }
+
+    public function actions($row): array
     {
         return [
+            Button::add('edit')
+                ->slot('<i class="bx bx-pen"></i>')
+                ->id()
+                ->class('btn btn-primary')
+                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal']),
         ];
     }
-
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert(' . $rowId . ')');
-    }
-//
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: ' . $row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id]),
-    //     ];
-    // }
 
     /*
 public function actionRules($row): array

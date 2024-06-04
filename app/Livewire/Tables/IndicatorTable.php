@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Tables;
+
 
 use App\Models\Cgiar_Project;
 use App\Models\Indicator;

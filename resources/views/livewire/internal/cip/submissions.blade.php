@@ -43,10 +43,10 @@
                         <!-- Tab panes -->
                         <div class="tab-content">
                             <div class="mt-2 tab-pane active" id="batch" role="tabpanel" aria-labelledby="home-tab">
-                                <livewire:submission-table :filter="'batch'" />
+                                <livewire:tables.submission-table :filter="'batch'" />
                             </div>
                             <div class="mt-2 tab-pane" id="manual" role="tabpanel" aria-labelledby="profile-tab">
-                                <livewire:submission-table :filter="'manual'" />
+                                <livewire:tables.submission-table :filter="'manual'" />
                             </div>
 
                         </div>

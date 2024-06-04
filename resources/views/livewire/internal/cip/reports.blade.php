@@ -65,7 +65,7 @@
 
                         <div class="row">
                             <div class="col-12">
-
+                                <livewire:tables.reporting-table />
                             </div>
                         </div>
                     </div>
