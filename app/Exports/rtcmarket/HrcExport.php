@@ -48,6 +48,6 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
 
     public function title(): string
     {
-        return 'HRC_Sheet';
+        return 'Sheet 1';
     }
 }
