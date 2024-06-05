@@ -25,7 +25,7 @@
             type="text/css" />
 
 
-        <link data-navigate-once href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond@4.31.1/dist/filepond.min.css">
 
         <link data-navigate-once rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <script data-navigate-once src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -107,7 +107,7 @@
             <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
             <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
             <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-            <script data-navigate-once src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/filepond@4.31.1/dist/filepond.min.js"></script>
             <script data-navigate-once src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             <script data-navigate-once src="{{ asset('assets/libs/choicesjs/scripts/choices.min.js') }}"></script>
             <script>

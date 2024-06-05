@@ -21,8 +21,13 @@ class Indicator extends Model
     }
 
     public function forms()
-{
-    return $this->belongsToMany(Form::class, 'indicator_form');
-}
+    {
+        return $this->belongsToMany(Form::class, 'indicator_form');
+    }
+
+    public function disaggregations()
+    {
+        return $this->hasMany(IndicatorDisaggregation::class, 'indicator_id');
+    }
 
 }

@@ -15,7 +15,7 @@ class ProjectSeeder extends Seeder
         //
 
         Project::create([
-            'name' => 'RTC Market',
+            'name' => 'RTC MARKET',
             'duration' => 4, // years
             'start_date' => '2024-06-18',
             'cgiar_project_id' => 1,

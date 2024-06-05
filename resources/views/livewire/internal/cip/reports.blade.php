@@ -22,47 +22,140 @@
             <div class="col-12">
                 <div class="card ">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-3">
-                                <div class="mb-3">
-                                    <label for="" class="form-label">Project</label>
-                                    <select class="form-select form-select-sm" name="" id="">
-                                        <option selected>Select one</option>
-                                        <option value="">New Delhi</option>
-                                        <option value="">Istanbul</option>
-                                        <option value="">Jakarta</option>
-                                    </select>
+
+                        <form wire:submit='filter'>
+                            <div class="row">
+
+
+                                <div class="col-3">
+                                    <div class="mb-1" wire:ignore x-data="{
+                                        selected: $wire.entangle('selectedProject'),
+                                        myInput(data) {
+                                            this.selected = data;
+                                        },
+                                    }" x-init=" const input = $refs.selectElement;
+                                     const selectInput = new Choices($refs.selectElement, {
+                                         shouldSort: false,
+                                         placeholder: true,
+                                    
+                                         choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
+                                     });
+                                    
+                                    
+                                    
+                                     input.addEventListener(
+                                         'change',
+                                         function(event) {
+                                    
+                                             myInput(event.detail.value);
+                                    
+                                    
+                                    
+                                         },
+                                         false,
+                                     );
+                                     $wire.on('reset-filters', () => {
+                                    
+                                    
+                                         selectInput.removeActiveItems(); // Clear the selected item
+                                         selectInput.setChoiceByValue('');
+                                    
+                                     })">
+                                        <label for="" class="form-label">Project</label>
+                                        <select class="form-select form-select-sm" x-ref="selectElement">
+                                            <option value="" disabled selected>Choose an option</option>
+                                        </select>
+
+
+                                    </div>
+                                    @error('selectedProject')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
                                 </div>
+                                <div class="col-9">
 
-                            </div>
-                            <div class="col-3">
-                                <div class="mb-3">
-                                    <label for="" class="form-label">Indicator</label>
-                                    <select class="form-select form-select-sm" multiple name="" id="">
-                                        <option selected>Select one</option>
-                                        <option value="">New Delhi</option>
-                                        <option value="">Istanbul</option>
-                                        <option value="">Jakarta</option>
-                                    </select>
+
+                                    <div class="mb-1" wire:ignore x-data="{
+                                        selected: $wire.entangle('selectedIndicators'),
+                                        myInput(data) {
+                                            this.selected = data;
+                                        },
+                                    
+                                    }" x-init=" const input = $refs.selectElementIndicator;
+                                     const selectInput = new Choices($refs.selectElementIndicator, {
+                                         shouldSort: false,
+                                         removeItemButton: true,
+                                         placeholder: true,
+                                         placeholderValue: 'Select indicators here...',
+                                         choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
+                                     });
+                                    
+                                     input.addEventListener(
+                                         'change',
+                                         function(event) {
+                                    
+                                    
+                                             let selectedValues = selectInput.getValue(true);
+                                    
+                                    
+                                             myInput(selectedValues);
+                                    
+                                    
+                                         },
+                                         false,
+                                     );
+                                     $wire.on('reset-filters', () => {
+                                    
+                                    
+                                         selectInput.removeActiveItems(); // Clear the selected item
+                                    
+                                    
+                                     })">
+                                        <label for="" class="form-label">Indicator</label>
+                                        <select class="form-select form-select-sm" multiple
+                                            x-ref="selectElementIndicator">
+
+                                        </select>
+
+
+                                    </div>
+                                    @error('selectedIndicators')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+
                                 </div>
-
-                            </div>
-                            <div class="col-3">
-                                <div class="mb-3">
-                                    <label for="" class="form-label">Starting Period</label>
-                                    <input class="form-control form-control-sm" />
+                                <div class="col-3" x-data="{ starting_period: $wire.entangle('starting_period') }">
+                                    <div class="mb-1">
+                                        <label for="" class="form-label">Starting Period</label>
+                                        <x-flatpickr x-model="starting_period" />
+                                    </div>
+                                    @error('starting_period')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
                                 </div>
-
-                            </div>
-                            <div class="col-3">
-                                <div class="mb-3">
-                                    <label for="" class="form-label">Ending Period</label>
-                                    <input class="form-control form-control-sm" />
+                                <div class="col-3" x-data="{ ending_period: $wire.entangle('ending_period') }">
+                                    <div class="mb-1">
+                                        <label for="" class="form-label">Ending Period</label>
+                                        <x-flatpickr x-model="ending_period" />
+                                    </div>
+                                    @error('ending_period')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
                                 </div>
+                                <div class="col-3 align-self-end">
+                                    <div class="mb-1" x-data>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bx bx-filter"></i> Filter Data
+                                        </button>
+                                        <button class="btn btn-primary"
+                                            @click="$wire.dispatch('reset-filters')">Reset</button>
+                                    </div>
 
+                                </div>
                             </div>
-                        </div>
 
+                        </form>
+                        <hr>
                         <div class="row">
                             <div class="col-12">
                                 <livewire:tables.reporting-table />
@@ -75,11 +168,32 @@
 
 
 
-
+        <canvas id="malawiMap" width="800" height="600"></canvas>
 
 
 
 
     </div>
 
+    @assets
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    @endassets
+    @script
+        <script>
+            let map = L.map('malawiMap').setView([-13.2543, 34.3015], 6); // Set center and zoom level
+
+            // Add tile layer for map background (you can choose different providers)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add GeoJSON data for Malawi
+            fetch('malawi.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    L.geoJSON(data).addTo(map);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        </script>
+    @endscript
 </div>

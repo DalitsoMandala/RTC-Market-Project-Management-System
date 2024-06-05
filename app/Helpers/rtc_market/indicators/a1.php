@@ -10,19 +10,45 @@ class A1
 {
 
     protected $disaggregations = [];
-    public static function builder(): Builder
+    protected $start_date;
+    protected $end_date;
+
+    public function __construct($start_date = null, $end_date = null)
     {
-        return HouseholdRtcConsumption::query();
+
+        $this->start_date = $start_date;
+        $this->end_date = $end_date;
+
+    }
+    public function builder(): Builder
+    {
+
+        $query = HouseholdRtcConsumption::query();
+
+        if ($this->start_date || $this->end_date) {
+
+            $query->where(function ($query) {
+                if ($this->start_date) {
+                    $query->where('created_at', '>=', $this->start_date);
+                }
+                if ($this->end_date) {
+                    $query->where('created_at', '<=', $this->end_date);
+                }
+            });
+        }
+
+        return $query;
+
     }
 
     public function findTotal()
     {
-        return self::builder()->count();
+        return $this->builder()->count();
     }
 
     public function findGender()
     {
-        return self::builder()
+        return $this->builder()
             ->select([
                 DB::raw('COUNT(*) AS Total'),
                 DB::raw('SUM(CASE WHEN sex = \'MALE\' THEN 1 ELSE 0 END) AS MaleCount'),
@@ -33,7 +59,7 @@ class A1
     }
     public function findAge()
     {
-        return self::builder()
+        return $this->builder()
             ->select([
                 DB::raw('COUNT(*) AS Total'),
                 DB::raw('SUM(CASE WHEN age_group = \'YOUTH\' THEN 1 ELSE 0 END) AS youth'),
@@ -50,7 +76,7 @@ class A1
 
     public function countCrop()
     {
-        return self::builder()
+        return $this->builder()
             ->select([
                 DB::raw('SUM(rtc_consumers_potato) as potato'),
                 DB::raw('SUM(rtc_consumers_cassava) as cassava'),
@@ -62,7 +88,7 @@ class A1
 
     public function countActor()
     {
-        return self::builder()
+        return $this->builder()
             ->select([
                 DB::raw('COUNT(*) AS Total'),
                 DB::raw('SUM(CASE WHEN actor_type = \'FARMER\' THEN 1 ELSE 0 END) AS farmer'),

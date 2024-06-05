@@ -2,32 +2,85 @@
 
 namespace App\Livewire\Tables;
 
-use Illuminate\Support\Carbon;
+use App\Helpers\rtc_market\indicators\A1;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 
 final class ReportingTable extends PowerGridComponent
 {
+
+    public $start_date, $end_date, $project, $indicators;
+
+    public bool $deferLoading = true;
     public function datasource(): ?Collection
     {
-        return collect([
-            ['id' => 1, 'name' => 'Name 1', 'price' => 1.58, 'created_at' => now(),],
-            ['id' => 2, 'name' => 'Name 2', 'price' => 1.68, 'created_at' => now(),],
-            ['id' => 3, 'name' => 'Name 3', 'price' => 1.78, 'created_at' => now(),],
-            ['id' => 4, 'name' => 'Name 4', 'price' => 1.88, 'created_at' => now(),],
-            ['id' => 5, 'name' => 'Name 5', 'price' => 1.98, 'created_at' => now(),],
-        ]);
+
+        $builder = IndicatorDisaggregation::with(['indicator', 'indicator.project']);
+
+        if ($this->project) {
+            $builder = $builder->whereHas('indicator.project', function ($query) {
+                $query->where('id', $this->project);
+            });
+        }
+
+        if ($this->indicators) {
+            $builder = $builder->whereHas('indicator', function ($query) {
+                $query->whereIn('id', $this->indicators);
+            });
+        }
+
+        $collection = collect();
+        $count = 1;
+
+        $builder->chunk(100, function ($disaggregations) use (&$collection, &$count) {
+            foreach ($disaggregations as $disaggregation) {
+                $collection->push([
+                    'id' => $count++,
+                    'name' => $disaggregation->name,
+                    'indicator_name' => $disaggregation->indicator->indicator_name,
+                    'project' => $disaggregation->indicator->project->name,
+                    'number' => $disaggregation->indicator->indicator_no,
+                    'indicator_id' => $disaggregation->indicator->id,
+                ]);
+            }
+        });
+
+        $finalCollection = $collection->transform(function ($item) {
+            // all other projects will be added below
+            if ($item['project'] === 'RTC MARKET') {
+                $indicatorA1 = new A1($this->start_date, $this->end_date);
+                $results = $this->mapData($indicatorA1->getDisaggregations(), $item);
+                $item = $results;
+            }
+
+            return $item;
+
+        });
+
+        return $finalCollection;
     }
 
+    public function mapData($array, $item)
+    {
+        $disaggregations = $array;
+        foreach ($disaggregations as $key => $record) {
+            $key === $item['name'] ? $item['value'] = $record : 0;
+        }
+
+        return $item;
+
+    }
     public function setUp(): array
     {
-        $this->showCheckBox();
+        // $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -44,11 +97,12 @@ final class ReportingTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('number')
+            ->add('indicator_name')
             ->add('name')
-            ->add('price')
-            ->add('created_at_formatted', function ($entry) {
-                return Carbon::parse($entry->created_at)->format('d/m/Y');
-            });
+            ->add('project')
+            ->add('value')
+        ;
     }
 
     public function columns(): array
@@ -58,16 +112,31 @@ final class ReportingTable extends PowerGridComponent
                 ->searchable()
                 ->sortable(),
 
-            Column::make('Name', 'name')
+            Column::make('Indicator #', 'number')
                 ->searchable()
                 ->sortable(),
 
-            Column::make('Price', 'price')
+            Column::make('Indicator Name', 'indicator_name')
+                ->hidden()
                 ->sortable(),
 
-            Column::make('Created', 'created_at_formatted'),
+            Column::make('Disaggregation', 'name')
+                ->sortable(),
 
-            Column::action('Action')
+            Column::make('Project', 'project'),
+
+            Column::make('Value', 'value'),
+
         ];
+    }
+
+    #[On('filtered-data')]
+    public function getData($data)
+    {
+
+        $this->project = $data['project_id'];
+        $this->indicators = $data['indicators'];
+        $this->start_date = $data['start_date'];
+        $this->end_date = $data['end_date'];
     }
 }

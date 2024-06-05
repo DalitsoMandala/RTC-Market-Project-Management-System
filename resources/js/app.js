@@ -16,3 +16,7 @@ import { exceljs } from "exceljs";
 window.ExcelJS = exceljs;
 
 import { read, writeFileXLSX } from "xlsx";
+
+import Choices from "choices.js";
+
+window.Choices = Choices;
