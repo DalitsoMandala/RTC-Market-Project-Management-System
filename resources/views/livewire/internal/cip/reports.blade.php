@@ -168,32 +168,11 @@
 
 
 
-        <canvas id="malawiMap" width="800" height="600"></canvas>
 
 
 
 
     </div>
 
-    @assets
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    @endassets
-    @script
-        <script>
-            let map = L.map('malawiMap').setView([-13.2543, 34.3015], 6); // Set center and zoom level
 
-            // Add tile layer for map background (you can choose different providers)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Add GeoJSON data for Malawi
-            fetch('malawi.geojson')
-                .then(response => response.json())
-                .then(data => {
-                    L.geoJSON(data).addTo(map);
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        </script>
-    @endscript
 </div>
