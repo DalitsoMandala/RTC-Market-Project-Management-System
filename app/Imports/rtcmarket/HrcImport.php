@@ -3,7 +3,6 @@
 namespace App\Imports\rtcmarket;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -73,12 +72,12 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
             foreach ($collection as $row) {
 
                 $entry = [
-                    'location_data' => [
+                    'location_data' => json_encode([
                         'epa' => $row['EPA'],
                         'district' => $row['DISTRICT'],
                         'section' => $row['SECTION'],
                         'enterprise' => $row['ENTERPRISE'],
-                    ],
+                    ]),
                     'date_of_assessment' => $row['DATE OF ASSESSMENT'],
                     'actor_type' => $row['ACTOR TYPE'],
                     'rtc_group_platform' => $row['RTC GROUP PLATFORM'],
@@ -108,6 +107,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
                 if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'YES') {
                     $entry['main_food_data'][] = ['name' => 'SWEET POTATO'];
                 }
+                $entry['main_food_data'] = json_encode($entry['main_food_data']);
 
                 $main_data[] = $entry;
 

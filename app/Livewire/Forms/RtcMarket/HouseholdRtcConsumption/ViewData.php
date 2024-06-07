@@ -3,13 +3,9 @@
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
 use App\Exports\rtcmarket\HrcExport;
-
 use App\Imports\rtcmarket\HrcImport;
-use App\Imports\rtcmarket\RpmFarmerImport;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
-use App\Models\HrcLocation;
-use App\Models\HrcMainFood;
 use App\Models\Submission;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -92,23 +88,23 @@ class ViewData extends Component
                         $main_food_data = $row['main_food_data'];
                         $location_data = $row['location_data'];
 
-                        unset($row['main_food_data']);
-                        unset($row['location_data']);
-                        $location = HrcLocation::create([
-                            'enterprise' => $location_data['enterprise'],
-                            'district' => $location_data['district'],
-                            'epa' => $location_data['epa'],
-                            'section' => $location_data['section'],
-                        ]);
-                        $row['location_id'] = $location->id;
+                        //  unset($row['main_food_data']);
+                        // unset($row['location_data']);
+                        // $location = HrcLocation::create([
+                        //     'enterprise' => $location_data['enterprise'],
+                        //     'district' => $location_data['district'],
+                        //     'epa' => $location_data['epa'],
+                        //     'section' => $location_data['section'],
+                        // ]);
+                        //   $row['location_id'] = $location->id;
                         $insert = HouseholdRtcConsumption::create($row);
-                        foreach ($main_food_data as $food) {
-                            HrcMainFood::create([
-                                'name' => $food['name'],
-                                'hrc_id' => $insert->id,
-                            ]);
+                        // foreach ($main_food_data as $food) {
+                        //     HrcMainFood::create([
+                        //         'name' => $food['name'],
+                        //         'hrc_id' => $insert->id,
+                        //     ]);
 
-                        }
+                        // }
                     }
 
                 } else if ($currentUser->hasAnyRole('external')) {
