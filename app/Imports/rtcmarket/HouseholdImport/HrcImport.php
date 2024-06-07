@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports\rtcmarket;
+namespace App\Imports\rtcmarket\HouseholdImport;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;

@@ -3,7 +3,7 @@
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
 use App\Exports\rtcmarket\HrcExport;
-use App\Imports\rtcmarket\HrcImport;
+use App\Imports\rtcmarket\HouseholdImport\HrcImport;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Submission;

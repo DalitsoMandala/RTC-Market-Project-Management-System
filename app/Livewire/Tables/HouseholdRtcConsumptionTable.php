@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Tables;
 
-
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -48,16 +47,21 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('id')
             ->add('location_id')
             ->add('enterprise', function ($model) {
-                return $model->location->enterprise;
+                $data = json_decode($model->location_data);
+                return $data->enterprise;
             })
             ->add('district', function ($model) {
-                return $model->location->district;
+                $data = json_decode($model->location_data);
+                return $data->district;
             })
             ->add('epa', function ($model) {
-                return $model->location->epa;
+                $data = json_decode($model->location_data);
+
+                return $data->epa;
             })
             ->add('section', function ($model) {
-                return $model->location->section;
+                $data = json_decode($model->location_data);
+                return $data->section;
             })
             ->add('date_of_assessment_formatted', fn($model) => Carbon::parse($model->date_of_assessment)->format('d/m/Y'))
             ->add('actor_type')
@@ -74,8 +78,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('rtc_consumers_sw_potato')
             ->add('rtc_consumers_cassava')
             ->add('rtc_main_food_potato', function ($model) {
-                $data = $model->mainFoods->where('name', 'POTATO')->first();
-                if ($data) {
+                $data = json_decode($model->main_food_data, true);
+                $data = collect($data);
+                $count = $data->where('name', 'POTATO')->count();
+
+                if ($count > 0) {
                     return 'Yes';
                 } else {
                     return '';
@@ -83,8 +90,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             })
             ->add('rtc_main_food_sw_potato', function ($model) {
-                $data = $model->mainFoods->where('name', 'SWEET POTATO')->first();
-                if ($data) {
+                $data = json_decode($model->main_food_data, true);
+                $data = collect($data);
+                $count = $data->where('name', 'SWEET POTATO')->count();
+
+                if ($count > 0) {
                     return 'Yes';
                 } else {
                     return '';
@@ -92,8 +102,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             })
             ->add('rtc_main_food_cassava', function ($model) {
-                $data = $model->mainFoods->where('name', 'CASSAVA')->first();
-                if ($data) {
+                $data = json_decode($model->main_food_data, true);
+                $data = collect($data);
+                $count = $data->where('name', 'CASSAVA')->count();
+
+                if ($count > 0) {
                     return 'Yes';
                 } else {
                     return '';
@@ -110,8 +123,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         return [
             Column::make('Id', 'id'),
             //  Column::make('Location id', 'location_id'),
-            Column::make('Enterprise', 'enterprise'),
-            Column::make('District', 'district'),
+            Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
+            Column::make('District', 'district', 'location_data->district')->sortable(),
             Column::make('EPA', 'epa'),
             Column::make('Section', 'section'),
             Column::make('Date of assessment', 'date_of_assessment_formatted', 'date_of_assessment')
@@ -170,14 +183,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
             Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food_cassava')
-                ->sortable()
-                ->searchable(),
+            ,
             Column::make('RTC MAIN FOOD/POTATO', 'rtc_main_food_potato')
-                ->sortable()
-                ->searchable(),
+            ,
             Column::make('RTC MAIN FOOD/SWEET POTATO', 'rtc_main_food_sw_potato')
-                ->sortable()
-                ->searchable(),
+            ,
 
             Column::make('Submission Date', 'created_at')
                 ->sortable()
@@ -189,7 +199,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-              Filter::datepicker('date_of_assessment'),
+            Filter::datepicker('date_of_assessment'),
         ];
     }
 
