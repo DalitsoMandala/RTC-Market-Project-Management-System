@@ -22,7 +22,7 @@ pond = FilePond.create($refs.input, {
     allowRevert: true,
     //  instantUpload: false,
     forceRevert: true,
-    allowProcess: true,
+    // allowProcess: true,
     allowRemove: true,
     onerror: (file, error) => {
         $wire.dispatch('remove-errors');
@@ -35,6 +35,14 @@ $wire.on('removeUploadedFile', function() {
     myTimeout = setTimeout(() => {
         pond.removeFiles({ revert: true });
     }, 5000);
+
+
+});
+
+$wire.on('errorRemove', function() {
+
+
+    pond.removeFiles({ revert: true });
 
 
 });

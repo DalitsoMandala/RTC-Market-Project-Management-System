@@ -43,18 +43,11 @@ final class FormTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('name_formatted', function ($model) {
-                switch ($model->name) {
-                    case 'HOUSEHOLD CONSUMPTION FORM':
-                        return '<a  href="forms/household-rtc-consumption/view" >' . $model->name . '</a>';
 
-                        break;
+                $form_name = str_replace( ' ', '-',strtolower($model->name));
+                $project =str_replace( ' ', '-',strtolower($model->project->name));
 
-                    default:
-                        # code...
-                        return '<a  href="#" >' . $model->name . '</a>';
-
-                        break;
-                }
+                return '<a  href="forms/' . $project . '/'.$form_name.'/view" >' . $model->name . '</a>';
 
             })
             ->add('type')
@@ -79,6 +72,7 @@ final class FormTable extends PowerGridComponent
 
             Column::make('Type', 'type')
                 ->sortable()
+                ->hidden()
                 ->searchable(),
 
             // Column::make('Project id', 'project_id'),

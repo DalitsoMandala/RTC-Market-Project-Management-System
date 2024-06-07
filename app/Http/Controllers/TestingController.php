@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\rtcmarket\SrcExportTest;
+use App\Exports\rtcmarket\HrcExportTest;
+use App\Exports\rtcmarket\RtcProductionFarmerWorkbookExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -12,13 +13,28 @@ class TestingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($name)
     {
         //
 
-        $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
+        switch ($name) {
+            case 'rpmf':
+                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new SrcExportTest, 'schook_rtc_consumption_template_' . $time . '.xlsx');
+                return Excel::download(new RtcProductionFarmerWorkbookExport(true), 'rtcproductiontest' . $time . '.xlsx');
+                break;
+
+            case 'hrc':
+                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
+
+                return Excel::download(new HrcExportTest, 'householdtest' . $time . '.xlsx');
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
     }
 
     /**

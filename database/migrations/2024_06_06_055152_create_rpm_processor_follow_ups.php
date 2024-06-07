@@ -11,21 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rtc_production_processors', function (Blueprint $table) {
+        Schema::create('rpm_processor_follow_ups', function (Blueprint $table) {
             $table->id();
-            $table->date('date_of_recruitment');
-            $table->string('name_of_actor');
-            $table->string('name_of_representative');
-            $table->string('phone_number');
-            $table->string('type');
-            $table->string('approach')->nullable(); // For producer organizations only
-            $table->string('sector');
-            $table->json('number_of_members')->nullable(); // For producer organizations only
-            $table->string('group');
-            $table->enum('establishment_status', ['NEW', 'OLD']); // Uppercase for enum values
-            $table->boolean('is_registered');
-            $table->json('registration_details');
-            $table->json('number_of_employees')->nullable();
+            $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
+            $table->foreignId('rpm_processor_location_id')->constrained('rpm_processor_follow_up_locations', 'id');
+            $table->date('date_of_follow_up')->nullable();
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
             $table->boolean('has_rtc_market_contract');
             $table->decimal('total_production_previous_season', 8, 2)->nullable(); // Metric tonnes
@@ -39,6 +29,7 @@ return new class extends Migration
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2);
             // Previous season volume in metric tonnes
+
             $table->timestamps();
         });
     }
@@ -48,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rtc_production_processors');
+        Schema::dropIfExists('rpm_processor_follow_ups');
     }
 };

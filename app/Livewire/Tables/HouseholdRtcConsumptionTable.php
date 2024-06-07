@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -188,7 +189,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            //  Filter::datepicker('date_of_assessment'),
+              Filter::datepicker('date_of_assessment'),
         ];
     }
 

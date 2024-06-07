@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('school_rtc_consumption', function (Blueprint $table) {
+        Schema::create('rpm_processor_conc_agreements', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('school_rtc_consumption');
+        Schema::dropIfExists('rpm_processor_conc_agreements');
     }
 };

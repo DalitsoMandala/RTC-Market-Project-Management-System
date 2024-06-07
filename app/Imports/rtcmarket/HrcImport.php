@@ -99,13 +99,13 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
                     'main_food_data' => [],
                 ];
 
-                if ($row['RTC MAIN FOOD/CASSAVA'] === 'Yes') {
+                if ($row['RTC MAIN FOOD/CASSAVA'] === 'YES') {
                     $entry['main_food_data'][] = ['name' => 'CASSAVA'];
                 }
-                if ($row['RTC MAIN FOOD/POTATO'] === 'Yes') {
+                if ($row['RTC MAIN FOOD/POTATO'] === 'YES') {
                     $entry['main_food_data'][] = ['name' => 'POTATO'];
                 }
-                if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'Yes') {
+                if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'YES') {
                     $entry['main_food_data'][] = ['name' => 'SWEET POTATO'];
                 }
 

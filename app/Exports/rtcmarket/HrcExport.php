@@ -5,7 +5,7 @@ namespace App\Exports\rtcmarket;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-
+use Faker\Factory as Faker;
 class HrcExport implements FromCollection, WithHeadings, WithTitle
 {
     /**
@@ -13,7 +13,44 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
      */
     public function collection()
     {
-        return collect([]);
+        $faker = Faker::create();
+        $data = [];
+        // foreach (range(1, 5) as $index) {
+
+        //     $data[] = [
+        //         'ENTERPRISE' => strtoupper($faker->streetName),
+        //         'DISTRICT' => $faker->randomElement([
+        //             'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
+        //             'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
+        //             'NENO', 'NKHATA BAY', 'NKHOTAKOTA', 'NSANJE', 'NTCHEU', 'NTCHISI', 'PHALOMBE', 'RUMPHI',
+        //             'SALIMA', 'THYOLO', 'ZOMBA',
+        //         ]),
+        //         'EPA' => strtoupper($faker->city),
+        //         'SECTION' => strtoupper($faker->streetName),
+        //         'DATE OF ASSESSMENT' => $faker->date(),
+        //         'ACTOR TYPE' => $faker->randomElement(['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']),
+        //         'RTC GROUP PLATFORM' => $faker->randomElement(['HOUSEHOLD', 'SEED']),
+        //         'PRODUCER ORGANISATION' => strtoupper($faker->company),
+        //         'ACTOR NAME' => strtoupper($faker->name),
+        //         'AGE GROUP' => $faker->randomElement(['YOUTH', 'NOT YOUTH']),
+        //         'SEX' => $faker->randomElement(['MALE', 'FEMALE']),
+        //         'PHONE NUMBER' => $faker->phoneNumber,
+        //         'HOUSEHOLD SIZE' => $faker->numberBetween(1, 10),
+        //         'UNDER 5 IN HOUSEHOLD' => $faker->numberBetween(0, 5),
+        //         'RTC CONSUMERS' => $faker->numberBetween(1, 100),
+        //         'RTC CONSUMERS/POTATO' => $faker->numberBetween(1, 100),
+        //         'RTC CONSUMERS/SWEET POTATO' => $faker->numberBetween(1, 100),
+        //         'RTC CONSUMERS/CASSAVA' => $faker->numberBetween(1, 100),
+        //         'RTC CONSUMPTION FREQUENCY' => $faker->numberBetween(1, 10),
+        //         'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['YES', null]),
+        //         'RTC MAIN FOOD/POTATO' => $faker->randomElement(['YES', null]),
+        //         'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['YES', null]),
+
+        //     ];
+        // }
+        return collect([
+            $data,
+        ]);
     }
 
     public function headings(): array
@@ -48,6 +85,6 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
 
     public function title(): string
     {
-        return 'Sheet 1';
+        return 'HH_Consumption';
     }
 }

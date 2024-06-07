@@ -3,7 +3,9 @@
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
 use App\Exports\rtcmarket\HrcExport;
+
 use App\Imports\rtcmarket\HrcImport;
+use App\Imports\rtcmarket\RpmFarmerImport;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
@@ -37,7 +39,7 @@ class ViewData extends Component
 
     public function mount()
     {
-        $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+        $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM FARMERS')->first();
         $period = $form->submissionPeriods->where('is_open', true)->first();
         if ($period) {
             $this->period = $period->id;

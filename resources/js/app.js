@@ -6,7 +6,11 @@ import "./bootstrap";
 
 // Alpine.start();
 import flatpickr from "flatpickr";
-window.flatpickr = flatpickr;
+import "./../../node_modules/flatpickr/dist/flatpickr.min.css";
+
+import pgFlatpickr from "./../../vendor/power-components/livewire-powergrid/resources/js/components/pg-flatpickr.js";
+window.pgFlatpickr = pgFlatpickr;
+
 
 import { Decimal } from "decimal.js";
 window.Decimal = Decimal;

@@ -25,23 +25,24 @@ return new class extends Migration
             $table->integer('number_of_sah_plants_produced')->nullable(); // Cassava
             $table->json('area_under_basic_seed_multiplication')->nullable(); // Acres
             $table->json('area_under_certified_seed_multiplication')->nullable(); // Acres
-            $table->boolean('is_registered_seed_producer');
+            $table->boolean('is_registered_seed_producer')->default(false);
             $table->json('seed_service_unit_registration_details')->nullable();
-            $table->boolean('uses_certified_seed');
+            $table->boolean('uses_certified_seed')->default(false);
 
 // Marketing columns
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
-            $table->boolean('has_rtc_market_contract');
+            $table->boolean('has_rtc_market_contract')->default(false);
             $table->decimal('total_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_production_value_previous_season')->nullable(); // MWK
             $table->decimal('total_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
-            $table->boolean('sells_to_domestic_markets');
-            $table->boolean('sells_to_international_markets');
-            $table->boolean('uses_market_information_systems');
+            $table->boolean('sells_to_domestic_markets')->default(false);
+            $table->boolean('sells_to_international_markets')->default(false);
+            $table->boolean('uses_market_information_systems')->default(false);
             $table->text('market_information_systems');
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('total_aggregation_center_sales_volume ', 8, 2); // Previous season volume in metric tonnes
+            $table->decimal('aggregation_center_sales', 8, 2);
+            // Previous season volume in metric tonnes
 
             $table->timestamps();
         });

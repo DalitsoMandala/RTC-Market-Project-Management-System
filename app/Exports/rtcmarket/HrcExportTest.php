@@ -42,9 +42,9 @@ class HrcExportTest implements FromCollection, WithHeadings
                 'RTC CONSUMERS/SWEET POTATO' => $faker->numberBetween(1, 100),
                 'RTC CONSUMERS/CASSAVA' => $faker->numberBetween(1, 100),
                 'RTC CONSUMPTION FREQUENCY' => $faker->numberBetween(1, 10),
-                'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['Yes', null]),
-                'RTC MAIN FOOD/POTATO' => $faker->randomElement(['Yes', null]),
-                'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['Yes', null]),
+                'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['YES', null]),
+                'RTC MAIN FOOD/POTATO' => $faker->randomElement(['YES', null]),
+                'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['YES', null]),
 
             ];
         }

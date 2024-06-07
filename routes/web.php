@@ -6,6 +6,8 @@ use App\Livewire\External\ViewIndicator;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Details;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
+use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
+use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\Forms;
 use App\Livewire\Internal\Cip\Indicators;
@@ -24,7 +26,7 @@ Route::get('/a1', function () {
 
 });
 
-Route::get('/export', [TestingController::class, 'index']);
+Route::get('/export/{name}', [TestingController::class, 'index']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -57,11 +59,14 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
-    Route::get('/submissions/household-rtc-consumption/{id}', Details::class);
+    Route::get('/submissions/{name}/{id}', Details::class);
 
     //forms
-    Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
-    Route::get('/forms/household-rtc-consumption/view', HRCViewData::class);
+    Route::get('/forms/{project}/household-consumption-form/add', HRCAddData::class);
+    Route::get('/forms/{project}/household-consumption-form/view', HRCViewData::class);
+
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/add', RTCMAddData::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/view', RTCMViewData::class);
 
 });
 
