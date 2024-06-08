@@ -17,7 +17,7 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
     }
     public function title(): string
     {
-        return 'RTC PROD. CONC_AGR';
+        return 'RTC_FARM_AGR';
     }
     public function collection()
     {
@@ -34,8 +34,8 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
                     'COUNTRY' => $faker->country,
                     'DATE OF MAXIMUM SALE' => $faker->date,
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
-                    'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->randomFloat(2, 1, 20.50),
-                    'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => $faker->randomFloat(2, 1, 223420.50),
+                    'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
+                    'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => $faker->numberBetween(1, 100) * 10,
 
                 ];
             }

@@ -10,7 +10,8 @@ use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
-class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREEMENT
+class RpmProcessorImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREEMENT
+
 {
     public $userId;
     public $file;
@@ -50,7 +51,7 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREE
 
             foreach ($collection as $row) {
                 $main_data[] = [
-                    'rpm_farmer_id' => $row['RECRUIT ID'],
+                    'rpm_processor_id' => $row['RECRUIT ID'],
                     'date_recorded' => $row['DATE RECORDED'],
                     'partner_name' => $row['PARTNER NAME'],
                     'country' => $row['COUNTRY'],

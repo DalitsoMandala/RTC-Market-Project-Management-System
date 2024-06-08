@@ -29,9 +29,9 @@ class SrcExportTest implements FromCollection, WithHeadings
                 'SECTION' => strtoupper($faker->streetName),
                 'DATE' => $faker->date(),
                 'CROP' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
-                'MALES' => $faker->randomNumber(1, 900),
-                'FEMALE' => $faker->randomNumber(1, 900),
-                'TOTAL' => $faker->randomNumber(1, 900),
+                'MALES' => $faker->randomNumber(1, 100) * 10,
+                'FEMALE' => $faker->randomNumber(1, 100) * 10,
+                'TOTAL' => $faker->randomNumber(1, 100) * 10,
 
             ];
         }

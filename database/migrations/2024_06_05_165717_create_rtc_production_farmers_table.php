@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rtc_production_farmers', function (Blueprint $table) {
             $table->id();
-          //  $table->foreignId('location_id')->constrained('rpm_farmer_locations', 'id');
+            //  $table->foreignId('location_id')->constrained('rpm_farmer_locations', 'id');
             $table->json('location_data');
             $table->date('date_of_recruitment');
             $table->string('name_of_actor');
@@ -50,7 +50,8 @@ return new class extends Migration
             $table->text('market_information_systems');
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2); // Previous season volume in metric tonnes
-            $table->timestamps();
+            $table->string('uuid');
+            $table->foreignId('user_id')->constrained('users'); $table->timestamps();
         });
     }
 

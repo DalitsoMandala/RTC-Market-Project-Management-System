@@ -17,7 +17,7 @@ class RtcProductionFarmerInterMarkets implements FromCollection, WithTitle, With
     }
     public function title(): string
     {
-        return 'RTC PROD. INTER_MARKETS';
+        return 'RTC_FARM_MARKETS';
     }
     public function collection()
     {
@@ -36,8 +36,8 @@ class RtcProductionFarmerInterMarkets implements FromCollection, WithTitle, With
                     'COUNTRY' => $faker->country,
                     'DATE OF MAXIMUM SALE' => $faker->date(),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
-                    'VOLUME SOLD PREVIOUS PERIOD' => $faker->randomFloat(2, 1, 20.50),
-                    'FINANCIAL VALUE OF SALES' => $faker->randomFloat(2, 1, 223420.50),
+                    'VOLUME SOLD PREVIOUS PERIOD' => $faker->numberBetween(1, 100) * 10,
+                    'FINANCIAL VALUE OF SALES' => $faker->numberBetween(1, 100) * 10,
 
                 ];
             }

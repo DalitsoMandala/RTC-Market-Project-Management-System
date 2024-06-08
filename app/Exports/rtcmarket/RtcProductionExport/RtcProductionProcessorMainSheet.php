@@ -1,16 +1,143 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\RtcProductionExport;
 
+use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class RtcProductionProcessorMainSheet implements FromCollection
+class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, WithHeadings
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
+    public $test = false;
+
+    public function __construct($test = false)
+    {
+
+        $this->test = $test;
+    }
+    public function title(): string
+    {
+        return 'RTC_PROCESSORS';
+    }
     public function collection()
     {
-        //
+
+        $faker = Faker::create();
+        $data = [];
+
+        if ($this->test) {
+            foreach (range(1, 20) as $index) {
+                $data[] = [
+                    'ENTERPRISE' => $faker->company,
+                    'DISTRICT' => $faker->city,
+                    'EPA' => $faker->word,
+                    'SECTION' => $faker->word,
+                    'DATE OF RECRUITMENT' => $faker->date,
+                    'NAME OF ACTOR' => $faker->name,
+                    'NAME OF REPRESENTATIVE' => $faker->name,
+                    'PHONE NUMBER' => $faker->phoneNumber,
+                    'TYPE' => $faker->word,
+                    'APPROACH' => $faker->optional()->word, // FOR PRODUCER ORGANIZATIONS ONLY
+                    'SECTOR' => $faker->word,
+                    'NUMBER OF MEMBERS/TOTAL' => $faker->numberBetween(1, 100) * 10,
+                    'NUMBER OF MEMBERS/FEMALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF MEMBERS/FEMALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF MEMBERS/MALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF MEMBERS/MALE 35YRS+' => $faker->numberBetween(1, 10) * 10, // FOR PRODUCER ORGANIZATIONS ONLY
+                    'GROUP' => $faker->word,
+                    'ESTABLISHMENT STATUS' => $faker->randomElement(['NEW', 'OLD']), // UPPERCASE FOR ENUM VALUES
+                    'IS REGISTERED' => $faker->randomElement(['YES', 'NO']),
+                    'REGISTRATION DETAILS/REGISTRATION BODY' => $faker->company,
+                    'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->uuid,
+                    'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date,
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => $faker->randomNumber,
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)' => $faker->randomNumber,
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
+                    'MARKET SEGMENT/FRESH' => $faker->randomElement(['YES', 'NO']),
+                    'MARKET SEGMENT/PROCESSED' => $faker->randomElement(['YES', 'NO']), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
+                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['YES', 'NO']),
+                    'TOTAL PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
+                    'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->numberBetween(1, 100) * 10,
+                    'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date,
+                    'TOTAL IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
+                    'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => $faker->numberBetween(1, 100) * 10,
+                    'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date,
+                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', 'NO']),
+                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', 'NO']),
+                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', 'NO']),
+                    'MARKET INFORMATION SYSTEMS' => $faker->text,
+                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['YES', 'NO']),
+                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['YES', 'NO']),
+                    'AGGREGATION CENTERS/SPECIFY' => $faker->sentence,
+                    'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->numberBetween(1, 100) * 10,
+                ];
+            }
+        }
+
+        return collect($data);
+
+    }
+
+    public function headings(): array
+    {
+        return [
+            'ENTERPRISE',
+            'DISTRICT',
+            'EPA',
+            'SECTION',
+            'DATE OF RECRUITMENT',
+            'NAME OF ACTOR',
+            'NAME OF REPRESENTATIVE',
+            'PHONE NUMBER',
+            'TYPE',
+            'APPROACH', // FOR PRODUCER ORGANIZATIONS ONLY
+            'SECTOR',
+            'NUMBER OF MEMBERS/TOTAL',
+            'NUMBER OF MEMBERS/FEMALE 18-35YRS',
+            'NUMBER OF MEMBERS/FEMALE 35YRS+',
+            'NUMBER OF MEMBERS/MALE 18-35YRS',
+            'NUMBER OF MEMBERS/MALE 35YRS+', // FOR PRODUCER ORGANIZATIONS ONLY
+            'GROUP',
+            'ESTABLISHMENT STATUS', // UPPERCASE FOR ENUM VALUES
+            'IS REGISTERED',
+            'REGISTRATION DETAILS/REGISTRATION BODY',
+            'REGISTRATION DETAILS/REGISTRATION NUMBER',
+            'REGISTRATION DETAILS/REGISTRATION DATE',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+',
+            'MARKET SEGMENT/FRESH',
+            'MARKET SEGMENT/PROCESSED', // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
+            'HAS RTC MARKET CONTRACT',
+            'TOTAL PRODUCTION PREVIOUS SEASON',
+            'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL',
+            'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES',
+            'TOTAL IRRIGATION PRODUCTION PREVIOUS SEASON',
+            'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL',
+            'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES',
+            'SELLS TO DOMESTIC MARKETS',
+            'SELLS TO INTERNATIONAL MARKETS',
+            'USES MARKET INFORMATION SYSTEMS',
+            'MARKET INFORMATION SYSTEMS',
+            'SELLS TO AGGREGATION CENTERS',
+            'AGGREGATION CENTERS/RESPONSE',
+            'AGGREGATION CENTERS/SPECIFY',
+            'TOTAL AGGREGATION CENTER SALES VOLUME',
+        ];
     }
 }

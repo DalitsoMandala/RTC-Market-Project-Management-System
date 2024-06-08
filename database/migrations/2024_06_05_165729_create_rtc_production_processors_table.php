@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('rtc_production_processors', function (Blueprint $table) {
             $table->id();
+            $table->json('location_data');
             $table->date('date_of_recruitment');
             $table->string('name_of_actor');
             $table->string('name_of_representative');
@@ -39,6 +40,8 @@ return new class extends Migration
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2);
             // Previous season volume in metric tonnes
+            $table->string('uuid');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }

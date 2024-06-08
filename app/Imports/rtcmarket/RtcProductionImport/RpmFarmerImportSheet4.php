@@ -48,6 +48,7 @@ class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow// DOM MARKET
             $main_data = [];
 
             foreach ($collection as $row) {
+
                 $main_data[] = [
                     'rpm_farmer_id' => $row['RECRUIT ID'],
                     'date_recorded' => $row['DATE RECORDED'],
@@ -58,8 +59,8 @@ class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow// DOM MARKET
                     'product_type' => $row['PRODUCT TYPE'],
                     'volume_sold_previous_period' => $row['VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)'],
                     'financial_value_of_sales' => $row['FINANCIAL VALUE OF SALES'],
-                   // 'user_id' => $this->userId,
-                  //  'uuid' => session()->get('uuid'),
+                    // 'user_id' => $this->userId,
+                    //  'uuid' => session()->get('uuid'),
                 ];
 
             }

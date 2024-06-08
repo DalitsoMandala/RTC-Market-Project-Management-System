@@ -3,18 +3,16 @@
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
 use App\Helpers\ImportValidateHeading;
-use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImportSheet1;
-use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImportSheet2;
-use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImportSheet4;
-use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImportSheet5;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet2;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet3;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet4;
 use Exception;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\BeforeImport;
 
-class RpmFarmerImport implements WithMultipleSheets, WithEvents
+class RpmProcessorImport implements WithMultipleSheets
 {
     use Importable, RegistersEventListeners;
 
@@ -23,11 +21,11 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents
 
     public $file;
     protected $expectedSheetNames = [
-        'RTC_FARMERS',
-        'RTC_FARM_FLUP',
-        'RTC_FARM_AGR',
-        'RTC_FARM_DOM',
-        'RTC_FARM_MARKETS',
+        'RTC_PROCESSORS',
+        'RTC_PROC_FLUP',
+        'RTC_PROC_DOM',
+        'RTC_PROC_AGREEMENT',
+        'RTC_PROC_MARKETS',
     ];
 
     public function __construct($userId, $sheets, $file = null)
@@ -40,11 +38,12 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents
     public function sheets(): array
     {
         return [
-            new RpmFarmerImportSheet1($this->userId, $this->file),
-            new RpmFarmerImportSheet2($this->userId, $this->file),
-            new RpmFarmerImportSheet3($this->userId, $this->file),
-            new RpmFarmerImportSheet4($this->userId, $this->file),
-            new RpmFarmerImportSheet5($this->userId, $this->file),
+
+            new RpmProcessorImportSheet1($this->userId, $this->file),
+            new RpmProcessorImportSheet2($this->userId, $this->file),
+            new RpmProcessorImportSheet3($this->userId, $this->file),
+            new RpmProcessorImportSheet4($this->userId, $this->file),
+            new RpmProcessorImportSheet5($this->userId, $this->file),
         ];
     }
     public function registerEvents(): array
@@ -52,7 +51,6 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents
         return [
             // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
-                // dd($event);
                 $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
 
                 if (count($diff) > 0) {

@@ -17,29 +17,29 @@ class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHe
     }
     public function title(): string
     {
-        return 'RTC PROD. DOM_MARKETS';
+        return 'RTC_FARM_DOM';
     }
     public function collection()
     {
         $faker = Faker::create();
         $data = [];
-        if($this->test){
-        foreach (range(1, 5) as $index) {
+        if ($this->test) {
+            foreach (range(1, 5) as $index) {
 
-            $data[] = [
-                'RECRUIT ID' => $faker->numberBetween(1, 20),
-                'DATE RECORDED' => $faker->date(),
-                'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
-                'MARKET NAME' => $faker->streetName,
-                'DISTRICT' => $faker->streetName,
-                'DATE OF MAXIMUM SALE' => $faker->date(),
-                'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
-                'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->randomFloat(2, 1, 20.50),
-                'FINANCIAL VALUE OF SALES' => $faker->randomFloat(2, 1, 2222440.50),
+                $data[] = [
+                    'RECRUIT ID' => $faker->numberBetween(1, 20),
+                    'DATE RECORDED' => $faker->date(),
+                    'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
+                    'MARKET NAME' => $faker->streetName,
+                    'DISTRICT' => $faker->streetName,
+                    'DATE OF MAXIMUM SALE' => $faker->date(),
+                    'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
+                    'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
+                    'FINANCIAL VALUE OF SALES' => $faker->numberBetween(1, 100) * 10,
 
-            ];
+                ];
+            }
         }
-    }
         return collect([
             $data,
         ]);

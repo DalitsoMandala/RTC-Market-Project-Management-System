@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('rpm_processor_conc_agreements', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
+            $table->date('date_recorded');
+            $table->string('partner_name');
+            $table->string('country');
+            $table->date('date_of_maximum_sale')->nullable();
+            $table->enum('product_type', ['SEED', 'WARE', 'VALUE ADDED PRODUCTS']);
+            $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes
+            $table->decimal('financial_value_of_sales', 18, 2); // Malawi Kwacha
+
             $table->timestamps();
         });
     }

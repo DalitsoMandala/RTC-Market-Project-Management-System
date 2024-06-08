@@ -68,6 +68,8 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/add', RTCMAddData::class);
     Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/view', RTCMViewData::class);
 
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/add', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
 });
 
 Route::middleware(['auth', 'role:external'])->prefix('external')->group(function () {
