@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('rpm_farmer_follow_ups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id');
-            $table->foreignId('rpm_farmer_location_id')->constrained('rpm_farmer_follow_up_locations', 'id');
+            $table->json('location_data');
             $table->date('date_of_follow_up')->nullable();
 
 // Production related columns

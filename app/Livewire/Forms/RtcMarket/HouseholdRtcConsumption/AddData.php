@@ -5,7 +5,6 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
-use App\Models\HrcMainFood;
 use App\Models\Submission;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -155,82 +154,59 @@ class AddData extends Component
             ]);
             $data = [];
             foreach ($this->inputs as $index => $input) {
-                $input = (object) $input;
 
-                $data[$index] = [
-                    'location_data' => [
-                        'enterprise' => $this->enterprise,
-                        'district' => $this->district,
-                        'epa' => $this->epa,
-                        'section' => $this->section,
-                    ],
-                    'date_of_assessment' => $input->date_of_assessment,
-                    'actor_type' => $input->actor_type,
-                    'rtc_group_platform' => $input->rtc_group_platform,
-                    'producer_organisation' => $input->producer_organisation,
-                    'actor_name' => $input->actor_name,
-                    'age_group' => $input->age_group,
-                    'sex' => $input->sex,
-                    'phone_number' => $input->phone_number,
-                    'household_size' => $input->household_size,
-                    'under_5_in_household' => $input->under_5_in_household,
-                    'rtc_consumers' => $input->rtc_consumers,
-                    'rtc_consumers_potato' => $input->rtc_consumers_potato,
-                    'rtc_consumers_sw_potato' => $input->rtc_consumers_sw_potato,
-                    'rtc_consumers_cassava' => $input->rtc_consumers_cassava,
-                    'rtc_consumption_frequency' => $input->rtc_consumption_frequency,
-                    'user_id' => $userId,
-                    'uuid' => $uuid,
-                    'main_food_data' => [],
-                ];
-
-                $hrc = HouseholdRtcConsumption::create([
-                    'location_id' => $location->id,
-                    'date_of_assessment' => $input->date_of_assessment,
-                    'actor_type' => $input->actor_type,
-                    'rtc_group_platform' => $input->rtc_group_platform,
-                    'producer_organisation' => $input->producer_organisation,
-                    'actor_name' => $input->actor_name,
-                    'age_group' => $input->age_group,
-                    'sex' => $input->sex,
-                    'phone_number' => $input->phone_number,
-                    'household_size' => $input->household_size,
-                    'under_5_in_household' => $input->under_5_in_household,
-                    'rtc_consumers' => $input->rtc_consumers,
-                    'rtc_consumers_potato' => $input->rtc_consumers_potato,
-                    'rtc_consumers_sw_potato' => $input->rtc_consumers_sw_potato,
-                    'rtc_consumers_cassava' => $input->rtc_consumers_cassava,
-                    'rtc_consumption_frequency' => $input->rtc_consumption_frequency,
-                    'user_id' => $userId,
-                    'uuid' => $uuid,
-                ]);
+                $input['location_data'] = json_encode(['enterprise' => $this->enterprise,
+                    'district' => $this->district,
+                    'epa' => $this->epa,
+                    'section' => $this->section]);
 
                 // for main food lunch,dinner,breakfast
-                foreach ($input->main_food as $mainfood) {
-                    $data[$index]['main_food_data'][] = [
+                foreach ($input['main_food'] as $mainfood) {
+                    $input['main_food_data'][] = [
                         'name' => $mainfood,
                     ];
-                    HrcMainFood::create([
-                        'name' => $mainfood,
-                        'hrc_id' => $hrc->id,
-                    ]);
 
                 }
 
+                unset($input['main_food']);
+
+                $input['main_food_data'] = json_encode($input['main_food_data']);
+                $input['uuid'] = $uuid;
+                $input['user_id'] = $userId;
+                $data[] = $input;
+                HouseholdRtcConsumption::create($input);
+
             }
+
             $currentUser = Auth::user();
             $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
 
             if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
-                $submission = Submission::create([
-                    'batch_no' => $uuid,
-                    'form_id' => $form->id,
-                    'user_id' => $currentUser->id,
-                    'status' => 'approved',
-                    'data' => json_encode($data),
-                    'batch_type' => 'manual',
-                    'is_complete' => 1,
-                ]);
+                try {
+                    # code...
+
+                    $submission = Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $form->id,
+                        'user_id' => $currentUser->id,
+                        'status' => 'approved',
+                        'data' => json_encode($data),
+                        'batch_type' => 'manual',
+                        'is_complete' => 1,
+                    ]);
+
+                    $data = json_decode($submission->data, true);
+
+                    foreach ($data as $row) {
+
+                        $main_food_data = $row['main_food_data'];
+                        $insert = HouseholdRtcConsumption::create($row);
+
+                    }
+                } catch (\Exception $e) {
+                    # code...
+
+                }
 
             } else if ($currentUser->hasAnyRole('external')) {
 
@@ -254,11 +230,10 @@ class AddData extends Component
 
             $this->resetErrorBag();
 
-            $this->dispatch('refresh-inputs');
+            $this->readdInputs();
 
             $this->alert('success', 'successfully submitted!');
         } catch (\Throwable $th) {
-            dd($th);
             $this->alert('error', 'something went wrong!', [
                 'toast' => false,
             ]);

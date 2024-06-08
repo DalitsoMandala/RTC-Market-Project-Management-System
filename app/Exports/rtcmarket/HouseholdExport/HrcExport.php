@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\HouseholdExport;
 
+use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Faker\Factory as Faker;
+
 class HrcExport implements FromCollection, WithHeadings, WithTitle
 {
     /**

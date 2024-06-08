@@ -4,7 +4,7 @@ namespace App\Exports\rtcmarket;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class RtcProductionProcessorFollowUp implements FromCollection
+class RtcProductionProcessorConcAgreement implements FromCollection
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -12,5 +12,7 @@ class RtcProductionProcessorFollowUp implements FromCollection
     public function collection()
     {
         //
+
+        return collect([]);
     }
 }

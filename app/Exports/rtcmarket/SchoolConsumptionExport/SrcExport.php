@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\SchoolConsumptionExport;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;

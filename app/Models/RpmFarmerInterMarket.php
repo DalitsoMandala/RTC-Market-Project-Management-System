@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class RpmFarmerInterMarket extends Model
 {
     use HasFactory;
+    protected $table = "rpm_farmer_inter_markets";
+    protected $guarded = [];
 }

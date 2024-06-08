@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\RtcProductionExport;
 
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, WithHeadings
+class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHeadings
 {public $test = false;
 
     public function __construct($test = false)
@@ -17,25 +17,25 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
     }
     public function title(): string
     {
-        return 'RTC PROD. CONC_AGR';
+        return 'RTC PROD. DOM_MARKETS';
     }
     public function collection()
     {
         $faker = Faker::create();
         $data = [];
-
         if($this->test){
         foreach (range(1, 5) as $index) {
 
             $data[] = [
                 'RECRUIT ID' => $faker->numberBetween(1, 20),
-                'DATE RECORDED' => $faker->date('d-m-Y', 'now'),
-                'PARTNER NAME' => $faker->name,
-                'COUNTRY' => $faker->country,
-                'DATE OF MAXIMUM SALE' => $faker->date,
+                'DATE RECORDED' => $faker->date(),
+                'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
+                'MARKET NAME' => $faker->streetName,
+                'DISTRICT' => $faker->streetName,
+                'DATE OF MAXIMUM SALE' => $faker->date(),
                 'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                 'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->randomFloat(2, 1, 20.50),
-                'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => $faker->randomFloat(2, 1, 223420.50),
+                'FINANCIAL VALUE OF SALES' => $faker->randomFloat(2, 1, 2222440.50),
 
             ];
         }
@@ -51,12 +51,13 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
         return [
             'RECRUIT ID',
             'DATE RECORDED',
-            'PARTNER NAME',
-            'COUNTRY',
+            'CROP TYPE',
+            'MARKET NAME',
+            'DISTRICT',
             'DATE OF MAXIMUM SALE',
             'PRODUCT TYPE',
             'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)',
-            'FINANCIAL VALUE OF SALES (MALAWI KWACHA)',
+            'FINANCIAL VALUE OF SALES',
         ];
 
     }}

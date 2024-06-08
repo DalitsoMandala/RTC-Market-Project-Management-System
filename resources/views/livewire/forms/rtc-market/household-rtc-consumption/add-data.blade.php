@@ -231,12 +231,14 @@
                                             <label for="under5" class="form-label">Number of Under 5 in
                                                 Household</label>
                                             <input type="number" class="form-control"
-                                                wire:model.live="inputs.{{ $key }}.under_5_in_household">
+                                                wire:model="inputs.{{ $key }}.under_5_in_household">
                                             @error('inputs.' . $key . '.under_5_in_household')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
 
                                         </div>
+                                        {{ $inputs[$key]['under_5_in_household'] }} -
+                                        {{ $inputs[$key]['rtc_consumers'] }}
                                         <div class="mb-3">
                                             <label for="consumingRTC" class="form-label">Number of People in Household
                                                 Who

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports\rtcmarket;
+namespace App\Imports\rtcmarket\RtcProductionImport;
 
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
@@ -57,8 +57,8 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow// INTER MARK
                     'product_type' => $row['PRODUCT TYPE'],
                     'volume_sold_previous_period' => $row['VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)'],
                     'financial_value_of_sales' => $row['FINANCIAL VALUE OF SALES'],
-                    'user_id' => $this->userId,
-                    'uuid' => session()->get('uuid'),
+                   // 'user_id' => $this->userId,
+                  //  'uuid' => session()->get('uuid'),
                 ];
 
             }

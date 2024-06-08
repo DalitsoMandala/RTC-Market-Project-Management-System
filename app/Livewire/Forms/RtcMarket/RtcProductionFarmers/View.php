@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
-use App\Exports\rtcmarket\RtcProductionFarmerWorkbookExport;
+use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Helpers\SheetNamesValidator;
-use App\Imports\rtcmarket\RpmFarmerImport;
+use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
 use App\Models\Form;
-use App\Models\RpmFarmerLocation;
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\RpmFarmerDomMarket;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
 use App\Models\Submission;
 use Carbon\Carbon;
@@ -95,25 +98,53 @@ class View extends Component
                         // insert into tables
                         $location = null;
                         foreach ($data['main'] as $mainSheet) {
-                            try {
-                                $location = RpmFarmerLocation::updateOrCreate($mainSheet['location_data']);
-                                unset($mainSheet['location_data']);
-                                $mainSheet['location_id'] = $location->id;
-                                $mainSheet['is_registered'] = $mainSheet['is_registered'] === 'YES' ? true : false;
-                                $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'YES' ? true : false;
-                                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'YES' ? true : false;
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
-                                $mainTable = RtcProductionFarmer::create($mainSheet);
 
-                                // follow up data
+                            $mainSheet['is_registered'] = $mainSheet['is_registered'] === 'YES' ? true : false;
+                            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'YES' ? true : false;
+                            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'YES' ? true : false;
+                            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
+                            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
+                            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
+                            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+                            RtcProductionFarmer::create($mainSheet);
 
-                                
-                            } catch (\Exception $th) {
-                                dd($th);
-                            }
+                        }
+
+                        foreach ($data['followup'] as $mainSheet) {
+
+                            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'YES' ? true : false;
+                            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'YES' ? true : false;
+                            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
+                            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
+                            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
+                            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+                            $mainTable = RpmFarmerFollowUp::create($mainSheet);
+
+                            // follow up data
+
+                        }
+
+                        foreach ($data['agreement'] as $mainSheet) {
+
+                            $mainTable = RpmFarmerConcAgreement::create($mainSheet);
+
+                            // conc agreement
+
+                        }
+
+                        foreach ($data['market'] as $mainSheet) {
+
+                            $mainTable = RpmFarmerDomMarket::create($mainSheet);
+
+                            // dom market
+
+                        }
+
+                        foreach ($data['intermarket'] as $mainSheet) {
+
+                            $mainTable = RpmFarmerInterMarket::create($mainSheet);
+
+                            // inter market
 
                         }
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\rtcmarket\HrcExportTest;
-use App\Exports\rtcmarket\RtcProductionFarmerWorkbookExport;
+use App\Exports\rtcmarket\HouseholdExport\HrcExportTest;
+use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;

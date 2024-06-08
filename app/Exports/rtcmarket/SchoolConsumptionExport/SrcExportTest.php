@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\SchoolConsumptionExport;
 
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;

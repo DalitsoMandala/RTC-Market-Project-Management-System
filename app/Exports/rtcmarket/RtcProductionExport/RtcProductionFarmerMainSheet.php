@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\RtcProductionExport;
 
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHeadings
+class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHeadings
 {
     public $test = false;
 
@@ -18,7 +18,7 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
     }
     public function title(): string
     {
-        return 'RTC PROD. FOLLOW UP';
+        return 'RTC PROD. FARMERS';
     }
     public function collection()
     {
@@ -26,10 +26,9 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
         $data = [];
 
         if ($this->test) {
-            foreach (range(1, 5) as $index) {
+            foreach (range(1, 20) as $index) {
 
                 $data[] = [
-                    'RECRUIT ID' => $faker->numberBetween(1, 20),
                     'ENTERPRISE' => strtoupper($faker->streetName),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
@@ -39,7 +38,34 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
                     ]),
                     'EPA' => strtoupper($faker->city),
                     'SECTION' => strtoupper($faker->streetName),
-                    'DATE OF FOLLOW UP' => now(),
+                    'DATE OF RECRUITMENT' => $faker->date(),
+                    'NAME OF ACTOR' => $faker->name(),
+                    'NAME OF REPRESENTATIVE' => $faker->name(),
+                    'PHONE NUMBER' => $faker->phoneNumber(),
+                    'TYPE' => $faker->randomElement(['Type A', 'Type B', 'Type C']),
+                    'APPROACH' => $faker->randomElement(['Approach 1', 'Approach 2', 'Approach 3']),
+                    'SECTOR' => $faker->randomElement(['Sector 1', 'Sector 2', 'Sector 3']),
+                    'NUMBER OF MEMBERS/TOTAL' => $faker->numberBetween(10, 1000),
+                    'NUMBER OF MEMBERS/FEMALE 18-35YRS' => $faker->numberBetween(1, 100),
+                    'NUMBER OF MEMBERS/FEMALE 35YRS+' => $faker->numberBetween(1, 100),
+                    'NUMBER OF MEMBERS/MALE 18-35YRS' => $faker->numberBetween(1, 100),
+                    'NUMBER OF MEMBERS/MALE 35YRS+' => $faker->numberBetween(1, 100),
+                    'GROUP' => $faker->randomElement(['Group 1', 'Group 2', 'Group 3']),
+                    'ESTABLISHMENT STATUS' => $faker->randomElement(['NEW', 'OLD']),
+                    'IS REGISTERED' => $faker->randomElement(['YES', "NO"]),
+                    'REGISTRATION DETAILS/REGISTRATION BODY' => $faker->company(),
+                    'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->ean8(),
+                    'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date(),
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => $faker->numberBetween(1, 1000),
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)' => $faker->numberBetween(1, 1000),
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 100),
+                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 100),
                     'AREA UNDER CULTIVATION/TOTAL' => $faker->randomFloat(2, 1, 1000),
                     'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => $faker->randomElement(['Variety A', 'Variety B', 'Variety C']),
                     'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => $faker->randomElement(['Variety X', 'Variety Y', 'Variety Z']),
@@ -68,24 +94,24 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
                     'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 5 (SPECIFY)' => $faker->randomFloat(2, 1, 100),
                     'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 6 (SPECIFY)' => $faker->randomFloat(2, 1, 100),
                     'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 7 (SPECIFY)' => $faker->randomFloat(2, 1, 100),
-                    'IS REGISTERED SEED PRODUCER' => $faker->randomElement(['YES', null]),
+                    'IS REGISTERED SEED PRODUCER' => $faker->randomElement(['YES', "NO"]),
                     'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION NUMBER' => $faker->ean8(),
                     'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION DATE' => $faker->date(),
-                    'USES CERTIFIED SEED' => $faker->randomElement(['YES', null]),
+                    'USES CERTIFIED SEED' => $faker->randomElement(['YES', "NO"]),
                     'MARKET SEGMENT/FRESH' => $faker->randomElement(['YES', "NO"]),
                     'MARKET SEGMENT/PROCESSED' => $faker->randomElement(['YES', "NO"]),
-                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['YES', null]),
+                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['YES', "NO"]),
                     'TOTAL PRODUCTION PREVIOUS SEASON' => $faker->randomFloat(2, 1, 1000),
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->randomFloat(2, 1, 1000000),
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date(),
                     'TOTAL IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->randomFloat(2, 1, 1000),
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => $faker->randomFloat(2, 1, 1000000),
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date(),
-                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', null]),
-                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', null]),
-                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', null]),
+                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', "NO"]),
+                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', "NO"]),
+                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', "NO"]),
                     'MARKET INFORMATION SYSTEMS' => $faker->randomElement(['System A', 'System B', 'System C']),
-                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['YES', null]),
+                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['YES', "NO"]),
                     'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['YES', "NO"]),
                     'AGGREGATION CENTERS/SPECIFY' => $faker->streetName,
                     'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->randomFloat(2, 1, 1000),
@@ -102,12 +128,38 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
     public function headings(): array
     {
         return [
-            'RECRUIT ID',
             'ENTERPRISE',
             'DISTRICT',
             'EPA',
             'SECTION',
-            'DATE OF FOLLOW UP',
+            'DATE OF RECRUITMENT',
+            'NAME OF ACTOR',
+            'NAME OF REPRESENTATIVE',
+            'PHONE NUMBER',
+            'TYPE',
+            'APPROACH',
+            'SECTOR',
+            'NUMBER OF MEMBERS/TOTAL',
+            'NUMBER OF MEMBERS/FEMALE 18-35YRS',
+            'NUMBER OF MEMBERS/FEMALE 35YRS+',
+            'NUMBER OF MEMBERS/MALE 18-35YRS',
+            'NUMBER OF MEMBERS/MALE 35YRS+',
+            'GROUP',
+            'ESTABLISHMENT STATUS',
+            'IS REGISTERED',
+            'REGISTRATION DETAILS/REGISTRATION BODY',
+            'REGISTRATION DETAILS/REGISTRATION NUMBER',
+            'REGISTRATION DETAILS/REGISTRATION DATE',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS',
+            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+',
             'AREA UNDER CULTIVATION/TOTAL',
             'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)',
             'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)',
@@ -157,7 +209,9 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
             'AGGREGATION CENTERS/RESPONSE',
             'AGGREGATION CENTERS/SPECIFY',
             'TOTAL AGGREGATION CENTER SALES VOLUME',
+
         ];
 
     }
+
 }

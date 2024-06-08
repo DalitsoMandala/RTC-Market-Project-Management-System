@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\RtcProductionExport;
 
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHeadings
+class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHeadings
 {
     public $test = false;
 
@@ -18,7 +18,7 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
     }
     public function title(): string
     {
-        return 'RTC PROD. FARMERS';
+        return 'RTC PROD. FOLLOW UP';
     }
     public function collection()
     {
@@ -26,9 +26,10 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
         $data = [];
 
         if ($this->test) {
-            foreach (range(1, 20) as $index) {
+            foreach (range(1, 5) as $index) {
 
                 $data[] = [
+                    'RECRUIT ID' => $faker->numberBetween(1, 20),
                     'ENTERPRISE' => strtoupper($faker->streetName),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
@@ -38,34 +39,7 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
                     ]),
                     'EPA' => strtoupper($faker->city),
                     'SECTION' => strtoupper($faker->streetName),
-                    'DATE OF RECRUITMENT' => $faker->date(),
-                    'NAME OF ACTOR' => $faker->name(),
-                    'NAME OF REPRESENTATIVE' => $faker->name(),
-                    'PHONE NUMBER' => $faker->phoneNumber(),
-                    'TYPE' => $faker->randomElement(['Type A', 'Type B', 'Type C']),
-                    'APPROACH' => $faker->randomElement(['Approach 1', 'Approach 2', 'Approach 3']),
-                    'SECTOR' => $faker->randomElement(['Sector 1', 'Sector 2', 'Sector 3']),
-                    'NUMBER OF MEMBERS/TOTAL' => $faker->numberBetween(10, 1000),
-                    'NUMBER OF MEMBERS/FEMALE 18-35YRS' => $faker->numberBetween(1, 100),
-                    'NUMBER OF MEMBERS/FEMALE 35YRS+' => $faker->numberBetween(1, 100),
-                    'NUMBER OF MEMBERS/MALE 18-35YRS' => $faker->numberBetween(1, 100),
-                    'NUMBER OF MEMBERS/MALE 35YRS+' => $faker->numberBetween(1, 100),
-                    'GROUP' => $faker->randomElement(['Group 1', 'Group 2', 'Group 3']),
-                    'ESTABLISHMENT STATUS' => $faker->randomElement(['NEW', 'OLD']),
-                    'IS REGISTERED' => $faker->randomElement(['YES', "NO"]),
-                    'REGISTRATION DETAILS/REGISTRATION BODY' => $faker->company(),
-                    'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->ean8(),
-                    'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date(),
-                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => $faker->numberBetween(1, 1000),
-                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)' => $faker->numberBetween(1, 1000),
-                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 100),
-                    'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 100),
+                    'DATE OF FOLLOW UP' => now(),
                     'AREA UNDER CULTIVATION/TOTAL' => $faker->randomFloat(2, 1, 1000),
                     'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => $faker->randomElement(['Variety A', 'Variety B', 'Variety C']),
                     'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => $faker->randomElement(['Variety X', 'Variety Y', 'Variety Z']),
@@ -128,38 +102,12 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
     public function headings(): array
     {
         return [
+            'RECRUIT ID',
             'ENTERPRISE',
             'DISTRICT',
             'EPA',
             'SECTION',
-            'DATE OF RECRUITMENT',
-            'NAME OF ACTOR',
-            'NAME OF REPRESENTATIVE',
-            'PHONE NUMBER',
-            'TYPE',
-            'APPROACH',
-            'SECTOR',
-            'NUMBER OF MEMBERS/TOTAL',
-            'NUMBER OF MEMBERS/FEMALE 18-35YRS',
-            'NUMBER OF MEMBERS/FEMALE 35YRS+',
-            'NUMBER OF MEMBERS/MALE 18-35YRS',
-            'NUMBER OF MEMBERS/MALE 35YRS+',
-            'GROUP',
-            'ESTABLISHMENT STATUS',
-            'IS REGISTERED',
-            'REGISTRATION DETAILS/REGISTRATION BODY',
-            'REGISTRATION DETAILS/REGISTRATION NUMBER',
-            'REGISTRATION DETAILS/REGISTRATION DATE',
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)',
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS',
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+',
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS',
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+',
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)',
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS',
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+',
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS',
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+',
+            'DATE OF FOLLOW UP',
             'AREA UNDER CULTIVATION/TOTAL',
             'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)',
             'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)',
@@ -209,9 +157,7 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
             'AGGREGATION CENTERS/RESPONSE',
             'AGGREGATION CENTERS/SPECIFY',
             'TOTAL AGGREGATION CENTER SALES VOLUME',
-
         ];
 
     }
-
 }

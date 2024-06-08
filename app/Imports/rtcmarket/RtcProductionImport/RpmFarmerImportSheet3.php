@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports\rtcmarket;
+namespace App\Imports\rtcmarket\RtcProductionImport;
 
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
@@ -8,7 +8,6 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Ramsey\Uuid\Uuid;
 
 HeadingRowFormatter::default('none');
 class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREEMENT
@@ -58,12 +57,11 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREE
                     'product_type' => $row['PRODUCT TYPE'],
                     'volume_sold_previous_period' => $row['VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)'],
                     'financial_value_of_sales' => $row['FINANCIAL VALUE OF SALES (MALAWI KWACHA)'],
-                    'user_id' => $this->userId,
-                    'uuid' => session()->get('uuid'),
+                    //'user_id' => $this->userId,
+                    //'uuid' => session()->get('uuid'),
                 ];
 
             }
-
 
             session()->put('batch_data.agreement', $main_data);
 

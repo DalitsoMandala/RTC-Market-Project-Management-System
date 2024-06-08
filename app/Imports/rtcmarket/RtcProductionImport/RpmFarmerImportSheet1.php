@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports\rtcmarket;
+namespace App\Imports\rtcmarket\RtcProductionImport;
 
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
@@ -128,12 +128,12 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow// MAIN SHEET
             foreach ($collection as $row) {
 
                 $main_data[] = [
-                    'location_data' => [
+                    'location_data' => json_encode([
                         'enterprise' => $row['ENTERPRISE'],
                         'district' => $row['DISTRICT'],
                         'epa' => $row['EPA'],
                         'section' => $row['SECTION'],
-                    ],
+                    ]),
                     'date_of_recruitment' => $row['DATE OF RECRUITMENT'],
                     'name_of_actor' => $row['NAME OF ACTOR'],
                     'name_of_representative' => $row['NAME OF REPRESENTATIVE'],

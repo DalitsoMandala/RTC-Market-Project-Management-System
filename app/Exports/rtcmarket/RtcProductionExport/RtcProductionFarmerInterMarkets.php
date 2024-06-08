@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports\rtcmarket;
+namespace App\Exports\rtcmarket\RtcProductionExport;
 
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -30,11 +30,11 @@ class RtcProductionFarmerInterMarkets implements FromCollection, WithTitle, With
 
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'DATE RECORDED' => $faker->date('d-m-Y', 'now'),
+                    'DATE RECORDED' => $faker->date(),
                     'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'MARKET NAME' => $faker->streetName,
                     'COUNTRY' => $faker->country,
-                    'DATE OF MAXIMUM SALE' => $faker->date,
+                    'DATE OF MAXIMUM SALE' => $faker->date(),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD' => $faker->randomFloat(2, 1, 20.50),
                     'FINANCIAL VALUE OF SALES' => $faker->randomFloat(2, 1, 223420.50),
