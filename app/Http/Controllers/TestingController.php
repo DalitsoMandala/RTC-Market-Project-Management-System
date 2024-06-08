@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\rtcmarket\HouseholdExport\HrcExportTest;
+use App\Exports\rtcmarket\HouseholdExport\HrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
+use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,13 +29,19 @@ class TestingController extends Controller
             case 'hrc':
                 $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-                return Excel::download(new HrcExportTest, 'householdtest' . $time . '.xlsx');
+                return Excel::download(new HrcExport(true), 'householdtest' . $time . '.xlsx');
                 break;
 
             case 'rpmp':
                 $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
                 return Excel::download(new RtcProductionProcessorWookbookExport(true), 'rtcproductionProducertest' . $time . '.xlsx');
+                break;
+
+            case 'src':
+                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
+
+                return Excel::download(new SrcExport(true), 'schoolConsumption' . $time . '.xlsx');
                 break;
 
             default:

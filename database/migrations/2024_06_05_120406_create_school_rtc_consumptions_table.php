@@ -13,10 +13,14 @@ return new class extends Migration
     {
         Schema::create('school_rtc_consumption', function (Blueprint $table) {
             $table->id();
+            $table->json('location_data');
+            $table->date('date');
             $table->enum('crop', ['CASSAVA', 'POTATO', 'SWEET POTATO'])->nullable();
             $table->integer('male_count');
             $table->integer('female_count');
             $table->integer('total');
+            $table->string('uuid');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }

@@ -70,6 +70,10 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
 
     Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/add', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
     Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+
+    Route::get('/forms/{project}/school-rtc-consumption-form/add', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
+    Route::get('/forms/{project}/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+
 });
 
 Route::middleware(['auth', 'role:external'])->prefix('external')->group(function () {

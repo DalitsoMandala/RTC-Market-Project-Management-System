@@ -2,12 +2,14 @@
 
 namespace App\Imports\rtcmarket\HouseholdImport;
 
+use App\Helpers\ImportValidateHeading;
+use Exception;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Events\BeforeSheet;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Ramsey\Uuid\Uuid;
 
@@ -41,13 +43,14 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
         'RTC MAIN FOOD/POTATO',
         'RTC MAIN FOOD/SWEET POTATO',
     ];
-
     public $sheetNames = [];
-    public $location, $userId;
-    public function __construct($userId)
+    public $expectedSheetNames = ['HH_CONSUMPTION'];
+    public $location, $userId, $file;
+    public function __construct($userId, $sheets, $file = null)
     {
-
         $this->userId = $userId;
+        $this->sheetNames = $sheets;
+        $this->file = $file;
     }
     public function collection(Collection $collection)
     {
@@ -58,13 +61,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
         $missingHeadings = $this->validateHeadings($headings);
 
         if (count($missingHeadings) > 0) {
-            throw new \Exception("Something went wrong. Please upload your data using the template file above");
+            throw new Exception("Something went wrong. Please upload your data using the template file above");
 
         }
 
-        //  $currentSheetName = end($this->sheetNames);
-
-// Process the rows if headings are valid
         try {
             $uuid = Uuid::uuid4()->toString();
             $main_data = [];
@@ -117,7 +117,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
             session()->put('batch_data', $main_data);
 
         } catch (\Throwable $e) {
-            throw new \Exception("Something went wrong. There was some errors on some rows." . $e->getMessage());
+            throw new Exception("Something went wrong. There was some errors on some rows." . $e->getMessage());
         }
 
     }
@@ -125,9 +125,18 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
     public function registerEvents(): array
     {
         return [
-            BeforeSheet::class => function (BeforeSheet $event) {
-                $this->sheetNames[] = $event->getSheet()->getDelegate()->getTitle();
+            // Handle by a closure.
+            BeforeImport::class => function (BeforeImport $event) {
+                // dd($event);
+                $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
+
+                if (count($diff) > 0) {
+                    session()->flash('error-import', "File contains invalid sheets!");
+                    throw new Exception("File contains invalid sheets!");
+
+                }
             },
+
         ];
     }
     private function validateHeadings(array $headings)

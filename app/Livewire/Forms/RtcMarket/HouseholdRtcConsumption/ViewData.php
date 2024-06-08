@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
-
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
+use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\HouseholdImport\HrcImport;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
@@ -63,13 +63,14 @@ class ViewData extends Component
                     throw new \Exception("You can not submit your data right now! Wait for your approval");
 
                 }
-
-                $import = Excel::import(new HrcImport($userId), $this->upload);
-
                 $uuid = session()->get('uuid');
                 $batch_data = session()->get('batch_data');
                 $name = 'hrc_' . time() . $uuid . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs(path: 'imports', name: $name);
+                $path = storage_path('app/imports/' . $name);
+                $sheets = SheetNamesValidator::getSheetNames($path);
+                $import = Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
+
                 $currentUser = Auth::user();
 
                 if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
@@ -86,7 +87,6 @@ class ViewData extends Component
 
                     foreach ($data as $row) {
 
-                        $main_food_data = $row['main_food_data'];
                         $insert = HouseholdRtcConsumption::create($row);
 
                     }
