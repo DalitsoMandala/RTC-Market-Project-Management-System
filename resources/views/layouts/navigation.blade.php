@@ -173,7 +173,7 @@
                 </div>
             </div>
 
-            <div class="dropdown d-inline-block d-none">
+            <div class="dropdown d-inline-block d-none ">
                 <button type="button" class="btn header-item noti-icon" id="page-header-notifications-dropdown"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 

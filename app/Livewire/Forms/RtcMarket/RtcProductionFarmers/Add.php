@@ -2,36 +2,235 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
-use Illuminate\Support\Facades\Log;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\RtcProductionFarmer;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 
 class Add extends Component
 {
     use LivewireAlert;
 
-    public $inputs = [];
-    public $rowId;
+    public $location_data = [];
+    public $date_of_recruitment;
+    public $name_of_actor;
+    public $name_of_representative;
+    public $phone_number;
+    public $type;
+    public $approach; // For producer organizations only
+    public $sector;
+    public $number_of_members = []; // For producer organizations only
+    public $group;
+    public $establishment_status;
+    public $is_registered = false;
+    public $registration_details = [];
+    public $number_of_employees = [];
+    public $area_under_cultivation = []; // Stores area by variety (key-value pairs)
+    public $number_of_plantlets_produced = [];
+    public $number_of_screen_house_vines_harvested; // Sweet potatoes
+    public $number_of_screen_house_min_tubers_harvested; // Potatoes
+    public $number_of_sah_plants_produced; // Cassava
+    public $area_under_basic_seed_multiplication = []; // Acres
+    public $area_under_certified_seed_multiplication = []; // Acres
+    public $is_registered_seed_producer = false;
+    public $seed_service_unit_registration_details = [];
+    public $uses_certified_seed = false;
+    public $market_segment = []; // Multiple market segments (array of strings)
+    public $has_rtc_market_contract = false;
+    public $total_production_previous_season;
+    public $total_production_value_previous_season = [];
+    public $total_irrigation_production_previous_season;
+    public $total_irrigation_production_value_previous_season = [];
+    public $sells_to_domestic_markets = false;
+    public $sells_to_international_markets = false;
+    public $uses_market_information_systems = false;
+    public $market_information_systems;
+    public $aggregation_centers = []; // Stores aggregation center details (array of objects with name and volume sold)
+    public $aggregation_center_sales; // Previous season volume in metric tonnes
 
-    public function setData($id)
+    //2
+    public $f_location_data = [];
+    public $f_date_of_follow_up;
+    public $f_area_under_cultivation = [];
+    public $f_number_of_plantlets_produced = [];
+    public $f_number_of_screen_house_vines_harvested;
+    public $f_number_of_screen_house_min_tubers_harvested;
+    public $f_number_of_sah_plants_produced;
+    public $f_area_under_basic_seed_multiplication = [];
+    public $f_area_under_certified_seed_multiplication = [];
+    public $f_is_registered_seed_producer;
+    public $f_seed_service_unit_registration_details = [];
+    public $f_uses_certified_seed;
+    public $f_market_segment = [];
+    public $f_has_rtc_market_contract;
+    public $f_total_production_previous_season;
+    public $f_total_production_value_previous_season = [];
+    public $f_total_irrigation_production_previous_season;
+    public $f_total_irrigation_production_value_previous_season = [];
+    public $f_sells_to_domestic_markets;
+    public $f_sells_to_international_markets;
+    public $f_uses_market_information_systems;
+    public $f_market_information_systems;
+    public $f_aggregation_centers = [];
+    public $f_aggregation_center_sales;
+    public $uuid;
+    public function rules()
     {
-        $this->resetErrorBag();
-
+        return [
+            // 'location_data' => 'json',
+            // 'date_of_recruitment' => 'date|nullable',
+            // 'name_of_actor' => 'string',
+            // 'name_of_representative' => 'string',
+            // 'phone_number' => 'string',
+            // 'type' => 'string',
+            // 'approach' => 'string|nullable', // For producer organizations only
+            // 'sector' => 'string',
+            // 'number_of_members' => 'json|nullable', // For producer organizations only
+            // 'group' => 'string',
+            // 'establishment_status' => 'in:NEW,OLD',
+            // 'is_registered' => 'boolean',
+            // 'registration_details' => 'json',
+            // 'number_of_employees' => 'json|nullable',
+            // 'area_under_cultivation' => 'json|nullable', // Stores area by variety (key-value pairs)
+            // 'number_of_plantlets_produced' => 'integer|nullable',
+            // 'number_of_screen_house_vines_harvested' => 'integer|nullable', // Sweet potatoes
+            // 'number_of_screen_house_min_tubers_harvested' => 'integer|nullable', // Potatoes
+            // 'number_of_sah_plants_produced' => 'integer|nullable', // Cassava
+            // 'area_under_basic_seed_multiplication' => 'json|nullable', // Acres
+            // 'area_under_certified_seed_multiplication' => 'json|nullable', // Acres
+            // 'is_registered_seed_producer' => 'boolean',
+            // 'seed_service_unit_registration_details' => 'json|nullable',
+            // 'uses_certified_seed' => 'boolean',
+            // 'market_segment' => 'json|nullable', // Multiple market segments (array of strings)
+            // 'has_rtc_market_contract' => 'boolean',
+            // 'total_production_previous_season' => 'numeric|nullable', // Metric tonnes
+            // 'total_production_value_previous_season' => 'json|nullable', // MWK
+            // 'total_irrigation_production_previous_season' => 'numeric|nullable', // Metric tonnes
+            // 'total_irrigation_production_value_previous_season' => 'json|nullable', // MWK
+            // 'sells_to_domestic_markets' => 'boolean',
+            // 'sells_to_international_markets' => 'boolean',
+            // 'uses_market_information_systems' => 'boolean',
+            // 'market_information_systems' => 'string|nullable',
+            // 'aggregation_centers' => 'json|nullable', // Stores aggregation center details (array of objects with name and volume sold)
+            // 'aggregation_center_sales' => 'numeric', // Previous season volume in metric tonnes
+            // 'uuid' => 'string',
+        ];
     }
 
     public function save()
     {
+//   /      dd($this->pull());
 
-        $this->resetErrorBag();
         try {
+            $uuid = Uuid::uuid4()->toString();
+            if ($this->market_segment['fresh']) {
+                $this->market_segment['fresh'] = "YES";
+            } else {
+                $this->market_segment['fresh'] = "NO";
+            }
 
-            $this->alert('success', 'Successfully updated');
+            if ($this->market_segment['processed']) {
+                $this->market_segment['processed'] = "YES";
+            } else {
+                $this->market_segment['processed'] = "NO";
+            }
+            $firstTable = [
+                'location_data' => $this->location_data,
+                'date_of_recruitment' => $this->date_of_recruitment,
+                'name_of_actor' => $this->name_of_actor,
+                'name_of_representative' => $this->name_of_representative,
+                'phone_number' => $this->phone_number,
+                'type' => $this->type,
+                'approach' => $this->approach, // For producer organizations only
+                'sector' => $this->sector,
+                'number_of_members' => $this->number_of_members, // For producer organizations only
+                'group' => $this->group,
+                'establishment_status' => $this->establishment_status,
+                'is_registered' => $this->is_registered,
+                'registration_details' => $this->registration_details,
+                'number_of_employees' => $this->number_of_employees,
+                'area_under_cultivation' => $this->area_under_cultivation, // Stores area by variety (key-value pairs)
+                'number_of_plantlets_produced' => $this->number_of_plantlets_produced,
+                'number_of_screen_house_vines_harvested' => $this->number_of_screen_house_vines_harvested, // Sweet potatoes
+                'number_of_screen_house_min_tubers_harvested' => $this->number_of_screen_house_min_tubers_harvested, // Potatoes
+                'number_of_sah_plants_produced' => $this->number_of_sah_plants_produced, // Cassava
+                'area_under_basic_seed_multiplication' => $this->area_under_basic_seed_multiplication, // Acres
+                'area_under_certified_seed_multiplication' => $this->area_under_certified_seed_multiplication, // Acres
+                'is_registered_seed_producer' => $this->is_registered_seed_producer,
+                'seed_service_unit_registration_details' => $this->seed_service_unit_registration_details,
+                'uses_certified_seed' => $this->uses_certified_seed,
 
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
+                'market_segment' => $this->market_segment, // Multiple market segments (array of strings)
+                'has_rtc_market_contract' => $this->has_rtc_market_contract,
+                'total_production_previous_season' => $this->total_production_previous_season, // Metric tonnes
+                'total_production_value_previous_season' => $this->total_production_value_previous_season, // MWK
+                'total_irrigation_production_previous_season' => $this->total_irrigation_production_previous_season, // Metric tonnes
+                'total_irrigation_production_value_previous_season' => $this->total_irrigation_production_value_previous_season, // MWK
+                'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
+                'sells_to_international_markets' => $this->sells_to_international_markets,
+                'uses_market_information_systems' => $this->uses_market_information_systems,
+                'market_information_systems' => $this->market_information_systems,
+                'aggregation_centers' => $this->aggregation_centers, // Stores aggregation center details (array of objects with name and volume sold)
+                'aggregation_center_sales' => $this->aggregation_center_sales, // Previous season volume in metric tonnes
+                'user_id' => auth()->user()->id,
+                'uuid' => $uuid,
+            ];
+
+            //dd($firstTable);
+
+            foreach ($firstTable as $key => $value) {
+                if (is_array($value)) {
+                    $firstTable[$key] = json_encode($value);
+                }
+            }
+
+            $recruit = RtcProductionFarmer::create($firstTable);
+
+            $secondTable = [
+                'rpm_farmer_id' => $recruit->id,
+                'location_data' => $this->f_location_data,
+                'date_of_follow_up' => $this->f_date_of_follow_up,
+                'area_under_cultivation' => $this->f_area_under_cultivation,
+                'number_of_plantlets_produced' => $this->f_number_of_plantlets_produced,
+                'number_of_screen_house_vines_harvested' => $this->f_number_of_screen_house_vines_harvested,
+                'number_of_screen_house_min_tubers_harvested' => $this->f_number_of_screen_house_min_tubers_harvested,
+                'number_of_sah_plants_produced' => $this->f_number_of_sah_plants_produced,
+                'area_under_basic_seed_multiplication' => $this->f_area_under_basic_seed_multiplication,
+                'area_under_certified_seed_multiplication' => $this->f_area_under_certified_seed_multiplication,
+                'is_registered_seed_producer' => $this->f_is_registered_seed_producer,
+                'seed_service_unit_registration_details' => $this->f_seed_service_unit_registration_details,
+                'uses_certified_seed' => $this->f_uses_certified_seed,
+                'market_segment' => $this->f_market_segment,
+                'has_rtc_market_contract' => $this->f_has_rtc_market_contract,
+                'total_production_previous_season' => $this->f_total_production_previous_season,
+                'total_production_value_previous_season' => $this->f_total_production_value_previous_season,
+                'total_irrigation_production_previous_season' => $this->f_total_irrigation_production_previous_season,
+                'total_irrigation_production_value_previous_season' => $this->f_total_irrigation_production_value_previous_season,
+                'sells_to_domestic_markets' => $this->f_sells_to_domestic_markets,
+                'sells_to_international_markets' => $this->f_sells_to_international_markets,
+                'uses_market_information_systems' => $this->f_uses_market_information_systems,
+                'market_information_systems' => $this->f_market_information_systems,
+                'aggregation_centers' => $this->f_aggregation_centers,
+                'aggregation_center_sales' => $this->f_aggregation_center_sales,
+
+            ];
+
+            foreach ($secondTable as $key => $value) {
+                if (is_array($value)) {
+                    $secondTable[$key] = json_encode($value);
+                }
+            }
+
+            RpmFarmerFollowUp::create($secondTable);
+
+            $this->alert('success', 'Submitted successfully!');
+
+        } catch (\Exception $e) {
+            # code...
+
+            dd($e);
         }
-        $this->reset();
     }
 
     public function render()

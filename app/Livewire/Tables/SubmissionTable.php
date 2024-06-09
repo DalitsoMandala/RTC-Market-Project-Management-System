@@ -29,7 +29,7 @@ final class SubmissionTable extends PowerGridComponent
     public bool $showFilters = true;
     public function setUp(): array
     {
-        $this->showCheckBox();
+        // $this->showCheckBox();
 
         return [
             Exportable::make('export')

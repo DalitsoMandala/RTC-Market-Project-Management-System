@@ -1,4 +1,12 @@
 <div>
+
+    <style>
+        input,
+        select,
+        label {
+            text-transform: uppercase;
+        }
+    </style>
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -21,12 +29,151 @@
         <div class="row">
             <div class="col-12">
 
+                <div class="mb-1 row justify-content-center">
+                    <form wire:submit='save'>
+
+                        <div class="d-flex ">
+                            <div class="card col-12 col-md-8">
+                                <div class="card-header fw-bold text-uppercase">Location</div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">ENTERPRISE</label>
+                                        <x-text-input wire:model='location_data.enterprise' />
+                                        @error('enterprise')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">DISTRICT</label>
+                                        <select class="form-select" wire:model='location_data.district'>
+                                            <option>BALAKA</option>
+                                            <option>BLANTYRE</option>
+                                            <option>CHIKWAWA</option>
+                                            <option>CHIRADZULU</option>
+                                            <option>CHITIPA</option>
+                                            <option>DEDZA</option>
+                                            <option>DOWA</option>
+                                            <option>KARONGA</option>
+                                            <option>KASUNGU</option>
+                                            <option>LILONGWE</option>
+                                            <option>MACHINGA</option>
+                                            <option>MANGOCHI</option>
+                                            <option>MCHINJI</option>
+                                            <option>MULANJE</option>
+                                            <option>MWANZA</option>
+                                            <option>MZIMBA</option>
+                                            <option>NENO</option>
+                                            <option>NKHATA BAY</option>
+                                            <option>NKHOTAKOTA</option>
+                                            <option>NSANJE</option>
+                                            <option>NTCHEU</option>
+                                            <option>NTCHISI</option>
+                                            <option>PHALOMBE</option>
+                                            <option>RUMPHI</option>
+                                            <option>SALIMA</option>
+                                            <option>THYOLO</option>
+                                            <option>ZOMBA</option>
+                                        </select>
+                                        @error('district')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">EPA</label>
+                                        <x-text-input wire:model='location_data.epa' />
+                                        @error('epa')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">SECTION</label>
+                                        <x-text-input wire:model='location_data.section' />
+                                        @error('section')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="location_data_enterprise" class="form-label">ENTERPRISE</label>
+                                        <input type="text" class="form-control" id="location_data_enterprise"
+                                            wire:model="location_data.enterprise">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="location_data_district" class="form-label">DISTRICT</label>
+                                        <input type="text" class="form-control" id="location_data_district"
+                                            wire:model="location_data.district">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="location_data_epa" class="form-label">EPA</label>
+                                        <input type="text" class="form-control" id="location_data_epa"
+                                            wire:model="location_data.epa">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="location_data_section" class="form-label">SECTION</label>
+                                        <input type="text" class="form-control" id="location_data_section"
+                                            wire:model="location_data.section">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="date" class="form-label">DATE</label>
+                                        <input type="date" class="form-control" id="date" wire:model="date">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="crop" class="form-label">CROP</label>
+                                        <input type="text" class="form-control" id="crop" wire:model="crop">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="male_count" class="form-label">MALES</label>
+                                        <input type="number" class="form-control" id="male_count"
+                                            wire:model="male_count">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="female_count" class="form-label">FEMALE</label>
+                                        <input type="number" class="form-control" id="female_count"
+                                            wire:model="female_count">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="total" class="form-label">TOTAL</label>
+                                        <input type="number" class="form-control" id="total" wire:model="total">
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="d-grid col-8 justify-content-center">
+                            <button class="btn btn-primary d-none" type="button" wire:click="addInput">Add More
+                                +</button>
+                            <button class="btn btn-success btn-lg" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </div>
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
@@ -54,5 +201,18 @@
 
 
     </div>
+    @script
+        <script>
+            let textInputs = document.querySelectorAll('input[type="text"]');
 
+            // Attach event listener to each input
+            textInputs.forEach(function(input) {
+                input.addEventListener('input', function() {
+                    // Convert input value to uppercase
+                    this.value = this.value.toUpperCase();
+                });
+
+            });
+        </script>
+    @endscript
 </div>

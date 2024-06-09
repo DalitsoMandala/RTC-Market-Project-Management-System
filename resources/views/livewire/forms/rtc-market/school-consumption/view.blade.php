@@ -151,7 +151,7 @@
                     </div>
                     <div class="card-body" id="#datatable">
 
-
+                        <livewire:tables.school-consumption-table/>
                     </div>
                 </div>
 

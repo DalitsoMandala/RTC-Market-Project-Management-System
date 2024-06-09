@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('rtc_production_farmers', function (Blueprint $table) {
             $table->id();
-            //  $table->foreignId('location_id')->constrained('rpm_farmer_locations', 'id');
             $table->json('location_data');
             $table->date('date_of_recruitment');
             $table->string('name_of_actor');

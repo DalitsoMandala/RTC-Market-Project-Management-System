@@ -19,7 +19,6 @@ final class FormTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -44,10 +43,10 @@ final class FormTable extends PowerGridComponent
             ->add('name')
             ->add('name_formatted', function ($model) {
 
-                $form_name = str_replace( ' ', '-',strtolower($model->name));
-                $project =str_replace( ' ', '-',strtolower($model->project->name));
+                $form_name = str_replace(' ', '-', strtolower($model->name));
+                $project = str_replace(' ', '-', strtolower($model->project->name));
 
-                return '<a  href="forms/' . $project . '/'.$form_name.'/view" >' . $model->name . '</a>';
+                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
 
             })
             ->add('type')
