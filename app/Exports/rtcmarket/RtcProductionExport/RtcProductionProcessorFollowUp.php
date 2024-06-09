@@ -30,11 +30,21 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
             foreach (range(1, 20) as $index) {
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
+                    'ENTERPRISE' => strtoupper($faker->streetName),
+                    'GROUP NAME' => $faker->name,
+                    'DISTRICT' => $faker->randomElement([
+                        'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
+                        'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
+                        'NENO', 'NKHATA BAY', 'NKHOTAKOTA', 'NSANJE', 'NTCHEU', 'NTCHISI', 'PHALOMBE', 'RUMPHI',
+                        'SALIMA', 'THYOLO', 'ZOMBA',
+                    ]),
+                    'EPA' => strtoupper($faker->city),
+                    'SECTION' => strtoupper($faker->streetName),
                     'DATE OF FOLLOW UP' => now(),
                     'MARKET SEGMENT/FRESH' => $faker->randomElement(['YES', 'NO']),
                     'MARKET SEGMENT/PROCESSED' => $faker->randomElement(['YES', 'NO']), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
                     'HAS RTC MARKET CONTRACT' => $faker->randomElement(['YES', 'NO']),
-                    'TOTAL PRODUCTION PREVIOUS SEASON' => $faker->optional()->numberBetween(1,100) * 10,
+                    'TOTAL PRODUCTION PREVIOUS SEASON' => $faker->optional()->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date,
                     'TOTAL IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->optional()->randomFloat(2, 1, 100),
@@ -59,7 +69,12 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
     {
         return [
             'RECRUIT ID',
-             'DATE OF FOLLOW UP',
+            'ENTERPRISE',
+            'GROUP NAME',
+            'DISTRICT',
+            'EPA',
+            'SECTION',
+            'DATE OF FOLLOW UP',
             'MARKET SEGMENT/FRESH',
             'MARKET SEGMENT/PROCESSED', // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
             'HAS RTC MARKET CONTRACT',

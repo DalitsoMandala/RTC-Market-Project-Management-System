@@ -116,12 +116,12 @@
                                         x-data ="{
                                     currentIndex : '{{ $key }}',
 
-                                }"class="card-header fw-bold d-flex justify-content-between align-items-center">
+                                }"class="card-header fw-bold d-flex justify-content-between align-items-center text-uppercase">
                                         <div>
-                                            Question <span class="badge bg-warning">{{ ++$form_count }}</span>
+                                            Questions <span class="badge bg-warning d-none">{{ ++$form_count }}</span>
                                         </div>
 
-                                        <span><button wire:click='removeInput({{ $key }})'
+                                        <span class="d-none"><button wire:click='removeInput({{ $key }})'
                                                 :disabled="parseInt(currentIndex) === 0" type="button"
                                                 class="btn btn-danger">
                                                 Remove
@@ -237,8 +237,7 @@
                                             @enderror
 
                                         </div>
-                                        {{ $inputs[$key]['under_5_in_household'] }} -
-                                        {{ $inputs[$key]['rtc_consumers'] }}
+
                                         <div class="mb-3">
                                             <label for="consumingRTC" class="form-label">Number of People in Household
                                                 Who
@@ -360,14 +359,16 @@
 
                                     </div>
 
+
                                 </div>
                             @endforeach
 
 
                         </div>
-                        <div class="gap-1 d-flex justify-content-center justify-content-md-start">
-                            <button class="btn btn-primary" type="button" wire:click="addInput">Add More +</button>
-                            <button class="btn btn-success" type="submit">Submit</button>
+                        <div class="d-grid col-8 justify-content-center">
+                            <button class="btn btn-primary d-none" type="button" wire:click="addInput">Add More
+                                +</button>
+                            <button class="btn btn-success btn-lg" type="submit">Submit</button>
                         </div>
                     </form>
                 </div>

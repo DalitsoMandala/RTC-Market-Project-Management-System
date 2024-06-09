@@ -18,6 +18,7 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW UP
     public $expectedHeadings = [
         'RECRUIT ID',
         'ENTERPRISE',
+        'GROUP NAME',
         'DISTRICT',
         'EPA',
         'SECTION',
@@ -106,6 +107,7 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW UP
                         'district' => $row['DISTRICT'],
                         'epa' => $row['EPA'],
                         'section' => $row['SECTION'],
+                        'group_name' => $row['GROUP NAME'],
                     ]),
                     'date_of_follow_up' => $row['DATE OF FOLLOW UP'],
                     'area_under_cultivation' => json_encode([

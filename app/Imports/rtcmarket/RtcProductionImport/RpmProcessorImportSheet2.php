@@ -23,6 +23,11 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW 
     }
     public $expectedHeadings = [
         'RECRUIT ID',
+        'ENTERPRISE',
+        'GROUP NAME',
+        'DISTRICT',
+        'EPA',
+        'SECTION',
         'MARKET SEGMENT/FRESH',
         'MARKET SEGMENT/PROCESSED', // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
         'HAS RTC MARKET CONTRACT',
@@ -66,6 +71,13 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW 
 
                 $main_data[] = [
                     'rpm_processor_id' => $row['RECRUIT ID'],
+                    'location_data' => json_encode([
+                        'enterprise' => $row['ENTERPRISE'],
+                        'district' => $row['DISTRICT'],
+                        'epa' => $row['EPA'],
+                        'section' => $row['SECTION'],
+                        'group_name' => $row['GROUP NAME'],
+                    ]),
                     'date_of_follow_up' => $row['DATE OF FOLLOW UP'],
                     'market_segment' => json_encode([
                         'fresh' => $row['MARKET SEGMENT/FRESH'],

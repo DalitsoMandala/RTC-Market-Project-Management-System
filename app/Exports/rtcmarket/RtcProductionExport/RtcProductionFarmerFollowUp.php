@@ -31,6 +31,7 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
                     'ENTERPRISE' => strtoupper($faker->streetName),
+                    'GROUP NAME' => $faker->name,
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
                         'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
@@ -104,6 +105,7 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
         return [
             'RECRUIT ID',
             'ENTERPRISE',
+            'GROUP NAME',
             'DISTRICT',
             'EPA',
             'SECTION',
