@@ -1,5 +1,5 @@
-<div class="alert alert-primary" role="alert">
-    <strong>SECTION C: RTC MARKETING FOLLOW-UP </strong>
+<div class="mb-5 alert alert-primary" id="section-c" role="alert">
+    <strong>SECTION C: RTC MARKETING (FOLLOW UP)</strong>
 </div>
 
 <div class="mb-3">
@@ -35,7 +35,7 @@
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
     <input type="number" class="form-control" id="totalVolumeProduction"
-        wire:model='f_total_production_previous_season'>
+        wire:model='f_total_vol_production_previous_season'>
 </div>
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->

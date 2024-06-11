@@ -1,10 +1,20 @@
 <div>
-
     <style>
         input,
         select,
         label {
             text-transform: uppercase;
+        }
+
+        .sticky-side {
+            position: sticky;
+            top: 120px;
+
+        }
+
+        .nav-pills a:hover {
+            background: #3980c0;
+            color: white;
         }
     </style>
     <div class="container-fluid">
@@ -27,14 +37,14 @@
         </div>
         <!-- end page title -->
         <div class="row">
-            <div class="col-12">
+            <div class="col-12 col-md-8">
 
                 <div class="mb-1 row justify-content-center">
                     <form wire:submit='save'>
 
-                        <div class="d-flex ">
-                            <div class="card col-12 col-md-8">
-                                <div class="card-header fw-bold">Location</div>
+                        <div class="row ">
+                            <div class="card col-12 col-md-12">
+                                <div class="card-header fw-bold" id="section-0">Location</div>
                                 <div class="card-body">
                                     <div class="mb-3">
                                         <label for="" class="form-label">ENTERPRISE</label>
@@ -98,39 +108,72 @@
                                 </div>
                             </div>
 
-                        </div>
-                        <div class="col-12 col-md-8">
-
-                            <div class="card">
-                                <div class="card-body">
-                                    @include('livewire.forms.rtc-market.rtc-production-processors.first')
-                                </div>
-                            </div>
-                            <div class="card">
-
-                                <div class="card-body">
-
-                                    @include('livewire.forms.rtc-market.rtc-production-processors.followup')
-
-                                </div>
-
-
-                            </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
-                                </div>
-                            </div>
 
                         </div>
 
+                        <div class="row">
+                            <div class="col-12 col-md-12">
 
-                        <div class="d-grid col-8 justify-content-center">
-                            <button class="btn btn-primary d-none" type="button" wire:click="addInput">Add More
-                                +</button>
-                            <button class="btn btn-success btn-lg" type="submit">Submit</button>
+                                <div class="card">
+                                    <div class="card-body">
+                                        @include('livewire.forms.rtc-market.rtc-production-processors.first')
+                                    </div>
+                                </div>
+                                <div class="card">
+
+                                    <div class="card-body">
+
+                                        @include('livewire.forms.rtc-market.rtc-production-processors.followup')
+
+                                    </div>
+
+
+                                </div>
+                                <div class="card">
+                                    <div class="card-body">
+                                        @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
+                                    </div>
+                                </div>
+
+                            </div>
+
+
                         </div>
+
+                        <div class="row">
+                            <div class="d-grid col-8 justify-content-center">
+                                <button class="btn btn-primary d-none" type="button" wire:click="addInput">Add More
+                                    +</button>
+                                <button class="btn btn-success btn-lg" type="submit">Submit</button>
+                            </div>
+                        </div>
+
                     </form>
+                </div>
+
+            </div>
+            <div class="d-none d-md-block col-md-4 ">
+                <div class="card sticky-side">
+                    <div class="card-body">
+                        <nav class="nav nav-pills flex-column nav-fill ">
+                            <a class="nav-link " aria-current="page" href="#section-0">LOCATION</a>
+                            <a class="nav-link" href="#section-a" href="#">SECTION A: RTC
+                                ACTOR PROFILE</a>
+
+                            <a class="nav-link" href="#section-b"href="#">SECTION B: RTC
+                                MARKETING</a>
+                            <a class="nav-link" href="#section-c" href="#">SECTION C: RTC
+                                MARKETING (FOLLOW UP) </a>
+
+                            <a class="nav-link" href="#section-d" href="#">CONTRACTUAL
+                                AGREEMENT</a>
+                            <a class="nav-link" href="#section-e" href="#">DOMESTIC
+                                MARKETS</a>
+                            <a class="nav-link" href="#section-f" href="#">INTERNATIONAL
+                                MARKETS</a>
+                        </nav>
+
+                    </div>
                 </div>
 
             </div>

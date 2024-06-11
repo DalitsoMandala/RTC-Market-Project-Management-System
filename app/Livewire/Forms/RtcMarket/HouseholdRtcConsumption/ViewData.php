@@ -63,51 +63,61 @@ class ViewData extends Component
                     throw new \Exception("You can not submit your data right now! Wait for your approval");
 
                 }
-                $uuid = session()->get('uuid');
-                $batch_data = session()->get('batch_data');
-                $name = 'hrc_' . time() . $uuid . '.' . $this->upload->getClientOriginalExtension();
+
+                $name = 'hrc_' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs(path: 'imports', name: $name);
                 $path = storage_path('app/imports/' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
-                $import = Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
 
-                $currentUser = Auth::user();
+                try {
+                    Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
 
-                if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
-                    $submission = Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $form->id,
-                        'user_id' => $currentUser->id,
-                        'status' => 'approved',
-                        'data' => json_encode($batch_data),
-                        'batch_type' => 'batch',
-                    ]);
+                    $uuid = session()->get('uuid');
+                    $batch_data = session()->get('batch_data');
 
-                    $data = json_decode($submission->data, true);
+                    $currentUser = Auth::user();
 
-                    foreach ($data as $row) {
+                    if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+                        $submission = Submission::create([
+                            'batch_no' => $uuid,
+                            'form_id' => $form->id,
+                            'user_id' => $currentUser->id,
+                            'status' => 'approved',
+                            'data' => json_encode($batch_data),
+                            'batch_type' => 'batch',
+                        ]);
 
-                        $insert = HouseholdRtcConsumption::create($row);
+                        $data = json_decode($submission->data, true);
+
+                        foreach ($data as $row) {
+
+                            $insert = HouseholdRtcConsumption::create($row);
+
+                        }
+
+                    } else if ($currentUser->hasAnyRole('external')) {
+
+                        Submission::create([
+                            'batch_no' => $uuid,
+                            'form_id' => $form->id,
+                            'period_id' => $this->period,
+                            'user_id' => $currentUser->id,
+                            'data' => json_encode($batch_data),
+                            'batch_type' => 'batch',
+                        ]);
 
                     }
 
-                } else if ($currentUser->hasAnyRole('external')) {
+                    $this->reset();
+                    $this->dispatch('removeUploadedFile');
+                    $this->dispatch('refresh');
+                    session()->flash('success', 'Successfully uploaded your data!');
+                } catch (\Exception $e) {
 
-                    Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $form->id,
-                        'period_id' => $this->period,
-                        'user_id' => $currentUser->id,
-                        'data' => json_encode($batch_data),
-                        'batch_type' => 'batch',
-                    ]);
-
+                    $this->reset();
+                    session()->flash('error', $e->getMessage());
                 }
 
-                $this->reset();
-                $this->dispatch('removeUploadedFile');
-                $this->dispatch('refresh');
-                session()->flash('success', 'Successfully uploaded your data!');
             }
 
         } catch (\Throwable $th) {

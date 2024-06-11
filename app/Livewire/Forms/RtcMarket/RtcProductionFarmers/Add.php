@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\RpmFarmerDomMarket;
 use App\Models\RpmFarmerFollowUp;
+use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
@@ -38,9 +41,9 @@ class Add extends Component
     public $uses_certified_seed = false;
     public $market_segment = []; // Multiple market segments (array of strings)
     public $has_rtc_market_contract = false;
-    public $total_production_previous_season;
+    public $total_vol_production_previous_season;
     public $total_production_value_previous_season = [];
-    public $total_irrigation_production_previous_season;
+    public $total_vol_irrigation_production_previous_season;
     public $total_irrigation_production_value_previous_season = [];
     public $sells_to_domestic_markets = false;
     public $sells_to_international_markets = false;
@@ -64,9 +67,9 @@ class Add extends Component
     public $f_uses_certified_seed;
     public $f_market_segment = [];
     public $f_has_rtc_market_contract;
-    public $f_total_production_previous_season;
+    public $f_total_vol_production_previous_season;
     public $f_total_production_value_previous_season = [];
-    public $f_total_irrigation_production_previous_season;
+    public $f_total_vol_irrigation_production_previous_season;
     public $f_total_irrigation_production_value_previous_season = [];
     public $f_sells_to_domestic_markets;
     public $f_sells_to_international_markets;
@@ -74,63 +77,33 @@ class Add extends Component
     public $f_market_information_systems;
     public $f_aggregation_centers = [];
     public $f_aggregation_center_sales;
+
+    public $inputOne = [];
+
+    public $inputTwo = [];
+
+    public $inputThree = [];
     public $uuid;
     public function rules()
     {
         return [
-            // 'location_data' => 'json',
-            // 'date_of_recruitment' => 'date|nullable',
-            // 'name_of_actor' => 'string',
-            // 'name_of_representative' => 'string',
-            // 'phone_number' => 'string',
-            // 'type' => 'string',
-            // 'approach' => 'string|nullable', // For producer organizations only
-            // 'sector' => 'string',
-            // 'number_of_members' => 'json|nullable', // For producer organizations only
-            // 'group' => 'string',
-            // 'establishment_status' => 'in:NEW,OLD',
-            // 'is_registered' => 'boolean',
-            // 'registration_details' => 'json',
-            // 'number_of_employees' => 'json|nullable',
-            // 'area_under_cultivation' => 'json|nullable', // Stores area by variety (key-value pairs)
-            // 'number_of_plantlets_produced' => 'integer|nullable',
-            // 'number_of_screen_house_vines_harvested' => 'integer|nullable', // Sweet potatoes
-            // 'number_of_screen_house_min_tubers_harvested' => 'integer|nullable', // Potatoes
-            // 'number_of_sah_plants_produced' => 'integer|nullable', // Cassava
-            // 'area_under_basic_seed_multiplication' => 'json|nullable', // Acres
-            // 'area_under_certified_seed_multiplication' => 'json|nullable', // Acres
-            // 'is_registered_seed_producer' => 'boolean',
-            // 'seed_service_unit_registration_details' => 'json|nullable',
-            // 'uses_certified_seed' => 'boolean',
-            // 'market_segment' => 'json|nullable', // Multiple market segments (array of strings)
-            // 'has_rtc_market_contract' => 'boolean',
-            // 'total_production_previous_season' => 'numeric|nullable', // Metric tonnes
-            // 'total_production_value_previous_season' => 'json|nullable', // MWK
-            // 'total_irrigation_production_previous_season' => 'numeric|nullable', // Metric tonnes
-            // 'total_irrigation_production_value_previous_season' => 'json|nullable', // MWK
-            // 'sells_to_domestic_markets' => 'boolean',
-            // 'sells_to_international_markets' => 'boolean',
-            // 'uses_market_information_systems' => 'boolean',
-            // 'market_information_systems' => 'string|nullable',
-            // 'aggregation_centers' => 'json|nullable', // Stores aggregation center details (array of objects with name and volume sold)
-            // 'aggregation_center_sales' => 'numeric', // Previous season volume in metric tonnes
-            // 'uuid' => 'string',
+
         ];
     }
 
     public function save()
     {
-//   /      dd($this->pull());
+        //   /      dd($this->pull());
 
         try {
             $uuid = Uuid::uuid4()->toString();
-            if ($this->market_segment['fresh']) {
+            if (isset($this->market_segment['fresh'])) {
                 $this->market_segment['fresh'] = "YES";
             } else {
                 $this->market_segment['fresh'] = "NO";
             }
 
-            if ($this->market_segment['processed']) {
+            if (isset($this->market_segment['processed'])) {
                 $this->market_segment['processed'] = "YES";
             } else {
                 $this->market_segment['processed'] = "NO";
@@ -163,9 +136,9 @@ class Add extends Component
 
                 'market_segment' => $this->market_segment, // Multiple market segments (array of strings)
                 'has_rtc_market_contract' => $this->has_rtc_market_contract,
-                'total_production_previous_season' => $this->total_production_previous_season, // Metric tonnes
+                'total_vol_production_previous_season' => $this->total_vol_production_previous_season, // Metric tonnes
                 'total_production_value_previous_season' => $this->total_production_value_previous_season, // MWK
-                'total_irrigation_production_previous_season' => $this->total_irrigation_production_previous_season, // Metric tonnes
+                'total_vol_irrigation_production_previous_season' => $this->total_vol_irrigation_production_previous_season, // Metric tonnes
                 'total_irrigation_production_value_previous_season' => $this->total_irrigation_production_value_previous_season, // MWK
                 'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                 'sells_to_international_markets' => $this->sells_to_international_markets,
@@ -187,6 +160,17 @@ class Add extends Component
 
             $recruit = RtcProductionFarmer::create($firstTable);
 
+            if (isset($this->f_market_segment['fresh'])) {
+                $this->f_market_segment['fresh'] = "YES";
+            } else {
+                $this->f_market_segment['fresh'] = "NO";
+            }
+
+            if (isset($this->f_market_segment['processed'])) {
+                $this->f_market_segment['processed'] = "YES";
+            } else {
+                $this->f_market_segment['processed'] = "NO";
+            }
             $secondTable = [
                 'rpm_farmer_id' => $recruit->id,
                 'location_data' => $this->f_location_data,
@@ -203,9 +187,9 @@ class Add extends Component
                 'uses_certified_seed' => $this->f_uses_certified_seed,
                 'market_segment' => $this->f_market_segment,
                 'has_rtc_market_contract' => $this->f_has_rtc_market_contract,
-                'total_production_previous_season' => $this->f_total_production_previous_season,
+                'total_vol_production_previous_season' => $this->f_total_vol_production_previous_season,
                 'total_production_value_previous_season' => $this->f_total_production_value_previous_season,
-                'total_irrigation_production_previous_season' => $this->f_total_irrigation_production_previous_season,
+                'total_vol_irrigation_production_previous_season' => $this->f_total_vol_irrigation_production_previous_season,
                 'total_irrigation_production_value_previous_season' => $this->f_total_irrigation_production_value_previous_season,
                 'sells_to_domestic_markets' => $this->f_sells_to_domestic_markets,
                 'sells_to_international_markets' => $this->f_sells_to_international_markets,
@@ -223,14 +207,231 @@ class Add extends Component
             }
 
             RpmFarmerFollowUp::create($secondTable);
+            $thirdTable = array();
+            foreach ($this->inputOne as $index => $input) {
 
-            $this->alert('success', 'Submitted successfully!');
+                $thirdTable[] = [
+
+                    'rpm_farmer_id' => $recruit->id,
+                    'date_recorded' => $input['conc_date_recorded'],
+                    'partner_name' => $input['conc_partner_name'],
+                    'country' => $input['conc_country'],
+                    'date_of_maximum_sale' => $input['conc_date_of_maximum_sale'],
+                    'product_type' => $input['conc_product_type'],
+                    'volume_sold_previous_period' => $input['conc_volume_sold_previous_period'],
+                    'financial_value_of_sales' => $input['conc_financial_value_of_sales'],
+                ];
+            }
+            foreach ($thirdTable as $data) {
+                RpmFarmerConcAgreement::create($data);
+            }
+
+            $fourthTable = [];
+
+            foreach ($this->inputTwo as $index => $input) {
+
+                $fourthTable[] = [
+                    'rpm_farmer_id' => $recruit->id,
+                    'date_recorded' => $input['dom_date_recorded'],
+                    'crop_type' => $input['dom_crop_type'],
+                    'market_name' => $input['dom_market_name'],
+                    'district' => $input['dom_district'],
+                    'date_of_maximum_sale' => $input['dom_date_of_maximum_sale'],
+                    'product_type' => $input['dom_product_type'],
+                    'volume_sold_previous_period' => $input['dom_volume_sold_previous_period'],
+                    'financial_value_of_sales' => $input['dom_financial_value_of_sales'],
+                ];
+            }
+
+            foreach ($fourthTable as $input) {
+                RpmFarmerDomMarket::create($input);
+            }
+
+            $fifthTable = [];
+            foreach ($this->inputThree as $index => $input) {
+                $fifthTable[] = [
+                    'rpm_farmer_id' => $recruit->id,
+                    'date_recorded' => $input['inter_date_recorded'],
+                    'crop_type' => $input['inter_crop_type'],
+                    'market_name' => $input['inter_market_name'],
+                    'country' => $input['inter_country'],
+                    'date_of_maximum_sale' => $input['inter_date_of_maximum_sale'],
+                    'product_type' => $input['inter_product_type'],
+                    'volume_sold_previous_period' => $input['inter_volume_sold_previous_period'],
+                    'financial_value_of_sales' => $input['inter_financial_value_of_sales'],
+                ];
+            }
+
+            foreach ($fifthTable as $input) {
+                RpmFarmerInterMarket::create($input);
+            }
+            $this->alert('success', 'Submitted successfully!', [
+                'toast' => false,
+            ]);
+
+            $this->reset();
+
+            $this->redirect('#');
 
         } catch (\Exception $e) {
             # code...
 
             dd($e);
         }
+    }
+
+    public function resetall()
+    {
+        $this->reset();
+        $this->inputOne[] = [
+            'conc_date_recorded' => null,
+            'conc_partner_name' => null,
+            'conc_country' => null,
+            'conc_date_of_maximum_sale' => null,
+            'conc_product_type' => null,
+            'conc_volume_sold_previous_period' => null,
+            'conc_financial_value_of_sales' => null,
+        ];
+        $this->inputTwo[] = [
+            'dom_date_recorded' => null,
+            'dom_crop_type' => null,
+            'dom_market_name' => null,
+            'dom_district' => null,
+            'dom_date_of_maximum_sale' => null,
+            'dom_product_type' => null,
+            'dom_volume_sold_previous_period' => null,
+            'dom_financial_value_of_sales' => null,
+        ];
+        $this->inputThree[] = [
+            'inter_date_recorded' => null,
+            'inter_crop_type' => null,
+            'inter_market_name' => null,
+            'inter_country' => null,
+            'inter_date_of_maximum_sale' => null,
+            'inter_product_type' => null,
+            'inter_volume_sold_previous_period' => null,
+            'inter_financial_value_of_sales' => null,
+        ];
+
+    }
+
+    public function addInputOne()
+    {
+        // Add a new set of empty values
+        $this->inputOne[] = [
+            'conc_date_recorded' => null,
+            'conc_partner_name' => null,
+            'conc_country' => null,
+            'conc_date_of_maximum_sale' => null,
+            'conc_product_type' => null,
+            'conc_volume_sold_previous_period' => null,
+            'conc_financial_value_of_sales' => null,
+        ];
+    }
+
+    public function removeInputOne($index)
+    {
+        // Remove the set of values at the given index
+        unset($this->inputOne[$index]);
+        // Reindex the array to avoid issues with gaps in the keys
+        // $this->inputOne = array_values($this->inputOne);
+    }
+
+    public function addInputTwo()
+    {
+        // Add a new set of empty values
+        $this->inputTwo[] = [
+            'dom_date_recorded' => null,
+            'dom_crop_type' => null,
+            'dom_market_name' => null,
+            'dom_district' => null,
+            'dom_date_of_maximum_sale' => null,
+            'dom_product_type' => null,
+            'dom_volume_sold_previous_period' => null,
+            'dom_financial_value_of_sales' => null,
+        ];
+    }
+
+    public function removeInputTwo($index)
+    {
+        // Remove the set of values at the given index
+        unset($this->inputTwo[$index]);
+        // Reindex the array to avoid issues with gaps in the keys
+        // $this->inputOne = array_values($this->inputOne);
+    }
+
+    public function addInputThree()
+    {
+        // Add a new set of empty values
+        $this->inputThree[] = [
+            'inter_date_recorded' => null,
+            'inter_crop_type' => null,
+            'inter_market_name' => null,
+            'inter_country' => null,
+            'inter_date_of_maximum_sale' => null,
+            'inter_product_type' => null,
+            'inter_volume_sold_previous_period' => null,
+            'inter_financial_value_of_sales' => null,
+        ];
+    }
+
+    public function removeInputThree($index)
+    {
+        // Remove the set of values at the given index
+        unset($this->inputThree[$index]);
+        // Reindex the array to avoid issues with gaps in the keys
+        // $this->inputOne = array_values($this->inputOne);
+    }
+
+    public function mount()
+    {
+
+        $this->fill(
+            [
+                'inputOne' =>
+                collect([
+                    [
+                        'conc_date_recorded' => null,
+                        'conc_partner_name' => null,
+                        'conc_country' => null,
+                        'conc_date_of_maximum_sale' => null,
+                        'conc_product_type' => null,
+                        'conc_volume_sold_previous_period' => null,
+                        'conc_financial_value_of_sales' => null,
+                    ],
+
+                ]),
+
+                'inputTwo' =>
+                collect([
+                    [
+                        'dom_date_recorded' => null,
+                        'dom_crop_type' => null,
+                        'dom_market_name' => null,
+                        'dom_district' => null,
+                        'dom_date_of_maximum_sale' => null,
+                        'dom_product_type' => null,
+                        'dom_volume_sold_previous_period' => null,
+                        'dom_financial_value_of_sales' => null,
+                    ],
+                ]),
+
+                'inputThree' =>
+                collect([
+                    [
+                        'inter_date_recorded' => null,
+                        'inter_crop_type' => null,
+                        'inter_market_name' => null,
+                        'inter_country' => null,
+                        'inter_date_of_maximum_sale' => null,
+                        'inter_product_type' => null,
+                        'inter_volume_sold_previous_period' => null,
+                        'inter_financial_value_of_sales' => null,
+                    ],
+                ]),
+            ]
+        );
+
     }
 
     public function render()

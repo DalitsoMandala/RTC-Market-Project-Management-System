@@ -39,9 +39,9 @@ return new class extends Migration
             $table->boolean('uses_certified_seed')->default(false);
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
             $table->boolean('has_rtc_market_contract')->default(false);
-            $table->decimal('total_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_production_value_previous_season')->nullable(); // MWK
-            $table->decimal('total_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);

@@ -1,4 +1,4 @@
-<div class="alert alert-primary" role="alert">
+<div class="mb-5 alert alert-primary" role="alert" id="section-a">
     <strong>SECTION A: RTC ACTOR PROFILE</strong>
 </div>
 
@@ -219,7 +219,7 @@
 
 
 
-<div class="alert alert-primary" role="alert">
+<div class="alert alert-primary" id="section-b" role="alert">
     <strong>SECTION B: RTC PRODUCTION </strong>
 </div>
 
@@ -533,7 +533,7 @@
 </div>
 
 
-<div class="alert alert-primary" role="alert">
+<div class="mb-5 alert alert-primary" id="section-c" role="alert">
     <strong>SECTION C: RTC MARKETING </strong>
 </div>
 <!-- Market Segment (Multiple Responses) -->
@@ -570,7 +570,7 @@
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
     <input type="number" class="form-control" id="totalVolumeProductions"
-        wire:model='total_production_previous_season'>
+        wire:model='total_vol_production_previous_season'>
 </div>
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->

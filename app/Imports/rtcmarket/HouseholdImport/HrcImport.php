@@ -5,11 +5,12 @@ namespace App\Imports\rtcmarket\HouseholdImport;
 use App\Helpers\ImportValidateHeading;
 use Exception;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Ramsey\Uuid\Uuid;
 
@@ -20,8 +21,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
     /**
      * @param Collection $collection
      */
-    use RegistersEventListeners;
-
+    use Importable, RegistersEventListeners;
     private $failures = [];
     protected $expectedHeadings = [
         'DATE OF ASSESSMENT',
@@ -55,10 +55,12 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
     public function collection(Collection $collection)
     {
         //
-        $headings = $collection->first()->keys()->toArray();
+        $headings = (new HeadingRowImport)->toArray($this->file);
+
+        $headings = $headings[0][0];
 
         // Check if the headings match the expected headings
-        $missingHeadings = $this->validateHeadings($headings);
+        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
 
         if (count($missingHeadings) > 0) {
             throw new Exception("Something went wrong. Please upload your data using the template file above");
@@ -122,32 +124,32 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
     }
 
-    public function registerEvents(): array
-    {
-        return [
-            // Handle by a closure.
-            BeforeImport::class => function (BeforeImport $event) {
-                // dd($event);
-                $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
+    // public function registerEvents(): array
+    // {
+    //     return [
+    //         // Handle by a closure.
+    //         BeforeImport::class => function (BeforeImport $event) {
+    //             // dd($event);
+    //             $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
 
-                if (count($diff) > 0) {
-                    session()->flash('error-import', "File contains invalid sheets!");
-                    throw new Exception("File contains invalid sheets!");
+    //             if (count($diff) > 0) {
+    //                 session()->flash('error-import', "File contains invalid sheets!");
+    //                 throw new Exception("File contains invalid sheets!");
 
-                }
-            },
+    //             }
+    //         },
 
-        ];
-    }
-    private function validateHeadings(array $headings)
-    {
-        // Collect missing headings
-        $missingHeadings = [];
-        foreach ($this->expectedHeadings as $expectedHeading) {
-            if (!in_array($expectedHeading, $headings)) {
-                $missingHeadings[] = $expectedHeading;
-            }
-        }
-        return $missingHeadings;
-    }
+    //     ];
+    // }
+    // private function validateHeadings(array $headings)
+    // {
+    //     // Collect missing headings
+    //     $missingHeadings = [];
+    //     foreach ($this->expectedHeadings as $expectedHeading) {
+    //         if (!in_array($expectedHeading, $headings)) {
+    //             $missingHeadings[] = $expectedHeading;
+    //         }
+    //     }
+    //     return $missingHeadings;
+    // }
 }
