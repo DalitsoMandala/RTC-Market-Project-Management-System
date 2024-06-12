@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Partner;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class PartnerSeeder extends Seeder
@@ -14,36 +13,12 @@ class PartnerSeeder extends Seeder
     public function run(): void
     {
 
-        $user = User::where('email', 'daes@example.com')->first();
+        $partners = ['CIP', 'IITA', 'DAES', 'DCD', 'Ministry of Trade', 'TRADELINE', 'DARS', 'RTCDT', 'ACE'];
 
-        Partner::create([
-            'organisation_name' => 'DAES',
-            'user_id' => $user->id,
-        ]);
+        foreach ($partners as $partner) {
 
-        $user = User::where('email', 'dcd@example.com')->first();
-        Partner::create([
-            'organisation_name' => 'DCD',
-            'user_id' => $user->id,
-        ]);
-
-        $user = User::where('email', 'iita@example.com')->first();
-        Partner::create([
-            'organisation_name' => 'IITA',
-            'user_id' => $user->id,
-        ]);
-
-        $user = User::where('email', 'staff@example.com')->first();
-        Partner::create([
-            'organisation_name' => 'CIP',
-            'user_id' => $user->id,
-        ]);
-
-        $user = User::where('email', 'organiserp@example.com')->first();
-        Partner::create([
-            'organisation_name' => 'CIP',
-            'user_id' => $user->id,
-        ]);
+            $partner = Partner::create(['name' => $partner, 'project_id' => 1]); // for RTC MARKET
+        }
 
     }
 }
