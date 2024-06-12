@@ -4,13 +4,13 @@
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                <div class="page-title-box d-flex align-items-center justify-content-end">
+
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="../../forms">Forms</a></li>
+                            <li class="breadcrumb-item"><a href="../../">Forms</a></li>
                             <li class="breadcrumb-item active">View</li>
                         </ol>
                     </div>
@@ -22,6 +22,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+
                     <div class="card-header" x-data="{
                         is_open: false
                     }">
@@ -37,7 +38,7 @@
 
                         <div class="my-2 border shadow-none card card-body" x-show="is_open">
                             <h5> Instructions</h5>
-                            <p class="alert bg-info-subtle">Download the household
+                            <p class="alert bg-info-subtle text-uppercase">Download the household
                                 RTC
                                 consumption template & uploading your
                                 data.</p>
@@ -157,32 +158,6 @@
 
             </div>
         </div>
-
-
-
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
 
 
 

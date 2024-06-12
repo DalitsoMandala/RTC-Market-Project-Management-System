@@ -7,6 +7,7 @@ use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
 use App\Models\Submission;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
@@ -232,11 +233,20 @@ class AddData extends Component
 
             $this->readdInputs();
 
-            $this->alert('success', 'successfully submitted!');
+            $this->alert('success', 'Successfully submitted!', [
+                'toast' => false,
+                'position' => 'center',
+            ]);
+
+            session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+            $this->dispatch('to-top');
         } catch (\Throwable $th) {
             $this->alert('error', 'something went wrong!', [
                 'toast' => false,
+                'position' => 'center',
             ]);
+
+            Log::channel('system')->error($e);
 
         }
 
