@@ -2,38 +2,61 @@
 
 namespace App\Livewire\Forms\RtcMarket\SchoolConsumption;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
+use App\Models\SchoolRtcConsumption;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
+use Ramsey\Uuid\Uuid;
+
 class Add extends Component
 {
-        use LivewireAlert;
-   #[Validate('required')]
-public $variable;
-public $rowId;
+    use LivewireAlert;
 
-    public function setData($id){
-$this->resetErrorBag();
+    public $variable;
+    public $rowId;
+
+    public $location_data = [];
+
+    public $date;
+    public $crop;
+    public $male_count;
+    public $female_count;
+    public $total;
+
+    public function setData($id)
+    {
+        $this->resetErrorBag();
 
     }
 
- public function save(){
+    public function save()
+    {
 
-$this->resetErrorBag();
-    try {
+        try {
+            # code...
+            $uuid = Uuid::uuid4()->toString();
+            $table = [
+                'date' => $this->date,
+                'location_data' => json_encode($this->location_data),
+                'male_count' => $this->male_count,
+                'female_count' => $this->female_count,
+                'total' => $this->total,
+                'crop' => $this->crop,
+                'uuid' => $uuid,
+                'user_id' => auth()->user()->id,
+            ];
 
+            SchoolRtcConsumption::create($table);
+            $this->alert('success', 'Successfully submitted!', [
+                'toast' => false,
+                'position' => 'center',
+            ]);
+        } catch (\Throwable $e) {
+            # code...
 
-
-            $this->alert('success', 'Successfully updated');
-
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
+            dd($e);
         }
-$this->reset();
-    }
 
+    }
 
     public function render()
     {

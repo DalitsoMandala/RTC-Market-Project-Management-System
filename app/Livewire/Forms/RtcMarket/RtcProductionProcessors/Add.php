@@ -2,6 +2,11 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
+use App\Models\RpmProcessorConcAgreement;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RpmProcessorInterMarket;
+use App\Models\RtcProductionProcessor;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
@@ -118,16 +123,6 @@ class Add extends Component
                 'is_registered' => $this->is_registered,
                 'registration_details' => $this->registration_details,
                 'number_of_employees' => $this->number_of_employees,
-                'area_under_cultivation' => $this->area_under_cultivation, // Stores area by variety (key-value pairs)
-                'number_of_plantlets_produced' => $this->number_of_plantlets_produced,
-                'number_of_screen_house_vines_harvested' => $this->number_of_screen_house_vines_harvested, // Sweet potatoes
-                'number_of_screen_house_min_tubers_harvested' => $this->number_of_screen_house_min_tubers_harvested, // Potatoes
-                'number_of_sah_plants_produced' => $this->number_of_sah_plants_produced, // Cassava
-                'area_under_basic_seed_multiplication' => $this->area_under_basic_seed_multiplication, // Acres
-                'area_under_certified_seed_multiplication' => $this->area_under_certified_seed_multiplication, // Acres
-                'is_registered_seed_producer' => $this->is_registered_seed_producer,
-                'seed_service_unit_registration_details' => $this->seed_service_unit_registration_details,
-                'uses_certified_seed' => $this->uses_certified_seed,
 
                 'market_segment' => $this->market_segment, // Multiple market segments (array of strings)
                 'has_rtc_market_contract' => $this->has_rtc_market_contract,
@@ -153,7 +148,7 @@ class Add extends Component
                 }
             }
 
-            $recruit = RtcProductionFarmer::create($firstTable);
+            $recruit = RtcProductionProcessor::create($firstTable);
 
             if (isset($this->f_market_segment['fresh'])) {
                 $this->f_market_segment['fresh'] = "YES";
@@ -167,8 +162,8 @@ class Add extends Component
                 $this->f_market_segment['processed'] = "NO";
             }
             $secondTable = [
-                'rpm_farmer_id' => $recruit->id,
-                'location_data' => $this->f_location_data,
+                'rpm_processor_id' => $recruit->id,
+                'location_data' => $this->location_data,
                 'date_of_follow_up' => $this->f_date_of_follow_up,
                 'area_under_cultivation' => $this->f_area_under_cultivation,
                 'number_of_plantlets_produced' => $this->f_number_of_plantlets_produced,
@@ -201,13 +196,13 @@ class Add extends Component
                 }
             }
 
-            RpmFarmerFollowUp::create($secondTable);
+            RpmProcessorFollowUp::create($secondTable);
             $thirdTable = array();
             foreach ($this->inputOne as $index => $input) {
 
                 $thirdTable[] = [
 
-                    'rpm_farmer_id' => $recruit->id,
+                    'rpm_processor_id' => $recruit->id,
                     'date_recorded' => $input['conc_date_recorded'],
                     'partner_name' => $input['conc_partner_name'],
                     'country' => $input['conc_country'],
@@ -218,7 +213,7 @@ class Add extends Component
                 ];
             }
             foreach ($thirdTable as $data) {
-                RpmFarmerConcAgreement::create($data);
+                RpmProcessorConcAgreement::create($data);
             }
 
             $fourthTable = [];
@@ -226,7 +221,7 @@ class Add extends Component
             foreach ($this->inputTwo as $index => $input) {
 
                 $fourthTable[] = [
-                    'rpm_farmer_id' => $recruit->id,
+                    'rpm_processor_id' => $recruit->id,
                     'date_recorded' => $input['dom_date_recorded'],
                     'crop_type' => $input['dom_crop_type'],
                     'market_name' => $input['dom_market_name'],
@@ -239,13 +234,13 @@ class Add extends Component
             }
 
             foreach ($fourthTable as $input) {
-                RpmFarmerDomMarket::create($input);
+                RpmProcessorDomMarket::create($input);
             }
 
             $fifthTable = [];
             foreach ($this->inputThree as $index => $input) {
                 $fifthTable[] = [
-                    'rpm_farmer_id' => $recruit->id,
+                    'rpm_processor_id' => $recruit->id,
                     'date_recorded' => $input['inter_date_recorded'],
                     'crop_type' => $input['inter_crop_type'],
                     'market_name' => $input['inter_market_name'],
@@ -258,10 +253,11 @@ class Add extends Component
             }
 
             foreach ($fifthTable as $input) {
-                RpmFarmerInterMarket::create($input);
+                RpmProcessorInterMarket::create($input);
             }
             $this->alert('success', 'Submitted successfully!', [
                 'toast' => false,
+                'position' => 'center',
             ]);
 
             $this->reset();

@@ -22,7 +22,7 @@ class SrcExport implements FromCollection, WithHeadings, WithTitle
         foreach (range(1, 15) as $index) {
 
             $data[] = [
-                'ENTERPRISE' => strtoupper($faker->streetName),
+                'SCHOOL NAME' => strtoupper($faker->streetName),
                 'DISTRICT' => $faker->randomElement([
                     'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
                     'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
@@ -47,7 +47,7 @@ class SrcExport implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
-            'ENTERPRISE',
+            'SCHOOL NAME',
             'DISTRICT',
             'EPA',
             'SECTION',

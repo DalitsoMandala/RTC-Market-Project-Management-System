@@ -36,7 +36,7 @@ class SrcImport implements ToCollection, WithHeadingRow, WithEvents
 
     private $failures = [];
     protected $expectedHeadings = [
-        'ENTERPRISE',
+        'SCHOOL NAME',
         'DISTRICT',
         'EPA',
         'SECTION',
@@ -67,7 +67,7 @@ class SrcImport implements ToCollection, WithHeadingRow, WithEvents
 
                 $main_data[] = [
                     'location_data' => json_encode([
-                        'enterprise' => $row['ENTERPRISE'],
+                        'school_name' => $row['SCHOOL NAME'],
                         'district' => $row['DISTRICT'],
                         'epa' => $row['EPA'],
                         'section' => $row['SECTION'],

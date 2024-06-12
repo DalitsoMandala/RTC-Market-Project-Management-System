@@ -32,19 +32,19 @@
                 <div class="mb-1 row justify-content-center">
                     <form wire:submit='save'>
 
-                        <div class="d-flex ">
-                            <div class="card col-12 col-md-8">
-                                <div class="card-header fw-bold text-uppercase">Location</div>
+
+                        <div class="col-12 col-md-8">
+                            <div class="card">
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label for="" class="form-label">ENTERPRISE</label>
-                                        <x-text-input wire:model='location_data.enterprise' />
-                                        @error('enterprise')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
+                                        <label for="location_data_enterprise" class="form-label">SCHOOL NAME</label>
+                                        <input type="text" class="form-control" id="location_data_enterprise"
+                                            wire:model="location_data.enterprise">
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="" class="form-label">DISTRICT</label>
+                                        <label for="location_data_district" class="form-label">DISTRICT</label>
+
                                         <select class="form-select" wire:model='location_data.district'>
                                             <option>BALAKA</option>
                                             <option>BLANTYRE</option>
@@ -80,41 +80,6 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="" class="form-label">EPA</label>
-                                        <x-text-input wire:model='location_data.epa' />
-                                        @error('epa')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="" class="form-label">SECTION</label>
-                                        <x-text-input wire:model='location_data.section' />
-                                        @error('section')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-12 col-md-8">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="location_data_enterprise" class="form-label">ENTERPRISE</label>
-                                        <input type="text" class="form-control" id="location_data_enterprise"
-                                            wire:model="location_data.enterprise">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="location_data_district" class="form-label">DISTRICT</label>
-                                        <input type="text" class="form-control" id="location_data_district"
-                                            wire:model="location_data.district">
-                                    </div>
-
-                                    <div class="mb-3">
                                         <label for="location_data_epa" class="form-label">EPA</label>
                                         <input type="text" class="form-control" id="location_data_epa"
                                             wire:model="location_data.epa">
@@ -133,7 +98,14 @@
 
                                     <div class="mb-3">
                                         <label for="crop" class="form-label">CROP</label>
-                                        <input type="text" class="form-control" id="crop" wire:model="crop">
+
+                                        <select class="form-select form-select-md" wire:model="crop">
+
+                                            <option>CASSAVA</option>
+                                            <option>POTATO</option>
+                                            <option>SWEET POTATO</option>
+                                        </select>
+
                                     </div>
 
                                     <div class="mb-3">
@@ -150,7 +122,8 @@
 
                                     <div class="mb-3">
                                         <label for="total" class="form-label">TOTAL</label>
-                                        <input type="number" class="form-control" id="total" wire:model="total">
+                                        <input type="number" class="form-control bg-light" id="total"
+                                            wire:model="total">
                                     </div>
 
                                 </div>

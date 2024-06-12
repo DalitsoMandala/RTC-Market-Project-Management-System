@@ -173,7 +173,7 @@ class Add extends Component
             }
             $secondTable = [
                 'rpm_farmer_id' => $recruit->id,
-                'location_data' => $this->f_location_data,
+                'location_data' => $this->location_data,
                 'date_of_follow_up' => $this->f_date_of_follow_up,
                 'area_under_cultivation' => $this->f_area_under_cultivation,
                 'number_of_plantlets_produced' => $this->f_number_of_plantlets_produced,
@@ -267,6 +267,7 @@ class Add extends Component
             }
             $this->alert('success', 'Submitted successfully!', [
                 'toast' => false,
+                'position' => 'center',
             ]);
 
             $this->reset();
