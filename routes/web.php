@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\rtc_market\indicators\B1;
 use App\Http\Controllers\TestingController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
@@ -22,8 +23,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/a1', function () {
-
+Route::get('/test', function () {
+    $b1 = new B1();
+    return dd($b1->getDisaggregations());
 });
 
 Route::get('/export/{name}', [TestingController::class, 'index']);

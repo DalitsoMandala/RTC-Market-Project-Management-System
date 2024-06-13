@@ -52,20 +52,76 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('approach')
             ->add('sector')
             ->add('number_of_members')
+
+            ->add('female_18', function ($model) {
+
+                return json_decode($model->number_of_members)->female_18_35;
+            })
+            ->add('number_of_members_total', function ($model) {
+
+                return json_decode($model->number_of_members)->total;
+            })
+
+            ->add('number_of_members_male_18_35', function ($model) {
+
+                return json_decode($model->number_of_members)->male_18_35;
+            })
+
+            ->add('number_of_members_male_35_plus', function ($model) {
+
+                return json_decode($model->number_of_members)->male_35_plus;
+            })
+            ->add('number_of_members_female_35_plus', function ($model) {
+
+                return json_decode($model->number_of_members)->female_35_plus;
+            })
             ->add('group')
             ->add('establishment_status')
             ->add('is_registered')
             ->add('registration_details')
+
+            ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body)
+            ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date)
+            ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number)
             ->add('number_of_employees')
             ->add('area_under_cultivation')
+
+            ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
+            ->add('area_under_cultivation_variety_1', fn($model) => json_decode($model->area_under_cultivation)->variety_1)
+            ->add('area_under_cultivation_variety_2', fn($model) => json_decode($model->area_under_cultivation)->variety_2)
+            ->add('area_under_cultivation_variety_3', fn($model) => json_decode($model->area_under_cultivation)->variety_3)
+            ->add('area_under_cultivation_variety_4', fn($model) => json_decode($model->area_under_cultivation)->variety_4)
+            ->add('area_under_cultivation_variety_5', fn($model) => json_decode($model->area_under_cultivation)->variety_5)
             ->add('number_of_plantlets_produced')
+            ->add('number_of_plantlets_produced_potato', fn($model) => json_decode($model->number_of_plantlets_produced)->potato)
+            ->add('number_of_plantlets_produced_cassava', fn($model) => json_decode($model->number_of_plantlets_produced)->cassava)
+            ->add('number_of_plantlets_produced_sw_potato', fn($model) => json_decode($model->number_of_plantlets_produced)->sweet_potato)
+
             ->add('number_of_screen_house_vines_harvested')
             ->add('number_of_screen_house_min_tubers_harvested')
             ->add('number_of_sah_plants_produced')
             ->add('area_under_basic_seed_multiplication')
+            ->add('basic_seed_multiplication_total', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->total)
+            ->add('basic_seed_multiplication_variety_1', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_1)
+            ->add('basic_seed_multiplication_variety_2', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_2)
+            ->add('basic_seed_multiplication_variety_3', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_3)
+            ->add('basic_seed_multiplication_variety_4', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_4)
+            ->add('basic_seed_multiplication_variety_5', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_5)
+            ->add('basic_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6)
+            ->add('basic_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7)
             ->add('area_under_certified_seed_multiplication')
+            ->add('area_under_certified_seed_multiplication_total', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->total)
+            ->add('area_under_certified_seed_multiplication_variety_1', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_1)
+            ->add('area_under_certified_seed_multiplication_variety_2', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_2)
+            ->add('area_under_certified_seed_multiplication_variety_3', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_3)
+            ->add('area_under_certified_seed_multiplication_variety_4', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_4)
+            ->add('area_under_certified_seed_multiplication_variety_5', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_5)
+            ->add('area_under_certified_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6)
+            ->add('area_under_certified_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7)
             ->add('is_registered_seed_producer')
             ->add('seed_service_unit_registration_details')
+            ->add('service_unit_date')
+            ->add('service_unit_number')
             ->add('uses_certified_seed')
             ->add('market_segment')
             ->add('has_rtc_market_contract')
@@ -114,7 +170,19 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of members', 'number_of_members')
+            Column::make('Number of members/total', 'number_of_members_total')
+                ->sortable()
+                ->searchable(),
+            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35')
+                ->sortable()
+                ->searchable(),
+            Column::make('Number of members/Female 18-35', 'female_18')
+                ->sortable()
+                ->searchable(),
+            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus')
+                ->sortable()
+                ->searchable(),
+            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus')
                 ->sortable()
                 ->searchable(),
 
@@ -130,11 +198,13 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Registration details', 'registration_details')
+            Column::make('Registration details/Body', 'registration_details_body')
                 ->sortable()
                 ->searchable(),
-
-            Column::make('Number of employees', 'number_of_employees')
+            Column::make('Registration details/date', 'registration_details_date')
+                ->sortable()
+                ->searchable(),
+            Column::make('Registration details/number', 'registration_details_number')
                 ->sortable()
                 ->searchable(),
 

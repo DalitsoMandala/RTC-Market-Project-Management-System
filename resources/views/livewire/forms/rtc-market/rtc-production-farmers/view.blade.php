@@ -6,7 +6,7 @@
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-end">
 
-                    offcanvas
+
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>

@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Helpers\rtc_market\indicators\A1;
+use App\Helpers\rtc_market\indicators\B1;
 use App\Models\IndicatorDisaggregation;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
@@ -54,15 +55,18 @@ final class ReportingTable extends PowerGridComponent
         });
 
         $finalCollection = $collection->transform(function ($item) {
-            // all other projects will be added below
-            if ($item['project'] === 'RTC MARKET') {
-                $indicatorA1 = new A1($this->start_date, $this->end_date);
-                $results = $this->mapData($indicatorA1->getDisaggregations(), $item);
-                $item = $results;
+            switch ($item['number']) {
+                case 'A1':
+                    $indicator = new A1($this->start_date, $this->end_date);
+                    $item = $this->mapData($indicator->getDisaggregations(), $item);
+                    break;
+                case 'B1':
+                    $indicator = new B1($this->start_date, $this->end_date);
+                    $item = $this->mapData($indicator->getDisaggregations(), $item);
+                    break;
             }
 
             return $item;
-
         });
 
         return $finalCollection;
