@@ -82,6 +82,8 @@ class Submissions extends Component
         $this->dispatch('hideModal');
         $this->reset();
     }
+
+
     public function render()
     {
         return view('livewire.internal.cip.submissions');

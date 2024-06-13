@@ -80,15 +80,12 @@ final class SubmissionTable extends PowerGridComponent
             ->add('batch_no_formatted', function ($model) {
 
                 $form = Form::find($model->form_id);
-                switch ($form->name) {
-                    case 'HOUSEHOLD CONSUMPTION FORM':
-                        return '<a  href="submissions/household-rtc-consumption/' . $model->batch_no . '" >' . $model->batch_no . '</a>';
-                        break;
+                $form_name = $form->name;
+                $project = $form->project->name;
+                $project_name = strtolower(str_replace(' ', '-', $project));
 
-                    default:
-                        return null;
-                }
-
+                $formatted_name = strtolower(str_replace(' ', '-', $form_name));
+                return '<a href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
             })
             ->add('user_id')
             ->add('username', function ($model) {

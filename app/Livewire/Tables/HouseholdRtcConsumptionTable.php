@@ -19,9 +19,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
     use WithExport;
     public $userId;
+
+    public $uuid;
     public function setUp(): array
     {
-       // $this->showCheckBox();
+        // $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -37,7 +39,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-
+        if ($this->uuid) {
+            return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId)->where('uuid', $this->uuid);
+        }
         return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId);
     }
 

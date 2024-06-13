@@ -64,6 +64,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     //forms
     Route::get('/forms/{project}/household-consumption-form/add', HRCAddData::class);
     Route::get('/forms/{project}/household-consumption-form/view', HRCViewData::class);
+    Route::get('/forms/{project}/household-consumption-form/{batch}/view', HRCViewData::class);
 
     Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/add', RTCMAddData::class);
     Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/view', RTCMViewData::class);

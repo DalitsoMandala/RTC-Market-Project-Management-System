@@ -13,7 +13,7 @@ class PartnerSeeder extends Seeder
     public function run(): void
     {
 
-        $partners = ['CIP', 'IITA', 'DAES', 'DCD', 'Ministry of Trade', 'TRADELINE', 'DARS', 'RTCDT', 'ACE'];
+        $partners = ['CIP', 'IITA', 'DAES', 'DCD', 'MINISTRY OF TRADE', 'TRADELINE', 'DARS', 'RTCDT', 'ACE'];
 
         foreach ($partners as $partner) {
 

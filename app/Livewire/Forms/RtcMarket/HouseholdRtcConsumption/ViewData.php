@@ -34,15 +34,34 @@ class ViewData extends Component
 
     public $period;
 
-    public function mount()
+    public $batch_no;
+    public function mount($batch = null)
     {
-        $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM FARMERS')->first();
+
+        $form = Form::with('project')->where('name', 'HOUSEHOLD CONSUMPTION FORM')
+            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
+
+        if (!$form) {
+            abort(404);
+        }
+
+        if ($batch) {
+            $data = HouseholdRtcConsumption::where('uuid', $batch)->first();
+            $this->batch_no = $data->uuid ?? null;
+
+            if (!$this->batch_no) {
+                abort(404);
+            }
+
+        }
+
         $period = $form->submissionPeriods->where('is_open', true)->first();
         if ($period) {
             $this->period = $period->id;
         } else {
             $this->period = null;
         }
+
     }
 
     public function submitUpload()
@@ -55,7 +74,9 @@ class ViewData extends Component
             $userId = auth()->user()->id;
 
             if ($this->upload) {
-                $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+
+                $form = Form::with('project')->where('name', 'HOUSEHOLD CONSUMPTION FORM')
+                    ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
 
                 $submissionCount = Submission::where('period_id', $this->period)->where('form_id', $form->id)->whereNot('status', 'approved')->count();
 
