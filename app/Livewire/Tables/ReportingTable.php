@@ -4,6 +4,7 @@ namespace App\Livewire\Tables;
 
 use App\Helpers\rtc_market\indicators\A1;
 use App\Helpers\rtc_market\indicators\B1;
+use App\Helpers\rtc_market\indicators\Indicator_2_2_1;
 use App\Models\IndicatorDisaggregation;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
@@ -62,6 +63,10 @@ final class ReportingTable extends PowerGridComponent
                     break;
                 case 'B1':
                     $indicator = new B1($this->start_date, $this->end_date);
+                    $item = $this->mapData($indicator->getDisaggregations(), $item);
+                    break;
+                case '2.2.1':
+                    $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
                     $item = $this->mapData($indicator->getDisaggregations(), $item);
                     break;
             }

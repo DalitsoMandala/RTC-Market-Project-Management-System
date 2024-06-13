@@ -122,19 +122,23 @@ class A1
 
     public function getDisaggregations()
     {
+        $gender = $this->findGender();
+        $age = $this->findAge();
+        $actorType = $this->findActorType();
+        $crop = $this->findByCrop();
 
         return [
-            'Total' => (int) $this->findTotal(),
-            'Female' => (int) $this->findGender()['FemaleCount'],
-            'Male' => (int) $this->findGender()['MaleCount'],
-            'Youth (18-35 yrs)' => (int) $this->findAge()['youth'],
-            'Not youth (35yrs+)' => (int) $this->findAge()['not_youth'],
-            'Farmers' => (int) $this->findActorType()['farmer'],
-            'Processors' => (int) $this->findActorType()['processor'],
-            'Traders' => (int) $this->findActorType()['trader'],
-            'Cassava' => (int) $this->findByCrop()['cassava'],
-            'Potato' => (int) $this->findByCrop()['potato'],
-            'Sweet potato' => (int) $this->findByCrop()['sweet_potato'],
+            'Total' => $this->findTotal(),
+            'Female' => (int) $gender['FemaleCount'],
+            'Male' => (int) $gender['MaleCount'],
+            'Youth (18-35 yrs)' => (int) $age['youth'],
+            'Not youth (35yrs+)' => (int) $age['not_youth'],
+            'Farmers' => (int) $actorType['farmer'],
+            'Processors' => (int) $actorType['processor'],
+            'Traders' => (int) $actorType['trader'],
+            'Cassava' => (int) $crop['cassava'],
+            'Potato' => (int) $crop['potato'],
+            'Sweet potato' => (int) $crop['sweet_potato'],
         ];
 
     }
