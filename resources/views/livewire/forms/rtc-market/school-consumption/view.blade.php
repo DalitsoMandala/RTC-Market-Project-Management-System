@@ -151,7 +151,7 @@
                     </div>
                     <div class="card-body" id="#datatable">
 
-                        <livewire:tables.school-consumption-table/>
+                        <livewire:tables.rtc-market.school-consumption-table />
                     </div>
                 </div>
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables\RtcMarket;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
@@ -12,8 +12,8 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class SchoolConsumptionTable extends PowerGridComponent
@@ -45,7 +45,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('location_data')
-            ->add('date_formatted', fn ($model) => Carbon::parse($model->date)->format('d/m/Y'))
+            ->add('date_formatted', fn($model) => Carbon::parse($model->date)->format('d/m/Y'))
             ->add('crop')
             ->add('male_count')
             ->add('female_count')
@@ -101,7 +101,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
             Column::make('Updated at', 'updated_at')
                 ->sortable()
                 ->searchable(),
-                Column::action('Action')
+            Column::action('Action'),
         ];
     }
 
@@ -115,29 +115,29 @@ final class SchoolConsumptionTable extends PowerGridComponent
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js('alert(' . $rowId . ')');
     }
 
     public function actions($row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$row->id)
+                ->slot('Edit: ' . $row->id)
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->dispatch('edit', ['rowId' => $row->id]),
         ];
     }
 
     /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+public function actionRules($row): array
+{
+return [
+// Hide button edit for ID 1
+Rule::button('edit')
+->when(fn($row) => $row->id === 1)
+->hide(),
+];
+}
+ */
 }

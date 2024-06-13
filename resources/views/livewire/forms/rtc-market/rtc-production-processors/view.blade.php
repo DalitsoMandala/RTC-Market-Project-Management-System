@@ -150,7 +150,7 @@
                         </div>
                     </div>
                     <div class="card-body" id="#datatable">
-                        <livewire:tables.rtc-production-processors-table />
+                        <livewire:tables.rtc-market.rtc-production-processors-table />
 
                     </div>
                 </div>

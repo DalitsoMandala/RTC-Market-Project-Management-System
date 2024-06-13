@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\tables;
+namespace App\Livewire\Tables\RtcMarket;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
@@ -16,13 +16,13 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
-final class RtcProductionProcessorsTable extends PowerGridComponent
+final class RtcProductionFarmersTable extends PowerGridComponent
 {
     use WithExport;
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //  $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -37,14 +37,13 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('rtc_production_processors');
+        return DB::table('rtc_production_farmers');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('location_data')
             ->add('date_of_recruitment_formatted', fn($model) => Carbon::parse($model->date_of_recruitment)->format('d/m/Y'))
             ->add('name_of_actor')
             ->add('name_of_representative')
@@ -58,6 +57,16 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('is_registered')
             ->add('registration_details')
             ->add('number_of_employees')
+            ->add('area_under_cultivation')
+            ->add('number_of_plantlets_produced')
+            ->add('number_of_screen_house_vines_harvested')
+            ->add('number_of_screen_house_min_tubers_harvested')
+            ->add('number_of_sah_plants_produced')
+            ->add('area_under_basic_seed_multiplication')
+            ->add('area_under_certified_seed_multiplication')
+            ->add('is_registered_seed_producer')
+            ->add('seed_service_unit_registration_details')
+            ->add('uses_certified_seed')
             ->add('market_segment')
             ->add('has_rtc_market_contract')
             ->add('total_production_previous_season')
@@ -70,8 +79,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('market_information_systems')
             ->add('aggregation_centers')
             ->add('aggregation_center_sales')
-            ->add('uuid')
-            ->add('user_id')
             ->add('created_at')
             ->add('updated_at');
     }
@@ -80,10 +87,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Location data', 'location_data')
-                ->sortable()
-                ->searchable(),
-
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable(),
 
@@ -135,6 +138,46 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
+            Column::make('Area under cultivation', 'area_under_cultivation')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of plantlets produced', 'number_of_plantlets_produced')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of screen house vines harvested', 'number_of_screen_house_vines_harvested')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of screen house min tubers harvested', 'number_of_screen_house_min_tubers_harvested')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of sah plants produced', 'number_of_sah_plants_produced')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under basic seed multiplication', 'area_under_basic_seed_multiplication')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication', 'area_under_certified_seed_multiplication')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Is registered seed producer', 'is_registered_seed_producer')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Seed service unit registration details', 'seed_service_unit_registration_details')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Uses certified seed', 'uses_certified_seed')
+                ->sortable()
+                ->searchable(),
+
             Column::make('Market segment', 'market_segment')
                 ->sortable()
                 ->searchable(),
@@ -183,25 +226,8 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Uuid', 'uuid')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('User id', 'user_id'),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
-
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
-
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
             Column::action('Action'),
+
         ];
     }
 
@@ -229,6 +255,11 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         ];
     }
 
+    #[\Livewire\Attributes\On('refresh')]
+    public function refreshData(): void
+    {
+        $this->refresh();
+    }
     /*
 public function actionRules($row): array
 {

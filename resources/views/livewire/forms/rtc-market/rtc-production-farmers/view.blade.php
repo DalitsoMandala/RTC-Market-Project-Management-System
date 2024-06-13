@@ -4,13 +4,13 @@
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                <div class="page-title-box d-flex align-items-center justify-content-end">
 
+                    offcanvas
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="../../forms">Forms</a></li>
+                            <li class="breadcrumb-item"><a href="../../">Forms</a></li>
                             <li class="breadcrumb-item active">View</li>
                         </ol>
                     </div>
@@ -37,7 +37,9 @@
 
                         <div class="my-2 border shadow-none card card-body" x-show="is_open">
                             <h5> Instructions</h5>
-                            <p class="alert bg-info-subtle">Download the RTC Production and Marketing (Farmers) template & uploading your
+                            <p class="alert bg-info-subtle text-uppercase">Download the RTC Production and Marketing
+                                (Farmers) template
+                                & uploading your
                                 data.</p>
 
                             <form wire:submit='submitUpload'>
@@ -149,7 +151,7 @@
                     </div>
                     <div class="card-body" id="#datatable">
 
-                        <livewire:tables.rtc-production-farmers-table :userId="auth()->user()->id" />
+                        <livewire:tables.rtc-market.rtc-production-farmers-table :userId="auth()->user()->id" />
                     </div>
                 </div>
 

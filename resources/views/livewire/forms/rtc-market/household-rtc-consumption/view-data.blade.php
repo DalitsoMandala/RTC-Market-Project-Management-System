@@ -152,7 +152,8 @@
                     </div>
                     <div class="card-body" id="#datatable">
 
-                        <livewire:tables.household-rtc-consumption-table :userId="auth()->user()->id" :uuid="$batch_no" />
+                        <livewire:tables.rtc-market.household-rtc-consumption-table :userId="auth()->user()->id"
+                            :uuid="$batch_no" />
                     </div>
                 </div>
 
