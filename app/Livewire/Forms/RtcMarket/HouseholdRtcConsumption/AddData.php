@@ -6,6 +6,7 @@ use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\HrcLocation;
 use App\Models\Submission;
+use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -186,7 +187,7 @@ class AddData extends Component
                 try {
                     # code...
 
-                    $submission = Submission::create([
+                    Submission::create([
                         'batch_no' => $uuid,
                         'form_id' => $form->id,
                         'user_id' => $currentUser->id,
@@ -196,14 +197,10 @@ class AddData extends Component
                         'is_complete' => 1,
                     ]);
 
-                    $data = json_decode($submission->data, true);
+                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+                    $this->dispatch('notify');
 
-                    foreach ($data as $row) {
-
-                        $main_food_data = $row['main_food_data'];
-                        $insert = HouseholdRtcConsumption::create($row);
-
-                    }
                 } catch (\Exception $e) {
                     # code...
 

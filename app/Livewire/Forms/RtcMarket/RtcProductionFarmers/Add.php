@@ -7,6 +7,8 @@ use App\Models\RpmFarmerDomMarket;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
+use App\Notifications\ManualDataAddedNotification;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
@@ -265,6 +267,11 @@ class Add extends Component
             foreach ($fifthTable as $input) {
                 RpmFarmerInterMarket::create($input);
             }
+            $currentUser = Auth::user();
+            $link = 'forms/rtc-market/rtc-production-and-marketing-form-farmers/' . $uuid . '/view';
+            $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+            $this->dispatch('notify');
+
             $this->alert('success', 'Submitted successfully!', [
                 'toast' => false,
                 'position' => 'center',

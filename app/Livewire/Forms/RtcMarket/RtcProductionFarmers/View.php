@@ -12,6 +12,7 @@ use App\Models\RpmFarmerFollowUp;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
 use App\Models\Submission;
+use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -147,6 +148,11 @@ class View extends Component
                             // inter market
 
                         }
+
+                        $currentUser = Auth::user();
+                        $link = 'forms/rtc-market/rtc-production-and-marketing-form-farmers/' . $uuid . '/view';
+                        $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
+                        $this->dispatch('notify');
 
                     } else if ($currentUser->hasAnyRole('external')) {
 

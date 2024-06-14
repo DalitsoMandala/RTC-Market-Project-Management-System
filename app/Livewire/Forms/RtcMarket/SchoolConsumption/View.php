@@ -8,6 +8,7 @@ use App\Imports\rtcmarket\SchoolConsumptionImport\SrcImport;
 use App\Models\Form;
 use App\Models\SchoolRtcConsumption;
 use App\Models\Submission;
+use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -96,6 +97,10 @@ class View extends Component
                             SchoolRtcConsumption::create($row);
 
                         }
+
+                        $currentUser = Auth::user();
+                        $link = 'forms/rtc-market/school-rtc-consumption-form/' . $uuid . '/view';
+                        $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
 
                     } else if ($currentUser->hasAnyRole('external')) {
 

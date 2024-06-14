@@ -3,6 +3,8 @@
 namespace App\Livewire\Forms\RtcMarket\SchoolConsumption;
 
 use App\Models\SchoolRtcConsumption;
+use App\Notifications\ManualDataAddedNotification;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
@@ -46,6 +48,11 @@ class Add extends Component
             ];
 
             SchoolRtcConsumption::create($table);
+
+            $currentUser = Auth::user();
+            $link = 'forms/rtc-market/school-rtc-consumption-form/' . $uuid . '/view';
+            $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+            $this->dispatch('notify');
             $this->alert('success', 'Successfully submitted!', [
                 'toast' => false,
                 'position' => 'center',

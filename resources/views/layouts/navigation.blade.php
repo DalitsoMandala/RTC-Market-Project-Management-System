@@ -278,7 +278,7 @@
                     </div>
                 </div>
             </div>
-
+            <livewire:user-notification-component />
 
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item user text-start d-flex align-items-center"

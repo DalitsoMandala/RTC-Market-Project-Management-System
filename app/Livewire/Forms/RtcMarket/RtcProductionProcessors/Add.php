@@ -7,6 +7,8 @@ use App\Models\RpmProcessorDomMarket;
 use App\Models\RpmProcessorFollowUp;
 use App\Models\RpmProcessorInterMarket;
 use App\Models\RtcProductionProcessor;
+use App\Notifications\ManualDataAddedNotification;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
@@ -255,6 +257,11 @@ class Add extends Component
             foreach ($fifthTable as $input) {
                 RpmProcessorInterMarket::create($input);
             }
+
+            $currentUser = Auth::user();
+            $link = 'forms/rtc-market/rtc-production-and-marketing-form-processors/' . $uuid . '/view';
+            $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+            $this->dispatch('notify');
             $this->alert('success', 'Submitted successfully!', [
                 'toast' => false,
                 'position' => 'center',

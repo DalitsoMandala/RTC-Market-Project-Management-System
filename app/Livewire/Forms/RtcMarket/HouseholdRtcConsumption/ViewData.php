@@ -8,6 +8,7 @@ use App\Imports\rtcmarket\HouseholdImport\HrcImport;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Submission;
+use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -115,6 +116,10 @@ class ViewData extends Component
                             $insert = HouseholdRtcConsumption::create($row);
 
                         }
+
+                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                        $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
+                        $this->dispatch('notify');
 
                     } else if ($currentUser->hasAnyRole('external')) {
 

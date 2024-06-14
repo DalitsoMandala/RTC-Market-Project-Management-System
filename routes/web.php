@@ -1,6 +1,5 @@
 <?php
 
-use App\Helpers\rtc_market\indicators\Indicator_2_2_1;
 use App\Http\Controllers\TestingController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
@@ -24,8 +23,9 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function () {
-    $_221 = new Indicator_2_2_1();
-    return dd($_221->findTotal());
+    $currentDateTime = now(); // or \Carbon\Carbon::now() for Carbon instances
+    echo $currentDateTime; // Output the current datetime in Harare timezone
+
 });
 
 Route::get('/export/{name}', [TestingController::class, 'index']);
@@ -70,12 +70,15 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
 
     Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/add', RTCMAddData::class);
     Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/view', RTCMViewData::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/{batch}/view', RTCMViewData::class);
 
     Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/add', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
     Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
 
     Route::get('/forms/{project}/school-rtc-consumption-form/add', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
     Route::get('/forms/{project}/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    Route::get('/forms/{project}/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
 
 });
 
