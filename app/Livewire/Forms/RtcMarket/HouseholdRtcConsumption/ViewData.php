@@ -5,9 +5,14 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
 use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\HouseholdImport\HrcImport;
+use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\Project;
+use App\Models\ReportingPeriod;
+use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
+use App\Models\SubmissionPeriod;
 use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -36,15 +41,35 @@ class ViewData extends Component
     public $period;
 
     public $batch_no;
+
+    public $forms = [];
+
+    #[Validate('required')]
+    public $selectedForm;
+
+    public $months = [];
+    public $financialYears = [];
+
+    public $projects = [];
+    #[Validate('required')]
+    public $selectedMonth;
+    #[Validate('required')]
+    public $selectedFinancialYear;
+    #[Validate('required')]
+    public $selectedProject;
+
+    public $openSubmission = false;
     public function mount($batch = null)
     {
 
-        $form = Form::with('project')->where('name', 'HOUSEHOLD CONSUMPTION FORM')
+        $form = Form::with(['project', 'indicators'])->where('name', 'HOUSEHOLD CONSUMPTION FORM')
             ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
 
         if (!$form) {
             abort(404);
         }
+
+        $people = [];
 
         if ($batch) {
             $data = HouseholdRtcConsumption::where('uuid', $batch)->first();
@@ -63,8 +88,52 @@ class ViewData extends Component
             $this->period = null;
         }
 
+        $this->loadData();
+        $submissionPeriods = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $form->id)->get();
+
+        $this->openSubmission = $submissionPeriods->count() > 0;
+
+        $this->selectedProject = $form->project->id;
+        $this->selectedForm = $form->id;
+
     }
 
+    public function updatedselectedProject($value)
+    {
+
+        $forms = Form::where('project_id', $value)->get();
+
+        if ($forms) {
+            $this->forms = $forms;
+        } else {
+            $this->forms = [];
+        }
+
+        $project = Project::find($value);
+
+        if ($project) {
+            $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
+
+            $this->months = $this->months->where('period_id', $period->id);
+
+        }
+
+        if ($project) {
+            $this->financialYears = $this->financialYears->where('project_id', $project->id);
+
+        }
+
+    }
+
+    public function loadData()
+    {
+
+        $this->forms = Form::get();
+        $this->projects = Project::get();
+        $this->financialYears = FinancialYear::get();
+        $this->months = ReportingPeriodMonth::get();
+
+    }
     public function submitUpload()
     {
 

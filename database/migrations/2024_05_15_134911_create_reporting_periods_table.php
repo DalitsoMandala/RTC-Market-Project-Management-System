@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('reporting_periods', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('duration');
-            $table->date('start_date');
-            $table->boolean('is_active')->default(false);
-            $table->foreignId('cgiar_project_id')->constrained('cgiar_projects', 'id');
-            $table->foreignId('reporting_period_id')->constrained('reporting_periods', 'id');
             $table->timestamps();
         });
     }
@@ -28,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('reporting_periods');
     }
 };

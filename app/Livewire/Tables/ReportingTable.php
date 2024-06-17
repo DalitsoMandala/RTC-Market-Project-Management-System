@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -95,7 +96,7 @@ final class ReportingTable extends PowerGridComponent
             Exportable::make('export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -113,7 +114,23 @@ final class ReportingTable extends PowerGridComponent
             ->add('value')
         ;
     }
+    public function filters(): array
+    {
+        return [
+            // Filter::datetimepicker('date_established'),
+            // Filter::datetimepicker('date_ending'),
+            Filter::select('name', 'name')
+                ->dataSource(function () {
+                    $submission = IndicatorDisaggregation::select(['name'])->distinct();
 
+                    return $submission->get();
+                })
+                ->optionLabel('name')
+                ->optionValue('name')
+            ,
+
+        ];
+    }
     public function columns(): array
     {
         return [

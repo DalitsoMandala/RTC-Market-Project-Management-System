@@ -289,7 +289,7 @@
                 </button>
                 <div class="pt-0 dropdown-menu dropdown-menu-end">
                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}</h6>
-                    <a class="dropdown-item" href="contacts-profile.html"><i
+                    <a class="dropdown-item" href="/profile"><i
                             class='align-middle bx bx-user-circle text-muted font-size-18 me-1'></i> <span
                             class="align-middle">My Account</span></a>
 

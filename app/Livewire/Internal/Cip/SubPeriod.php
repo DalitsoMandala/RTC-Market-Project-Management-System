@@ -2,7 +2,11 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\Project;
+use App\Models\ReportingPeriod;
+use App\Models\ReportingPeriodMonth;
 use App\Models\SubmissionPeriod;
 use Carbon\Carbon;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -15,16 +19,28 @@ class SubPeriod extends Component
     use LivewireAlert;
 
     public $rowId;
-    public $forms;
+    public $forms = [];
 
     public $status = true;
     #[Validate('required')]
     public $start_period;
     #[Validate('required')]
     public $end_period;
+    #[Validate('required', message: 'The form field is required.')]
+    public $selectedForm;
+
+    public $months = [];
+    public $financialYears = [];
+
+    public $projects = [];
     #[Validate('required')]
-    public $Selected;
+    public $selectedMonth;
+    #[Validate('required')]
+    public $selectedFinancialYear;
+    #[Validate('required')]
+    public $selectedProject;
     public $expired;
+
     public function setData($id)
     {
         $this->resetErrorBag();
@@ -44,14 +60,16 @@ class SubPeriod extends Component
                     'date_established' => $this->start_period,
                     'date_ending' => $this->end_period,
                     'is_open' => $this->expired === true ? false : $this->status,
-                    'form_id' => $this->Selected,
+                    'form_id' => $this->selectedForm,
                     'is_expired' => $this->expired,
+                    'month_range_period_id' => $this->selectedMonth,
+                    'financial_year_id' => $this->selectedFinancialYear,
                 ]);
                 session()->flash('success', 'Updated Successfully');
 
             } else {
 
-                $find = SubmissionPeriod::where('form_id', $this->Selected)->where('is_open', true)->first();
+                $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('is_open', true)->first();
 
                 if ($find) {
 
@@ -63,7 +81,9 @@ class SubPeriod extends Component
                         'date_established' => $this->start_period,
                         'date_ending' => $this->end_period,
                         'is_open' => $this->status,
-                        'form_id' => $this->Selected,
+                        'form_id' => $this->selectedForm,
+                        'month_range_period_id' => $this->selectedMonth,
+                        'financial_year_id' => $this->selectedFinancialYear,
                     ]);
                     session()->flash('success', 'Created Successfully');
 
@@ -74,6 +94,7 @@ class SubPeriod extends Component
             $this->dispatch('refresh');
 
         } catch (\Throwable $th) {
+
             session()->flash('error', 'something went wrong');
 
         }
@@ -83,12 +104,11 @@ class SubPeriod extends Component
 
     public function loadData()
     {
-        // $form = Form::leftJoin('submission_periods', 'submission_periods.form_id', 'forms.id')->select(['forms.*'])->get();
-        //  $OpenedForms = SubmissionPeriod::pluck('form_id')->toArray();
 
-        // $this->forms = $form->whereNotIn('id', $OpenedForms) ?? [];
-
-        $this->forms = Form::all();
+        $this->forms = Form::get();
+        $this->projects = Project::get();
+        $this->financialYears = FinancialYear::get();
+        $this->months = ReportingPeriodMonth::get();
 
     }
     #[On('editData')]
@@ -96,11 +116,72 @@ class SubPeriod extends Component
     {
 
         $this->rowId = $rowId;
-
+        $monthRange = SubmissionPeriod::find($rowId)->month_range_period_id;
         $this->start_period = Carbon::parse(SubmissionPeriod::find($rowId)->date_established)->format('Y-m-d');
         $this->end_period = Carbon::parse(SubmissionPeriod::find($rowId)->date_ending)->format('Y-m-d');
         $this->status = SubmissionPeriod::find($rowId)->is_open === 1 ? true : false;
-        $this->Selected = SubmissionPeriod::find($rowId)->form_id;
+        $form = SubmissionPeriod::find($rowId)->form_id;
+        $financialYear = SubmissionPeriod::find($rowId)->financial_year_id;
+        if ($form) {
+
+            $formDetails = Form::find($form);
+
+            if ($formDetails) {
+                $project = $formDetails->project->id;
+
+                $this->selectedProject = $project;
+                $this->selectedForm = $form;
+                $project = Project::find($this->selectedProject);
+
+                if ($project) {
+                    $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
+                    $this->months = $this->months->where('period_id', $period->id);
+
+                }
+
+                if ($project) {
+                    $this->financialYears = $this->financialYears->where('project_id', $project->id);
+
+                }
+                $this->selectedMonth = $monthRange;
+                $this->selectedFinancialYear = $financialYear;
+            }
+        }
+
+    }
+
+    public function updatedselectedProject($value)
+    {
+
+        $forms = Form::where('project_id', $value)->get();
+
+        if ($forms) {
+            $this->forms = $forms;
+        } else {
+            $this->forms = [];
+        }
+
+        $project = Project::find($value);
+
+        if ($project) {
+            $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
+
+            $this->months = $this->months->where('period_id', $period->id);
+
+        }
+
+        if ($project) {
+            $this->financialYears = $this->financialYears->where('project_id', $project->id);
+
+        }
+
+    }
+
+    public function resetData()
+    {
+        $this->reset();
+        $this->loadData();
+
     }
 
     public function mount()

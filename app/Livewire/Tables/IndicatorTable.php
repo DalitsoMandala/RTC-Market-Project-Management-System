@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Tables;
 
-
 use App\Models\Cgiar_Project;
 use App\Models\Indicator;
 use App\Models\User;
@@ -24,7 +23,7 @@ final class IndicatorTable extends PowerGridComponent
     public $userId;
     public function setUp(): array
     {
-     //   $this->showCheckBox();
+        //   $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -104,6 +103,7 @@ final class IndicatorTable extends PowerGridComponent
     public function filters(): array
     {
         return [
+
         ];
     }
 

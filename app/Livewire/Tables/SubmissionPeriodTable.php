@@ -2,12 +2,10 @@
 
 namespace App\Livewire\Tables;
 
-
 use App\Models\Form;
 use App\Models\SubmissionPeriod;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -25,7 +23,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
     public function setUp(): array
     {
-      //  $this->showCheckBox();
+        //  $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -40,7 +38,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('submission_periods');
+        return SubmissionPeriod::query();
     }
 
     public function fields(): PowerGridFields
@@ -65,7 +63,16 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 }
 
             })
+            ->add('financial_year', function ($model) {
+                return $model->financialYears->number;
+                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+            })
 
+            ->add('month_range', function ($model) {
+
+                return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
+                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+            })
             ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y'))
             ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y'))
             ->add('is_open')
@@ -108,6 +115,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Status', 'is_open_toggle')
+                ->sortable()
+                ->searchable(),
+            Column::make('Months', 'month_range')
+            ,
+
+            Column::make('Financial Year', 'financial_year')
                 ->sortable()
                 ->searchable(),
 

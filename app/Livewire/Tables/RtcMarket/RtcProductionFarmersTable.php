@@ -57,10 +57,6 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
                 return json_decode($model->number_of_members)->female_18_35;
             })
-            ->add('number_of_members_total', function ($model) {
-
-                return json_decode($model->number_of_members)->total;
-            })
 
             ->add('number_of_members_male_18_35', function ($model) {
 
@@ -86,7 +82,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('number_of_employees')
             ->add('area_under_cultivation')
 
-            ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
+        //   ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
             ->add('area_under_cultivation_variety_1', fn($model) => json_decode($model->area_under_cultivation)->variety_1)
             ->add('area_under_cultivation_variety_2', fn($model) => json_decode($model->area_under_cultivation)->variety_2)
             ->add('area_under_cultivation_variety_3', fn($model) => json_decode($model->area_under_cultivation)->variety_3)

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Partner;
 use Illuminate\Database\Seeder;
 
 class PartnerSeeder extends Seeder
@@ -13,12 +12,12 @@ class PartnerSeeder extends Seeder
     public function run(): void
     {
 
-        $partners = ['CIP', 'IITA', 'DAES', 'DCD', 'MINISTRY OF TRADE', 'TRADELINE', 'DARS', 'RTCDT', 'ACE'];
+        // $partners = ['CIP', 'IITA', 'DAES', 'DCD', 'MINISTRY OF TRADE', 'TRADELINE', 'DARS', 'RTCDT', 'ACE'];
 
-        foreach ($partners as $partner) {
+        // foreach ($partners as $partner) {
 
-            $partner = Partner::create(['name' => $partner, 'project_id' => 1]); // for RTC MARKET
-        }
+        //     $partner = Partner::create(['name' => $partner, 'project_id' => 1]); // for RTC MARKET
+        // }
 
     }
 }

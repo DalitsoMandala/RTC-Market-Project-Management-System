@@ -30,9 +30,7 @@ Route::get('/test', function () {
 
 Route::get('/export/{name}', [TestingController::class, 'index']);
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('admin-dashboard');
+Route::get('/profile', \App\Livewire\Profile\Details::class)->middleware(['auth'])->name('profile');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

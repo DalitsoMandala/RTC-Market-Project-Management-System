@@ -31,6 +31,7 @@ class UserSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 1,
         ])->assignRole(['admin']);
 
         User::create([
@@ -38,6 +39,7 @@ class UserSeeder extends Seeder
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 1,
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
@@ -45,6 +47,7 @@ class UserSeeder extends Seeder
             'email' => 'organiserp@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 1,
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
@@ -52,6 +55,7 @@ class UserSeeder extends Seeder
             'email' => 'staff@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 1,
         ])->assignRole(['internal', 'cip', 'staff']);
 
         // CIP internal
@@ -61,6 +65,7 @@ class UserSeeder extends Seeder
             'email' => 'iita@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 3,
         ])->assignRole(['external', 'organiser']);
 
         User::create([
@@ -68,6 +73,7 @@ class UserSeeder extends Seeder
             'email' => 'dcd@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 4,
         ])->assignRole(['external', 'organiser']);
 
         User::create([
@@ -75,6 +81,7 @@ class UserSeeder extends Seeder
             'email' => 'daes@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
+            'organisation_id' => 4,
         ])->assignRole(['external', 'organiser']);
 
         //roletype,project,position

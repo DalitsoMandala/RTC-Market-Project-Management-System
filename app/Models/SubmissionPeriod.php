@@ -19,4 +19,13 @@ class SubmissionPeriod extends Model
     {
         return $this->belongsTo(Form::class, 'form_id');
     }
+
+    public function financialYears()
+    {
+        return $this->belongsTo(FinancialYear::class, 'financial_year_id');
+    }
+    public function reportingMonths()
+    {
+        return $this->belongsTo(reportingPeriodMonth::class, 'month_range_period_id');
+    }
 }
