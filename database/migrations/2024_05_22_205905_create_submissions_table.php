@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('batch_no');
             $table->foreignId('form_id')->constrained('forms', 'id');
-
-            $table->foreignId('period_id')->nullable()->constrained('submission_periods', 'id');
+            $table->foreignId('period_id')->constrained('submission_periods', 'id');
             $table->foreignId('user_id')->constrained('users', 'id');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->json('data');

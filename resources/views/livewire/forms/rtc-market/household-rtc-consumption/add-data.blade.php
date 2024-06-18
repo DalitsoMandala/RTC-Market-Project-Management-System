@@ -35,9 +35,18 @@
                 @if (session()->has('success'))
                     <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                 @endif
-                <div class="mb-1 row justify-content-center">
+
+                @if ($openSubmission === false)
+                    <div class="alert alert-warning" role="alert">
+                        You can not submit a form right now
+                        because submissions are closed for the moment!
+                    </div>
+                @endif
+                <div
+                    class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif">
 
                     <form wire:submit='save'>
+                        @include('livewire.forms.rtc-market.period-view')
 
                         <div class="row">
                             <div class="card col-12">
@@ -220,8 +229,8 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label for="phoneNumber" class="form-label">Phone Number</label>
-                                                <input type="tel" class="form-control"
-                                                    wire:model="inputs.{{ $key }}.phone_number">
+                                                <x-phone type="tel" class="form-control"
+                                                    wire:model="inputs.{{ $key }}.phone_number" />
                                                 @error('inputs.' . $key . '.phone_number')
                                                     <x-error>{{ $message }}</x-error>
                                                 @enderror
@@ -435,7 +444,6 @@
                 });
 
             });
-
             $wire.on('to-top', () => {
 
                 window.scrollTo({

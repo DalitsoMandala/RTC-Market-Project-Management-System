@@ -61,70 +61,110 @@
                                 </div>
                                 <div id="table-form">
                                     <div class="row justify-content-center">
-                                        {{-- <div class=" col-12 col-md-8">
+                                        <div class=" col-12 col-md-8">
+
 
                                             <div class="mb-3">
-                                                <label for="" class="form-label">ENTERPRISE</label>
-                                                <x-text-input wire:model='enterprise' />
-                                                @error('enterprise')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">DISTRICT</label>
-                                                <select class="form-select" wire:model='district'>
-                                                    <option selected>Select a district</option>
-                                                    <option>BALAKA</option>
-                                                    <option>BLANTYRE</option>
-                                                    <option>CHIKWAWA</option>
-                                                    <option>CHIRADZULU</option>
-                                                    <option>CHITIPA</option>
-                                                    <option>DEDZA</option>
-                                                    <option>DOWA</option>
-                                                    <option>KARONGA</option>
-                                                    <option>KASUNGU</option>
-                                                    <option>LILONGWE</option>
-                                                    <option>MACHINGA</option>
-                                                    <option>MANGOCHI</option>
-                                                    <option>MCHINJI</option>
-                                                    <option>MULANJE</option>
-                                                    <option>MWANZA</option>
-                                                    <option>MZIMBA</option>
-                                                    <option>NENO</option>
-                                                    <option>NKHATA BAY</option>
-                                                    <option>NKHOTAKOTA</option>
-                                                    <option>NSANJE</option>
-                                                    <option>NTCHEU</option>
-                                                    <option>NTCHISI</option>
-                                                    <option>PHALOMBE</option>
-                                                    <option>RUMPHI</option>
-                                                    <option>SALIMA</option>
-                                                    <option>THYOLO</option>
-                                                    <option>ZOMBA</option>
+
+                                                <label for="" class="form-label">Choose Project</label>
+                                                <select class="form-select form-select-md"
+                                                    wire:model.live.debounce.500ms="selectedProject" disabled>
+                                                    <option selected value="">Select one</option>
+
+
+                                                    @foreach ($projects as $project)
+                                                        <option value="{{ $project->id }}">{{ $project->name }}
+
+                                                        </option>
+                                                    @endforeach
                                                 </select>
-                                                @error('district')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
 
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">EPA</label>
-                                                <x-text-input wire:model='epa' />
-                                                @error('epa')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">SECTION</label>
-                                                <x-text-input wire:model='section' />
-                                                @error('section')
+                                                @error('selectedProject')
                                                     <x-error>{{ $message }}</x-error>
                                                 @enderror
                                             </div>
 
 
-                                        </div> --}}
+
+                                            <div class="mb-3" wire:loading.class='opacity-25'
+                                                wire:target="selectedProject" wire:loading.attr='disabled'>
+
+                                                <label for="" class="form-label">Choose Form</label>
+                                                <select class="form-select form-select-md "
+                                                    wire:model.live.debounce.500ms="selectedForm" disabled>
+                                                    <option selected value="">Select one</option>
+                                                    <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
+                                                        @foreach ($forms as $form)
+                                                            <option value="{{ $form->id }}">{{ $form->name }}
+
+                                                            </option>
+                                                        @endforeach
+                                                    </div>
+
+
+
+
+                                                </select>
+
+                                                @error('selectedForm')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+
+                                            <div class="mb-3" wire:loading.class='opacity-25'
+                                                wire:target="selectedProject" wire:loading.attr='disabled'>
+
+                                                <label for="" class="form-label">Choose Reporting Period</label>
+
+
+
+                                                <select class="form-select form-select-md "
+                                                    wire:model.live.debounce.500ms='selectedMonth'>
+
+                                                    <option value="">Select one</option>
+
+                                                    <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
+                                                        @foreach ($months as $month)
+                                                            <option wire:key='{{ $month->id }}'
+                                                                value="{{ $month->id }}">
+                                                                {{ $month->start_month . '-' . $month->end_month }}
+                                                            </option>
+                                                        @endforeach
+                                                    </div>
+
+
+                                                </select>
+
+
+                                                @error('selectedMonth')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-3" wire:loading.class='opacity-25'
+                                                wire:target="selectedProject" wire:loading.attr='disabled'>
+
+                                                <label for="" class="form-label">Choose Financial Year</label>
+                                                <select
+                                                    class="form-select form-select-md "wire:model.live.debounce.500ms='selectedFinancialYear'>
+
+                                                    <option value="">Select one</option>
+                                                    <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
+                                                        @foreach ($financialYears as $year)
+                                                            <option value="{{ $year->id }}">{{ $year->number }}
+                                                            </option>
+                                                        @endforeach
+
+                                                    </div>
+
+                                                </select>
+
+                                                @error('selectedFinancialYear')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+                                        </div>
                                         <div class="col-12 col-md-4">
                                             <x-filepond-single instantUpload="true" wire:model='upload' />
                                             @error('upload')
@@ -132,13 +172,21 @@
                                                     <x-error class="text-center ">{{ $message }}</x-error>
                                                 </div>
                                             @enderror
-                                            <div class="mt-2 d-flex justify-content-center" x-data="{ disableButton: false }">
+                                            <div class="mt-2 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
                                                 <button type="submit" @uploading-files.window="disableButton = true"
                                                     @finished-uploading.window="disableButton = false"
-                                                    :disabled="disableButton" class="btn btn-primary">
+                                                    :disabled="disableButton === true || openSubmission === false"
+                                                    class="btn btn-primary">
                                                     Submit data
                                                 </button>
 
+
+                                            </div>
+                                            <div
+                                                class="d-flex justify-content-center @if ($openSubmission) d-none @endif">
+                                                <x-error class="text-center ">You can not submit a form right now
+                                                    because submissions are closed for the moment!
+                                                </x-error>
                                             </div>
                                         </div>
                                     </div>

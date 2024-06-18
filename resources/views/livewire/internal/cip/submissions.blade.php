@@ -37,18 +37,30 @@
                                     Manual Submissions
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
+                                    data-bs-target="#by-people" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
+                                    Submission by Indicator
+                                </button>
+                            </li>
 
                         </ul>
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div class="mt-2 tab-pane active" id="batch" role="tabpanel" aria-labelledby="home-tab">
+                            <div class="mt-2 tab-pane active fade show" id="batch" role="tabpanel"
+                                aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :filter="'batch'" />
                             </div>
-                            <div class="mt-2 tab-pane" id="manual" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade" id="manual" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div>
+                            <div class="mt-2 tab-pane fade-show" id="by-people" role="tabpanel"
+                                aria-labelledby="profile-tab">
 
+                            </div>
                         </div>
 
 
@@ -65,12 +77,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

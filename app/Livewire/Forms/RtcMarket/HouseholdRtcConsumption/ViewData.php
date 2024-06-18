@@ -9,7 +9,6 @@ use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Project;
-use App\Models\ReportingPeriod;
 use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
@@ -40,6 +39,7 @@ class ViewData extends Component
 
     public $period;
 
+    public $form_name = 'HOUSEHOLD CONSUMPTION FORM';
     public $batch_no;
 
     public $forms = [];
@@ -62,15 +62,6 @@ class ViewData extends Component
     public function mount($batch = null)
     {
 
-        $form = Form::with(['project', 'indicators'])->where('name', 'HOUSEHOLD CONSUMPTION FORM')
-            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
-
-        if (!$form) {
-            abort(404);
-        }
-
-        $people = [];
-
         if ($batch) {
             $data = HouseholdRtcConsumption::where('uuid', $batch)->first();
             $this->batch_no = $data->uuid ?? null;
@@ -81,57 +72,36 @@ class ViewData extends Component
 
         }
 
-        $period = $form->submissionPeriods->where('is_open', true)->first();
-        if ($period) {
-            $this->period = $period->id;
-        } else {
-            $this->period = null;
-        }
-
         $this->loadData();
+
+    }
+
+    public function loadData()
+    {
+        $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
+            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
+
+        if (!$form) {
+            abort(404);
+        }
+        $this->forms = Form::get();
+        $this->projects = Project::get();
+        $this->financialYears = FinancialYear::get();
+        $this->months = ReportingPeriodMonth::get();
+
         $submissionPeriods = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $form->id)->get();
 
         $this->openSubmission = $submissionPeriods->count() > 0;
 
         $this->selectedProject = $form->project->id;
         $this->selectedForm = $form->id;
+        if ($this->openSubmission) {
+            $monthIds = $submissionPeriods->pluck('month_range_period_id')->toArray();
+            $years = $submissionPeriods->pluck('financial_year_id')->toArray();
+            $this->months = $this->months->whereIn('id', $monthIds);
 
-    }
-
-    public function updatedselectedProject($value)
-    {
-
-        $forms = Form::where('project_id', $value)->get();
-
-        if ($forms) {
-            $this->forms = $forms;
-        } else {
-            $this->forms = [];
+            $this->financialYears = $this->financialYears->whereIn('id', $years);
         }
-
-        $project = Project::find($value);
-
-        if ($project) {
-            $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
-
-            $this->months = $this->months->where('period_id', $period->id);
-
-        }
-
-        if ($project) {
-            $this->financialYears = $this->financialYears->where('project_id', $project->id);
-
-        }
-
-    }
-
-    public function loadData()
-    {
-
-        $this->forms = Form::get();
-        $this->projects = Project::get();
-        $this->financialYears = FinancialYear::get();
-        $this->months = ReportingPeriodMonth::get();
 
     }
     public function submitUpload()
@@ -145,16 +115,6 @@ class ViewData extends Component
 
             if ($this->upload) {
 
-                $form = Form::with('project')->where('name', 'HOUSEHOLD CONSUMPTION FORM')
-                    ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
-
-                $submissionCount = Submission::where('period_id', $this->period)->where('form_id', $form->id)->whereNot('status', 'approved')->count();
-
-                if ($submissionCount > 0) {
-                    throw new \Exception("You can not submit your data right now! Wait for your approval");
-
-                }
-
                 $name = 'hrc_' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs(path: 'imports', name: $name);
                 $path = storage_path('app/imports/' . $name);
@@ -167,15 +127,27 @@ class ViewData extends Component
                     $batch_data = session()->get('batch_data');
 
                     $currentUser = Auth::user();
+                    $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+                        ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+                    if (!$period) {
+                        throw new \Exception("Something went wrong");
 
+                    }
                     if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+
+                        $checkSubmission = Submission::where('period_id', $period->id)->where('user_id', auth()->user()->id)->first();
+                        if ($checkSubmission) {
+                            throw new \Exception("You have already submitted your data!");
+                        }
+
                         $submission = Submission::create([
                             'batch_no' => $uuid,
-                            'form_id' => $form->id,
+                            'form_id' => $this->selectedForm,
                             'user_id' => $currentUser->id,
                             'status' => 'approved',
                             'data' => json_encode($batch_data),
                             'batch_type' => 'batch',
+                            'period_id' => $period->id,
                         ]);
 
                         $data = json_decode($submission->data, true);
@@ -194,8 +166,8 @@ class ViewData extends Component
 
                         Submission::create([
                             'batch_no' => $uuid,
-                            'form_id' => $form->id,
-                            'period_id' => $this->period,
+                            'form_id' => $this->selectedForm,
+                            'period_id' => $period->id,
                             'user_id' => $currentUser->id,
                             'data' => json_encode($batch_data),
                             'batch_type' => 'batch',
@@ -204,12 +176,16 @@ class ViewData extends Component
                     }
 
                     $this->reset();
+                    $this->loadData();
                     $this->dispatch('removeUploadedFile');
                     $this->dispatch('refresh');
                     session()->flash('success', 'Successfully uploaded your data!');
                 } catch (\Exception $e) {
 
                     $this->reset();
+                    $this->loadData();
+                    $this->dispatch('removeUploadedFile');
+                    $this->dispatch('refresh');
                     session()->flash('error', $e->getMessage());
                 }
 

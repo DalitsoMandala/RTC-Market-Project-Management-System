@@ -2,13 +2,15 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
+use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
-use App\Models\HrcLocation;
+use App\Models\Project;
+use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
+use App\Models\SubmissionPeriod;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
@@ -33,6 +35,24 @@ class AddData extends Component
     public $enterprise;
 
     public $period;
+
+    public $forms = [];
+
+    #[Validate('required')]
+    public $selectedForm;
+
+    public $months = [];
+    public $financialYears = [];
+
+    public $projects = [];
+    #[Validate('required')]
+    public $selectedMonth;
+    #[Validate('required')]
+    public $selectedFinancialYear;
+    #[Validate('required')]
+    public $selectedProject;
+    public $form_name = 'HOUSEHOLD CONSUMPTION FORM';
+    public $openSubmission = false;
     protected function rules()
     {
         $validationRules = [];
@@ -148,12 +168,14 @@ class AddData extends Component
             $uuid = Uuid::uuid4()->toString();
 
             $userId = auth()->user()->id;
-            $location = HrcLocation::create([
-                'enterprise' => $this->enterprise,
-                'district' => $this->district,
-                'epa' => $this->epa,
-                'section' => $this->section,
-            ]);
+
+            $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+            if (!$period) {
+                throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
+
+            }
+
             $data = [];
             foreach ($this->inputs as $index => $input) {
 
@@ -181,20 +203,21 @@ class AddData extends Component
             }
 
             $currentUser = Auth::user();
-            $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
 
             if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+
                 try {
                     # code...
 
                     Submission::create([
                         'batch_no' => $uuid,
-                        'form_id' => $form->id,
+                        'form_id' => $this->selectedForm,
                         'user_id' => $currentUser->id,
                         'status' => 'approved',
                         'data' => json_encode($data),
                         'batch_type' => 'manual',
                         'is_complete' => 1,
+                        'period_id' => $period->id,
                     ]);
 
                     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
@@ -203,6 +226,8 @@ class AddData extends Component
 
                 } catch (\Exception $e) {
                     # code...
+                    dd($e);
+                    session()->flash('error', 'Something went wrong!');
 
                 }
 
@@ -210,13 +235,14 @@ class AddData extends Component
 
                 Submission::create([
                     'batch_no' => $uuid,
-                    'form_id' => $form->id,
-                    'period_id' => $this->period,
+                    'form_id' => $this->selectedForm,
+                    'period_id' => $period->id,
                     'user_id' => $currentUser->id,
                     'data' => json_encode($data),
                     'batch_type' => 'manual',
                     'status' => 'approved',
                     'is_complete' => 1,
+
                 ]);
 
             }
@@ -238,12 +264,7 @@ class AddData extends Component
             session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
             $this->dispatch('to-top');
         } catch (\Throwable $th) {
-            $this->alert('error', 'something went wrong!', [
-                'toast' => false,
-                'position' => 'center',
-            ]);
-
-            Log::channel('system')->error($e);
+            session()->flash('error', 'Something went wrong!');
 
         }
 
@@ -317,6 +338,37 @@ class AddData extends Component
 
                 ])
             ]);
+
+        $this->loadData();
+
+    }
+
+    public function loadData()
+    {
+        $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
+            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
+
+        if (!$form) {
+            abort(404);
+        }
+        $this->forms = Form::get();
+        $this->projects = Project::get();
+        $this->financialYears = FinancialYear::get();
+        $this->months = ReportingPeriodMonth::get();
+
+        $submissionPeriods = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $form->id)->get();
+
+        $this->openSubmission = $submissionPeriods->count() > 0;
+
+        $this->selectedProject = $form->project->id;
+        $this->selectedForm = $form->id;
+        if ($this->openSubmission) {
+            $monthIds = $submissionPeriods->pluck('month_range_period_id')->toArray();
+            $years = $submissionPeriods->pluck('financial_year_id')->toArray();
+            $this->months = $this->months->whereIn('id', $monthIds);
+
+            $this->financialYears = $this->financialYears->whereIn('id', $years);
+        }
 
     }
 

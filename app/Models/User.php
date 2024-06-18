@@ -47,5 +47,9 @@ class User extends Authenticatable
         ];
     }
 
-    
+    public function organisation()
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id');
+    }
+
 }

@@ -61,15 +61,16 @@ class SubPeriod extends Component
                     'date_ending' => $this->end_period,
                     'is_open' => $this->expired === true ? false : $this->status,
                     'form_id' => $this->selectedForm,
-                    'is_expired' => $this->expired,
+                    'is_expired' => $this->expired ?? false,
                     'month_range_period_id' => $this->selectedMonth,
                     'financial_year_id' => $this->selectedFinancialYear,
+
                 ]);
                 session()->flash('success', 'Updated Successfully');
 
             } else {
 
-                $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('is_open', true)->first();
+                $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)->where('financial_year_id', $this->selectedFinancialYear)->where('is_open', true)->first();
 
                 if ($find) {
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('household_rtc_consumption', function (Blueprint $table) {
             $table->id();
-            //   $table->foreignId('location_id')->nullable()->constrained('hrc_locations'); // Link to locations table
+
             $table->json('location_data');
             $table->date('date_of_assessment');
             $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']);
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('rtc_consumers_potato')->nullable();
             $table->integer('rtc_consumers_sw_potato')->nullable();
             $table->integer('rtc_consumers_cassava')->nullable();
-            $table->tinyInteger('rtc_consumption_frequency')->unsigned(); // Limit to positive values
+            $table->integer('rtc_consumption_frequency')->unsigned(); // Limit to positive values
             $table->json('main_food_data')->nullable();
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users');

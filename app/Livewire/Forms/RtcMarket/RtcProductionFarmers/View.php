@@ -5,13 +5,17 @@ namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
+use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\Project;
+use App\Models\ReportingPeriodMonth;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\RpmFarmerDomMarket;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
 use App\Models\Submission;
+use App\Models\SubmissionPeriod;
 use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -42,17 +46,65 @@ class View extends Component
 
     public $form_name = 'RTC PRODUCTION AND MARKETING FORM FARMERS';
 
-    public function mount()
-    {
-        $form = Form::where('name', $this->form_name)->first();
-        $period = $form->submissionPeriods->where('is_open', true)->first();
-        if ($period) {
-            $this->period = $period->id;
-        } else {
-            $this->period = null;
-        }
-    }
+    public $forms = [];
 
+    #[Validate('required')]
+    public $selectedForm;
+
+    public $months = [];
+    public $financialYears = [];
+
+    public $projects = [];
+    #[Validate('required')]
+    public $selectedMonth;
+    #[Validate('required')]
+    public $selectedFinancialYear;
+    #[Validate('required')]
+    public $selectedProject;
+
+    public $openSubmission = false;
+    public function mount($batch = null)
+    {
+        if ($batch) {
+            $data = RtcProductionFarmer::where('uuid', $batch)->first();
+            $this->batch_no = $data->uuid ?? null;
+
+            if (!$this->batch_no) {
+                abort(404);
+            }
+
+        }
+
+        $this->loadData();
+    }
+    public function loadData()
+    {
+        $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
+            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
+
+        if (!$form) {
+            abort(404);
+        }
+        $this->forms = Form::get();
+        $this->projects = Project::get();
+        $this->financialYears = FinancialYear::get();
+        $this->months = ReportingPeriodMonth::get();
+
+        $submissionPeriods = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $form->id)->get();
+
+        $this->openSubmission = $submissionPeriods->count() > 0;
+
+        $this->selectedProject = $form->project->id;
+        $this->selectedForm = $form->id;
+        if ($this->openSubmission) {
+            $monthIds = $submissionPeriods->pluck('month_range_period_id')->toArray();
+            $years = $submissionPeriods->pluck('financial_year_id')->toArray();
+            $this->months = $this->months->whereIn('id', $monthIds);
+
+            $this->financialYears = $this->financialYears->whereIn('id', $years);
+        }
+
+    }
     public function submitUpload()
     {
 
@@ -62,14 +114,6 @@ class View extends Component
 
             if ($this->upload) {
                 $userId = auth()->user()->id;
-                $form = Form::where('name', $this->form_name)->first();
-
-                $submissionCount = Submission::where('period_id', $this->period)->where('form_id', $form->id)->whereNot('status', 'approved')->count();
-
-                if ($submissionCount > 0) {
-                    throw new \Exception("You can not submit your data right now! Wait for your approval");
-
-                }
 
                 $name = 'rpmF_' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs(path: 'imports', name: $name);
@@ -83,13 +127,23 @@ class View extends Component
                     $batch_data = session()->get('batch_data');
 
                     $currentUser = Auth::user();
+                    $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+                        ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+                    if (!$period) {
+                        throw new \Exception("Something went wrong");
 
+                    }
                     if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+                        $checkSubmission = Submission::where('period_id', $period->id)->where('user_id', auth()->user()->id)->first();
+                        if ($checkSubmission) {
+                            throw new \Exception("You have already submitted your data!");
+                        }
                         $submission = Submission::create([
                             'batch_no' => $uuid,
-                            'form_id' => $form->id,
+                            'form_id' => $this->selectedForm,
                             'user_id' => $currentUser->id,
                             'status' => 'approved',
+                            'period_id' => $period->id,
                             'data' => json_encode($batch_data),
                             'batch_type' => 'batch',
                         ]);
@@ -158,9 +212,9 @@ class View extends Component
 
                         Submission::create([
                             'batch_no' => $uuid,
-                            'form_id' => $form->id,
-                            'period_id' => $this->period,
-                            'user_id' => $currentUser->id,
+                            'form_id' => $this->selectedForm,
+
+                            'user_id' => $currentUser->id, 'period_id' => $period->id,
                             'data' => json_encode($batch_data),
                             'batch_type' => 'batch',
                         ]);
@@ -168,12 +222,16 @@ class View extends Component
                     }
 
                     $this->reset();
+                    $this->loadData();
                     $this->dispatch('removeUploadedFile');
                     $this->dispatch('refresh');
                     session()->flash('success', 'Successfully uploaded your data!');
                 } catch (\Exception $e) {
                     # code...
                     $this->reset();
+                    $this->loadData();
+                    $this->dispatch('removeUploadedFile');
+                    $this->dispatch('refresh');
                     session()->flash('error', $e->getMessage());
                 }
 
