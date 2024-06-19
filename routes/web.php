@@ -81,10 +81,22 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
     Route::get('/submissions', \App\Livewire\External\Submissions::class);
 
-    Route::get('/forms/household-rtc-consumption/add', HRCAddData::class);
-    Route::get('/forms/household-rtc-consumption/view', HRCViewData::class);
-    Route::get('/submissions/household-rtc-consumption/{id}', Details::class);
+    //forms
+    Route::get('/forms/{project}/household-consumption-form/add', HRCAddData::class);
+    Route::get('/forms/{project}/household-consumption-form/view', HRCViewData::class);
+    Route::get('/forms/{project}/household-consumption-form/{batch}/view', HRCViewData::class);
 
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/add', RTCMAddData::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/view', RTCMViewData::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-farmers/{batch}/view', RTCMViewData::class);
+
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/add', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+    Route::get('/forms/{project}/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+
+    Route::get('/forms/{project}/school-rtc-consumption-form/add', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
+    Route::get('/forms/{project}/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    Route::get('/forms/{project}/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
 });
 
 // Route::middleware(['auth', 'role:external', 'role:cip'])->prefix('internal')->prefix('cip')->group(function () {
