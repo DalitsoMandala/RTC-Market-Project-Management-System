@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Indicator;
+use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class IndicatorSeeder extends Seeder
@@ -133,25 +133,93 @@ class IndicatorSeeder extends Seeder
             ]);
         }
 
-        $indicators = Indicator::where('indicator_name', 'Number of actors profitability engaged in commercialization of RTC')->first();
-        if ($indicators) {
-            $userRoles = User::whereHas('roles', function ($query) {
-                $query->whereIn('name', ['cip', 'iita', 'dcd', 'daes']);
-            });
+        $indicatorsWithPartners = [
+            'A1' => ['CIP', 'IITA', 'DAES', 'DCD'],
+            'B1' => ['CIP', 'IITA', 'DAES', 'DCD'],
+            'B2' => ['MINISTRY OF TRADE', 'CIP'],
+            'B3' => ['MINISTRY OF TRADE'],
+            'B4' => ['CIP', 'IITA', 'DAES'],
+            'B5' => ['CIP', 'IITA', 'DAES'],
+            'B6' => ['CIP'],
+            '1.1.1' => ['CIP', 'IITA', 'TRADELINE', 'MINISTRY OF TRADE'],
+            '1.1.2' => ['DARS'],
+            '1.1.3' => ['DARS'],
+            '1.1.4' => ['DAES', 'CIP', 'IITA', 'RTCDT', 'DARS'],
+            '1.2.1' => ['CIP', 'IITA'],
+            '1.2.2' => ['MINISTRY OF TRADE'],
+            '1.3.1' => ['RTCDT'],
+            '2.1.1' => ['TRADELINE'],
+            '2.2.1' => ['CIP', 'IITA'],
+            '2.2.2' => ['DAES', 'IITA', 'CIP'],
+            '2.2.3' => ['DAES', 'IITA', 'CIP'],
+            '2.2.4' => ['DAES', 'CIP', 'IITA'],
+            '2.2.5' => ['DAES'],
+            '2.3.1' => ['CIP/IITA', 'CIP/ IITA'], // Assuming it's meant to be two separate entries
+            '2.3.2' => ['TRADELINE', 'RCDT'],
+            '2.3.3' => ['ACE'],
+            '2.3.4' => ['ACE', 'TRADELINE'],
+            '2.3.5' => ['ACE', 'DAES'],
+            '3.1.1' => ['DAES', 'CIP', 'IITA'],
+            '3.2.1' => ['CIP'],
+            '3.2.2' => ['DAES', 'CIP', 'IITA', 'ACE', 'MINISTRY OF TRADE'],
+            '3.2.3' => ['DAES'],
+            '3.2.4' => ['DAES'],
+            '3.2.5' => ['DAES', 'CIP', 'IITA'],
+            '3.3.1' => ['TRADELINE'],
+            '3.3.2' => ['TRADELINE'],
+            '3.4.1' => ['TRADELINE'],
+            '3.4.2' => ['TRADELINE'],
+            '3.4.3' => ['TRADELINE'],
+            '3.4.4' => ['TRADELINE'],
+            '3.4.5' => ['TRADELINE'],
+            '3.5.1' => ['DAES', 'CIP', 'IITA'],
+            '3.5.2' => ['DAES', 'CIP', 'IITA'],
+            '3.5.3' => ['DAES', 'CIP', 'IITA'],
+            '3.5.4' => ['DAES', 'CIP', 'IITA'],
+            '3.5.5' => ['DAES', 'CIP', 'IITA'],
+            '3.5.6' => ['DAES'],
+            '4.1.1' => ['CIP', 'IITA', 'RTCDT'],
+            '4.1.2' => ['RTCDT', 'MINISTRY OF TRADE'],
+            '4.1.3' => ['MINISTRY OF TRADE'],
+            '4.1.4' => ['CIP', 'IITA', 'DAES'],
+            '4.1.5' => ['TRADELINE'],
+            '4.1.6' => ['TRADELINE'],
+        ];
 
-            if ($userRoles->count() > 0) {
-                foreach ($userRoles->get() as $user) {
+        foreach ($indicatorsWithPartners as $indicator => $partners) {
+            $organisation = Organisation::whereIn('name', $partners)->get()->pluck('id');
+            $indicator_no = Indicator::where('indicator_no', $indicator)->get()->pluck('id');
 
+            foreach ($organisation as $organisationId) {
+                foreach ($indicator_no as $indicatorNum) {
                     ResponsiblePerson::create([
-                        'user_id' => $user->id,
-                        'indicator_id' => $indicators->id,
+                        'indicator_id' => $indicatorNum,
+                        'organisation_id' => $organisationId,
                     ]);
                 }
             }
 
-            // set forms involved with this indicator
-
         }
+
+        // $indicators = Indicator::where('indicator_name', 'Number of actors profitability engaged in commercialization of RTC')->first();
+        // if ($indicators) {
+        //     $userRoles = User::whereHas('roles', function ($query) {
+        //         $query->whereIn('name', ['cip', 'iita', 'dcd', 'daes']);
+        //     });
+
+        //     if ($userRoles->count() > 0) {
+        //         foreach ($userRoles->get() as $user) {
+
+        //             ResponsiblePerson::create([
+        //                 'user_id' => $user->id,
+        //                 'indicator_id' => $indicators->id,
+        //             ]);
+        //         }
+        //     }
+
+        //     // set forms involved with this indicator
+
+        // }
 
     }
 }

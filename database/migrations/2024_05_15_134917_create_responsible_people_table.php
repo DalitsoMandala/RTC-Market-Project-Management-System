@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('responsible_people', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('organisation_id')->constrained('organisations', 'id');
             $table->foreignId('indicator_id')->constrained('indicators', 'id');
+            $table->enum('type_of_submission', ['normal', 'aggregate'])->default('normal');
+
             $table->timestamps();
         });
     }

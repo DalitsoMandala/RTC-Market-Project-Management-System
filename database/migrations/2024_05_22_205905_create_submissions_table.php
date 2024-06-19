@@ -21,7 +21,7 @@ return new class extends Migration
             $table->json('data');
             $table->enum('batch_type', ['batch', 'manual', 'aggregate'])->default('manual');
             $table->boolean('is_complete')->default(false);
-            $table->text('table_name')->unique();
+            $table->string('table_name')->unique();
             $table->string('file_link')->nullable();
             $table->text('comments')->nullable();
             $table->timestamps();

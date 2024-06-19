@@ -43,8 +43,12 @@ class FormSeeder extends Seeder
         $indicators = Indicator::where('indicator_name', 'Number of actors profitability engaged in commercialization of RTC')->first();
         if ($indicators) {
             $formIds = [];
-            $forms1 = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
-            $formIds = [$forms1->id];
+            $forms1 = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')
+                ->OrWhere('name', 'RTC PRODUCTION AND MARKETING FORM FARMERS')
+                ->OrWhere('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS')
+                ->get()->pluck('id');
+
+            $formIds = $forms1;
             $indicators->forms()->attach($formIds);
 
         }
