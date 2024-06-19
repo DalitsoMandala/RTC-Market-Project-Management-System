@@ -4,7 +4,9 @@ namespace App\Livewire\Tables;
 
 use App\Models\Cgiar_Project;
 use App\Models\Indicator;
+use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as ModelBuilder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -39,13 +41,19 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
+        if ($user->hasAnyRole('internal')) {
             return Indicator::query()->with(['project']);
 
         } else {
-            return Indicator::query()->with(['project', 'responsiblePeople'])->whereHas('responsiblePeople', function ($query) {
-                $query->where('user_id', $this->userId);
+//responsiblePeopleforIndicators are organisations reponsible for these indicators
+            $user = User::find($this->userId);
+            $organisation_id = $user->organisation->id;
+
+            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators'])->whereHas('responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+                $query->where('organisation_id', $organisation_id);
             });
+            return $data;
+            // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
 
         }
 

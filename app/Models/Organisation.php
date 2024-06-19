@@ -12,4 +12,9 @@ class Organisation extends Model
     {
         return $this->hasMany(User::class, 'organisation_id');
     }
+
+    public function indicatorResponsiblePeople()
+    {
+        return $this->hasMany(ResponsiblePerson::class, 'organisation_id');
+    }
 }
