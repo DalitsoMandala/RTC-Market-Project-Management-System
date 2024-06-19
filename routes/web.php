@@ -42,14 +42,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 });
 
-// Route::middleware(['auth', 'role:internal', 'role:desira'])->group(function () {
-
-// });
-
-// Route::middleware(['auth', 'role:external', 'role:desira'])->group(function () {
-
-// });
-
 Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-internal-dashboard');
     Route::get('/indicators', Indicators::class)->name('cip-internal-indicators');

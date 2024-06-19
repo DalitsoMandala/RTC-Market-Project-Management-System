@@ -19,8 +19,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users', 'id');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->json('data');
-            $table->enum('batch_type', ['batch', 'manual'])->default('manual');
+            $table->enum('batch_type', ['batch', 'manual', 'aggregate'])->default('manual');
             $table->boolean('is_complete')->default(false);
+            $table->text('table_name')->unique();
             $table->string('file_link')->nullable();
             $table->text('comments')->nullable();
             $table->timestamps();
