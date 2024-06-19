@@ -38,8 +38,10 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)->middleware(['auth'
 //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 // });
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
+    Route::get('/users', \App\Livewire\Admin\ManageUsers::class)->name('admin-users');
+    Route::get('/organisations', \App\Livewire\Admin\ManageOrganisations::class)->name('admin-organisations');
 });
 
 Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(function () {
