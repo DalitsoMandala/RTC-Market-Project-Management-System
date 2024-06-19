@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('hrc_main_food', function (Blueprint $table) {
             $table->id();
-            $table->enum('name', ['POTATO', 'SWEET POTATO', 'CASSAVA']);
+            $table->enum('name', ['POTATO', 'SWEET POTATO', 'CASSAVA'])->nullable();
             $table->foreignId('hrc_id')->constrained('household_rtc_consumption');
             $table->timestamps();
         });

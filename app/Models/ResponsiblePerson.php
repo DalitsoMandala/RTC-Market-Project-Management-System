@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class ResponsiblePerson extends Model
+{
+    use HasFactory;
+    protected $guarded = [];
+    protected $table = 'responsible_people';
+    public function indicator()
+    {
+        return $this->belongsTo(Indicator::class, 'indicator_id');
+    }
+}

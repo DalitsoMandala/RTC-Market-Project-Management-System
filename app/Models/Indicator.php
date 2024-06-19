@@ -12,7 +12,22 @@ class Indicator extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class,'project_id');
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function responsiblePeople()
+    {
+        return $this->hasMany(ResponsiblePerson::class, 'indicator_id');
+    }
+
+    public function forms()
+    {
+        return $this->belongsToMany(Form::class, 'indicator_form');
+    }
+
+    public function disaggregations()
+    {
+        return $this->hasMany(IndicatorDisaggregation::class, 'indicator_id');
     }
 
 }

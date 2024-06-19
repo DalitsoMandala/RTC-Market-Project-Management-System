@@ -1,0 +1,173 @@
+<div>
+    <div class="container-fluid">
+
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0">Dashboard</h4>
+
+                    <div class="page-title-right">
+                        <ol class="m-0 breadcrumb">
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Page Name</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+        <div class="row ">
+            <div class="col-12 ">
+
+                <div class="row">
+                    <div class="col-12">
+                        <h4>Profile information</h4>
+                        <div class="card">
+                            <div class="card-body">
+                                <form wire:submit.prevent="saveProfile">
+                                    @if (session()->has('profile_message'))
+                                        <div class="alert alert-success">
+                                            {{ session('profile_message') }}
+                                        </div>
+                                    @endif
+
+                                    <div class="mb-3 form-group">
+                                        <label for="email">Email</label>
+                                        <input type="email" class="form-control" id="email" wire:model="email"
+                                            readonly>
+                                    </div>
+
+                                    <div class="mb-3 form-group">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control" id="username" wire:model="username">
+                                        @error('username')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3 form-group">
+                                        <label for="profile_image">Profile Image</label>
+
+                                        <div class="row">
+                                            <div class="col-1">
+                                                <img src="assets/images/users/avatar-10.jpg" class="rounded avatar-xl"
+                                                    alt=" ">
+                                            </div>
+
+                                            <div class="col">
+                                                <x-profile-image instantUpload="true" type="file"
+                                                    class="form-control-file" id="profile_image"
+                                                    wire:model="profile_image" />
+                                            </div>
+                                        </div>
+
+                                        @error('profile_image')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3 form-group">
+                                        <label for="organization">Organization</label>
+                                        <input type="text" class="form-control" id="organization"
+                                            wire:model="organization">
+                                        @error('organization')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-12">
+                        <h4>Security</h4>
+                        <div class="card">
+                            <div class="card-body">
+                                <form wire:submit.prevent="saveSecurity">
+                                    @if (session()->has('security_message'))
+                                        <div class="alert alert-success">
+                                            {{ session('security_message') }}
+                                        </div>
+                                    @endif
+
+                                    @if (session()->has('security_error'))
+                                        <div class="alert alert-danger">
+                                            {{ session('security_error') }}
+                                        </div>
+                                    @endif
+
+                                    <div class="mb-3 form-group">
+                                        <label for="old_password">Old Password</label>
+                                        <input type="password" class="form-control" id="old_password"
+                                            wire:model="old_password">
+                                        @error('old_password')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3 form-group">
+                                        <label for="new_password">New Password</label>
+                                        <input type="password" class="form-control" id="new_password"
+                                            wire:model="new_password">
+                                        @error('new_password')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3 form-group">
+                                        <label for="confirm_password">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirm_password"
+                                            wire:model="confirm_password">
+                                        @error('confirm_password')
+                                            <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+
+            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+            myModal.show();
+        })">
+
+
+            <x-modal id="view-indicator-modal" title="edit">
+                <form>
+                    <div class="mb-3">
+
+                        <x-text-input placeholder="Name of indicator..." />
+                    </div>
+
+                    <div class="modal-footer border-top-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+
+                    </div>
+                </form>
+            </x-modal>
+
+        </div> --}}
+
+
+
+
+    </div>
+
+</div>

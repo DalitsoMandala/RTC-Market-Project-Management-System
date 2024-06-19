@@ -4,9 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\SubmissionPeriod;
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class PeriodSeeder extends Seeder
 {
@@ -21,7 +19,9 @@ class PeriodSeeder extends Seeder
             'form_id' => 1,
             'date_established' => now(),
             'date_ending' => Carbon::tomorrow(),
-            'is_open' => true
+            'financial_year_id' => 1,
+            'month_range_period_id' => 1,
+            'is_open' => true,
         ]);
     }
 }

@@ -16,6 +16,11 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "flatpickr": "^4.6.13"
+        "choices.js": "^10.2.0",
+        "decimal.js": "^10.4.3",
+        "exceljs": "^4.4.0",
+        "flatpickr": "^4.6.13",
+        "litepicker": "^2.0.12",
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     }
 }

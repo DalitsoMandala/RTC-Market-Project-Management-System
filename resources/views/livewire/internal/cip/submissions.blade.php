@@ -22,7 +22,48 @@
             <div class="col-12">
                 <div class="card ">
                     <div class="card-body">
-                        <livewire:submission-table>
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                                    data-bs-target="#batch" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">
+                                    Batch Submissions
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual"
+                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Manual Submissions
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
+                                    data-bs-target="#by-people" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
+                                    Submission by Indicator
+                                </button>
+                            </li>
+
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div class="mt-2 tab-pane active fade show" id="batch" role="tabpanel"
+                                aria-labelledby="home-tab">
+                                <livewire:tables.submission-table :filter="'batch'" />
+                            </div>
+                            <div class="mt-2 tab-pane fade" id="manual" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.submission-table :filter="'manual'" />
+                            </div>
+                            <div class="mt-2 tab-pane fade-show" id="by-people" role="tabpanel"
+                                aria-labelledby="profile-tab">
+
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -30,13 +71,18 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-            $wire.setData(e.rowId);
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
+            setTimeout(() => {
+                $wire.dispatch('set', { id: e.rowId });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -49,21 +95,27 @@
 
             <x-modal id="view-submission-modal" title="update status">
                 <form wire:submit='save'>
-                    <div class="mb-3">
 
-                        <select class="form-select form-select-sm" wire:model='status'>
+                    <div class="mb-3" x-data="{
+                        status: $wire.entangle('status')
+                    }">
+
+
+
+                        <select class="form-select form-select-sm" x-model="status">
+                            <option> Select one</option>
                             <option value="approved">Approved</option>
                             <option value="denied">Denied</option>
 
                         </select>
-                        <small class="text-muted">You can approve/disapprove submissions here</small>
+                        <small class="text-muted">You can approve/disapprove submissions here</small><br>
                         @error('status')
                             <span class="my-1 text-danger">{{ $message }}</span>
                         @enderror
                     </div>
 
                     <div class="mb-3">
-
+                        <label for="">Comments</label>
                         <textarea wire:model='comment' id="" class="form-control"></textarea>
                         @error('comment')
                             <x-error>{{ $message }}</x-error>

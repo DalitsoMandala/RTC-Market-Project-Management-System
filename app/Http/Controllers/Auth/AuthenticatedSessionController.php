@@ -42,25 +42,14 @@ class AuthenticatedSessionController extends Controller
 
             } else
 
-                if ($user->hasAnyRole('desira')) {
-                    return redirect()->intended(route('desira-dashboard'));
+            if ($user->hasAnyRole('desira')) {
+                return redirect()->intended(route('desira-dashboard'));
 
-                }
-
+            }
 
         } else {
 
-            if ($user->hasAnyRole('cip')) {
-                return redirect()->intended(route('cip-external-dashboard'));
-
-            } else
-
-                if ($user->hasAnyRole('desira')) {
-                    return redirect()->intended(route('desira-external-dashboard'));
-
-                }
-
-
+            return redirect()->intended(route('external-dashboard'));
 
         }
 

@@ -20,24 +20,190 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-<div class="card">
-    <div class="card-body">
-        <livewire:submission-period-table>
-    </div>
-</div>
+                <div class="card">
+                    <div class="card-header" x-data="{ is_open: false }" x-init="$wire.on('editData', () => {
+                        is_open = true;
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    
+                    })">
+                        <button class="btn btn-primary" @click="is_open = !is_open">Add Submission Period+</button>
+
+                        <div class="mt-2 border shadow-none row card card-body" x-show="is_open">
+                            <div class="col-12 col-md-6" id="form">
+                                <form wire:submit='save'>
+
+                                    <x-alerts />
+
+
+                                    <div class="mb-3">
+
+                                        <label for="" class="form-label">Choose Project</label>
+                                        <select class="form-select form-select-md"
+                                            wire:model.live.debounce.500ms="selectedProject">
+                                            <option selected value="">Select one</option>
+
+
+                                            @foreach ($projects as $project)
+                                                <option value="{{ $project->id }}">{{ $project->name }}
+
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+                                        @error('selectedProject')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+
+
+                                    <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
+                                        wire:loading.attr='disabled'>
+
+                                        <label for="" class="form-label">Choose Form</label>
+                                        <select class="form-select form-select-md "
+                                            wire:model.live.debounce.500ms="selectedForm">
+                                            <option selected value="">Select one</option>
+                                            <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
+                                                @foreach ($forms as $form)
+                                                    <option value="{{ $form->id }}">{{ $form->name }}
+
+                                                    </option>
+                                                @endforeach
+                                            </div>
+
+
+
+
+                                        </select>
+
+                                        @error('selectedForm')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+
+                                    <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
+                                        wire:loading.attr='disabled'>
+
+                                        <label for="" class="form-label">Choose Reporting Period</label>
+
+
+
+                                        <select class="form-select form-select-md "
+                                            wire:model.live.debounce.500ms='selectedMonth'>
+
+                                            <option value="">Select one</option>
+
+                                            <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
+                                                @foreach ($months as $month)
+                                                    <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
+                                                        {{ $month->start_month . '-' . $month->end_month }} </option>
+                                                @endforeach
+                                            </div>
+
+
+                                        </select>
+
+
+                                        @error('selectedMonth')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
+                                        wire:loading.attr='disabled'>
+
+                                        <label for="" class="form-label">Choose Financial Year</label>
+                                        <select
+                                            class="form-select form-select-md "wire:model.live.debounce.500ms='selectedFinancialYear'>
+
+                                            <option value="">Select one</option>
+                                            <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
+                                                @foreach ($financialYears as $year)
+                                                    <option value="{{ $year->id }}">{{ $year->number }} </option>
+                                                @endforeach
+
+                                            </div>
+
+                                        </select>
+
+                                        @error('selectedFinancialYear')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">Start of submissions</label>
+                                        <x-text-input wire:model='start_period' type="date" />
+                                        @error('start_period')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">End of submissions</label>
+                                        <x-text-input wire:model='end_period' type="date" />
+                                        @error('end_period')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
+                                        x-data="{ switchOn: $wire.entangle('status') }">
+                                        <input type="checkbox" x-model="switchOn" class="form-check-input"
+                                            id="customSwitchsizelg">
+                                        <label class="form-check-label" for="customSwitchsizelg">Submission
+                                            Status</label>
+
+
+                                    </div>
+
+                                    <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
+                                        x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">
+                                        <input type="checkbox" x-model="expired" class="form-check-input"
+                                            id="customSwitchsizelg">
+                                        <label class="form-check-label" for="customSwitchsizelg">Cancel/Set to Expire
+                                        </label>
+                                        <br>
+                                        <small class="text-danger fs-6 ">Warning: This will make the submission
+                                            period
+                                            inaccessible for updates</small>
+
+                                    </div>
+
+                                    <button class="btn btn-primary" type="submit" wire:loading.attr='disabled'>
+                                        Submit
+                                    </button>
+
+                                    <button class="btn btn-outline-primary" type="button" wire:click='resetData'
+                                        wire:loading.attr='disabled'>
+                                        Reset
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <livewire:tables.submission-period-table>
+                    </div>
+                </div>
             </div>
         </div>
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
+        <div x-data x-init="$wire.on('showModal', (e) => {
+        
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })">
 
 
-            <x-modal id="view-indicator-modal" title="edit">
+            <x-modal id="view-submission-period-modal" title="edit">
                 <form>
                     <div class="mb-3">
 
@@ -52,7 +218,7 @@
                 </form>
             </x-modal>
 
-        </div> --}}
+        </div>
 
 
 

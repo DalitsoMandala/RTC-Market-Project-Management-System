@@ -88,6 +88,70 @@
                         </div>
                     </nav>
                 @endhasallroles
+                @hasallroles('external')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-dashboard') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-tachometer'></i>
+                                        <span data-key="t-dashboards">Dashboard</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('external-indicators') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Indicators</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Manage Data</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="/external/forms"
+                                            id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Forms</span>
+
+                                        </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="/external/submissions"
+                                            id="topnav-utility" role="button">
+                                            <span data-key="t-utility">My Submissions</span>
+
+                                        </a>
+
+
+
+                                    </div>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-table'></i>
+                                        <span data-key="t-dashboards">Reports</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
+
+
             </div>
         </div>
 
@@ -109,7 +173,7 @@
                 </div>
             </div>
 
-            <div class="dropdown d-inline-block d-none">
+            <div class="dropdown d-inline-block d-none ">
                 <button type="button" class="btn header-item noti-icon" id="page-header-notifications-dropdown"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
@@ -214,7 +278,7 @@
                     </div>
                 </div>
             </div>
-
+            <livewire:user-notification-component />
 
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item user text-start d-flex align-items-center"
@@ -225,7 +289,7 @@
                 </button>
                 <div class="pt-0 dropdown-menu dropdown-menu-end">
                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}</h6>
-                    <a class="dropdown-item" href="contacts-profile.html"><i
+                    <a class="dropdown-item" href="/profile"><i
                             class='align-middle bx bx-user-circle text-muted font-size-18 me-1'></i> <span
                             class="align-middle">My Account</span></a>
 

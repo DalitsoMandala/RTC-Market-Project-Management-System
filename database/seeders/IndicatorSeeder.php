@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Indicator;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ResponsiblePerson;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class IndicatorSeeder extends Seeder
@@ -122,14 +123,35 @@ class IndicatorSeeder extends Seeder
             '4.1.3',
             '4.1.4',
             '4.1.5',
-            '4.1.6'
+            '4.1.6',
         ];
         foreach ($indicators as $key => $indicator) {
             Indicator::create([
                 'indicator_no' => $indicatorNo[$key],
                 'indicator_name' => $indicator,
-                'project_id' => 1
+                'project_id' => 1,
             ]);
         }
+
+        $indicators = Indicator::where('indicator_name', 'Number of actors profitability engaged in commercialization of RTC')->first();
+        if ($indicators) {
+            $userRoles = User::whereHas('roles', function ($query) {
+                $query->whereIn('name', ['cip', 'iita', 'dcd', 'daes']);
+            });
+
+            if ($userRoles->count() > 0) {
+                foreach ($userRoles->get() as $user) {
+
+                    ResponsiblePerson::create([
+                        'user_id' => $user->id,
+                        'indicator_id' => $indicators->id,
+                    ]);
+                }
+            }
+
+            // set forms involved with this indicator
+
+        }
+
     }
 }

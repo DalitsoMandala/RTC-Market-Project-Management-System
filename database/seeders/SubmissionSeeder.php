@@ -17,13 +17,6 @@ class SubmissionSeeder extends Seeder
     {
         //
         $faker = Faker::create();
-        Submission::create([
-            'user_id' => 4,
-            'batch_no' => Str::random(),
-            'form_id' => 1,
-            'status' => 'approved',
-            'period_id' => 1,
-            'comments' => $faker->paragraph(3)
-        ]);
+
     }
 }

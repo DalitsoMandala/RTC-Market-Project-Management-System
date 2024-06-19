@@ -12,6 +12,20 @@ class SubmissionPeriod extends Model
 
     public function submissions()
     {
-        return $this->hasMany(Submission::class,'period_id');
+        return $this->hasMany(Submission::class, 'period_id');
+    }
+
+    public function form()
+    {
+        return $this->belongsTo(Form::class, 'form_id');
+    }
+
+    public function financialYears()
+    {
+        return $this->belongsTo(FinancialYear::class, 'financial_year_id');
+    }
+    public function reportingMonths()
+    {
+        return $this->belongsTo(reportingPeriodMonth::class, 'month_range_period_id');
     }
 }

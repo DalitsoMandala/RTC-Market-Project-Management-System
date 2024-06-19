@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -19,41 +18,71 @@ class UserSeeder extends Seeder
 
         Role::create(['name' => 'internal']);
         Role::create(['name' => 'external']);
+        //
         Role::create(['name' => 'organiser']);
         Role::create(['name' => 'staff']);
         Role::create(['name' => 'admin']);
+        //
         Role::create(['name' => 'cip']);
         Role::create(['name' => 'desira']);
-
 
         User::create([
             'name' => 'admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
-            'phone_number' => '+9999999999'
+            'phone_number' => '+9999999999',
+            'organisation_id' => 1,
         ])->assignRole(['admin']);
 
         User::create([
-            'name' => 'user',
+            'name' => 'Eliya Kapalasa',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-            'phone_number' => '+9999999999'
+            'phone_number' => '+9999999999',
+            'organisation_id' => 1,
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
-            'name' => 'user_staff',
-            'email' => 'user_staff@example.com',
+            'name' => 'Roder Mawu',
+            'email' => 'organiserp@example.com',
             'password' => Hash::make('password'),
-            'phone_number' => '+9999999999'
-        ])->assignRole(['internal', 'cip', 'staff']);
-
+            'phone_number' => '+9999999999',
+            'organisation_id' => 1,
+        ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
-            'name' => 'user_partner',
-            'email' => 'user_partner@example.com',
+            'name' => 'Jack Mone',
+            'email' => 'staff@example.com',
             'password' => Hash::make('password'),
-            'phone_number' => '+9999999999'
-        ])->assignRole(['external', 'cip', 'staff']);
+            'phone_number' => '+9999999999',
+            'organisation_id' => 1,
+        ])->assignRole(['internal', 'cip', 'staff']);
+
+        // CIP internal
+
+        User::create([
+            'name' => 'John Smith',
+            'email' => 'iita@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => 3,
+        ])->assignRole(['external', 'organiser']);
+
+        User::create([
+            'name' => 'Jack Smith',
+            'email' => 'dcd@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => 4,
+        ])->assignRole(['external', 'organiser']);
+
+        User::create([
+            'name' => 'Janet Park',
+            'email' => 'daes@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => 4,
+        ])->assignRole(['external', 'organiser']);
 
         //roletype,project,position
     }

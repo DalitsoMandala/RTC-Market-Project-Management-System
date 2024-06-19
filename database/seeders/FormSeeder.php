@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Form;
+use App\Models\Indicator;
 use Illuminate\Database\Seeder;
 
 class FormSeeder extends Seeder
@@ -17,35 +18,38 @@ class FormSeeder extends Seeder
         Form::create([
             'name' => 'HOUSEHOLD CONSUMPTION FORM',
             'type' => 'routine/reccurring',
-            'project_id' => 1,
-            'responsible_people' => [
+            'project_id' => 1, // RTC MARKET
 
-            ],
         ]);
         Form::create([
             'name' => 'RTC PRODUCTION AND MARKETING FORM FARMERS',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
 
-            ],
         ]);
         Form::create([
             'name' => 'RTC PRODUCTION AND MARKETING FORM PROCESSORS',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
 
-            ],
         ]);
         Form::create([
             'name' => 'SCHOOL RTC CONSUMPTION FORM',
             'type' => 'routine/reccurring',
             'project_id' => 1,
-            'responsible_people' => [
 
-            ],
         ]);
+
+        $indicators = Indicator::where('indicator_name', 'Number of actors profitability engaged in commercialization of RTC')->first();
+        if ($indicators) {
+            $formIds = [];
+            $forms1 = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+            $formIds = [$forms1->id];
+            $indicators->forms()->attach($formIds);
+
+        }
+
+        // set forms involved with this indicator
 
     }
 }
