@@ -116,11 +116,11 @@ class SubPeriod extends Component
     public function loadData()
     {
 
-        $this->forms = Form::get();
         $this->projects = Project::get();
         $this->financialYears = FinancialYear::get();
         $this->months = ReportingPeriodMonth::get();
         $this->indicators = Indicator::get();
+        $this->forms = Form::get();
     }
     #[On('editData')]
     public function fillData($rowId)
@@ -150,12 +150,10 @@ class SubPeriod extends Component
                 $project = Project::find($this->selectedProject);
 
                 if ($project) {
+
                     $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
                     $this->months = $this->months->where('period_id', $period->id);
 
-                }
-
-                if ($project) {
                     $this->financialYears = $this->financialYears->where('project_id', $project->id);
 
                 }
@@ -169,28 +167,43 @@ class SubPeriod extends Component
     public function updatedselectedProject($value)
     {
 
-        $forms = Form::where('project_id', $value)->get();
-
-        if ($forms) {
-            $this->forms = $forms;
-        } else {
-            $this->forms = [];
-        }
-
         $project = Project::find($value);
 
         if ($project) {
+
             $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
 
             $this->months = $this->months->where('period_id', $period->id);
 
-        }
-
-        if ($project) {
             $this->financialYears = $this->financialYears->where('project_id', $project->id);
 
         }
 
+    }
+
+    public $all;
+    public function updated($property, $value)
+    {
+        if ($this->selectedProject && $this->selectedIndicator) {
+            // Fetch the indicator by its ID
+            $indicator = Indicator::find($this->selectedIndicator);
+
+            if ($indicator) {
+                // Get the IDs of the forms associated with the indicator
+                $formIds = $indicator->forms->pluck('id');
+
+                // Assign the form IDs to the class property $this->all
+                $this->all = $formIds;
+
+                if ($formIds->isNotEmpty()) {
+                    $this->forms = Form::get();
+                    $this->forms = $this->forms->whereIn('id', $formIds);
+                } else {
+                    // Handle empty formIds, reset or clear $this->forms as needed
+                    $this->forms = collect(); // Or handle as appropriate
+                }
+            }
+        }
     }
 
     public function resetData()

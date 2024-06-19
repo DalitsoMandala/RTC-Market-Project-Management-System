@@ -43,22 +43,44 @@ final class FormTable extends PowerGridComponent
         $user = User::find($this->userId);
         $organisation_id = $user->organisation->id;
 
-        $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators', 'forms'])->whereHas('responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
-            $query->where('organisation_id', $organisation_id);
+        // $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators', 'forms'])->whereHas('responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+        //     $query->where('organisation_id', $organisation_id);
+        // });
+
+        // $indicatorIds = $data->pluck('id');
+
+        // $forms = Form::with('submissionPeriods', 'indicators', 'project')->whereHas('indicators', function (Builder $query) use ($indicatorIds) {
+        //     $query->whereIn('indicators.id', $indicatorIds);
+        // });
+
+        //  $formIds = $forms->pluck('id');
+        $submissionPeriods = SubmissionPeriod::with(['form']);
+
+        $submissionPeriods->get()->transform(function ($item) use ($organisation_id) {
+            // dd($item);
+
+            $form = $item->form;
+
+            $formwithIndicators = $form->with('indicators')->first();
+
+            if ($formwithIndicators) {
+                $indicators = $formwithIndicators->indicators;
+                if ($indicators) {
+                    foreach ($indicators as $indicator) {
+                        $people = Indicator::find($indicator->id);
+                        $responsiblePeople = $people->responsiblePeopleforIndicators;
+                        $indicator_organisations = $responsiblePeople->where('organisation_id', $organisation_id);
+                        if ($indicator_organisations->count() > 0) {
+
+                        }
+                    }
+
+                }
+            }
+
         });
 
-        $indicatorIds = $data->pluck('id');
-
-        $forms = Form::with('submissionPeriods', 'indicators', 'project')->whereHas('indicators', function (Builder $query) use ($indicatorIds) {
-            $query->whereIn('indicators.id', $indicatorIds);
-        });
-
-        $formIds = $forms->pluck('id');
-        $submissionPeriods = SubmissionPeriod::with([
-            'form' => function ($query) use ($formIds) {
-                $query->whereIn('forms.id', $formIds);
-            }]);
-
+        dd($submissionPeriods->get());
         return $submissionPeriods;
 
     }
@@ -69,6 +91,7 @@ final class FormTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('name_formatted', function ($model) {
+
                 $form = Form::find($model->form->id);
 
                 $form_name = str_replace(' ', '-', strtolower($form->name));

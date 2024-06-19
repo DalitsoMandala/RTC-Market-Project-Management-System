@@ -38,11 +38,10 @@
                                     <x-alerts />
 
 
-                                    <div class="mb-3">
+                                    <div class="mb-3" x-data="{ selectedProject: $wire.entangle('selectedProject').live }">
 
                                         <label for="" class="form-label">Choose Project</label>
-                                        <select class="form-select form-select-md"
-                                            wire:model.live.debounce.500ms="selectedProject">
+                                        <select class="form-select form-select-md" x-model="selectedProject">
                                             <option selected value="">Select one</option>
 
 
@@ -59,21 +58,82 @@
                                     </div>
 
 
+                                    <div class="indicators">
+
+
+                                        <div class="mb-3" wire:ignore x-data="{
+                                            selected: $wire.entangle('selectedIndicator').live,
+                                            myInput(data) {
+                                                this.selected = data;
+                                            },
+                                        
+                                        }" x-init=" const input = $refs.selectElementIndicator;
+                                         const selectInput = new Choices($refs.selectElementIndicator, {
+                                             shouldSort: false,
+                                             removeItemButton: true,
+                                             placeholder: true,
+                                             placeholderValue: 'Select indicators here...',
+                                             choices: [
+                                                 { value: '', label: 'Select indicator here...', selected: true, disabled: true }, // Add this empty option
+                                                 ...@js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name]))
+                                             ]
+                                         });
+                                        
+                                         input.addEventListener(
+                                             'change',
+                                             function(event) {
+                                        
+                                        
+                                                 let selectedValues = selectInput.getValue(true);
+                                                 if (selectedValues != undefined) {
+                                                     myInput(selectedValues);
+                                                 } else {
+                                                     selectInput.setChoiceByValue('');
+                                                     myInput(null);
+                                                 }
+                                        
+                                        
+                                        
+                                        
+                                             },
+                                             false,
+                                         );
+                                        
+                                        
+                                         $wire.on('update-indicator', (value) => {
+                                             selectInput.setChoiceByValue(value);
+                                        
+                                         })">
+                                            <label for="" class="form-label">Indicator</label>
+                                            <select class="form-select form-select-sm" x-ref="selectElementIndicator">
+
+                                            </select>
+
+
+                                        </div>
+                                        @error('selectedIndicator')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+
+                                    </div>
 
                                     <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
-                                        wire:loading.attr='disabled'>
+                                        wire:loading.attr='disabled'
+                                        x-show="selectedProject != null && selectedIndicator != null"
+                                        x-data="{
+                                            selectedProject: $wire.entangle('selectedProject').live,
+                                            selectedIndicator: $wire.entangle('selectedIndicator').live,
+                                            selectedForm: $wire.entangle('selectedForm').live
+                                        }">
 
                                         <label for="" class="form-label">Choose Form</label>
-                                        <select class="form-select form-select-md "
-                                            wire:model.live.debounce.500ms="selectedForm">
+                                        <select class="form-select form-select-md " x-model="selectedForm">
                                             <option selected value="">Select one</option>
-                                            <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
-                                                @foreach ($forms as $form)
-                                                    <option value="{{ $form->id }}">{{ $form->name }}
 
-                                                    </option>
-                                                @endforeach
-                                            </div>
+
+                                            @foreach ($forms as $form)
+                                                <option value="{{ $form->id }}">{{ $form->name }} </option>
+                                            @endforeach
 
 
 
@@ -136,64 +196,6 @@
                                         @enderror
                                     </div>
 
-                                    <div class="indicators">
-
-
-                                        <div class="mb-3" wire:ignore x-data="{
-                                            selected: $wire.entangle('selectedIndicator'),
-                                            myInput(data) {
-                                                this.selected = data;
-                                            },
-                                        
-                                        }" x-init=" const input = $refs.selectElementIndicator;
-                                         const selectInput = new Choices($refs.selectElementIndicator, {
-                                             shouldSort: false,
-                                             removeItemButton: true,
-                                             placeholder: true,
-                                             placeholderValue: 'Select indicators here...',
-                                             choices: [
-                                                 { value: '', label: 'Select indicator here...', selected: true, disabled: true }, // Add this empty option
-                                                 ...@js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name]))
-                                             ]
-                                         });
-                                        
-                                         input.addEventListener(
-                                             'change',
-                                             function(event) {
-                                        
-                                        
-                                                 let selectedValues = selectInput.getValue(true);
-                                                 if (selectedValues != undefined) {
-                                                     myInput(selectedValues);
-                                                 } else {
-                                                     selectInput.setChoiceByValue('');
-                                                     myInput(null);
-                                                 }
-                                        
-                                        
-                                        
-                                        
-                                             },
-                                             false,
-                                         );
-                                        
-                                        
-                                         $wire.on('update-indicator', (value) => {
-                                             selectInput.setChoiceByValue(value);
-                                        
-                                         })">
-                                            <label for="" class="form-label">Indicator</label>
-                                            <select class="form-select form-select-sm" x-ref="selectElementIndicator">
-
-                                            </select>
-
-
-                                        </div>
-                                        @error('selectedIndicator')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-
-                                    </div>
 
                                     <div class="mb-3">
                                         <label for="" class="form-label">Start of submissions</label>
