@@ -178,8 +178,8 @@
                                                     wire:model="inputs.{{ $key }}.rtc_group_platform">
 
                                                     <option value="Household">Household</option>
-                                                    <option value="Seed">Seed</option>
-                                                    <option value="Producer Organisation">Producer Organisation</option>
+                                                    <option value="Seed">Seed Producer</option>
+                                                    {{-- <option value="Producer Organisation">Producer Organisation</option> --}}
                                                 </select>
                                                 @error('inputs.' . $key . '.rtc_group_platform')
                                                     <x-error>{{ $message }}</x-error>

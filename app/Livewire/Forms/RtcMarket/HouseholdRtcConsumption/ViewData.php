@@ -59,23 +59,6 @@ class ViewData extends Component
     public $selectedProject;
 
     public $openSubmission = false;
-    public function mount($batch = null)
-    {
-
-        if ($batch) {
-            $data = HouseholdRtcConsumption::where('uuid', $batch)->first();
-            $this->batch_no = $data->uuid ?? null;
-
-            if (!$this->batch_no) {
-                abort(404);
-            }
-
-        }
-
-        $this->loadData();
-
-    }
-
     public function loadData()
     {
         $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
@@ -104,6 +87,24 @@ class ViewData extends Component
         }
 
     }
+    public function mount($batch = null)
+    {
+
+        if ($batch) {
+            $data = HouseholdRtcConsumption::where('uuid', $batch)->first();
+            $this->batch_no = $data->uuid ?? null;
+
+            if (!$this->batch_no) {
+                abort(404);
+            }
+
+        }
+
+        $this->loadData();
+
+    }
+
+
     public function submitUpload()
     {
 

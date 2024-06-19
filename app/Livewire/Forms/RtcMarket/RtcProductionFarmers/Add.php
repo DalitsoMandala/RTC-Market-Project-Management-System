@@ -2,21 +2,28 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
+use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Project;
+use App\Models\ReportingPeriodMonth;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\RpmFarmerDomMarket;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
+use App\Models\Submission;
+use App\Models\SubmissionPeriod;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 
 class Add extends Component
 {
     use LivewireAlert;
-
+    public $form_name = 'RTC PRODUCTION AND MARKETING FORM FARMERS';
     public $location_data = [];
     public $date_of_recruitment;
     public $name_of_actor;
@@ -32,12 +39,36 @@ class Add extends Component
     public $registration_details = [];
     public $number_of_employees = [];
     public $area_under_cultivation = []; // Stores area by variety (key-value pairs)
-    public $number_of_plantlets_produced = [];
+    public $number_of_plantlets_produced = [
+        'cassava' => null,
+        'potato' => null,
+        'sweet_potato' => null,
+    ];
     public $number_of_screen_house_vines_harvested; // Sweet potatoes
     public $number_of_screen_house_min_tubers_harvested; // Potatoes
     public $number_of_sah_plants_produced; // Cassava
-    public $area_under_basic_seed_multiplication = []; // Acres
-    public $area_under_certified_seed_multiplication = []; // Acres
+    public $area_under_basic_seed_multiplication = [
+
+        'total' => null,
+        'variety_1' => null,
+        'variety_2' => null,
+        'variety_3' => null,
+        'variety_4' => null,
+        'variety_5' => null,
+        'variety_6' => null,
+        'variety_7' => null,
+    ]; // Acres
+    public $area_under_certified_seed_multiplication = [
+
+        'total' => null,
+        'variety_1' => null,
+        'variety_2' => null,
+        'variety_3' => null,
+        'variety_4' => null,
+        'variety_5' => null,
+        'variety_6' => null,
+        'variety_7' => null,
+    ]; // Acres
     public $is_registered_seed_producer = false;
     public $seed_service_unit_registration_details = [];
     public $uses_certified_seed = false;
@@ -64,18 +95,18 @@ class Add extends Component
     public $f_number_of_sah_plants_produced;
     public $f_area_under_basic_seed_multiplication = [];
     public $f_area_under_certified_seed_multiplication = [];
-    public $f_is_registered_seed_producer;
+    public $f_is_registered_seed_producer = false;
     public $f_seed_service_unit_registration_details = [];
-    public $f_uses_certified_seed;
+    public $f_uses_certified_seed = false;
     public $f_market_segment = [];
-    public $f_has_rtc_market_contract;
+    public $f_has_rtc_market_contract = false;
     public $f_total_vol_production_previous_season;
     public $f_total_production_value_previous_season = [];
     public $f_total_vol_irrigation_production_previous_season;
     public $f_total_irrigation_production_value_previous_season = [];
-    public $f_sells_to_domestic_markets;
-    public $f_sells_to_international_markets;
-    public $f_uses_market_information_systems;
+    public $f_sells_to_domestic_markets = false;
+    public $f_sells_to_international_markets = false;
+    public $f_uses_market_information_systems = false;
     public $f_market_information_systems;
     public $f_aggregation_centers = [];
     public $f_aggregation_center_sales;
@@ -86,19 +117,143 @@ class Add extends Component
 
     public $inputThree = [];
     public $uuid;
+
+    public $batch_no;
+
+    public $forms = [];
+
+    #[Validate('required')]
+    public $selectedForm;
+
+    public $months = [];
+    public $financialYears = [];
+
+    public $projects = [];
+    #[Validate('required')]
+    public $selectedMonth;
+    #[Validate('required')]
+    public $selectedFinancialYear;
+    #[Validate('required')]
+    public $selectedProject;
+
+    public $openSubmission = false;
+
     public function rules()
     {
         return [
+            //first table
+            'location_data.district' => 'required',
+            'location_data.epa' => 'required',
+            'location_data.enterprise' => 'required',
+            'location_data.section' => 'required',
+            'date_of_recruitment' => 'required|date',
+            'name_of_actor' => 'required',
+            'name_of_representative' => 'required',
+            'phone_number' => 'required',
+            'type' => 'required',
 
+            'sector' => 'required',
+            'market_segment' => 'required', // Multiple market segments (array of strings)
+            'group' => 'required',
         ];
     }
 
+    public function validationAttributes()
+    {
+        return [
+            'location_data.district' => 'district',
+            'location_data.epa' => 'epa',
+            'location_data.enterprise' => 'enterprise',
+            'location_data.section' => 'section',
+        ];
+    }
+
+    public function loadData()
+    {
+        $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
+            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
+
+        if (!$form) {
+            abort(404);
+        }
+        $this->forms = Form::get();
+        $this->projects = Project::get();
+        $this->financialYears = FinancialYear::get();
+        $this->months = ReportingPeriodMonth::get();
+
+        $submissionPeriods = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $form->id)->get();
+
+        $this->openSubmission = $submissionPeriods->count() > 0;
+
+        $this->selectedProject = $form->project->id;
+        $this->selectedForm = $form->id;
+        if ($this->openSubmission) {
+            $monthIds = $submissionPeriods->pluck('month_range_period_id')->toArray();
+            $years = $submissionPeriods->pluck('financial_year_id')->toArray();
+            $this->months = $this->months->whereIn('id', $monthIds);
+
+            $this->financialYears = $this->financialYears->whereIn('id', $years);
+        }
+
+    }
+
+    public function resetValues($name)
+    {
+        $this->reset($name);
+
+        if ($name == 'inputOne') {
+            $this->inputOne[] = [
+                'conc_date_recorded' => null,
+                'conc_partner_name' => null,
+                'conc_country' => null,
+                'conc_date_of_maximum_sale' => null,
+                'conc_product_type' => null,
+                'conc_volume_sold_previous_period' => null,
+                'conc_financial_value_of_sales' => null,
+            ];
+
+        }
+        if ($name == 'inputTwo') {
+
+            $this->inputTwo[] = [
+                'dom_date_recorded' => null,
+                'dom_crop_type' => null,
+                'dom_market_name' => null,
+                'dom_district' => null,
+                'dom_date_of_maximum_sale' => null,
+                'dom_product_type' => null,
+                'dom_volume_sold_previous_period' => null,
+                'dom_financial_value_of_sales' => null,
+            ];
+
+        }
+        if ($name == 'inputThree') {
+
+            $this->inputThree[] = [
+                'inter_date_recorded' => null,
+                'inter_crop_type' => null,
+                'inter_market_name' => null,
+                'inter_country' => null,
+                'inter_date_of_maximum_sale' => null,
+                'inter_product_type' => null,
+                'inter_volume_sold_previous_period' => null,
+                'inter_financial_value_of_sales' => null,
+            ];
+        }
+    }
     public function save()
     {
         //   /      dd($this->pull());
-
+        $this->validate();
         try {
             $uuid = Uuid::uuid4()->toString();
+
+            $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+            if (!$period) {
+                throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
+
+            }
             if (isset($this->market_segment['fresh'])) {
                 $this->market_segment['fresh'] = "YES";
             } else {
@@ -215,7 +370,7 @@ class Add extends Component
                 $thirdTable[] = [
 
                     'rpm_farmer_id' => $recruit->id,
-                    'date_recorded' => $input['conc_date_recorded'],
+                    'date_recorded' => $input['conc_date_recorded'] ?? now(),
                     'partner_name' => $input['conc_partner_name'],
                     'country' => $input['conc_country'],
                     'date_of_maximum_sale' => $input['conc_date_of_maximum_sale'],
@@ -234,7 +389,7 @@ class Add extends Component
 
                 $fourthTable[] = [
                     'rpm_farmer_id' => $recruit->id,
-                    'date_recorded' => $input['dom_date_recorded'],
+                    'date_recorded' => $input['dom_date_recorded'] ?? now(),
                     'crop_type' => $input['dom_crop_type'],
                     'market_name' => $input['dom_market_name'],
                     'district' => $input['dom_district'],
@@ -253,7 +408,7 @@ class Add extends Component
             foreach ($this->inputThree as $index => $input) {
                 $fifthTable[] = [
                     'rpm_farmer_id' => $recruit->id,
-                    'date_recorded' => $input['inter_date_recorded'],
+                    'date_recorded' => $input['inter_date_recorded'] ?? now(),
                     'crop_type' => $input['inter_crop_type'],
                     'market_name' => $input['inter_market_name'],
                     'country' => $input['inter_country'],
@@ -268,18 +423,60 @@ class Add extends Component
                 RpmFarmerInterMarket::create($input);
             }
             $currentUser = Auth::user();
+
+            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+
+                try {
+                    # code...
+
+                    Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $this->selectedForm,
+                        'user_id' => $currentUser->id,
+                        'status' => 'approved',
+                        'data' => json_encode($data),
+                        'batch_type' => 'manual',
+                        'is_complete' => 1,
+                        'period_id' => $period->id,
+                    ]);
+
+                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+                    $this->dispatch('notify');
+
+                } catch (\Exception $e) {
+                    # code...
+
+                    session()->flash('error', 'Something went wrong!');
+
+                }
+
+            } else if ($currentUser->hasAnyRole('external')) {
+
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $this->selectedForm,
+                    'period_id' => $period->id,
+                    'user_id' => $currentUser->id,
+                    'data' => json_encode($data),
+                    'batch_type' => 'manual',
+                    'status' => 'approved',
+                    'is_complete' => 1,
+
+                ]);
+
+            }
             $link = 'forms/rtc-market/rtc-production-and-marketing-form-farmers/' . $uuid . '/view';
             $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
             $this->dispatch('notify');
 
-            $this->alert('success', 'Submitted successfully!', [
+            $this->alert('success', 'Successfully submitted!', [
                 'toast' => false,
                 'position' => 'center',
             ]);
 
-            $this->reset();
-
-            $this->redirect('#');
+            session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+            $this->dispatch('to-top');
 
         } catch (\Exception $e) {
             # code...
@@ -440,6 +637,7 @@ class Add extends Component
             ]
         );
 
+        $this->loadData();
     }
 
     public function render()
