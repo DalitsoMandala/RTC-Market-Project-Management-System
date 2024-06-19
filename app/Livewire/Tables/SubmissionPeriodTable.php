@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
+use App\Models\Indicator;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -68,6 +69,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 //   ReportingPeriodMonth::find($model->month_range_period_id)->;
             })
 
+            ->add('indicator_id')
+            ->add('indicator', function ($model) {
+                $indicator = Indicator::find($model->indicator_id);
+                return $indicator->indicator_name;
+            })
+
             ->add('month_range', function ($model) {
 
                 return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
@@ -123,6 +130,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('Financial Year', 'financial_year')
                 ->sortable()
                 ->searchable(),
+
+            Column::make('Indicator', 'indicator')
+            ,
 
             Column::make('Cancelled/Expired', 'is_expired_toggle')
                 ->sortable()

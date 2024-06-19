@@ -136,6 +136,65 @@
                                         @enderror
                                     </div>
 
+                                    <div class="indicators">
+
+
+                                        <div class="mb-3" wire:ignore x-data="{
+                                            selected: $wire.entangle('selectedIndicator'),
+                                            myInput(data) {
+                                                this.selected = data;
+                                            },
+                                        
+                                        }" x-init=" const input = $refs.selectElementIndicator;
+                                         const selectInput = new Choices($refs.selectElementIndicator, {
+                                             shouldSort: false,
+                                             removeItemButton: true,
+                                             placeholder: true,
+                                             placeholderValue: 'Select indicators here...',
+                                             choices: [
+                                                 { value: '', label: 'Select indicator here...', selected: true, disabled: true }, // Add this empty option
+                                                 ...@js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name]))
+                                             ]
+                                         });
+                                        
+                                         input.addEventListener(
+                                             'change',
+                                             function(event) {
+                                        
+                                        
+                                                 let selectedValues = selectInput.getValue(true);
+                                                 if (selectedValues != undefined) {
+                                                     myInput(selectedValues);
+                                                 } else {
+                                                     selectInput.setChoiceByValue('');
+                                                     myInput(null);
+                                                 }
+                                        
+                                        
+                                        
+                                        
+                                             },
+                                             false,
+                                         );
+                                        
+                                        
+                                         $wire.on('update-indicator', (value) => {
+                                             selectInput.setChoiceByValue(value);
+                                        
+                                         })">
+                                            <label for="" class="form-label">Indicator</label>
+                                            <select class="form-select form-select-sm" x-ref="selectElementIndicator">
+
+                                            </select>
+
+
+                                        </div>
+                                        @error('selectedIndicator')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+
+                                    </div>
+
                                     <div class="mb-3">
                                         <label for="" class="form-label">Start of submissions</label>
                                         <x-text-input wire:model='start_period' type="date" />
@@ -152,7 +211,7 @@
                                     </div>
 
                                     <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
-                                        x-data="{ switchOn: $wire.entangle('status') }">
+                                        x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }" x-show="row">
                                         <input type="checkbox" x-model="switchOn" class="form-check-input"
                                             id="customSwitchsizelg">
                                         <label class="form-check-label" for="customSwitchsizelg">Submission
@@ -160,6 +219,9 @@
 
 
                                     </div>
+
+
+
 
                                     <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
                                         x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">

@@ -3,9 +3,12 @@
 namespace App\Livewire\external\Tables;
 
 use App\Models\Form;
+use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\User;
 use Carbon\Carbon;
+use id;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -37,28 +40,26 @@ final class FormTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $submissionPeriods = SubmissionPeriod::with(['form' => function ($query) {
-            $query->with('indicators')->whereHas('indicators', function ($query) {
-                $userId = $this->userId;
+        $user = User::find($this->userId);
+        $organisation_id = $user->organisation->id;
 
-                $query->whereHas('responsiblePeople', function ($query) use ($userId) {
-                    $query->where('user_id', $userId); // Filter responsible people by user ID
-                });
+        $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators', 'forms'])->whereHas('responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+            $query->where('organisation_id', $organisation_id);
+        });
 
-            })->get();
-        }])->where('is_open', 1);
+        $indicatorIds = $data->pluck('id');
+
+        $forms = Form::with('submissionPeriods', 'indicators', 'project')->whereHas('indicators', function (Builder $query) use ($indicatorIds) {
+            $query->whereIn('indicators.id', $indicatorIds);
+        });
+
+        $formIds = $forms->pluck('id');
+        $submissionPeriods = SubmissionPeriod::with([
+            'form' => function ($query) use ($formIds) {
+                $query->whereIn('forms.id', $formIds);
+            }]);
 
         return $submissionPeriods;
-        // return Form::with(['submissionPeriods', 'indicators'])->whereHas('submissionPeriods', function ($query) {
-        //     $query->where('is_open', 1);
-        // })->whereHas('indicators', function ($query) {
-        //     $userId = $this->userId;
-
-        //     $query->whereHas('responsiblePeople', function ($query) use ($userId) {
-        //         $query->where('user_id', $userId); // Filter responsible people by user ID
-        //     });
-
-        // });
 
     }
 
@@ -68,47 +69,25 @@ final class FormTable extends PowerGridComponent
             ->add('id')
             ->add('name')
             ->add('name_formatted', function ($model) {
+                $form = Form::find($model->form->id);
 
-                $form = Form::find($model->form_id);
+                $form_name = str_replace(' ', '-', strtolower($form->name));
 
-                switch ($form->name) {
-                    case 'HOUSEHOLD CONSUMPTION FORM':
-                        return '<a  href="forms/household-rtc-consumption/view" >' . $form->name . '</a>';
+                $project = str_replace(' ', '-', strtolower($form->project->name));
 
-                        break;
-
-                    default:
-                        # code...
-                        return '<a  href="#" >' . $form->name . '</a>';
-
-                        break;
-                }
+                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
 
             })
             ->add('type')
-            ->add('indicators', function ($model) {
-                $form = Form::find($model->form_id);
-                if ($form) {
+            ->add('open_for_submission', function ($model) {
 
-                    $indicators = $form->indicators;
-                    $array = $indicators->pluck('indicator_no')->toArray();
-                    return implode(',', $array);
-
-                }
-
-                return null;
+                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
 
             })
             ->add('project_id')
             ->add('project', function ($model) {
-                $form = Form::find($model->form_id);
-                if ($form) {
-
-                    return $form->project->name;
-
-                }
-
-                return null;
+                $form = Form::find($model->form->id);
+                return $form->project->name;
 
             })
 
@@ -126,9 +105,14 @@ final class FormTable extends PowerGridComponent
                 $date_end = $date->diffForHumans() ?? null;
 
                 if ($date->isPast()) {
+
                     return "<span class='text-danger'>Expired!</span>";
                 } else {
-                    return "<b>{$date_end}</b>";
+                    if ($model->is_expired === 1 && !$date->isPast()) {
+                        return "<span class='text-danger'>Cancelled!</span>";
+                    } else {
+                        return "<b>{$date_end}</b>";
+                    }
 
                 }
 
@@ -144,6 +128,12 @@ final class FormTable extends PowerGridComponent
 
                 }
             })
+
+            ->add('indicator_id')
+            ->add('indicator', function ($model) {
+                $indicator = Indicator::find($model->indicator_id);
+                return $indicator->indicator_name;
+            })
             ->add('updated_at');
     }
 
@@ -157,8 +147,11 @@ final class FormTable extends PowerGridComponent
             Column::make('Project', 'project')
                 ->sortable(),
 
-            Column::make('Indicators', 'indicators')
+            Column::make('Open for submission', 'open_for_submission')
             ,
+
+            Column::make('Indicator', 'indicator'),
+
             Column::make('Submission Dates', 'submission_duration')
             ,
 

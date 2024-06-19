@@ -4,6 +4,7 @@ namespace App\Livewire\Internal\Cip;
 
 use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\ReportingPeriod;
 use App\Models\ReportingPeriodMonth;
@@ -41,6 +42,10 @@ class SubPeriod extends Component
     public $selectedProject;
     public $expired;
 
+    public $indicators;
+
+    #[Validate('required')]
+    public $selectedIndicator;
     public function setData($id)
     {
         $this->resetErrorBag();
@@ -64,13 +69,17 @@ class SubPeriod extends Component
                     'is_expired' => $this->expired ?? false,
                     'month_range_period_id' => $this->selectedMonth,
                     'financial_year_id' => $this->selectedFinancialYear,
+                    'indicator_id' => $this->selectedIndicator,
 
                 ]);
                 session()->flash('success', 'Updated Successfully');
 
             } else {
 
-                $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)->where('financial_year_id', $this->selectedFinancialYear)->where('is_open', true)->first();
+                $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)
+                    ->where('financial_year_id', $this->selectedFinancialYear)
+                    ->where('indicator_id', $this->selectedIndicator)
+                    ->where('is_open', true)->first();
 
                 if ($find) {
 
@@ -85,6 +94,7 @@ class SubPeriod extends Component
                         'form_id' => $this->selectedForm,
                         'month_range_period_id' => $this->selectedMonth,
                         'financial_year_id' => $this->selectedFinancialYear,
+                        'indicator_id' => $this->selectedIndicator,
                     ]);
                     session()->flash('success', 'Created Successfully');
 
@@ -110,17 +120,22 @@ class SubPeriod extends Component
         $this->projects = Project::get();
         $this->financialYears = FinancialYear::get();
         $this->months = ReportingPeriodMonth::get();
-
+        $this->indicators = Indicator::get();
     }
     #[On('editData')]
     public function fillData($rowId)
     {
+
+        $this->resetErrorBag();
 
         $this->rowId = $rowId;
         $monthRange = SubmissionPeriod::find($rowId)->month_range_period_id;
         $this->start_period = Carbon::parse(SubmissionPeriod::find($rowId)->date_established)->format('Y-m-d');
         $this->end_period = Carbon::parse(SubmissionPeriod::find($rowId)->date_ending)->format('Y-m-d');
         $this->status = SubmissionPeriod::find($rowId)->is_open === 1 ? true : false;
+        $this->selectedIndicator = SubmissionPeriod::find($rowId)->indicator_id;
+
+        $this->dispatch('update-indicator', $this->selectedIndicator);
         $form = SubmissionPeriod::find($rowId)->form_id;
         $financialYear = SubmissionPeriod::find($rowId)->financial_year_id;
         if ($form) {

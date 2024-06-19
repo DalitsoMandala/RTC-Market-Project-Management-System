@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('date_ending')->nullable();
             $table->foreignId('month_range_period_id')->constrained('reporting_period_months', 'id');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id');
+            $table->foreignId('indicator_id')->constrained('indicators', 'id');
             $table->boolean('is_open')->default(false);
             $table->boolean('is_expired')->default(false);
             $table->timestamps();
