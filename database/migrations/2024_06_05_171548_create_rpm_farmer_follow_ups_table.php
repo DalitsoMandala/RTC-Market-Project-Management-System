@@ -19,7 +19,7 @@ return new class extends Migration
 
 // Production related columns
             $table->json('area_under_cultivation')->nullable(); // Stores area by variety (key-value pairs)
-            $table->json('number_of_plantlets_produced');
+            $table->json('number_of_plantlets_produced')->nullable();
             $table->integer('number_of_screen_house_vines_harvested')->nullable(); // Sweet potatoes
             $table->integer('number_of_screen_house_min_tubers_harvested')->nullable(); // Potatoes
             $table->integer('number_of_sah_plants_produced')->nullable(); // Cassava
@@ -39,9 +39,9 @@ return new class extends Migration
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);
             $table->boolean('uses_market_information_systems')->default(false);
-            $table->text('market_information_systems');
+            $table->text('market_information_systems')->nullable();
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('aggregation_center_sales', 8, 2);
+            $table->decimal('aggregation_center_sales', 8, 2)->nullable();
             // Previous season volume in metric tonnes
 
             $table->timestamps();

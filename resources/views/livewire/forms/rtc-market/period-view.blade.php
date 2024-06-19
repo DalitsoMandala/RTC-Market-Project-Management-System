@@ -7,7 +7,7 @@
                 <div class="mb-3 d-none">
 
                     <label for="" class="form-label">Choose Project</label>
-                    <select class="form-select form-select-md" wire:model="selectedProject" disabled>
+                    <select class="form-select form-select-md " wire:model="selectedProject" disabled>
                         <option selected value="">Select one</option>
 
 
@@ -57,7 +57,7 @@
 
 
 
-                    <select class="form-select form-select-md " wire:model='selectedMonth'>
+                    <select class="form-select form-select-md" wire:model='selectedMonth'>
 
                         <option value="">Select one</option>
 

@@ -7,12 +7,19 @@
     <label for="dateOfRecruitment" class="form-label">Date of
         Recruitment</label>
     <input type="date" class="form-control" id="dateOfRecruitment" wire:model='date_of_recruitment' />
+
+    @error('date_of_recruitment')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Name of Actor -->
 <div class="mb-3">
     <label for="nameOfActor" class="form-label">Name of Actor</label>
     <input type="text" class="form-control" id="nameOfActor" wire:model='name_of_actor'>
+    @error('name_of_actor')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Name of Representative -->
@@ -20,27 +27,52 @@
     <label for="nameOfRepresentative" class="form-label">Name of
         Representative</label>
     <input type="text" class="form-control" id="nameOfRepresentative" wire:model='name_of_representative'>
+    @error('name_of_representative')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Phone Number -->
 <div class="mb-3">
     <label for="phoneNumber" class="form-label">Phone Number</label>
-    <input type="tel" class="form-control" id="phoneNumber" wire:model='phone_number'>
+    <x-phone type="tel" class="form-control" id="phoneNumber" wire:model='phone_number' />
+    @error('phone_number')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Type -->
-<div class="mb-3">
+<div class="mb-3" x-data="{ type: $wire.entangle('type') }">
     <label for="type" class="form-label">Type</label>
-    <input type="text" class="form-control" id="type" wire:model='type'>
+
+    <select class="form-select form-select-md" wire:model='type'>
+        <option selected value="">Select one</option>
+        <option value="PRODUCER ORGANIZATION">PRODUCER ORGANIZATION (PO)</option>
+        <option value="LARGE SCALE FARM">LARGE SCALE FARM</option>
+
+    </select>
+
+    @error('type')
+        <x-error>{{ $message }}</x-error>
+    @enderror
+
 </div>
 
 <!-- Approach (For Producer Organizations Only) -->
-<div class="mb-3">
-    <label for="approach" class="form-label">If Producer Organization, What
+<div class="mb-3" x-data="{
+    type: $wire.entangle('type'),
+    approach: $wire.entangle('approach')
+}" x-init="$watch('type', (v) => {
+    console.log(v)
+    if (v != 'PRODUCER ORGANIZATION') {
+        $wire.resetValues('approach');
+    }
+});" x-show="type=='PRODUCER ORGANIZATION'">
+    <label for="approach" class="form-label">What
         Approach Does Your Group Follow (For Producer Organizations
         Only)</label>
     <select class="form-select" wire:model="approach">
-
+        <option value="">Select One</option>
         <option value="COLLECTIVE PRODUCTION ONLY">COLLECTIVE PRODUCTION ONLY
         </option>
         <option value="COLLECTIVE MARKETING ONLY">COLLECTIVE MARKETING ONLY</option>
@@ -49,16 +81,24 @@
             COLLECTIVE PRODUCTION, MARKETING AND KNOWLEDGE SHARING</option>
         <option value="N/A">N/A</option>
     </select>
+
+    @error('approach')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Sector -->
 <div class="mb-3">
     <label for="sector" class="form-label">Sector</label>
     <select class="form-select" wire:model="sector">
-
+        <option value="">Select One</option>
         <option value="PRIVATE">PRIVATE</option>
         <option value="PUBLIC">PUBLIC</option>
     </select>
+
+    @error('sector')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Number of Members (For Producer Organizations Only) -->
@@ -94,15 +134,21 @@
 </div>
 
 <!-- Group -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    group: $wire.entangle('group')
+}">
     <label for="group" class="form-label">Group</label>
-    <select class="form-select" wire:model="group">
-
-        <option value="EARLY GENERATION SEED PRODUCER">EARLY GENERATION SEED
+    <select class="form-select" x-model="group">
+        <option value="">Select One</option>
+        <option selected value="EARLY GENERATION SEED PRODUCER">EARLY GENERATION SEED
             PRODUCER</option>
         <option value="SEED MULTIPLIER">SEED MULTIPLIER</option>
         <option value="RTC PRODUCER">RTC PRODUCER</option>
     </select>
+
+    @error('group')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- New or Old Establishment -->
@@ -110,25 +156,42 @@
     <label for="establishment" class="form-label">Is this a New or Old
         Establishment</label>
     <select class="form-select" id="establishment" wire:model='establishment_status'>
-
+        <option value="">Select One</option>
         <option value="new">NEW (1-5 YEARS)</option>
         <option value="old">OLD (OVER 5 YEARS)</option>
     </select>
 </div>
 
 <!-- Formally Registered Entity -->
-<div class="mb-3">
-    <label for="registeredEntity" class="form-label">Is this a Formally
-        Registered Entity</label>
-    <select class="form-select" id="registeredEntity" wire:model='is_registered'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+<div class="mb-3" x-data="{
+    is_registered: $wire.entangle('is_registered')
+}">
+    <label class="form-label">Is this a Formally Registered Entity</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="registeredYes" value="1"
+                x-model="is_registered">
+            <label class="form-check-label" for="registeredYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="registeredNo" value="0"
+                x-model="is_registered">
+            <label class="form-check-label" for="registeredNo">No</label>
+        </div>
+    </div>
 </div>
 
+
 <!-- Registration Details -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    is_registered: $wire.entangle('is_registered'),
+    registration_details: $wire.entangle('registration_details')
+}" x-init="$watch('is_registered', (v) => {
+
+    if (v != 1) {
+        $wire.resetValues('registration_details');
+    }
+});" x-show='is_registered == 1'>
     <label for="registrationDetails" class="form-label">Registration
         Details</label>
 
@@ -275,8 +338,18 @@
     </div>
 </div>
 
+
 <!-- Number of Plantlets Produced -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    group: $wire.entangle('group'),
+    number_of_plantlets_produced: $wire.entangle('number_of_plantlets_produced')
+}" x-init="$watch('group', (v) => {
+    if (v != 'EARLY GENERATION SEED PRODUCER') {
+        $wire.resetValues('number_of_plantlets_produced');
+    }
+});"
+    x-show="group=='EARLY GENERATION SEED PRODUCER'">
+
     <label for="numberOfPlantlets" class="my-3 form-label fw-bold">Number of
         Plantlets
         Produced</label>
@@ -286,7 +359,7 @@
                 <label for="cassavaPlantlets" class="form-label">Number of
                     Plantlets Produced (Cassava):</label>
                 <input type="number" class="form-control" id="cassavaPlantlets"
-                    wire:model="number_of_plantlets_produced.cassava">
+                    x-model="number_of_plantlets_produced.cassava">
             </div>
         </div>
         <div class="col-md-4">
@@ -294,7 +367,7 @@
                 <label for="potatoPlantlets" class="form-label">Number of
                     Plantlets Produced (Potato):</label>
                 <input type="number" class="form-control" id="potatoPlantlets"
-                    wire:model="number_of_plantlets_produced.potato">
+                    x-model="number_of_plantlets_produced.potato">
             </div>
         </div>
         <div class="col-md-4">
@@ -302,7 +375,7 @@
                 <label for="sweetPotatoPlantlets" class="form-label">Number of
                     Plantlets Produced (Sweet Potato):</label>
                 <input type="number" class="form-control" id="sweetPotatoPlantlets"
-                    wire:model="number_of_plantlets_produced.sweet_potato">
+                    x-model="number_of_plantlets_produced.sweet_potato">
             </div>
         </div>
     </div>
@@ -310,7 +383,18 @@
 </div>
 
 <!-- Number of Screen House Vines Harvested (Sweet Potatoes) -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    group: $wire.entangle('group'),
+    number_of_screen_house_vines_harvested: $wire.entangle('number_of_screen_house_vines_harvested'),
+    init() {
+        this.$watch('group', (v) => {
+            if (v != 'EARLY GENERATION SEED PRODUCER') {
+                $wire.resetValues('number_of_screen_house_vines_harvested');
+            }
+        });
+    }
+
+}" x-show="group=='EARLY GENERATION SEED PRODUCER'">
     <label for="numberOfScreenHouseVines" class="form-label">Number of Screen
         House Vines Harvested (Sweet Potatoes)</label>
     <input type="number" class="form-control" id="numberOfScreenHouseVines"
@@ -318,7 +402,17 @@
 </div>
 
 <!-- Number of Screen House Mini-Tubers Harvested (Potato) -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    group: $wire.entangle('group'),
+    number_of_screen_house_min_tubers_harvested: $wire.entangle('number_of_screen_house_min_tubers_harvested'),
+    init() {
+        this.$watch('group', (v) => {
+            if (v != 'EARLY GENERATION SEED PRODUCER') {
+                $wire.resetValues('number_of_screen_house_min_tubers_harvested');
+            }
+        });
+    }
+}" x-show="group=='EARLY GENERATION SEED PRODUCER' ">
     <label for="numberOfMiniTubers" class="form-label">Number of Screen House
         Mini-Tubers Harvested (Potato)</label>
     <input type="number" class="form-control" id="numberOfMiniTubers"
@@ -326,14 +420,34 @@
 </div>
 
 <!-- Number of SAH Plants Produced (Cassava) -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    group: $wire.entangle('group'),
+    number_of_sah_plants_produced: $wire.entangle('number_of_sah_plants_produced'),
+    init() {
+        this.$watch('group', (v) => {
+            if (v != 'EARLY GENERATION SEED PRODUCER') {
+                $wire.resetValues('number_of_sah_plants_produced');
+            }
+        });
+    }
+}" x-show=" group=='EARLY GENERATION SEED PRODUCER'">
     <label for="numberOfSAHPlants" class="form-label">Number of SAH Plants
         Produced (Cassava)</label>
     <input type="number" class="form-control" id="numberOfSAHPlants" wire:model='number_of_sah_plants_produced'>
 </div>
 
 <!-- Area Under Basic Seed Multiplication (Number of Acres) -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    group: $wire.entangle('group'),
+    area_under_basic_seed_multiplication: $wire.entangle('area_under_basic_seed_multiplication'),
+    init() {
+        this.$watch('group', (v) => {
+            if (v != 'EARLY GENERATION SEED PRODUCER') {
+                $wire.resetValues('area_under_basic_seed_multiplication');
+            }
+        });
+    }
+}" x-show="group=='EARLY GENERATION SEED PRODUCER'">
     <label for="areaUnderBasicSeed" class="my-3 form-label fw-bold">Area Under
         Basic Seed
         Multiplication (Number of Acres)</label>
@@ -491,18 +605,36 @@
 </div>
 
 <!-- Are You a Registered Seed Producer -->
-<div class="mb-3">
-    <label for="registeredSeedProducer" class="form-label">Are You a Registered
-        Seed Producer</label>
-    <select class="form-select" id="registeredSeedProducer" wire:model='is_registered_seed_producer'>
+<div class="mb-3" x-data="{
+    is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
+}">
 
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Are You a Registered Seed Producer</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="registeredSeedProducerYes" value="1"
+                x-model="is_registered_seed_producer">
+            <label class="form-check-label" for="registeredSeedProducerYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="registeredSeedProducerNo" value="0"
+                x-model="is_registered_seed_producer">
+            <label class="form-check-label" for="registeredSeedProducerNo">No</label>
+        </div>
+    </div>
 </div>
 
+
 <!-- Registration Details (Seed Services Unit) -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
+    registration_details: $wire.entangle('seed_service_unit_registration_details')
+}" x-init="$watch('is_registered_seed_producer', (v) => {
+
+    if (v != 1) {
+        $wire.resetValues('seed_service_unit_registration_details');
+    }
+});" x-show='is_registered_seed_producer == 1'>
     <label for="seedRegistrationDetails" class="form-label">Registration Details
         (Seed Services Unit)</label>
     <div class="mb-3">
@@ -523,13 +655,19 @@
 
 <!-- Do You Use Certified Seed -->
 <div class="mb-3">
-    <label for="useCertifiedSeed" class="form-label">Do You Use Certified
-        Seed</label>
-    <select class="form-select" id="useCertifiedSeed" wire:model='uses_certified_seed'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Do You Use Certified Seed</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="useCertifiedSeedYes" value="1"
+                wire:model="uses_certified_seed">
+            <label class="form-check-label" for="useCertifiedSeedYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="useCertifiedSeedNo" value="0"
+                wire:model="uses_certified_seed">
+            <label class="form-check-label" for="useCertifiedSeedNo">No</label>
+        </div>
+    </div>
 </div>
 
 
@@ -555,14 +693,22 @@
 </div>
 
 <!-- RTC Market Contractual Agreement -->
-<div class="mb-3">
-    <label for="rtcMarketContract" class="form-label">Do You Have Any RTC Market
-        Contractual Agreement</label>
-    <select class="form-select" id="rtcMarketContract" wire:model='has_rtc_market_contract'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+<div class="mb-3" x-data="{
+    has_rtc_market_contract: $wire.entangle('has_rtc_market_contract')
+}">
+    <label class="form-label">Do You Have Any RTC Market Contractual Agreement</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="rtcMarketContractYes" value="1"
+                x-model="has_rtc_market_contract">
+            <label class="form-check-label" for="rtcMarketContractYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="rtcMarketContractNo" value="0"
+                x-model="has_rtc_market_contract">
+            <label class="form-check-label" for="rtcMarketContractNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Total Volume of Production in Previous Season (Metric Tonnes) -->
@@ -600,7 +746,7 @@
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
     <input type="number" class="form-control" id="totalVolumeIrrigation"
-        wire:model='total_irrigation_production_previous_season'>
+        wire:model='total_vol_irrigation_production_previous_season'>
 </div>
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
@@ -625,42 +771,74 @@
 </div>
 
 <!-- Sell RTC Products to Domestic Markets -->
-<div class="mb-3">
-    <label for="sellToDomesticMarkets" class="form-label">Do You Sell Your RTC
-        Products to Domestic Markets</label>
-    <select class="form-select" id="sellToDomesticMarkets" wire:model='sells_to_domestic_markets'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+<div class="mb-3" x-data="{
+    sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets')
+}">
+    <label class="form-label">Do You Sell Your RTC Products to Domestic Markets</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToDomesticMarketsYes" value="1"
+                x-model="sells_to_domestic_markets">
+            <label class="form-check-label" for="sellToDomesticMarketsYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToDomesticMarketsNo" value="0"
+                x-model="sells_to_domestic_markets">
+            <label class="form-check-label" for="sellToDomesticMarketsNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Sell Products to International Markets -->
-<div class="mb-3">
-    <label for="sellToInternationalMarkets" class="form-label">Do You Sell Your
-        Products to International Markets</label>
-    <select class="form-select" id="sellToInternationalMarkets" wire:model='sells_to_international_markets'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+<div class="mb-3" x-data="{
+    sells_to_international_markets: $wire.entangle('sells_to_international_markets')
+}">
+    <label class="form-label">Do You Sell Your Products to International Markets</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1"
+                x-model="sells_to_international_markets">
+            <label class="form-check-label" for="sellToInternationalMarketsYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsNo" value="0"
+                x-model="sells_to_international_markets">
+            <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Sell Products Through Market Information Systems -->
-<div class="mb-3">
-    <label for="sellThroughMarketInfo" class="form-label">Do You Sell Your
-        Products Through Market Information Systems</label>
-    <select class="form-select" id="sellThroughMarketInfo" wire:model='uses_market_information_systems'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+<div class="mb-3" x-data="{
+    uses_market_information_systems: $wire.entangle('uses_market_information_systems')
+}">
+    <label class="form-label">Do You Sell Your Products Through Market Information Systems</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellThroughMarketInfoYes" value="1"
+                x-model="uses_market_information_systems">
+            <label class="form-check-label" for="sellThroughMarketInfoYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellThroughMarketInfoNo" value="0"
+                x-model="uses_market_information_systems">
+            <label class="form-check-label" for="sellThroughMarketInfoNo">No</label>
+        </div>
+    </div>
 </div>
 
-<div class="mb-3">
-    <label for="" class="form-label">Specify MIS</label>
+<div class="mb-3" x-data="{
+    uses_market_information_systems: $wire.entangle('uses_market_information_systems'),
+    market_information_systems: $wire.entangle('market_information_systems')
+}" x-init="$watch('uses_market_information_systems', (v) => {
+
+    if (v != 1) {
+        $wire.resetValues('market_information_systems');
+    }
+});" x-show='uses_market_information_systems == 1'>
+    <label for="" class="form-label">Specify Market Information System</label>
     <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
-        placeholder="" wire:model='market_information_systems' />
+        placeholder="" x-model='market_information_systems' />
 
 </div>
 

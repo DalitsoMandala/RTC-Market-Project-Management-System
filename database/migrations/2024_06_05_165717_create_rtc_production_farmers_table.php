@@ -20,12 +20,12 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('type');
             $table->string('approach')->nullable(); // For producer organizations only
-            $table->string('sector');
+            $table->string('sector')->nullable();
             $table->json('number_of_members')->nullable(); // For producer organizations only
-            $table->string('group');
-            $table->enum('establishment_status', ['NEW', 'OLD']); // Uppercase for enum values
+            $table->string('group')->nullable();
+            $table->enum('establishment_status', ['NEW', 'OLD'])->nullable(); // Uppercase for enum values
             $table->boolean('is_registered')->default(false);
-            $table->json('registration_details');
+            $table->json('registration_details')->nullable();
             $table->json('number_of_employees')->nullable();
             $table->json('area_under_cultivation')->nullable(); // Stores area by variety (key-value pairs)
             $table->json('number_of_plantlets_produced')->nullable();
@@ -46,9 +46,9 @@ return new class extends Migration
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);
             $table->boolean('uses_market_information_systems')->default(false);
-            $table->text('market_information_systems');
+            $table->text('market_information_systems')->nullable();
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('aggregation_center_sales', 8, 2); // Previous season volume in metric tonnes
+            $table->decimal('aggregation_center_sales', 8, 2)->nullable(); // Previous season volume in metric tonnes
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users'); $table->timestamps();
         });

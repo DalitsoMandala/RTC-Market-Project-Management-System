@@ -336,13 +336,19 @@
 
 <!-- Are You a Registered Seed Producer -->
 <div class="mb-3">
-    <label for="registeredSeedProducer" class="form-label">Are You a Registered
-        Seed Producer</label>
-    <select class="form-select" id="registeredSeedProducer" wire:model='f_is_registered_seed_producer'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Are You a Registered Seed Producer</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="registeredSeedProducerYes" value="1"
+                wire:model="f_is_registered_seed_producer">
+            <label class="form-check-label" for="registeredSeedProducerYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="registeredSeedProducerNo" value="0"
+                wire:model="f_is_registered_seed_producer">
+            <label class="form-check-label" for="registeredSeedProducerNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Registration Details (Seed Services Unit) -->
@@ -367,13 +373,19 @@
 
 <!-- Do You Use Certified Seed -->
 <div class="mb-3">
-    <label for="useCertifiedSeed" class="form-label">Do You Use Certified
-        Seed</label>
-    <select class="form-select" id="useCertifiedSeed" wire:model='f_uses_certified_seed'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Do You Use Certified Seed</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="useCertifiedSeedYes" value="1"
+                wire:model="f_uses_certified_seed">
+            <label class="form-check-label" for="useCertifiedSeedYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="useCertifiedSeedNo" value="0"
+                wire:model="f_uses_certified_seed">
+            <label class="form-check-label" for="useCertifiedSeedNo">No</label>
+        </div>
+    </div>
 </div>
 
 
@@ -401,13 +413,19 @@
 
 <!-- RTC Market Contractual Agreement -->
 <div class="mb-3">
-    <label for="rtcMarketContract" class="form-label">Do You Have Any RTC Market
-        Contractual Agreement</label>
-    <select class="form-select" id="rtcMarketContract" wire:model='f_has_rtc_market_contract'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Do You Have Any RTC Market Contractual Agreement</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="rtcMarketContractYes" value="1"
+                wire:model="f_has_rtc_market_contract">
+            <label class="form-check-label" for="rtcMarketContractYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="rtcMarketContractNo" value="0"
+                wire:model="f_has_rtc_market_contract">
+            <label class="form-check-label" for="rtcMarketContractNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Total Volume of Production in Previous Season (Metric Tonnes) -->
@@ -445,7 +463,7 @@
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
     <input type="number" class="form-control" id="totalVolumeIrrigation"
-        wire:model='f_total_irrigation_production_previous_season'>
+        wire:model='f_total_vol_irrigation_production_previous_season'>
 </div>
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
@@ -471,35 +489,53 @@
 
 <!-- Sell RTC Products to Domestic Markets -->
 <div class="mb-3">
-    <label for="sellToDomesticMarkets" class="form-label">Do You Sell Your RTC
-        Products to Domestic Markets</label>
-    <select class="form-select" id="sellToDomesticMarkets" wire:model='f_sells_to_domestic_markets'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Do You Sell Your Products to International Markets</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1"
+                wire:model="f_sells_to_international_markets">
+            <label class="form-check-label" for="sellToInternationalMarketsYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsNo" value="0"
+                wire:model="f_sells_to_international_markets">
+            <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Sell Products to International Markets -->
 <div class="mb-3">
-    <label for="sellToInternationalMarkets" class="form-label">Do You Sell Your
-        Products to International Markets</label>
-    <select class="form-select" id="sellToInternationalMarkets" wire:model='f_sells_to_international_markets'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Do You Sell Your Products to International Markets</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1"
+                wire:model="f_sells_to_international_markets">
+            <label class="form-check-label" for="sellToInternationalMarketsYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsNo" value="0"
+                wire:model="f_sells_to_international_markets">
+            <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
+        </div>
+    </div>
 </div>
 
 <!-- Sell Products Through Market Information Systems -->
 <div class="mb-3">
-    <label for="sellThroughMarketInfo" class="form-label">Do You Sell Your
-        Products Through Market Information Systems</label>
-    <select class="form-select" id="sellThroughMarketInfo" wire:model='f_uses_market_information_systems'>
-
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+    <label class="form-label">Do You Sell Your Products Through Market Information Systems</label>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellThroughMarketInfoYes" value="1"
+                wire:model="f_uses_market_information_systems">
+            <label class="form-check-label" for="sellThroughMarketInfoYes">Yes</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="sellThroughMarketInfoNo" value="0"
+                wire:model="f_uses_market_information_systems">
+            <label class="form-check-label" for="sellThroughMarketInfoNo">No</label>
+        </div>
+    </div>
 </div>
 
 <div class="mb-3">
