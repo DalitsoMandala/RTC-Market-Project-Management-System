@@ -209,6 +209,35 @@ class IndicatorSeeder extends Seeder
 
             switch ($indicator_no) {
 
+                case 'A1':
+
+                    if (allValuesInArray(['CIP', 'IITA', 'DAES', 'DCD'], $res['organisation_names'])) {
+
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+
+                            ]);
+                        }
+
+                    }
+                    break;
+
+                case 'B1':
+
+                    if (allValuesInArray(['CIP', 'IITA', 'DAES', 'DCD'], $res['organisation_names'])) {
+
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+
+                            ]);
+                        }
+
+                    }
+                    break;
                 case 'B2':
 
                     if (allValuesInArray(['MINISTRY OF TRADE', 'CIP'], $res['organisation_names'])) {
@@ -231,6 +260,28 @@ class IndicatorSeeder extends Seeder
                                 'indicator_id' => $res['indicator_id'],
                                 'organisation_id' => $organisationId,
                                 'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case 'B4':
+                    if (allValuesInArray(['IITA', 'DAES'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+
+                    if (allValuesInArray(['CIP'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+
                             ]);
                         }
                     }

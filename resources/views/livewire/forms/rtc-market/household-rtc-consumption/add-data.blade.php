@@ -35,6 +35,10 @@
                 @if (session()->has('success'))
                     <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                 @endif
+                @if (session()->has('error'))
+                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                @endif
+
 
                 @if ($openSubmission === false)
                     <div class="alert alert-warning" role="alert">
@@ -42,13 +46,23 @@
                         because submissions are closed for the moment!
                     </div>
                 @endif
-                <div
-                    class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif">
+                <div class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif"
+                    x-data="{
+                        selectedFinancialYear: $wire.entangle('selectedFinancialYear').live,
+                        selectedMonth: $wire.entangle('selectedMonth').live,
+                        selectedIndicator: $wire.entangle('selectedIndicator').live,
+                    }">
 
                     <form wire:submit='save'>
                         @include('livewire.forms.rtc-market.period-view')
-
-                        <div class="row">
+                        <span x-text="console.log(selectedFinancialYear)"></span>
+                        <div class="row "
+                            :class="{
+                                'pe-none opacity-25': !(selectedFinancialYear !== '' &&
+                                    selectedFinancialYear !== null &&
+                                    selectedMonth !== '' && selectedMonth !== null &&
+                                    selectedIndicator !== '' && selectedIndicator !== null)
+                            }">
                             <div class="card col-12">
                                 <div class="card-header fw-bold text-uppercase">Location</div>
                                 <div class="card-body">
@@ -116,7 +130,13 @@
 
                         </div>
 
-                        <div class="row">
+                        <div class="row"
+                            :class="{
+                                'pe-none opacity-25': !(selectedFinancialYear !== '' &&
+                                    selectedFinancialYear !== null &&
+                                    selectedMonth !== '' && selectedMonth !== null &&
+                                    selectedIndicator !== '' && selectedIndicator !== null)
+                            }">
                             <div class="col-12 ">
 
                                 @php

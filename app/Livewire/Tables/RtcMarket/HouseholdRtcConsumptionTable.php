@@ -40,9 +40,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function datasource(): Builder
     {
         if ($this->uuid) {
-            return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId)->where('uuid', $this->uuid);
+            return HouseholdRtcConsumption::query()->with(['location'])->where('user_id', $this->userId)->where('uuid', $this->uuid);
         }
-        return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId);
+        return HouseholdRtcConsumption::query()->with(['location'])->where('user_id', $this->userId);
     }
 
     public function fields(): PowerGridFields

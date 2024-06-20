@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
@@ -53,6 +54,13 @@ class AddData extends Component
     public $selectedProject;
     public $form_name = 'HOUSEHOLD CONSUMPTION FORM';
     public $openSubmission = false;
+
+    public $indicators;
+
+    #[Validate('required')]
+    public $selectedIndicator;
+
+    public $showForms = false;
     protected function rules()
     {
         $validationRules = [];
@@ -150,9 +158,11 @@ class AddData extends Component
 
     }
 
-    public function updated($value)
+    public function updated($property, $value)
     {
-        // dd($value);
+        if ($this->selectedIndicator && $this->selectedMonth && $this->selectedFinancialYear) {
+
+        }
     }
     public function removeInput($index)
     {
@@ -170,7 +180,7 @@ class AddData extends Component
             $userId = auth()->user()->id;
 
             $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
-                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->where('indicator_id', $this->selectedIndicator)->first();
             if (!$period) {
                 throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
 
@@ -198,7 +208,7 @@ class AddData extends Component
                 $input['uuid'] = $uuid;
                 $input['user_id'] = $userId;
                 $data[] = $input;
-                HouseholdRtcConsumption::create($input);
+                //   HouseholdRtcConsumption::create($input);
 
             }
 
@@ -207,28 +217,49 @@ class AddData extends Component
             if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
 
                 try {
-                    # code...
+                    $checkSubmissions = Submission::where('period_id', $period->id)
+                        ->where('batch_type', 'manual')->where('user_id', $userId)->first();
 
-                    Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => $currentUser->id,
-                        'status' => 'approved',
-                        'data' => json_encode($data),
-                        'batch_type' => 'manual',
-                        'is_complete' => 1,
-                        'period_id' => $period->id,
-                    ]);
+                    if ($checkSubmissions) {
+                        session()->flash('error', 'You have already submitted your data for this indicator.');
+                        $this->dispatch('to-top');
+                    } else {
+                        Submission::create([
+                            'batch_no' => $uuid,
+                            'form_id' => $this->selectedForm,
+                            'user_id' => $currentUser->id,
+                            'status' => 'approved',
+                            'data' => json_encode($data),
+                            'batch_type' => 'manual',
+                            'is_complete' => 1,
+                            'period_id' => $period->id,
+                            'table_name' => 'household_rtc_consumption',
+                        ]);
 
-                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-                    $this->dispatch('notify');
+                        HouseholdRtcConsumption::insert($data);
 
+                        $this->reset('epa', 'section', 'district', 'enterprise');
+                        $this->resetErrorBag();
+                        $this->readdInputs();
+                        session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+
+                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                        $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+                        $this->dispatch('notify');
+
+                        $this->dispatch('to-top');
+
+                        $this->alert('success', 'Successfully submitted!', [
+                            'toast' => false,
+                            'position' => 'center',
+                        ]);
+                    }
                 } catch (\Exception $e) {
-                    # code...
-                    dd($e);
-                    session()->flash('error', 'Something went wrong!');
+                    // Log the actual error for debugging purposes
+                    \Log::error('Submission error: ' . $e->getMessage());
 
+                    // Provide a generic error message to the user
+                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
 
             } else if ($currentUser->hasAnyRole('external')) {
@@ -242,27 +273,12 @@ class AddData extends Component
                     'batch_type' => 'manual',
                     'status' => 'approved',
                     'is_complete' => 1,
+                    'table_name' => 'household_rtc_consumption',
 
                 ]);
 
             }
 
-            $this->reset('epa',
-                'section',
-                'district',
-                'enterprise');
-
-            $this->resetErrorBag();
-
-            $this->readdInputs();
-
-            $this->alert('success', 'Successfully submitted!', [
-                'toast' => false,
-                'position' => 'center',
-            ]);
-
-            session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
-            $this->dispatch('to-top');
         } catch (\Throwable $th) {
             session()->flash('error', 'Something went wrong!');
 
@@ -369,6 +385,10 @@ class AddData extends Component
 
             $this->financialYears = $this->financialYears->whereIn('id', $years);
         }
+
+        $indicators = Indicator::has('responsiblePeopleforIndicators')->has('forms')->has('forms.submissionPeriods');
+
+        $this->indicators = $indicators->get();
 
     }
 

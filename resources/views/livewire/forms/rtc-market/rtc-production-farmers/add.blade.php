@@ -48,6 +48,11 @@
                     <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                 @endif
 
+
+                @if (session()->has('error'))
+                    <x-error-alert>{!! session()->get('success') !!}</x-error-alert>
+                @endif
+
                 @if ($openSubmission === false)
                     <div class="alert alert-warning" role="alert">
                         You can not submit a form right now
@@ -55,8 +60,12 @@
                     </div>
                 @endif
 
-                <div
-                    class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif">
+                <div class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif"
+                    x-data="{
+                        selectedFinancialYear: $wire.entangle('selectedFinancialYear').live,
+                        selectedMonth: $wire.entangle('selectedMonth').live,
+                        selectedIndicator: $wire.entangle('selectedIndicator').live,
+                    }">
                     <form wire:submit='save'>
 
 
