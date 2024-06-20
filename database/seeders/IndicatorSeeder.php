@@ -14,8 +14,6 @@ class IndicatorSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-
         $indicators = [
             'Number of actors profitability engaged in commercialization of RTC',
             'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities',
@@ -43,7 +41,7 @@ class IndicatorSeeder extends Seeder
             'Number of stakeholder engagement events that focus on RTC development',
             'Number of registered seed producers accessing markets through online Market Information System (MIS)',
             'Number of RTC actors linked to online Market Information System (MIS)',
-            'Number ofRTC products available on the Management Information System',
+            'Number of RTC products available on the Management Information System',
             'Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production',
             'Number of RTC actors that use certified seed',
             'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)',
@@ -185,41 +183,309 @@ class IndicatorSeeder extends Seeder
             '4.1.5' => ['TRADELINE'],
             '4.1.6' => ['TRADELINE'],
         ];
-
+        $responsiblePeopleArray = [];
         foreach ($indicatorsWithPartners as $indicator => $partners) {
-            $organisation = Organisation::whereIn('name', $partners)->get()->pluck('id');
-            $indicator_no = Indicator::where('indicator_no', $indicator)->get()->pluck('id');
-
-            foreach ($organisation as $organisationId) {
-                foreach ($indicator_no as $indicatorNum) {
-                    ResponsiblePerson::create([
-                        'indicator_id' => $indicatorNum,
-                        'organisation_id' => $organisationId,
-                    ]);
-                }
-            }
+            $indicatorId = Indicator::where('indicator_no', $indicator)->pluck('id')->first();
+            $responsiblePeopleArray[$indicator] = [
+                'organisation_id' => Organisation::whereIn('name', $partners)->pluck('id')->toArray(),
+                'organisation_names' => Organisation::whereIn('name', $partners)->pluck('name')->toArray(),
+                'indicator_id' => $indicatorId,
+            ];
 
         }
 
-        // $indicators = Indicator::where('indicator_name', 'Number of actors profitability engaged in commercialization of RTC')->first();
-        // if ($indicators) {
-        //     $userRoles = User::whereHas('roles', function ($query) {
-        //         $query->whereIn('name', ['cip', 'iita', 'dcd', 'daes']);
-        //     });
+        //if values exist
+        function allValuesInArray($values, $array)
+        {
+            foreach ($values as $value) {
+                if (!in_array($value, $array)) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-        //     if ($userRoles->count() > 0) {
-        //         foreach ($userRoles->get() as $user) {
+        foreach ($responsiblePeopleArray as $indicator_no => $res) {
 
-        //             ResponsiblePerson::create([
-        //                 'user_id' => $user->id,
-        //                 'indicator_id' => $indicators->id,
-        //             ]);
-        //         }
-        //     }
+            switch ($indicator_no) {
 
-        //     // set forms involved with this indicator
+                case 'B2':
 
-        // }
+                    if (allValuesInArray(['MINISTRY OF TRADE', 'CIP'], $res['organisation_names'])) {
+
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+
+                    }
+                    break;
+
+                case 'B3':
+                    if (allValuesInArray(['MINISTRY OF TRADE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case 'B5':
+                    if (allValuesInArray(['CIP', 'IITA'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case 'B6':
+                    if (allValuesInArray(['CIP'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '1.1.1':
+                    if (allValuesInArray(['CIP', 'IITA', 'TRADELINE', 'MINISTRY OF TRADE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '1.1.2':
+                case '1.1.3':
+                    if (allValuesInArray(['DARS'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '1.1.4':
+                    if (allValuesInArray(['CIP', 'IITA', 'DARS', 'RTCDT', 'DAES'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '1.2.1':
+                    if (allValuesInArray(['CIP', 'IITA'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '1.2.2':
+                    if (allValuesInArray(['MINISTRY OF TRADE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '1.3.1':
+                    if (allValuesInArray(['RTCDT'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.1.1':
+                    if (allValuesInArray(['TRADELINE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.2.1':
+                    if (allValuesInArray(['CIP', 'IITA'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.2.2':
+                case '2.2.3':
+                case '2.2.4':
+                    if (allValuesInArray(['DAES', 'CIP', 'IITA'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.2.5':
+                    if (allValuesInArray(['DAES'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.3.1':
+                    if (allValuesInArray(['CIP', 'IITA'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.3.2':
+                    if (allValuesInArray(['TRADELINE', 'RTCDT'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.3.3':
+                    if (allValuesInArray(['ACE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.3.4':
+                    if (allValuesInArray(['ACE', 'TRADELINE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '2.3.5':
+                    if (allValuesInArray(['ACE', 'DAES'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '3.1.1':
+                    if (allValuesInArray(['DAES', 'CIP', 'IITA', 'RTCDT'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '3.1.2':
+                    if (allValuesInArray(['CIP', 'IITA', 'RTCDT'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                case '3.1.3':
+                    if (allValuesInArray(['ACE', 'DAES', 'TRADELINE'], $res['organisation_names'])) {
+                        foreach ($res['organisation_id'] as $organisationId) {
+                            ResponsiblePerson::create([
+                                'indicator_id' => $res['indicator_id'],
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => 'aggregate',
+                            ]);
+                        }
+                    }
+                    break;
+
+                default:
+                    // Handle default case if needed
+                    break;
+
+            }
+
+        }
 
     }
 }

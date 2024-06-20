@@ -68,7 +68,7 @@ final class IndicatorTable extends PowerGridComponent
 
                 return '<b>' . $model->indicator_no . '</b>';
             })
-
+            ->add('indicator_name')
             ->add('name_link', function ($model) {
                 $user = User::find($this->userId);
                 if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
@@ -98,7 +98,7 @@ final class IndicatorTable extends PowerGridComponent
             Column::make('Indicator #', 'indicator_no_bold')
                 ->sortable()
                 ->searchable(),
-            Column::make('Indicator', 'name_link', 'name')
+            Column::make('Indicator', 'name_link', 'indicator_name')
                 ->sortable()
                 ->searchable(),
 

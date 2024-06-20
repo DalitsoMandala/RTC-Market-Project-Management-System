@@ -23,8 +23,6 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function () {
-    $currentDateTime = now(); // or \Carbon\Carbon::now() for Carbon instances
-    echo $currentDateTime; // Output the current datetime in Harare timezone
 
 });
 
