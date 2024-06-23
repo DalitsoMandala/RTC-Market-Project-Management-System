@@ -41,13 +41,16 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
         $user = User::find($this->userId);
+
         $organisation_id = $user->organisation->id;
 
         // Query SubmissionPeriods with the necessary relationships
         $query = SubmissionPeriod::with(['form', 'form.indicators'])
             ->whereHas('form.indicators.responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
-            });
+            })
+
+        ;
 
         return $query;
 
@@ -111,7 +114,10 @@ final class FormTable extends PowerGridComponent
             ->add('submission_status', function ($model) {
                 $userId = $this->userId;
 
-                $submitted = Submission::where('user_id', $userId)->where('form_id', $model->id)->count();
+                $submitted = Submission::where('user_id', $userId)
+                    ->where('period_id', $model->id)
+                    ->where('form_id', $model->form->id)->count();
+
                 if ($submitted === 0) {
                     return '<span class="badge bg-danger">Not submitted</span>';
                 } else {

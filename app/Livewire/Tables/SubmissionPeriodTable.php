@@ -7,6 +7,7 @@ use App\Models\Indicator;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -39,7 +40,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return SubmissionPeriod::query();
+        return SubmissionPeriod::query()->orderBy('is_open', 'desc');
     }
 
     public function fields(): PowerGridFields
@@ -50,18 +51,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('form_name', function ($model) {
                 $form = Form::find($model->form_id);
 
-                switch ($form->name) {
-                    case 'HOUSEHOLD CONSUMPTION FORM':
-                        return '<a  href="forms/household-rtc-consumption/view" >' . $form->name . '</a>';
+                $form_name = str_replace(' ', '-', strtolower($form->name));
+                $project = str_replace(' ', '-', strtolower($form->project->name));
 
-                        break;
-
-                    default:
-                        # code...
-                        return '<a  href="#" >' . $form->name . '</a>';
-
-                        break;
-                }
+                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
 
             })
             ->add('financial_year', function ($model) {
@@ -103,8 +96,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
                         'is_expired' => 1,
                         'is_open' => 0,
                     ]);
+
+                    $this->refreshData();
                 }
             })
+
             ->add('created_at')
             ->add('updated_at');
     }
@@ -134,7 +130,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('Indicator', 'indicator')
             ,
 
-            Column::make('Cancelled/Expired', 'is_expired_toggle')
+            Column::make('Expired', 'is_expired_toggle')
                 ->sortable()
                 ->searchable(),
 
@@ -150,10 +146,20 @@ final class SubmissionPeriodTable extends PowerGridComponent
             // Filter::datetimepicker('date_ending'),
         ];
     }
-    #[\Livewire\Attributes\On('refresh')]
+    #[On('refresh')]
     public function refreshData(): void
     {
         $this->refresh();
+    }
+
+    #[On('sendData')]
+    public function sendData($model)
+    {
+        dd($model);
+        $form = Form::find($model->form_id);
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
     }
 
     public function actions($row): array
@@ -162,12 +168,30 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary')
+                ->tooltip('Edit Record')
+                ->class('btn btn-primary my-1')
+                ->dispatch('editData', ['rowId' => $row->id]),
+
+            Button::add('add-data')
+                ->slot('<i class="bx bx-plus"></i>')
+                ->id()
+                ->class('btn btn-primary my-1')
+                ->tooltip('Add Manual Data')
+                ->dispatch('sendData', ['model' => $row]),
+
+            Button::add('upload')
+                ->slot('<i class="bx bx-upload"></i>')
+                ->id()
+                ->tooltip('Upload Your Data')
+                ->class('btn btn-primary my-1')
                 ->dispatch('editData', ['rowId' => $row->id]),
 
         ];
     }
-
+    // public function actionsFromView($row): View
+    // {
+    //     return view('livewire.submission-view', ['row' => $row]);
+    // }
     public function actionRules($row): array
     {
         return [
@@ -175,7 +199,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Rule::button('edit')
                 ->when(fn($row) => $row->is_expired === 1)
                 ->disable(),
+            Rule::button('add-data')
+                ->when(fn($row) => $row->is_expired === 1)
+                ->disable(),
+            Rule::button('upload')
+                ->when(fn($row) => $row->is_expired === 1)
+                ->disable(),
         ];
+    }
+    public function updated()
+    {
+
+        $this->dispatch('reload-tooltips');
     }
 
 }

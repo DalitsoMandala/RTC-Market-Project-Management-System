@@ -1,16 +1,17 @@
 <div>
+    @inject('indicatorService', 'App\Services\IndicatorService')
     <div class="container-fluid">
 
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                    <h4 class="mb-0">View Indicator</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Page Name</li>
+                            <li class="breadcrumb-item active">Indicators</li>
                         </ol>
                     </div>
 
@@ -20,39 +21,32 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <h4>{{ $indicator_no }} - {{ $indicator_name }}</h4>
+                    </div>
+                    <div class="card-body">
 
+
+                        @php
+                            $component = $indicatorService->getComponent($indicator_no, $project_name);
+                        @endphp
+
+                        @if ($component)
+                            @livewire($component, ['indicator_no' => $indicator_no, 'indicator_name' => $indicator_name])
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
-
-
-
 
     </div>
+
+
+
+</div>
 
 </div>

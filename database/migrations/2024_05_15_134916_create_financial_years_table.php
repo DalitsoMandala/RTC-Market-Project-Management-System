@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('financial_years', function (Blueprint $table) {
             $table->id();
             $table->integer('number')->unsigned();
+            $table->date('start_date');
+            $table->date('end_date');
             $table->foreignId('project_id')->constrained('projects', 'id');
+
             $table->timestamps();
         });
     }

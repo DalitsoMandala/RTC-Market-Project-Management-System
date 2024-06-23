@@ -2,41 +2,47 @@
 
 namespace App\Livewire\External;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
+use App\Helpers\rtc_market\indicators\A1;
+use App\Models\Indicator;
+use App\Models\Project;
+use data;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+
 class Dashboard extends Component
 {
-        use LivewireAlert;
-   #[Validate('required')]
-public $variable;
-public $rowId;
-
-    public function setData($id){
-$this->resetErrorBag();
+    use LivewireAlert;
+    #[Validate('required')]
+    public $variable;
+    public $rowId;
+    public $data;
+    public $project;
+    public $indicatorCount;
+    public function setData($id)
+    {
+        $this->resetErrorBag();
 
     }
 
- public function save(){
+    public function mount()
+    {
 
-$this->resetErrorBag();
-    try {
-
-
-
-            $this->alert('success', 'Successfully updated');
-
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
-        }
-$this->reset();
+        $a1 = new A1();
+        $indicator = Indicator::where('indicator_no', 'A1')->first();
+        $this->fill([
+            'indicatorCount' => Indicator::count(),
+        ]);
+        $this->data = [
+            'actors' => $a1->getDisaggregations(),
+            'name' => $indicator->indicator_name,
+        ];
     }
-
 
     public function render()
     {
-        return view('livewire.external.dashboard');
+        return view('livewire.external.dashboard',[
+            'projects' => Project::get(),
+        ]);
     }
 }

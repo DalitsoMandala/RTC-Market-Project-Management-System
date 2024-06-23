@@ -9,6 +9,7 @@ use App\Models\SubmissionPeriod;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -25,7 +26,7 @@ final class SubmissionTable extends PowerGridComponent
 {
     use WithExport;
     public $filter;
-
+    public $userId;
     public bool $showFilters = true;
     public function setUp(): array
     {
@@ -44,9 +45,24 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+        if ($this->userId) {
+            $user = Auth::user();
+            if ($user->hasAnyRole('external')) {
+                return Submission::query()->where('user_id', $user->id)->where('batch_type', $this->filter)->select([
+                    '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+                ])->orderBy('created_at', 'desc');
+
+            } else {
+                return Submission::query()->where('batch_type', $this->filter)->select([
+                    '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+                ])->orderBy('created_at', 'desc');
+
+            }
+        }
         return Submission::query()->where('batch_type', $this->filter)->select([
             '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-        ]);
+        ])->orderBy('created_at', 'desc');
     }
 
     public function filters(): array
@@ -102,43 +118,8 @@ final class SubmissionTable extends PowerGridComponent
 
                 $user = User::find($model->user_id);
 
-                if ($user->hasRole('external')) {
-                    if ($user->hasRole('iita')) {
-                        return 'IITA';
+                return $user->organisation->name;
 
-                    }
-                    if ($user->hasRole('iita')) {
-                        return 'DAES';
-
-                    }
-                    if ($user->hasRole('min_of_trade')) {
-                        return 'MINISTRY OF TRADE';
-
-                    }
-                    if ($user->hasRole('tradeline')) {
-                        return 'TRADELINE';
-
-                    }
-                    if ($user->hasRole('dcd')) {
-                        return 'DCD';
-
-                    }
-
-                    if ($user->hasRole('daes')) {
-                        return 'DAES';
-
-                    }
-
-                } else {
-                    if ($user->hasRole('cip')) {
-                        return 'CIP';
-
-                    } else {
-                        return 'DESIRA';
-
-                    }
-
-                }
             })
             ->add('status')
             ->add('batch_type')
@@ -185,7 +166,7 @@ final class SubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'row_num'),
+            //  Column::make('Id', 'row_num'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
@@ -228,19 +209,19 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary')
+                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('internal'))
                 ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal']),
         ];
     }
 
-    /*
-public function actionRules($row): array
-{
-return [
-// Hide button edit for ID 1
-Rule::button('edit')
-->when(fn($row) => $row->id === 1)
-->hide(),
-];
-}
- */
+    // public function actionRules($row): array
+    // {
+    //     return [
+
+    //         Rule::button('edit')
+    //             ->when(fn($row) => )
+    //             ->hide(),
+    //     ];
+    // }
+
 }

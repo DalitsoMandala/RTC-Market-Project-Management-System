@@ -8,8 +8,10 @@ use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Notifications\AggregateDataAddedNotification;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -60,7 +62,12 @@ class AddData extends Component
     #[Validate('required')]
     public $selectedIndicator;
 
-    public $showForms = false;
+    public $organisation_id;
+
+    public $loadAggregate = [];
+
+    public $aggregateData = [];
+    public $checkifAggregate = false;
     protected function rules()
     {
         $validationRules = [];
@@ -161,8 +168,45 @@ class AddData extends Component
     public function updated($property, $value)
     {
         if ($this->selectedIndicator && $this->selectedMonth && $this->selectedFinancialYear) {
+            $user = Auth::user();
+            $organisation_id = $user->organisation->id;
+            $checkIndicators = ResponsiblePerson::whereIn('indicator_id', $this->indicators->pluck('id')->toArray())
+                ->where('organisation_id', $organisation_id)
+                ->where('indicator_id', $this->selectedIndicator)
+            ;
+
+            $checkifAggregate = $checkIndicators->first();
+
+            if ($checkifAggregate) {
+
+                $this->checkifAggregate = $checkifAggregate->type_of_submission === "aggregate" ? true : false;
+
+                $indicators = Indicator::find($this->selectedIndicator);
+                if ($indicators) {
+                    $aggregates = $indicators->disaggregations;
+                    if ($aggregates) {
+
+                        $names = collect($aggregates->pluck('name'));
+
+                        $this->loadAggregate = collect($names);
+
+                        // dd($this->loadAggregate);
+                    }
+
+                }
+            }
 
         }
+    }
+
+    public function updatedSelectedIndicator($value)
+    {
+
+        $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+            ->where('indicator_id', $this->selectedIndicator)->pluck('month_range_period_id');
+        $this->months = ReportingPeriodMonth::get();
+        $this->months = $this->months->whereIn('id', $period);
+
     }
     public function removeInput($index)
     {
@@ -217,43 +261,37 @@ class AddData extends Component
             if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
 
                 try {
-                    $checkSubmissions = Submission::where('period_id', $period->id)
-                        ->where('batch_type', 'manual')->where('user_id', $userId)->first();
 
-                    if ($checkSubmissions) {
-                        session()->flash('error', 'You have already submitted your data for this indicator.');
-                        $this->dispatch('to-top');
-                    } else {
-                        Submission::create([
-                            'batch_no' => $uuid,
-                            'form_id' => $this->selectedForm,
-                            'user_id' => $currentUser->id,
-                            'status' => 'approved',
-                            'data' => json_encode($data),
-                            'batch_type' => 'manual',
-                            'is_complete' => 1,
-                            'period_id' => $period->id,
-                            'table_name' => 'household_rtc_consumption',
-                        ]);
+                    Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $this->selectedForm,
+                        'user_id' => $currentUser->id,
+                        'status' => 'approved',
+                        'data' => json_encode($data),
+                        'batch_type' => 'manual',
+                        'is_complete' => 1,
+                        'period_id' => $period->id,
+                        'table_name' => 'household_rtc_consumption',
+                    ]);
 
-                        HouseholdRtcConsumption::insert($data);
+                    HouseholdRtcConsumption::insert($data);
 
-                        $this->reset('epa', 'section', 'district', 'enterprise');
-                        $this->resetErrorBag();
-                        $this->readdInputs();
-                        session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+                    $this->reset('epa', 'section', 'district', 'enterprise');
+                    $this->resetErrorBag();
+                    $this->readdInputs();
+                    session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
 
-                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                        $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-                        $this->dispatch('notify');
+                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+                    $this->dispatch('notify');
 
-                        $this->dispatch('to-top');
+                    $this->dispatch('to-top');
 
-                        $this->alert('success', 'Successfully submitted!', [
-                            'toast' => false,
-                            'position' => 'center',
-                        ]);
-                    }
+                    $this->alert('success', 'Successfully submitted!', [
+                        'toast' => true,
+                        'position' => 'center',
+                    ]);
+
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
                     \Log::error('Submission error: ' . $e->getMessage());
@@ -271,10 +309,26 @@ class AddData extends Component
                     'user_id' => $currentUser->id,
                     'data' => json_encode($data),
                     'batch_type' => 'manual',
-                    'status' => 'approved',
+                    //      'status' => 'approved',
                     'is_complete' => 1,
                     'table_name' => 'household_rtc_consumption',
 
+                ]);
+
+                $this->reset('epa', 'section', 'district', 'enterprise');
+                $this->resetErrorBag();
+                $this->readdInputs();
+                session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+
+                $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+                $this->dispatch('notify');
+
+                $this->dispatch('to-top');
+
+                $this->alert('success', 'Successfully submitted!', [
+                    'toast' => true,
+                    'position' => 'center',
                 ]);
 
             }
@@ -317,47 +371,6 @@ class AddData extends Component
             ]);
 
     }
-    public function mount()
-    {
-
-        $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
-        $period = $form->submissionPeriods->where('is_open', true)->first();
-        if ($period) {
-            $this->period = $period->id;
-        } else {
-            $this->period = null;
-        }
-
-        //has one
-        $this->fill(
-            [
-                'inputs' =>
-                collect([
-                    [
-                        'date_of_assessment' => null,
-                        'actor_type' => null,
-                        'rtc_group_platform' => null,
-                        'producer_organisation' => null,
-                        'actor_name' => null,
-                        'age_group' => null,
-                        'sex' => null,
-                        'phone_number' => null,
-                        'household_size' => null,
-                        'under_5_in_household' => null,
-                        'rtc_consumers' => null,
-                        'rtc_consumers_potato' => null,
-                        'rtc_consumers_sw_potato' => null,
-                        'rtc_consumers_cassava' => null,
-                        'rtc_consumption_frequency' => null,
-                        'main_food' => [],
-                    ],
-
-                ])
-            ]);
-
-        $this->loadData();
-
-    }
 
     public function loadData()
     {
@@ -392,6 +405,171 @@ class AddData extends Component
 
     }
 
+    public function savePack()
+    {
+
+        try {
+            $uuid = Uuid::uuid4()->toString();
+
+            $userId = auth()->user()->id;
+
+            $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->where('indicator_id', $this->selectedIndicator)->first();
+            if (!$period) {
+                throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
+
+            }
+
+            $currentUser = Auth::user();
+
+            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+
+                try {
+                    $checkSubmissions = Submission::where('period_id', $period->id)
+                        ->where('batch_type', 'aggregate')->where('user_id', $userId)->first();
+
+                    if ($checkSubmissions) {
+                        session()->flash('error', 'You have already submitted your data for this indicator.');
+                        $this->dispatch('to-top');
+                    } else {
+                        Submission::create([
+                            'batch_no' => $uuid,
+                            'form_id' => $this->selectedForm,
+                            'user_id' => $currentUser->id,
+                            'status' => 'approved',
+                            'data' => json_encode($this->aggregateData),
+                            'batch_type' => 'aggregate',
+                            'is_complete' => 1,
+                            'period_id' => $period->id,
+                            'table_name' => 'household_rtc_consumption',
+                        ]);
+
+                        $this->aggregateData = [];
+
+                        session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+
+                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                        $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
+                        $this->dispatch('notify');
+                        $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
+                        $this->dispatch('to-top');
+
+                        $this->alert('success', 'Successfully submitted!', [
+                            'toast' => true,
+                            'position' => 'center',
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Log the actual error for debugging purposes
+                    \Log::error('Submission error: ' . $e->getMessage());
+
+                    // Provide a generic error message to the user
+                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+                }
+
+            } else if ($currentUser->hasAnyRole('external')) {
+
+                try {
+                    $checkSubmissions = Submission::where('period_id', $period->id)
+                        ->where('batch_type', 'aggregate')->where('user_id', $userId)->first();
+
+                    if ($checkSubmissions) {
+                        session()->flash('error', 'You have already submitted your data for this indicator.');
+                        $this->dispatch('to-top');
+                    } else {
+                        Submission::create([
+                            'batch_no' => $uuid,
+                            'form_id' => $this->selectedForm,
+                            'user_id' => $currentUser->id,
+
+                            'data' => json_encode($this->aggregateData),
+                            'batch_type' => 'aggregate',
+                            'is_complete' => 1,
+                            'period_id' => $period->id,
+                            'table_name' => 'household_rtc_consumption',
+                        ]);
+
+                        $this->aggregateData = [];
+
+                        session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+
+                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                        $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
+                        $this->dispatch('notify');
+                        $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
+                        $this->dispatch('to-top');
+
+                        $this->alert('success', 'Successfully submitted!', [
+                            'toast' => true,
+                            'position' => 'center',
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Log the actual error for debugging purposes
+                    \Log::error('Submission error: ' . $e->getMessage());
+
+                    // Provide a generic error message to the user
+                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+                }
+            }
+
+        } catch (\Throwable $th) {
+
+            session()->flash('error', 'Something went wrong!');
+
+        }
+
+    }
+
+    #[On('added-aggregates')]
+    public function addData($data)
+    {
+
+        $this->aggregateData = $data;
+        $this->savePack();
+    }
+
+    public function mount()
+    {
+
+        $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
+        $period = $form->submissionPeriods->where('is_open', true)->first();
+        if ($period) {
+            $this->period = $period->id;
+        } else {
+            $this->period = null;
+        }
+
+        //has one
+        $this->fill(
+            [
+                'inputs' =>
+                collect([
+                    [
+                        'date_of_assessment' => null,
+                        'actor_type' => null,
+                        'rtc_group_platform' => null,
+                        'producer_organisation' => null,
+                        'actor_name' => null,
+                        'age_group' => null,
+                        'sex' => 'MALE',
+                        'phone_number' => null,
+                        'household_size' => null,
+                        'under_5_in_household' => null,
+                        'rtc_consumers' => null,
+                        'rtc_consumers_potato' => null,
+                        'rtc_consumers_sw_potato' => null,
+                        'rtc_consumers_cassava' => null,
+                        'rtc_consumption_frequency' => null,
+                        'main_food' => [],
+                    ],
+
+                ])
+            ]);
+
+        $this->loadData();
+
+    }
     public function render()
     {
         return view('livewire.forms.rtc-market.household-rtc-consumption.add-data');

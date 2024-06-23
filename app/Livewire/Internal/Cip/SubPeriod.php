@@ -42,7 +42,7 @@ class SubPeriod extends Component
     public $selectedProject;
     public $expired;
 
-    public $indicators;
+    public $indicators = [];
 
     #[Validate('required')]
     public $selectedIndicator;
@@ -135,7 +135,6 @@ class SubPeriod extends Component
         $this->status = SubmissionPeriod::find($rowId)->is_open === 1 ? true : false;
         $this->selectedIndicator = SubmissionPeriod::find($rowId)->indicator_id;
 
-        $this->dispatch('update-indicator', $this->selectedIndicator);
         $form = SubmissionPeriod::find($rowId)->form_id;
         $financialYear = SubmissionPeriod::find($rowId)->financial_year_id;
         if ($form) {
@@ -146,7 +145,7 @@ class SubPeriod extends Component
                 $project = $formDetails->project->id;
 
                 $this->selectedProject = $project;
-                $this->selectedForm = $form;
+
                 $project = Project::find($this->selectedProject);
 
                 if ($project) {
@@ -155,10 +154,14 @@ class SubPeriod extends Component
                     $this->months = $this->months->where('period_id', $period->id);
 
                     $this->financialYears = $this->financialYears->where('project_id', $project->id);
+                    $indicators = Indicator::where('project_id', $project->id)->get();
+                    $this->dispatch('select-indicator', data: $indicators, selected: $this->selectedIndicator);
 
                 }
                 $this->selectedMonth = $monthRange;
                 $this->selectedFinancialYear = $financialYear;
+                $this->selectedForm = $form;
+
             }
         }
 
@@ -174,9 +177,15 @@ class SubPeriod extends Component
             $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
 
             $this->months = $this->months->where('period_id', $period->id);
+            $today = Carbon::today();
+            $this->financialYears = $this->financialYears->where('project_id', $project->id)
+                ->where('start_date', '<=', $today)->where('end_date', '>=', $today);
+            $indicators = Indicator::where('project_id', $value)->get();
+            $this->dispatch('update-indicator', data: $indicators, selected: null);
 
-            $this->financialYears = $this->financialYears->where('project_id', $project->id);
+        } else {
 
+            $this->loadData();
         }
 
     }
@@ -196,8 +205,11 @@ class SubPeriod extends Component
                 $this->all = $formIds;
 
                 if ($formIds->isNotEmpty()) {
+
                     $this->forms = Form::get();
+
                     $this->forms = $this->forms->whereIn('id', $formIds);
+
                 } else {
                     // Handle empty formIds, reset or clear $this->forms as needed
                     $this->forms = collect(); // Or handle as appropriate
@@ -206,10 +218,20 @@ class SubPeriod extends Component
         }
     }
 
+    public function updatedSelectedIndicator()
+    {
+        if (!$this->rowId) {
+
+            $this->selectedForm = null;
+        }
+
+    }
+
     public function resetData()
     {
         $this->reset();
         $this->loadData();
+        $this->dispatch('clear-choices');
 
     }
 

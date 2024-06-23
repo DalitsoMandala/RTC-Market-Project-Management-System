@@ -31,7 +31,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/css/tableexport.css"
             integrity="sha512-+m+NCQG6uttXsLjwxHTUdhov99LW3TSFEiM2LSFMwfOePszb2as348/96cCBG35mOK+3Gp4P0EQRWpKLZfGTnA=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
         <link rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.11/build/css/intlTelInput.min.css">
         <style>
@@ -60,6 +62,39 @@
 
             .main-content {
                 overflow: visible;
+            }
+
+            .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+            .select2-container--bootstrap-5.select2-container--open .select2-selection {
+                border-color: #9cc0e0;
+                outline: 0;
+                -webkit-box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25);
+                box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25)
+            }
+
+            .select2-container--bootstrap-5 .select2-selection {
+
+                font-size: .875rem;
+
+            }
+
+            .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field:focus {
+                border-color: #9cc0e0;
+                outline: 0;
+                -webkit-box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25);
+                box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25)
+            }
+
+            .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--selected,
+            .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[aria-selected=true]:not(.select2-results__option--highlighted) {
+                color: #fff;
+                background-color: #3980c0;
+            }
+
+            .select2-container--bootstrap-5 .select2-dropdown {
+
+                border-color: #9cc0e0;
+
             }
         </style>
         <!-- Scripts -->
@@ -125,7 +160,7 @@
             <script src="https://cdn.jsdelivr.net/npm/jquery-table2excel@1.1.1/dist/jquery.table2excel.min.js"
                 integrity="sha256-UbQOHbRdBiTxFQd7J+zvg9v9eXjTMepIyA+67ohTgtY=" crossorigin="anonymous"></script>
             <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.11/build/js/intlTelInput.min.js"></script>
-
+            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
             @stack('scripts')
             <script>
                 $(document).ready(function() {

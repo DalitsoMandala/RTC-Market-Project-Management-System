@@ -8,8 +8,10 @@ use App\Imports\rtcmarket\HouseholdImport\HrcImport;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Notifications\BatchDataAddedNotification;
@@ -59,6 +61,45 @@ class ViewData extends Component
     public $selectedProject;
 
     public $openSubmission = false;
+
+    public $indicators;
+
+    #[Validate('required')]
+    public $selectedIndicator;
+
+    public function updated($property, $value)
+    {
+        if ($this->selectedIndicator && $this->selectedMonth && $this->selectedFinancialYear) {
+            $user = Auth::user();
+            $organisation_id = $user->organisation->id;
+            $checkIndicators = ResponsiblePerson::whereIn('indicator_id', $this->indicators->pluck('id')->toArray())
+                ->where('organisation_id', $organisation_id)
+                ->where('indicator_id', $this->selectedIndicator)
+            ;
+
+            $checkifAggregate = $checkIndicators->first();
+
+            if ($checkifAggregate) {
+
+                $this->checkifAggregate = $checkifAggregate->type_of_submission === "aggregate" ? true : false;
+
+                $indicators = Indicator::find($this->selectedIndicator);
+                if ($indicators) {
+                    $aggregates = $indicators->disaggregations;
+                    if ($aggregates) {
+
+                        $names = collect($aggregates->pluck('name'));
+
+                        $this->loadAggregate = collect($names);
+
+                        // dd($this->loadAggregate);
+                    }
+
+                }
+            }
+
+        }
+    }
     public function loadData()
     {
         $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
@@ -84,6 +125,10 @@ class ViewData extends Component
             $this->months = $this->months->whereIn('id', $monthIds);
 
             $this->financialYears = $this->financialYears->whereIn('id', $years);
+            $indicators = Indicator::has('responsiblePeopleforIndicators')->has('forms')->has('forms.submissionPeriods');
+
+            $this->indicators = $indicators->get();
+
         }
 
     }
@@ -101,9 +146,8 @@ class ViewData extends Component
         }
 
         $this->loadData();
-
+        // dd($this->indicators);
     }
-
 
     public function submitUpload()
     {
@@ -129,39 +173,50 @@ class ViewData extends Component
 
                     $currentUser = Auth::user();
                     $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
-                        ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+                        ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->where('indicator_id', $this->selectedIndicator)->first();
                     if (!$period) {
-                        throw new \Exception("Something went wrong");
+                        throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
 
                     }
                     if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
 
-                        $checkSubmission = Submission::where('period_id', $period->id)->where('user_id', auth()->user()->id)->first();
+                        $checkSubmission = Submission::where('period_id', $period->id)
+                            ->where('batch_type', 'batch')
+                            ->where('user_id', auth()->user()->id)->first();
                         if ($checkSubmission) {
-                            throw new \Exception("You have already submitted your data!");
+
+                            session()->flash('error', 'You have already submitted your data!');
+                        } else {
+
+                            $submission = Submission::create([
+                                'batch_no' => $uuid,
+                                'form_id' => $this->selectedForm,
+                                'user_id' => $currentUser->id,
+                                'status' => 'approved',
+                                'data' => json_encode($batch_data),
+                                'batch_type' => 'batch',
+                                'period_id' => $period->id,
+                                'table_name' => 'household_rtc_consumption',
+                            ]);
+
+                            $data = json_decode($submission->data, true);
+
+                            foreach ($data as $row) {
+
+                                $insert = HouseholdRtcConsumption::create($row);
+
+                            }
+
+                            $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                            $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
+                            $this->dispatch('notify');
+
+                            $this->reset();
+                            $this->loadData();
+                            $this->dispatch('removeUploadedFile');
+                            $this->dispatch('refresh');
+                            session()->flash('success', 'Successfully uploaded your data!');
                         }
-
-                        $submission = Submission::create([
-                            'batch_no' => $uuid,
-                            'form_id' => $this->selectedForm,
-                            'user_id' => $currentUser->id,
-                            'status' => 'approved',
-                            'data' => json_encode($batch_data),
-                            'batch_type' => 'batch',
-                            'period_id' => $period->id,
-                        ]);
-
-                        $data = json_decode($submission->data, true);
-
-                        foreach ($data as $row) {
-
-                            $insert = HouseholdRtcConsumption::create($row);
-
-                        }
-
-                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                        $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
-                        $this->dispatch('notify');
 
                     } else if ($currentUser->hasAnyRole('external')) {
 
@@ -172,15 +227,11 @@ class ViewData extends Component
                             'user_id' => $currentUser->id,
                             'data' => json_encode($batch_data),
                             'batch_type' => 'batch',
+                            'table_name' => 'household_rtc_consumption',
                         ]);
 
                     }
 
-                    $this->reset();
-                    $this->loadData();
-                    $this->dispatch('removeUploadedFile');
-                    $this->dispatch('refresh');
-                    session()->flash('success', 'Successfully uploaded your data!');
                 } catch (\Exception $e) {
 
                     $this->reset();
@@ -229,6 +280,16 @@ class ViewData extends Component
             }
 
         }
+
+    }
+
+    public function updatedSelectedIndicator($value)
+    {
+
+        $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+            ->where('indicator_id', $this->selectedIndicator)->pluck('month_range_period_id');
+        $this->months = ReportingPeriodMonth::get();
+        $this->months = $this->months->whereIn('id', $period);
 
     }
 

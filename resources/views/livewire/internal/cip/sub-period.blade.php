@@ -33,25 +33,21 @@
 
                         <div class="mt-2 border shadow-none row card card-body" x-show="is_open">
                             <div class="col-12 col-md-6" id="form">
-                                <form wire:submit='save'>
 
+
+                                <form wire:submit='save'>
                                     <x-alerts />
 
+                                    <div class="mb-3">
 
-                                    <div class="mb-3" x-data="{ selectedProject: $wire.entangle('selectedProject').live }">
-
-                                        <label for="" class="form-label">Choose Project</label>
-                                        <select class="form-select form-select-md" x-model="selectedProject">
+                                        <label for="project-select" class="form-label">Choose Project</label>
+                                        <select id="project-select" class="form-select form-select-md"
+                                            wire:model.live.debounce.500ms="selectedProject">
                                             <option selected value="">Select one</option>
-
-
                                             @foreach ($projects as $project)
-                                                <option value="{{ $project->id }}">{{ $project->name }}
-
-                                                </option>
+                                                <option value="{{ $project->id }}">{{ $project->name }}</option>
                                             @endforeach
                                         </select>
-
                                         @error('selectedProject')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -61,84 +57,104 @@
                                     <div class="indicators">
 
 
-                                        <div class="mb-3" wire:ignore x-data="{
-                                            selected: $wire.entangle('selectedIndicator').live,
-                                            myInput(data) {
-                                                this.selected = data;
-                                            },
+                                        <div class="mb-3" wire:ignore x-data x-init="() => {
                                         
-                                        }" x-init=" const input = $refs.selectElementIndicator;
-                                         const selectInput = new Choices($refs.selectElementIndicator, {
-                                             shouldSort: false,
-                                             removeItemButton: true,
-                                             placeholder: true,
-                                             placeholderValue: 'Select indicators here...',
-                                             choices: [
-                                                 { value: '', label: 'Select indicator here...', selected: true, disabled: true }, // Add this empty option
-                                                 ...@js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name]))
-                                             ]
-                                         });
-                                        
-                                         input.addEventListener(
-                                             'change',
-                                             function(event) {
+                                            $('#select-indicators').select2({
+                                                width: '100%',
+                                                theme: 'bootstrap-5',
+                                                containerCssClass: 'select2--small',
+                                                dropdownCssClass: 'select2--small',
+                                            });
                                         
                                         
-                                                 let selectedValues = selectInput.getValue(true);
-                                                 if (selectedValues != undefined) {
-                                                     myInput(selectedValues);
-                                                 } else {
-                                                     selectInput.setChoiceByValue('');
-                                                     myInput(null);
-                                                 }
+                                            $('#select-indicators').on('select2:select', function(e) {
+                                                let data = e.params.data;
+                                                setTimeout(() => {
+                                                    $wire.set('selectedIndicator', data.id);
+                                                }, 500)
+                                        
+                                        
+                                            });
+                                        
+                                        
+                                            $wire.on('update-indicator', (e) => {
                                         
                                         
                                         
                                         
-                                             },
-                                             false,
-                                         );
+                                                const selectElement = $('#select-indicators');
+                                                const arrayOfObjects = e.data;
+                                        
+                                                selectElement.empty();
                                         
                                         
-                                         $wire.on('update-indicator', (value) => {
-                                             selectInput.setChoiceByValue(value);
+                                                selectElement.append('<option selected value=\'\'>Select one</option>');
+                                                arrayOfObjects.forEach(data => {
                                         
-                                         })">
-                                            <label for="" class="form-label">Indicator</label>
-                                            <select class="form-select form-select-sm" x-ref="selectElementIndicator">
-
+                                                    let newOption = new Option(data.indicator_name, data.id, false, false);
+                                                    selectElement.append(newOption).trigger('change');
+                                                });
+                                        
+                                                selectElement.val('').trigger('change');
+                                                setTimeout(() => {
+                                                    $wire.set('selectedIndicator', null);
+                                                }, 500)
+                                        
+                                        
+                                            });
+                                        
+                                            $wire.on('select-indicator', (e) => {
+                                                const selectElement = $('#select-indicators');
+                                                const arrayOfObjects = e.data;
+                                        
+                                                selectElement.empty();
+                                        
+                                        
+                                                selectElement.append('<option selected value=\'\'>Select one</option>');
+                                                arrayOfObjects.forEach(data => {
+                                        
+                                                    let newOption = new Option(data.indicator_name, data.id, false, false);
+                                                    selectElement.append(newOption).trigger('change');
+                                                });
+                                        
+                                                selectElement.val(e.selected).trigger('change');
+                                            })
+                                        }">
+                                            <label for="" class="form-label">Select Indicators</label>
+                                            <select x-ref="select" class="form-select "
+                                                wire:model.debounce='selectedIndicator' id="select-indicators">
+                                                <option selected value="">Select one</option>
+                                                @foreach ($indicators as $indicator)
+                                                    <option value="{{ $indicator->id }}">
+                                                        {{ $indicator->indicator_name }}</option>
+                                                @endforeach
                                             </select>
-
-
                                         </div>
+
+
+
                                         @error('selectedIndicator')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
-
                                     </div>
 
-                                    <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
-                                        wire:loading.attr='disabled'
-                                        x-show="selectedProject != null && selectedIndicator != null"
-                                        x-data="{
-                                            selectedProject: $wire.entangle('selectedProject').live,
-                                            selectedIndicator: $wire.entangle('selectedIndicator').live,
-                                            selectedForm: $wire.entangle('selectedForm').live
+                                    <div class="mb-3" wire:loading.class='opacity-25'
+                                        wire:target="selectedProject, selectedIndicator, selectedForm"
+                                        wire:loading.attr='disabled' x-data="{
+                                            selectedForm: @entangle('selectedForm'),
+                                        
+                                        
                                         }">
-
-                                        <label for="" class="form-label">Choose Form</label>
-                                        <select class="form-select form-select-md " x-model="selectedForm">
+                                        <label for="form-select" class="form-label">Choose Form</label>
+                                        <select id="form-select" class="form-select form-select-md"
+                                            x-model.debounce.500ms="selectedForm"
+                                            @change.debounce="selectedForm = $event.target.value; $wire.set('selectedForm', selectedForm)">
                                             <option selected value="">Select one</option>
-
-
                                             @foreach ($forms as $form)
-                                                <option value="{{ $form->id }}">{{ $form->name }} </option>
+                                                <option value="{{ $form->id }}">{{ $form->name }}</option>
                                             @endforeach
-
-
-
-
                                         </select>
+
 
                                         @error('selectedForm')
                                             <x-error>{{ $message }}</x-error>
@@ -146,107 +162,88 @@
                                     </div>
 
 
-                                    <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
+                                    <div class="mb-3" wire:loading.class='opacity-25'
+                                        wire:target="selectedProject, selectedIndicator, selectedForm"
                                         wire:loading.attr='disabled'>
-
-                                        <label for="" class="form-label">Choose Reporting Period</label>
-
-
-
-                                        <select class="form-select form-select-md "
-                                            wire:model.live.debounce.500ms='selectedMonth'>
-
+                                        <label for="month-select" class="form-label">Choose Reporting Period</label>
+                                        <select id="month-select" class="form-select form-select-md"
+                                            wire:model.debounce.500ms='selectedMonth'>
                                             <option value="">Select one</option>
-
-                                            <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
-                                                @foreach ($months as $month)
-                                                    <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
-                                                        {{ $month->start_month . '-' . $month->end_month }} </option>
-                                                @endforeach
-                                            </div>
-
-
+                                            @foreach ($months as $month)
+                                                <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
+                                                    {{ $month->start_month . '-' . $month->end_month }}
+                                                </option>
+                                            @endforeach
                                         </select>
-
-
                                         @error('selectedMonth')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
-                                    <div class="mb-3" wire:loading.class='opacity-25' wire:target="selectedProject"
+                                    <div class="mb-3" wire:loading.class='opacity-25'
+                                        wire:target="selectedProject, selectedIndicator, selectedForm"
                                         wire:loading.attr='disabled'>
-
-                                        <label for="" class="form-label">Choose Financial Year</label>
-                                        <select
-                                            class="form-select form-select-md "wire:model.live.debounce.500ms='selectedFinancialYear'>
-
+                                        <label for="year-select" class="form-label">Choose Financial Year</label>
+                                        <select id="year-select" class="form-select form-select-md"
+                                            wire:model.debounce.500ms='selectedFinancialYear'>
                                             <option value="">Select one</option>
-                                            <div x-data="{ selectedProject: $wire.entangle('selectedProject') }" x-show="selectedProject">
-                                                @foreach ($financialYears as $year)
-                                                    <option value="{{ $year->id }}">{{ $year->number }} </option>
-                                                @endforeach
-
-                                            </div>
-
+                                            @foreach ($financialYears as $year)
+                                                <option value="{{ $year->id }}">{{ $year->number }}</option>
+                                            @endforeach
                                         </select>
-
                                         @error('selectedFinancialYear')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
-
                                     <div class="mb-3">
-                                        <label for="" class="form-label">Start of submissions</label>
-                                        <x-text-input wire:model='start_period' type="date" />
+                                        <label for="start-period" class="form-label">Start of submissions</label>
+                                        <x-text-input id="start-period" wire:model.debounce.500ms='start_period'
+                                            type="date" />
                                         @error('start_period')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
+
                                     <div class="mb-3">
-                                        <label for="" class="form-label">End of submissions</label>
-                                        <x-text-input wire:model='end_period' type="date" />
+                                        <label for="end-period" class="form-label">End of submissions</label>
+                                        <x-text-input id="end-period" wire:model.debounce.500ms='end_period'
+                                            type="date" />
                                         @error('end_period')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
-                                    <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
-                                        x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }" x-show="row">
+                                    <div class="mb-3 form-check form-switch form-switch-lg" dir="ltr"
+                                        x-data="{ switchOn: @entangle('status'), row: @entangle('rowId') }" x-show="row">
                                         <input type="checkbox" x-model="switchOn" class="form-check-input"
-                                            id="customSwitchsizelg">
-                                        <label class="form-check-label" for="customSwitchsizelg">Submission
-                                            Status</label>
+                                            id="status-switch">
 
 
+                                        <label class="form-check-label" for="status-switch">(Submission Status <span
+                                                class="badge " style="font-size: 10px"
+                                                :class="{ 'bg-success': switchOn === true, 'bg-danger': switchOn === false }">
+                                                <span x-show="switchOn === false">closed</span>
+                                                <span x-show="switchOn === true">open</span></span>)</label>
                                     </div>
 
-
-
-
-                                    <div class="mb-3 form-check form-switch form-switch-lg " dir="ltr"
-                                        x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">
+                                    <div class="mb-3 form-check form-switch form-switch-lg d-none" dir="ltr"
+                                        x-data="{ expired: @entangle('expired'), row: @entangle('rowId') }" x-show="row !== null">
                                         <input type="checkbox" x-model="expired" class="form-check-input"
-                                            id="customSwitchsizelg">
-                                        <label class="form-check-label" for="customSwitchsizelg">Cancel/Set to Expire
-                                        </label>
+                                            id="expire-switch">
+                                        <label class="form-check-label" for="expire-switch">Cancel/Set to
+                                            Expire</label>
                                         <br>
-                                        <small class="text-danger fs-6 ">Warning: This will make the submission
-                                            period
+                                        <small class="text-danger fs-6">Warning: This will make the submission period
                                             inaccessible for updates</small>
-
                                     </div>
 
-                                    <button class="btn btn-primary" type="submit" wire:loading.attr='disabled'>
-                                        Submit
-                                    </button>
-
+                                    <button class="btn btn-primary" type="submit"
+                                        wire:loading.attr='disabled'>Submit</button>
                                     <button class="btn btn-outline-primary" type="button" wire:click='resetData'
-                                        wire:loading.attr='disabled'>
-                                        Reset
-                                    </button>
+                                        wire:loading.attr='disabled'>Reset</button>
                                 </form>
+
                             </div>
 
                         </div>
@@ -289,4 +286,23 @@
 
     </div>
 
+
+    @script
+        <script>
+            const tooltipTriggerList = document.querySelectorAll('button[title]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+            $wire.on('reload-tooltips', () => {
+
+                setTimeout(() => {
+                    const tooltipTriggerList = document.querySelectorAll('button[title]');
+                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                        tooltipTriggerEl))
+
+                }, 1000);
+
+
+            })
+        </script>
+    @endscript
 </div>

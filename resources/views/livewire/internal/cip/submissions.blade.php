@@ -41,7 +41,7 @@
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#by-people" type="button" role="tab" aria-controls="profile"
                                     aria-selected="false">
-                                    Submission by Indicator
+                                    Aggregate Submission
                                 </button>
                             </li>
 
@@ -59,7 +59,7 @@
                             </div>
                             <div class="mt-2 tab-pane fade-show" id="by-people" role="tabpanel"
                                 aria-labelledby="profile-tab">
-
+                                <livewire:tables.submission-table :filter="'aggregate'" />
                             </div>
                         </div>
 

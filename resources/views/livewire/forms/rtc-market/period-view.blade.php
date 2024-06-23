@@ -116,7 +116,7 @@
 
 
 
-                    <select class="form-select form-select-md" x-model='selectedMonth'>
+                    <select class="form-select form-select-md" x-model.debounce.500ms='selectedMonth'>
 
                         <option value="">Select one</option>
 
@@ -144,7 +144,7 @@
                     }">
 
                     <label for="" class="form-label">Choose Financial Year</label>
-                    <select class="form-select form-select-md " x-model='selectedFinancialYear'>
+                    <select class="form-select form-select-md " x-model.debounce.500ms='selectedFinancialYear'>
 
                         <option value="">Select one</option>
                         <div x-show="selectedProject">
