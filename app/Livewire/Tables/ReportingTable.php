@@ -138,20 +138,19 @@ final class ReportingTable extends PowerGridComponent
                 ->searchable()
                 ->sortable(),
 
+            Column::make('Disaggregation', 'name')
+                ->sortable(),
+            Column::make('Value', 'value'),
+
+            Column::make('Indicator Name', 'indicator_name')
+
+                ->sortable(),
+
             Column::make('Indicator #', 'number')
                 ->searchable()
                 ->sortable(),
 
-            Column::make('Indicator Name', 'indicator_name')
-                ->hidden()
-                ->sortable(),
-
-            Column::make('Disaggregation', 'name')
-                ->sortable(),
-
             Column::make('Project', 'project'),
-
-            Column::make('Value', 'value'),
 
         ];
     }

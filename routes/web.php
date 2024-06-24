@@ -52,9 +52,9 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
     Route::get('/submissions/{name}/{id}', Details::class);
-
+// /{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}
     //forms
-    Route::get('/forms/{project}/household-consumption-form/add', HRCAddData::class);
+    Route::get('/forms/{project}/household-consumption-form/add/', HRCAddData::class);
     Route::get('/forms/{project}/household-consumption-form/view', HRCViewData::class);
     Route::get('/forms/{project}/household-consumption-form/{batch}/view', HRCViewData::class);
 

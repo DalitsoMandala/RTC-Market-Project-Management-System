@@ -223,14 +223,14 @@ class IndicatorSeeder extends Seeder
                     ['names' => ['CIP'], 'type' => 'normal'],
                 ],
                 '1.2.1' => [
-                    ['names' => ['IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    ['names' => ['IITA', 'CIP'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    //  ['names' => ['CIP'], 'type' => 'normal'],
                 ],
                 '1.2.2' => [
                     ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
                 ],
                 '1.3.1' => [
-                    ['names' => ['RTCDT'], 'type' => 'aggregate'],
+                    ['names' => ['RTCDT'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
                 ],
                 '2.1.1' => [
                     ['names' => ['TRADELINE'], 'type' => 'aggregate'],
@@ -279,11 +279,24 @@ class IndicatorSeeder extends Seeder
             foreach ($conditions as $condition) {
                 foreach ($condition['names'] as $name) {
                     $organisationId = Organisation::where('name', $name)->pluck('id')->first();
-                    ResponsiblePerson::create([
-                        'indicator_id' => $indicatorId,
-                        'organisation_id' => $organisationId,
-                        'type_of_submission' => $condition['type'],
-                    ]);
+
+                    if (isset($condition['aggregate_type'])) {
+                        ResponsiblePerson::create([
+                            'indicator_id' => $indicatorId,
+                            'organisation_id' => $organisationId,
+                            'type_of_submission' => $condition['type'],
+                            'aggregate_type' => $condition['aggregate_type'],
+                        ]);
+                    } else {
+
+                        ResponsiblePerson::create([
+                            'indicator_id' => $indicatorId,
+                            'organisation_id' => $organisationId,
+                            'type_of_submission' => $condition['type'],
+                            'aggregate_type' => $condition['type'] === 'aggregate' ? 'disaggregation' : null,
+                        ]);
+
+                    }
                 }
             }
         }

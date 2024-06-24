@@ -7,6 +7,7 @@ use App\Models\Indicator;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -22,7 +23,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class SubmissionPeriodTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $currentRoutePrefix;
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -40,6 +41,8 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+        $this->currentRoutePrefix = Route::current()->getPrefix();
         return SubmissionPeriod::query()->orderBy('is_open', 'desc');
     }
 
@@ -155,11 +158,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
     #[On('sendData')]
     public function sendData($model)
     {
-        dd($model);
+        $model = (object) $model;
+
         $form = Form::find($model->form_id);
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $routePrefix = $this->currentRoutePrefix;
+
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id;
+
+        $this->redirect($route);
     }
 
     public function actions($row): array
