@@ -31,12 +31,7 @@
                                     Batch Submissions
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Manual Submissions
-                                </button>
-                            </li>
+
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#by-people" type="button" role="tab" aria-controls="profile"
@@ -53,10 +48,7 @@
                                 aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :filter="'batch'" :userId="auth()->user()->id" />
                             </div>
-                            <div class="mt-2 tab-pane fade" id="manual" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.submission-table :filter="'manual'" :userId="auth()->user()->id" />
-                            </div>
+
                             <div class="mt-2 tab-pane fade" id="by-people" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'aggregate'" :userId="auth()->user()->id" />

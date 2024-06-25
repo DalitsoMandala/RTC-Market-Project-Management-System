@@ -20,27 +20,37 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+
+
+                @if (session()->has('success'))
+                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                @endif
+                @if (session()->has('error'))
+                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                @endif
+
                 <div class="card ">
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true">
+                                    data-bs-target="#batch-submission" type="button" role="tab"
+                                    aria-controls="home" aria-selected="true">
                                     Batch Submissions
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            {{-- <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
+                                    data-bs-target="#manual-submission" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
                                     Manual Submissions
                                 </button>
-                            </li>
+                            </li> --}}
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#by-people" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
+                                    data-bs-target="#aggregate-submission" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
                                     Aggregate Submission
                                 </button>
                             </li>
@@ -49,15 +59,15 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div class="mt-2 tab-pane active fade show" id="batch" role="tabpanel"
+                            <div class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
                                 aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :filter="'batch'" />
                             </div>
-                            <div class="mt-2 tab-pane fade" id="manual" role="tabpanel"
+                            {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
-                            </div>
-                            <div class="mt-2 tab-pane fade-show" id="by-people" role="tabpanel"
+                            </div> --}}
+                            <div class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'aggregate'" />
                             </div>
@@ -135,5 +145,17 @@
 
 
     </div>
+
+    @script
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
+
+                }
+            }
+        </script>
+    @endscript
 
 </div>

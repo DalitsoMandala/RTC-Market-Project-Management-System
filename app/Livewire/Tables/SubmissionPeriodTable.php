@@ -7,7 +7,6 @@ use App\Models\Indicator;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -42,7 +41,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        $this->currentRoutePrefix = Route::current()->getPrefix();
         return SubmissionPeriod::query()->orderBy('is_open', 'desc');
     }
 
@@ -103,7 +101,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                     $this->refreshData();
                 }
             })
-
+            ->add('submissions', fn($model) => SubmissionPeriod::find($model->id)->submissions->count())
             ->add('created_at')
             ->add('updated_at');
     }
@@ -137,6 +135,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
+            Column::make('Submissions', 'submissions')
+                ->sortable()
+                ->searchable(),
+
             Column::action('Action'),
 
         ];
@@ -167,7 +169,24 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id;
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+        $this->redirect($route);
+    }
+
+    #[On('sendUploadData')]
+    public function sendUploadData($model)
+    {
+        $model = (object) $model;
+
+        $form = Form::find($model->form_id);
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $routePrefix = $this->currentRoutePrefix;
+
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
 
         $this->redirect($route);
     }
@@ -194,7 +213,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->id()
                 ->tooltip('Upload Your Data')
                 ->class('btn btn-primary my-1')
-                ->dispatch('editData', ['rowId' => $row->id]),
+                ->dispatch('sendUploadData', ['model' => $row]),
 
         ];
     }
@@ -207,13 +226,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return [
 // Hide button edit for ID 1
             Rule::button('edit')
-                ->when(fn($row) => $row->is_expired === 1)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
             Rule::button('add-data')
-                ->when(fn($row) => $row->is_expired === 1)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
         ];
     }

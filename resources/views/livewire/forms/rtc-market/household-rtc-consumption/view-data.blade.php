@@ -20,85 +20,23 @@
         </div>
         <!-- end page title -->
         <div class="row">
+
+
             <div class="col-12">
+
+
+                @if (session()->has('success'))
+                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                @endif
+                @if (session()->has('error'))
+                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                @endif
+
                 <div class="card">
-
-                    <div class="card-header" x-data="{
-                        is_open: false
-                    }">
-
-
-                        <a class="btn btn-primary " href="add" role="button">Add
-                            Data +</a>
-                        <a class="btn btn-primary" href="#" data-toggle="modal" role="button"
-                            @click="is_open = !is_open">
-                            Import <i class="bx bx-upload"></i> </a>
-
-
-
-                        <div class="my-2 border shadow-none card card-body" x-show="is_open">
-                            <h5> Instructions</h5>
-                            <p class="alert bg-info-subtle text-uppercase">Download the household
-                                RTC
-                                consumption template & uploading your
-                                data.</p>
-
-                            <form wire:submit='submitUpload'>
-                                <div x-data>
-                                    <a class="btn btn-soft-primary" href="#" data-toggle="modal" role="button"
-                                        @click="$wire.downloadTemplate()">
-                                        Download template <i class="bx bx-download"></i> </a>
-                                    <hr>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        @if (session()->has('error'))
-                                            <x-error-alert>{{ session()->get('error') }}</x-error-alert>
-                                        @endif
-                                        @if (session()->has('success'))
-                                            <x-success-alert>{{ session()->get('success') }}</x-success-alert>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div id="table-form">
-                                    <div class="row justify-content-center">
-                                        <div class=" col-12 col-md-8">
-
-
-                                            @include('livewire.forms.rtc-market.period-view')
-                                        </div>
-                                        <div class="col-12 col-md-4">
-                                            <x-filepond-single instantUpload="true" wire:model='upload' />
-                                            @error('upload')
-                                                <div class="d-flex justify-content-center">
-                                                    <x-error class="text-center ">{{ $message }}</x-error>
-                                                </div>
-                                            @enderror
-                                            <div class="mt-2 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
-                                                <button type="submit" @uploading-files.window="disableButton = true"
-                                                    @finished-uploading.window="disableButton = false"
-                                                    :disabled="disableButton === true || openSubmission === false"
-                                                    class="btn btn-primary">
-                                                    Submit data
-                                                </button>
-
-
-                                            </div>
-                                            <div
-                                                class="d-flex justify-content-center @if ($openSubmission) d-none @endif">
-                                                <x-error class="text-center ">You can not submit a form right now
-                                                    because submissions are closed for the moment!
-                                                </x-error>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </form>
-
-                            <small></small>
-                        </div>
+                    <div class="card-header">
+                        <h4 class="text-center text-primary text-uppercase">Household consumption data</h4>
                     </div>
+
                     <div class="card-body" id="#datatable">
 
                         <livewire:tables.rtc-market.household-rtc-consumption-table :userId="auth()->user()->id"

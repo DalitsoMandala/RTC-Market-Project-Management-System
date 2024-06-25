@@ -2,17 +2,19 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
+use App\Exceptions\UserErrorException;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
-use App\Models\Project;
+use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Notifications\AggregateDataAddedNotification;
 use App\Notifications\ManualDataAddedNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -26,6 +28,8 @@ class AddData extends Component
 
     public $variable;
     public $rowId;
+
+    public $submissionPeriodId;
     public $inputs = [];
     #[Validate('required')]
     public $epa;
@@ -41,25 +45,23 @@ class AddData extends Component
 
     public $forms = [];
 
-    #[Validate('required')]
     public $selectedForm;
 
     public $months = [];
     public $financialYears = [];
 
     public $projects = [];
-    #[Validate('required')]
+
     public $selectedMonth;
-    #[Validate('required')]
+
     public $selectedFinancialYear;
-    #[Validate('required')]
+
     public $selectedProject;
     public $form_name = 'HOUSEHOLD CONSUMPTION FORM';
     public $openSubmission = false;
 
     public $indicators;
 
-    #[Validate('required')]
     public $selectedIndicator;
 
     public $organisation_id;
@@ -68,6 +70,8 @@ class AddData extends Component
 
     public $aggregateData = [];
     public $checkifAggregate = false;
+
+    public $showReport = false;
     protected function rules()
     {
         $validationRules = [];
@@ -167,36 +171,7 @@ class AddData extends Component
 
     public function updated($property, $value)
     {
-        if ($this->selectedIndicator && $this->selectedMonth && $this->selectedFinancialYear) {
-            $user = Auth::user();
-            $organisation_id = $user->organisation->id;
-            $checkIndicators = ResponsiblePerson::whereIn('indicator_id', $this->indicators->pluck('id')->toArray())
-                ->where('organisation_id', $organisation_id)
-                ->where('indicator_id', $this->selectedIndicator)
-            ;
 
-            $checkifAggregate = $checkIndicators->first();
-
-            if ($checkifAggregate) {
-
-                $this->checkifAggregate = $checkifAggregate->type_of_submission === "aggregate" ? true : false;
-
-                $indicators = Indicator::find($this->selectedIndicator);
-                if ($indicators) {
-                    $aggregates = $indicators->disaggregations;
-                    if ($aggregates) {
-
-                        $names = collect($aggregates->pluck('name'));
-
-                        $this->loadAggregate = collect($names);
-
-                        // dd($this->loadAggregate);
-                    }
-
-                }
-            }
-
-        }
     }
 
     public function updatedSelectedIndicator($value)
@@ -223,14 +198,8 @@ class AddData extends Component
 
             $userId = auth()->user()->id;
 
-            $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
-                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->where('indicator_id', $this->selectedIndicator)->first();
-            if (!$period) {
-                throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
-
-            }
-
             $data = [];
+            $now = Carbon::now();
             foreach ($this->inputs as $index => $input) {
 
                 $input['location_data'] = json_encode(['enterprise' => $this->enterprise,
@@ -251,6 +220,8 @@ class AddData extends Component
                 $input['main_food_data'] = json_encode($input['main_food_data']);
                 $input['uuid'] = $uuid;
                 $input['user_id'] = $userId;
+                $input['created_at'] = $now;
+                $input['updated_at'] = $now;
                 $data[] = $input;
                 //   HouseholdRtcConsumption::create($input);
 
@@ -270,8 +241,9 @@ class AddData extends Component
                         'data' => json_encode($data),
                         'batch_type' => 'manual',
                         'is_complete' => 1,
-                        'period_id' => $period->id,
+                        'period_id' => $this->submissionPeriodId,
                         'table_name' => 'household_rtc_consumption',
+
                     ]);
 
                     HouseholdRtcConsumption::insert($data);
@@ -279,20 +251,14 @@ class AddData extends Component
                     $this->reset('epa', 'section', 'district', 'enterprise');
                     $this->resetErrorBag();
                     $this->readdInputs();
-                    session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
 
                     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                     $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
                     $this->dispatch('notify');
+                    session()->flash('success', 'Successfully submitted! <a href="' . route('rtc-market-hrc', ['project' => 'rtc_market']) . '">View Submission here</a>');
+                    //    $this->redirect(route('rtc-market-hrc', ['project' => 'rtc_market']));
 
-                    $this->dispatch('to-top');
-
-                    $this->alert('success', 'Successfully submitted!', [
-                        'toast' => true,
-                        'position' => 'center',
-                    ]);
-
-                } catch (\Exception $e) {
+                } catch (UserErrorException $e) {
                     // Log the actual error for debugging purposes
                     \Log::error('Submission error: ' . $e->getMessage());
 
@@ -302,34 +268,38 @@ class AddData extends Component
 
             } else if ($currentUser->hasAnyRole('external')) {
 
-                Submission::create([
-                    'batch_no' => $uuid,
-                    'form_id' => $this->selectedForm,
-                    'period_id' => $period->id,
-                    'user_id' => $currentUser->id,
-                    'data' => json_encode($data),
-                    'batch_type' => 'manual',
-                    //      'status' => 'approved',
-                    'is_complete' => 1,
-                    'table_name' => 'household_rtc_consumption',
+                try {
+                    Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $this->selectedForm,
+                        'period_id' => $this->submissionPeriodId,
+                        'user_id' => $currentUser->id,
+                        'data' => json_encode($data),
+                        'batch_type' => 'manual',
+                        'status' => 'approved',
+                        'is_complete' => 1,
+                        'table_name' => 'household_rtc_consumption',
 
-                ]);
+                    ]);
 
-                $this->reset('epa', 'section', 'district', 'enterprise');
-                $this->resetErrorBag();
-                $this->readdInputs();
-                session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+                    HouseholdRtcConsumption::insert($data);
 
-                $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-                $this->dispatch('notify');
+                    $this->reset('epa', 'section', 'district', 'enterprise');
+                    $this->resetErrorBag();
+                    $this->readdInputs();
 
-                $this->dispatch('to-top');
+                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
+                    $this->dispatch('notify');
+                    session()->flash('success', 'Successfully submitted! <a href="' . route('rtc-market-hrc', ['project' => 'rtc_market']) . '">View Submission here</a>');
 
-                $this->alert('success', 'Successfully submitted!', [
-                    'toast' => true,
-                    'position' => 'center',
-                ]);
+                } catch (UserErrorException $e) {
+                    // Log the actual error for debugging purposes
+                    \Log::error('Submission error: ' . $e->getMessage());
+
+                    // Provide a generic error message to the user
+                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+                }
 
             }
 
@@ -372,39 +342,6 @@ class AddData extends Component
 
     }
 
-    public function loadData()
-    {
-        $form = Form::with(['project', 'indicators'])->where('name', $this->form_name)
-            ->whereHas('project', fn($query) => $query->where('name', 'RTC MARKET'))->first();
-
-        if (!$form) {
-            abort(404);
-        }
-        $this->forms = Form::get();
-        $this->projects = Project::get();
-        $this->financialYears = FinancialYear::get();
-        $this->months = ReportingPeriodMonth::get();
-
-        $submissionPeriods = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $form->id)->get();
-
-        $this->openSubmission = $submissionPeriods->count() > 0;
-
-        $this->selectedProject = $form->project->id;
-        $this->selectedForm = $form->id;
-        if ($this->openSubmission) {
-            $monthIds = $submissionPeriods->pluck('month_range_period_id')->toArray();
-            $years = $submissionPeriods->pluck('financial_year_id')->toArray();
-            $this->months = $this->months->whereIn('id', $monthIds);
-
-            $this->financialYears = $this->financialYears->whereIn('id', $years);
-        }
-
-        $indicators = Indicator::has('responsiblePeopleforIndicators')->has('forms')->has('forms.submissionPeriods');
-
-        $this->indicators = $indicators->get();
-
-    }
-
     public function savePack()
     {
 
@@ -413,19 +350,12 @@ class AddData extends Component
 
             $userId = auth()->user()->id;
 
-            $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
-                ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->where('indicator_id', $this->selectedIndicator)->first();
-            if (!$period) {
-                throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
-
-            }
-
             $currentUser = Auth::user();
 
             if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
 
                 try {
-                    $checkSubmissions = Submission::where('period_id', $period->id)
+                    $checkSubmissions = Submission::where('period_id', $this->submissionPeriodId)
                         ->where('batch_type', 'aggregate')->where('user_id', $userId)->first();
 
                     if ($checkSubmissions) {
@@ -440,24 +370,18 @@ class AddData extends Component
                             'data' => json_encode($this->aggregateData),
                             'batch_type' => 'aggregate',
                             'is_complete' => 1,
-                            'period_id' => $period->id,
+                            'period_id' => $this->submissionPeriodId,
                             'table_name' => 'household_rtc_consumption',
                         ]);
 
                         $this->aggregateData = [];
 
-                        session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
-
                         $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                         $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
                         $this->dispatch('notify');
                         $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
-                        $this->dispatch('to-top');
+                        session()->flash('success', 'Successfully submitted! <a href="' . route('rtc-market-hrc') . '#manual-submission">View Submission here</a>');
 
-                        $this->alert('success', 'Successfully submitted!', [
-                            'toast' => true,
-                            'position' => 'center',
-                        ]);
                     }
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
@@ -470,40 +394,33 @@ class AddData extends Component
             } else if ($currentUser->hasAnyRole('external')) {
 
                 try {
-                    $checkSubmissions = Submission::where('period_id', $period->id)
-                        ->where('batch_type', 'aggregate')->where('user_id', $userId)->first();
 
-                    if ($checkSubmissions) {
-                        session()->flash('error', 'You have already submitted your data for this indicator.');
-                        $this->dispatch('to-top');
-                    } else {
-                        Submission::create([
-                            'batch_no' => $uuid,
-                            'form_id' => $this->selectedForm,
-                            'user_id' => $currentUser->id,
+                    Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $this->selectedForm,
+                        'user_id' => $currentUser->id,
+                        'data' => json_encode($this->aggregateData),
+                        'batch_type' => 'aggregate',
+                        'is_complete' => 1,
+                        'period_id' => $this->submissionPeriodId,
+                        'table_name' => 'household_rtc_consumption',
+                    ]);
 
-                            'data' => json_encode($this->aggregateData),
-                            'batch_type' => 'aggregate',
-                            'is_complete' => 1,
-                            'period_id' => $period->id,
-                            'table_name' => 'household_rtc_consumption',
-                        ]);
+                    $this->aggregateData = [];
 
-                        $this->aggregateData = [];
+                    session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
 
-                        session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
+                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
+                    $this->dispatch('notify');
+                    $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
+                    $this->dispatch('to-top');
 
-                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                        $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
-                        $this->dispatch('notify');
-                        $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
-                        $this->dispatch('to-top');
+                    $this->alert('success', 'Successfully submitted!', [
+                        'toast' => true,
+                        'position' => 'center',
+                    ]);
 
-                        $this->alert('success', 'Successfully submitted!', [
-                            'toast' => true,
-                            'position' => 'center',
-                        ]);
-                    }
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
                     \Log::error('Submission error: ' . $e->getMessage());
@@ -529,15 +446,52 @@ class AddData extends Component
         $this->savePack();
     }
 
-    public function mount()
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
 
-        $form = Form::where('name', 'HOUSEHOLD CONSUMPTION FORM')->first();
-        $period = $form->submissionPeriods->where('is_open', true)->first();
-        if ($period) {
-            $this->period = $period->id;
+        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+
+            abort(404);
+
+        }
+
+        $findForm = Form::find($form_id);
+        $findIndicator = Indicator::find($indicator_id);
+        $findFinancialYear = FinancialYear::find($financial_year_id);
+        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
+        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
+        if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
+
+            abort(404);
+
         } else {
-            $this->period = null;
+            $this->selectedForm = $findForm->id;
+            $this->selectedIndicator = $findIndicator->id;
+            $this->selectedFinancialYear = $findFinancialYear->id;
+            $this->selectedMonth = $findMonthPeriod->id;
+            $this->submissionPeriodId = $findSubmissionPeriod->id;
+            //check submission period
+
+            $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
+                ->where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->where('is_open', true)
+                ->first();
+
+            if ($submissionPeriod) {
+
+                $this->openSubmission = true;
+                $user = Auth::user();
+                $organisation = $user->organisation;
+
+                $getSubmissionType = ResponsiblePerson::where('indicator_id', $this->selectedIndicator)->where('organisation_id', $organisation->id)->first();
+                if ($getSubmissionType) {
+                    $this->showReport = $getSubmissionType->type_of_submission == 'normal' ? false : true;
+                }
+            } else {
+                $this->openSubmission = false;
+            }
         }
 
         //has one
@@ -566,9 +520,6 @@ class AddData extends Component
 
                 ])
             ]);
-
-        $this->loadData();
-
     }
     public function render()
     {

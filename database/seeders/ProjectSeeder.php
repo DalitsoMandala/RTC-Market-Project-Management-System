@@ -19,17 +19,20 @@ class ProjectSeeder extends Seeder
         $project = Project::create([
             'name' => 'RTC MARKET',
             'duration' => 4, // years
-            'start_date' => '2023-05-18',
+            'start_date' => '2023-05-01',
             'cgiar_project_id' => 1,
             'is_active' => true,
             'reporting_period_id' => 1,
         ]);
 
-        $startDate = Carbon::create(2023, 5, 18);
+        $startDate = Carbon::create(2023, 5, 1);
 
         foreach (range(1, $project->duration) as $index) {
+            // Calculate the start date for the financial year
             $yearStartDate = $startDate->copy()->addYears($index - 1);
-            $yearEndDate = $yearStartDate->copy()->addYear()->subDay(); // End date is one day before the next year's start date
+
+            // Calculate the end date for the financial year (April 30 of the next year)
+            $yearEndDate = $yearStartDate->copy()->addYear()->month(4)->endOfMonth();
 
             FinancialYear::create([
                 'number' => $index,

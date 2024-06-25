@@ -8,6 +8,7 @@ use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\ReportingPeriod;
 use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use Carbon\Carbon;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -60,19 +61,25 @@ class SubPeriod extends Component
         try {
 
             if ($this->rowId) {
+                $submissions = Submission::where('period_id', $this->rowId)->count();
+                if ($submissions === 0) {
 
-                SubmissionPeriod::find($this->rowId)->update([
-                    'date_established' => $this->start_period,
-                    'date_ending' => $this->end_period,
-                    'is_open' => $this->expired === true ? false : $this->status,
-                    'form_id' => $this->selectedForm,
-                    'is_expired' => $this->expired ?? false,
-                    'month_range_period_id' => $this->selectedMonth,
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'indicator_id' => $this->selectedIndicator,
+                    SubmissionPeriod::find($this->rowId)->update([
+                        'date_established' => $this->start_period,
+                        'date_ending' => $this->end_period,
+                        'is_open' => $this->expired === true ? false : $this->status,
+                        'form_id' => $this->selectedForm,
+                        'is_expired' => $this->expired ?? false,
+                        'month_range_period_id' => $this->selectedMonth,
+                        'financial_year_id' => $this->selectedFinancialYear,
+                        'indicator_id' => $this->selectedIndicator,
 
-                ]);
-                session()->flash('success', 'Updated Successfully');
+                    ]);
+                    session()->flash('success', 'Updated Successfully');
+
+                } else {
+                    session()->flash('success', 'Sorry you can not update this record right now because it has submissions.');
+                }
 
             } else {
 
@@ -160,6 +167,26 @@ class SubPeriod extends Component
                 }
                 $this->selectedMonth = $monthRange;
                 $this->selectedFinancialYear = $financialYear;
+                $indicator = Indicator::find($this->selectedIndicator);
+
+                if ($indicator) {
+                    // Get the IDs of the forms associated with the indicator
+                    $formIds = $indicator->forms->pluck('id');
+
+                    // Assign the form IDs to the class property $this->all
+                    $this->all = $formIds;
+
+                    if ($formIds->isNotEmpty()) {
+
+                        $this->forms = Form::get();
+
+                        $this->forms = $this->forms->whereIn('id', $formIds);
+
+                    } else {
+                        // Handle empty formIds, reset or clear $this->forms as needed
+                        $this->forms = collect(); // Or handle as appropriate
+                    }
+                }
                 $this->selectedForm = $form;
 
             }
@@ -178,8 +205,15 @@ class SubPeriod extends Component
 
             $this->months = $this->months->where('period_id', $period->id);
             $today = Carbon::today();
-            $this->financialYears = $this->financialYears->where('project_id', $project->id)
-                ->where('start_date', '<=', $today)->where('end_date', '>=', $today);
+            $currentMonthYear = $today->format('Y-m');
+
+            $this->financialYears = $this->financialYears->filter(function ($financialYear) use ($currentMonthYear) {
+                $startMonthYear = Carbon::parse($financialYear->start_date)->format('Y-m');
+                $endMonthYear = Carbon::parse($financialYear->end_date)->format('Y-m');
+
+                return $currentMonthYear >= $startMonthYear && $currentMonthYear <= $endMonthYear;
+            });
+
             $indicators = Indicator::where('project_id', $value)->get();
             $this->dispatch('update-indicator', data: $indicators, selected: null);
 

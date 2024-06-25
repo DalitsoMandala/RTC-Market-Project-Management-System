@@ -27,7 +27,7 @@
                             top: 0,
                             behavior: 'smooth'
                         });
-
+                    
                     })">
                         <button class="btn btn-primary" @click="is_open = !is_open">Add Submission Period+</button>
 
@@ -58,74 +58,75 @@
 
 
                                         <div class="mb-3" wire:ignore x-data x-init="() => {
-
+                                        
                                             $('#select-indicators').select2({
                                                 width: '100%',
                                                 theme: 'bootstrap-5',
                                                 containerCssClass: 'select2--small',
                                                 dropdownCssClass: 'select2--small',
                                             });
-
-
+                                        
+                                        
                                             $('#select-indicators').on('select2:select', function(e) {
                                                 let data = e.params.data;
                                                 setTimeout(() => {
                                                     $wire.set('selectedIndicator', data.id);
                                                 }, 500)
-
-
+                                        
+                                        
                                             });
-
-
+                                        
+                                        
                                             $wire.on('update-indicator', (e) => {
-
-
-
-
+                                        
+                                        
+                                        
+                                        
                                                 const selectElement = $('#select-indicators');
                                                 const arrayOfObjects = e.data;
-
+                                        
                                                 selectElement.empty();
-
-
+                                        
+                                        
                                                 selectElement.append('<option selected value=\'\'>Select one</option>');
                                                 arrayOfObjects.forEach(data => {
-
-                                                    let newOption = new Option(data.indicator_name, data.id, false, false);
+                                        
+                                                    let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                     selectElement.append(newOption).trigger('change');
                                                 });
-
+                                        
                                                 selectElement.val('').trigger('change');
                                                 setTimeout(() => {
                                                     $wire.set('selectedIndicator', null);
                                                 }, 500)
-
-
+                                        
+                                        
                                             });
-
+                                        
                                             $wire.on('select-indicator', (e) => {
                                                 const selectElement = $('#select-indicators');
                                                 const arrayOfObjects = e.data;
-
+                                        
                                                 selectElement.empty();
-
-
+                                        
+                                        
                                                 selectElement.append('<option selected value=\'\'>Select one</option>');
                                                 arrayOfObjects.forEach(data => {
-
-                                                    let newOption = new Option(data.indicator_name, data.id, false, false);
+                                        
+                                                    let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                     selectElement.append(newOption).trigger('change');
                                                 });
-
+                                        
                                                 selectElement.val(e.selected).trigger('change');
                                             })
                                         }">
-                                            <label for="" class="form-label">Select Indicators</label>
+                                            <label for="" class="form-label">Select Indicator</label>
                                             <select x-ref="select" class="form-select "
                                                 wire:model.debounce='selectedIndicator' id="select-indicators">
                                                 <option selected value="">Select one</option>
                                                 @foreach ($indicators as $indicator)
                                                     <option value="{{ $indicator->id }}">
+                                                        ({{ $indicator->indicator_no }})
                                                         {{ $indicator->indicator_name }}</option>
                                                 @endforeach
                                             </select>
@@ -142,8 +143,8 @@
                                         wire:target="selectedProject, selectedIndicator, selectedForm"
                                         wire:loading.attr='disabled' x-data="{
                                             selectedForm: @entangle('selectedForm'),
-
-
+                                        
+                                        
                                         }">
                                         <label for="form-select" class="form-label">Choose Form</label>
                                         <select id="form-select" class="form-select form-select-md"
@@ -244,41 +245,23 @@
                                         wire:loading.attr='disabled'>Reset</button>
                                 </form>
 
+
+
                             </div>
 
                         </div>
                     </div>
                     <div class="card-body">
-                        <livewire:tables.submission-period-table>
+                        @php
+
+                            $route = Route::current()->getPrefix();
+                        @endphp
+                        <livewire:tables.submission-period-table :currentRoutePrefix="$route">
                     </div>
                 </div>
+
+
             </div>
-        </div>
-
-
-
-        <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-            <x-modal id="view-submission-period-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
         </div>
 
 
@@ -287,22 +270,27 @@
     </div>
 
 
-    @script
-        <script>
-            const tooltipTriggerList = document.querySelectorAll('button[title]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
-            $wire.on('reload-tooltips', () => {
-
-                setTimeout(() => {
-                    const tooltipTriggerList = document.querySelectorAll('button[title]');
-                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                        tooltipTriggerEl))
-
-                }, 1000);
 
 
-            })
-        </script>
-    @endscript
+</div>
+
+
+@script
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('button[title]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+        $wire.on('reload-tooltips', () => {
+
+            setTimeout(() => {
+                const tooltipTriggerList = document.querySelectorAll('button[title]');
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                    tooltipTriggerEl))
+
+            }, 1000);
+
+
+        })
+    </script>
+@endscript
 </div>

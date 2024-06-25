@@ -5,6 +5,7 @@ namespace App\Livewire\Tables\RtcMarket;
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -39,10 +40,26 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        if ($this->uuid) {
-            return HouseholdRtcConsumption::query()->with(['location'])->where('user_id', $this->userId)->where('uuid', $this->uuid);
+
+        $user = Auth::user();
+
+        $query = HouseholdRtcConsumption::query()->with(['location']);
+
+        if ($user->hasAnyRole('cip') && $this->hasAnyRole('organiser')) {
+            if ($this->uuid) {
+                $query->where('uuid', $this->uuid);
+            }
+
+        } else {
+            $query->where('user_id', $this->userId);
+
+            if ($this->uuid) {
+                $query->where('uuid', $this->uuid);
+            }
         }
-        return HouseholdRtcConsumption::query()->with(['location'])->where('user_id', $this->userId);
+
+        return $query;
+
     }
 
     public function fields(): PowerGridFields
@@ -69,6 +86,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             })
             ->add('date_of_assessment_formatted', fn($model) => Carbon::parse($model->date_of_assessment)->format('d/m/Y'))
             ->add('actor_type')
+            ->add('uuid')
             ->add('rtc_group_platform')
             ->add('producer_organisation')
             ->add('actor_name')
@@ -126,6 +144,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
+
             //  Column::make('Location id', 'location_id'),
             Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
             Column::make('District', 'district', 'location_data->district')->sortable(),
@@ -196,6 +215,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Submission Date', 'created_at')
                 ->sortable()
                 ->searchable(),
+
+            Column::make('UUID', 'uuid'),
 
         ];
     }

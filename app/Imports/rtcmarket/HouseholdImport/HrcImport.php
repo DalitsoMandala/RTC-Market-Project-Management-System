@@ -2,8 +2,8 @@
 
 namespace App\Imports\rtcmarket\HouseholdImport;
 
+use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
-use Exception;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
@@ -63,7 +63,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
         $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
 
         if (count($missingHeadings) > 0) {
-            throw new Exception("Something went wrong. Please upload your data using the template file above");
+            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
 
         }
 
@@ -119,7 +119,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
             session()->put('batch_data', $main_data);
 
         } catch (\Throwable $e) {
-            throw new Exception("Something went wrong. There was some errors on some rows." . $e->getMessage());
+            throw new UserErrorException("Something went wrong. There was some errors on some rows." . $e->getMessage());
         }
 
     }
@@ -134,7 +134,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
     //             if (count($diff) > 0) {
     //                 session()->flash('error-import', "File contains invalid sheets!");
-    //                 throw new Exception("File contains invalid sheets!");
+    //                 throw new UserErrorException("File contains invalid sheets!");
 
     //             }
     //         },

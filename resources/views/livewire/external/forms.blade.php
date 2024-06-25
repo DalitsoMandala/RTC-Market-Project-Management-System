@@ -18,14 +18,36 @@
             </div>
         </div>
         <!-- end page title -->
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <h4 class="card-title">Available forms</h4>
+                    </div>
+                    <div class="card-body">
+                        <livewire:tables.form-table :organisation="$organisation" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header ">
-                        <h5>Available forms</h5>
+                        <h4 class="card-title">Submission Period Table</h4>
                     </div>
                     <div class="card-body">
-                        <livewire:external.tables.form-table :userId="auth()->user()->id" />
+                        @php
+
+                            $route = Route::current()->getPrefix();
+                        @endphp
+                        <livewire:external.tables.form-table :userId="auth()->user()->id" :currentRoutePrefix="$route" />
+
+
+
                     </div>
                 </div>
             </div>
@@ -58,9 +80,26 @@
 
         </div> --}}
 
+    @script
+        <script>
+            const tooltipTriggerList = document.querySelectorAll('button[title]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+            $wire.on('reload-tooltips', () => {
+
+                setTimeout(() => {
+                    const tooltipTriggerList = document.querySelectorAll('button[title]');
+                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                        tooltipTriggerEl))
+
+                }, 1000);
+
+
+            })
+        </script>
+    @endscript
 
 
 
-</div>
 
 </div>

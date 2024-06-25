@@ -53,8 +53,8 @@
                         selectedIndicator: $wire.entangle('selectedIndicator'),
                     }">
 
-                    <form wire:submit='save'>
-                        @include('livewire.forms.rtc-market.period-view')
+                    <form wire:submit.debounce.1000ms='save'>
+
 
 
                         <div x-data="{ checkifAggregate: $wire.entangle('checkifAggregate').live }" x-show="checkifAggregate === false">
@@ -362,7 +362,7 @@
                                                         Products
                                                         Consumption per Week (Number)</label>
                                                     <input type="number" class="form-control"
-                                                        wire:model.live="inputs.{{ $key }}.rtc_consumption_frequency">
+                                                        wire:model="inputs.{{ $key }}.rtc_consumption_frequency">
 
                                                     @error('inputs.' . $key . '.rtc_consumption_frequency')
                                                         <x-error>{{ $message }}</x-error>
@@ -516,8 +516,7 @@
 
 
 
-
-
+        <x-scroll-up />
 
     </div>
 
@@ -533,13 +532,6 @@
                     this.value = this.value.toUpperCase();
                 });
 
-            });
-            $wire.on('to-top', () => {
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                })
             });
         </script>
     @endscript
