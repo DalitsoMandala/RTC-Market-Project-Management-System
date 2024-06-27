@@ -86,6 +86,16 @@ final class IndicatorTable extends PowerGridComponent
             ->add('cgiar_project', function ($model) {
                 return Cgiar_Project::find($model->project_id)->name ?? null;
             })
+
+            ->add('lead_partner', function ($model) {
+
+                $orgIds = $model->responsiblePeopleforIndicators->pluck('organisation_id');
+
+                $orgs = Organisation::whereIn('id', $orgIds)->get();
+                $orgNames = $orgs->pluck('name')->toArray();
+                $orgNames = implode(', ', $orgNames);
+                return $orgNames;
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -103,7 +113,7 @@ final class IndicatorTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Project name', 'project_name'),
-            Column::make('Cgiar project', 'cgiar_project'),
+            Column::make('Lead partner', 'lead_partner'),
             Column::action('Action'),
         ];
     }

@@ -152,7 +152,7 @@ class IndicatorSeeder extends Seeder
             '2.2.3' => ['DAES', 'IITA', 'CIP'],
             '2.2.4' => ['DAES', 'CIP', 'IITA'],
             '2.2.5' => ['DAES'],
-            '2.3.1' => ['CIP/IITA', 'CIP/ IITA'], // Assuming it's meant to be two separate entries
+            '2.3.1' => ['CIP', 'IITA'],
             '2.3.2' => ['TRADELINE', 'RCDT'],
             '2.3.3' => ['ACE'],
             '2.3.4' => ['ACE', 'TRADELINE'],
@@ -185,174 +185,181 @@ class IndicatorSeeder extends Seeder
         ];
 
         $responsiblePeopleArray = [];
-        foreach ($indicatorsWithPartners as $indicator => $partners) {
-            $indicatorId = Indicator::where('indicator_no', $indicator)->pluck('id')->first();
-            $organisationIds = Organisation::whereIn('name', $partners)->pluck('id')->toArray();
+        foreach ($indicatorNo as $indicator) {
+            $indicatorIds = Indicator::where('indicator_no', $indicator)->pluck('id');
+            foreach ($indicatorIds as $indicatorId) {
+                //  $organisationIds = Organisation::whereIn('name', $partners)->pluck('id')->toArray();
 
-            $conditions = match ($indicator) {
-                'A1', 'B1' => [
-                    ['names' => ['CIP', 'IITA', 'DAES', 'DCD'], 'type' => 'normal'],
-                ], //done
-                'B2' => [
-                    ['names' => ['MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
-                    //  ['names' => ['CIP'], 'type' => 'normal'],
-                ],
-                'B3' => [
-                    ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
-                ],
-                'B4' => [
-                    //  ['names' => ['IITA', 'DAES',], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
-                ],
-                'B5' => [
-                    //  ['names' => ['IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
-                ],
-                'B6' => [
-                    ['names' => ['CIP'], 'type' => 'aggregate'],
-                ],
-                '1.1.1' => [
-                    ['names' => ['IITA', 'TRADELINE', 'MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
-                    // ['names' => ['CIP'], 'type' => 'normal'],
-                ],
-                '1.1.2', '1.1.3' => [
-                    ['names' => ['DARS'], 'type' => 'aggregate'],
-                ],
-                '1.1.4' => [
-                    ['names' => ['IITA', 'DARS', 'RTCDT', 'DAES', 'CIP'], 'type' => 'aggregate'],
-                    // ['names' => ['CIP'], 'type' => 'normal'],
-                ],
-                '1.2.1' => [
-                    ['names' => ['IITA', 'CIP'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                    //  ['names' => ['CIP'], 'type' => 'normal'],
-                ],
-                '1.2.2' => [
-                    ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
-                ],
-                '1.3.1' => [
-                    ['names' => ['RTCDT'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
-                '2.1.1' => [
-                    ['names' => ['TRADELINE'], 'type' => 'aggregate'],
-                ],
-                '2.2.1' => [
-                    // ['names' => ['IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'IITA'], 'type' => 'normal'],
-                ],
-                '2.2.2' => [
-                    //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
-                ],
+                $conditions = match ($indicator) {
+                    'A1', 'B1' => [
+                        ['names' => ['CIP', 'IITA', 'DAES', 'DCD'], 'type' => 'normal'],
+                    ], //done
+                    'B2' => [
+                        ['names' => ['MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
+                        //  ['names' => ['CIP'], 'type' => 'normal'],
+                    ],
+                    'B3' => [
+                        ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
+                    ],
+                    'B4' => [
+                        //  ['names' => ['IITA', 'DAES',], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
+                    ],
+                    'B5' => [
+                        //  ['names' => ['IITA'], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
+                    ],
+                    'B6' => [
+                        ['names' => ['CIP'], 'type' => 'aggregate'],
+                    ],
+                    '1.1.1' => [
+                        ['names' => ['IITA', 'TRADELINE', 'MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
+                        // ['names' => ['CIP'], 'type' => 'normal'],
+                    ],
+                    '1.1.2', '1.1.3' => [
+                        ['names' => ['DARS'], 'type' => 'aggregate'],
+                    ],
+                    '1.1.4' => [
+                        ['names' => ['IITA', 'DARS', 'RTCDT', 'DAES', 'CIP'], 'type' => 'aggregate'],
+                        // ['names' => ['CIP'], 'type' => 'normal'],
+                    ],
+                    '1.2.1' => [
+                        ['names' => ['IITA', 'CIP'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        //  ['names' => ['CIP'], 'type' => 'normal'],
+                    ],
+                    '1.2.2' => [
+                        ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
+                    ],
+                    '1.3.1' => [
+                        ['names' => ['RTCDT'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
 
-                '2.2.3' => [
-                    //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
-                ],
-                '2.2.4' => [
-                    // ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
-                ],
-                '2.2.5' => [
-                    ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
-                '2.3.1' => [
-                    ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
-                    //  ['names' => ['CIP'], 'type' => 'normal'],
-                ],
-                '2.3.2' => [
-                    ['names' => ['TRADELINE', 'RTCDT'], 'type' => 'aggregate'],
-                ],
-                '2.3.3' => [
-                    ['names' => ['ACE'], 'type' => 'aggregate'],
-                ],
-                '2.3.4' => [
-                    ['names' => ['ACE', 'TRADELINE'], 'type' => 'aggregate'],
-                ],
-                '2.3.5' => [
-                    ['names' => ['ACE', 'DAES'], 'type' => 'aggregate'],
-                ],
-                '3.1.1' => [
-                    // ['names' => ['DAES', 'IITA', 'RTCDT'], 'type' => 'aggregate'],
-                    ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
-                ],
-                '3.2.1' => [
-                    //  ['names' => ['IITA', 'RTCDT'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
-                ],
-                '3.2.2' => [
-                    ['names' => ['ACE', 'DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
-                ],
+                    '2.1.1' => [
+                        ['names' => ['TRADELINE'], 'type' => 'aggregate'],
+                    ],
+                    '2.2.1' => [
+                        // ['names' => ['IITA'], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'IITA'], 'type' => 'normal'],
+                    ],
+                    '2.2.2' => [
+                        //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
+                    ],
 
-                '3.2.3', '3.2.4' => [
-                    ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
+                    '2.2.3' => [
+                        //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
+                    ],
+                    '2.2.4' => [
+                        // ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
+                    ],
+                    '2.2.5' => [
+                        ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
+                    '2.3.1' => [
+                        ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
+                        //  ['names' => ['CIP'], 'type' => 'normal'],
+                    ],
+                    '2.3.2' => [
+                        ['names' => ['TRADELINE', 'RTCDT'], 'type' => 'aggregate'],
+                    ],
+                    '2.3.3' => [
+                        ['names' => ['ACE'], 'type' => 'aggregate'],
+                    ],
+                    '2.3.4' => [
+                        ['names' => ['ACE', 'TRADELINE'], 'type' => 'aggregate'],
+                    ],
+                    '2.3.5' => [
+                        ['names' => ['ACE', 'DAES'], 'type' => 'aggregate'],
+                    ],
+                    '3.1.1' => [
+                        // ['names' => ['DAES', 'IITA', 'RTCDT'], 'type' => 'aggregate'],
+                        ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
+                    ],
+                    '3.2.1' => [
+                        //  ['names' => ['IITA', 'RTCDT'], 'type' => 'aggregate'],
+                        ['names' => ['CIP'], 'type' => 'normal'],
+                    ],
+                    '3.2.2' => [
+                        ['names' => ['ACE', 'DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
+                    ],
 
-                '3.2.5' => [
-                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
+                    '3.2.3', '3.2.4' => [
+                        ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
 
-                '3.3.1', '3.3.2', '3.4.1', '3.4.2', '3.4.3', '3.4.4', '3.4.5' => [
-                    ['names' => ['TRADELINE'], 'type' => 'aggregate'],
-                ],
+                    '3.2.5' => [
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
 
-                '3.5.1' => [
-                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
-                '3.5.2', '3.5.3', '3.5.4' => [
-                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'normal'],
-                ],
+                    '3.3.1', '3.3.2', '3.4.1', '3.4.2', '3.4.3', '3.4.4', '3.4.5' => [
+                        ['names' => ['TRADELINE'], 'type' => 'aggregate'],
+                    ],
 
-                '3.5.5' => [
-                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
+                    '3.5.1' => [
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
+                    '3.5.2', '3.5.3', '3.5.4' => [
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'normal'],
+                    ],
 
-                '3.5.6' => [
-                    ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
-                ],
+                    '3.5.5' => [
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
 
-                '4.1.1' => [
-                    ['names' => ['RTCDT', 'CIP', 'IITA'], 'type' => 'aggregate'],
-                ],
+                    '3.5.6' => [
+                        ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                    ],
 
-                '4.1.2' => [
-                    ['names' => ['RTCDT', 'MINISTRY OF TRADE'], 'type' => 'aggregate'],
-                ],
+                    '4.1.1' => [
+                        ['names' => ['RTCDT', 'CIP', 'IITA'], 'type' => 'aggregate'],
+                    ],
 
-                '4.1.3' => [
-                    ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
-                ],
-                '4.1.4' => [
-                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
-                ],
-                '4.1.5', '4.1.6' => [
-                    ['names' => ['TRADELINE'], 'type' => 'aggregate'],
-                ],
-                default => []
-            };
+                    '4.1.2' => [
+                        ['names' => ['RTCDT', 'MINISTRY OF TRADE'], 'type' => 'aggregate'],
+                    ],
 
-            foreach ($conditions as $condition) {
-                foreach ($condition['names'] as $name) {
-                    $organisationId = Organisation::where('name', $name)->pluck('id')->first();
+                    '4.1.3' => [
+                        ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
+                    ],
+                    '4.1.4' => [
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
+                    ],
+                    '4.1.5', '4.1.6' => [
+                        ['names' => ['TRADELINE'], 'type' => 'aggregate'],
+                    ],
+                    default => []
+                };
 
-                    if (isset($condition['aggregate_type'])) {
-                        ResponsiblePerson::create([
-                            'indicator_id' => $indicatorId,
-                            'organisation_id' => $organisationId,
-                            'type_of_submission' => $condition['type'],
-                            'aggregate_type' => $condition['aggregate_type'],
-                        ]);
-                    } else {
+                foreach ($conditions as $condition) {
 
-                        ResponsiblePerson::create([
-                            'indicator_id' => $indicatorId,
-                            'organisation_id' => $organisationId,
-                            'type_of_submission' => $condition['type'],
-                            'aggregate_type' => $condition['type'] === 'aggregate' ? 'disaggregation' : null,
-                        ]);
+                    foreach ($condition['names'] as $name) {
+                        $organisationIds = Organisation::where('name', $name)->pluck('id');
 
+                        foreach ($organisationIds as $organisationId) {
+                            if (isset($condition['aggregate_type'])) {
+                                ResponsiblePerson::create([
+                                    'indicator_id' => $indicatorId,
+                                    'organisation_id' => $organisationId,
+                                    'type_of_submission' => $condition['type'],
+                                    'aggregate_type' => $condition['aggregate_type'],
+                                ]);
+                            } else {
+
+                                ResponsiblePerson::create([
+                                    'indicator_id' => $indicatorId,
+                                    'organisation_id' => $organisationId,
+                                    'type_of_submission' => $condition['type'],
+                                    'aggregate_type' => $condition['type'] === 'aggregate' ? 'disaggregation' : null,
+                                ]);
+
+                            }
+                        }
                     }
                 }
             }
+
         }
     }
 }
