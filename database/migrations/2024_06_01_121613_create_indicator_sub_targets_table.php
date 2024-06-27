@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indicator_targets', function (Blueprint $table) {
+        Schema::create('indicator_sub_targets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('indicator_id')->constrained('indicators', 'id');
+            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
+            $table->foreignId('financial_year_id')->constrained('financial_years', 'id');
             $table->json('target')->nullable();
-            //  $table->foreignId('submission_period_id')->constrained('submission_periods', 'id');
-
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indicator_targets');
+        Schema::dropIfExists('indicator_sub_targets');
     }
 };
