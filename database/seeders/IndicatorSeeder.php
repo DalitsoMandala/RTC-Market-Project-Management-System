@@ -192,35 +192,35 @@ class IndicatorSeeder extends Seeder
             $conditions = match ($indicator) {
                 'A1', 'B1' => [
                     ['names' => ['CIP', 'IITA', 'DAES', 'DCD'], 'type' => 'normal'],
-                ],
+                ], //done
                 'B2' => [
-                    ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    ['names' => ['MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
+                    //  ['names' => ['CIP'], 'type' => 'normal'],
                 ],
                 'B3' => [
                     ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
                 ],
                 'B4' => [
-                    ['names' => ['IITA', 'DAES'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    //  ['names' => ['IITA', 'DAES',], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
                 ],
                 'B5' => [
-                    ['names' => ['IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    //  ['names' => ['IITA'], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
                 ],
                 'B6' => [
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    ['names' => ['CIP'], 'type' => 'aggregate'],
                 ],
                 '1.1.1' => [
-                    ['names' => ['IITA', 'TRADELINE', 'MINISTRY OF TRADE'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    ['names' => ['IITA', 'TRADELINE', 'MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
+                    // ['names' => ['CIP'], 'type' => 'normal'],
                 ],
                 '1.1.2', '1.1.3' => [
                     ['names' => ['DARS'], 'type' => 'aggregate'],
                 ],
                 '1.1.4' => [
-                    ['names' => ['IITA', 'DARS', 'RTCDT', 'DAES'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    ['names' => ['IITA', 'DARS', 'RTCDT', 'DAES', 'CIP'], 'type' => 'aggregate'],
+                    // ['names' => ['CIP'], 'type' => 'normal'],
                 ],
                 '1.2.1' => [
                     ['names' => ['IITA', 'CIP'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
@@ -236,19 +236,28 @@ class IndicatorSeeder extends Seeder
                     ['names' => ['TRADELINE'], 'type' => 'aggregate'],
                 ],
                 '2.2.1' => [
-                    ['names' => ['IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    // ['names' => ['IITA'], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'IITA'], 'type' => 'normal'],
                 ],
-                '2.2.2', '2.2.3', '2.2.4' => [
-                    ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                '2.2.2' => [
+                    //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
+                ],
+
+                '2.2.3' => [
+                    //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
+                ],
+                '2.2.4' => [
+                    // ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
                 ],
                 '2.2.5' => [
-                    ['names' => ['DAES'], 'type' => 'aggregate'],
+                    ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
                 ],
                 '2.3.1' => [
-                    ['names' => ['IITA'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                    ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
+                    //  ['names' => ['CIP'], 'type' => 'normal'],
                 ],
                 '2.3.2' => [
                     ['names' => ['TRADELINE', 'RTCDT'], 'type' => 'aggregate'],
@@ -263,15 +272,60 @@ class IndicatorSeeder extends Seeder
                     ['names' => ['ACE', 'DAES'], 'type' => 'aggregate'],
                 ],
                 '3.1.1' => [
-                    ['names' => ['DAES', 'IITA', 'RTCDT'], 'type' => 'aggregate'],
+                    // ['names' => ['DAES', 'IITA', 'RTCDT'], 'type' => 'aggregate'],
+                    ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
+                ],
+                '3.2.1' => [
+                    //  ['names' => ['IITA', 'RTCDT'], 'type' => 'aggregate'],
                     ['names' => ['CIP'], 'type' => 'normal'],
                 ],
-                '3.1.2' => [
-                    ['names' => ['IITA', 'RTCDT'], 'type' => 'aggregate'],
-                    ['names' => ['CIP'], 'type' => 'normal'],
+                '3.2.2' => [
+                    ['names' => ['ACE', 'DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                 ],
-                '3.1.3' => [
-                    ['names' => ['ACE', 'DAES', 'TRADELINE'], 'type' => 'aggregate'],
+
+                '3.2.3', '3.2.4' => [
+                    ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                ],
+
+                '3.2.5' => [
+                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                ],
+
+                '3.3.1', '3.3.2', '3.4.1', '3.4.2', '3.4.3', '3.4.4', '3.4.5' => [
+                    ['names' => ['TRADELINE'], 'type' => 'aggregate'],
+                ],
+
+                '3.5.1' => [
+                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                ],
+                '3.5.2', '3.5.3', '3.5.4' => [
+                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'normal'],
+                ],
+
+                '3.5.5' => [
+                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                ],
+
+                '3.5.6' => [
+                    ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                ],
+
+                '4.1.1' => [
+                    ['names' => ['RTCDT', 'CIP', 'IITA'], 'type' => 'aggregate'],
+                ],
+
+                '4.1.2' => [
+                    ['names' => ['RTCDT', 'MINISTRY OF TRADE'], 'type' => 'aggregate'],
+                ],
+
+                '4.1.3' => [
+                    ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
+                ],
+                '4.1.4' => [
+                    ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
+                ],
+                '4.1.5', '4.1.6' => [
+                    ['names' => ['TRADELINE'], 'type' => 'aggregate'],
                 ],
                 default => []
             };
