@@ -2,10 +2,8 @@
 
 namespace App\Livewire\Internal\Cip;
 
-use App\Models\HouseholdRtcConsumption;
-use App\Models\HrcLocation;
-use App\Models\HrcMainFood;
 use App\Models\Submission;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -17,7 +15,7 @@ class Submissions extends Component
     use LivewireAlert;
     #[Validate('required')]
     public $status;
-
+    #[Validate('required')]
     public $comment;
     public $rowId;
 
@@ -37,52 +35,47 @@ class Submissions extends Component
 
         try {
 
-            Submission::find($this->rowId)->update([
-                'status' => $this->status,
-                'comments' => $this->comment,
-            ]);
-
             $submission = Submission::find($this->rowId);
 
-            if ($this->status === 'approved' && $submission->is_complete === 0) {
+            if ($this->status === 'approved') {
 
+                $table = $submission->table_name;
                 $decodedBatch = json_decode($submission->data, true);
-                foreach ($decodedBatch as $data) {
-                    $location_data = $data['location_data'];
-                    $main_food_data = $data['main_food_data'];
-                    unset($data['location_data']);
-                    unset($data['main_food_data']);
-                    $data['uuid'] = $submission['batch_no'];
-                    $location = HrcLocation::create($location_data);
-                    $data['location_id'] = $location->id;
-                    $insert = HouseholdRtcConsumption::create($data);
-                    foreach ($main_food_data as $food) {
-                        HrcMainFood::create([
-                            'name' => $food['name'],
-                            'hrc_id' => $insert->id,
-                        ]);
+                $data = [];
+                foreach ($decodedBatch as $batch) {
 
-                    }
-
+                    $batch['created_at'] = now();
+                    $batch['updated_at'] = now();
+                    $data[] = $batch;
                 }
+
+                DB::table($table)->insert($data);
+                Submission::find($this->rowId)->update([
+                    'status' => $this->status,
+                    'comments' => $this->comment,
+                    'is_complete' => true,
+                ]);
+
+            }
+
+            if ($this->status === 'denied') {
 
                 $submission->update([
                     'is_complete' => true,
                 ]);
             }
 
-            $this->alert('success', 'Successfully updated');
+            session()->flash('success', 'Successfully updated');
             $this->dispatch('refresh');
         } catch (\Throwable $th) {
-            dd($th);
-            $this->alert('error', 'Something went wrong');
+            session()->flash('error', 'Something went wrong');
+
             Log::error($th);
         }
 
         $this->dispatch('hideModal');
         $this->reset();
     }
-
 
     public function render()
     {

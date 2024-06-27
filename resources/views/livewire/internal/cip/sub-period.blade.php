@@ -35,7 +35,7 @@
                             <div class="col-12 col-md-6" id="form">
 
 
-                                <form wire:submit='save'>
+                                <form wire:submit.debounce.1000ms='save'>
                                     <x-alerts />
 
                                     <div class="mb-3">
@@ -215,17 +215,26 @@
                                         @enderror
                                     </div>
 
-                                    <div class="mb-3 form-check form-switch form-switch-lg" dir="ltr"
-                                        x-data="{ switchOn: @entangle('status'), row: @entangle('rowId') }" x-show="row">
-                                        <input type="checkbox" x-model="switchOn" class="form-check-input"
-                                            id="status-switch">
+                                    <div class="mb-3 " dir="ltr" x-data="{ switchOn: @entangle('status'), row: @entangle('rowId') }" x-show="row">
+                                        {{-- <input type="checkbox" x-model="switchOn" class="form-check-input"
+                                            id="status-switch"> --}}
 
-
+                                        {{--
                                         <label class="form-check-label" for="status-switch">(Submission Status <span
                                                 class="badge " style="font-size: 10px"
                                                 :class="{ 'bg-success': switchOn === true, 'bg-danger': switchOn === false }">
                                                 <span x-show="switchOn === false">closed</span>
-                                                <span x-show="switchOn === true">open</span></span>)</label>
+                                                <span x-show="switchOn === true">open</span></span>)</label> --}}
+                                        <label for="">Open for submissions ?</label>
+                                        <div class="square-switch d-flex align-items-baseline">
+                                            <input type="checkbox" x-model="switchOn" id="square-switch1" switch="none"
+                                                checked="">
+                                            <label for="square-switch1" data-on-label="Yes"
+                                                data-off-label="No"></label>
+
+                                        </div>
+
+
                                     </div>
 
                                     <div class="mb-3 form-check form-switch form-switch-lg d-none" dir="ltr"

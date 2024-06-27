@@ -3,13 +3,17 @@ pond = FilePond.create($refs.input, {
     server: {
         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
 
+            setTimeout(() => {
+                @this.upload('{{ $attributes['wire:model'] }}', file, load, error, progress)
+            }, 5000)
 
-            @this.upload('{{ $attributes['wire:model'] }}', file, load, error, progress)
 
         },
         revert: (filename, load) => {
-            @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load)
 
+            setTimeout(() => {
+                @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load)
+            }, 5000)
 
         },
     },

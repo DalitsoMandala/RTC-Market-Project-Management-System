@@ -246,7 +246,7 @@ final class FormTable extends PowerGridComponent
 
             Rule::rows()
                 ->when(fn($model) => $model->is_open === 0)
-                ->setAttribute('class', 'table-warning pe-none opacity-50'),
+                ->setAttribute('class', 'table-light pe-none opacity-50'),
 
             Rule::button('add-data')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)

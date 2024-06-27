@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('batch_type', ['batch', 'manual', 'aggregate'])->default('manual');
             $table->boolean('is_complete')->default(false);
             $table->string('table_name');
-            $table->string('file_link')->nullable();
+            $table->string('file_link', 1000)->nullable();
             $table->text('comments')->nullable();
             $table->timestamps();
         });

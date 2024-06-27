@@ -65,8 +65,8 @@
 
                                         </a>
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('submissions') }}" id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="submissions"
+                                            id="topnav-utility" role="button">
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>

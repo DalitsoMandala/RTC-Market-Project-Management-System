@@ -1,5 +1,5 @@
 <div>
-    <div class="dropdown d-inline-block ">
+    <div wire:ignore class="dropdown d-inline-block ">
         <button @click="$wire.readNotifications()" type="button" class="btn header-item noti-icon"
             id="page-header-notifications-dropdown" data-bs-toggle="offcanvas" href="#notified" role="button"
             aria-controls="offcanvasExample">
@@ -11,7 +11,7 @@
         </button>
 
 
-        <div wire:ignore class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="notified"
+        <div class="offcanvas offcanvas-end" data-bs-backdrop="static" tabindex="-1" id="notified"
             aria-labelledby="staticBackdropLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="staticBackdropLabel">
@@ -28,15 +28,7 @@
                     @endif
                     @foreach ($notifications as $notification)
                         @if ($notification->type === 'manual_data_added')
-                            @php
-                                $currentRoute = request()->route(); // Get the current route
-
-                                $routePrefix = $currentRoute->getPrefix(); // Get the route prefix
-
-                            @endphp
-
-                            <a href="{{ $routePrefix }}/{{ $notification->data['link'] }}"
-                                class="text-reset notification-item">
+                            <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
                                 <div class="d-flex border-bottom align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">
@@ -69,8 +61,7 @@
 
                             @endphp
 
-                            <a href="{{ $routePrefix }}/{{ $notification->data['link'] }}"
-                                class="text-reset notification-item">
+                            <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
                                 <div class="d-flex border-bottom align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">

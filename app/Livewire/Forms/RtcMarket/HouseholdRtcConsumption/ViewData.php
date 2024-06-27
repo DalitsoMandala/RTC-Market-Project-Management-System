@@ -11,6 +11,14 @@ class ViewData extends Component
     use LivewireAlert;
     use WithFileUploads;
     public $batch_no;
+
+    public function mount($batch = null)
+    {
+        if ($batch) {
+            $this->batch_no = $batch;
+        }
+
+    }
     public function render()
     {
         return view('livewire.forms.rtc-market.household-rtc-consumption.view-data');

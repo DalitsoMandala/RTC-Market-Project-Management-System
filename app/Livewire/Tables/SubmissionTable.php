@@ -4,6 +4,7 @@ namespace App\Livewire\Tables;
 
 use App\Helpers\TruncateText;
 use App\Models\Form;
+use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
@@ -15,6 +16,7 @@ use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -101,7 +103,9 @@ final class SubmissionTable extends PowerGridComponent
                 $project_name = strtolower(str_replace(' ', '-', $project));
 
                 $formatted_name = strtolower(str_replace(' ', '-', $form_name));
-                return '<a href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
+                $user = Auth::user();
+                $status = ($model->status === 'pending' && $user->hasAnyRole('external')) ? 'disabled text-secondary pe-none' : '';
+                return '<a data-bs-toggle="tooltip" data-bs-title="View batch"  class="' . $status . '" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
             })
             ->add('user_id')
             ->add('username', function ($model) {
@@ -158,6 +162,27 @@ final class SubmissionTable extends PowerGridComponent
                 return $trunc->truncate();
 
             })
+            ->add('financial_year', function ($model) {
+
+                $model = SubmissionPeriod::find($model->period_id);
+
+                return $model->financialYears->number;
+                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
+            })
+
+            ->add('indicator_id')
+            ->add('indicator', function ($model) {
+                $model = SubmissionPeriod::find($model->period_id);
+                $indicator = Indicator::find($model->indicator_id);
+                return $indicator->indicator_name;
+            })
+
+            ->add('month_range', function ($model) {
+                $model = SubmissionPeriod::find($model->period_id);
+
+                return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
+                //
+            })
             ->add('created_at')
             ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
@@ -171,10 +196,17 @@ final class SubmissionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Name', 'username'),
+            Column::make('SUBMITTED BY', 'username'),
 
             Column::make('Organisation', 'organisation_formatted'),
             Column::make('Form name', 'form_name'),
+
+            Column::make('Indicator', 'indicator'),
+
+            Column::make('SUBMISSION PERIOD', 'month_range')
+            ,
+
+            Column::make('Financial Year', 'financial_year'),
             Column::make('Status', 'status_formatted')
                 ->sortable()
                 ->searchable(),
@@ -183,16 +215,15 @@ final class SubmissionTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
 
-            Column::make('Comments', 'comments_truncated'),
+            Column::make('Comments', 'comments_truncated')->hidden(),
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
-
+            Column::action('Action'),
             // Column::make('Created at', 'created_at')
             //     ->sortable()
             //     ->searchable(),
 
-            Column::action('Action'),
         ];
     }
 
@@ -214,14 +245,20 @@ final class SubmissionTable extends PowerGridComponent
         ];
     }
 
-    // public function actionRules($row): array
-    // {
-    //     return [
+    public function actionRules($row): array
+    {
 
-    //         Rule::button('edit')
-    //             ->when(fn($row) => )
-    //             ->hide(),
-    //     ];
-    // }
+        $user = Auth::user();
+        return [
+
+            Rule::button('edit')
+                ->when(fn($row) => ($row->status === 'pending' && !$user->hasAnyRole('organiser')) || ($row->is_complete === 1) || ($row->user_id === auth()->user()->id))
+                ->disable(),
+
+            // Rule::button('edit')
+            //     ->when(fn($row) => $row->is_complete === 1)
+            //     ->disable(),
+        ];
+    }
 
 }

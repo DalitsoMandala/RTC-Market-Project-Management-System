@@ -2,28 +2,28 @@
 
 namespace App\Livewire\External;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+
 class Submissions extends Component
 {
-        use LivewireAlert;
-   #[Validate('required')]
-public $variable;
-public $rowId;
+    use LivewireAlert;
+    #[Validate('required')]
+    public $variable;
+    public $rowId;
 
-    public function setData($id){
-$this->resetErrorBag();
+    public function setData($id)
+    {
+        $this->resetErrorBag();
 
     }
 
- public function save(){
+    public function save()
+    {
 
-$this->resetErrorBag();
-    try {
-
-
+        $this->resetErrorBag();
+        try {
 
             $this->alert('success', 'Successfully updated');
 
@@ -31,9 +31,8 @@ $this->resetErrorBag();
             $this->alert('error', 'Something went wrong');
             Log::error($th);
         }
-$this->reset();
+        $this->reset();
     }
-
 
     public function render()
     {

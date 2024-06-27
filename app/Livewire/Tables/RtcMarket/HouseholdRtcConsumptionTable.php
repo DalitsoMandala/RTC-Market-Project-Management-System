@@ -3,9 +3,10 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\HouseholdRtcConsumption;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection as CollectionSupport;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -38,27 +39,38 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
+    public function datasource(): CollectionSupport
     {
 
-        $user = Auth::user();
+        $user = User::find($this->userId);
+        //  dd($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true);
+        $query = HouseholdRtcConsumption::query();
 
-        $query = HouseholdRtcConsumption::query()->with(['location']);
-
-        if ($user->hasAnyRole('cip') && $this->hasAnyRole('organiser')) {
+        if ($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true) {
             if ($this->uuid) {
-                $query->where('uuid', $this->uuid);
+                $query->where('uuid', $this->uuid)->get();
+                $count = Submission::where('batch_no', $this->uuid)->where('status', 'pending')->first();
+                if ($count) {
+
+                    $data = json_decode($count->data, true);
+                    $query = collect($data);
+                    return $query;
+                }
             }
 
-        } else {
-            $query->where('user_id', $this->userId);
+            return $query->get();
+
+        } else if ($user->hasAnyRole('external') === true) {
+
+            $query->where('user_id', $this->userId)->get();
 
             if ($this->uuid) {
-                $query->where('uuid', $this->uuid);
+
+                $query->where('uuid', $this->uuid)->get();
             }
+
+            return $query->get();
         }
-
-        return $query;
 
     }
 
@@ -136,6 +148,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             })
             ->add('rtc_consumption_frequency')
+            ->add('submitted_by', fn($model) => User::find($model->user_id)->name)
             ->add('created_at')
             ->add('updated_at');
     }
@@ -213,6 +226,10 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ,
 
             Column::make('Submission Date', 'created_at')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Submitted By', 'submitted_by')
                 ->sortable()
                 ->searchable(),
 

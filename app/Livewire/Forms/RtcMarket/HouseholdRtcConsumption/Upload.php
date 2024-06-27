@@ -92,6 +92,7 @@ class Upload extends Component
                                 'batch_type' => 'batch',
                                 'period_id' => $this->submissionPeriodId,
                                 'table_name' => 'household_rtc_consumption',
+                                'is_complete' => 1,
                             ]);
 
                             $data = json_decode($submission->data, true);
@@ -102,31 +103,47 @@ class Upload extends Component
 
                             }
 
-                            $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                            $link = 'cip/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                             $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
                             $this->dispatch('notify');
 
                             session()->flash('success', 'Successfully submitted!');
-                            $this->redirect(route('submissions') . '#batch-submission');
+                            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
                         }
 
                     } else if ($currentUser->hasAnyRole('external')) {
 
-                        Submission::create([
-                            'batch_no' => $uuid,
-                            'form_id' => $this->selectedForm,
-                            'period_id' => $this->submissionPeriodId,
-                            'user_id' => $currentUser->id,
-                            'data' => json_encode($batch_data),
-                            'batch_type' => 'batch',
-                            'table_name' => 'household_rtc_consumption',
-                        ]);
+                        $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
+                            ->where('batch_type', 'batch')
+                            ->where('user_id', auth()->user()->id)->first();
+                        if ($checkSubmission) {
 
+                            $this->reset('upload');
+                            $this->dispatch('removeUploadedFile');
+                            session()->flash('error', 'You have already submitted your batch data!');
+                        } else {
+                            Submission::create([
+                                'batch_no' => $uuid,
+                                'form_id' => $this->selectedForm,
+                                'period_id' => $this->submissionPeriodId,
+                                'user_id' => $currentUser->id,
+                                'data' => json_encode($batch_data),
+                                'batch_type' => 'batch',
+                                'table_name' => 'household_rtc_consumption',
+                            ]);
+                            $link = 'external/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                            $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
+                            $this->dispatch('notify');
+
+                            session()->flash('success', 'Successfully submitted!');
+                            $this->redirect(route('external-submissions') . '#batch-submission');
+
+                        }
                     }
 
                 } catch (UserErrorException $e) {
 
-                    $this->reset();
+                    $this->reset('upload');
 
                     $this->dispatch('removeUploadedFile');
                     $this->dispatch('refresh');
@@ -140,8 +157,6 @@ class Upload extends Component
 
             session()->flash('error', 'Something went wrong!');
             Log::channel('system_log')->error($th);
-
-            dd($th);
 
         }
 

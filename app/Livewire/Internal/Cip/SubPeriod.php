@@ -83,28 +83,39 @@ class SubPeriod extends Component
 
             } else {
 
-                $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)
+                $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
                     ->where('financial_year_id', $this->selectedFinancialYear)
                     ->where('indicator_id', $this->selectedIndicator)
-                    ->where('is_open', true)->first();
+                    ->where('form_id', $this->selectedForm)
+                    ->exists();
 
-                if ($find) {
-
+                if ($exists) {
                     session()->flash('error', 'This record already exists see the table below!');
-
                 } else {
 
-                    SubmissionPeriod::create([
-                        'date_established' => $this->start_period,
-                        'date_ending' => $this->end_period,
-                        'is_open' => $this->status,
-                        'form_id' => $this->selectedForm,
-                        'month_range_period_id' => $this->selectedMonth,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'indicator_id' => $this->selectedIndicator,
-                    ]);
-                    session()->flash('success', 'Created Successfully');
+                    $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)
+                        ->where('financial_year_id', $this->selectedFinancialYear)
+                        ->where('indicator_id', $this->selectedIndicator)
+                        ->where('is_open', true)->first();
 
+                    if ($find) {
+
+                        session()->flash('error', 'This record already exists see the table below!');
+
+                    } else {
+
+                        SubmissionPeriod::create([
+                            'date_established' => $this->start_period,
+                            'date_ending' => $this->end_period,
+                            'is_open' => $this->status,
+                            'form_id' => $this->selectedForm,
+                            'month_range_period_id' => $this->selectedMonth,
+                            'financial_year_id' => $this->selectedFinancialYear,
+                            'indicator_id' => $this->selectedIndicator,
+                        ]);
+                        session()->flash('success', 'Created Successfully');
+
+                    }
                 }
 
             }

@@ -255,7 +255,7 @@ class AddData extends Component
                     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                     $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
                     $this->dispatch('notify');
-                    session()->flash('success', 'Successfully submitted! <a href="' . route('rtc-market-hrc', ['project' => 'rtc_market']) . '">View Submission here</a>');
+                    session()->flash('success', 'Successfully submitted! <a href="/cip/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
                     //    $this->redirect(route('rtc-market-hrc', ['project' => 'rtc_market']));
 
                 } catch (UserErrorException $e) {
@@ -291,7 +291,7 @@ class AddData extends Component
                     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                     $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
                     $this->dispatch('notify');
-                    session()->flash('success', 'Successfully submitted! <a href="' . route('rtc-market-hrc', ['project' => 'rtc_market']) . '">View Submission here</a>');
+                    session()->flash('success', 'Successfully submitted! <a href="/external/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
 
                 } catch (UserErrorException $e) {
                     // Log the actual error for debugging purposes

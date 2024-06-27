@@ -34,7 +34,10 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-primary text-uppercase">Household consumption data</h4>
+                        <h4 class="text-center text-primary text-uppercase">Household consumption data @if ($batch_no)
+                                [Batch : {{ $batch_no }}]
+                            @endif
+                        </h4>
                     </div>
 
                     <div class="card-body" id="#datatable">

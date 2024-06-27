@@ -101,7 +101,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
                     $this->refreshData();
                 }
             })
-            ->add('submissions', fn($model) => SubmissionPeriod::find($model->id)->submissions->count())
+            ->add('submissions', fn($model) => '<span class=" fw-bold">' . SubmissionPeriod::find($model->id)->submissions->count() . '</span>')
+            ->add('submission_batch', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'batch')->count())
+            ->add('submission_aggregate', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'aggregate')->count())
+            ->add('submission_manual', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'manual')->count())
             ->add('created_at')
             ->add('updated_at');
     }
@@ -136,6 +139,17 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Submissions', 'submissions')
+                ->sortable()
+                ->searchable(),
+            Column::make('Submission/Batch', 'submission_batch')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Submissions/Aggregate', 'submission_aggregate')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Submissions/Manual', 'submission_manual')
                 ->sortable()
                 ->searchable(),
 

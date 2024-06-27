@@ -103,38 +103,30 @@
         })">
 
 
-            <x-modal id="view-submission-modal" title="update status">
-                <form wire:submit='save'>
+            <x-modal id="view-submission-modal" title="Approve Submission">
+                <form wire:submit.debounce.1000ms='save'>
+                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this record?
+                    </h3>
 
-                    <div class="mb-3" x-data="{
-                        status: $wire.entangle('status')
-                    }">
-
-
-
-                        <select class="form-select form-select-sm" x-model="status">
-                            <option> Select one</option>
-                            <option value="approved">Approved</option>
-                            <option value="denied">Denied</option>
-
-                        </select>
-                        <small class="text-muted">You can approve/disapprove submissions here</small><br>
-                        @error('status')
-                            <span class="my-1 text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="">Comments</label>
-                        <textarea wire:model='comment' id="" class="form-control"></textarea>
+                    <div class="mt-4 mb-3">
+                        <label for="">Comment</label>
+                        <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
+                        <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
                         @error('comment')
                             <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    <div class="modal-footer border-top-0 justify-content-center" x-data="{
+                        statusGet(status) {
+                            $wire.status = status;
+                            $wire.save();
+                        }
+                    
+                    }">
+                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
+                        <button type="button" @click="statusGet('approved')"
+                            class="pr-4 btn btn-primary">Approve</button>
 
                     </div>
                 </form>
