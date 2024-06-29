@@ -8,6 +8,7 @@ use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as ModelBuilder;
+use Illuminate\Support\Facades\Auth;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -96,26 +97,44 @@ final class IndicatorTable extends PowerGridComponent
                 $orgNames = implode(', ', $orgNames);
                 return $orgNames;
             })
+
+            ->add('sources', function ($model) {
+                $forms = $model->forms->pluck('name')->toArray();
+
+                $formNames = implode(', ', $forms);
+                return $formNames;
+            })
             ->add('created_at')
             ->add('updated_at');
     }
 
     public function columns(): array
     {
-        return [
-            Column::make('Id', 'id'),
 
+        $showActionColumn = false; // Set this variable based on your condition
+
+        $columns = [
+            Column::make('Id', 'id'),
             Column::make('Indicator #', 'indicator_no_bold')
                 ->sortable()
                 ->searchable(),
             Column::make('Indicator', 'name_link', 'indicator_name')
                 ->sortable()
                 ->searchable(),
-
             Column::make('Project name', 'project_name'),
             Column::make('Lead partner', 'lead_partner'),
-            Column::action('Action'),
+
         ];
+
+        $user = Auth::user();
+        if ($user->hasAnyRole('internal')) {
+            $columns[] = Column::make('Sources', 'sources');
+            $columns[] = Column::action('Action');
+        } else {
+            $columns[] = Column::action('Action')->hidden();
+        }
+
+        return $columns;
     }
 
     public function filters(): array
@@ -148,10 +167,13 @@ final class IndicatorTable extends PowerGridComponent
 
             Rule::button('edit')
                 ->when(function ($row) {
-                    $user = User::find($this->userId);
+                    $user = Auth::user();
 
                     if ($user->hasAnyRole('external')) {
+
                         return true;
+                    } else {
+                        return false;
                     }
                 })
                 ->disable(),

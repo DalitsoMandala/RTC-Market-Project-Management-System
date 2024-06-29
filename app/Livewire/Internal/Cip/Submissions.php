@@ -49,7 +49,11 @@ class Submissions extends Component
                     $data[] = $batch;
                 }
 
-                DB::table($table)->insert($data);
+                if ($submission->batch_type == 'batch') {
+                    DB::table($table)->insert($data);
+
+                }
+
                 Submission::find($this->rowId)->update([
                     'status' => $this->status,
                     'comments' => $this->comment,

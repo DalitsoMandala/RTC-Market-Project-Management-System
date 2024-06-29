@@ -29,7 +29,7 @@ class SubPeriod extends Component
     #[Validate('required')]
     public $end_period;
     #[Validate('required', message: 'The form field is required.')]
-    public $selectedForm;
+    public $selectedForm = [];
 
     public $months = [];
     public $financialYears = [];
@@ -86,14 +86,14 @@ class SubPeriod extends Component
                 $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
                     ->where('financial_year_id', $this->selectedFinancialYear)
                     ->where('indicator_id', $this->selectedIndicator)
-                    ->where('form_id', $this->selectedForm)
+                    ->whereIn('form_id', $this->selectedForm)
                     ->exists();
 
                 if ($exists) {
                     session()->flash('error', 'This record already exists see the table below!');
                 } else {
 
-                    $find = SubmissionPeriod::where('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)
+                    $find = SubmissionPeriod::whereIn('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)
                         ->where('financial_year_id', $this->selectedFinancialYear)
                         ->where('indicator_id', $this->selectedIndicator)
                         ->where('is_open', true)->first();
@@ -104,15 +104,18 @@ class SubPeriod extends Component
 
                     } else {
 
-                        SubmissionPeriod::create([
-                            'date_established' => $this->start_period,
-                            'date_ending' => $this->end_period,
-                            'is_open' => $this->status,
-                            'form_id' => $this->selectedForm,
-                            'month_range_period_id' => $this->selectedMonth,
-                            'financial_year_id' => $this->selectedFinancialYear,
-                            'indicator_id' => $this->selectedIndicator,
-                        ]);
+                        foreach ($this->selectedForm as $formId) {
+                            SubmissionPeriod::create([
+                                'date_established' => $this->start_period,
+                                'date_ending' => $this->end_period,
+                                'is_open' => $this->status,
+                                'form_id' => $formId,
+                                'month_range_period_id' => $this->selectedMonth,
+                                'financial_year_id' => $this->selectedFinancialYear,
+                                'indicator_id' => $this->selectedIndicator,
+                            ]);
+                        }
+
                         session()->flash('success', 'Created Successfully');
 
                     }
@@ -125,7 +128,7 @@ class SubPeriod extends Component
         } catch (\Throwable $th) {
 
             session()->flash('error', 'something went wrong');
-
+            dd($th);
         }
         $this->reset();
         $this->loadData();
@@ -251,14 +254,16 @@ class SubPeriod extends Component
 
                 if ($formIds->isNotEmpty()) {
 
-                    $this->forms = Form::get();
-
-                    $this->forms = $this->forms->whereIn('id', $formIds);
+                    $this->forms = Form::whereIn('id', $formIds)->get()->toArray();
+                    $selectedForm = $formIds->toArray();
+                    // $this->selectedForm = $formIds->toArray();
 
                 } else {
                     // Handle empty formIds, reset or clear $this->forms as needed
                     $this->forms = collect(); // Or handle as appropriate
                 }
+
+                $this->dispatch('changed-form', data: $selectedForm, forms: $this->forms);
             }
         }
     }

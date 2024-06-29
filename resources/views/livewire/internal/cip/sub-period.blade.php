@@ -32,7 +32,7 @@
                         <button class="btn btn-primary" @click="is_open = !is_open">Add Submission Period+</button>
 
                         <div class="mt-2 border shadow-none row card card-body" x-show="is_open">
-                            <div class="col-12 col-md-6" id="form">
+                            <div class="col-12 col-md-6 col-md-sm-8" id="form">
 
 
                                 <form wire:submit.debounce.1000ms='save'>
@@ -139,21 +139,41 @@
                                         @enderror
                                     </div>
 
+                                    {{ var_export($selectedForm) }}
+
                                     <div class="mb-3" wire:loading.class='opacity-25'
                                         wire:target="selectedProject, selectedIndicator, selectedForm"
                                         wire:loading.attr='disabled' x-data="{
-                                            selectedForm: @entangle('selectedForm'),
+                                            selectedForm: [],
+                                            forms: [],
+                                            setForms(data, forms) {
+                                        
+                                                this.forms = forms;
+                                        
+                                                let newData = data.map(num => num.toString());
                                         
                                         
-                                        }">
+                                            },
+                                        
+                                            selectForm() {
+                                                $wire.selectedForm = this.selectedForm;
+                                            }
+                                        
+                                        }" @change="selectForm()"
+                                        @changed-form.window="setForms($event.detail.data,$event.detail.forms)"
+                                        x-init="">
+
                                         <label for="form-select" class="form-label">Choose Form</label>
-                                        <select id="form-select" class="form-select form-select-md"
-                                            x-model.debounce.500ms="selectedForm"
-                                            @change.debounce="selectedForm = $event.target.value; $wire.set('selectedForm', selectedForm)">
-                                            <option selected value="">Select one</option>
-                                            @foreach ($forms as $form)
-                                                <option value="{{ $form->id }}">{{ $form->name }}</option>
-                                            @endforeach
+                                        <select id="form-select" class="form-select form-select-md" multiple
+                                            x-model="selectedForm">
+
+
+                                            <template :key="form.id" x-for="form in forms">
+
+                                                <option :value="form.id"> <span x-text="form.name"></span>
+                                                </option>
+                                            </template>
+
                                         </select>
 
 
@@ -215,7 +235,7 @@
                                         @enderror
                                     </div>
 
-                                    <div class="mb-3 " dir="ltr" x-data="{ switchOn: @entangle('status'), row: @entangle('rowId') }" x-show="row">
+                                    <div class="mb-3 " dir="ltr" x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }" x-show="row">
                                         {{-- <input type="checkbox" x-model="switchOn" class="form-check-input"
                                             id="status-switch"> --}}
 
@@ -227,8 +247,8 @@
                                                 <span x-show="switchOn === true">open</span></span>)</label> --}}
                                         <label for="">Open for submissions ?</label>
                                         <div class="square-switch d-flex align-items-baseline">
-                                            <input type="checkbox" x-model="switchOn" id="square-switch1" switch="none"
-                                                checked="">
+                                            <input type="checkbox" x-model="switchOn" id="square-switch1"
+                                                switch="none" checked="">
                                             <label for="square-switch1" data-on-label="Yes"
                                                 data-off-label="No"></label>
 
@@ -238,7 +258,7 @@
                                     </div>
 
                                     <div class="mb-3 form-check form-switch form-switch-lg d-none" dir="ltr"
-                                        x-data="{ expired: @entangle('expired'), row: @entangle('rowId') }" x-show="row !== null">
+                                        x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">
                                         <input type="checkbox" x-model="expired" class="form-check-input"
                                             id="expire-switch">
                                         <label class="form-check-label" for="expire-switch">Cancel/Set to
