@@ -7,9 +7,7 @@ use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
-use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Notifications\AggregateDataAddedNotification;
@@ -482,13 +480,7 @@ class AddData extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-                $user = Auth::user();
-                $organisation = $user->organisation;
 
-                $getSubmissionType = ResponsiblePerson::where('indicator_id', $this->selectedIndicator)->where('organisation_id', $organisation->id)->first();
-                if ($getSubmissionType) {
-                    $this->showReport = $getSubmissionType->type_of_submission == 'normal' ? false : true;
-                }
             } else {
                 $this->openSubmission = false;
             }

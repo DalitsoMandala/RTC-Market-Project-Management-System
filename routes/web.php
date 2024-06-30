@@ -56,6 +56,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get($formPrefix . '/household-consumption-form/view', HRCViewData::class);
     Route::get($formPrefix . '/household-consumption-form/{batch}/view', HRCViewData::class);
     Route::get($formPrefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
+    Route::get($formPrefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
 
     Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/add', RTCMAddData::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', RTCMViewData::class);

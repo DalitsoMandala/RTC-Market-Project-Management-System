@@ -4,9 +4,12 @@ namespace App\Livewire\Tables;
 
 use App\Models\Form;
 use App\Models\Indicator;
+use App\Models\Organisation;
+use App\Models\ResponsiblePerson;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -67,6 +70,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('indicator', function ($model) {
                 $indicator = Indicator::find($model->indicator_id);
                 return $indicator->indicator_name;
+            })
+
+            ->add('assigned', function ($model) {
+                $indicator = Indicator::find($model->indicator_id);
+                $responsiblePeople = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+                $oganisations = Organisation::whereIn('id', $responsiblePeople)->pluck('name');
+                return implode(', ', $oganisations->toArray());
+
             })
 
             ->add('month_range', function ($model) {
@@ -134,6 +145,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('Indicator', 'indicator')
             ,
 
+            Column::make('Assigned Organisations', 'assigned')
+            ,
+
             Column::make('Expired', 'is_expired_toggle')
                 ->sortable()
                 ->searchable(),
@@ -169,6 +183,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function refreshData(): void
     {
         $this->refresh();
+        $this->dispatch('reload-tooltips');
     }
 
     #[On('sendData')]
@@ -177,13 +192,23 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $model = (object) $model;
 
         $form = Form::find($model->form_id);
+        $user = Auth::user();
+        $organisation = $user->organisation;
+        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
+        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+        if ($checkTypeofSubmission->contains('aggregate')) {
+
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+        } else {
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+        }
 
         $this->redirect($route);
     }
@@ -219,7 +244,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-plus"></i>')
                 ->id()
                 ->class('btn btn-primary my-1')
-                ->tooltip('Add Manual Data')
+                ->tooltip('Add Data')
                 ->dispatch('sendData', ['model' => $row]),
 
             Button::add('upload')
@@ -245,8 +270,42 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Rule::button('add-data')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
+
+            Rule::button('add-data')
+                ->when(function ($row) {
+                    $user = Auth::user();
+                    $organisation = $user->organisation->id;
+
+                    $indicator = Indicator::find($row->indicator_id);
+                    $responsiblePeople = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+                    $oganisations = Organisation::whereIn('id', $responsiblePeople)->where('id', $organisation)->get();
+
+                    if ($oganisations->isNotEmpty()) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                })
+                ->disable(),
             Rule::button('upload')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->disable(),
+
+            Rule::button('upload')
+                ->when(function ($row) {
+                    $user = Auth::user();
+                    $organisation = $user->organisation->id;
+
+                    $indicator = Indicator::find($row->indicator_id);
+                    $responsiblePeople = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+                    $oganisations = Organisation::whereIn('id', $responsiblePeople)->where('id', $organisation)->get();
+
+                    if ($oganisations->isNotEmpty()) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                })
                 ->disable(),
         ];
     }
