@@ -22,7 +22,20 @@ class DisaggregationSeeder extends Seeder
         $newDisaggregations = [
             "A1" => ["Number of actors profitability engaged in commercialization of RTC" => ['Total', 'Female', 'Male', 'Youth (18-35 yrs)', 'Not youth (35yrs+)', 'Farmers', 'Processors', 'Traders', 'Employees on RTC establishment', 'Cassava', 'Potato', 'Sweet potato', 'New establishment', 'Old establishment']],
             "B1" => ["Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities" => ['Total', 'Cassava', 'Sweet potato', 'Potato']],
-            "B2" => ["Percentage increase in value of formal RTC exports" => ['Total', 'Volume (Metric Tonnes)', 'Financial value ($)', 'Formal exports', 'Informal exports', 'Cassava', 'Potato', 'Sweet potato', 'Raw', 'Processed']],
+            "B2" => [
+                "Percentage increase in value of formal RTC exports" => [
+                    'Total',
+                    'Volume (Metric Tonnes)',
+                    'Financial value ($)',
+                    'Formal exports',
+                    'Informal exports',
+                    'Cassava',
+                    'Potato',
+                    'Sweet potato',
+                    'Raw',
+                    'Processed',
+                ],
+            ],
             "B3" => ["Percentage of value ($) of formal RTC imports substituted through local production" => ['Total', 'Value: Volume(Metric Tonnes)', 'Financial value($)', 'Cassava', 'Potato', 'Sweet potato', 'Formal']],
             "B4" => ["Number of people consuming RTC and processed products" => ['Total', 'RTC actors and households', 'School feeding beneficiaries', 'Individuals from households reached with nutrition interventions']],
             "B5" => ["Percentage Increase in the volume of RTC produced" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Certified seed produce', 'Value added RTC products']],

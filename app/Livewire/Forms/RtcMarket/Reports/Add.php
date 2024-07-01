@@ -161,7 +161,7 @@ class Add extends Component
                         'period_id' => $this->submissionPeriodId,
                         'user_id' => $currentUser->id,
                         'data' => json_encode($data),
-                        'batch_type' => 'manual',
+                        'batch_type' => 'aggregate',
                         //   'status' => 'approved',
                         'is_complete' => 1,
                         'table_name' => 'reports',

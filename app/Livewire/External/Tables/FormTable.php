@@ -13,6 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use id;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -217,13 +218,28 @@ final class FormTable extends PowerGridComponent
         $model = (object) $model;
 
         $form = Form::find($model->form_id);
+        $user = Auth::user();
+        $organisation = $user->organisation;
+        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
+        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+        if ($checkTypeofSubmission->contains('aggregate') && $form->name == 'REPORT FORM') {
+
+
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+
+
+
+        } else {
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+        }
 
         $this->redirect($route);
     }
@@ -258,6 +274,18 @@ final class FormTable extends PowerGridComponent
                 ->disable(),
             Rule::button('upload')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->disable(),
+
+            Rule::button('upload')
+                ->when(function ($row) {
+                    $form = Form::find($row->form_id);
+
+                    if ($form->name == 'REPORT FORM') {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
                 ->disable(),
         ];
     }

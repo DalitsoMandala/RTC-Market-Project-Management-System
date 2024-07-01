@@ -19,6 +19,8 @@ class Submissions extends Component
     public $comment;
     public $rowId;
 
+    public $inputs = [];
+
     #[On('set')]
     public function setData($id)
     {
@@ -27,6 +29,8 @@ class Submissions extends Component
         $this->rowId = $id;
         $this->status = $submission->status === 'pending' ? null : $submission->status;
         $this->comment = $submission->comments;
+        $json_data = json_decode($submission->data, true);
+        $this->inputs = $json_data;
     }
 
     public function save()
@@ -42,6 +46,7 @@ class Submissions extends Component
                 $table = $submission->table_name;
                 $decodedBatch = json_decode($submission->data, true);
                 $data = [];
+
                 foreach ($decodedBatch as $batch) {
 
                     $batch['created_at'] = now();
@@ -66,12 +71,14 @@ class Submissions extends Component
 
                 $submission->update([
                     'is_complete' => true,
+                    'status' => $this->status,
                 ]);
             }
 
             session()->flash('success', 'Successfully updated');
             $this->dispatch('refresh');
         } catch (\Throwable $th) {
+            dd($th);
             session()->flash('error', 'Something went wrong');
 
             Log::error($th);
@@ -80,6 +87,51 @@ class Submissions extends Component
         $this->dispatch('hideModal');
         $this->reset();
     }
+
+    public function saveAGG()
+    {
+        $this->validate();
+
+        try {
+
+            $submission = Submission::find($this->rowId);
+
+            if ($this->status === 'approved') {
+
+
+
+
+
+
+                Submission::find($this->rowId)->update([
+                    'status' => $this->status,
+                    'comments' => $this->comment,
+                    'is_complete' => true,
+                ]);
+
+            }
+
+            if ($this->status === 'denied') {
+
+                $submission->update([
+                    'is_complete' => true,
+                    'status' => $this->status,
+                ]);
+            }
+
+            session()->flash('success', 'Successfully updated');
+            $this->dispatch('refresh');
+        } catch (\Throwable $th) {
+            dd($th);
+            session()->flash('error', 'Something went wrong');
+
+            Log::error($th);
+        }
+
+        $this->dispatch('hideModal');
+        $this->reset();
+    }
+
 
     public function render()
     {

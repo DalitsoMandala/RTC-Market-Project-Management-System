@@ -52,18 +52,21 @@ final class SubmissionTable extends PowerGridComponent
             $user = Auth::user();
             if ($user->hasAnyRole('external')) {
                 return Submission::query()->where('user_id', $user->id)->where('batch_type', $this->filter)->select([
-                    '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+                    '*',
+                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
                 ])->orderBy('created_at', 'desc');
 
             } else {
                 return Submission::query()->where('batch_type', $this->filter)->select([
-                    '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+                    '*',
+                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
                 ])->orderBy('created_at', 'desc');
 
             }
         }
         return Submission::query()->where('batch_type', $this->filter)->select([
-            '*', DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+            '*',
+            DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
         ])->orderBy('created_at', 'desc');
     }
 
@@ -74,9 +77,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-
+        
                     // foreach($submission as $index => $status){
-
+        
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -105,7 +108,20 @@ final class SubmissionTable extends PowerGridComponent
                 $formatted_name = strtolower(str_replace(' ', '-', $form_name));
                 $user = Auth::user();
                 $status = ($model->status === 'pending' && $user->hasAnyRole('external')) ? 'disabled text-secondary pe-none' : '';
-                return '<a data-bs-toggle="tooltip" data-bs-title="View batch"  class="' . $status . '" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
+
+                if ($model->batch_type == 'aggregate') {
+                    if ($user->id == $model->user_id) {
+                        return '<a class="pe-none text-muted" wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch" class="' . $status . '" href="#">' . $model->batch_no . '</a>';
+                    } else {
+                        return '<a wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch" class="' . $status . '" href="#">' . $model->batch_no . '</a>';
+                    }
+
+
+                } else if ($model->batch_type == 'batch') {
+
+                    return '<a data-bs-toggle="tooltip" data-bs-title="View batch"  class="' . $status . '" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
+                }
+
             })
             ->add('user_id')
             ->add('username', function ($model) {

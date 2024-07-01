@@ -29,7 +29,7 @@
                     <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
                 @endif
 
-                <div class="card ">
+                <div class="card " wire:ignore>
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -58,7 +58,7 @@
                         </ul>
 
                         <!-- Tab panes -->
-                        <div class="tab-content">
+                        <div class="tab-content" wire:ignore>
                             <div class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
                                 aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :filter="'batch'" />
@@ -100,12 +100,87 @@
                     modalInstance.hide();
                 }
             });
+        })
+        
+        $wire.on('showAggregate', (e) => {
+            setTimeout(() => {
+                $wire.dispatch('set', { id: e.id });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
         })">
+
+
+
+
+            <x-modal id="view-aggregate-modal" title="Approve Submission">
+                <form wire:submit.debounce.1000ms='save'>
+                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
+                        record?
+                    </h3>
+
+                    <div x-data="{
+                        data: $wire.entangle('inputs'),
+                    
+                    
+                    
+                    }">
+
+
+
+                        <template x-for="(value, name) in data" :key="index">
+
+                            <div class="mb-3">
+                                <label for="" class="form-label" x-text="name"></label>
+                                <input readonly type="text" required class="form-control bg-light "
+                                    placeholder="Enter value" aria-describedby="helpId" :value="value" />
+                                <div class="invalid-feedback">
+                                    This field requires a value.
+                                </div>
+
+                            </div>
+
+
+                        </template>
+
+
+
+                    </div>
+                    <div class="mt-4 mb-3">
+                        <label for="">Comment</label>
+                        <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
+                        <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
+                        @error('comment')
+                            <x-error>{{ $message }}</x-error>
+                        @enderror
+                    </div>
+
+                    <div class="modal-footer border-top-0 justify-content-center" x-data="{
+                        statusGet(status) {
+                            $wire.status = status;
+                            $wire.saveAGG();
+                        }
+                    
+                    }">
+                        <hr>
+
+
+                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
+                        <button type="button" @click="statusGet('approved')"
+                            class="pr-4 btn btn-primary">Approve</button>
+
+                    </div>
+                </form>
+            </x-modal>
 
 
             <x-modal id="view-submission-modal" title="Approve Submission">
                 <form wire:submit.debounce.1000ms='save'>
-                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this record?
+                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
+                        record?
                     </h3>
 
                     <div class="mt-4 mb-3">

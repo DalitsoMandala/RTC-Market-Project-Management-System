@@ -129,16 +129,16 @@ class A1
 
         return [
             'Total' => $this->findTotal(),
-            'Female' => (int) $gender['FemaleCount'],
-            'Male' => (int) $gender['MaleCount'],
-            'Youth (18-35 yrs)' => (int) $age['youth'],
-            'Not youth (35yrs+)' => (int) $age['not_youth'],
-            'Farmers' => (int) $actorType['farmer'],
-            'Processors' => (int) $actorType['processor'],
-            'Traders' => (int) $actorType['trader'],
-            'Cassava' => (int) $crop['cassava'],
-            'Potato' => (int) $crop['potato'],
-            'Sweet potato' => (int) $crop['sweet_potato'],
+            'Female' => (float) $gender['FemaleCount'],
+            'Male' => (float) $gender['MaleCount'],
+            'Youth (18-35 yrs)' => (float) $age['youth'],
+            'Not youth (35yrs+)' => (float) $age['not_youth'],
+            'Farmers' => (float) $actorType['farmer'],
+            'Processors' => (float) $actorType['processor'],
+            'Traders' => (float) $actorType['trader'],
+            'Cassava' => (float) $crop['cassava'],
+            'Potato' => (float) $crop['potato'],
+            'Sweet potato' => (float) $crop['sweet_potato'],
         ];
 
     }

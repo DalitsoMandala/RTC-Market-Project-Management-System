@@ -191,7 +191,7 @@ class B1
                 if (!isset($result[$key])) {
                     $result[$key] = 0;
                 }
-                $result[$key] += (int) $value;
+                $result[$key] += (float) $value;
             }
         }
 
