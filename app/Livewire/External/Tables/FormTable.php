@@ -6,6 +6,7 @@ use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\Indicator;
 use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
@@ -50,13 +51,17 @@ final class FormTable extends PowerGridComponent
 
         $organisation_id = $user->organisation->id;
 
-        // Query SubmissionPeriods with the necessary relationships
-        $query = SubmissionPeriod::with(['form', 'form.indicators'])
-            ->whereHas('form.indicators.responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
-                $query->where('organisation_id', $organisation_id);
-            })
+        $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)->pluck('indicator_id')->toArray();
+        $query = SubmissionPeriod::with(['form', 'form.indicators'])->whereIn('indicator_id', $myIndicators);
 
-        ;
+
+        // // Query SubmissionPeriods with the necessary relationships
+        // $query = SubmissionPeriod::with(['form', 'form.indicators'])
+        //     ->whereHas('form.indicators.responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+        //         $query->where('organisation_id', $organisation_id);
+        //     })
+
+        // ;
 
         return $query;
 
@@ -76,7 +81,7 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-
+    
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {

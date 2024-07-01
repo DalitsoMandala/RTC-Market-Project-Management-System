@@ -25,7 +25,8 @@ use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 
 class Upload extends Component
-{use WithFileUploads;
+{
+    use WithFileUploads;
     use LivewireAlert;
     #[Validate('required')]
     public $upload;
@@ -80,7 +81,7 @@ class Upload extends Component
 
                             $this->reset('upload');
 
-                            session()->flash('error', 'You have already submitted your batch data!');
+                            session()->flash('error', 'You have already submitted your batch data for this period!');
                         } else {
 
                             $submission = Submission::create([
@@ -227,7 +228,7 @@ class Upload extends Component
         if ($this->upload) {
             $temporaryFilePath = $this->upload->getRealPath();
 
-// Check if the file exists and delete it
+            // Check if the file exists and delete it
             if (file_exists($temporaryFilePath)) {
                 try {
                     unlink($temporaryFilePath);
@@ -244,4 +245,5 @@ class Upload extends Component
     public function render()
     {
         return view('livewire.forms.rtc-market.household-rtc-consumption.upload');
-    }}
+    }
+}

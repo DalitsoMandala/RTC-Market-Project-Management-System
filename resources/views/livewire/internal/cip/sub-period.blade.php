@@ -57,7 +57,7 @@
                                     <div class="indicators">
 
 
-                                        <div class="mb-3" wire:ignore x-data x-init="() => {
+                                        <div class="mb-3" wire:ignore x-init="() => {
                                         
                                             $('#select-indicators').select2({
                                                 width: '100%',
@@ -96,6 +96,8 @@
                                                 });
                                         
                                                 selectElement.val('').trigger('change');
+                                        
+                                                selectElement.select2
                                                 setTimeout(() => {
                                                     $wire.set('selectedIndicator', null);
                                                 }, 500)
@@ -118,10 +120,11 @@
                                                 });
                                         
                                                 selectElement.val(e.selected).trigger('change');
+                                        
                                             })
                                         }">
                                             <label for="" class="form-label">Select Indicator</label>
-                                            <select x-ref="select" class="form-select "
+                                            <select :disabled="show === false" x-ref="select" class="form-select "
                                                 wire:model.debounce='selectedIndicator' id="select-indicators">
                                                 <option selected value="">Select one</option>
                                                 @foreach ($indicators as $indicator)
@@ -139,7 +142,7 @@
                                         @enderror
                                     </div>
 
-                                    {{ var_export($selectedForm) }}
+
 
                                     <div class="mb-3" wire:loading.class='opacity-25'
                                         wire:target="selectedProject, selectedIndicator, selectedForm"

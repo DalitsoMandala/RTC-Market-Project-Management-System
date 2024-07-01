@@ -202,9 +202,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $routePrefix = $this->currentRoutePrefix;
 
-        if ($checkTypeofSubmission->contains('aggregate')) {
+        if ($checkTypeofSubmission->contains('aggregate') && $form->name == 'REPORT FORM') {
+
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+
+
+
         } else {
             $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
 
@@ -263,7 +268,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function actionRules($row): array
     {
         return [
-// Hide button edit for ID 1
+            // Hide button edit for ID 1
             Rule::button('edit')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
@@ -304,6 +309,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
                         return false;
                     } else {
                         return true;
+                    }
+                })
+                ->disable(),
+
+            Rule::button('upload')
+                ->when(function ($row) {
+                    $form = Form::find($row->form_id);
+
+                    if ($form->name == 'REPORT FORM') {
+                        return true;
+                    } else {
+                        return false;
                     }
                 })
                 ->disable(),
