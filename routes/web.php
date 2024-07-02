@@ -7,6 +7,7 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
+use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\Forms;
 use App\Livewire\Internal\Cip\Indicators;
@@ -48,7 +49,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
-
+    Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     // Form routes
     $formPrefix = '/forms/{project}';
 

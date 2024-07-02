@@ -5,22 +5,56 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Submission;
+use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 
 
 class Indicator_B2
 {
-    public function __construct($start_date = null, $end_date = null)
+    protected $financial_year, $reporting_period, $project;
+    public function __construct($reporting_period = null, $financial_year = null)
     {
 
-        $this->start_date = $start_date;
-        $this->end_date = $end_date;
+
+
+        $this->reporting_period = $reporting_period;
+        $this->financial_year = $financial_year;
+        //$this->project = $project;
 
     }
+
     public function builder(): Builder
     {
 
-        return Submission::query()->where('batch_type', 'aggregate')->where('status', 'approved');
+        $query = Submission::query()->where('batch_type', 'aggregate')->where('status', 'approved');
+
+        if ($this->reporting_period || $this->financial_year) {
+
+
+            $query->where(function ($query) {
+                if ($this->reporting_period) {
+                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
+                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
+                    $query->whereIn('uuid', $submissions->toArray());
+
+                }
+                if ($this->financial_year) {
+                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
+                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
+                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
+                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
+                    $query->whereIn('uuid', $submissions->toArray());
+                }
+            });
+
+
+
+
+
+
+        }
+
+        return $query;
 
     }
 

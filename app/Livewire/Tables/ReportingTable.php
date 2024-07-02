@@ -20,7 +20,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 final class ReportingTable extends PowerGridComponent
 {
 
-    public $start_date, $end_date, $project, $indicators;
+    public $start_date, $end_date, $project, $indicators, $financial_year, $reporting_period;
 
     public bool $deferLoading = true;
     public function datasource(): ?Collection
@@ -59,22 +59,22 @@ final class ReportingTable extends PowerGridComponent
         $finalCollection = $collection->transform(function ($item) {
             switch ($item['number']) {
                 case 'A1':
-                    $indicator = new A1($this->start_date, $this->end_date);
+                    $indicator = new A1($this->reporting_period, $this->financial_year);
                     $item = $this->mapData($indicator->getDisaggregations(), $item);
                     break;
                 case 'B1':
-                    $indicator = new B1($this->start_date, $this->end_date);
+                    $indicator = new B1($this->reporting_period, $this->financial_year);
                     $item = $this->mapData($indicator->getDisaggregations(), $item);
                     break;
 
                 case 'B2':
-                    $indicator = new Indicator_B2($this->start_date, $this->end_date);
+                    $indicator = new Indicator_B2($this->reporting_period, $this->financial_year);
                     $item = $this->mapData($indicator->getDisaggregations(), $item);
                     break;
-                    // case '2.2.1':
-                    //     $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
-                    //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-                    //     break;
+                // case '2.2.1':
+                //     $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
+                //     $item = $this->mapData($indicator->getDisaggregations(), $item);
+                //     break;
             }
 
             return $item;
@@ -166,7 +166,18 @@ final class ReportingTable extends PowerGridComponent
 
         $this->project = $data['project_id'];
         $this->indicators = $data['indicators'];
-        $this->start_date = $data['start_date'];
-        $this->end_date = $data['end_date'];
+        //$this->start_date = $data['start_date'];
+        // $this->end_date = $data['end_date'];
+        $this->reporting_period = $data['reporting_period'];
+        $this->financial_year = $data['financial_year'];
+
+
+    }
+
+    #[On('reset-filters')]
+    public function resetData()
+    {
+        $this->reset('project', 'indicators', 'reporting_period', 'financial_year');
+        $this->refresh();
     }
 }

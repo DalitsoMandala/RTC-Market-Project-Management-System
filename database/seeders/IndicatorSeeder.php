@@ -224,14 +224,14 @@ class IndicatorSeeder extends Seeder
                         // ['names' => ['CIP'], 'type' => 'normal'],
                     ],
                     '1.2.1' => [
-                        ['names' => ['IITA', 'CIP'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
                         //  ['names' => ['CIP'], 'type' => 'normal'],
                     ],
                     '1.2.2' => [
                         ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
                     ],
                     '1.3.1' => [
-                        ['names' => ['RTCDT'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['RTCDT'], 'type' => 'aggregate'],
                     ],
 
                     '2.1.1' => [
@@ -255,7 +255,7 @@ class IndicatorSeeder extends Seeder
                         ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
                     ],
                     '2.2.5' => [
-                        ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['DAES'], 'type' => 'aggregate'],
                     ],
                     '2.3.1' => [
                         ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
@@ -286,11 +286,11 @@ class IndicatorSeeder extends Seeder
                     ],
 
                     '3.2.3', '3.2.4' => [
-                        ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['DAES'], 'type' => 'aggregate'],
                     ],
 
                     '3.2.5' => [
-                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
 
                     '3.3.1', '3.3.2', '3.4.1', '3.4.2', '3.4.3', '3.4.4', '3.4.5' => [
@@ -298,18 +298,18 @@ class IndicatorSeeder extends Seeder
                     ],
 
                     '3.5.1' => [
-                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
                     '3.5.2', '3.5.3', '3.5.4' => [
                         ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'normal'],
                     ],
 
                     '3.5.5' => [
-                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
 
                     '3.5.6' => [
-                        ['names' => ['DAES'], 'type' => 'aggregate', 'aggregate_type' => 'number'],
+                        ['names' => ['DAES'], 'type' => 'aggregate'],
                     ],
 
                     '4.1.1' => [
@@ -338,23 +338,23 @@ class IndicatorSeeder extends Seeder
                         $organisationIds = Organisation::where('name', $name)->pluck('id');
 
                         foreach ($organisationIds as $organisationId) {
-                            if (isset($condition['aggregate_type'])) {
-                                ResponsiblePerson::create([
-                                    'indicator_id' => $indicatorId,
-                                    'organisation_id' => $organisationId,
-                                    'type_of_submission' => $condition['type'],
-                                    'aggregate_type' => $condition['aggregate_type'],
-                                ]);
-                            } else {
+                            // if (isset($condition['aggregate_type'])) {
+                            //     ResponsiblePerson::create([
+                            //         'indicator_id' => $indicatorId,
+                            //         'organisation_id' => $organisationId,
+                            //         'type_of_submission' => $condition['type'],
+                            //         'aggregate_type' => $condition['aggregate_type'],
+                            //     ]);
+                            // } else {
 
-                                ResponsiblePerson::create([
-                                    'indicator_id' => $indicatorId,
-                                    'organisation_id' => $organisationId,
-                                    'type_of_submission' => $condition['type'],
-                                    'aggregate_type' => $condition['type'] === 'aggregate' ? 'disaggregation' : null,
-                                ]);
+                            ResponsiblePerson::create([
+                                'indicator_id' => $indicatorId,
+                                'organisation_id' => $organisationId,
+                                'type_of_submission' => $condition['type'],
+                                // 'aggregate_type' => $condition['type'] === 'aggregate' ? 'disaggregation' : null,
+                            ]);
 
-                            }
+                            // }
                         }
                     }
                 }

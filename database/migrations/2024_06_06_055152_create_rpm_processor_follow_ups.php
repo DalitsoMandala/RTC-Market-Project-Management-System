@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2);
             // Previous season volume in metric tonnes
-
+            $table->string('uuid');
             $table->timestamps();
         });
     }

@@ -23,15 +23,18 @@
                 <div class="card ">
                     <div class="card-body">
 
-                        <form wire:submit='filter'>
+                        <form wire:submit.debounce.500ms='filter'>
                             <div class="row">
 
 
                                 <div class="col-3">
                                     <div class="mb-1" wire:ignore x-data="{
-                                        selected: $wire.entangle('selectedProject'),
+                                        selected: null,
                                         myInput(data) {
                                             this.selected = data;
+                                            setTimeout(() => {
+                                                $wire.set('selectedProject', this.selected)
+                                            }, 600)
                                         },
                                     }" x-init=" const input = $refs.selectElement;
                                      const selectInput = new Choices($refs.selectElement, {
@@ -111,9 +114,11 @@
                                     
                                     
                                      })">
+
+
                                         <label for="" class="form-label">Indicator</label>
-                                        <select class="form-select form-select-sm" multiple
-                                            x-ref="selectElementIndicator">
+                                        <select class="form-select form-select-md" multiple
+                                            x-ref="selectElementIndicator" id="selectElementIndicator">
 
                                         </select>
 
@@ -124,19 +129,42 @@
                                     @enderror
 
                                 </div>
-                                <div class="col-3" x-data="{ starting_period: $wire.entangle('starting_period') }">
+                                <div class="col-3" x-data="{ reportingPeriod: $wire.entangle('selectedReportingPeriod') }">
                                     <div class="mb-1">
-                                        <label for="" class="form-label">Starting Period</label>
-                                        <x-flatpickr x-model="starting_period" />
+                                        <label for="" class="form-label">Reporting Period</label>
+                                        {{-- <x-flatpickr x-model="starting_period" /> --}}
+
+
+                                        <select class="form-select " name="" id=""
+                                            x-model="reportingPeriod" wire:loading.attr='disabled'
+                                            wire:target='selectedProject'>
+                                            <option value="">Select one</option>
+                                            @foreach ($reportingPeriod as $month)
+                                                <option value="{{ $month->id }}">{{ $month->start_month }} -
+                                                    {{ $month->end_month }}</option>
+                                            @endforeach
+                                        </select>
+
+
                                     </div>
                                     @error('starting_period')
                                         <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
                                 </div>
-                                <div class="col-3" x-data="{ ending_period: $wire.entangle('ending_period') }">
+                                <div class="col-3" x-data="{ financial_year: $wire.entangle('selectedFinancialYear') }">
                                     <div class="mb-1">
-                                        <label for="" class="form-label">Ending Period</label>
-                                        <x-flatpickr x-model="ending_period" />
+                                        <label for="" class="form-label">Financial year</label>
+                                        {{-- <x-flatpickr x-model="ending_period" /> --}}
+
+                                        <select class="form-select " name="" id=""
+                                            x-model="financial_year" wire:loading.attr='disabled'
+                                            wire:target='selectedProject'>
+                                            <option value="">Select one</option>
+                                            @foreach ($financialYears as $year)
+                                                <option value="{{ $year->id }}">{{ $year->number }}</option>
+                                            @endforeach
+                                        </select>
+
                                     </div>
                                     @error('ending_period')
                                         <x-error class="mb-1">{{ $message }}</x-error>
@@ -174,5 +202,12 @@
 
     </div>
 
+    @script
+        <script>
+            Alpine.store('loadData', {
+                indicators: @json($indicators),
 
+            })
+        </script>
+    @endscript
 </div>

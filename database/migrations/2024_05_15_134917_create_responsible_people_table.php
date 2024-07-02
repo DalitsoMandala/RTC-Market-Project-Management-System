@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,7 +15,7 @@ return new class extends Migration
             $table->foreignId('organisation_id')->constrained('organisations', 'id');
             $table->foreignId('indicator_id')->constrained('indicators', 'id');
             $table->enum('type_of_submission', ['normal', 'aggregate'])->default('normal');
-            $table->enum('aggregate_type', ['number', 'disaggregation'])->nullable();
+            // $table->enum('aggregate_type', ['number', 'disaggregation'])->nullable();
             $table->timestamps();
         });
     }
