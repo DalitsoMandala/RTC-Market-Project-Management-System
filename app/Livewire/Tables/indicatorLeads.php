@@ -2,7 +2,11 @@
 
 namespace App\Livewire\tables;
 
-use Illuminate\Database\Query\Builder;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
+use App\Models\ResponsiblePerson;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -12,8 +16,8 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class indicatorLeads extends PowerGridComponent
@@ -37,7 +41,8 @@ final class indicatorLeads extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('responsible_people');
+
+        return ResponsiblePerson::with(['indicator', 'organisation']);
     }
 
     public function fields(): PowerGridFields
@@ -45,7 +50,9 @@ final class indicatorLeads extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('organisation_id')
+            ->add('organisation', fn($model) => Organisation::find($model->organisation_id)->name)
             ->add('indicator_id')
+            ->add('indicator', fn($model) => Indicator::find($model->indicator_id)->indicator_name)
             ->add('type_of_submission')
             ->add('aggregate_type')
             ->add('created_at')
@@ -56,29 +63,17 @@ final class indicatorLeads extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Organisation id', 'organisation_id'),
-            Column::make('Indicator id', 'indicator_id'),
+            Column::make('Indicator', 'indicator'),
+            Column::make('Organisation', 'organisation'),
+
             Column::make('Type of submission', 'type_of_submission')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Aggregate type', 'aggregate_type')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
 
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
 
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
             Column::action('Action'),
         ];
     }
@@ -86,26 +81,58 @@ final class indicatorLeads extends PowerGridComponent
     public function filters(): array
     {
         return [
+            // Filter::datetimepicker('date_established'),
+            // Filter::datetimepicker('date_ending'),
+            Filter::inputText('indicator')
+                // ->dataSource(function () {
+                //     $submission = Indicator::select(['indicator_name'])->distinct();
+
+                //     return $submission->get();
+                // })
+                // ->optionLabel('indicator_name')
+                // ->optionValue('indicator_name')
+                ->filterRelation('indicator', 'indicator_name')
+            ,
+
         ];
     }
 
+    public function relationSearch(): array
+    {
+        return [
+            'indicator' => [ // relationship on dishes model
+                'indicator_name', // column enabled to search
+                // nested relation and column enabled to search
+            ],
+            'organisation' => [
+                'name',
+            ]
+            ,
+        ];
+    }
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->js('console.log(' . $rowId . ')');
     }
 
     public function actions($row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: ' . $row->id)
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id]),
+                ->tooltip('Edit Record')
+                ->class('btn btn-primary my-1')
+                ->dispatch('editData', ['rowId' => $row->id]),
         ];
     }
 
+    public function updated()
+    {
+
+        $this->dispatch('reload-tooltips');
+    }
     /*
     public function actionRules($row): array
     {

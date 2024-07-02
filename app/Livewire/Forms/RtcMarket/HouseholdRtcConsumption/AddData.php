@@ -145,24 +145,25 @@ class AddData extends Component
     {
         $validated = $this->validate();
 
-        $this->inputs->push([
-            'date_of_assessment' => null,
-            'actor_type' => null,
-            'rtc_group_platform' => null,
-            'producer_organisation' => null,
-            'actor_name' => null,
-            'age_group' => null,
-            'sex' => null,
-            'phone_number' => null,
-            'household_size' => null,
-            'under_5_in_household' => null,
-            'rtc_consumers' => null,
-            'rtc_consumers_potato' => null,
-            'rtc_consumers_sw_potato' => null,
-            'rtc_consumers_cassava' => null,
-            'rtc_consumption_frequency' => null,
-            'main_food' => [],
-        ],
+        $this->inputs->push(
+            [
+                'date_of_assessment' => null,
+                'actor_type' => null,
+                'rtc_group_platform' => null,
+                'producer_organisation' => null,
+                'actor_name' => null,
+                'age_group' => null,
+                'sex' => null,
+                'phone_number' => null,
+                'household_size' => null,
+                'under_5_in_household' => null,
+                'rtc_consumers' => null,
+                'rtc_consumers_potato' => null,
+                'rtc_consumers_sw_potato' => null,
+                'rtc_consumers_cassava' => null,
+                'rtc_consumption_frequency' => null,
+                'main_food' => [],
+            ],
         );
 
     }
@@ -200,10 +201,12 @@ class AddData extends Component
             $now = Carbon::now();
             foreach ($this->inputs as $index => $input) {
 
-                $input['location_data'] = json_encode(['enterprise' => $this->enterprise,
+                $input['location_data'] = json_encode([
+                    'enterprise' => $this->enterprise,
                     'district' => $this->district,
                     'epa' => $this->epa,
-                    'section' => $this->section]);
+                    'section' => $this->section,
+                ]);
 
                 // for main food lunch,dinner,breakfast
                 foreach ($input['main_food'] as $mainfood) {
@@ -315,28 +318,29 @@ class AddData extends Component
         $this->fill(
             [
                 'inputs' =>
-                collect([
-                    [
-                        'date_of_assessment' => null,
-                        'actor_type' => null,
-                        'rtc_group_platform' => null,
-                        'producer_organisation' => null,
-                        'actor_name' => null,
-                        'age_group' => null,
-                        'sex' => null,
-                        'phone_number' => null,
-                        'household_size' => null,
-                        'under_5_in_household' => null,
-                        'rtc_consumers' => null,
-                        'rtc_consumers_potato' => null,
-                        'rtc_consumers_sw_potato' => null,
-                        'rtc_consumers_cassava' => null,
-                        'rtc_consumption_frequency' => null,
-                        'main_food' => [],
-                    ],
+                    collect([
+                        [
+                            'date_of_assessment' => null,
+                            'actor_type' => null,
+                            'rtc_group_platform' => null,
+                            'producer_organisation' => null,
+                            'actor_name' => null,
+                            'age_group' => null,
+                            'sex' => null,
+                            'phone_number' => null,
+                            'household_size' => null,
+                            'under_5_in_household' => null,
+                            'rtc_consumers' => null,
+                            'rtc_consumers_potato' => null,
+                            'rtc_consumers_sw_potato' => null,
+                            'rtc_consumers_cassava' => null,
+                            'rtc_consumption_frequency' => null,
+                            'main_food' => [],
+                        ],
 
-                ])
-            ]);
+                    ]),
+            ]
+        );
 
     }
 
@@ -490,28 +494,29 @@ class AddData extends Component
         $this->fill(
             [
                 'inputs' =>
-                collect([
-                    [
-                        'date_of_assessment' => null,
-                        'actor_type' => null,
-                        'rtc_group_platform' => null,
-                        'producer_organisation' => null,
-                        'actor_name' => null,
-                        'age_group' => null,
-                        'sex' => 'MALE',
-                        'phone_number' => null,
-                        'household_size' => null,
-                        'under_5_in_household' => null,
-                        'rtc_consumers' => null,
-                        'rtc_consumers_potato' => null,
-                        'rtc_consumers_sw_potato' => null,
-                        'rtc_consumers_cassava' => null,
-                        'rtc_consumption_frequency' => null,
-                        'main_food' => [],
-                    ],
+                    collect([
+                        [
+                            'date_of_assessment' => null,
+                            'actor_type' => null,
+                            'rtc_group_platform' => null,
+                            'producer_organisation' => null,
+                            'actor_name' => null,
+                            'age_group' => null,
+                            'sex' => 'MALE',
+                            'phone_number' => null,
+                            'household_size' => null,
+                            'under_5_in_household' => null,
+                            'rtc_consumers' => null,
+                            'rtc_consumers_potato' => null,
+                            'rtc_consumers_sw_potato' => null,
+                            'rtc_consumers_cassava' => null,
+                            'rtc_consumption_frequency' => null,
+                            'main_food' => [],
+                        ],
 
-                ])
-            ]);
+                    ]),
+            ]
+        );
     }
     public function render()
     {

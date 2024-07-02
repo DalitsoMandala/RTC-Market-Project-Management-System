@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -21,7 +20,7 @@ return new class extends Migration
             $table->enum('product_type', ['SEED', 'WARE', 'VALUE ADDED PRODUCTS'])->nullable();
             $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes
             $table->decimal('financial_value_of_sales', 18, 2)->nullable(); // Malawi Kwacha
-            $table->string('uuid');
+            //    $table->string('uuid');
             $table->timestamps();
         });
     }

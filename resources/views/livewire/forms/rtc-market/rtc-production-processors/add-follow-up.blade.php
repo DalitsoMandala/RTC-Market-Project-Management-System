@@ -20,22 +20,13 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Indicators & Lead partners
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <livewire:tables.indicator-leads />
-                    </div>
-                </div>
+
             </div>
         </div>
 
 
 
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+ {{--  <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
@@ -63,22 +54,5 @@
 
 
     </div>
-    @script
-        <script>
-            const tooltipTriggerList = document.querySelectorAll('button[title]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-            $wire.on('reload-tooltips', () => {
-
-                setTimeout(() => {
-                    const tooltipTriggerList = document.querySelectorAll('button[title]');
-                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                        tooltipTriggerEl))
-
-                }, 1000);
-
-
-            })
-        </script>
-    @endscript
 </div>

@@ -65,6 +65,7 @@
 }" x-init="$watch('type', (v) => {
     console.log(v)
     if (v != 'PRODUCER ORGANIZATION') {
+        approach = '';
         $wire.resetValues('approach');
     }
 });" x-show="type=='PRODUCER ORGANIZATION'">
@@ -102,7 +103,16 @@
 </div>
 
 <!-- Number of Members (For Producer Organizations Only) -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    type: $wire.entangle('type'),
+    number_of_members: $wire.entangle('number_of_members')
+}" x-init="$watch('type', (v) => {
+
+    if (v != 'PRODUCER ORGANIZATION') {
+        number_of_members = [];
+        $wire.resetValues('number_of_members');
+    }
+});" x-show="type=='PRODUCER ORGANIZATION'">
     <label for="numberOfMembers" class="form-label">Number of Members (For
         Producer Organizations Only)</label>
 
@@ -112,22 +122,21 @@
         <div class="row">
             <div class="col">
                 <label for="female1835">FEMALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="female1835" wire:model="number_of_members.female_18_35">
+                <input type="number" class="form-control" id="female1835" x-model="number_of_members.female_18_35">
             </div>
             <div class="col">
                 <label for="female35plus">FEMALE 35YRS+:</label>
-                <input type="number" class="form-control" id="female35plus"
-                    wire:model="number_of_members.female_35_plus">
+                <input type="number" class="form-control" id="female35plus" x-model="number_of_members.female_35_plus">
             </div>
         </div>
         <div class="row">
             <div class="col">
                 <label for="male1835">MALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="male1835" wire:model="number_of_members.male_18_35">
+                <input type="number" class="form-control" id="male1835" x-model="number_of_members.male_18_35">
             </div>
             <div class="col">
                 <label for="male35plus">MALE 35YRS +:</label>
-                <input type="number" class="form-control" id="male35plus" wire:model="number_of_members.male_35_plus">
+                <input type="number" class="form-control" id="male35plus" x-model="number_of_members.male_35_plus">
             </div>
         </div>
     </div>
@@ -157,8 +166,8 @@
         Establishment</label>
     <select class="form-select" id="establishment" wire:model='establishment_status'>
         <option value="">Select One</option>
-        <option value="new">NEW (1-5 YEARS)</option>
-        <option value="old">OLD (OVER 5 YEARS)</option>
+        <option value="NEW">NEW (1-5 YEARS)</option>
+        <option value="OLD">OLD (OVER 5 YEARS)</option>
     </select>
 </div>
 
@@ -844,25 +853,50 @@
 
 
 <!-- Sell RTC Produce Through Aggregation Centers -->
-<div class="mb-3">
-    <label for="sellThroughAggregationCenters" class="my-3 form-label fw-bold">Do
-        You Sell RTC
-        Produce Through Aggregation Centers</label>
+
+<div x-data="{
+    aggregation_centers: $wire.entangle('aggregation_centers'),
+    change() {
+        this.aggregation_centers.specify = '';
+    }
+
+}" x-init="$watch('aggregation_centers.response', (v) => {
+
+    if (v != 1) {
+        change();
+        $wire.resetValues('aggregation_centers');
+    }
+});
+
+aggregation_centers.response = 0;">
     <div class="mb-3">
-        <label for="aggregationCenterResponse" class="form-label">Aggregation
-            Centers Response:</label>
-        <input type="text" class="form-control" id="aggregationCenterResponse"
-            wire:model="aggregation_centers.response">
+        <label for="sellThroughAggregationCenters" class="my-3 form-label ">Do
+            You Sell RTC
+            Produce Through Aggregation Centers</label>
+
+        <div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="aggregationCenterResponseYes" value="1"
+                    wire:model='aggregation_centers.response' x-model="aggregation_centers.response">
+                <label class="form-check-label">Yes</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="aggregationCenterResponseNo" value="0"
+                    wire:model='aggregation_centers.response' x-model="aggregation_centers.response">
+                <label class="form-check-label">No</label>
+            </div>
+        </div>
+
+
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3" x-show='aggregation_centers.response == 1'>
         <label for="aggregationCenterSpecify" class="form-label">Aggregation
             Centers Specify:</label>
-        <input type="text" class="form-control" id="aggregationCenterSpecify"
-            wire:model="aggregation_centers.specify">
+        <input type="text" class="form-control" wire:model="aggregation_centers.specify">
     </div>
-
 </div>
+
 
 <!-- Total Volume of RTC Sold Through Aggregation Centers in Previous Season (Metric Tonnes) -->
 <div class="mb-3">
@@ -870,5 +904,5 @@
         of RTC Sold Through Aggregation Centers in Previous Season (Metric
         Tonnes)</label>
     <input type="number" class="form-control" id="totalVolumeSoldThroughAggregation"
-        wire:model='aggregation_center_sales'>
+        x-model='aggregation_center_sales'>
 </div>

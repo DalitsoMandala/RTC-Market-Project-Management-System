@@ -36,122 +36,125 @@
             </div>
         </div>
         <!-- end page title -->
-        <div class="row">
-            <div class="col-12 col-md-8">
+        <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
+        <div>
 
-                <div class="mb-1 row justify-content-center">
-                    <form wire:submit='save'>
+            @if (session()->has('success'))
+                <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+            @endif
 
-                        <div class="row ">
-                            <div class="card col-12 col-md-12">
-                                <div class="card-header fw-bold" id="section-0">Location</div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="" class="form-label">ENTERPRISE</label>
-                                        <x-text-input wire:model='location_data.enterprise' />
-                                        @error('enterprise')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="" class="form-label">DISTRICT</label>
-                                        <select class="form-select" wire:model='location_data.district'>
-                                            <option>BALAKA</option>
-                                            <option>BLANTYRE</option>
-                                            <option>CHIKWAWA</option>
-                                            <option>CHIRADZULU</option>
-                                            <option>CHITIPA</option>
-                                            <option>DEDZA</option>
-                                            <option>DOWA</option>
-                                            <option>KARONGA</option>
-                                            <option>KASUNGU</option>
-                                            <option>LILONGWE</option>
-                                            <option>MACHINGA</option>
-                                            <option>MANGOCHI</option>
-                                            <option>MCHINJI</option>
-                                            <option>MULANJE</option>
-                                            <option>MWANZA</option>
-                                            <option>MZIMBA</option>
-                                            <option>NENO</option>
-                                            <option>NKHATA BAY</option>
-                                            <option>NKHOTAKOTA</option>
-                                            <option>NSANJE</option>
-                                            <option>NTCHEU</option>
-                                            <option>NTCHISI</option>
-                                            <option>PHALOMBE</option>
-                                            <option>RUMPHI</option>
-                                            <option>SALIMA</option>
-                                            <option>THYOLO</option>
-                                            <option>ZOMBA</option>
-                                        </select>
-                                        @error('district')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
 
-                                    <div class="mb-3">
-                                        <label for="" class="form-label">EPA</label>
-                                        <x-text-input wire:model='location_data.epa' />
-                                        @error('epa')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
+            @if (session()->has('error'))
+                <x-error-alert>{!! session()->get('success') !!}</x-error-alert>
+            @endif
 
-                                    <div class="mb-3">
-                                        <label for="" class="form-label">SECTION</label>
-                                        <x-text-input wire:model='location_data.section' />
-                                        @error('section')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
 
-                                </div>
+        </div>
+        @if ($openSubmission === false)
+            <div class="alert alert-warning" role="alert">
+                You can not submit a form right now
+                because submissions are closed for the moment!
+            </div>
+        @endif
+        <div class="mb-1 row  @if ($openSubmission === false) opacity-25  pe-none @endif" x-data="{
+            selectedFinancialYear: $wire.entangle('selectedFinancialYear').live,
+            selectedMonth: $wire.entangle('selectedMonth').live,
+            selectedIndicator: $wire.entangle('selectedIndicator').live,
+        }">
+
+            <div class="col-md-8">
+                <form wire:submit='save'>
+                    <div class="card col-12 col-md-12">
+                        <div class="card-header fw-bold" id="section-0">Location</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="" class="form-label">ENTERPRISE</label>
+                                <x-text-input wire:model='location_data.enterprise' />
+                                @error('location_data.enterprise')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="" class="form-label">DISTRICT</label>
+                                <select class="form-select" wire:model='location_data.district'>
+                                    <option value="">Choose one</option>
+                                    <option>BALAKA</option>
+                                    <option>BLANTYRE</option>
+                                    <option>CHIKWAWA</option>
+                                    <option>CHIRADZULU</option>
+                                    <option>CHITIPA</option>
+                                    <option>DEDZA</option>
+                                    <option>DOWA</option>
+                                    <option>KARONGA</option>
+                                    <option>KASUNGU</option>
+                                    <option>LILONGWE</option>
+                                    <option>MACHINGA</option>
+                                    <option>MANGOCHI</option>
+                                    <option>MCHINJI</option>
+                                    <option>MULANJE</option>
+                                    <option>MWANZA</option>
+                                    <option>MZIMBA</option>
+                                    <option>NENO</option>
+                                    <option>NKHATA BAY</option>
+                                    <option>NKHOTAKOTA</option>
+                                    <option>NSANJE</option>
+                                    <option>NTCHEU</option>
+                                    <option>NTCHISI</option>
+                                    <option>PHALOMBE</option>
+                                    <option>RUMPHI</option>
+                                    <option>SALIMA</option>
+                                    <option>THYOLO</option>
+                                    <option>ZOMBA</option>
+                                </select>
+                                @error('location_data.district')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
                             </div>
 
-
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12 col-md-12">
-
-                                <div class="card">
-                                    <div class="card-body">
-                                        @include('livewire.forms.rtc-market.rtc-production-processors.first')
-                                    </div>
-                                </div>
-                                <div class="card">
-
-                                    <div class="card-body">
-
-                                        @include('livewire.forms.rtc-market.rtc-production-processors.followup')
-
-                                    </div>
-
-
-                                </div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
-                                    </div>
-                                </div>
-
+                            <div class="mb-3">
+                                <label for="" class="form-label">EPA</label>
+                                <x-text-input wire:model='location_data.epa' />
+                                @error('location_data.epa')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label for="" class="form-label">SECTION</label>
+                                <x-text-input wire:model='location_data.section' />
+                                @error('location_data.section')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
+                            </div>
 
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="d-grid col-8 justify-content-center">
-                                <button class="btn btn-primary d-none" type="button" wire:click="addInput">Add More
-                                    +</button>
-                                <button class="btn btn-success btn-lg" type="submit">Submit</button>
+                    <div class="card">
+                        <div class="card-body">
+                            @include('livewire.forms.rtc-market.rtc-production-processors.first')
+
+                            @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
+
+                            <div class="d-grid col-12 justify-content-center" x-data>
+
+                                <button class="btn btn-primary btn-lg"
+                                    @click="window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                })"
+                                    type="submit">Submit</button>
                             </div>
                         </div>
+                    </div>
 
-                    </form>
-                </div>
+                </form>
+
 
             </div>
+
+
+
             <div class="d-none d-md-block col-md-4 ">
                 <div class="card sticky-side">
                     <div class="card-body">
@@ -162,14 +165,21 @@
 
                             <a class="nav-link" href="#section-b"href="#">SECTION B: RTC
                                 MARKETING</a>
-                            <a class="nav-link" href="#section-c" href="#">SECTION C: RTC
-                                MARKETING (FOLLOW UP) </a>
 
-                            <a class="nav-link" href="#section-d" href="#">CONTRACTUAL
+
+                            <a x-show="has_rtc_market_contract==1" x-data="{ has_rtc_market_contract: $wire.entangle('has_rtc_market_contract') }" class="nav-link"
+                                href="#section-f" href="#">CONTRACTUAL
                                 AGREEMENT</a>
-                            <a class="nav-link" href="#section-e" href="#">DOMESTIC
+
+
+                            <a x-show="sells_to_domestic_markets == 1" x-data="{ sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets'), }" class="nav-link"
+                                href="#section-g" href="#">DOMESTIC
                                 MARKETS</a>
-                            <a class="nav-link" href="#section-f" href="#">INTERNATIONAL
+                            <a x-show="sells_to_international_markets == 1" x-data="{
+                            
+                                sells_to_international_markets: $wire.entangle('sells_to_international_markets'),
+                            }" class="nav-link"
+                                href="#section-h" href="#">INTERNATIONAL
                                 MARKETS</a>
                         </nav>
 

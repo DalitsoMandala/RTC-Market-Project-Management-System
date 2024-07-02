@@ -15,16 +15,18 @@ return new class extends Migration {
             $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
             $table->json('location_data');
             $table->date('date_of_follow_up')->nullable();
+
+
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
-            $table->boolean('has_rtc_market_contract');
+            $table->boolean('has_rtc_market_contract')->default(false);
             $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_production_value_previous_season')->nullable(); // MWK
             $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
-            $table->boolean('sells_to_domestic_markets');
-            $table->boolean('sells_to_international_markets');
-            $table->boolean('uses_market_information_systems');
-            $table->text('market_information_systems');
+            $table->boolean('sells_to_domestic_markets')->default(false);
+            $table->boolean('sells_to_international_markets')->default(false);
+            $table->boolean('uses_market_information_systems')->default(false);
+            $table->text('market_information_systems')->nullable();
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2);
             // Previous season volume in metric tonnes
