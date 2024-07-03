@@ -2,12 +2,23 @@
 
 namespace App\Livewire\Forms\RtcMarket\SchoolConsumption;
 
+use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\ReportingPeriodMonth;
 use App\Models\SchoolRtcConsumption;
+use App\Models\Submission;
+use App\Models\SubmissionPeriod;
 use App\Notifications\ManualDataAddedNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Add extends Component
 {
@@ -16,27 +27,105 @@ class Add extends Component
     public $variable;
     public $rowId;
 
+
     public $location_data = [];
 
     public $date;
-    public $crop;
+    public $crop = 'POTATO';
     public $male_count;
     public $female_count;
     public $total;
 
-    public function setData($id)
-    {
-        $this->resetErrorBag();
 
+    public $submissionPeriodId;
+
+    public $period;
+
+    public $forms = [];
+
+    public $selectedForm;
+
+    public $months = [];
+    public $financialYears = [];
+
+    public $projects = [];
+
+    public $selectedMonth;
+
+    public $selectedFinancialYear;
+
+    public $selectedProject;
+    public $form_name = 'SCHOOL CONSUMPTION FORM';
+    public $openSubmission = false;
+
+    public $indicators;
+
+    public $selectedIndicator;
+
+    public $organisation_id;
+
+    public $loadAggregate = [];
+
+    public $aggregateData = [];
+    public $checkifAggregate = false;
+
+    public $showReport = false;
+
+    public $validated = true;
+
+    public $routePrefix;
+    public function rules()
+    {
+
+        return [
+            'location_data.school_name' => 'required',
+            'location_data.district' => 'required',
+            'location_data.epa' => 'required',
+            'location_data.section' => 'required',
+            'date' => 'required|date',
+            'crop' => 'required',
+            'male_count' => 'required|numeric',
+            'female_count' => 'required|numeric',
+            'total' => 'required|numeric',
+        ];
+    }
+
+    public function validationAttributes()
+    {
+
+        return [
+            'location_data.school_name' => 'school name',
+            'location_data.district' => 'district',
+            'location_data.epa' => 'epa',
+            'location_data.section' => 'section',
+        ];
     }
 
     public function save()
     {
 
         try {
-            # code...
+            $this->validate();
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
+
+
+
+
+
+
+        try {
             $uuid = Uuid::uuid4()->toString();
-            $table = [
+
+            $userId = auth()->user()->id;
+            $currentUser = Auth::user();
+            $data = [];
+            $now = Carbon::now();
+
+            $uuid = Uuid::uuid4()->toString();
+            $data = [
                 'date' => $this->date,
                 'location_data' => json_encode($this->location_data),
                 'male_count' => $this->male_count,
@@ -47,22 +136,74 @@ class Add extends Component
                 'user_id' => auth()->user()->id,
             ];
 
-            SchoolRtcConsumption::create($table);
 
-            $currentUser = Auth::user();
-            $link = 'forms/rtc-market/school-rtc-consumption-form/' . $uuid . '/view';
-            $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-            $this->dispatch('notify');
-            $this->alert('success', 'Successfully submitted!', [
-                'toast' => false,
-                'position' => 'center',
+            Submission::create([
+                'batch_no' => $uuid,
+                'form_id' => $this->selectedForm,
+                'user_id' => $currentUser->id,
+                'status' => 'approved',
+                'data' => json_encode($data),
+                'batch_type' => 'manual',
+                'is_complete' => 1,
+                'period_id' => $this->submissionPeriodId,
+                'table_name' => json_encode(['school_rtc_consumption']),
+
             ]);
-        } catch (\Throwable $e) {
+            SchoolRtcConsumption::create($data);
+
+            session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/school-rtc-consumption-form/view">View Submission here</a>');
+            return redirect()->to(url()->previous());
+        } catch (\Exception $e) {
             # code...
 
-            dd($e);
+            session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
         }
 
+    }
+
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    {
+
+        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+
+            abort(404);
+
+        }
+
+        $findForm = Form::find($form_id);
+        $findIndicator = Indicator::find($indicator_id);
+        $findFinancialYear = FinancialYear::find($financial_year_id);
+        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
+        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
+        if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
+
+            abort(404);
+
+        } else {
+            $this->selectedForm = $findForm->id;
+            $this->selectedIndicator = $findIndicator->id;
+            $this->selectedFinancialYear = $findFinancialYear->id;
+            $this->selectedMonth = $findMonthPeriod->id;
+            $this->submissionPeriodId = $findSubmissionPeriod->id;
+            //check submission period
+
+            $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
+                ->where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->where('is_open', true)
+                ->first();
+
+            if ($submissionPeriod) {
+
+                $this->openSubmission = true;
+
+            } else {
+                $this->openSubmission = false;
+            }
+        }
+
+        $this->routePrefix = Route::current()->getPrefix();
     }
 
     public function render()

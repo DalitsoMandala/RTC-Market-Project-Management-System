@@ -147,7 +147,7 @@ class Add extends Component
     public $selectedProject;
 
     public $openSubmission = true;
-
+    public $routePrefix;
     public function rules()
     {
         return [
@@ -534,7 +534,7 @@ class Add extends Component
 
                 $routePrefix = Route::current()->getPrefix();
 
-                session()->flash('success', 'Successfully submitted! <a href="' . $routePrefix . 'forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
+                session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
                 return redirect()->to(url()->previous());
 
             } catch (UserErrorException $e) {
@@ -780,7 +780,7 @@ class Add extends Component
                     ]),
             ]
         );
-
+        $this->routePrefix = Route::current()->getPrefix();
     }
 
     public function render()

@@ -40,7 +40,7 @@ final class FormTable extends PowerGridComponent
             // Eager load the 'project' and 'indicators' relationships
             $forms = Form::with(['project', 'indicators'])->get();
 
-// Collect all indicator IDs manually
+            // Collect all indicator IDs manually
             $indicatorIds = [];
             foreach ($forms as $form) {
                 foreach ($form->indicators as $indicator) {
@@ -48,21 +48,21 @@ final class FormTable extends PowerGridComponent
                 }
             }
 
-// Remove duplicate IDs
+            // Remove duplicate IDs
             $indicatorIds = array_unique($indicatorIds);
 
-// Retrieve the organisation by name
+            // Retrieve the organisation by name
             $organisation = Organisation::where('name', $this->organisation)->firstOrFail();
 
-// Retrieve responsible people based on the unique indicator IDs and organisation ID
+            // Retrieve responsible people based on the unique indicator IDs and organisation ID
             $responsiblePeople = ResponsiblePerson::whereIn('indicator_id', $indicatorIds)
                 ->where('organisation_id', $organisation->id)
                 ->get();
 
-// Filter the indicators to only those associated with responsible people
+            // Filter the indicators to only those associated with responsible people
             $filteredIndicators = $responsiblePeople->pluck('indicator_id')->toArray();
 
-// Filter the forms based on the filtered indicators
+            // Filter the forms based on the filtered indicators
             $filteredForms = Form::with(['project', 'indicators'])
                 ->whereHas('indicators', function ($query) use ($filteredIndicators) {
                     $query->whereIn('indicators.id', $filteredIndicators);
@@ -84,8 +84,12 @@ final class FormTable extends PowerGridComponent
 
                 $form_name = str_replace(' ', '-', strtolower($model->name));
                 $project = str_replace(' ', '-', strtolower($model->project->name));
+                if ($model->name == 'REPORT FORM') {
+                    return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                } else {
+                    return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                }
 
-                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
 
             })
             ->add('type')

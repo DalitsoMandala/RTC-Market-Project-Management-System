@@ -14,6 +14,7 @@ use App\Notifications\AggregateDataAddedNotification;
 use App\Notifications\ManualDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
@@ -70,6 +71,7 @@ class AddData extends Component
     public $checkifAggregate = false;
 
     public $showReport = false;
+    public $routePrefix;
     protected function rules()
     {
         $validationRules = [];
@@ -254,7 +256,7 @@ class AddData extends Component
                 $this->readdInputs();
 
 
-                session()->flash('success', 'Successfully submitted! <a href="/cip/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
+                session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
                 return redirect()->to(url()->previous());
 
             } catch (UserErrorException $e) {
@@ -473,6 +475,8 @@ class AddData extends Component
                     ]),
             ]
         );
+
+        $this->routePrefix = Route::current()->getPrefix();
     }
     public function render()
     {

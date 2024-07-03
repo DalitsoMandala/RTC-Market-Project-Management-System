@@ -18,6 +18,7 @@ use App\Models\SubmissionPeriod;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
@@ -103,7 +104,7 @@ class Add extends Component
     $selectedMonth,
     $submissionPeriodId
     ;
-
+    public $routePrefix;
     public $openSubmission = true;
     public function rules()
     {
@@ -484,7 +485,7 @@ class Add extends Component
                 //     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                 //   $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
 
-                session()->flash('success', 'Successfully submitted! <a href="/cip/forms/rtc_market/rtc-production-and-marketing-form-processors/view">View Submission here</a>');
+                session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-processors/view">View Submission here</a>');
                 return redirect()->to(url()->previous());
 
             } catch (UserErrorException $e) {
@@ -698,7 +699,7 @@ class Add extends Component
                     ]),
             ]
         );
-
+        $this->routePrefix = Route::current()->getPrefix();
     }
 
 

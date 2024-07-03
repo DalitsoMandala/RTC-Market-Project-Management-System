@@ -28,24 +28,67 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+                <h3 class="mb-5 text-center text-primary">SCHOOL CONSUMPTION FORM</h3>
 
-                <div class="mb-1 row justify-content-center">
-                    <form wire:submit='save'>
+                @if (session()->has('success'))
+                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                @endif
 
 
-                        <div class="col-12 col-md-8">
+                @if (session()->has('error'))
+                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                @endif
+
+                @if (session()->has('validation_error'))
+                    <x-error-alert>{!! session()->get('validation_error') !!}</x-error-alert>
+                @endif
+
+
+                @if ($openSubmission === false)
+                    <div class="alert alert-warning" role="alert">
+                        You can not submit a form right now
+                        because submissions are closed for the moment!
+                    </div>
+                @endif
+
+
+                <div class="mb-1 row justify-content-center  @if ($openSubmission === false) opacity-25  pe-none @endif"
+                    x-data="{
+                        selectedFinancialYear: $wire.entangle('selectedFinancialYear').live,
+                        selectedMonth: $wire.entangle('selectedMonth').live,
+                        selectedIndicator: $wire.entangle('selectedIndicator').live,
+                    }">
+
+
+
+                    <div class="col-12 col-md-8">
+                        <form wire:submit='save'>
                             <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        Add Data
+                                    </h3>
+                                </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label for="location_data_enterprise" class="form-label">SCHOOL NAME</label>
-                                        <input type="text" class="form-control" id="location_data_enterprise"
-                                            wire:model="location_data.enterprise">
+                                        <label for="location_data_school_name" class="form-label">SCHOOL NAME</label>
+                                        <input type="text"
+                                            class="form-control    @error('location_data.school_name')
+                                            is-invalid
+                                        @enderror"
+                                            id="location_data_school_name" wire:model="location_data.school_name">
+                                        @error('location_data.school_name')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="location_data_district" class="form-label">DISTRICT</label>
 
-                                        <select class="form-select" wire:model='location_data.district'>
+                                        <select
+                                            class="form-select     @error('location_data.district') is-invalid @enderror"
+                                            wire:model='location_data.district'>
+                                            <option value="">Select One</option>
                                             <option>BALAKA</option>
                                             <option>BLANTYRE</option>
                                             <option>CHIKWAWA</option>
@@ -74,26 +117,45 @@
                                             <option>THYOLO</option>
                                             <option>ZOMBA</option>
                                         </select>
-                                        @error('district')
+                                        @error('location_data.district')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="location_data_epa" class="form-label">EPA</label>
-                                        <input type="text" class="form-control" id="location_data_epa"
-                                            wire:model="location_data.epa">
+                                        <input type="text"
+                                            class="form-control @error('location_data.epa')
+                                            is-invalid
+                                        @enderror"
+                                            id="location_data_epa" wire:model="location_data.epa">
+                                        @error('location_data.epa')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="location_data_section" class="form-label">SECTION</label>
-                                        <input type="text" class="form-control" id="location_data_section"
-                                            wire:model="location_data.section">
+                                        <input type="text"
+                                            class="form-control @error('location_data.section')
+                                            is-invalid
+                                        @enderror"
+                                            id="location_data_section" wire:model="location_data.section">
+                                        @error('location_data.section')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="date" class="form-label">DATE</label>
-                                        <input type="date" class="form-control" id="date" wire:model="date">
+                                        <input type="date"
+                                            class="form-control @error('date')
+                                            is-invalid
+                                        @enderror"
+                                            id="date" wire:model="date">
+                                        @error('date')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
@@ -106,69 +168,72 @@
                                             <option>SWEET POTATO</option>
                                         </select>
 
+                                        @error('crop')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="male_count" class="form-label">MALES</label>
-                                        <input type="number" class="form-control" id="male_count"
-                                            wire:model="male_count">
+                                        <input type="number"
+                                            class="form-control @error('male_count')
+                                            is-invalid
+                                        @enderror"
+                                            id="male_count" wire:model="male_count">
+                                        @error('male_count')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="female_count" class="form-label">FEMALE</label>
-                                        <input type="number" class="form-control" id="female_count"
-                                            wire:model="female_count">
+                                        <input type="number"
+                                            class="form-control @error('female_count')
+                                            is-invalid
+                                        @enderror"
+                                            id="female_count" wire:model="female_count">
+                                        @error('female_count')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="total" class="form-label">TOTAL</label>
-                                        <input type="number" class="form-control bg-light" id="total"
-                                            wire:model="total">
+                                        <input type="number"
+                                            class="form-control bg-light @error('total')
+                                            is-invalid
+                                        @enderror"
+                                            id="total" wire:model="total">
+                                        @error('total')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
                                     </div>
 
+
+                                    <div class="d-grid justify-content-center">
+
+                                        <button class="btn btn-success btn-lg"
+                                            @click="window.scrollTo({
+                                            top: 0,
+                                            behavior: 'smooth'
+                                        })"
+                                            type="submit">Submit</button>
+                                    </div>
                                 </div>
                             </div>
 
+                        </form>
+                    </div>
 
-                        </div>
 
 
-                        <div class="d-grid col-8 justify-content-center">
-                            <button class="btn btn-primary d-none" type="button" wire:click="addInput">Add More
-                                +</button>
-                            <button class="btn btn-success btn-lg" type="submit">Submit</button>
-                        </div>
-                    </form>
+
                 </div>
 
             </div>
         </div>
 
 
-
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
 
 
 

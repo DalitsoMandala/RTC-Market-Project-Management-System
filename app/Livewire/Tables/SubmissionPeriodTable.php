@@ -317,7 +317,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->when(function ($row) {
                     $form = Form::find($row->form_id);
 
-                    if ($form->name == 'REPORT FORM') {
+                    if ($form->name == 'REPORT FORM' || $form->name == 'SCHOOL RTC CONSUMPTION FORM') {
                         return true;
                     } else {
                         return false;
