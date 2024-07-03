@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->enum('product_type', ['SEED', 'WARE', 'VALUE ADDED PRODUCTS']);
             $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes
             $table->decimal('financial_value_of_sales', 18, 2); // Malawi Kwacha
-            $table->string('uuid');
+            //   $table->string('uuid');
             $table->timestamps();
         });
     }

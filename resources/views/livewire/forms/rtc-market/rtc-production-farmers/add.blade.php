@@ -43,7 +43,7 @@
         <div class="row">
             <div class="col-12 ">
                 <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (FARMERS)</h3>
-                <div>
+                <div wire:ignore>
 
                     @if (session()->has('success'))
                         <x-success-alert>{!! session()->get('success') !!}</x-success-alert>

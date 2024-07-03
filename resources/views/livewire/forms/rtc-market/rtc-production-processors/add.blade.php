@@ -37,7 +37,7 @@
         </div>
         <!-- end page title -->
         <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
-        <div>
+        <div wire:ignore>
 
             @if (session()->has('success'))
                 <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
@@ -190,30 +190,6 @@
         </div>
 
 
-
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
 
 
 

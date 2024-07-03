@@ -104,9 +104,7 @@ class Upload extends Component
 
                             }
 
-                            //    $link = 'cip/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-// $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
-                            $this->dispatch('notify');
+
 
                             session()->flash('success', 'Successfully submitted!');
                             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
@@ -132,9 +130,8 @@ class Upload extends Component
                                 'batch_type' => 'batch',
                                 'table_name' => json_encode($table),
                             ]);
-                            //   $link = 'external/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                            //  $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
-                            $this->dispatch('notify');
+
+
 
                             session()->flash('success', 'Successfully submitted!');
                             $this->redirect(route('external-submissions') . '#batch-submission');

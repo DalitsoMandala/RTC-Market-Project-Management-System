@@ -230,79 +230,42 @@ class AddData extends Component
 
             $currentUser = Auth::user();
 
-            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
 
-                try {
 
-                    Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => $currentUser->id,
-                        'status' => 'approved',
-                        'data' => json_encode($data),
-                        'batch_type' => 'manual',
-                        'is_complete' => 1,
-                        'period_id' => $this->submissionPeriodId,
-                        'table_name' => 'household_rtc_consumption',
+            try {
 
-                    ]);
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $this->selectedForm,
+                    'user_id' => $currentUser->id,
+                    'status' => 'approved',
+                    'data' => json_encode($data),
+                    'batch_type' => 'manual',
+                    'is_complete' => 1,
+                    'period_id' => $this->submissionPeriodId,
+                    'table_name' => json_encode(['household_rtc_consumption']),
 
-                    HouseholdRtcConsumption::insert($data);
+                ]);
 
-                    $this->reset('epa', 'section', 'district', 'enterprise');
-                    $this->resetErrorBag();
-                    $this->readdInputs();
+                HouseholdRtcConsumption::insert($data);
 
-                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-                    $this->dispatch('notify');
-                    session()->flash('success', 'Successfully submitted! <a href="/cip/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
-                    //    $this->redirect(route('rtc-market-hrc', ['project' => 'rtc_market']));
+                $this->reset('epa', 'section', 'district', 'enterprise');
+                $this->resetErrorBag();
+                $this->readdInputs();
 
-                } catch (UserErrorException $e) {
-                    // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
 
-                    // Provide a generic error message to the user
-                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
-                }
+                session()->flash('success', 'Successfully submitted! <a href="/cip/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
+                return redirect()->to(url()->previous());
 
-            } else if ($currentUser->hasAnyRole('external')) {
+            } catch (UserErrorException $e) {
+                // Log the actual error for debugging purposes
+                \Log::error('Submission error: ' . $e->getMessage());
 
-                try {
-                    Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'period_id' => $this->submissionPeriodId,
-                        'user_id' => $currentUser->id,
-                        'data' => json_encode($data),
-                        'batch_type' => 'manual',
-                        'status' => 'approved',
-                        'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
-
-                    ]);
-
-                    HouseholdRtcConsumption::insert($data);
-
-                    $this->reset('epa', 'section', 'district', 'enterprise');
-                    $this->resetErrorBag();
-                    $this->readdInputs();
-
-                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-                    $this->dispatch('notify');
-                    session()->flash('success', 'Successfully submitted! <a href="/external/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
-
-                } catch (UserErrorException $e) {
-                    // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
-
-                    // Provide a generic error message to the user
-                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
-                }
-
+                // Provide a generic error message to the user
+                session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
             }
+
+
 
         } catch (\Throwable $th) {
             session()->flash('error', 'Something went wrong!');
@@ -414,14 +377,7 @@ class AddData extends Component
 
                     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                     $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
-                    $this->dispatch('notify');
-                    $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
-                    $this->dispatch('to-top');
 
-                    $this->alert('success', 'Successfully submitted!', [
-                        'toast' => true,
-                        'position' => 'center',
-                    ]);
 
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes

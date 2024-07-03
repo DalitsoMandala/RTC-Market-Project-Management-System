@@ -19,12 +19,13 @@ use App\Models\SubmissionPeriod;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
-use Livewire\Attributes\On;
 
 class Add extends Component
 {
@@ -183,43 +184,74 @@ class Add extends Component
 
 
         if ($name == 'inputOne') {
-            $this->inputOne[] = [
-                'conc_date_recorded' => null,
-                'conc_partner_name' => null,
-                'conc_country' => null,
-                'conc_date_of_maximum_sale' => null,
-                'conc_product_type' => null,
-                'conc_volume_sold_previous_period' => null,
-                'conc_financial_value_of_sales' => null,
-            ];
+
+            $this->fill(
+                [
+                    'inputOne' =>
+                        collect([
+                            [
+                                'conc_date_recorded' => null,
+                                'conc_partner_name' => null,
+                                'conc_country' => null,
+                                'conc_date_of_maximum_sale' => null,
+                                'conc_product_type' => null,
+                                'conc_volume_sold_previous_period' => null,
+                                'conc_financial_value_of_sales' => null,
+                            ],
+
+                        ]),
+
+
+                ]
+            );
+
 
         }
         if ($name == 'inputTwo') {
 
-            $this->inputTwo[] = [
-                'dom_date_recorded' => null,
-                'dom_crop_type' => null,
-                'dom_market_name' => null,
-                'dom_district' => null,
-                'dom_date_of_maximum_sale' => null,
-                'dom_product_type' => null,
-                'dom_volume_sold_previous_period' => null,
-                'dom_financial_value_of_sales' => null,
-            ];
+            $this->fill(
+                [
+
+
+                    'inputTwo' =>
+                        collect([
+                            [
+                                'dom_date_recorded' => null,
+                                'dom_crop_type' => null,
+                                'dom_market_name' => null,
+                                'dom_district' => null,
+                                'dom_date_of_maximum_sale' => null,
+                                'dom_product_type' => null,
+                                'dom_volume_sold_previous_period' => null,
+                                'dom_financial_value_of_sales' => null,
+                            ],
+                        ]),
+
+
+                ]
+            );
 
         }
         if ($name == 'inputThree') {
 
-            $this->inputThree[] = [
-                'inter_date_recorded' => null,
-                'inter_crop_type' => null,
-                'inter_market_name' => null,
-                'inter_country' => null,
-                'inter_date_of_maximum_sale' => null,
-                'inter_product_type' => null,
-                'inter_volume_sold_previous_period' => null,
-                'inter_financial_value_of_sales' => null,
-            ];
+            $this->fill(
+                [
+
+                    'inputThree' =>
+                        collect([
+                            [
+                                'inter_date_recorded' => null,
+                                'inter_crop_type' => null,
+                                'inter_market_name' => null,
+                                'inter_country' => null,
+                                'inter_date_of_maximum_sale' => null,
+                                'inter_product_type' => null,
+                                'inter_volume_sold_previous_period' => null,
+                                'inter_financial_value_of_sales' => null,
+                            ],
+                        ]),
+                ]
+            );
         }
     }
 
@@ -377,6 +409,8 @@ class Add extends Component
 
 
     }
+
+
     public function save()
     {
 
@@ -395,7 +429,7 @@ class Add extends Component
             $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
                 ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
             if (!$period) {
-                throw new \Exception("Sorry you can not submit your form right now!"); // expired or closed
+                throw new UserErrorException("Sorry you can not submit your form right now!"); // expired or closed
 
             }
             if (isset($this->market_segment['fresh'])) {
@@ -458,76 +492,57 @@ class Add extends Component
                 }
             }
 
-            $data = $firstTable;
+
             $currentUser = Auth::user();
+            $recruit = RtcProductionFarmer::create($firstTable);
+            $otherData = array();
+            $otherData['main'] = $firstTable;
+            $finalData = array_merge($otherData, $this->addMoreData($recruit));
 
-
-
-            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
-
-                try {
-
-                    Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => $currentUser->id,
-                        'status' => 'approved',
-                        'data' => json_encode($data),
-                        'batch_type' => 'manual',
-                        'is_complete' => 1,
-                        'period_id' => $this->submissionPeriodId,
-                        'table_name' => 'rtc_production_farmers',
-
-                    ]);
-
-                    $recruit = RtcProductionFarmer::create($data);
-                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-
-                    session()->flash('success', 'Successfully submitted! <a href="/cip/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
-                    return redirect()->to(url()->previous());
-
-                } catch (UserErrorException $e) {
-                    // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
-
-                    // Provide a generic error message to the user
-                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
-                }
-
-            } else if ($currentUser->hasAnyRole('external')) {
-
-                try {
-                    Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'period_id' => $this->submissionPeriodId,
-                        'user_id' => $currentUser->id,
-                        'data' => json_encode($data),
-                        'batch_type' => 'manual',
-                        'status' => 'approved',
-                        'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
-                    ]);
-
-                    // /    RtcProductionFarmer::insert($data);
-
-
-                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
-
-                    session()->flash('success', 'Successfully submitted! <a href="/external/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
-                    return redirect()->to(url()->previous());
-
-                } catch (UserErrorException $e) {
-                    // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
-
-                    // Provide a generic error message to the user
-                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
-                }
-
+            if (!$this->has_rtc_market_contract) {
+                $finalData['agreement'] = []; //contractual agreement
             }
+            if (!$this->sells_to_domestic_markets) {
+
+                $finalData['market'] = []; //dom
+            }
+            if (!$this->sells_to_international_markets) {
+                $finalData['intermarket'] = []; // international market
+            }
+
+            $table = ['rtc_production_farmers', 'rpm_farmer_follow_ups', 'rpm_farmer_conc_agreements', 'rpm_farmer_dom_markets', 'rpm_farmer_inter_markets'];
+
+
+            try {
+
+
+
+
+
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $this->selectedForm,
+                    'user_id' => $currentUser->id,
+                    'status' => 'approved',
+                    'data' => json_encode($finalData),
+                    'batch_type' => 'manual',
+                    'is_complete' => 1,
+                    'period_id' => $this->submissionPeriodId,
+                    'table_name' => json_encode($table),
+
+                ]);
+
+                $routePrefix = Route::current()->getPrefix();
+
+                session()->flash('success', 'Successfully submitted! <a href="' . $routePrefix . 'forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
+                return redirect()->to(url()->previous());
+
+            } catch (UserErrorException $e) {
+
+                session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+            }
+
+
 
 
 
@@ -536,7 +551,7 @@ class Add extends Component
         } catch (\Exception $e) {
             # code...
 
-            dd($e);
+            Log::channel('system_log')->error('Submission error: ' . $e->getMessage());
         }
     }
 
@@ -609,6 +624,15 @@ class Add extends Component
             if ($this->sells_to_international_markets) {
                 RpmFarmerInterMarket::insert($fifthTable);
             }
+
+            return [
+
+                "agreement" => $thirdTable,
+                "market" => $fourthTable,
+                "intermarket" => $fifthTable,
+
+            ];
+
 
         } catch (UserErrorException $e) {
             # code...

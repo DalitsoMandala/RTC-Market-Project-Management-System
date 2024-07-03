@@ -97,7 +97,7 @@ class Upload extends Component
                             ->where('user_id', auth()->user()->id)->first();
                         if ($checkSubmission) {
 
-                            $this->reset('upload');
+                            $this->dispatch('removeUploadedFile');
 
                             session()->flash('error', 'You have already submitted your batch data for this period!');
                         } else {
@@ -120,13 +120,13 @@ class Upload extends Component
                             foreach ($data['main'] as $mainSheet) {
                                 $highestId++;
 
-                                $mainSheet['is_registered'] = $mainSheet['is_registered'] === 'YES' ? true : false;
-                                $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'YES' ? true : false;
-                                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'YES' ? true : false;
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+                                $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
+                                $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
+                                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
+                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
 
                                 $idMappings[$mainSheet['#']] = $highestId;
                                 unset($mainSheet['#']);
@@ -137,12 +137,12 @@ class Upload extends Component
                             foreach ($data['followup'] as $mainSheet) {
                                 $newId = $idMappings[$mainSheet['rpm_farmer_id']];
                                 $mainSheet['rpm_farmer_id'] = $newId;
-                                $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'YES' ? true : false;
-                                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'YES' ? true : false;
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+                                $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
+                                $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
+                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
                                 $mainTable = RpmFarmerFollowUp::create($mainSheet);
 
                                 // follow up data
@@ -178,7 +178,7 @@ class Upload extends Component
 
                             // $link = 'cip/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                             //   $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
-                            $this->dispatch('notify');
+
 
                             session()->flash('success', 'Successfully submitted!');
                             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
@@ -206,7 +206,7 @@ class Upload extends Component
                             ]);
                             //     $link = 'external/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                             //     $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
-                            $this->dispatch('notify');
+
 
                             session()->flash('success', 'Successfully submitted!');
                             $this->redirect(route('external-submissions') . '#batch-submission');
@@ -216,10 +216,7 @@ class Upload extends Component
 
                 } catch (UserErrorException $e) {
 
-                    $this->reset('upload');
-
                     $this->dispatch('removeUploadedFile');
-                    $this->dispatch('refresh');
                     session()->flash('error', $e->getMessage());
                 }
 
@@ -286,6 +283,12 @@ class Upload extends Component
         }
 
     }
+    #[On('removeUploadedFile')]
+    public function resetUpload()
+    {
+        $this->reset('upload');
+    }
+
 
     public function downloadTemplate()
     {

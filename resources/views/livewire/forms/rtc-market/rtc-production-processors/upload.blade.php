@@ -22,7 +22,7 @@
             <div class="col-12 col-md-8">
                 <div>
 
-                    <h3 class="mb-5 text-center text-primary">HOUSEHOLD CONSUMPTION FORM</h3>
+                    <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
 
 
                     @if ($openSubmission === false)
@@ -35,7 +35,8 @@
 
                 <div class="my-2 border shadow-none card card-body">
                     <h5> Instructions</h5>
-                    <p class="alert bg-info-subtle text-uppercase">Download the Rtc production Processors template & uploading your
+                    <p class="alert bg-info-subtle text-uppercase">Download the Rtc production Processors template &
+                        uploading your
                         data.</p>
 
                     <form wire:submit='submitUpload'>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
+use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
@@ -132,14 +133,14 @@ class View extends Component
                     $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
                         ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
                     if (!$period) {
-                        throw new \Exception("Something went wrong");
+                        throw new UserErrorException("Something went wrong");
 
                     }
                     if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
 
                         $checkSubmission = Submission::where('period_id', $period->id)->where('user_id', auth()->user()->id)->first();
                         if ($checkSubmission) {
-                            throw new \Exception("You have already submitted your data!");
+                            throw new UserErrorException("You have already submitted your data!");
                         }
                         $submission = Submission::create([
                             'batch_no' => $uuid,
@@ -161,6 +162,7 @@ class View extends Component
                             $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
                             $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
                             $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+
                             RtcProductionProcessor::create($mainSheet);
 
                         }
@@ -261,7 +263,7 @@ class View extends Component
         if ($this->upload) {
             $temporaryFilePath = $this->upload->getRealPath();
 
-// Check if the file exists and delete it
+            // Check if the file exists and delete it
             if (file_exists($temporaryFilePath)) {
                 try {
                     unlink($temporaryFilePath);

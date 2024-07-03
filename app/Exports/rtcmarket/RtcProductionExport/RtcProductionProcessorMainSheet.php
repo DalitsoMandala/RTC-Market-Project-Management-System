@@ -25,7 +25,7 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
 
         $faker = Faker::create();
         $data = [];
-
+        $count = 1;
         if ($this->test) {
             foreach (range(1, 20) as $index) {
                 $data[] = [
