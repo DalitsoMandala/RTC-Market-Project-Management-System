@@ -6,7 +6,12 @@ use App\Models\RpmFarmerConcAgreement;
 use App\Models\RpmFarmerDomMarket;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RpmFarmerInterMarket;
+use App\Models\RpmProcessorConcAgreement;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RpmProcessorInterMarket;
 use App\Models\RtcProductionFarmer;
+use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -74,6 +79,10 @@ class Submissions extends Component
                         if ($table[0] == 'rtc_production_farmers') {
                             $this->populateRtcFarmers($decodedBatch);
                         }
+                        if ($table[0] == 'rtc_production_processors') {
+
+                            $this->populateRtcProducers($decodedBatch);
+                        }
 
                     }
 
@@ -97,18 +106,20 @@ class Submissions extends Component
                     'status' => $this->status,
                 ]);
             }
-
-            session()->flash('success', 'Successfully updated');
+            $this->dispatch('hideModal');
             $this->dispatch('refresh');
-        } catch (\Throwable $th) {
+            session()->flash('success', 'Successfully updated');
 
+        } catch (\Throwable $th) {
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
             session()->flash('error', 'Something went wrong');
 
             Log::channel('system_log')->error($th->getMessage());
         }
 
-        $this->dispatch('hideModal');
-        $this->dispatch('refresh');
+
+
     }
 
 
@@ -170,6 +181,69 @@ class Submissions extends Component
             $newId = $idMappings[$mainSheet['rpm_farmer_id']];
             $mainSheet['rpm_farmer_id'] = $newId;
             $mainTable = RpmFarmerInterMarket::create($mainSheet);
+
+            // inter market
+
+        }
+
+    }
+
+    public function populateRtcProducers($data)
+    {
+        $idMappings = [];
+        $highestId = RtcProductionProcessor::max('id');
+        foreach ($data['main'] as $mainSheet) {
+            $highestId++;
+
+            $mainSheet['is_registered'] = $mainSheet['is_registered'] === 'YES' ? true : false;
+
+            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
+            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
+            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
+            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+
+            $idMappings[$mainSheet['#']] = $highestId;
+            unset($mainSheet['#']);
+            RtcProductionProcessor::create($mainSheet);
+
+        }
+
+        foreach ($data['followup'] as $mainSheet) {
+            $newId = $idMappings[$mainSheet['rpm_processor_id']];
+            $mainSheet['rpm_processor_id'] = $newId;
+
+            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'YES' ? true : false;
+            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'YES' ? true : false;
+            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'YES' ? true : false;
+            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'YES' ? true : false;
+            $mainTable = RpmProcessorFollowUp::create($mainSheet);
+
+            // follow up data
+
+        }
+
+        foreach ($data['agreement'] as $mainSheet) {
+            $newId = $idMappings[$mainSheet['rpm_processor_id']];
+            $mainSheet['rpm_processor_id'] = $newId;
+            $mainTable = RpmProcessorConcAgreement::create($mainSheet);
+
+            // conc agreement
+
+        }
+
+        foreach ($data['market'] as $mainSheet) {
+            $newId = $idMappings[$mainSheet['rpm_processor_id']];
+            $mainSheet['rpm_processor_id'] = $newId;
+            $mainTable = RpmProcessorDomMarket::create($mainSheet);
+
+            // dom market
+
+        }
+
+        foreach ($data['intermarket'] as $mainSheet) {
+            $newId = $idMappings[$mainSheet['rpm_processor_id']];
+            $mainSheet['rpm_processor_id'] = $newId;
+            $mainTable = RpmProcessorInterMarket::create($mainSheet);
 
             // inter market
 

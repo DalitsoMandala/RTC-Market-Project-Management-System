@@ -21,13 +21,15 @@
         <div class="row">
             <div class="col-12">
 
+                <div>
+                    @if (session()->has('success'))
+                        <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                    @endif
+                    @if (session()->has('error'))
+                        <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                    @endif
 
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
+                </div>
 
                 <div class="card " wire:ignore>
                     <div class="card-body">

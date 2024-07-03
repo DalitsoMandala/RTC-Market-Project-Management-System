@@ -15,8 +15,6 @@ return new class extends Migration {
             $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
             $table->json('location_data');
             $table->date('date_of_follow_up')->nullable();
-
-
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
             $table->boolean('has_rtc_market_contract')->default(false);
             $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
