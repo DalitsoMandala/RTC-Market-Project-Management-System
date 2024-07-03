@@ -2,6 +2,7 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -11,10 +12,10 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW UP
-
 {
-    public $userId;public $file;
-// follow up
+    public $userId;
+    public $file;
+    // follow up
     public $expectedHeadings = [
         'RECRUIT ID',
         'ENTERPRISE',
@@ -90,16 +91,32 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW UP
         $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
 
         if (count($missingHeadings) > 0) {
-            dd($missingHeadings);
-            throw new \Exception("Something went wrong. Please upload your data using the template file above");
+
+            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
 
         }
 
         try {
 
             $main_data = [];
+            $getBatchMainData = session()->get('batch_data');
+            $ids = array();
+            if (!empty($getBatchMainData['main'])) {
+                $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
+
+            } else {
+                throw new UserErrorException("Your file has empty rows!");
+
+            }
 
             foreach ($collection as $row) {
+
+                if (!in_array($row['RECRUIT ID'], $ids)) {
+                    throw new UserErrorException("Your file has invalid IDs in Follow up sheet!");
+
+                }
+
+
                 $main_data[] = [
                     'rpm_farmer_id' => $row['RECRUIT ID'],
                     'location_data' => json_encode([
@@ -184,8 +201,8 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow// FOLLOW UP
 
             session()->put('batch_data.followup', $main_data);
 
-        } catch (\Throwable $e) {
-            throw new \Exception("Something went wrong. There was some errors on some rows on sheet 2." . $e->getMessage());
+        } catch (UserErrorException $e) {
+            throw new UserErrorException("Something went wrong. There was some errors on some rows on sheet 2." . $e->getMessage());
         }
     }
 }

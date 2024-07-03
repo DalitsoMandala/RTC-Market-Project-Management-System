@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,7 +16,7 @@ return new class extends Migration
             $table->json('location_data');
             $table->date('date_of_follow_up')->nullable();
 
-// Production related columns
+            // Production related columns
             $table->json('area_under_cultivation')->nullable(); // Stores area by variety (key-value pairs)
             $table->json('number_of_plantlets_produced')->nullable();
             $table->integer('number_of_screen_house_vines_harvested')->nullable(); // Sweet potatoes
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->json('seed_service_unit_registration_details')->nullable();
             $table->boolean('uses_certified_seed')->default(false);
 
-// Marketing columns
+            // Marketing columns
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
             $table->boolean('has_rtc_market_contract')->default(false);
             $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
@@ -43,7 +42,7 @@ return new class extends Migration
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2)->nullable();
             // Previous season volume in metric tonnes
-            $table->string('uuid');
+            // $table->string('uuid');
             $table->timestamps();
         });
     }

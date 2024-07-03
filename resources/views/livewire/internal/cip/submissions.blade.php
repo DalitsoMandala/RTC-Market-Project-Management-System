@@ -58,16 +58,16 @@
                         </ul>
 
                         <!-- Tab panes -->
-                        <div class="tab-content" wire:ignore>
-                            <div class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
-                                aria-labelledby="home-tab">
+                        <div class="tab-content">
+                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission"
+                                role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :filter="'batch'" />
                             </div>
                             {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'aggregate'" />
                             </div>

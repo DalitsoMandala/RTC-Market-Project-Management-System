@@ -26,15 +26,40 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
         $data = [];
 
         if ($this->test) {
+            $count = 1;
             foreach (range(1, 20) as $index) {
 
                 $data[] = [
+                    '#' => $count++,
                     'ENTERPRISE' => strtoupper($faker->streetName),
                     'DISTRICT' => $faker->randomElement([
-                        'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
-                        'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
-                        'NENO', 'NKHATA BAY', 'NKHOTAKOTA', 'NSANJE', 'NTCHEU', 'NTCHISI', 'PHALOMBE', 'RUMPHI',
-                        'SALIMA', 'THYOLO', 'ZOMBA',
+                        'BALAKA',
+                        'BLANTYRE',
+                        'CHIKWAWA',
+                        'CHIRADZULU',
+                        'CHITIPA',
+                        'DEDZA',
+                        'DOWA',
+                        'KARONGA',
+                        'KASUNGU',
+                        'LILONGWE',
+                        'MACHINGA',
+                        'MANGOCHI',
+                        'MCHINJI',
+                        'MULANJE',
+                        'MWANZA',
+                        'MZIMBA',
+                        'NENO',
+                        'NKHATA BAY',
+                        'NKHOTAKOTA',
+                        'NSANJE',
+                        'NTCHEU',
+                        'NTCHISI',
+                        'PHALOMBE',
+                        'RUMPHI',
+                        'SALIMA',
+                        'THYOLO',
+                        'ZOMBA',
                     ]),
                     'EPA' => strtoupper($faker->city),
                     'SECTION' => strtoupper($faker->streetName),
@@ -128,6 +153,7 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
     public function headings(): array
     {
         return [
+            '#',
             'ENTERPRISE',
             'DISTRICT',
             'EPA',

@@ -34,7 +34,7 @@ class AddFollowUp extends Component
             $this->f_market_segment['processed'] = "NO";
         }
         $secondTable = [
-            'rpm_processor_id' => $recruit->id,
+            //  'rpm_processor_id' => $recruit->id,
             'location_data' => $this->location_data,
             'date_of_follow_up' => $this->f_date_of_follow_up,
             'area_under_cultivation' => $this->f_area_under_cultivation,

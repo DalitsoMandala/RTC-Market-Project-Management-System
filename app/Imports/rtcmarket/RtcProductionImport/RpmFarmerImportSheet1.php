@@ -2,6 +2,7 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -12,11 +13,11 @@ use Ramsey\Uuid\Uuid;
 
 HeadingRowFormatter::default('none');
 class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow// MAIN SHEET
-
 {
     public $userId;
     public $file;
     public $expectedHeadings = [
+        '#',
         'ENTERPRISE',
         'DISTRICT',
         'EPA',
@@ -116,8 +117,8 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow// MAIN SHEET
         $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
 
         if (count($missingHeadings) > 0) {
-
-            throw new \Exception("Something went wrong. Please upload your data using the template file above");
+            dd($missingHeadings);
+            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
 
         }
 
@@ -128,6 +129,7 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow// MAIN SHEET
             foreach ($collection as $row) {
 
                 $main_data[] = [
+                    '#' => $row['#'],
                     'location_data' => json_encode([
                         'enterprise' => $row['ENTERPRISE'],
                         'district' => $row['DISTRICT'],
@@ -249,8 +251,8 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow// MAIN SHEET
             session()->put('batch_data.main', $main_data);
             // session()->put('batch_data', $main_data);
 
-        } catch (\Throwable $e) {
-            throw new \Exception("Something went wrong. There was some errors on some rows on sheet 1." . $e->getMessage());
+        } catch (UserErrorException $e) {
+            throw new UserErrorException("Something went wrong. There was some errors on some rows on sheet 1." . $e->getMessage());
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImportSheet1;
 use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImportSheet2;
@@ -50,14 +51,14 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents
     public function registerEvents(): array
     {
         return [
-            // Handle by a closure.
+                // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
                 // dd($event);
                 $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
 
                 if (count($diff) > 0) {
                     session()->flash('error-import', "File contains invalid sheets!");
-                    throw new Exception("File contains invalid sheets!");
+                    throw new UserErrorException("File contains invalid sheets!");
 
                 }
             },

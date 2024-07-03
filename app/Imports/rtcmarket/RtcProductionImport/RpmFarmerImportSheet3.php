@@ -2,6 +2,7 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -40,15 +41,28 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREE
         $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
 
         if (count($missingHeadings) > 0) {
-            throw new \Exception("Something went wrong. Please upload your data using the template file above");
+            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
 
         }
 
         try {
 
             $main_data = [];
+            $getBatchMainData = session()->get('batch_data');
+            $ids = array();
+            if (!empty($getBatchMainData['main'])) {
+                $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
 
+            } else {
+                throw new UserErrorException("Your file has empty rows!");
+
+            }
             foreach ($collection as $row) {
+                if (!in_array($row['RECRUIT ID'], $ids)) {
+                    throw new UserErrorException("Your file has invalid IDs in Follow up sheet!");
+
+                }
+
                 $main_data[] = [
                     'rpm_farmer_id' => $row['RECRUIT ID'],
                     'date_recorded' => $row['DATE RECORDED'],
@@ -66,8 +80,8 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow//CONC. AGREE
 
             session()->put('batch_data.agreement', $main_data);
 
-        } catch (\Throwable $e) {
-            throw new \Exception("Something went wrong. There was some errors on some rows on sheet 3." . $e->getMessage());
+        } catch (UserErrorException $e) {
+            throw new UserErrorException("Something went wrong. There was some errors on some rows on sheet 3." . $e->getMessage());
         }
     }
 }

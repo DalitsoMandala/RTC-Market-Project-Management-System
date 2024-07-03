@@ -29,6 +29,7 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
         if ($this->test) {
             foreach (range(1, 20) as $index) {
                 $data[] = [
+                    '#' => $count++,
                     'ENTERPRISE' => $faker->company,
                     'DISTRICT' => $faker->city,
                     'EPA' => $faker->word,
@@ -89,6 +90,7 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
     public function headings(): array
     {
         return [
+            '#',
             'ENTERPRISE',
             'DISTRICT',
             'EPA',
