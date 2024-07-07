@@ -104,10 +104,10 @@ class AddData extends Component
     protected function validationAttributes()
     {
         return [
-            'epa' => 'EPA',
-            'section' => 'Section',
-            'district' => 'District',
-            'enterprise' => 'Enterprise',
+            'epa' => 'epa',
+            'section' => 'section',
+            'district' => 'district',
+            'enterprise' => 'enterprise',
             'inputs.*.date_of_assessment' => 'date of assessment',
             'inputs.*.actor_type' => 'actor type',
             'inputs.*.rtc_group_platform' => 'RTC group platform',
@@ -126,50 +126,6 @@ class AddData extends Component
             'inputs.*.main_food' => 'main food',
         ];
     }
-
-    // protected function messages()
-    // {
-    //     $validationRules = [];
-
-    //     foreach ($this->inputs as $index => $input) {
-
-    //         $validationRules['inputs.' . $index . '.date_of_assessment.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.date_of_assessment.date'] = 'This field should be a date';
-
-    //         $validationRules['inputs.' . $index . '.actor_type.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.rtc_group_platform.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.producer_organisation.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.actor_name.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.age_group.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.sex.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.phone_number.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.household_size.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.household_size.numeric'] = 'This field should be a number';
-
-    //         $validationRules['inputs.' . $index . '.under_5_in_household.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.under_5_in_household.numeric'] = 'This field should be a number';
-
-    //         $validationRules['inputs.' . $index . '.rtc_consumers.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.rtc_consumers.numeric'] = 'This field should be a number';
-    //         $validationRules['inputs.' . $index . '.rtc_consumers.lte'] = 'This field should be less than or equal to the household size';
-
-    //         $validationRules['inputs.' . $index . '.rtc_consumers_potato.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.rtc_consumers_potato.numeric'] = 'This field should be a number';
-
-    //         $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato.numeric'] = 'This field should be a number';
-
-    //         $validationRules['inputs.' . $index . '.rtc_consumers_cassava.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.rtc_consumers_cassava.numeric'] = 'This field should be a number';
-
-    //         $validationRules['inputs.' . $index . '.rtc_consumption_frequency.required'] = 'This field is required';
-    //         $validationRules['inputs.' . $index . '.rtc_consumption_frequency.numeric'] = 'This field should be a number';
-
-    //         $validationRules['inputs.' . $index . '.main_food'] = 'This field is required';
-    //     }
-
-    //     return $validationRules;
-    // }
 
     public function addInput()
     {
@@ -270,6 +226,13 @@ class AddData extends Component
 
             try {
 
+                $period = SubmissionPeriod::where('is_open', true)->where('is_expired', false)->where('form_id', $this->selectedForm)
+                    ->where('financial_year_id', $this->selectedFinancialYear)->where('month_range_period_id', $this->selectedMonth)->first();
+                if (!$period) {
+                    throw new UserErrorException("Sorry you can not submit your form right now!"); // expired or closed
+
+                }
+
                 Submission::create([
                     'batch_no' => $uuid,
                     'form_id' => $this->selectedForm,
@@ -298,7 +261,7 @@ class AddData extends Component
                 \Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
-                session()->flash('error', 'Something went wrong!');
+                session()->flash('error', $e->getMessage());
             }
 
 
@@ -375,12 +338,9 @@ class AddData extends Component
                             'table_name' => 'household_rtc_consumption',
                         ]);
 
-                        $this->aggregateData = [];
 
-                        // $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                        // $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
-                        // $this->dispatch('notify');
-                        // $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
+
+
                         session()->flash('success', 'Successfully submitted! <a href="' . route('cip-internal-submissions') . '#manual-submission">View Submission here</a>');
 
                     }
@@ -407,11 +367,10 @@ class AddData extends Component
                         'table_name' => 'household_rtc_consumption',
                     ]);
 
-                    $this->aggregateData = [];
+               
                     session()->flash('success', 'Successfully submitted! <a href="' . route('external-submissions') . '#manual-submission">View Submission here</a>');
 
-                    // $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    // $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
+
 
 
                 } catch (\Exception $e) {

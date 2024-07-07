@@ -26,6 +26,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Add extends Component
 {
@@ -40,13 +41,47 @@ class Add extends Component
     public $type;
     public $approach; // For producer organizations only
     public $sector;
-    public $number_of_members = []; // For producer organizations only
+    public $number_of_members = [
+        'total' => null,
+        'female_18_35' => null,
+        'female_35_plus' => null,
+        'male_18_35' => null,
+        'male_35_plus' => null,
+
+    ]; // For producer organizations only
     public $group;
     public $establishment_status;
     public $is_registered = false;
-    public $registration_details = [];
-    public $number_of_employees = [];
-    public $area_under_cultivation = []; // Stores area by variety (key-value pairs)
+    public $registration_details = [
+        'registration_body' => null,
+        'registration_number' => null,
+        'registration_date' => null,
+    ];
+    public $number_of_employees = [
+        'formal' => [
+            'total' => null,
+            'female_18_35' => null,
+            'female_35_plus' => null,
+            'male_18_35' => null,
+            'male_35_plus' => null,
+        ],
+        'informal' => [
+            'total' => null,
+            'female_18_35' => null,
+            'female_35_plus' => null,
+            'male_18_35' => null,
+            'male_35_plus' => null,
+        ],
+    ];
+    public $area_under_cultivation = [
+        'total' => null,
+        'variety_1' => null,
+        'variety_2' => null,
+        'variety_3' => null,
+        'variety_4' => null,
+        'variety_5' => null,
+
+    ]; // Stores area by variety (key-value pairs)
     public $number_of_plantlets_produced = [
         'cassava' => null,
         'potato' => null,
@@ -78,22 +113,34 @@ class Add extends Component
         'variety_7' => null,
     ]; // Acres
     public $is_registered_seed_producer = false;
-    public $seed_service_unit_registration_details = [];
+    public $seed_service_unit_registration_details = [
+        'registration_number' => null,
+        'registration_date' => null,
+    ];
     public $uses_certified_seed = false;
-    public $market_segment = []; // Multiple market segments (array of strings)
+    public $market_segment = [
+        'fresh' => null,
+        'processed' => null,
+    ]; // Multiple market segments (array of strings)
     public $has_rtc_market_contract = false;
     public $total_vol_production_previous_season;
-    public $total_production_value_previous_season = [];
+    public $total_production_value_previous_season = [
+        'total' => null,
+        'date_of_maximum_sales' => null,
+    ];
     public $total_vol_irrigation_production_previous_season;
-    public $total_irrigation_production_value_previous_season = [];
+    public $total_irrigation_production_value_previous_season = [
+        'total' => null,
+        'date_of_maximum_sales' => null,
+    ];
     public $sells_to_domestic_markets = false;
     public $sells_to_international_markets = false;
     public $uses_market_information_systems = false;
     public $market_information_systems;
     public $aggregation_centers = [
-        // 'response' => false,
-        // 'specify' => null,
-    ]; // Stores aggregation center details (array of objects with name and volume sold)
+        'response' => false,
+        'specify' => null,
+    ];
     public $aggregation_center_sales; // Previous season volume in metric tonnes
 
     //2
@@ -150,21 +197,35 @@ class Add extends Component
     public $routePrefix;
     public function rules()
     {
-        return [
-            //first table
-            'location_data.district' => 'required',
-            'location_data.epa' => 'required',
-            'location_data.enterprise' => 'required',
-            'location_data.section' => 'required',
-            'date_of_recruitment' => 'required|date',
-            'name_of_actor' => 'required',
-            'name_of_representative' => 'required',
-            'phone_number' => 'required',
-            'type' => 'required',
-            'sector' => 'required',
-            'market_segment' => 'required', // Multiple market segments (array of strings)
-            'group' => 'required',
-        ];
+
+        $rules =
+            [
+                //first table
+                'location_data.district' => 'required',
+                'location_data.epa' => 'required',
+                'location_data.enterprise' => 'required',
+                'location_data.section' => 'required',
+                'date_of_recruitment' => 'required|date',
+                'name_of_actor' => 'required',
+                'name_of_representative' => 'required',
+                'phone_number' => 'required',
+                'type' => 'required',
+                'sector' => 'required',
+                'market_segment' => 'required', // Multiple market segments (array of strings)
+                'group' => 'required',
+                'registration_details.*' => 'required_if_accepted:is_registered',
+                'number_of_members.*' => 'required_if:type,PRODUCER ORGANIZATION',
+                'approach' => 'required_if:type,PRODUCER ORGANIZATION',
+                'aggregation_centers.specify' => 'required_if_accepted:aggregation_centers.response',
+                'aggregation_center_sales' => 'required_if_accepted:aggregation_centers.response',
+                'number_of_plantlets_produced.*' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
+                'market_information_systems' => 'required_if_accepted:uses_market_information_systems',
+
+            ];
+
+
+
+        return $rules;
     }
 
     public function validationAttributes()
@@ -174,6 +235,30 @@ class Add extends Component
             'location_data.epa' => 'epa',
             'location_data.enterprise' => 'enterprise',
             'location_data.section' => 'section',
+            'registration_details.registration_body' => 'registration body',
+            'registration_details.registration_number' => 'registration number',
+            'registration_details.registration_date' => 'registration date',
+            'number_of_employees.formal.total' => 'Formal Employees Total',
+            'number_of_employees.formal.female_18_35' => 'Formal Employees Female 18-35',
+            'number_of_employees.formal.female_35_plus' => 'Formal Employees Female 35+',
+            'number_of_employees.formal.male_18_35' => 'Formal Employees Male 18-35',
+            'number_of_employees.formal.male_35_plus' => 'Formal Employees Male 35+',
+            'number_of_employees.informal.total' => 'Informal Employees Total',
+            'number_of_employees.informal.female_18_35' => 'Informal Employees Female 18-35',
+            'number_of_employees.informal.female_35_plus' => 'Informal Employees Female 35+',
+            'number_of_employees.informal.male_18_35' => 'Informal Employees Male 18-35',
+            'number_of_employees.informal.male_35_plus' => 'Informal Employees Male 35+',
+            'is_registered' => 'formally registered entity',
+            'number_of_members.total' => 'Total Members',
+            'number_of_members.female_18_35' => 'Female Members 18-35',
+            'number_of_members.female_35_plus' => 'Female Members 35+',
+            'number_of_members.male_18_35' => 'Male Members 18-35',
+            'number_of_members.male_35_plus' => 'Male Members 35+',
+            'aggregation_centers.specify' => 'aggregation centers specify',
+            'aggregation_centers.response' => 'aggregation centers response',
+            'aggregation_center_sales' => 'aggregation center sales',
+            'market_information_systems' => 'market information systems',
+            'uses_market_information_systems' => 'sell your products through market information systems',
         ];
     }
 
@@ -339,7 +424,7 @@ class Add extends Component
                 'inputOne.*.conc_date_recorded' => 'required',
                 'inputOne.*.conc_partner_name' => 'required',
                 'inputOne.*.conc_country' => 'required',
-                'inputOne.*.conc_date_of_maximum_sale' => 'required',
+                'inputOne.*.conc_date_of_maximum_sale' => 'required|date',
                 'inputOne.*.conc_product_type' => 'required',
                 'inputOne.*.conc_volume_sold_previous_period' => 'required',
                 'inputOne.*.conc_financial_value_of_sales' => 'required',
@@ -404,7 +489,17 @@ class Add extends Component
             ]);
         }
         if (!empty($rules)) {
-            $this->validate($rules, [], $attributes);
+            try {
+
+                $this->validate($rules, [], $attributes);
+
+
+            } catch (Throwable $e) {
+                session()->flash('validation_error', 'There are errors in the dynamic forms.');
+                throw $e;
+            }
+
+
         }
 
 
@@ -413,15 +508,16 @@ class Add extends Component
 
     public function save()
     {
+        try {
 
-        $this->validate();
-
-
-
+            $this->validate();
 
 
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
 
-        $this->validateDynamicForms();
 
         try {
             $uuid = Uuid::uuid4()->toString();
@@ -491,7 +587,7 @@ class Add extends Component
                     $firstTable[$key] = json_encode($value);
                 }
             }
-
+            dd($firstTable);
 
             $currentUser = Auth::user();
             $recruit = RtcProductionFarmer::create($firstTable);
@@ -532,26 +628,25 @@ class Add extends Component
 
                 ]);
 
-                $routePrefix = Route::current()->getPrefix();
+
+
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
                 return redirect()->to(url()->previous());
 
             } catch (UserErrorException $e) {
+                // Log the actual error for debugging purposes
+                \Log::error('Submission error: ' . $e->getMessage());
 
-                session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+                // Provide a generic error message to the user
+                session()->flash('error', $e->getMessage());
             }
 
 
 
-
-
-
-
-        } catch (\Exception $e) {
-            # code...
-
-            Log::channel('system_log')->error('Submission error: ' . $e->getMessage());
+        } catch (Throwable $th) {
+            session()->flash('error', 'Something went wrong!');
+            \Log::error($th->getMessage());
         }
     }
 
