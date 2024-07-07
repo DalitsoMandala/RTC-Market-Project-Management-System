@@ -15,6 +15,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Throwable;
 
 class SubPeriod extends Component
 {
@@ -55,8 +56,13 @@ class SubPeriod extends Component
 
     public function save()
     {
+        try {
+            $this->validate();
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
 
-        $this->validate();
         $this->resetErrorBag();
         try {
 
@@ -78,7 +84,7 @@ class SubPeriod extends Component
                     session()->flash('success', 'Updated Successfully');
 
                 } else {
-                    session()->flash('success', 'Sorry you can not update this record right now because it has submissions.');
+                    session()->flash('error', 'Sorry you can not update this record right now because it has submissions.');
                 }
 
             } else {
@@ -117,21 +123,20 @@ class SubPeriod extends Component
                         }
 
                         session()->flash('success', 'Created Successfully');
-
+                        return redirect()->to(url()->previous());
                     }
                 }
 
             }
 
-            $this->dispatch('refresh');
 
-        } catch (\Throwable $th) {
+
+        } catch (Throwable $th) {
 
             session()->flash('error', 'something went wrong');
-            dd($th);
+
         }
-        $this->reset();
-        $this->loadData();
+
     }
 
     public function loadData()
@@ -281,7 +286,8 @@ class SubPeriod extends Component
     {
         $this->reset();
         $this->loadData();
-        $this->dispatch('clear-choices');
+        $this->dispatch('update-indicator');
+        $this->resetErrorBag();
 
     }
 

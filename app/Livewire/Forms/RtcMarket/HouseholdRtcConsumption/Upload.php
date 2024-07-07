@@ -56,9 +56,10 @@ class Upload extends Component
 
             if ($this->upload) {
 
-                $name = 'hrc_' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs(path: 'imports', name: $name);
-                $path = storage_path('app/imports/' . $name);
+                $name = 'hh_' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $this->upload->storeAs('public/imports', $name);
+
+                $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 try {
@@ -94,6 +95,7 @@ class Upload extends Component
                                 'period_id' => $this->submissionPeriodId,
                                 'table_name' => json_encode($table),
                                 'is_complete' => 1,
+                                'file_link' => $name,
                             ]);
 
                             $data = json_decode($submission->data, true);
@@ -129,6 +131,7 @@ class Upload extends Component
                                 'data' => json_encode($batch_data),
                                 'batch_type' => 'batch',
                                 'table_name' => json_encode($table),
+                                'file_link' => $name,
                             ]);
 
 
@@ -215,7 +218,7 @@ class Upload extends Component
     {
         $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new HrcExport, 'household_rtc_consumption.xlsx');
+        return Excel::download(new HrcExport, 'household_rtc_consumption_template.xlsx');
 
     }
 

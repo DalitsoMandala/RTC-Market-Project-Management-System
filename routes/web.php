@@ -22,7 +22,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
-Route::get('/test', fn() => '');
+Route::get('/test', function () {
+    $filePath = public_path('storage\imports\hh_1720372440.xlsx');
+
+    return Response::download($filePath, 'hh_1720372440.xlsx');
+});
 
 // TestingController route
 Route::get('/export/{name}', [TestingController::class, 'index']);

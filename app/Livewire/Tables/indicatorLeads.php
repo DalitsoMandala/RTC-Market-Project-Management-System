@@ -8,6 +8,7 @@ use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -39,10 +40,10 @@ final class indicatorLeads extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
+    public function datasource(): Collection
     {
 
-        return ResponsiblePerson::with(['indicator', 'organisation']);
+        return ResponsiblePerson::with(['indicator', 'organisation'])->get();
     }
 
     public function fields(): PowerGridFields
@@ -53,6 +54,13 @@ final class indicatorLeads extends PowerGridComponent
             ->add('organisation', fn($model) => Organisation::find($model->organisation_id)->name)
             ->add('indicator_id')
             ->add('indicator', fn($model) => Indicator::find($model->indicator_id)->indicator_name)
+            ->add('forms', function($model) {
+              $forms =  Indicator::find($model->indicator_id)->forms();
+              $forms = $forms->get();
+              $forms = $forms->pluck('name')->toArray();
+              return implode(', ', $forms);
+
+            })
             ->add('type_of_submission')
             ->add('aggregate_type')
             ->add('created_at')
@@ -64,6 +72,7 @@ final class indicatorLeads extends PowerGridComponent
         return [
             Column::make('Id', 'id'),
             Column::make('Indicator', 'indicator'),
+            Column::make('Forms', 'forms'),
             Column::make('Organisation', 'organisation'),
 
             Column::make('Type of submission', 'type_of_submission')

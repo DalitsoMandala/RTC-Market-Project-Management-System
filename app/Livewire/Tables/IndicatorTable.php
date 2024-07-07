@@ -46,7 +46,7 @@ final class IndicatorTable extends PowerGridComponent
             return Indicator::query()->with(['project']);
 
         } else {
-//responsiblePeopleforIndicators are organisations reponsible for these indicators
+            //responsiblePeopleforIndicators are organisations reponsible for these indicators
             $user = User::find($this->userId);
             $organisation_id = $user->organisation->id;
 
@@ -177,6 +177,8 @@ final class IndicatorTable extends PowerGridComponent
                     }
                 })
                 ->disable(),
+
+
         ];
     }
 

@@ -2,7 +2,12 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use App\Models\Form;
 use App\Models\Indicator;
+use App\Models\IndicatorForm;
+use App\Models\Organisation;
+use App\Models\Project;
+use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -12,9 +17,30 @@ use Livewire\Component;
 class Indicators extends Component
 {
     use LivewireAlert;
-    #[Validate('required')]
+
     public $indicator;
     public $rowId;
+
+    public $projects = [];
+    #[Validate('required')]
+    public $selectedProject;
+
+    public $indicators = [];
+
+    public $selectedIndicators;
+
+
+    public $leadPartners = [];
+    #[Validate('required')]
+    public $selectedLeadPartner = [];
+
+    public $sources = [];
+    #[Validate('required')]
+    public $selectedSource = [];
+
+    public $submissionTypes = [];
+
+    public $selectedSubmissionType;
 
     public function setData($id)
     {
@@ -22,26 +48,61 @@ class Indicators extends Component
         $indicator = Indicator::find($id);
         $this->rowId = $id;
         $this->indicator = $indicator->indicator_name;
+        $this->selectedProject = $indicator->project->id;
+        $resp = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+        $this->selectedLeadPartner = $resp->toArray();
+        $forms = $indicator->forms->pluck('id');
+        $this->selectedSource = $forms->toArray();
+
+        $this->dispatch('select-partners', data: $this->selectedLeadPartner, data2: $this->selectedSource);
     }
 
     public function save()
     {
         $this->validate();
         try {
+            $id = $this->rowId;
+            ResponsiblePerson::where('indicator_id', $id)->delete();
 
-            Indicator::find($this->rowId)->update([
-                'indicator_name' => $this->indicator,
-            ]);
+            // Create new ResponsiblePerson records for the selected partners
+            foreach ($this->selectedLeadPartner as $partner) {
+                ResponsiblePerson::create([
+                    'organisation_id' => $partner,
+                    'indicator_id' => $id,
+                ]);
+            }
 
-            $this->alert('success', 'Successfully updated');
+            $indicator = Indicator::find($id);
+            IndicatorForm::where('indicator_id', $id)->delete();
+
+            foreach ($this->selectedSource as $form) {
+                IndicatorForm::create([
+                    'form_id' => $form,
+                    'indicator_id' => $id,
+                ]);
+            }
+
             $this->dispatch('refresh');
+            session()->flash('success', 'Successfully updated!');
         } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
+            dd($th);
+            session()->flash('error', 'Something went wrong!');
             Log::error($th);
         }
 
         $this->dispatch('hideModal');
         $this->reset();
+    }
+
+    public function mount()
+    {
+
+        $this->projects = Project::get();
+        $this->leadPartners = Organisation::get();
+        $this->sources = Form::get();
+        $this->indicators = Indicator::get();
+
+
     }
     public function render()
     {

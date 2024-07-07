@@ -107,7 +107,7 @@ final class SubmissionTable extends PowerGridComponent
 
                 $formatted_name = strtolower(str_replace(' ', '-', $form_name));
                 $user = Auth::user();
-                $status = ($model->status === 'pending' && $user->hasAnyRole('external')) ? 'disabled text-secondary pe-none' : '';
+                $status = $model->status === 'pending' ? 'disabled text-secondary pe-none' : '';
 
                 if ($model->batch_type == 'aggregate') {
                     if ($user->id == $model->user_id) {
@@ -200,6 +200,9 @@ final class SubmissionTable extends PowerGridComponent
                 //
             })
             ->add('created_at')
+            ->add('file_link', function ($model) {
+                return '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
+            })
             ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
     }
@@ -235,6 +238,7 @@ final class SubmissionTable extends PowerGridComponent
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
+            Column::make('File', 'file_link'),
             Column::action('Action'),
             // Column::make('Created at', 'created_at')
             //     ->sortable()

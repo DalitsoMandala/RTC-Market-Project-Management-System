@@ -3,6 +3,8 @@
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
 use App\Exceptions\UserErrorException;
+
+use App\Helpers\LogError;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
@@ -14,12 +16,14 @@ use App\Notifications\AggregateDataAddedNotification;
 use App\Notifications\ManualDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class AddData extends Component
 {
@@ -30,14 +34,14 @@ class AddData extends Component
 
     public $submissionPeriodId;
     public $inputs = [];
-    #[Validate('required')]
+
     public $epa;
-    #[Validate('required')]
+
     public $section;
-    #[Validate('required')]
+
     public $district;
 
-    #[Validate('required')]
+
     public $enterprise;
 
     public $period;
@@ -74,74 +78,98 @@ class AddData extends Component
     public $routePrefix;
     protected function rules()
     {
-        $validationRules = [];
-
-        foreach ($this->inputs as $index => $input) {
-
-            $validationRules['inputs.' . $index . '.date_of_assessment'] = 'required|date';
-            $validationRules['inputs.' . $index . '.actor_type'] = 'required';
-            $validationRules['inputs.' . $index . '.rtc_group_platform'] = 'required';
-            $validationRules['inputs.' . $index . '.producer_organisation'] = 'required';
-            $validationRules['inputs.' . $index . '.actor_name'] = 'required';
-            $validationRules['inputs.' . $index . '.age_group'] = 'required';
-            $validationRules['inputs.' . $index . '.sex'] = 'required';
-            $validationRules['inputs.' . $index . '.phone_number'] = 'required';
-            $validationRules['inputs.' . $index . '.household_size'] = 'required|numeric';
-            $validationRules['inputs.' . $index . '.under_5_in_household'] = 'required|numeric';
-            $validationRules['inputs.' . $index . '.rtc_consumers'] = 'required|numeric|lte:inputs.' . $index . '.household_size';
-            $validationRules['inputs.' . $index . '.rtc_consumers_potato'] = 'required|numeric';
-            $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato'] = 'required|numeric';
-            $validationRules['inputs.' . $index . '.rtc_consumers_cassava'] = 'required|numeric';
-            $validationRules['inputs.' . $index . '.rtc_consumption_frequency'] = 'required|numeric';
-            $validationRules['inputs.' . $index . '.main_food'] = 'required';
-        }
-
-        return $validationRules;
+        return [
+            'epa' => 'required',
+            'section' => 'required',
+            'district' => 'required',
+            'enterprise' => 'required',
+            'inputs.*.date_of_assessment' => 'required|date',
+            'inputs.*.actor_type' => 'required',
+            'inputs.*.rtc_group_platform' => 'required',
+            'inputs.*.producer_organisation' => 'required',
+            'inputs.*.actor_name' => 'required',
+            'inputs.*.age_group' => 'required',
+            'inputs.*.sex' => 'required',
+            'inputs.*.phone_number' => 'required',
+            'inputs.*.household_size' => 'required|numeric|min:0',
+            'inputs.*.under_5_in_household' => 'required|numeric|min:0',
+            'inputs.*.rtc_consumers' => 'required|numeric|min:0|lte:inputs.*.household_size',
+            'inputs.*.rtc_consumers_potato' => 'required|numeric|min:0',
+            'inputs.*.rtc_consumers_sw_potato' => 'required|numeric|min:0',
+            'inputs.*.rtc_consumers_cassava' => 'required|numeric|min:0',
+            'inputs.*.rtc_consumption_frequency' => 'required|numeric|min:0',
+            'inputs.*.main_food' => 'required',
+        ];
     }
-
-    protected function messages()
+    protected function validationAttributes()
     {
-        $validationRules = [];
-
-        foreach ($this->inputs as $index => $input) {
-
-            $validationRules['inputs.' . $index . '.date_of_assessment.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.date_of_assessment.date'] = 'This field should be a date';
-
-            $validationRules['inputs.' . $index . '.actor_type.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.rtc_group_platform.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.producer_organisation.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.actor_name.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.age_group.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.sex.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.phone_number.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.household_size.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.household_size.numeric'] = 'This field should be a number';
-
-            $validationRules['inputs.' . $index . '.under_5_in_household.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.under_5_in_household.numeric'] = 'This field should be a number';
-
-            $validationRules['inputs.' . $index . '.rtc_consumers.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.rtc_consumers.numeric'] = 'This field should be a number';
-            $validationRules['inputs.' . $index . '.rtc_consumers.lte'] = 'This field should be less than or equal to the household size';
-
-            $validationRules['inputs.' . $index . '.rtc_consumers_potato.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.rtc_consumers_potato.numeric'] = 'This field should be a number';
-
-            $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato.numeric'] = 'This field should be a number';
-
-            $validationRules['inputs.' . $index . '.rtc_consumers_cassava.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.rtc_consumers_cassava.numeric'] = 'This field should be a number';
-
-            $validationRules['inputs.' . $index . '.rtc_consumption_frequency.required'] = 'This field is required';
-            $validationRules['inputs.' . $index . '.rtc_consumption_frequency.numeric'] = 'This field should be a number';
-
-            $validationRules['inputs.' . $index . '.main_food'] = 'This field is required';
-        }
-
-        return $validationRules;
+        return [
+            'epa' => 'EPA',
+            'section' => 'Section',
+            'district' => 'District',
+            'enterprise' => 'Enterprise',
+            'inputs.*.date_of_assessment' => 'date of assessment',
+            'inputs.*.actor_type' => 'actor type',
+            'inputs.*.rtc_group_platform' => 'RTC group platform',
+            'inputs.*.producer_organisation' => 'producer organisation',
+            'inputs.*.actor_name' => 'actor name',
+            'inputs.*.age_group' => 'age group',
+            'inputs.*.sex' => 'sex',
+            'inputs.*.phone_number' => 'phone number',
+            'inputs.*.household_size' => 'household size',
+            'inputs.*.under_5_in_household' => 'under 5 in household',
+            'inputs.*.rtc_consumers' => 'RTC consumers',
+            'inputs.*.rtc_consumers_potato' => 'RTC consumers (potato)',
+            'inputs.*.rtc_consumers_sw_potato' => 'RTC consumers (sweet potato)',
+            'inputs.*.rtc_consumers_cassava' => 'RTC consumers (cassava)',
+            'inputs.*.rtc_consumption_frequency' => 'RTC consumption frequency',
+            'inputs.*.main_food' => 'main food',
+        ];
     }
+
+    // protected function messages()
+    // {
+    //     $validationRules = [];
+
+    //     foreach ($this->inputs as $index => $input) {
+
+    //         $validationRules['inputs.' . $index . '.date_of_assessment.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.date_of_assessment.date'] = 'This field should be a date';
+
+    //         $validationRules['inputs.' . $index . '.actor_type.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.rtc_group_platform.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.producer_organisation.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.actor_name.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.age_group.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.sex.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.phone_number.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.household_size.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.household_size.numeric'] = 'This field should be a number';
+
+    //         $validationRules['inputs.' . $index . '.under_5_in_household.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.under_5_in_household.numeric'] = 'This field should be a number';
+
+    //         $validationRules['inputs.' . $index . '.rtc_consumers.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.rtc_consumers.numeric'] = 'This field should be a number';
+    //         $validationRules['inputs.' . $index . '.rtc_consumers.lte'] = 'This field should be less than or equal to the household size';
+
+    //         $validationRules['inputs.' . $index . '.rtc_consumers_potato.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.rtc_consumers_potato.numeric'] = 'This field should be a number';
+
+    //         $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.rtc_consumers_sw_potato.numeric'] = 'This field should be a number';
+
+    //         $validationRules['inputs.' . $index . '.rtc_consumers_cassava.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.rtc_consumers_cassava.numeric'] = 'This field should be a number';
+
+    //         $validationRules['inputs.' . $index . '.rtc_consumption_frequency.required'] = 'This field is required';
+    //         $validationRules['inputs.' . $index . '.rtc_consumption_frequency.numeric'] = 'This field should be a number';
+
+    //         $validationRules['inputs.' . $index . '.main_food'] = 'This field is required';
+    //     }
+
+    //     return $validationRules;
+    // }
 
     public function addInput()
     {
@@ -192,7 +220,13 @@ class AddData extends Component
     public function save()
     {
 
-        $this->validate();
+        try {
+            $this->validate($this->rules(), [], $this->validationAttributes());
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
+
 
         try {
             $uuid = Uuid::uuid4()->toString();
@@ -264,14 +298,14 @@ class AddData extends Component
                 \Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
-                session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+                session()->flash('error', 'Something went wrong!');
             }
 
 
 
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             session()->flash('error', 'Something went wrong!');
-
+            \Log::error($th->getMessage());
         }
 
     }
@@ -343,11 +377,11 @@ class AddData extends Component
 
                         $this->aggregateData = [];
 
-                        $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                        $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
-                        $this->dispatch('notify');
-                        $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
-                        session()->flash('success', 'Successfully submitted! <a href="' . route('rtc-market-hrc') . '#manual-submission">View Submission here</a>');
+                        // $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                        // $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
+                        // $this->dispatch('notify');
+                        // $this->reset('selectedIndicator', 'selectedMonth', 'selectedFinancialYear');
+                        session()->flash('success', 'Successfully submitted! <a href="' . route('cip-internal-submissions') . '#manual-submission">View Submission here</a>');
 
                     }
                 } catch (\Exception $e) {
@@ -374,25 +408,26 @@ class AddData extends Component
                     ]);
 
                     $this->aggregateData = [];
+                    session()->flash('success', 'Successfully submitted! <a href="' . route('external-submissions') . '#manual-submission">View Submission here</a>');
 
-                    session()->flash('success', 'Successfully submitted! <a href="../../../submissions">View Submission here</a>');
-
-                    $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
+                    // $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    // $currentUser->notify(new AggregateDataAddedNotification($uuid, $link));
 
 
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
+                    Log::channel('system_log')->error('Submission error: ' . $e->getMessage());
 
                     // Provide a generic error message to the user
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
             }
 
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
+            Log::error($th->getMessage());
 
             session()->flash('error', 'Something went wrong!');
+
 
         }
 
