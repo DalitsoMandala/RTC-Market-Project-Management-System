@@ -518,6 +518,7 @@ class Add extends Component
             throw $e;
         }
 
+        $this->validateDynamicForms();
 
         try {
             $uuid = Uuid::uuid4()->toString();
@@ -587,7 +588,7 @@ class Add extends Component
                     $firstTable[$key] = json_encode($value);
                 }
             }
-            dd($firstTable);
+
 
             $currentUser = Auth::user();
             $recruit = RtcProductionFarmer::create($firstTable);

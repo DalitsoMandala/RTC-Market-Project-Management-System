@@ -37,25 +37,28 @@
         </div>
         <!-- end page title -->
         <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
-        <div wire:ignore>
-
-            @if (session()->has('success'))
-                <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-            @endif
 
 
-            @if (session()->has('error'))
-                <x-error-alert>{!! session()->get('success') !!}</x-error-alert>
-            @endif
+        @if (session()->has('success'))
+            <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+        @endif
+        @if (session()->has('error'))
+            <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+        @endif
+
+        @if (session()->has('validation_error'))
+            <x-error-alert>{!! session()->get('validation_error') !!}</x-error-alert>
+        @endif
 
 
-        </div>
+
         @if ($openSubmission === false)
             <div class="alert alert-warning" role="alert">
                 You can not submit a form right now
                 because submissions are closed for the moment!
             </div>
         @endif
+
         <div class="mb-1 row  @if ($openSubmission === false) opacity-25  pe-none @endif" x-data="{
             selectedFinancialYear: $wire.entangle('selectedFinancialYear').live,
             selectedMonth: $wire.entangle('selectedMonth').live,
@@ -63,20 +66,24 @@
         }">
 
             <div class="col-md-8">
-                <form wire:submit='save'>
+                <form wire:submit.debounce.1000ms='save'>
                     <div class="card col-12 col-md-12">
                         <div class="card-header fw-bold" id="section-0">Location</div>
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="" class="form-label">ENTERPRISE</label>
-                                <x-text-input wire:model='location_data.enterprise' />
+                                <x-text-input wire:model='location_data.enterprise' :class="$errors->has('location_data.enterprise') ? 'is-invalid' : ''" />
                                 @error('location_data.enterprise')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
                             <div class="mb-3">
                                 <label for="" class="form-label">DISTRICT</label>
-                                <select class="form-select" wire:model='location_data.district'>
+                                <select
+                                    class="form-select @error('location_data.district')
+                                        is-invalid
+                                    @enderror"
+                                    wire:model='location_data.district'>
                                     <option value="">Choose one</option>
                                     <option>BALAKA</option>
                                     <option>BLANTYRE</option>
@@ -113,7 +120,7 @@
 
                             <div class="mb-3">
                                 <label for="" class="form-label">EPA</label>
-                                <x-text-input wire:model='location_data.epa' />
+                                <x-text-input wire:model='location_data.epa' :class="$errors->has('location_data.epa') ? 'is-invalid' : ''" />
                                 @error('location_data.epa')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -121,7 +128,7 @@
 
                             <div class="mb-3">
                                 <label for="" class="form-label">SECTION</label>
-                                <x-text-input wire:model='location_data.section' />
+                                <x-text-input wire:model='location_data.section' :class="$errors->has('location_data.section') ? 'is-invalid' : ''" />
                                 @error('location_data.section')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror

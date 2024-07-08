@@ -4,9 +4,9 @@
 
 <!-- Date of Recruitment -->
 <div class="mb-3">
-    <label for="dateOfRecruitment" class="form-label">Date of
-        Recruitment</label>
-    <input type="date" class="form-control" id="dateOfRecruitment" wire:model='date_of_recruitment' />
+    <label for="dateOfRecruitment" class="form-label">Date of Recruitment</label>
+    <input type="date" class="form-control @error('date_of_recruitment') is-invalid @enderror" id="dateOfRecruitment"
+        wire:model='date_of_recruitment' />
 
     @error('date_of_recruitment')
         <x-error>{{ $message }}</x-error>
@@ -16,7 +16,8 @@
 <!-- Name of Actor -->
 <div class="mb-3">
     <label for="nameOfActor" class="form-label">Name of Actor</label>
-    <input type="text" class="form-control" id="nameOfActor" wire:model='name_of_actor'>
+    <input type="text" class="form-control @error('name_of_actor') is-invalid @enderror" id="nameOfActor"
+        wire:model='name_of_actor'>
     @error('name_of_actor')
         <x-error>{{ $message }}</x-error>
     @enderror
@@ -24,9 +25,9 @@
 
 <!-- Name of Representative -->
 <div class="mb-3">
-    <label for="nameOfRepresentative" class="form-label">Name of
-        Representative</label>
-    <input type="text" class="form-control" id="nameOfRepresentative" wire:model='name_of_representative'>
+    <label for="nameOfRepresentative" class="form-label">Name of Representative</label>
+    <input type="text" class="form-control @error('name_of_representative') is-invalid @enderror"
+        id="nameOfRepresentative" wire:model='name_of_representative'>
     @error('name_of_representative')
         <x-error>{{ $message }}</x-error>
     @enderror
@@ -35,7 +36,7 @@
 <!-- Phone Number -->
 <div class="mb-3">
     <label for="phoneNumber" class="form-label">Phone Number</label>
-    <x-phone type="tel" class="form-control" id="phoneNumber" wire:model='phone_number' />
+    <x-phone type="tel" class="form-control " :class="$errors->has('phone_number') ? 'is-invalid' : ''" wire:model="phone_number" />
     @error('phone_number')
         <x-error>{{ $message }}</x-error>
     @enderror
@@ -45,11 +46,10 @@
 <div class="mb-3" x-data="{ type: $wire.entangle('type') }">
     <label for="type" class="form-label">Type</label>
 
-    <select class="form-select form-select-md" wire:model='type'>
+    <select class="form-select form-select-md @error('type') is-invalid @enderror" wire:model='type'>
         <option selected value="">Select one</option>
         <option value="PRODUCER ORGANIZATION">PRODUCER ORGANIZATION (PO)</option>
         <option value="LARGE SCALE FARM">LARGE SCALE FARM</option>
-
     </select>
 
     @error('type')
@@ -59,28 +59,21 @@
 </div>
 
 <!-- Approach (For Producer Organizations Only) -->
-<div class="mb-3" x-data="{
-    type: $wire.entangle('type'),
-    approach: $wire.entangle('approach')
-}" x-init="$watch('type', (v) => {
-
+<div class="mb-3" x-data="{ type: $wire.entangle('type'), approach: $wire.entangle('approach') }" x-init="$watch('type', (v) => {
     if (v != 'PRODUCER ORGANIZATION') {
         approach = '';
         $wire.resetValues('approach');
-
     }
 });" x-show="type=='PRODUCER ORGANIZATION'">
-    <label for="approach" class="form-label">What
-        Approach Does Your Group Follow (For Producer Organizations
+    <label for="approach" class="form-label">What Approach Does Your Group Follow (For Producer Organizations
         Only)</label>
-    <select class="form-select" x-model="approach">
+    <select class="form-select @error('approach') is-invalid @enderror" wire:model="approach">
         <option value="">Select One</option>
-        <option value="COLLECTIVE PRODUCTION ONLY">COLLECTIVE PRODUCTION ONLY
-        </option>
+        <option value="COLLECTIVE PRODUCTION ONLY">COLLECTIVE PRODUCTION ONLY</option>
         <option value="COLLECTIVE MARKETING ONLY">COLLECTIVE MARKETING ONLY</option>
         <option value="KNOWLEDGE SHARING ONLY">KNOWLEDGE SHARING ONLY</option>
-        <option value="COLLECTIVE PRODUCTION, MARKETING AND KNOWLEDGE SHARING">
-            COLLECTIVE PRODUCTION, MARKETING AND KNOWLEDGE SHARING</option>
+        <option value="COLLECTIVE PRODUCTION, MARKETING AND KNOWLEDGE SHARING">COLLECTIVE PRODUCTION, MARKETING AND
+            KNOWLEDGE SHARING</option>
         <option value="N/A">N/A</option>
     </select>
 
@@ -88,10 +81,11 @@
         <x-error>{{ $message }}</x-error>
     @enderror
 </div>
+
 <!-- Sector -->
 <div class="mb-3">
     <label for="sector" class="form-label">Sector</label>
-    <select class="form-select" wire:model="sector">
+    <select class="form-select @error('sector') is-invalid @enderror" wire:model="sector">
         <option value="">Select One</option>
         <option value="PRIVATE">PRIVATE</option>
         <option value="PUBLIC">PUBLIC</option>
@@ -105,52 +99,77 @@
 <!-- Number of Members (For Producer Organizations Only) -->
 <div class="mb-3" x-data="{
     type: $wire.entangle('type'),
-    number_of_members: $wire.entangle('number_of_members')
+    number_of_members: $wire.entangle('number_of_members'),
 }" x-init="$watch('type', (v) => {
-
     if (v != 'PRODUCER ORGANIZATION') {
-        number_of_members = [];
+        number_of_members = {};
         $wire.resetValues('number_of_members');
     }
-});" x-show="type=='PRODUCER ORGANIZATION'">
-    <label for="numberOfMembers" class="form-label">Number of Members (For
-        Producer Organizations Only)</label>
+});
 
+$watch('number_of_members', (v) => {
+    $wire.number_of_members = v;
+
+});" x-show="type=='PRODUCER ORGANIZATION'">
+    <label for="numberOfMembers" class="form-label">Number of Members (For Producer Organizations Only)</label>
 
     <div class="mb-3">
-        <label for="total">TOTAL:</label>
+
         <div class="row">
+            <div class="col-12">
+                <label for="female1835">Total:</label>
+                <input type="number" class="form-control @error('number_of_members.total') is-invalid @enderror"
+                    id="female1835" x-model="number_of_members.total">
+                @error('number_of_members.total')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
+            </div>
             <div class="col">
                 <label for="female1835">FEMALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="female1835" x-model="number_of_members.female_18_35">
+                <input type="number" class="form-control @error('number_of_members.female_18_35') is-invalid @enderror"
+                    id="female1835" x-model="number_of_members.female_18_35">
+                @error('number_of_members.female_18_35')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
             <div class="col">
                 <label for="female35plus">FEMALE 35YRS+:</label>
-                <input type="number" class="form-control" id="female35plus" x-model="number_of_members.female_35_plus">
+                <input type="number"
+                    class="form-control @error('number_of_members.female_35_plus') is-invalid @enderror"
+                    id="female35plus" x-model="number_of_members.female_35_plus">
+                @error('number_of_members.female_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
         </div>
         <div class="row">
             <div class="col">
                 <label for="male1835">MALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="male1835" x-model="number_of_members.male_18_35">
+                <input type="number" class="form-control @error('number_of_members.male_18_35') is-invalid @enderror"
+                    id="male1835" x-model="number_of_members.male_18_35">
+                @error('number_of_members.male_18_35')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
             <div class="col">
                 <label for="male35plus">MALE 35YRS +:</label>
-                <input type="number" class="form-control" id="male35plus" x-model="number_of_members.male_35_plus">
+                <input type="number"
+                    class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror" id="male35plus"
+                    x-model="number_of_members.male_35_plus">
+                @error('number_of_members.male_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
         </div>
     </div>
 </div>
 
 <!-- Group -->
-<div class="mb-3" x-data="{
-    group: $wire.entangle('group')
-}">
+<div class="mb-3" x-data="{ group: $wire.entangle('group') }">
     <label for="group" class="form-label">Group</label>
-    <select class="form-select" x-model="group">
+    <select class="form-select @error('group') is-invalid @enderror" x-model="group">
         <option value="">Select One</option>
-        <option selected value="EARLY GENERATION SEED PRODUCER">EARLY GENERATION SEED
-            PRODUCER</option>
+        <option value="EARLY GENERATION SEED PRODUCER">EARLY GENERATION SEED PRODUCER</option>
         <option value="SEED MULTIPLIER">SEED MULTIPLIER</option>
         <option value="RTC PRODUCER">RTC PRODUCER</option>
     </select>
@@ -162,35 +181,38 @@
 
 <!-- New or Old Establishment -->
 <div class="mb-3">
-    <label for="establishment" class="form-label">Is this a New or Old
-        Establishment</label>
-    <select class="form-select" id="establishment" wire:model='establishment_status'>
+    <label for="establishment" class="form-label">Is this a New or Old Establishment</label>
+    <select class="form-select @error('establishment_status') is-invalid @enderror" id="establishment"
+        wire:model='establishment_status'>
         <option value="">Select One</option>
         <option value="NEW">NEW (1-5 YEARS)</option>
         <option value="OLD">OLD (OVER 5 YEARS)</option>
     </select>
+    @error('establishment_status')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
-
 <!-- Formally Registered Entity -->
-<div class="mb-3" x-data="{
-    is_registered: $wire.entangle('is_registered')
-}">
+<div class="mb-3" x-data="{ is_registered: $wire.entangle('is_registered') }">
     <label class="form-label">Is this a Formally Registered Entity</label>
-    <div>
+    <div class="@error('is_registered')
+        border border-danger
+    @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="registeredYes" value="1"
-                x-model="is_registered">
+            <input class="form-check-input @error('is_registered') is-invalid @enderror" type="radio"
+                id="registeredYes" value="1" x-model="is_registered">
             <label class="form-check-label" for="registeredYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="registeredNo" value="0"
-                x-model="is_registered">
+            <input class="form-check-input @error('is_registered') is-invalid @enderror" type="radio"
+                id="registeredNo" value="0" x-model="is_registered">
             <label class="form-check-label" for="registeredNo">No</label>
         </div>
     </div>
+    @error('is_registered')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
-
-
 <!-- Registration Details -->
 <div class="mb-3" x-data="{
     is_registered: $wire.entangle('is_registered'),
@@ -198,26 +220,45 @@
 }" x-init="$watch('is_registered', (v) => {
 
     if (v != 1) {
+        registration_details = {};
         $wire.resetValues('registration_details');
     }
+});
+$watch('registration_details', (v) => {
+
+
+    $wire.registration_details = v;
+
 });" x-show='is_registered == 1'>
     <label for="registrationDetails" class="form-label">Registration
         Details</label>
 
     <div class="mb-3">
         <label for="registrationBody">REGISTRATION BODY:</label>
-        <input type="text" class="form-control" id="registrationBody"
-            wire:model="registration_details.registration_body">
+        <input type="text"
+            class="form-control @error('registration_details.registration_body') is-invalid @enderror"
+            id="registrationBody" x-model="registration_details.registration_body">
+        @error('registration_details.registration_body')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
     <div class="mb-3">
         <label for="registrationNumber">REGISTRATION NUMBER:</label>
-        <input type="text" class="form-control" id="registrationNumber"
-            wire:model="registration_details.registration_number">
+        <input type="text"
+            class="form-control @error('registration_details.registration_number') is-invalid @enderror"
+            id="registrationNumber" x-model="registration_details.registration_number">
+        @error('registration_details.registration_number')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
     <div class="mb-3">
         <label for="registrationDate">REGISTRATION DATE:</label>
-        <input type="date" class="form-control" id="registrationDate"
-            wire:model="registration_details.registration_date">
+        <input type="date"
+            class="form-control @error('registration_details.registration_date') is-invalid @enderror"
+            id="registrationDate" x-model="registration_details.registration_date">
+        @error('registration_details.registration_date')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
 
 </div>
@@ -233,25 +274,41 @@
 
             <div class="mb-3">
                 <label for="formalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="formalFemale1835"
-                    wire:model="number_of_employees.formal.female_18_35">
+                <input type="number"
+                    class="form-control @error('number_of_employees.formal.female_18_35') is-invalid @enderror"
+                    id="formalFemale1835" wire:model="number_of_employees.formal.female_18_35">
+                @error('number_of_employees.formal.female_18_35')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="formalFemale35">FEMALE 35YRS+:</label>
-                <input type="number" class="form-control" id="formalFemale35"
-                    wire:model="number_of_employees.formal.female_35_plus">
+                <input type="number"
+                    class="form-control @error('number_of_employees.formal.female_35_plus') is-invalid @enderror"
+                    id="formalFemale35" wire:model="number_of_employees.formal.female_35_plus">
+                @error('number_of_employees.formal.female_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
         </div>
         <div class="col">
             <div class="mb-3">
                 <label for="formalMale1835">MALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="formalMale1835"
-                    wire:model="number_of_employees.formal.male_18_35">
+                <input type="number"
+                    class="form-control @error('number_of_employees.formal.male_18_35') is-invalid @enderror"
+                    id="formalMale1835" wire:model="number_of_employees.formal.male_18_35">
+                @error('number_of_employees.formal.male_18_35')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="formalMale35">MALE 35YRS+:</label>
-                <input type="number" class="form-control" id="formalMale35"
-                    wire:model="number_of_employees.formal.male_35_plus">
+                <input type="number"
+                    class="form-control @error('number_of_employees.formal.male_35_plus') is-invalid @enderror"
+                    id="formalMale35" wire:model="number_of_employees.formal.male_35_plus">
+                @error('number_of_employees.formal.male_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
         </div>
     </div>
@@ -263,25 +320,41 @@
 
             <div class="mb-3">
                 <label for="informalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number" class="form-control" id="informalFemale1835"
-                    wire:model="number_of_employees.informal.female_18_35">
+                <input type="number"
+                    class="form-control @error('number_of_employees.informal.female_18_35') is-invalid @enderror"
+                    id="informalFemale1835" wire:model="number_of_employees.informal.female_18_35">
+                @error('number_of_employees.informal.female_18_35')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="informalFemale35">FEMALE 35YRS+:</label>
-                <input type="number" class="form-control" id="informalFemale35"
-                    wire:model="number_of_employees.informal.female_35_plus">
+                <input type="number"
+                    class="form-control @error('number_of_employees.informal.female_35_plus') is-invalid @enderror"
+                    id="informalFemale35" wire:model="number_of_employees.informal.female_35_plus">
+                @error('number_of_employees.informal.female_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
         </div>
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="informalMale1835">MALE 18-35YRS: </label>
-                <input type="number" class="form-control" id="informalMale1835"
-                    wire:model="number_of_employees.informal.male_18_35">
+                <input type="number"
+                    class="form-control @error('number_of_employees.informal.male_18_35') is-invalid @enderror"
+                    id="informalMale1835" wire:model="number_of_employees.informal.male_18_35">
+                @error('number_of_employees.informal.male_18_35')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
             <div class="mb-3">
                 <label for="informalMale35">MALE 35YRS+:</label>
-                <input type="number" class="form-control" id="informalMale35"
-                    wire:model="number_of_employees.informal.male_35_plus">
+                <input type="number"
+                    class="form-control @error('number_of_employees.informal.male_35_plus') is-invalid @enderror"
+                    id="informalMale35" wire:model="number_of_employees.informal.male_35_plus">
+                @error('number_of_employees.informal.male_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
             </div>
         </div>
     </div>
@@ -298,18 +371,21 @@
 <div class="mb-3">
     <label for="marketSegment" class="form-label">Market Segment (Multiple
         Responses)</label>
-
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="marketSegmentFresh" wire:model="market_segment.fresh"
-            value="YES">
-        <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
+    <div class="@error('market_segment') border border-danger @enderror">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="marketSegmentFresh"
+                wire:model="market_segment.fresh" value="YES">
+            <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="NO"
+                wire:model="market_segment.processed">
+            <label class="form-check-label" for="marketSegmentProcessed">Processed</label>
+        </div>
     </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="NO"
-            wire:model="market_segment.processed">
-        <label class="form-check-label" for="marketSegmentProcessed">Processed</label>
-    </div>
-
+    @error('market_segment')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- RTC Market Contractual Agreement -->
@@ -317,7 +393,7 @@
     has_rtc_market_contract: $wire.entangle('has_rtc_market_contract')
 }">
     <label class="form-label">Do You Have Any RTC Market Contractual Agreement</label>
-    <div>
+    <div class="@error('has_rtc_market_contract') border border-primary @enderror">
         <div class="form-check">
             <input class="form-check-input" type="radio" id="rtcMarketContractYes" value="1"
                 x-model="has_rtc_market_contract">
@@ -329,14 +405,20 @@
             <label class="form-check-label" for="rtcMarketContractNo">No</label>
         </div>
     </div>
+    @error('has_rtc_market_contract')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Total Volume of Production in Previous Season (Metric Tonnes) -->
 <div class="mb-3">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
-    <input type="number" class="form-control" id="totalVolumeProductions"
-        wire:model='total_vol_production_previous_season'>
+    <input type="number" class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
+        id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
+    @error('total_vol_production_previous_season')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
@@ -344,18 +426,27 @@
     <label for="totalValueProduction" class="my-3 form-label fw-bold">Total Value
         Production
         Previous Season (Financial Value-MWK)</label>
+
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Total Production
             Value Previous Season (Financial Value-MWK):</label>
-        <input type="number" class="form-control" id="totalProductionValue"
-            wire:model="total_production_value_previous_season.total">
+        <input type="number"
+            class="form-control  @error('total_production_value_previous_season.total') is-invalid @enderror"
+            id="totalProductionValue" wire:model="total_production_value_previous_season.total">
+        @error('total_production_value_previous_season.total')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
 
     <div class="mb-3">
         <label for="dateOfMaximumSales" class="form-label">Date of Maximum
             Sales:</label>
-        <input type="date" class="form-control" id="dateOfMaximumSales"
-            wire:model="total_production_value_previous_season.date_of_maximum_sales">
+        <input type="date"
+            class="form-control  @error('total_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
+            id="dateOfMaximumSales" wire:model="total_production_value_previous_season.date_of_maximum_sales">
+        @error('total_production_value_previous_season.date_of_maximum_sales')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
 
 </div>
@@ -365,8 +456,12 @@
     <label for="totalVolumeIrrigation" class="form-label">Total Volume of
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
-    <input type="number" class="form-control" id="totalVolumeIrrigation"
-        wire:model='total_vol_irrigation_production_previous_season'>
+    <input type="number"
+        class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror"
+        id="totalVolumeIrrigation" wire:model='total_vol_irrigation_production_previous_season'>
+    @error('total_vol_irrigation_production_previous_season')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
@@ -377,15 +472,26 @@
     <div class="mb-3">
         <label for="totalIrrigationProductionValue" class="form-label">Total
             Irrigation Production Value Previous Season:</label>
-        <input type="number" class="form-control" id="totalIrrigationProductionValue"
-            wire:model="total_irrigation_production_value_previous_season.total">
+        <input type="number"
+            class="form-control  @error('total_irrigation_production_value_previous_season.tota') is-invalid @enderror"
+            id="totalIrrigationProductionValue" wire:model="total_irrigation_production_value_previous_season.total">
+        @error('total_irrigation_production_value_previous_season.tota')
+            <x-error>{{ $message }}</x-error>
+        @enderror
+
     </div>
 
     <div class="mb-3">
         <label for="dateOfMaximumSalesIrrigation" class="form-label">Date of
             Maximum Sales (Irrigation):</label>
-        <input type="date" class="form-control" id="dateOfMaximumSalesIrrigation"
+        <input type="date"
+            class="form-control  @error('total_irrigation_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
+            id="dateOfMaximumSalesIrrigation"
             wire:model="total_irrigation_production_value_previous_season.date_of_maximum_sales">
+
+        @error('total_irrigation_production_value_previous_season.date_of_maximum_sales')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
 
 </div>
@@ -395,7 +501,7 @@
     sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets')
 }">
     <label class="form-label">Do You Sell Your RTC Products to Domestic Markets</label>
-    <div>
+    <div class=" @error('sells_to_domestic_markets') is-invalid @enderror">
         <div class="form-check">
             <input class="form-check-input" type="radio" id="sellToDomesticMarketsYes" value="1"
                 x-model="sells_to_domestic_markets">
@@ -407,6 +513,10 @@
             <label class="form-check-label" for="sellToDomesticMarketsNo">No</label>
         </div>
     </div>
+
+    @error('sells_to_domestic_markets')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Sell Products to International Markets -->
@@ -414,7 +524,7 @@
     sells_to_international_markets: $wire.entangle('sells_to_international_markets')
 }">
     <label class="form-label">Do You Sell Your Products to International Markets</label>
-    <div>
+    <div class=" @error('sells_to_international_markets') border border-primary @enderror">
         <div class="form-check">
             <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1"
                 x-model="sells_to_international_markets">
@@ -426,6 +536,9 @@
             <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
         </div>
     </div>
+    @error('sells_to_international_markets')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <!-- Sell Products Through Market Information Systems -->
@@ -433,7 +546,7 @@
     uses_market_information_systems: $wire.entangle('uses_market_information_systems')
 }">
     <label class="form-label">Do You Sell Your Products Through Market Information Systems</label>
-    <div>
+    <div class=" @error('uses_market_information_systems') border border-danger @enderror">
         <div class="form-check">
             <input class="form-check-input" type="radio" id="sellThroughMarketInfoYes" value="1"
                 x-model="uses_market_information_systems">
@@ -445,6 +558,9 @@
             <label class="form-check-label" for="sellThroughMarketInfoNo">No</label>
         </div>
     </div>
+    @error('uses_market_information_systems')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
 
 <div class="mb-3" x-data="{
@@ -453,40 +569,57 @@
 }" x-init="$watch('uses_market_information_systems', (v) => {
 
     if (v != 1) {
+        market_information_systems = {};
         $wire.resetValues('market_information_systems');
     }
+});
+
+$watch('market_information_systems', (v) => {
+
+    $wire.market_information_systems = v;
+
 });" x-show='uses_market_information_systems == 1'>
     <label for="" class="form-label">Specify Market Information System</label>
-    <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
-        placeholder="" x-model='market_information_systems' />
-
+    <input type="text" class="form-control  @error('market_information_systems') is-invalid @enderror"
+        name="" id="" aria-describedby="helpId" placeholder=""
+        x-model='market_information_systems' />
+    @error('market_information_systems')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
-
 
 
 <!-- Sell RTC Produce Through Aggregation Centers -->
 
 <div x-data="{
     aggregation_centers: $wire.entangle('aggregation_centers'),
-    change() {
-        this.aggregation_centers.specify = '';
-    }
+    aggregation_center_sales: $wire.entangle('aggregation_center_sales'),
 
-}" x-init="$watch('aggregation_centers.response', (v) => {
 
-    if (v != 1) {
-        change();
+}" x-init="$watch('aggregation_centers', (v) => {
+
+    if (v.response != 1) {
+        aggregation_centers.specify = '';
+        aggregation_center_sales = null;
+        $wire.resetValues('aggregation_center_sales');
         $wire.resetValues('aggregation_centers');
     }
 });
 
-aggregation_centers.response = 0;">
+$watch('aggregation_center_sales', (v) => {
+
+
+
+    $wire.aggregation_center_sales = v;
+
+
+});">
     <div class="mb-3">
         <label for="sellThroughAggregationCenters" class="my-3 form-label ">Do
             You Sell RTC
             Produce Through Aggregation Centers</label>
 
-        <div>
+        <div class=" @error('aggregation_centers') border border-primary @enderror">
             <div class="form-check">
                 <input class="form-check-input" type="radio" id="aggregationCenterResponseYes" value="1"
                     wire:model='aggregation_centers.response' x-model="aggregation_centers.response">
@@ -499,22 +632,32 @@ aggregation_centers.response = 0;">
             </div>
         </div>
 
-
+        @error('aggregation_centers')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
 
     <div class="mb-3" x-show='aggregation_centers.response == 1'>
         <label for="aggregationCenterSpecify" class="form-label">Aggregation
             Centers Specify:</label>
-        <input type="text" class="form-control" wire:model="aggregation_centers.specify">
+        <input type="text" class="form-control  @error('aggregation_centers.specify') is-invalid @enderror"
+            wire:model="aggregation_centers.specify">
+        @error('aggregation_centers.specify')
+            <x-error>{{ $message }}</x-error>
+        @enderror
     </div>
-</div>
 
+    <!-- Total Volume of RTC Sold Through Aggregation Centers in Previous Season (Metric Tonnes) -->
+    <div class="mb-3" x-show='aggregation_centers.response == 1'>
+        <label for="totalVolumeSoldThroughAggregation" class="form-label">Total Volume
+            of RTC Sold Through Aggregation Centers in Previous Season (Metric
+            Tonnes)</label>
+        <input type="number" class="form-control  @error('aggregation_center_sales') is-invalid @enderror"
+            id="totalVolumeSoldThroughAggregation" x-model='aggregation_center_sales'>
 
-<!-- Total Volume of RTC Sold Through Aggregation Centers in Previous Season (Metric Tonnes) -->
-<div class="mb-3">
-    <label for="totalVolumeSoldThroughAggregation" class="form-label">Total Volume
-        of RTC Sold Through Aggregation Centers in Previous Season (Metric
-        Tonnes)</label>
-    <input type="number" class="form-control" id="totalVolumeSoldThroughAggregation"
-        wire:model='aggregation_center_sales'>
+        @error('aggregation_center_sales')
+            <x-error>{{ $message }}</x-error>
+        @enderror
+    </div>
+
 </div>
