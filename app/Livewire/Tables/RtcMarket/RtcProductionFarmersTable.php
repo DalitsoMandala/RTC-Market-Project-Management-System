@@ -150,6 +150,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::action('Action'),
             Column::make('Id', 'id'),
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable(),
@@ -415,7 +416,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::action('Action'),
+
 
         ];
     }
@@ -436,12 +437,15 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function actions($row): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: ' . $row->id)
+            Button::add('add-follow-up')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->class('btn btn-primary')
                 ->dispatch('edit', ['rowId' => $row->id]),
+
+
         ];
+
     }
 
     #[\Livewire\Attributes\On('refresh')]
