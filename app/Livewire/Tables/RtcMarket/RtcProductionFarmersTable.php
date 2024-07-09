@@ -4,8 +4,10 @@ namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
 use App\Models\RpmFarmerFollowUp;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -39,11 +41,47 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
+    public function datasource(): Collection
     {
-        return DB::table('rtc_production_farmers');
+
+        return RtcProductionFarmer::get();
+
+
+    }
+    public function sort($field, $direction)
+    {
+        $data = $this->datasource();
+        $fieldPath = explode('.', $field);
+        $fieldName = array_shift($fieldPath);
+
+        if ($this->isJsonField($fieldName)) {
+            $data = $data->sortBy(function ($item) use ($fieldPath) {
+                $json = json_decode($item->{array_shift($fieldPath)});
+                return data_get($json, implode('.', $fieldPath));
+            }, SORT_REGULAR, $direction === 'desc')->values();
+        } else {
+            $data = $data->sortBy($field, SORT_REGULAR, $direction === 'desc')->values();
+        }
+
+        return $data;
     }
 
+    private function isJsonField($field)
+    {
+        $jsonFields = [
+            'location_data',
+            'number_of_members',
+            'area_under_cultivation',
+            'number_of_plantlets_produced',
+            'basic_seed_multiplication',
+            'market_segment',
+            'total_production_value_previous_season',
+            'total_irrigation_production_value_previous_season',
+            'aggregation_centers',
+        ];
+
+        return in_array($field, $jsonFields);
+    }
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -243,11 +281,11 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/total', 'area_under_cultivation')
+            Column::make('Area under cultivation/total', 'area_under_cultivation', 'area_under_cultivation')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 1', 'area_under_cultivation_variety_1')
+            Column::make('Area under cultivation/variety 1', 'area_under_cultivation_variety_1', 'area_under_cultivation->variety_1')
                 ->sortable()
                 ->searchable(),
 
@@ -291,7 +329,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total')
+            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total', )
                 ->sortable()
                 ->searchable(),
 
@@ -326,7 +364,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
 
             Column::make('Area under certified seed multiplication/total', 'area_under_certified_seed_multiplication_total')
-                ->sortable()
+
                 ->searchable(),
 
             Column::make('Area under certified seed multiplication/variety', 'area_under_certified_seed_multiplication_variety_1')
@@ -447,6 +485,14 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         ];
     }
 
+
+    public function beforeSearch(string $field = null, string $search = null)
+    {
+
+        dd($search);
+
+        return $search;
+    }
     public function filters(): array
     {
         return [

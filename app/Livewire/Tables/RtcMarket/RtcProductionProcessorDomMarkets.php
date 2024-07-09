@@ -2,6 +2,7 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\RtcProductionProcessor;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+
 
         return [
             Exportable::make('export')
@@ -45,11 +46,23 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('rpm_processor_id')
-            ->add('date_recorded_formatted', fn ($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
+            ->add('actor_name', function ($model) {
+                $farmer = $model->rpm_processor_id;
+                $row = RtcProductionProcessor::find($farmer);
+
+                if ($row) {
+                    return $row->name_of_actor;
+
+                }
+                return null;
+
+
+            })
+            ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
             ->add('market_name')
             ->add('district')
-            ->add('date_of_maximum_sale_formatted', fn ($model) => Carbon::parse($model->date_of_maximum_sale)->format('d/m/Y'))
+            ->add('date_of_maximum_sale_formatted', fn($model) => Carbon::parse($model->date_of_maximum_sale)->format('d/m/Y'))
             ->add('product_type')
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
@@ -61,7 +74,8 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Rpm processor id', 'rpm_processor_id'),
+            Column::make('Actor Name', 'actor_name'),
+            Column::make('Actor id', 'rpm_processor_id'),
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
@@ -112,27 +126,27 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datepicker('date_recorded'),
-            Filter::datepicker('date_of_maximum_sale'),
+            // Filter::datepicker('date_recorded'),
+            // Filter::datepicker('date_of_maximum_sale'),
         ];
     }
 
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('Edit: '.$row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('Edit: ' . $row->id)
+    //             ->id()
+    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+    //             ->dispatch('edit', ['rowId' => $row->id]),
+    //     ];
+    // }
 
     /*
     public function actionRules($row): array

@@ -25,7 +25,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public $routePrefix;
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //    $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -212,7 +212,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datepicker('date_of_recruitment'),
+            //  Filter::datepicker('date_of_recruitment'),
         ];
     }
 

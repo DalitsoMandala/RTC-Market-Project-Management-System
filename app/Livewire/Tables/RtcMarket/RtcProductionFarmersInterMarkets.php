@@ -2,6 +2,7 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +13,8 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class RtcProductionFarmersInterMarkets extends PowerGridComponent
@@ -22,7 +23,7 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+
 
         return [
             Exportable::make('export')
@@ -45,11 +46,23 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('rpm_farmer_id')
-            ->add('date_recorded_formatted', fn ($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
+            ->add('actor_name', function ($model) {
+                $farmer = $model->rpm_farmer_id;
+                $row = RtcProductionFarmer::find($farmer);
+
+                if ($row) {
+                    return $row->name_of_actor;
+
+                }
+                return null;
+
+
+            })
+            ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
             ->add('market_name')
             ->add('country')
-            ->add('date_of_maximum_sale_formatted', fn ($model) => Carbon::parse($model->date_of_maximum_sale)->format('d/m/Y'))
+            ->add('date_of_maximum_sale_formatted', fn($model) => Carbon::parse($model->date_of_maximum_sale)->format('d/m/Y'))
             ->add('product_type')
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
@@ -61,7 +74,8 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Rpm farmer id', 'rpm_farmer_id'),
+            Column::make('Actor Name', 'actor_name'),
+            Column::make('Actor id', 'rpm_farmer_id'),
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
@@ -92,19 +106,7 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
 
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
-
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
 
         ];
     }
@@ -112,27 +114,27 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datepicker('date_recorded'),
-            Filter::datepicker('date_of_maximum_sale'),
+            // Filter::datepicker('date_recorded'),
+            // Filter::datepicker('date_of_maximum_sale'),
         ];
     }
 
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('Edit: '.$row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('Edit: '.$row->id)
+    //             ->id()
+    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+    //             ->dispatch('edit', ['rowId' => $row->id])
+    //     ];
+    // }
 
     /*
     public function actionRules($row): array

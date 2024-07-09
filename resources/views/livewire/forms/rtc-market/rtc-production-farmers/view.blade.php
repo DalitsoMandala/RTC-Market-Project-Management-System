@@ -53,6 +53,27 @@
                                 </button>
                             </li>
 
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#conc"
+                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Contractual Aggrement Data
+                                </button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#dom"
+                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Domestic Markets Data
+                                </button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#inter"
+                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    International Markets Data
+                                </button>
+                            </li>
+
                         </ul>
 
                         <!-- Tab panes -->
@@ -69,6 +90,20 @@
                                 <livewire:tables.rtcmarket.rtc-production-farmers-follow-u :key="'rpm2'"
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
+
+                            <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rtc-production-farmers-conc-agreement />
+                            </div>
+                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rtc-production-farmers-dom-markets />
+                            </div>
+                            <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rtc-production-farmers-inter-markets />
+                            </div>
+
                         </div>
 
 
