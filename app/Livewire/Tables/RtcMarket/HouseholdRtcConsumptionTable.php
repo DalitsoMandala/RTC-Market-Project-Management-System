@@ -45,32 +45,32 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         $user = User::find($this->userId);
         //  dd($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true);
         $query = HouseholdRtcConsumption::query();
+        return $query->get();
+        // if ($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true) {
+        //     if ($this->uuid) {
+        //         $query->where('uuid', $this->uuid)->get();
+        //         $count = Submission::where('batch_no', $this->uuid)->where('status', 'pending')->first();
+        //         if ($count) {
 
-        if ($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true) {
-            if ($this->uuid) {
-                $query->where('uuid', $this->uuid)->get();
-                $count = Submission::where('batch_no', $this->uuid)->where('status', 'pending')->first();
-                if ($count) {
+        //             $data = json_decode($count->data, true);
+        //             $query = collect($data);
+        //             return $query;
+        //         }
+        //     }
 
-                    $data = json_decode($count->data, true);
-                    $query = collect($data);
-                    return $query;
-                }
-            }
+        //     return $query->get();
 
-            return $query->get();
+        // } else if ($user->hasAnyRole('external') === true) {
 
-        } else if ($user->hasAnyRole('external') === true) {
+        //     $query->where('user_id', $this->userId)->get();
 
-            $query->where('user_id', $this->userId)->get();
+        //     if ($this->uuid) {
 
-            if ($this->uuid) {
+        //         $query->where('uuid', $this->uuid)->get();
+        //     }
 
-                $query->where('uuid', $this->uuid)->get();
-            }
-
-            return $query->get();
-        }
+        //     return $query->get();
+        // }
 
 
 
