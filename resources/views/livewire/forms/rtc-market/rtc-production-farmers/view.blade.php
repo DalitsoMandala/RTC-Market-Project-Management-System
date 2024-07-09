@@ -57,15 +57,16 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="normal" role="tabpanel"
+                            <div class="mt-2 tab-pane active fade show" id="normal" role="tabpanel"
                                 aria-labelledby="home-tab">
-                                <livewire:tables.rtc-market.rtc-production-farmers-table :followUp="''"
+                                <livewire:tables.rtc-market.rtc-production-farmers-table :key="'rpm1'"
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
+                            <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtc-market.rtc-production-farmers-table :followUp="''"
+
+                                <livewire:tables.rtcmarket.rtc-production-farmers-follow-u :key="'rpm2'"
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
                         </div>

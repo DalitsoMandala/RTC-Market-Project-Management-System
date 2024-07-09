@@ -117,7 +117,7 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow// MAIN SHEET
         $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
 
         if (count($missingHeadings) > 0) {
-            dd($missingHeadings);
+
             throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
 
         }

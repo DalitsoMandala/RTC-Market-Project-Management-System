@@ -125,10 +125,10 @@ class Upload extends Component
                                 $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
                                 $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
                                 $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
-                                //    $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                                //   $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                                //  $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                                //   $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+                                   $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                                  $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                                 $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                                  $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
 
                                 $idMappings[$mainSheet['#']] = $highestId;
                                 unset($mainSheet['#']);

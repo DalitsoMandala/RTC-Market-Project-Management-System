@@ -11,4 +11,9 @@ class RpmFarmerFollowUp extends Model
 
     protected $table = "rpm_farmer_follow_ups";
     protected $guarded = [];
+
+    public function farmers()
+    {
+        return $this->belongsTo(RtcProductionFarmer::class, 'rpm_farmer_id');
+    }
 }

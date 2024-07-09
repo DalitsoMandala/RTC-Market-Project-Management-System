@@ -77,9 +77,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-        
+
                     // foreach($submission as $index => $status){
-        
+
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -119,7 +119,7 @@ final class SubmissionTable extends PowerGridComponent
 
                 } else if ($model->batch_type == 'batch') {
 
-                    return '<a data-bs-toggle="tooltip" data-bs-title="View batch"  class="' . $status . '" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
+                    return '<a data-bs-toggle="tooltip" data-bs-title="View batch"  class="pe-none text-muted" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
                 }
 
             })
