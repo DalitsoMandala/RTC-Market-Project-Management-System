@@ -49,7 +49,7 @@
                         <div class="alert alert-primary" id="section-b" role="alert">
                             <strong> RTC PRODUCTION PROCESSORS (FOLLOW UP) </strong>
                         </div>
-                        {{ var_export($errors) }}
+
 
                         <form wire:submit.debounce.1000ms='save'>
                             {{-- <div class="mb-3" x-data="{}" x-init="() => {
@@ -273,14 +273,14 @@
                                     is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
                                     registration_details: $wire.entangle('seed_service_unit_registration_details')
                                 }" x-init="$watch('is_registered_seed_producer', (v) => {
-
+                                
                                     if (v != 1) {
                                         registration_details = {};
                                         $wire.resetValues('seed_service_unit_registration_details');
                                     }
                                 });
                                 $watch('registration_details', (v) => {
-
+                                
                                     $wire.registration_details = v;
                                 });"
                                     x-show='is_registered_seed_producer == 1'>
@@ -508,17 +508,17 @@
                                     uses_market_information_systems: $wire.entangle('uses_market_information_systems'),
                                     market_information_systems: $wire.entangle('market_information_systems')
                                 }" x-init="$watch('uses_market_information_systems', (v) => {
-
+                                
                                     if (v != 1) {
                                         market_information_systems = {};
                                         $wire.resetValues('market_information_systems');
                                     }
                                 });
-
+                                
                                 $watch('market_information_systems', (v) => {
-
+                                
                                     $wire.market_information_systems = v;
-
+                                
                                 });"
                                     x-show='uses_market_information_systems == 1'>
                                     <label for="" class="form-label">Specify Market Information System</label>
@@ -537,10 +537,10 @@
                                 <div x-data="{
                                     aggregation_centers: $wire.entangle('aggregation_centers'),
                                     aggregation_center_sales: $wire.entangle('aggregation_center_sales'),
-
-
+                                
+                                
                                 }" x-init="$watch('aggregation_centers', (v) => {
-
+                                
                                     if (v.response != 1) {
                                         aggregation_centers.specify = '';
                                         aggregation_center_sales = null;
@@ -548,14 +548,14 @@
                                         $wire.resetValues('aggregation_centers');
                                     }
                                 });
-
+                                
                                 $watch('aggregation_center_sales', (v) => {
-
-
-
+                                
+                                
+                                
                                     $wire.aggregation_center_sales = v;
-
-
+                                
+                                
                                 });">
                                     <div class="mb-3">
                                         <label for="sellThroughAggregationCenters" class="my-3 form-label ">Do

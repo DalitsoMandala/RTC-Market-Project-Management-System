@@ -58,7 +58,10 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
 
             })
-            ->add('location_data')
+            ->add('group_name', function ($model) {
+                $data = json_decode($model->location_data);
+                return $data->group_name;
+            })
             ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))
             ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
             ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
@@ -85,9 +88,8 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             Column::make('Id', 'id'),
             Column::make('Actor Name', 'actor_name'),
             Column::make('Actor id', 'rpm_processor_id'),
-            Column::make('Location data', 'location_data')
-                ->sortable()
-                ->searchable(),
+            Column::make('Group name', 'group_name'),
+
 
             Column::make('Date of follow up', 'date_of_follow_up_formatted', 'date_of_follow_up')
                 ->sortable(),

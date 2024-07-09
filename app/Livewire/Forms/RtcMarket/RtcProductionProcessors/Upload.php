@@ -114,6 +114,7 @@ class Upload extends Component
                                 'period_id' => $this->submissionPeriodId,
                                 'table_name' => json_encode($table),
                                 'is_complete' => 1,
+                                'file_link' => $name,
                             ]);
 
                             $data = json_decode($submission->data, true);
@@ -200,6 +201,7 @@ class Upload extends Component
                                 'data' => json_encode($batch_data),
                                 'batch_type' => 'batch',
                                 'table_name' => json_encode($table),
+                                'file_link' => $name,
                             ]);
                             //     $link = 'external/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                             //     $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
@@ -223,8 +225,7 @@ class Upload extends Component
             }
 
         } catch (\Exception $th) {
-            //throw $th;
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
             Log::channel('system_log')->error($th);
 

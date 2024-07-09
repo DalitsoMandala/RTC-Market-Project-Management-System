@@ -22,7 +22,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+        // $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -44,7 +44,23 @@ final class SchoolConsumptionTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('location_data')
+            ->add('enterprise', function ($model) {
+                $data = json_decode($model->location_data);
+                return $data->enterprise;
+            })
+            ->add('district', function ($model) {
+                $data = json_decode($model->location_data);
+                return $data->district;
+            })
+            ->add('epa', function ($model) {
+                $data = json_decode($model->location_data);
+
+                return $data->epa;
+            })
+            ->add('section', function ($model) {
+                $data = json_decode($model->location_data);
+                return $data->section;
+            })
             ->add('date_formatted', fn($model) => Carbon::parse($model->date)->format('d/m/Y'))
             ->add('crop')
             ->add('male_count')
@@ -60,9 +76,10 @@ final class SchoolConsumptionTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Location data', 'location_data')
-                ->sortable()
-                ->searchable(),
+            Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
+            Column::make('District', 'district', 'location_data->district')->sortable(),
+            Column::make('EPA', 'epa'),
+            Column::make('Section', 'section'),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
@@ -87,28 +104,16 @@ final class SchoolConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('User id', 'user_id'),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
 
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
 
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
-            Column::action('Action'),
         ];
     }
 
     public function filters(): array
     {
         return [
-            Filter::datepicker('date'),
+            //    Filter::datepicker('date'),
         ];
     }
 
@@ -118,16 +123,16 @@ final class SchoolConsumptionTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('Edit: ' . $row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id]),
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('Edit: ' . $row->id)
+    //             ->id()
+    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+    //             ->dispatch('edit', ['rowId' => $row->id]),
+    //     ];
+    // }
 
     /*
 public function actionRules($row): array
