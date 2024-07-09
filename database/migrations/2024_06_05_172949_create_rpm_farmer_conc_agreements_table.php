@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('rpm_farmer_conc_agreements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id');
-            $table->date('date_recorded');
+            $table->date('date_recorded')->nullable();
             $table->string('partner_name')->nullable();
             $table->string('country')->nullable();
             $table->date('date_of_maximum_sale')->nullable();

@@ -211,7 +211,7 @@ class Add extends Component
                 'phone_number' => 'required',
                 'type' => 'required',
                 'sector' => 'required',
-                'market_segment' => 'required', // Multiple market segments (array of strings)
+                // Multiple market segments (array of strings)
                 'group' => 'required',
                 'registration_details.*' => 'required_if_accepted:is_registered',
                 'number_of_members.*' => 'required_if:type,PRODUCER ORGANIZATION',
@@ -220,7 +220,7 @@ class Add extends Component
                 'aggregation_center_sales' => 'required_if_accepted:aggregation_centers.response',
                 'number_of_plantlets_produced.*' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
                 'market_information_systems' => 'required_if_accepted:uses_market_information_systems',
-
+                'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
             ];
 
 
@@ -249,6 +249,10 @@ class Add extends Component
             'number_of_employees.informal.male_18_35' => 'Informal Employees Male 18-35',
             'number_of_employees.informal.male_35_plus' => 'Informal Employees Male 35+',
             'is_registered' => 'formally registered entity',
+
+            'is_registered_seed_producer' => 'registered seed producer',
+            'seed_service_unit_registration_details.registration_number' => 'registration number',
+            'seed_service_unit_registration_details.registration_date' => 'registration date',
             'number_of_members.total' => 'Total Members',
             'number_of_members.female_18_35' => 'Female Members 18-35',
             'number_of_members.female_35_plus' => 'Female Members 35+',
@@ -259,6 +263,7 @@ class Add extends Component
             'aggregation_center_sales' => 'aggregation center sales',
             'market_information_systems' => 'market information systems',
             'uses_market_information_systems' => 'sell your products through market information systems',
+            'number_of_plantlets_produced' => 'number of plantlets produced',
         ];
     }
 
@@ -585,7 +590,14 @@ class Add extends Component
 
             foreach ($firstTable as $key => $value) {
                 if (is_array($value)) {
-                    $firstTable[$key] = json_encode($value);
+
+                    if (empty($value)) {
+                        $secondTable[$key] = null;
+                    } else {
+                        $secondTable[$key] = json_encode($value);
+
+                    }
+
                 }
             }
 

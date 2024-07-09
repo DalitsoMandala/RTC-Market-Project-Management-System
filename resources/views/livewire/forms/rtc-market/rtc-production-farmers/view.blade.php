@@ -37,8 +37,40 @@
                         </h4>
                     </div>
                     <div class="card-body" id="#datatable">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                                    data-bs-target="#normal" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">
+                                    Normal Data
+                                </button>
+                            </li>
 
-                        <livewire:tables.rtc-market.rtc-production-farmers-table :userId="auth()->user()->id" />
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#followup"
+                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Follow up Data
+                                </button>
+                            </li>
+
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div wire:ignore class="mt-2 tab-pane active fade show" id="normal" role="tabpanel"
+                                aria-labelledby="home-tab">
+                                <livewire:tables.rtc-market.rtc-production-farmers-table :followUp="''"
+                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
+                            </div>
+
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtc-market.rtc-production-farmers-table :followUp="''"
+                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -53,4 +85,15 @@
 
     </div>
 
+    @script
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
+
+                }
+            }
+        </script>
+    @endscript
 </div>

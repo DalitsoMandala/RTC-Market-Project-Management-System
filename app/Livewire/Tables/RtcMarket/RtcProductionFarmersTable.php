@@ -2,13 +2,17 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
+use App\Models\Form;
+use App\Models\RpmFarmerFollowUp;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -19,7 +23,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class RtcProductionFarmersTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $routePrefix;
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -127,22 +131,22 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('service_unit_date')
             ->add('service_unit_number')
             ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
-            ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
-            ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
-            ->add('total_vol_production_previous_season', fn($model) => $model->total_vol_production_previous_season ?? 0)
-            ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
-            ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-            ->add('total_vol_irrigation_production_previous_season', fn($model) => $model->total_vol_irrigation_production_previous_season ?? 0)
-            ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
-            ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
-            ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
-            ->add('aggregation_centers_response', fn($model) => json_decode($model->aggregation_centers)->response == 1 ? 'Yes' : 'No' ?? null)
-            ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
-            ->add('aggregation_center_sales')
+            // ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
+            // ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
+            // ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
+            // ->add('total_vol_production_previous_season', fn($model) => $model->total_vol_production_previous_season ?? 0)
+            // ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
+            // ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
+            // ->add('total_vol_irrigation_production_previous_season', fn($model) => $model->total_vol_irrigation_production_previous_season ?? 0)
+            // ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
+            // ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
+            // ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
+            // ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
+            // ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
+            // ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
+            // ->add('aggregation_centers_response', fn($model) => json_decode($model->aggregation_centers)->response == 1 ? 'Yes' : 'No' ?? null)
+            // ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
+            // ->add('aggregation_center_sales')
             ->add('created_at')
             ->add('updated_at');
     }
@@ -349,72 +353,72 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Market segment/fresh', 'market_segment_fresh')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Market segment/fresh', 'market_segment_fresh')
+            //     ->sortable()
+            //     ->searchable(),
 
 
-            Column::make('Market segment/processed', 'market_segment_processed')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Market segment/processed', 'market_segment_processed')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Has rtc market contract', 'has_rtc_market_contract')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Has rtc market contract', 'has_rtc_market_contract')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Total production previous season', 'total_vol_production_previous_season')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Total production previous season', 'total_vol_production_previous_season')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Total production value previous season/total', 'total_production_value_previous_season_total')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Total irrigation production previous season', 'total_vol_irrigation_production_previous_season')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Total irrigation production previous season', 'total_vol_irrigation_production_previous_season')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Sells to domestic markets', 'sells_to_domestic_markets')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Sells to international markets', 'sells_to_international_markets')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Uses market information systems', 'uses_market_information_systems')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Market information systems', 'market_information_systems')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Aggregation centers/Response', 'aggregation_centers_response')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total')
+            //     ->sortable()
+            //     ->searchable(),
 
 
-            Column::make('Aggregation centers/Specify', 'aggregation_centers_specify')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date')
+            //     ->sortable()
+            //     ->searchable(),
 
-            Column::make('Aggregation center sales', 'aggregation_center_sales')
-                ->sortable()
-                ->searchable(),
+            // Column::make('Sells to domestic markets', 'sells_to_domestic_markets')
+            //     ->sortable()
+            //     ->searchable(),
+
+            // Column::make('Sells to international markets', 'sells_to_international_markets')
+            //     ->sortable()
+            //     ->searchable(),
+
+            // Column::make('Uses market information systems', 'uses_market_information_systems')
+            //     ->sortable()
+            //     ->searchable(),
+
+            // Column::make('Market information systems', 'market_information_systems')
+            //     ->sortable()
+            //     ->searchable(),
+
+            // Column::make('Aggregation centers/Response', 'aggregation_centers_response')
+            //     ->sortable()
+            //     ->searchable(),
+
+
+            // Column::make('Aggregation centers/Specify', 'aggregation_centers_specify')
+            //     ->sortable()
+            //     ->searchable(),
+
+            // Column::make('Aggregation center sales', 'aggregation_center_sales')
+            //     ->sortable()
+            //     ->searchable(),
 
 
 
@@ -434,14 +438,37 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
+    public function openModal($id)
+    {
+
+        $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM FARMERS')->first();
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        return redirect()->to('' . $this->routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $id . '');
+    }
+
+
     public function actions($row): array
     {
+        $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM FARMERS')->first();
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $route = '' . $this->routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $row->id . '';
+
         return [
             Button::add('add-follow-up')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('btn btn-primary')
-                ->dispatch('edit', ['rowId' => $row->id]),
+
+                ->render(function ($model) use ($route) {
+                    return Blade::render(<<<HTML
+            <a href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" ><i class="bx bxs-add-to-queue"></i></a>
+            HTML);
+                })
+
+            ,
 
 
         ];
@@ -453,15 +480,15 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     {
         $this->refresh();
     }
-    /*
-public function actionRules($row): array
-{
-return [
-// Hide button edit for ID 1
-Rule::button('edit')
-->when(fn($row) => $row->id === 1)
-->hide(),
-];
-}
- */
+
+    public function actionRules($row): array
+    {
+        return [
+            // Hide button edit for ID 1
+            // Rule::button('add-follow-up')
+            //     ->when(fn($row) => !(RpmFarmerFollowUp::find($row->id)))
+            //     ->hide(),
+        ];
+    }
+
 }

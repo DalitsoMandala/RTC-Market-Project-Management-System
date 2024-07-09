@@ -72,9 +72,10 @@ class Upload extends Component
 
             if ($this->upload) {
 
-                $name = 'hrc_' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs(path: 'imports', name: $name);
-                $path = storage_path('app/imports/' . $name);
+                $name = 'rpmf' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $this->upload->storeAs('public/imports', $name);
+
+                $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 try {
@@ -112,6 +113,7 @@ class Upload extends Component
                                 'period_id' => $this->submissionPeriodId,
                                 'table_name' => json_encode($table),
                                 'is_complete' => 1,
+                                'file_link' => $name,
                             ]);
 
                             $data = json_decode($submission->data, true);
@@ -123,10 +125,10 @@ class Upload extends Component
                                 $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
                                 $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
                                 $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+                                //    $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                                //   $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                                //  $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                                //   $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
 
                                 $idMappings[$mainSheet['#']] = $highestId;
                                 unset($mainSheet['#']);
@@ -139,10 +141,10 @@ class Upload extends Component
                                 $mainSheet['rpm_farmer_id'] = $newId;
                                 $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
                                 $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+                                //   $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                                // $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                                // $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                                //  $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
                                 $mainTable = RpmFarmerFollowUp::create($mainSheet);
 
                                 // follow up data
@@ -203,6 +205,7 @@ class Upload extends Component
                                 'data' => json_encode($batch_data),
                                 'batch_type' => 'batch',
                                 'table_name' => json_encode($table),
+                                'file_link' => $name,
                             ]);
                             //     $link = 'external/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                             //     $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
@@ -224,7 +227,7 @@ class Upload extends Component
 
         } catch (\Exception $th) {
             //throw $th;
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
             Log::channel('system_log')->error($th);
 
@@ -282,11 +285,6 @@ class Upload extends Component
             }
         }
 
-    }
-    #[On('removeUploadedFile')]
-    public function resetUpload()
-    {
-        $this->reset('upload');
     }
 
 

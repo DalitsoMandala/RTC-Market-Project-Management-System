@@ -72,9 +72,10 @@ class Upload extends Component
 
             if ($this->upload) {
 
-                $name = 'hrc_' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs(path: 'imports', name: $name);
-                $path = storage_path('app/imports/' . $name);
+                $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $this->upload->storeAs('public/imports', $name);
+
+                $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 try {

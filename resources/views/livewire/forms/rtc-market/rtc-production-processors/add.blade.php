@@ -183,7 +183,7 @@
                                 href="#section-g" href="#">DOMESTIC
                                 MARKETS</a>
                             <a x-show="sells_to_international_markets == 1" x-data="{
-                            
+
                                 sells_to_international_markets: $wire.entangle('sells_to_international_markets'),
                             }" class="nav-link"
                                 href="#section-h" href="#">INTERNATIONAL
@@ -213,6 +213,10 @@
                     this.value = this.value.toUpperCase();
                 });
 
+            });
+
+            document.querySelectorAll('input[type="number"]').forEach(function(input) {
+                input.setAttribute('step', 'any');
             });
         </script>
     @endscript

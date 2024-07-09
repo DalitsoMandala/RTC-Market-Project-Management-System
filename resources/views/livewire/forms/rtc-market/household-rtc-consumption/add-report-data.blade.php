@@ -26,7 +26,7 @@
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();

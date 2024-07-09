@@ -124,7 +124,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Form', 'form_name'),
+            Column::make('Form', 'form_name')
+                ->headerAttribute(classAttr: 'table-sticky-col')
+                ->bodyAttribute(classAttr: 'table-sticky-col')
+            ,
 
             Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
                 ->sortable(),
@@ -218,6 +221,39 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $this->redirect($route);
     }
 
+
+    #[On('sendFollowUpData')]
+    public function sendFollowUpData($model)
+    {
+        $model = (object) $model;
+
+        $form = Form::find($model->form_id);
+        $user = Auth::user();
+        $organisation = $user->organisation;
+        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
+        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $routePrefix = $this->currentRoutePrefix;
+
+        if ($checkTypeofSubmission->contains('aggregate')) {
+
+
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+
+
+
+        } else {
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+        }
+
+        $this->redirect($route);
+    }
+
     #[On('sendUploadData')]
     public function sendUploadData($model)
     {
@@ -242,13 +278,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->tooltip('Edit Record')
-                ->class('btn btn-primary my-1')
+                ->class('btn btn-primary btn-sm my-1')
                 ->dispatch('editData', ['rowId' => $row->id]),
 
             Button::add('add-data')
                 ->slot('<i class="bx bx-plus"></i>')
                 ->id()
-                ->class('btn btn-primary my-1')
+                ->class('btn btn-primary btn-sm my-1')
                 ->tooltip('Add Data')
                 ->dispatch('sendData', ['model' => $row]),
 
@@ -256,8 +292,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-upload"></i>')
                 ->id()
                 ->tooltip('Upload Your Data')
-                ->class('btn btn-primary my-1')
+                ->class('btn btn-primary my-1 btn-sm')
                 ->dispatch('sendUploadData', ['model' => $row]),
+
 
         ];
     }

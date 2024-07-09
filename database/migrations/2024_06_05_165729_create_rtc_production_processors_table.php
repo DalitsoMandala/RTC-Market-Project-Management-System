@@ -13,18 +13,18 @@ return new class extends Migration {
         Schema::create('rtc_production_processors', function (Blueprint $table) {
             $table->id();
             $table->json('location_data');
-            $table->date('date_of_recruitment');
-            $table->string('name_of_actor');
-            $table->string('name_of_representative');
-            $table->string('phone_number');
-            $table->string('type');
+            $table->date('date_of_recruitment')->nullable();
+            $table->string('name_of_actor')->nullable();
+            $table->string('name_of_representative')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('type')->nullable();
             $table->string('approach')->nullable(); // For producer organizations only
-            $table->string('sector');
+            $table->string('sector')->nullable();
             $table->json('number_of_members')->nullable(); // For producer organizations only
-            $table->string('group');
+            $table->string('group')->nullable();
             $table->enum('establishment_status', ['NEW', 'OLD']); // Uppercase for enum values
             $table->boolean('is_registered')->default(false);
-            $table->json('registration_details');
+            $table->json('registration_details')->nullable();
             $table->json('number_of_employees')->nullable();
 
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)

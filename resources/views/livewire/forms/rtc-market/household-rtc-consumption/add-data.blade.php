@@ -457,6 +457,10 @@
                 });
 
             });
+
+            document.querySelectorAll('input[type="number"]').forEach(function(input) {
+                input.setAttribute('step', '0.01');
+            });
         </script>
     @endscript
 </div>

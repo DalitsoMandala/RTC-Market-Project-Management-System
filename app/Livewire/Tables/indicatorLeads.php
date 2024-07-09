@@ -54,11 +54,11 @@ final class indicatorLeads extends PowerGridComponent
             ->add('organisation', fn($model) => Organisation::find($model->organisation_id)->name)
             ->add('indicator_id')
             ->add('indicator', fn($model) => Indicator::find($model->indicator_id)->indicator_name)
-            ->add('forms', function($model) {
-              $forms =  Indicator::find($model->indicator_id)->forms();
-              $forms = $forms->get();
-              $forms = $forms->pluck('name')->toArray();
-              return implode(', ', $forms);
+            ->add('forms', function ($model) {
+                $forms = Indicator::find($model->indicator_id)->forms();
+                $forms = $forms->get();
+                $forms = $forms->pluck('name')->toArray();
+                return implode(', ', $forms);
 
             })
             ->add('type_of_submission')

@@ -131,7 +131,12 @@ final class SubmissionTable extends PowerGridComponent
             ->add('form_id')
             ->add('form_name', function ($model) {
                 $form = Form::find($model->form_id);
-                return $form->name;
+
+                $form_name = str_replace(' ', '-', strtolower($form->name));
+                $project = str_replace(' ', '-', strtolower($form->project->name));
+
+                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
+
             })
             ->add('organisation')
             ->add('organisation_formatted', function ($model) {

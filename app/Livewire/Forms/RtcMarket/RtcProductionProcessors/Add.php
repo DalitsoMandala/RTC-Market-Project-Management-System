@@ -559,7 +559,14 @@ class Add extends Component
 
             foreach ($firstTable as $key => $value) {
                 if (is_array($value)) {
-                    $firstTable[$key] = json_encode($value);
+
+                    if (empty($value)) {
+                        $secondTable[$key] = null;
+                    } else {
+                        $secondTable[$key] = json_encode($value);
+
+                    }
+
                 }
             }
 

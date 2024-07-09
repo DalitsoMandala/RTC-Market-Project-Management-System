@@ -851,7 +851,7 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="registrationNumber" class="form-label">Seed Service Unit
             Registration Number:</label>
-        <input type="text" class="form-control  @error('type') is-invalid @enderror" id="registrationNumber"
+        <input type="text" class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror" id="registrationNumber"
             wire:model="seed_service_unit_registration_details.registration_number">
         @error('seed_service_unit_registration_details.registration_number')
             <x-error>{{ $message }}</x-error>
@@ -861,7 +861,7 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="registrationDate" class="form-label">Seed Service Unit
             Registration Date:</label>
-        <input type="date" class="form-control @error('type') is-invalid @enderror " id="registrationDate"
+        <input type="date" class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror " id="registrationDate"
             wire:model="seed_service_unit_registration_details.registration_date">
         @error('seed_service_unit_registration_details.registration_date')
             <x-error>{{ $message }}</x-error>

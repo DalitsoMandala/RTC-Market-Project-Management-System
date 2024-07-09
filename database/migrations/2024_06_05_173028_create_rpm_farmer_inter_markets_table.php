@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('rpm_farmer_inter_markets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id');
-            $table->date('date_recorded');
+            $table->date('date_recorded')->nullable();
             $table->enum('crop_type', ['CASSAVA', 'POTATO', 'SWEET POTATO'])->nullable();
             $table->string('market_name')->nullable();
             $table->string('country')->nullable();

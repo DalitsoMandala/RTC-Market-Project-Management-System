@@ -72,6 +72,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             return $query->get();
         }
 
+
+
     }
 
     public function fields(): PowerGridFields

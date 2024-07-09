@@ -198,7 +198,7 @@
                         </div>
                     </div>
                     <div class="card-body" id="#datatable">
-                        <livewire:tables.rtc-market.rtc-production-processors-table />
+                        <livewire:tables.rtc-market.rtc-production-processors-table :routePrefix="Route::current()->getPrefix()" />
 
                     </div>
                 </div>

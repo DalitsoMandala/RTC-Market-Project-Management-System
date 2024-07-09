@@ -2,13 +2,16 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
+use App\Models\Form;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -19,7 +22,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class RtcProductionProcessorsTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $routePrefix;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -79,6 +82,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::action('Action'),
             Column::make('Id', 'id'),
             Column::make('Location data', 'location_data')
                 ->sortable()
@@ -201,7 +205,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             Column::make('Updated at', 'updated_at')
                 ->sortable()
                 ->searchable(),
-            Column::action('Action'),
+
         ];
     }
 
@@ -220,14 +224,29 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     public function actions($row): array
     {
+        $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS')->first();
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $route = '' . $this->routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $row->id . '';
+
         return [
-            Button::add('edit')
-                ->slot('Edit: ' . $row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id]),
+
+
+            Button::add('add-follow-up')
+
+                ->render(function ($model) use ($route) {
+                    return Blade::render(<<<HTML
+            <a href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" ><i class="bx bxs-add-to-queue"></i></a>
+            HTML);
+                })
+
+            ,
         ];
     }
+
+
 
     /*
 public function actionRules($row): array
