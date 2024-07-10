@@ -2,6 +2,8 @@
 
 namespace App\Exports\rtcmarket\HouseholdExport;
 
+use App\Helpers\ArrayToUpperCase;
+use App\Helpers\ToUpper;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -21,6 +23,33 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
         $faker = Faker::create();
         $data = [];
 
+        $epaNames = [
+            'Malawi Environmental Protection Agency',
+            'Lilongwe Environmental Authority',
+            'Blantyre Environmental Conservation Agency',
+            'Mzuzu Environmental Regulatory Authority',
+            'Zomba Environmental Management Board',
+        ];
+
+        $sectionNames = [
+            'Environmental Impact Assessment',
+            'Pollution Control and Waste Management',
+            'Natural Resources Management',
+            'Environmental Education and Awareness',
+            'Climate Change and Resilience',
+        ];
+
+        $organisationNames = [
+            'Malawi Farmers Union',
+            'Lilongwe Agricultural Cooperative',
+            'Blantyre Horticultural Society',
+            'Mzuzu Crop Producers Association',
+            'Zomba Livestock Farmers Group',
+        ];
+
+        $epaNames = ArrayToUpperCase::convert($epaNames);
+        $organisationNames = ArrayToUpperCase::convert($organisationNames);
+        $sectionNames = ArrayToUpperCase::convert($sectionNames);
         if ($this->test) {
             foreach (range(1, 5) as $index) {
 
@@ -55,12 +84,12 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                         'THYOLO',
                         'ZOMBA',
                     ]),
-                    'EPA' => strtoupper($faker->city),
-                    'SECTION' => strtoupper($faker->streetName),
+                    'EPA' => $faker->randomElement($epaNames),
+                    'SECTION' => $faker->randomElement($sectionNames),
                     'DATE OF ASSESSMENT' => $faker->date(),
                     'ACTOR TYPE' => $faker->randomElement(['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']),
                     'RTC GROUP PLATFORM' => $faker->randomElement(['HOUSEHOLD', 'SEED']),
-                    'PRODUCER ORGANISATION' => strtoupper($faker->company),
+                    'PRODUCER ORGANISATION' => $faker->randomElement($organisationNames),
                     'ACTOR NAME' => strtoupper($faker->name),
                     'AGE GROUP' => $faker->randomElement(['YOUTH', 'NOT YOUTH']),
                     'SEX' => $faker->randomElement(['MALE', 'FEMALE']),

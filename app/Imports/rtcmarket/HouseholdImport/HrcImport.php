@@ -3,6 +3,7 @@
 namespace App\Imports\rtcmarket\HouseholdImport;
 
 use App\Exceptions\UserErrorException;
+use App\Helpers\ArrayToUpperCase;
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -115,6 +116,8 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
             }
 
+
+            $main_data = ArrayToUpperCase::convert($main_data);
             session()->put('uuid', $uuid);
             session()->put('batch_data', $main_data);
 
