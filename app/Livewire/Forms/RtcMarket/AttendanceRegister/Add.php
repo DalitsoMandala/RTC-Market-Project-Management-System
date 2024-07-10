@@ -2,23 +2,140 @@
 
 namespace App\Livewire\Forms\RtcMarket\AttendanceRegister;
 
-use Livewire\Component;
+use App\Exceptions\UserErrorException;
+use App\Livewire\tables\RtcMarket\AttendanceRegisterTable;
+use App\Models\AttendanceRegister;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
+use Throwable;
+
 class Add extends Component
 {
-        use LivewireAlert;
+    use LivewireAlert;
 
 
-    public function save(){
 
+
+
+    public $meetingTitle;
+    public $meetingCategory;
+    public $rtcCrop = [];
+    public $venue;
+    public $district = 'BALAKA';
+    public $startDate;
+    public $endDate;
+    public $totalDays;
+    public $name;
+    public $sex = 'MALE';
+    public $organization;
+    public $designation;
+    public $phone_number;
+    public $email;
+
+    public $disable = false;
+
+
+    protected $rules = [
+        'meetingTitle' => 'required|string|max:255',
+        'meetingCategory' => 'required',
+        'rtcCrop' => 'required|array',
+        'venue' => 'required|string|max:255',
+        'district' => 'required|string|max:255',
+        'startDate' => 'required|date',
+        'endDate' => 'required|date|after_or_equal:startDate',
+        'totalDays' => 'required|integer|min:0',
+        'name' => 'required|string|max:255',
+        'sex' => 'required',
+        'organization' => 'required|string|max:255',
+        'designation' => 'required|string|max:255',
+        'phone_number' => 'required|string',
+        'email' => 'required|email|max:255',
+    ];
+
+    public function save()
+    {
+
+
+        try {
+
+            $this->validate();
+
+
+
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
+
+
+        //continue
+        try {
+
+
+            try {
+
+                $data = [
+                    'meetingTitle' => $this->meetingTitle,
+                    'meetingCategory' => $this->meetingCategory,
+                    'rtcCrop' => json_encode($this->rtcCrop),
+                    'venue' => $this->venue,
+                    'district' => $this->district,
+                    'startDate' => $this->startDate,
+                    'endDate' => $this->endDate,
+                    'totalDays' => $this->totalDays,
+                    'name' => $this->name,
+                    'email' => $this->email,
+                    'sex' => $this->sex,
+                    'organization' => $this->organization,
+                    'designation' => $this->designation,
+                    'phone_number' => $this->phone_number,
+                    'user_id' => auth()->user()->id,
+
+                ];
+
+
+                AttendanceRegister::create($data);
+
+                $this->resetExcept(
+                    'meetingTitle',
+                    'meetingCategory',
+                    'rtcCrop',
+                    'venue',
+                    'district',
+                    'startDate',
+                    'endDate',
+                    'totalDays',
+                    'added'
+                );
+
+                $this->dispatch('refresh-data');
+                session()->flash('success', 'Successfully submitted! <a href="#table">View Sumbissions</a>');
+
+            } catch (UserErrorException $e) {
+                # code...
+                \Log::error('Submission error: ' . $e->getMessage());
+
+                // Provide a generic error message to the user
+                session()->flash('error', $e->getMessage());
+            }
+
+        } catch (Throwable $th) {
+            # code...
+
+            session()->flash('error', 'Something went wrong!');
+            \Log::error($th->getMessage());
+        }
 
     }
 
-    public function mount(){
+    public function mount()
+    {
 
     }
+
+
 
 
     public function render()

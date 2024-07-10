@@ -86,9 +86,12 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($model->project->name));
                 if ($model->name == 'REPORT FORM') {
                     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
-                } else {
-                    return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
-                }
+                } else
+                    if ($model->name == 'ATTENDANCE REGISTER') {
+                        return '<a   href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
+                    } else {
+                        return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                    }
 
 
             })
