@@ -11,13 +11,14 @@ use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Ramsey\Uuid\Uuid;
 
 HeadingRowFormatter::default('none');
 
-class HrcImport implements ToCollection, WithHeadingRow, WithEvents
+class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidation
 {
     /**
      * @param Collection $collection
@@ -127,32 +128,39 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents
 
     }
 
-    // public function registerEvents(): array
-    // {
-    //     return [
-    //         // Handle by a closure.
-    //         BeforeImport::class => function (BeforeImport $event) {
-    //             // dd($event);
-    //             $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
+    public function rules(): array
+    {
+        return [
+            '*.EPA' => 'string|max:255|nullable',
+            '*.DISTRICT' => 'string|max:255|nullable',
+            '*.SECTION' => 'string|max:255|nullable',
+            '*.ENTERPRISE' => 'string|max:255|nullable',
+            '*.DATE OF ASSESSMENT' => 'date|nullable',
+            '*.ACTOR TYPE' => 'string|max:255|in:FARMER,PROCESSOR,TRADER,INDIVIDUALS FROM NUTRITION INTERVENTION,OTHER|nullable',
+            '*.RTC GROUP PLATFORM' => 'string|max:255|nullable',
+            '*.PRODUCER ORGANISATION' => 'string|max:255|nullable',
+            '*.ACTOR NAME' => 'string|max:255|nullable',
+            '*.AGE GROUP' => 'string|max:255|in:YOUTH,NOT YOUTH|nullable',
+            '*.SEX' => 'string|in:MALE,FEMALE|nullable',
+            '*.PHONE NUMBER' => 'string|max:15|nullable',
+            '*.HOUSEHOLD SIZE' => 'numeric|min:1|nullable',
+            '*.UNDER 5 IN HOUSEHOLD' => 'integer|min:0|nullable',
+            '*.RTC CONSUMERS' => 'numeric|min:0|nullable',
+            '*.RTC CONSUMERS/POTATO' => 'numeric|min:0|nullable',
+            '*.RTC CONSUMERS/SWEET POTATO' => 'integer|min:0|nullable',
+            '*.RTC CONSUMERS/CASSAVA' => 'numeric|min:0|nullable',
+            '*.RTC CONSUMPTION FREQUENCY' => 'numeric|max:255|nullable',
+            '*.RTC MAIN FOOD/CASSAVA' => 'string|in:YES,NO|nullable',
+            '*.RTC MAIN FOOD/POTATO' => 'string|in:YES,NO|nullable',
+            '*.RTC MAIN FOOD/SWEET POTATO' => 'string|in:YES,NO|nullable',
+        ];
+    }
 
-    //             if (count($diff) > 0) {
-    //                 session()->flash('error-import', "File contains invalid sheets!");
-    //                 throw new UserErrorException("File contains invalid sheets!");
+    public function customValidationMessages()
+    {
+        return [
 
-    //             }
-    //         },
+        ];
+    }
 
-    //     ];
-    // }
-    // private function validateHeadings(array $headings)
-    // {
-    //     // Collect missing headings
-    //     $missingHeadings = [];
-    //     foreach ($this->expectedHeadings as $expectedHeading) {
-    //         if (!in_array($expectedHeading, $headings)) {
-    //             $missingHeadings[] = $expectedHeading;
-    //         }
-    //     }
-    //     return $missingHeadings;
-    // }
 }

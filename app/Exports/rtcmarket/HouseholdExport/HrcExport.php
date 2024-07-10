@@ -114,6 +114,7 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
         ]);
     }
 
+
     public function headings(): array
     {
         return [

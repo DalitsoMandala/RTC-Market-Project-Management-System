@@ -63,7 +63,33 @@ class Upload extends Component
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 try {
-                    Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
+
+                    try {
+                        Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
+                    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+                        // $failures = $e->failures();
+
+                        // // Collect errors in a user-friendly format
+                        // $errors = [];
+                        // foreach ($failures as $failure) {
+                        //     $errors[] = [
+                        //         'row' => $failure->row(),
+                        //         'attribute' => $failure->attribute(),
+                        //         'errors' => $failure->errors(),
+                        //     ];
+
+
+
+                        // }
+                        // dd($errors);
+
+                        // session()->put('import_failures', $errors);
+
+                        throw new UserErrorException("Something went wrong with your submission!");
+                    }
+
+
+
 
                     $uuid = session()->get('uuid');
                     $batch_data = session()->get('batch_data');

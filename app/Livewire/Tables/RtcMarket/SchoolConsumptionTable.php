@@ -44,9 +44,9 @@ final class SchoolConsumptionTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('enterprise', function ($model) {
+            ->add('school_name', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->enterprise;
+                return $data->school_name;
             })
             ->add('district', function ($model) {
                 $data = json_decode($model->location_data);
@@ -76,8 +76,8 @@ final class SchoolConsumptionTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
-            Column::make('District', 'district', 'location_data->district')->sortable(),
+            Column::make('School Name', 'school_name', 'location_data->school_name')->sortable(),
+            Column::make('District', 'district', 'location_data->district'),
             Column::make('EPA', 'epa'),
             Column::make('Section', 'section'),
 
