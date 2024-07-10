@@ -78,9 +78,15 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
 
 
 
+
     Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+
+
+    Route::get($formPrefix . '/attendance-register/add', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
+    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+
 });
 
 // External routes

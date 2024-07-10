@@ -132,7 +132,7 @@ class Add extends Component
                         'batch_type' => 'aggregate',
                         'is_complete' => 1,
                         'period_id' => $this->submissionPeriodId,
-                        'table_name' => 'reports',
+                        'table_name' => json_encode(['reports']),
 
                     ]);
 
@@ -140,7 +140,7 @@ class Add extends Component
 
 
 
-                    $this->dispatch('notify');
+
                     session()->flash('success', 'Successfully submitted!');
                     //    $this->redirect(route('rtc-market-hrc', ['project' => 'rtc_market']));
 
@@ -164,7 +164,7 @@ class Add extends Component
                         'batch_type' => 'aggregate',
                         //   'status' => 'approved',
                         'is_complete' => 1,
-                        'table_name' => 'reports',
+                        'table_name' => json_encode(['reports']),
 
                     ]);
 
@@ -173,7 +173,7 @@ class Add extends Component
 
 
 
-                    $this->dispatch('notify');
+
                     session()->flash('success', 'Successfully submitted!');
 
                 } catch (UserErrorException $e) {
