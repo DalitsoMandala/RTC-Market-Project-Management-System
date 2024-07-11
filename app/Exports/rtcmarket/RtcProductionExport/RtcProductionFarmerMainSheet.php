@@ -2,6 +2,7 @@
 
 namespace App\Exports\rtcmarket\RtcProductionExport;
 
+use App\Helpers\ArrayToUpperCase;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -24,6 +25,33 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
     {
         $faker = Faker::create();
         $data = [];
+
+        $epaNames = [
+            'Malawi Environmental Protection Agency',
+            'Lilongwe Environmental Authority',
+            'Blantyre Environmental Conservation Agency',
+            'Mzuzu Environmental Regulatory Authority',
+            'Zomba Environmental Management Board',
+        ];
+
+        $sectionNames = [
+            'Environmental Impact Assessment',
+            'Pollution Control and Waste Management',
+            'Natural Resources Management',
+            'Environmental Education and Awareness',
+            'Climate Change and Resilience',
+        ];
+
+        $organisationNames = [
+            'Malawi Farmers Union',
+            'Lilongwe Agricultural Cooperative',
+            'Blantyre Horticultural Society',
+            'Mzuzu Crop Producers Association',
+            'Zomba Livestock Farmers Group',
+        ];
+        $epaNames = ArrayToUpperCase::convert($epaNames);
+        $organisationNames = ArrayToUpperCase::convert($organisationNames);
+        $sectionNames = ArrayToUpperCase::convert($sectionNames);
 
         if ($this->test) {
             $count = 1;
@@ -61,8 +89,8 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
                         'THYOLO',
                         'ZOMBA',
                     ]),
-                    'EPA' => strtoupper($faker->city),
-                    'SECTION' => strtoupper($faker->streetName),
+                    'EPA' => $faker->randomElement($epaNames),
+                    'SECTION' => $faker->randomElement($sectionNames),
                     'DATE OF RECRUITMENT' => $faker->date(),
                     'NAME OF ACTOR' => $faker->name(),
                     'NAME OF REPRESENTATIVE' => $faker->name(),

@@ -224,21 +224,21 @@ class B1
             $total = $farmerTotalArray['total'];
         }
 
-        // Query the second table (assuming a different builder)
-        $farmerTotalFollowup = $this->FarmerFollowupbuilder() // Corrected to use a different builder
-            ->selectRaw('
-                SUM(CAST(JSON_EXTRACT(total_production_value_previous_season, "$.total") AS UNSIGNED)) as total
-            ')
-            ->first();
+        // // Query the second table (assuming a different builder)
+        // $farmerTotalFollowup = $this->FarmerFollowupbuilder() // Corrected to use a different builder
+        //     ->selectRaw('
+        //         SUM(CAST(JSON_EXTRACT(total_production_value_previous_season, "$.total") AS UNSIGNED)) as total
+        //     ')
+        //     ->first();
 
-        if ($farmerTotalFollowup) {
-            // Convert the result to an array and access the total value
-            $farmerTotalFollowupArray = $farmerTotalFollowup->toArray();
-            $total2 = $farmerTotalFollowupArray['total'];
-        }
+        // if ($farmerTotalFollowup) {
+        //     // Convert the result to an array and access the total value
+        //     $farmerTotalFollowupArray = $farmerTotalFollowup->toArray();
+        //     $total2 = $farmerTotalFollowupArray['total'];
+        // }
 
         // Sum the totals from both queries
-        $combinedTotal = $total + $total2;
+        $combinedTotal = $total + 0;
 
         // Return the combined total
         return $combinedTotal;
