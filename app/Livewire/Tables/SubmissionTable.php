@@ -77,9 +77,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-
+        
                     // foreach($submission as $index => $status){
-
+        
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -110,11 +110,9 @@ final class SubmissionTable extends PowerGridComponent
                 $status = $model->status === 'pending' ? 'disabled text-secondary pe-none' : '';
 
                 if ($model->batch_type == 'aggregate') {
-                    if ($user->id == $model->user_id) {
-                        return '<a class="pe-none text-muted" wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch" class="' . $status . '" href="#">' . $model->batch_no . '</a>';
-                    } else {
-                        return '<a wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch" class="' . $status . '" href="#">' . $model->batch_no . '</a>';
-                    }
+
+                    return '<a wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch" class="' . $status . '" href="#">' . $model->batch_no . '</a>';
+
 
 
                 } else if ($model->batch_type == 'batch') {
@@ -206,7 +204,12 @@ final class SubmissionTable extends PowerGridComponent
             })
             ->add('created_at')
             ->add('file_link', function ($model) {
-                return '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
+
+                if ($model->file_link) {
+                    return $model->file_link ?? '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
+
+                }
+
             })
             ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');

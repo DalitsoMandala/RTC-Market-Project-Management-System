@@ -338,14 +338,7 @@ class IndicatorSeeder extends Seeder
                         $organisationIds = Organisation::where('name', $name)->pluck('id');
 
                         foreach ($organisationIds as $organisationId) {
-                            // if (isset($condition['aggregate_type'])) {
-                            //     ResponsiblePerson::create([
-                            //         'indicator_id' => $indicatorId,
-                            //         'organisation_id' => $organisationId,
-                            //         'type_of_submission' => $condition['type'],
-                            //         'aggregate_type' => $condition['aggregate_type'],
-                            //     ]);
-                            // } else {
+
 
                             ResponsiblePerson::create([
                                 'indicator_id' => $indicatorId,

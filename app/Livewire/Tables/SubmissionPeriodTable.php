@@ -205,7 +205,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $routePrefix = $this->currentRoutePrefix;
 
-        if ($checkTypeofSubmission->contains('aggregate')) {
+        if ($checkTypeofSubmission->contains('aggregate') || $form->name == 'REPORT FORM') {
 
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;

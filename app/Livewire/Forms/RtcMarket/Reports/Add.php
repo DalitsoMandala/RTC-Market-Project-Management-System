@@ -142,6 +142,7 @@ class Add extends Component
 
 
                     session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('cip-internal-submissions') . '#aggregate-submission');
                     //    $this->redirect(route('rtc-market-hrc', ['project' => 'rtc_market']));
 
                 } catch (UserErrorException $e) {
@@ -175,7 +176,7 @@ class Add extends Component
 
 
                     session()->flash('success', 'Successfully submitted!');
-
+                    $this->redirect(route('external-submissions') . '#aggregate-submission');
                 } catch (UserErrorException $e) {
                     // Log the actual error for debugging purposes
                     \Log::error('Submission error: ' . $e->getMessage());
