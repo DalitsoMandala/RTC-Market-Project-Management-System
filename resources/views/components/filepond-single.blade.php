@@ -11,9 +11,9 @@ pond = FilePond.create($refs.input, {
         },
         revert: (filename, load) => {
 
-            setTimeout(() => {
-                @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load)
-            }, 5000)
+            //      setTimeout(() => {
+            @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load)
+            //  }, 5000)
 
         },
     },
@@ -36,9 +36,9 @@ pond = FilePond.create($refs.input, {
 
 $wire.on('removeUploadedFile', function() {
 
-    myTimeout = setTimeout(() => {
-        pond.removeFiles({ revert: true });
-    }, 5000);
+    //  myTimeout = setTimeout(() => {
+    pond.removeFiles({ revert: true });
+    //  }, 5000);
 
 
 });

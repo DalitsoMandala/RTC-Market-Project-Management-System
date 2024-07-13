@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
+use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Helpers\SheetNamesValidator;
@@ -30,6 +31,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
+use Throwable;
 
 class Upload extends Component
 {
@@ -64,7 +66,13 @@ class Upload extends Component
     public function submitUpload()
     {
 
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (Throwable $e) {
+            $this->dispatch('errorRemove');
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
         try {
             //code...
 
@@ -80,13 +88,25 @@ class Upload extends Component
 
                 try {
 
+                    try {
+                        Excel::import(new RpmFarmerImport($userId, $sheets, $this->upload), $this->upload);
+                    } catch (SheetImportException $e) {
+                        $errors = $e->getErrors();
+                        $sheet = $e->getSheet();
 
-                    Excel::import(new RpmFarmerImport($userId, $sheets, $this->upload), $this->upload);
+
+                        session()->flash('import_failures', $errors);
+                        throw new UserErrorException('Errors on sheet: ' . $sheet);
+                    }
+
 
                     $uuid = session()->get('uuid');
                     $batch_data = session()->get('batch_data');
                     if (empty($batch_data['main'])) {
+                        $this->reset('upload');
+                        $this->dispatch('errorRemove');
                         throw new UserErrorException("Your file has empty rows!");
+
 
                     }
                     $currentUser = Auth::user();
@@ -97,8 +117,9 @@ class Upload extends Component
                             ->where('batch_type', 'batch')
                             ->where('user_id', auth()->user()->id)->first();
                         if ($checkSubmission) {
+                            $this->reset('upload');
+                            $this->dispatch('errorRemove');
 
-                            $this->dispatch('removeUploadedFile');
 
                             session()->flash('error', 'You have already submitted your batch data for this period!');
                         } else {
@@ -125,10 +146,10 @@ class Upload extends Component
                                 $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
                                 $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
                                 $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
-                                   $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                                  $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                                 $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                                  $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
 
                                 $idMappings[$mainSheet['#']] = $highestId;
                                 unset($mainSheet['#']);
@@ -219,7 +240,8 @@ class Upload extends Component
 
                 } catch (UserErrorException $e) {
 
-                    $this->dispatch('removeUploadedFile');
+                    $this->reset('upload');
+
                     session()->flash('error', $e->getMessage());
                 }
 

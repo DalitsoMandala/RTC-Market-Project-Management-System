@@ -48,12 +48,7 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                @if (session()->has('error'))
-                                    <x-error-alert>{{ session()->get('error') }}</x-error-alert>
-                                @endif
-                                @if (session()->has('success'))
-                                    <x-success-alert>{{ session()->get('success') }}</x-success-alert>
-                                @endif
+                                <x-alerts />
                             </div>
                         </div>
                         <div id="table-form">

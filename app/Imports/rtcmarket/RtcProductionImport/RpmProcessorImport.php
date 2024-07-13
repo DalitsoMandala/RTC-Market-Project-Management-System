@@ -60,6 +60,18 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents
                     throw new UserErrorException("File contains invalid sheets!");
 
                 }
+
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($key == 'RTC_PROCESSORS') {
+                        if ($sheet <= 1) {
+                            throw new UserErrorException("The first sheet can not contain empty rows!");
+                        }
+
+                    }
+                }
             },
 
         ];

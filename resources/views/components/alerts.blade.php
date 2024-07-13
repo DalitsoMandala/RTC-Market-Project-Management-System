@@ -22,17 +22,31 @@
                    <div x-show="is_open">
                        <hr>
 
-                       <ul>
-                           @foreach (session()->get('import_failures') as $failure)
-                               <li class="error-item">
-
-                                   <strong>Row {{ $failure['row'] }}:</strong>
-                                   @foreach ($failure['errors'] as $error)
-                                       <div>{{ $error }}</div>
+                       <div class="table-responsive">
+                           <table class="table table-bordered border-danger">
+                               <thead>
+                                   <tr>
+                                       <th>Row</th>
+                                       <th>Errors</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   @foreach (session()->get('import_failures') as $failure)
+                                       <tr>
+                                           <td><strong>{{ $failure['row'] }}</strong></td>
+                                           <td>
+                                               <ul>
+                                                   @foreach ($failure['errors'] as $error)
+                                                       <li>{{ $error }}</li>
+                                                   @endforeach
+                                               </ul>
+                                           </td>
+                                       </tr>
                                    @endforeach
-                               </li>
-                           @endforeach
-                       </ul>
+                               </tbody>
+                           </table>
+                       </div>
+
                    </div>
                </div>
            @endif

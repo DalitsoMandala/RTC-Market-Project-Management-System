@@ -53,7 +53,7 @@ class Upload extends Component
         try {
             $this->validate();
         } catch (Throwable $e) {
-            $this->dispatch('removeUploadedFile');
+            $this->dispatch('errorRemove');
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
         }

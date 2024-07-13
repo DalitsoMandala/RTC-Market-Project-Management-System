@@ -38,7 +38,7 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
                     'DATE OF RECRUITMENT' => $faker->date,
                     'NAME OF ACTOR' => $faker->randomElement(Help::getFakerNames()['organisationNames']),
                     'NAME OF REPRESENTATIVE' => strtoupper($faker->name),
-                    'PHONE NUMBER' => $faker->phoneNumber,
+                    $faker->numerify('###-###-####'),
                     'TYPE' => strtoupper($faker->randomElement([
                         'Producer organization (PO)',
                         'Large scale Processor',

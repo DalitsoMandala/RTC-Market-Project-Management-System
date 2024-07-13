@@ -2,11 +2,12 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
+use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
-use App\Helpers\SheetNamesValidator;
 
+use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
 use App\Models\FinancialYear;
 use App\Models\Form;
@@ -30,6 +31,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
+use Throwable;
 
 class Upload extends Component
 {
@@ -64,7 +66,13 @@ class Upload extends Component
     public function submitUpload()
     {
 
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (Throwable $e) {
+            $this->dispatch('errorRemove');
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
         try {
             //code...
 
@@ -80,8 +88,19 @@ class Upload extends Component
 
                 try {
 
+                    try {
 
-                    Excel::import(new RpmProcessorImport($userId, $sheets, $this->upload), $this->upload);
+                        Excel::import(new RpmProcessorImport($userId, $sheets, $this->upload), $this->upload);
+                    } catch (SheetImportException $e) {
+
+                        $errors = $e->getErrors();
+                        $sheet = $e->getSheet();
+
+
+                        session()->flash('import_failures', $errors);
+                        throw new UserErrorException('Errors on sheet: ' . $sheet);
+                    }
+
 
                     $uuid = session()->get('uuid');
                     $batch_data = session()->get('batch_data');
@@ -217,7 +236,7 @@ class Upload extends Component
 
 
                     $this->reset('upload');
-                    $this->dispatch('removeUploadedFile');
+
 
                     session()->flash('error', $e->getMessage());
                 }

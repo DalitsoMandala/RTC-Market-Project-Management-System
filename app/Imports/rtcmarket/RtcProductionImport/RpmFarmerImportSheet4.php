@@ -2,16 +2,21 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
-class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow// DOM MARKETS
+class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow, WithValidation, SkipsOnFailure
 {
     public $userId;
     public $file;
@@ -46,25 +51,11 @@ class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow// DOM MARKET
 
         }
 
-        try {
 
-            $main_data = [];
-            $getBatchMainData = session()->get('batch_data');
-            $ids = array();
-            if (!empty($getBatchMainData['main'])) {
-                $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
-
-            } else {
-                throw new UserErrorException("Your file has empty rows!");
-
-            }
 
 
             foreach ($collection as $row) {
-                if (!in_array($row['RECRUIT ID'], $ids)) {
-                    throw new UserErrorException("Your file has invalid IDs in Follow up sheet!");
 
-                }
 
                 $main_data[] = [
                     'rpm_farmer_id' => $row['RECRUIT ID'],
@@ -84,8 +75,44 @@ class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow// DOM MARKET
 
             session()->put('batch_data.market', $main_data);
 
-        } catch (\Throwable $e) {
-            throw new UserErrorException("Something went wrong. There was some errors on some rows on sheet 4." . $e->getMessage());
+
+    }
+
+
+    public function rules(): array
+    {
+        $getBatchMainData = session()->get('batch_data');
+        $ids = array();
+        if (!empty($getBatchMainData['main'])) {
+            $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
+
         }
+        return [
+            'RECRUIT ID' => ['required', 'integer', Rule::in($ids)],
+            'DATE RECORDED' => ['required', 'date'],
+            'CROP TYPE' => ['required', 'string'],
+            'MARKET NAME' => ['required', 'string'],
+            'DISTRICT' => ['required', 'string'],
+            'DATE OF MAXIMUM SALE' => ['required', 'date'],
+            'PRODUCT TYPE' => ['required', 'string'],
+            'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => ['required', 'numeric'],
+            'FINANCIAL VALUE OF SALES' => ['required', 'numeric'],
+        ];
+    }
+
+    public function onFailure(Failure ...$failures)
+    {
+
+        $errors = [];
+        foreach ($failures as $failure) {
+            $errors[] = [
+                'row' => $failure->row(),
+                'attribute' => $failure->attribute(),
+                'errors' => $failure->errors(),
+                'values' => $failure->values(),
+            ];
+        }
+        throw new SheetImportException('RTC_FARM_DOM', $errors);
+
     }
 }
