@@ -2,6 +2,7 @@
 
 namespace App\Exports\rtcmarket\RtcProductionExport;
 
+use App\Helpers\Help;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -30,8 +31,8 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
 
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'ENTERPRISE' => strtoupper($faker->streetName),
-                    'GROUP NAME' => $faker->name,
+                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
+                    'GROUP NAME' => strtoupper($faker->name),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',
                         'BLANTYRE',
@@ -61,15 +62,15 @@ class RtcProductionFarmerFollowUp implements FromCollection, WithTitle, WithHead
                         'THYOLO',
                         'ZOMBA',
                     ]),
-                    'EPA' => strtoupper($faker->city),
-                    'SECTION' => strtoupper($faker->streetName),
+                    'EPA' => $faker->randomElement(Help::getFakerNames()['epaNames']),
+                    'SECTION' => $faker->randomElement(Help::getFakerNames()['sectionNames']),
                     'DATE OF FOLLOW UP' => now(),
                     'AREA UNDER CULTIVATION/TOTAL' => $faker->numberBetween(1, 100) * 10,
-                    'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => $faker->randomElement(['Variety A', 'Variety B', 'Variety C']),
-                    'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => $faker->randomElement(['Variety X', 'Variety Y', 'Variety Z']),
-                    'AREA UNDER CULTIVATION/VARIETY 3 (SPECIFY)' => $faker->randomElement(['Variety M', 'Variety N', 'Variety O']),
-                    'AREA UNDER CULTIVATION/VARIETY 4 (SPECIFY)' => $faker->randomElement(['Variety P', 'Variety Q', 'Variety R']),
-                    'AREA UNDER CULTIVATION/VARIETY 5 (SPECIFY)' => $faker->randomElement(['Variety S', 'Variety T', 'Variety U']),
+                    'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
+                    'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement(['Variety X', 'Variety Y', 'Variety Z'])),
+                    'AREA UNDER CULTIVATION/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement(['Variety M', 'Variety N', 'Variety O'])),
+                    'AREA UNDER CULTIVATION/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement(['Variety P', 'Variety Q', 'Variety R'])),
+                    'AREA UNDER CULTIVATION/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement(['Variety S', 'Variety T', 'Variety U'])),
                     'NUMBER OF PLANTLETS PRODUCED/CASSAVA' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF PLANTLETS PRODUCED/POTATO' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF PLANTLETS PRODUCED/SWEET POTATO' => $faker->numberBetween(1, 100) * 10,

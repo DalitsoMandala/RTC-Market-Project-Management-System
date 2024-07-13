@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
+use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
 use App\Helpers\SheetNamesValidator;
@@ -18,11 +19,13 @@ use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
+use Throwable;
 
 class Upload extends Component
 {
@@ -47,8 +50,15 @@ class Upload extends Component
 
     public function submitUpload()
     {
+        try {
+            $this->validate();
+        } catch (Throwable $e) {
+            $this->dispatch('removeUploadedFile');
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
 
-        $this->validate();
+
         try {
             //code...
 
@@ -66,26 +76,14 @@ class Upload extends Component
 
                     try {
                         Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
-                    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-                        // $failures = $e->failures();
+                    } catch (SheetImportException $e) {
 
-                        // // Collect errors in a user-friendly format
-                        // $errors = [];
-                        // foreach ($failures as $failure) {
-                        //     $errors[] = [
-                        //         'row' => $failure->row(),
-                        //         'attribute' => $failure->attribute(),
-                        //         'errors' => $failure->errors(),
-                        //     ];
+                        $errors = $e->getErrors();
+                        $sheet = $e->getSheet();
 
 
-
-                        // }
-                        // dd($errors);
-
-                        // session()->put('import_failures', $errors);
-
-                        throw new UserErrorException("Something went wrong with your submission!");
+                        session()->flash('import_failures', $errors);
+                        throw new UserErrorException('Errors on sheet: ' . $sheet);
                     }
 
 
@@ -172,7 +170,7 @@ class Upload extends Component
 
                     $this->reset('upload');
 
-                    $this->dispatch('removeUploadedFile');
+                    //   $this->dispatch('removeUploadedFile');
                     $this->dispatch('refresh');
                     session()->flash('error', $e->getMessage());
                 }

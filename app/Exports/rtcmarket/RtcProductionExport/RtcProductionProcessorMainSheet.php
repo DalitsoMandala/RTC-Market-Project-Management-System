@@ -2,6 +2,7 @@
 
 namespace App\Exports\rtcmarket\RtcProductionExport;
 
+use App\Helpers\Help;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -30,26 +31,30 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
             foreach (range(1, 20) as $index) {
                 $data[] = [
                     '#' => $count++,
-                    'ENTERPRISE' => $faker->company,
-                    'DISTRICT' => $faker->city,
-                    'EPA' => $faker->word,
-                    'SECTION' => $faker->word,
+                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
+                    'DISTRICT' => $faker->randomElement(Help::getFakerNames()['districtNames']),
+                    'EPA' => $faker->randomElement(Help::getFakerNames()['epaNames']),
+                    'SECTION' => $faker->randomElement(Help::getFakerNames()['sectionNames']),
                     'DATE OF RECRUITMENT' => $faker->date,
-                    'NAME OF ACTOR' => $faker->name,
-                    'NAME OF REPRESENTATIVE' => $faker->name,
+                    'NAME OF ACTOR' => $faker->randomElement(Help::getFakerNames()['organisationNames']),
+                    'NAME OF REPRESENTATIVE' => strtoupper($faker->name),
                     'PHONE NUMBER' => $faker->phoneNumber,
-                    'TYPE' => $faker->word,
-                    'APPROACH' => $faker->optional()->word, // FOR PRODUCER ORGANIZATIONS ONLY
-                    'SECTOR' => $faker->word,
+                    'TYPE' => strtoupper($faker->randomElement([
+                        'Producer organization (PO)',
+                        'Large scale Processor',
+                        'Small Medium Enterprise (SME)',
+                    ])),
+                    'APPROACH' => strtoupper($faker->optional()->word), // FOR PRODUCER ORGANIZATIONS ONLY
+                    'SECTOR' => strtoupper($faker->word),
                     'NUMBER OF MEMBERS/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF MEMBERS/FEMALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
                     'NUMBER OF MEMBERS/FEMALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
                     'NUMBER OF MEMBERS/MALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
                     'NUMBER OF MEMBERS/MALE 35YRS+' => $faker->numberBetween(1, 10) * 10, // FOR PRODUCER ORGANIZATIONS ONLY
-                    'GROUP' => $faker->word,
+                    'GROUP' => strtoupper($faker->word),
                     'ESTABLISHMENT STATUS' => $faker->randomElement(['NEW', 'OLD']), // UPPERCASE FOR ENUM VALUES
                     'IS REGISTERED' => $faker->randomElement(['YES', 'NO']),
-                    'REGISTRATION DETAILS/REGISTRATION BODY' => $faker->company,
+                    'REGISTRATION DETAILS/REGISTRATION BODY' => strtoupper($faker->company),
                     'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->uuid,
                     'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date,
                     'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => $faker->randomNumber,
@@ -74,10 +79,10 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
                     'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', 'NO']),
                     'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', 'NO']),
                     'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', 'NO']),
-                    'MARKET INFORMATION SYSTEMS' => $faker->text,
+                    'MARKET INFORMATION SYSTEMS' => strtoupper($faker->text),
                     'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['YES', 'NO']),
                     'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['YES', 'NO']),
-                    'AGGREGATION CENTERS/SPECIFY' => $faker->sentence,
+                    'AGGREGATION CENTERS/SPECIFY' => strtoupper($faker->sentence),
                     'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->numberBetween(1, 100) * 10,
                 ];
             }

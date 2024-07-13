@@ -23,25 +23,25 @@ class TestingController extends Controller
             case 'rpmf':
                 $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-                return Excel::download(new RtcProductionFarmerWorkbookExport(true), 'rtcproductiontest' . $time . '.xlsx');
+                return Excel::download(new RtcProductionFarmerWorkbookExport(true), 'rpmf' . $time . '.xlsx');
                 break;
 
             case 'hrc':
                 $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-                return Excel::download(new HrcExport(true), 'householdtest' . $time . '.xlsx');
+                return Excel::download(new HrcExport(true), 'hrc' . $time . '.xlsx');
                 break;
 
             case 'rpmp':
                 $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-                return Excel::download(new RtcProductionProcessorWookbookExport(true), 'rtcproductionProducertest' . $time . '.xlsx');
+                return Excel::download(new RtcProductionProcessorWookbookExport(true), 'rpmp' . $time . '.xlsx');
                 break;
 
             case 'src':
                 $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-                return Excel::download(new SrcExport(true), 'schoolConsumption' . $time . '.xlsx');
+                return Excel::download(new SrcExport(true), 'src' . $time . '.xlsx');
                 break;
 
             default:

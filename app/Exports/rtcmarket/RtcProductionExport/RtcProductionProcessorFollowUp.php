@@ -2,6 +2,7 @@
 
 namespace App\Exports\rtcmarket\RtcProductionExport;
 
+use App\Helpers\Help;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -30,8 +31,8 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
             foreach (range(1, 20) as $index) {
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'ENTERPRISE' => strtoupper($faker->streetName),
-                    'GROUP NAME' => $faker->name,
+                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
+                    'GROUP NAME' => strtoupper($faker->name),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',
                         'BLANTYRE',
@@ -61,8 +62,8 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
                         'THYOLO',
                         'ZOMBA',
                     ]),
-                    'EPA' => strtoupper($faker->city),
-                    'SECTION' => strtoupper($faker->streetName),
+                    'EPA' => $faker->randomElement(Help::getFakerNames()['epaNames']),
+                    'SECTION' => $faker->randomElement(Help::getFakerNames()['sectionNames']),
                     'DATE OF FOLLOW UP' => now(),
                     'MARKET SEGMENT/FRESH' => $faker->randomElement(['YES', 'NO']),
                     'MARKET SEGMENT/PROCESSED' => $faker->randomElement(['YES', 'NO']), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
@@ -76,10 +77,10 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
                     'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', 'NO']),
                     'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', 'NO']),
                     'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', 'NO']),
-                    'MARKET INFORMATION SYSTEMS' => $faker->text,
+                    'MARKET INFORMATION SYSTEMS' => strtoupper($faker->text),
                     'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['YES', 'NO']),
                     'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['YES', 'NO']),
-                    'AGGREGATION CENTERS/SPECIFY' => $faker->sentence,
+                    'AGGREGATION CENTERS/SPECIFY' => strtoupper($faker->sentence),
                     'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->numberBetween(1, 100) * 10,
                 ];
             }

@@ -3,6 +3,7 @@
 namespace App\Exports\rtcmarket\HouseholdExport;
 
 use App\Helpers\ArrayToUpperCase;
+use App\Helpers\Help;
 use App\Helpers\ToUpper;
 use Faker\Factory as Faker;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -50,11 +51,13 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
         $epaNames = ArrayToUpperCase::convert($epaNames);
         $organisationNames = ArrayToUpperCase::convert($organisationNames);
         $sectionNames = ArrayToUpperCase::convert($sectionNames);
+
+
         if ($this->test) {
             foreach (range(1, 5) as $index) {
 
                 $data[] = [
-                    'ENTERPRISE' => strtoupper($faker->streetName),
+                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',
                         'BLANTYRE',
