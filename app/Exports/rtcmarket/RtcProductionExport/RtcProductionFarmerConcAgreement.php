@@ -30,8 +30,8 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
                     'DATE RECORDED' => $faker->date(),
-                    'PARTNER NAME' => $faker->name,
-                    'COUNTRY' => $faker->country,
+                    'PARTNER NAME' => strtoupper($faker->name),
+                    'COUNTRY' => strtoupper($faker->country),
                     'DATE OF MAXIMUM SALE' => $faker->date,
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,

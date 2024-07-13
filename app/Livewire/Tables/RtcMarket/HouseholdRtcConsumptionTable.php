@@ -3,8 +3,10 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\HouseholdRtcConsumption;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as CollectionSupport;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -37,12 +39,41 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Builder
+    public function datasource(): CollectionSupport
     {
-        if ($this->uuid) {
-            return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId)->where('uuid', $this->uuid);
-        }
-        return HouseholdRtcConsumption::query()->with(['location', 'mainFoods'])->where('user_id', $this->userId);
+
+        $user = User::find($this->userId);
+        //  dd($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true);
+        $query = HouseholdRtcConsumption::query();
+        return $query->get();
+        // if ($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true) {
+        //     if ($this->uuid) {
+        //         $query->where('uuid', $this->uuid)->get();
+        //         $count = Submission::where('batch_no', $this->uuid)->where('status', 'pending')->first();
+        //         if ($count) {
+
+        //             $data = json_decode($count->data, true);
+        //             $query = collect($data);
+        //             return $query;
+        //         }
+        //     }
+
+        //     return $query->get();
+
+        // } else if ($user->hasAnyRole('external') === true) {
+
+        //     $query->where('user_id', $this->userId)->get();
+
+        //     if ($this->uuid) {
+
+        //         $query->where('uuid', $this->uuid)->get();
+        //     }
+
+        //     return $query->get();
+        // }
+
+
+
     }
 
     public function fields(): PowerGridFields
@@ -69,6 +100,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             })
             ->add('date_of_assessment_formatted', fn($model) => Carbon::parse($model->date_of_assessment)->format('d/m/Y'))
             ->add('actor_type')
+            ->add('uuid')
             ->add('rtc_group_platform')
             ->add('producer_organisation')
             ->add('actor_name')
@@ -118,6 +150,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             })
             ->add('rtc_consumption_frequency')
+            ->add('submitted_by', fn($model) => User::find($model->user_id)->name)
             ->add('created_at')
             ->add('updated_at');
     }
@@ -126,6 +159,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
+
             //  Column::make('Location id', 'location_id'),
             Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
             Column::make('District', 'district', 'location_data->district')->sortable(),
@@ -196,6 +230,12 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Submission Date', 'created_at')
                 ->sortable()
                 ->searchable(),
+
+            Column::make('Submitted By', 'submitted_by')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('UUID', 'uuid'),
 
         ];
     }

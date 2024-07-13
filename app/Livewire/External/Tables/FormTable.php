@@ -2,13 +2,23 @@
 
 namespace App\Livewire\external\Tables;
 
+use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\User;
 use Carbon\Carbon;
+use id;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -20,9 +30,10 @@ final class FormTable extends PowerGridComponent
 {
     use WithExport;
     public $userId;
+    public $currentRoutePrefix;
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //  $this->showCheckBox();
 
         return [
             Exportable::make('export')
@@ -37,28 +48,23 @@ final class FormTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $submissionPeriods = SubmissionPeriod::with(['form' => function ($query) {
-            $query->with('indicators')->whereHas('indicators', function ($query) {
-                $userId = $this->userId;
+        $user = User::find($this->userId);
 
-                $query->whereHas('responsiblePeople', function ($query) use ($userId) {
-                    $query->where('user_id', $userId); // Filter responsible people by user ID
-                });
+        $organisation_id = $user->organisation->id;
 
-            })->get();
-        }])->where('is_open', 1);
+        $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)->pluck('indicator_id')->toArray();
+        $query = SubmissionPeriod::with(['form', 'form.indicators'])->whereIn('indicator_id', $myIndicators);
 
-        return $submissionPeriods;
-        // return Form::with(['submissionPeriods', 'indicators'])->whereHas('submissionPeriods', function ($query) {
-        //     $query->where('is_open', 1);
-        // })->whereHas('indicators', function ($query) {
-        //     $userId = $this->userId;
 
-        //     $query->whereHas('responsiblePeople', function ($query) use ($userId) {
-        //         $query->where('user_id', $userId); // Filter responsible people by user ID
-        //     });
+        // // Query SubmissionPeriods with the necessary relationships
+        // $query = SubmissionPeriod::with(['form', 'form.indicators'])
+        //     ->whereHas('form.indicators.responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+        //         $query->where('organisation_id', $organisation_id);
+        //     })
 
-        // });
+        // ;
+
+        return $query;
 
     }
 
@@ -69,46 +75,25 @@ final class FormTable extends PowerGridComponent
             ->add('name')
             ->add('name_formatted', function ($model) {
 
-                $form = Form::find($model->form_id);
+                $form = Form::find($model->form->id);
 
-                switch ($form->name) {
-                    case 'HOUSEHOLD CONSUMPTION FORM':
-                        return '<a  href="forms/household-rtc-consumption/view" >' . $form->name . '</a>';
+                $form_name = str_replace(' ', '-', strtolower($form->name));
 
-                        break;
-
-                    default:
-                        # code...
-                        return '<a  href="#" >' . $form->name . '</a>';
-
-                        break;
-                }
-
+                $project = str_replace(' ', '-', strtolower($form->project->name));
+                return $form->name;
+                //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
+    
             })
             ->add('type')
-            ->add('indicators', function ($model) {
-                $form = Form::find($model->form_id);
-                if ($form) {
+            ->add('open_for_submission', function ($model) {
 
-                    $indicators = $form->indicators;
-                    $array = $indicators->pluck('indicator_no')->toArray();
-                    return implode(',', $array);
-
-                }
-
-                return null;
+                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
 
             })
             ->add('project_id')
             ->add('project', function ($model) {
-                $form = Form::find($model->form_id);
-                if ($form) {
-
-                    return $form->project->name;
-
-                }
-
-                return null;
+                $form = Form::find($model->form->id);
+                return $form->project->name;
 
             })
 
@@ -126,9 +111,14 @@ final class FormTable extends PowerGridComponent
                 $date_end = $date->diffForHumans() ?? null;
 
                 if ($date->isPast()) {
+
                     return "<span class='text-danger'>Expired!</span>";
                 } else {
-                    return "<b>{$date_end}</b>";
+                    if ($model->is_expired === 1 && !$date->isPast()) {
+                        return "<span class='text-danger'>Cancelled!</span>";
+                    } else {
+                        return "<b>{$date_end}</b>";
+                    }
 
                 }
 
@@ -136,13 +126,24 @@ final class FormTable extends PowerGridComponent
             ->add('submission_status', function ($model) {
                 $userId = $this->userId;
 
-                $submitted = Submission::where('user_id', $userId)->where('form_id', $model->id)->count();
+                $submitted = Submission::where('user_id', $userId)
+                    ->where('period_id', $model->id)
+                    ->where('form_id', $model->form->id)->count();
+
                 if ($submitted === 0) {
                     return '<span class="badge bg-danger">Not submitted</span>';
                 } else {
                     return '<span class="badge bg-success">Submitted</span>';
 
                 }
+            })
+            ->add('financial_year', fn($model) => FinancialYear::find($model->financial_year_id)->number)
+            ->add('submission_period', fn($model) => ReportingPeriodMonth::find($model->month_range_period_id)->start_month . '-' .
+                ReportingPeriodMonth::find($model->month_range_period_id)->end_month)
+            ->add('indicator_id')
+            ->add('indicator', function ($model) {
+                $indicator = Indicator::find($model->indicator_id);
+                return $indicator->indicator_name;
             })
             ->add('updated_at');
     }
@@ -157,15 +158,23 @@ final class FormTable extends PowerGridComponent
             Column::make('Project', 'project')
                 ->sortable(),
 
-            Column::make('Indicators', 'indicators')
+            Column::make('Open for submission', 'open_for_submission')
+            ,
+
+            Column::make('Indicator', 'indicator'),
+
+            Column::make('Submission Period', 'submission_period')
+            ,
+
+            Column::make('Financial Year', 'financial_year')
             ,
             Column::make('Submission Dates', 'submission_duration')
             ,
-
             Column::make('Time remaining', 'remaining_days'),
 
             Column::make('Submission status', 'submission_status'),
 
+            Column::action('Action'),
         ];
     }
 
@@ -176,21 +185,115 @@ final class FormTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
+    #[On('edit')]
     public function edit($rowId): void
     {
         $this->js('alert(' . $rowId . ')');
     }
 
-    /*
-public function actionRules($row): array
-{
-return [
-// Hide button edit for ID 1
-Rule::button('edit')
-->when(fn($row) => $row->id === 1)
-->hide(),
-];
-}
- */
+    public function actions($row): array
+    {
+        return [
+
+            Button::add('add-data')
+                ->slot('<i class="bx bx-plus"></i>')
+                ->id()
+                ->class('btn btn-primary my-1')
+                ->tooltip('Add Manual Data')
+                ->dispatch('sendData', ['model' => $row]),
+
+            Button::add('upload')
+                ->slot('<i class="bx bx-upload"></i>')
+                ->id()
+                ->tooltip('Upload Your Data')
+                ->class('btn btn-primary my-1')
+                ->dispatch('sendUploadData', ['model' => $row]),
+
+        ];
+    }
+
+    #[On('sendData')]
+    public function sendData($model)
+    {
+        $model = (object) $model;
+
+        $form = Form::find($model->form_id);
+        $user = Auth::user();
+        $organisation = $user->organisation;
+        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
+        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $routePrefix = $this->currentRoutePrefix;
+
+        if ($checkTypeofSubmission->contains('aggregate') && $form->name == 'REPORT FORM') {
+
+
+            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+
+
+
+        } else {
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+        }
+
+        $this->redirect($route);
+    }
+
+    #[On('sendUploadData')]
+    public function sendUploadData($model)
+    {
+        $model = (object) $model;
+
+        $form = Form::find($model->form_id);
+
+        $form_name = str_replace(' ', '-', strtolower($form->name));
+        $project = str_replace(' ', '-', strtolower($form->project->name));
+
+        $routePrefix = $this->currentRoutePrefix;
+
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+
+        $this->redirect($route);
+    }
+
+    public function actionRules($row): array
+    {
+        return [
+
+            Rule::rows()
+                ->when(fn($model) => $model->is_open === 0)
+                ->setAttribute('class', 'table-light pe-none opacity-50'),
+
+            Rule::button('add-data')
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->disable(),
+            Rule::button('upload')
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->disable(),
+
+            Rule::button('upload')
+                ->when(function ($row) {
+                    $form = Form::find($row->form_id);
+
+                    if ($form->name == 'REPORT FORM') {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+                ->disable(),
+        ];
+    }
+
+    public function updated()
+    {
+
+        $this->dispatch('reload-tooltips');
+    }
+
 }

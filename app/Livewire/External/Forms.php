@@ -2,38 +2,25 @@
 
 namespace App\Livewire\External;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
+use App\Models\Organisation;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
+
 class Forms extends Component
 {
-        use LivewireAlert;
-   #[Validate('required')]
-public $variable;
-public $rowId;
+    use LivewireAlert;
 
-    public function setData($id){
-$this->resetErrorBag();
+    public $organisation;
+    public $rowId;
 
+    public function mount()
+    {
+        $user = Auth::user();
+        $organisation = $user->organisation;
+
+        $this->organisation = $organisation->name;
     }
-
- public function save(){
-
-$this->resetErrorBag();
-    try {
-
-
-
-            $this->alert('success', 'Successfully updated');
-
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
-        }
-$this->reset();
-    }
-
 
     public function render()
     {

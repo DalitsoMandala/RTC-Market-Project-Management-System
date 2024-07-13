@@ -19,7 +19,8 @@ class RtcProductionProcessorDomMarkets implements FromCollection, WithTitle, Wit
     public function title(): string
     {
         return 'RTC_PROC_DOM';
-    }public function collection()
+    }
+    public function collection()
     {
         $faker = Faker::create();
         $data = [];
@@ -30,8 +31,8 @@ class RtcProductionProcessorDomMarkets implements FromCollection, WithTitle, Wit
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
                     'DATE RECORDED' => $faker->date(),
                     'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
-                    'MARKET NAME' => $faker->streetName,
-                    'DISTRICT' => $faker->streetName,
+                    'MARKET NAME' => strtoupper($faker->streetName),
+                    'DISTRICT' => strtoupper($faker->streetName),
                     'DATE OF MAXIMUM SALE' => $faker->date(),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,

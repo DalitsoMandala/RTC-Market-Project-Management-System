@@ -15,9 +15,14 @@ class Indicator extends Model
         return $this->belongsTo(Project::class, 'project_id');
     }
 
-    public function responsiblePeople()
+    public function responsiblePeopleforIndicators()
     {
         return $this->hasMany(ResponsiblePerson::class, 'indicator_id');
+    }
+
+    public function organisation()
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id');
     }
 
     public function forms()

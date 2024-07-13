@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,12 +12,12 @@ return new class extends Migration
     {
         Schema::create('rtc_production_farmers', function (Blueprint $table) {
             $table->id();
-            $table->json('location_data');
-            $table->date('date_of_recruitment');
-            $table->string('name_of_actor');
-            $table->string('name_of_representative');
-            $table->string('phone_number');
-            $table->string('type');
+            $table->json('location_data')->nullable();
+            $table->date('date_of_recruitment')->nullable();
+            $table->string('name_of_actor')->nullable();
+            $table->string('name_of_representative')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('type')->nullable();
             $table->string('approach')->nullable(); // For producer organizations only
             $table->string('sector')->nullable();
             $table->json('number_of_members')->nullable(); // For producer organizations only
@@ -50,7 +49,8 @@ return new class extends Migration
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
             $table->decimal('aggregation_center_sales', 8, 2)->nullable(); // Previous season volume in metric tonnes
             $table->string('uuid');
-            $table->foreignId('user_id')->constrained('users'); $table->timestamps();
+            $table->foreignId('user_id')->constrained('users');
+            $table->timestamps();
         });
     }
 

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,10 +13,10 @@ return new class extends Migration
         Schema::create('rpm_farmer_follow_ups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id');
-            $table->json('location_data');
+            $table->json('location_data')->nullable();
             $table->date('date_of_follow_up')->nullable();
 
-// Production related columns
+            // Production related columns
             $table->json('area_under_cultivation')->nullable(); // Stores area by variety (key-value pairs)
             $table->json('number_of_plantlets_produced')->nullable();
             $table->integer('number_of_screen_house_vines_harvested')->nullable(); // Sweet potatoes
@@ -28,22 +27,21 @@ return new class extends Migration
             $table->boolean('is_registered_seed_producer')->default(false);
             $table->json('seed_service_unit_registration_details')->nullable();
             $table->boolean('uses_certified_seed')->default(false);
-
-// Marketing columns
+            // Marketing columns
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
-            $table->boolean('has_rtc_market_contract')->default(false);
-            $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
-            $table->json('total_production_value_previous_season')->nullable(); // MWK
-            $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
-            $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
-            $table->boolean('sells_to_domestic_markets')->default(false);
-            $table->boolean('sells_to_international_markets')->default(false);
-            $table->boolean('uses_market_information_systems')->default(false);
-            $table->text('market_information_systems')->nullable();
-            $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('aggregation_center_sales', 8, 2)->nullable();
+            // $table->boolean('has_rtc_market_contract')->default(false);
+            // $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            // $table->json('total_production_value_previous_season')->nullable(); // MWK
+            // $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            // $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
+            // $table->boolean('sells_to_domestic_markets')->default(false);
+            // $table->boolean('sells_to_international_markets')->default(false);
+            // $table->boolean('uses_market_information_systems')->default(false);
+            // $table->text('market_information_systems')->nullable();
+            // $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
+            // $table->decimal('aggregation_center_sales', 8, 2)->nullable();
             // Previous season volume in metric tonnes
-
+            // $table->string('uuid');
             $table->timestamps();
         });
     }

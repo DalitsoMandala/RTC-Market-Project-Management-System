@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,13 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //
+
+        function getOrganisationId($name)
+        {
+            $org = Organisation::where('name', $name)->first();
+
+            return $org->id;
+        }
 
         Role::create(['name' => 'internal']);
         Role::create(['name' => 'external']);
@@ -82,6 +90,14 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
             'organisation_id' => 4,
+        ])->assignRole(['external', 'organiser']);
+
+        User::create([
+            'name' => 'Janet Malumbo',
+            'email' => 'mot@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('MINISTRY OF TRADE'),
         ])->assignRole(['external', 'organiser']);
 
         //roletype,project,position

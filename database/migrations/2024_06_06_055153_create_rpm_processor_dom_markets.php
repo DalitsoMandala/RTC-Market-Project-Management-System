@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,14 +13,15 @@ return new class extends Migration
         Schema::create('rpm_processor_dom_markets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
-            $table->date('date_recorded');
+            $table->date('date_recorded')->nullable();
             $table->enum('crop_type', ['CASSAVA', 'POTATO', 'SWEET POTATO']);
-            $table->string('market_name');
-            $table->string('district');
+            $table->string('market_name')->nullable();
+            $table->string('district')->nullable();
             $table->date('date_of_maximum_sale')->nullable();
             $table->enum('product_type', ['SEED', 'WARE', 'VALUE ADDED PRODUCTS']);
             $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes (optional)
             $table->decimal('financial_value_of_sales', 18, 2); // Financial value
+            //   $table->string('uuid');
             $table->timestamps();
         });
     }

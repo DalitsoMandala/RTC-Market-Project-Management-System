@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('processor_rtc_processing_marketing', function (Blueprint $table) {
+        Schema::create('assigned_targets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
+            $table->foreignId('organisation_id')->constrained('organisations', 'id');
+            $table->integer('value');
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('processor_rtc_processing_marketing');
+        Schema::dropIfExists('assigned_targets');
     }
 };

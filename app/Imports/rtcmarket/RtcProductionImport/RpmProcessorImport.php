@@ -2,6 +2,7 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet2;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet3;
@@ -9,10 +10,11 @@ use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet4;
 use Exception;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\BeforeImport;
 
-class RpmProcessorImport implements WithMultipleSheets
+class RpmProcessorImport implements WithMultipleSheets, WithEvents
 {
     use Importable, RegistersEventListeners;
 
@@ -49,14 +51,26 @@ class RpmProcessorImport implements WithMultipleSheets
     public function registerEvents(): array
     {
         return [
-            // Handle by a closure.
+                // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
                 $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
 
                 if (count($diff) > 0) {
                     session()->flash('error-import', "File contains invalid sheets!");
-                    throw new Exception("File contains invalid sheets!");
+                    throw new UserErrorException("File contains invalid sheets!");
 
+                }
+
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($key == 'RTC_PROCESSORS') {
+                        if ($sheet <= 1) {
+                            throw new UserErrorException("The first sheet can not contain empty rows!");
+                        }
+
+                    }
                 }
             },
 

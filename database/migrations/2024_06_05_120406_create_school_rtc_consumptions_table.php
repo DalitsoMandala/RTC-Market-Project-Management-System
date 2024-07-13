@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,12 +12,12 @@ return new class extends Migration
     {
         Schema::create('school_rtc_consumption', function (Blueprint $table) {
             $table->id();
-            $table->json('location_data');
-            $table->date('date');
+            $table->json('location_data')->nullable();
+            $table->date('date')->nullable();
             $table->enum('crop', ['CASSAVA', 'POTATO', 'SWEET POTATO'])->nullable();
-            $table->integer('male_count');
-            $table->integer('female_count');
-            $table->integer('total');
+            $table->integer('male_count')->nullable();
+            $table->integer('female_count')->nullable();
+            $table->integer('total')->nullable();
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();

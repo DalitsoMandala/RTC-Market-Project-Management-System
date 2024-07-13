@@ -2,38 +2,21 @@
 
 namespace App\Livewire\External;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
+use App\Models\Indicator;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
+
 class ViewIndicator extends Component
 {
-        use LivewireAlert;
-   #[Validate('required')]
-public $variable;
-public $rowId;
+    use LivewireAlert;
+    public $indicator_name, $indicator_no, $project_name;
 
-    public function setData($id){
-$this->resetErrorBag();
-
+    public function mount(Indicator $id)
+    {
+        $this->indicator_name = $id->indicator_name;
+        $this->indicator_no = $id->indicator_no;
+        $this->project_name = strtoupper($id->project->name);
     }
-
- public function save(){
-
-$this->resetErrorBag();
-    try {
-
-
-
-            $this->alert('success', 'Successfully updated');
-
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
-        }
-$this->reset();
-    }
-
 
     public function render()
     {

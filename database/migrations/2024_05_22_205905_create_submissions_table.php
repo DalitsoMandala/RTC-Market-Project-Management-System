@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,9 +18,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users', 'id');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->json('data');
-            $table->enum('batch_type', ['batch', 'manual'])->default('manual');
+            $table->enum('batch_type', ['batch', 'manual', 'aggregate'])->default('manual');
             $table->boolean('is_complete')->default(false);
-            $table->string('file_link')->nullable();
+            $table->json('table_name');
+            $table->string('file_link', 1000)->nullable();
             $table->text('comments')->nullable();
             $table->timestamps();
         });

@@ -3,6 +3,8 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
+use App\Models\Organisation;
+use App\Models\ResponsiblePerson;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -16,7 +18,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class FormTable extends PowerGridComponent
 {
     use WithExport;
-
+    public $organisation;
     public function setUp(): array
     {
 
@@ -33,6 +35,43 @@ final class FormTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+        if ($this->organisation) {
+            // Eager load the 'project' and 'indicators' relationships
+            $forms = Form::with(['project', 'indicators'])->get();
+
+            // Collect all indicator IDs manually
+            $indicatorIds = [];
+            foreach ($forms as $form) {
+                foreach ($form->indicators as $indicator) {
+                    $indicatorIds[] = $indicator->id;
+                }
+            }
+
+            // Remove duplicate IDs
+            $indicatorIds = array_unique($indicatorIds);
+
+            // Retrieve the organisation by name
+            $organisation = Organisation::where('name', $this->organisation)->firstOrFail();
+
+            // Retrieve responsible people based on the unique indicator IDs and organisation ID
+            $responsiblePeople = ResponsiblePerson::whereIn('indicator_id', $indicatorIds)
+                ->where('organisation_id', $organisation->id)
+                ->get();
+
+            // Filter the indicators to only those associated with responsible people
+            $filteredIndicators = $responsiblePeople->pluck('indicator_id')->toArray();
+
+            // Filter the forms based on the filtered indicators
+            $filteredForms = Form::with(['project', 'indicators'])
+                ->whereHas('indicators', function ($query) use ($filteredIndicators) {
+                    $query->whereIn('indicators.id', $filteredIndicators);
+                })
+            ;
+
+            return $filteredForms;
+
+        }
         return Form::query()->with('project');
     }
 
@@ -45,8 +84,15 @@ final class FormTable extends PowerGridComponent
 
                 $form_name = str_replace(' ', '-', strtolower($model->name));
                 $project = str_replace(' ', '-', strtolower($model->project->name));
+                if ($model->name == 'REPORT FORM') {
+                    return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                } else
+                    if ($model->name == 'ATTENDANCE REGISTER') {
+                        return '<a   href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
+                    } else {
+                        return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                    }
 
-                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
 
             })
             ->add('type')

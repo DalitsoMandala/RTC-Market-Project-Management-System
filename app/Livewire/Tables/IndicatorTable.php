@@ -4,8 +4,11 @@ namespace App\Livewire\Tables;
 
 use App\Models\Cgiar_Project;
 use App\Models\Indicator;
+use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as ModelBuilder;
+use Illuminate\Support\Facades\Auth;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -39,13 +42,19 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
+        if ($user->hasAnyRole('internal')) {
             return Indicator::query()->with(['project']);
 
         } else {
-            return Indicator::query()->with(['project', 'responsiblePeople'])->whereHas('responsiblePeople', function ($query) {
-                $query->where('user_id', $this->userId);
+            //responsiblePeopleforIndicators are organisations reponsible for these indicators
+            $user = User::find($this->userId);
+            $organisation_id = $user->organisation->id;
+
+            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators'])->whereHas('responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+                $query->where('organisation_id', $organisation_id);
             });
+            return $data;
+            // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
 
         }
 
@@ -60,7 +69,7 @@ final class IndicatorTable extends PowerGridComponent
 
                 return '<b>' . $model->indicator_no . '</b>';
             })
-
+            ->add('indicator_name')
             ->add('name_link', function ($model) {
                 $user = User::find($this->userId);
                 if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
@@ -78,26 +87,54 @@ final class IndicatorTable extends PowerGridComponent
             ->add('cgiar_project', function ($model) {
                 return Cgiar_Project::find($model->project_id)->name ?? null;
             })
+
+            ->add('lead_partner', function ($model) {
+
+                $orgIds = $model->responsiblePeopleforIndicators->pluck('organisation_id');
+
+                $orgs = Organisation::whereIn('id', $orgIds)->get();
+                $orgNames = $orgs->pluck('name')->toArray();
+                $orgNames = implode(', ', $orgNames);
+                return $orgNames;
+            })
+
+            ->add('sources', function ($model) {
+                $forms = $model->forms->pluck('name')->toArray();
+
+                $formNames = implode(', ', $forms);
+                return $formNames;
+            })
             ->add('created_at')
             ->add('updated_at');
     }
 
     public function columns(): array
     {
-        return [
-            Column::make('Id', 'id'),
 
+        $showActionColumn = false; // Set this variable based on your condition
+
+        $columns = [
+            Column::make('Id', 'id'),
             Column::make('Indicator #', 'indicator_no_bold')
                 ->sortable()
                 ->searchable(),
-            Column::make('Indicator', 'name_link', 'name')
+            Column::make('Indicator', 'name_link', 'indicator_name')
                 ->sortable()
                 ->searchable(),
-
             Column::make('Project name', 'project_name'),
-            Column::make('Cgiar project', 'cgiar_project'),
-            Column::action('Action'),
+            Column::make('Lead partner', 'lead_partner'),
+
         ];
+
+        $user = Auth::user();
+        if ($user->hasAnyRole('internal')) {
+            $columns[] = Column::make('Sources', 'sources');
+            $columns[] = Column::action('Action');
+        } else {
+            $columns[] = Column::action('Action')->hidden();
+        }
+
+        return $columns;
     }
 
     public function filters(): array
@@ -130,13 +167,18 @@ final class IndicatorTable extends PowerGridComponent
 
             Rule::button('edit')
                 ->when(function ($row) {
-                    $user = User::find($this->userId);
+                    $user = Auth::user();
 
                     if ($user->hasAnyRole('external')) {
+
                         return true;
+                    } else {
+                        return false;
                     }
                 })
                 ->disable(),
+
+
         ];
     }
 

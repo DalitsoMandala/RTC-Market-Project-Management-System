@@ -1,7 +1,8 @@
 <div>
-    <div class="dropdown d-inline-block ">
-        <button type="button" class="btn header-item noti-icon" id="page-header-notifications-dropdown"
-            data-bs-toggle="offcanvas" href="#notified" role="button" aria-controls="offcanvasExample">
+    <div wire:ignore class="dropdown d-inline-block ">
+        <button @click="$wire.readNotifications()" type="button" class="btn header-item noti-icon"
+            id="page-header-notifications-dropdown" data-bs-toggle="offcanvas" href="#notified" role="button"
+            aria-controls="offcanvasExample">
 
             <i class='bx bxs-bell fs-3 text-muted'></i>
             @if ($notifications->count() > 0)
@@ -27,15 +28,7 @@
                     @endif
                     @foreach ($notifications as $notification)
                         @if ($notification->type === 'manual_data_added')
-                            @php
-                                $currentRoute = request()->route(); // Get the current route
-
-                                $routePrefix = $currentRoute->getPrefix(); // Get the route prefix
-
-                            @endphp
-
-                            <a href="{{ $routePrefix }}/{{ $notification->data['link'] }}"
-                                class="text-reset notification-item">
+                            <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
                                 <div class="d-flex border-bottom align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">
@@ -68,8 +61,7 @@
 
                             @endphp
 
-                            <a href="{{ $routePrefix }}/{{ $notification->data['link'] }}"
-                                class="text-reset notification-item">
+                            <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
                                 <div class="d-flex border-bottom align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">

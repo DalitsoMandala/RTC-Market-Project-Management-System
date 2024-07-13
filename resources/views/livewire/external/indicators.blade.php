@@ -21,9 +21,6 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h5>Your assigned indicators</h5>
-                    </div>
                     <div class="card-body">
                         <livewire:tables.indicatorTable :userId="auth()->user()->id" />
                     </div>
@@ -56,7 +53,7 @@
 
                         <x-text-input placeholder="Name of indicator..." wire:model='indicator' />
                         @error('indicator')
-                            <span class="text-danger my-1">{{ $message }}</span>
+                            <span class="my-1 text-danger">{{ $message }}</span>
                         @enderror
                     </div>
 

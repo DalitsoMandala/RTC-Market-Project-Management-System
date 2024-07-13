@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('indicator_targets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('indicator_id')->constrained('indicators', 'id');
-            $table->decimal('value', 8, 2);
-            $table->boolean('is_expired')->default(false);
-            $table->date('target_date');
+            $table->json('target')->nullable();
+            //  $table->foreignId('submission_period_id')->constrained('submission_periods', 'id');
+
             $table->timestamps();
         });
     }

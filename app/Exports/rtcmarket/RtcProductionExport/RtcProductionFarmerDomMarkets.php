@@ -8,7 +8,8 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
 class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHeadings
-{public $test = false;
+{
+    public $test = false;
 
     public function __construct($test = false)
     {
@@ -30,8 +31,8 @@ class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHe
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
                     'DATE RECORDED' => $faker->date(),
                     'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
-                    'MARKET NAME' => $faker->streetName,
-                    'DISTRICT' => $faker->streetName,
+                    'MARKET NAME' => strtoupper($faker->streetName),
+                    'DISTRICT' => strtoupper($faker->streetName),
                     'DATE OF MAXIMUM SALE' => $faker->date(),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
@@ -60,4 +61,5 @@ class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHe
             'FINANCIAL VALUE OF SALES',
         ];
 
-    }}
+    }
+}

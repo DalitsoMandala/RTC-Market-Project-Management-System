@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,9 +13,9 @@ return new class extends Migration
         Schema::create('household_rtc_consumption', function (Blueprint $table) {
             $table->id();
 
-            $table->json('location_data');
-            $table->date('date_of_assessment');
-            $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']);
+            $table->json('location_data')->nullable();
+            $table->date('date_of_assessment')->nullable();
+            $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER'])->nullable();
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
             $table->string('producer_organisation')->nullable(); // Allow null for producer organization
             $table->string('actor_name')->nullable();
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->integer('rtc_consumers_potato')->nullable();
             $table->integer('rtc_consumers_sw_potato')->nullable();
             $table->integer('rtc_consumers_cassava')->nullable();
-            $table->integer('rtc_consumption_frequency')->unsigned(); // Limit to positive values
+            $table->integer('rtc_consumption_frequency')->nullable(); // Limit to positive values
             $table->json('main_food_data')->nullable();
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users');

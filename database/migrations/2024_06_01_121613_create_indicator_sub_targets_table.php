@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('farmer_rtc_producer_marketing', function (Blueprint $table) {
+        Schema::create('indicator_sub_targets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
+            $table->foreignId('financial_year_id')->constrained('financial_years', 'id');
+            $table->json('target')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('farmer_rtc_producer_marketing');
+        Schema::dropIfExists('indicator_sub_targets');
     }
 };

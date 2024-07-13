@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ProjectSeeder::class);
         $this->call(PartnerSeeder::class);
         $this->call(IndicatorSeeder::class);
+        $this->call(IndicatorTargetSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
         $this->call(PeriodSeeder::class);

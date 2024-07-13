@@ -20,28 +20,40 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card ">
+
+                <div>
+                    @if (session()->has('success'))
+                        <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                    @endif
+                    @if (session()->has('error'))
+                        <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                    @endif
+
+                </div>
+
+                <div class="card " wire:ignore>
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true">
+                                    data-bs-target="#batch-submission" type="button" role="tab"
+                                    aria-controls="home" aria-selected="true">
                                     Batch Submissions
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            {{-- <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
+                                    data-bs-target="#manual-submission" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
                                     Manual Submissions
                                 </button>
-                            </li>
+                            </li> --}}
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#by-people" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
-                                    Submission by Indicator
+                                    data-bs-target="#aggregate-submission" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
+                                    Aggregate Submission
                                 </button>
                             </li>
 
@@ -49,17 +61,17 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div class="mt-2 tab-pane active fade show" id="batch" role="tabpanel"
-                                aria-labelledby="home-tab">
+                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission"
+                                role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :filter="'batch'" />
                             </div>
-                            <div class="mt-2 tab-pane fade" id="manual" role="tabpanel"
+                            {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
-                            </div>
-                            <div class="mt-2 tab-pane fade-show" id="by-people" role="tabpanel"
+                            </div> --}}
+                            <div wire:ignore class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
-
+                                <livewire:tables.submission-table :filter="'aggregate'" />
                             </div>
                         </div>
 
@@ -90,41 +102,108 @@
                     modalInstance.hide();
                 }
             });
+        })
+        
+        $wire.on('showAggregate', (e) => {
+            setTimeout(() => {
+                $wire.dispatch('set', { id: e.id });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
         })">
 
 
-            <x-modal id="view-submission-modal" title="update status">
-                <form wire:submit='save'>
 
-                    <div class="mb-3" x-data="{
-                        status: $wire.entangle('status')
+
+            <x-modal id="view-aggregate-modal" title="Approve Submission">
+                <form wire:submit.debounce.1000ms='save'>
+                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
+                        record?
+                    </h3>
+
+                    <div x-data="{
+                        data: $wire.entangle('inputs'),
+                    
+                    
+                    
                     }">
 
 
 
-                        <select class="form-select form-select-sm" x-model="status">
-                            <option> Select one</option>
-                            <option value="approved">Approved</option>
-                            <option value="denied">Denied</option>
+                        <template x-for="(value, name) in data" :key="index">
 
-                        </select>
-                        <small class="text-muted">You can approve/disapprove submissions here</small><br>
-                        @error('status')
-                            <span class="my-1 text-danger">{{ $message }}</span>
-                        @enderror
+                            <div class="mb-3">
+                                <label for="" class="form-label" x-text="name"></label>
+                                <input readonly type="text" required class="form-control bg-light "
+                                    placeholder="Enter value" aria-describedby="helpId" :value="value" />
+                                <div class="invalid-feedback">
+                                    This field requires a value.
+                                </div>
+
+                            </div>
+
+
+                        </template>
+
+
+
                     </div>
-
-                    <div class="mb-3">
-                        <label for="">Comments</label>
-                        <textarea wire:model='comment' id="" class="form-control"></textarea>
+                    <div class="mt-4 mb-3">
+                        <label for="">Comment</label>
+                        <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
+                        <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
                         @error('comment')
                             <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    <div class="modal-footer border-top-0 justify-content-center" x-data="{
+                        statusGet(status) {
+                            $wire.status = status;
+                            $wire.saveAGG();
+                        }
+                    
+                    }">
+                        <hr>
+
+
+                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
+                        <button type="button" @click="statusGet('approved')"
+                            class="pr-4 btn btn-primary">Approve</button>
+
+                    </div>
+                </form>
+            </x-modal>
+
+
+            <x-modal id="view-submission-modal" title="Approve Submission">
+                <form wire:submit.debounce.1000ms='save'>
+                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
+                        record?
+                    </h3>
+
+                    <div class="mt-4 mb-3">
+                        <label for="">Comment</label>
+                        <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
+                        <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
+                        @error('comment')
+                            <x-error>{{ $message }}</x-error>
+                        @enderror
+                    </div>
+
+                    <div class="modal-footer border-top-0 justify-content-center" x-data="{
+                        statusGet(status) {
+                            $wire.status = status;
+                            $wire.save();
+                        }
+                    
+                    }">
+                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
+                        <button type="button" @click="statusGet('approved')"
+                            class="pr-4 btn btn-primary">Approve</button>
 
                     </div>
                 </form>
@@ -135,5 +214,17 @@
 
 
     </div>
+
+    @script
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
+
+                }
+            }
+        </script>
+    @endscript
 
 </div>

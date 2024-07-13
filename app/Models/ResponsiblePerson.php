@@ -14,4 +14,9 @@ class ResponsiblePerson extends Model
     {
         return $this->belongsTo(Indicator::class, 'indicator_id');
     }
+
+    public function organisation()
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id');
+    }
 }
