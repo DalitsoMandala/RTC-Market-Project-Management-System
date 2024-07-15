@@ -2,9 +2,16 @@
 
 namespace App\Livewire\tables;
 
-use Illuminate\Database\Query\Builder;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
+use App\Models\ResponsiblePerson;
+use App\Models\Source;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -12,8 +19,8 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ResponsibilitiesTable extends PowerGridComponent
@@ -37,7 +44,8 @@ final class ResponsibilitiesTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('responsible_people');
+
+        return ResponsiblePerson::with(['indicator', 'organisation']);
     }
 
     public function fields(): PowerGridFields
@@ -45,9 +53,17 @@ final class ResponsibilitiesTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('organisation_id')
+            ->add('organisation', fn($model) => Organisation::find($model->organisation_id)->name)
             ->add('indicator_id')
+            ->add('indicator', fn($model) => Indicator::find($model->indicator_id)->indicator_name)
+            ->add('forms', function ($model) {
+                $sources = Source::where('person_id', $model->id)->pluck('form_id')->toArray();
+                $forms = Form::whereIn('id', $sources)->pluck('name')->toArray();
+                return implode(', ', $forms);
+
+            })
             ->add('type_of_submission')
-            ->add('form_id')
+            ->add('aggregate_type')
             ->add('created_at')
             ->add('updated_at');
     }
@@ -56,27 +72,19 @@ final class ResponsibilitiesTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Organisation id', 'organisation_id'),
-            Column::make('Indicator id', 'indicator_id'),
-            Column::make('Type of submission', 'type_of_submission')
-                ->sortable()
-                ->searchable(),
+            Column::make('Organisation', 'organisation'),
+            Column::make('Indicator', 'indicator'),
 
-            Column::make('Form id', 'form_id'),
-            Column::make('Created at', 'created_at_formatted', 'created_at')
-                ->sortable(),
+            Column::make('Forms', 'forms'),
 
-            Column::make('Created at', 'created_at')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Updated at', 'updated_at_formatted', 'updated_at')
-                ->sortable(),
 
-            Column::make('Updated at', 'updated_at')
-                ->sortable()
-                ->searchable(),
 
+
+
+
+
+            Column::action('Action'),
         ];
     }
 
@@ -86,22 +94,23 @@ final class ResponsibilitiesTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    #[On('closeModal')]
+    public function refreshData(): void
     {
-        $this->js('alert('.$rowId.')');
+        $this->refresh();
     }
 
     public function actions($row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$row->id)
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->class('btn btn-primary')
+                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-people-modal']),
         ];
     }
+
 
     /*
     public function actionRules($row): array

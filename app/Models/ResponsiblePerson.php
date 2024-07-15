@@ -19,4 +19,8 @@ class ResponsiblePerson extends Model
     {
         return $this->belongsTo(Organisation::class, 'organisation_id');
     }
+    public function sources()
+    {
+        return $this->hasMany(Source::class, 'person_id');
+    }
 }
