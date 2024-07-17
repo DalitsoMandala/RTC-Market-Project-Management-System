@@ -52,11 +52,7 @@
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none" href="{{ route('cip-leads') }}"
-                                            id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Indicators & Lead Partners</span>
 
-                                        </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
@@ -76,8 +72,16 @@
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="{{ route('cip-leads') }}"
+                                            id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Indicators & Lead Partners</span>
 
+                                        </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-targets') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Indicators & Targets</span>
 
+                                        </a>
                                     </div>
                                 </li>
 

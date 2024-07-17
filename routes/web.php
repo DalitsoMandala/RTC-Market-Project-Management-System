@@ -14,6 +14,7 @@ use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Livewire\Internal\Cip\SubPeriod;
+use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
+    Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     // Form routes
     $formPrefix = '/forms/{project}';
 

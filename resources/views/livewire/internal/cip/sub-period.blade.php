@@ -216,7 +216,7 @@
                                 <div class="mb-3" wire:loading.class='opacity-25'
                                     wire:target="selectedProject, selectedIndicator, selectedForm"
                                     wire:loading.attr='disabled'>
-                                    <label for="year-select" class="form-label">Choose Financial Year</label>
+                                    <label for="year-select" class="form-label">Choose Project Year</label>
                                     <select id="year-select" class="form-select form-select-md"
                                         wire:model.debounce.500ms='selectedFinancialYear'>
                                         <option value="">Select one</option>

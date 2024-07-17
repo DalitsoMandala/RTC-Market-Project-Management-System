@@ -33,23 +33,28 @@ class A1
         $query = HouseholdRtcConsumption::query();
 
         if ($this->reporting_period || $this->financial_year) {
+            if ($this->reporting_period) {
+                dd($this->reporting_period);
+
+            }
 
 
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
 
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
+            // $query->where(function ($query) {
+            //     if ($this->reporting_period) {
+            //         $filterUuids = $query->pluck('uuid')->unique()->toArray();
+            //         $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
+            //         $query->whereIn('uuid', $submissions->toArray());
+
+            //     }
+            //     if ($this->financial_year) {
+            //         $filterUuids = $query->pluck('uuid')->unique()->toArray();
+            //         $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
+            //         $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
+            //         $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
+            //         $query->whereIn('uuid', $submissions->toArray());
+            //     }
+            // });
 
 
 
