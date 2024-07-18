@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->integer('target_value')->nullable();
-            $table->enum('type', ['number', 'percentage']);
+            $table->enum('type', ['number', 'percentage', 'detail'])->nullable();
             $table->timestamps();
         });
     }

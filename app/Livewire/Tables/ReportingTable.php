@@ -62,15 +62,15 @@ final class ReportingTable extends PowerGridComponent
                     $indicator = new A1($this->reporting_period, $this->financial_year);
                     $item = $this->mapData($indicator->getDisaggregations(), $item);
                     break;
-                case 'B1':
-                    $indicator = new B1($this->reporting_period, $this->financial_year);
-                    $item = $this->mapData($indicator->getDisaggregations(), $item);
-                    break;
+                // case 'B1':
+                //     $indicator = new B1($this->reporting_period, $this->financial_year);
+                //     $item = $this->mapData($indicator->getDisaggregations(), $item);
+                //     break;
 
-                case 'B2':
-                    $indicator = new Indicator_B2($this->reporting_period, $this->financial_year);
-                    $item = $this->mapData($indicator->getDisaggregations(), $item);
-                    break;
+                // case 'B2':
+                //     $indicator = new Indicator_B2($this->reporting_period, $this->financial_year);
+                //     $item = $this->mapData($indicator->getDisaggregations(), $item);
+                //     break;
                 // case '2.2.1':
                 //     $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
                 //     $item = $this->mapData($indicator->getDisaggregations(), $item);

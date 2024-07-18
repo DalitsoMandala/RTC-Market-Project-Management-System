@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,6 +15,8 @@ return new class extends Migration
             $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
             $table->foreignId('organisation_id')->constrained('organisations', 'id');
             $table->integer('value');
+            $table->json('detail')->nullable();
+            $table->enum('type', ['number', 'percentage', 'detail'])->nullable();
             $table->timestamps();
         });
     }
