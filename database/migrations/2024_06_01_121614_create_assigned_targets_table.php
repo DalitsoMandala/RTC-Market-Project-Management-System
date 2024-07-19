@@ -14,7 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
             $table->foreignId('organisation_id')->constrained('organisations', 'id');
-            $table->integer('value');
+            $table->integer('target_value');
+            $table->integer('current_value')->default(0);
             $table->json('detail')->nullable();
             $table->enum('type', ['number', 'percentage', 'detail'])->nullable();
             $table->timestamps();

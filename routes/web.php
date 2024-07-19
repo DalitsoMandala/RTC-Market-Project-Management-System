@@ -57,6 +57,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
+
     // Form routes
     $formPrefix = '/forms/{project}';
 

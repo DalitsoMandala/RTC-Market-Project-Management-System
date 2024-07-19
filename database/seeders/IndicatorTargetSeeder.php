@@ -273,6 +273,8 @@ class IndicatorTargetSeeder extends Seeder
 
                 ]);
 
+                //assign target
+
                 if (!isset($values['Total'])) {
 
 
@@ -307,6 +309,9 @@ class IndicatorTargetSeeder extends Seeder
 
 
                 ]);
+
+
+
 
                 if (!isset($values['Total'])) {
 
@@ -397,4 +402,6 @@ class IndicatorTargetSeeder extends Seeder
 
 
     }
+
+
 }

@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -132,6 +133,8 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
     }
 
 
+
+
     public function onFailure(Failure ...$failures)
     {
 
@@ -162,7 +165,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             '*.ACTOR NAME' => 'string|max:255|nullable',
             '*.AGE GROUP' => 'string|max:255|in:YOUTH,NOT YOUTH|nullable',
             '*.SEX' => 'string|in:MALE,FEMALE|nullable',
-            '*.PHONE NUMBER' => 'string|max:15|nullable',
+            '*.PHONE NUMBER' => 'string|max:255|nullable',
             '*.HOUSEHOLD SIZE' => 'numeric|min:1|nullable',
             '*.UNDER 5 IN HOUSEHOLD' => 'integer|min:0|nullable',
             '*.RTC CONSUMERS' => 'numeric|min:0|nullable',

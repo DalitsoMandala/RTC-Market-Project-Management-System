@@ -135,7 +135,7 @@ class A1
 
     public function findTotal()
     {
-        return $this->builder()->count();
+        return $this->builder()->where('actor_name', '!=', null)->count();
     }
 
     public function findGender()
@@ -212,6 +212,14 @@ class A1
 
     }
 
+
+    public function getDisaggregationsByOrganisation($user_id)
+    {
+
+        $builder = $this->builder()->where('user_id', $user_id)->where('actor_name', '!=', null)->get();
+        return $builder;
+
+    }
     public function getDisaggregations()
     {
         $gender = $this->findGender();

@@ -50,6 +50,8 @@ class Upload extends Component
 
     public function submitUpload()
     {
+
+        ini_set('max_execution_time', 600);
         try {
             $this->validate();
         } catch (Throwable $e) {
@@ -123,6 +125,8 @@ class Upload extends Component
                             ]);
 
                             $data = json_decode($submission->data, true);
+
+
 
                             foreach ($data as $row) {
 
