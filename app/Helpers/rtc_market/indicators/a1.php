@@ -213,7 +213,7 @@ class A1
     }
 
 
-    public function getDisaggregationsByOrganisation($user_id)
+    public function getDisaggregationsByOrganisation($user_id, $financial_year_id)
     {
 
         $builder = $this->builder()->where('user_id', $user_id)->where('actor_name', '!=', null)->get();

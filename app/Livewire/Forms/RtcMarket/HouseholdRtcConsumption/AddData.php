@@ -246,7 +246,12 @@ class AddData extends Component
 
                 ]);
 
-                HouseholdRtcConsumption::insert($data);
+                foreach ($data as $dt) {
+                    $dt['period_id'] = $this->submissionPeriodId;
+                    HouseholdRtcConsumption::create($dt);
+                }
+
+
 
                 $this->reset('epa', 'section', 'district', 'enterprise');
                 $this->resetErrorBag();
@@ -367,7 +372,7 @@ class AddData extends Component
                         'table_name' => 'household_rtc_consumption',
                     ]);
 
-               
+
                     session()->flash('success', 'Successfully submitted! <a href="' . route('external-submissions') . '#manual-submission">View Submission here</a>');
 
 

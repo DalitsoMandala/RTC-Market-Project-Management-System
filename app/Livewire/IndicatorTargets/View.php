@@ -5,6 +5,7 @@ namespace App\Livewire\IndicatorTargets;
 use App\Livewire\Tables\IndicatorTable;
 use App\Models\AssignedTarget;
 use App\Models\FinancialYear;
+use App\Models\Indicator;
 use App\Models\IndicatorTarget;
 use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
@@ -75,8 +76,30 @@ class View extends Component
         });
 
         $this->data = $data;
+
+
     }
 
+
+    public function getIndicatorClasses($indicator_id)
+    {
+        $indicator = Indicator::find($indicator_id);
+
+        if ($indicator) {
+
+            switch ($indicator->number) {
+                case 'value':
+                    # code...
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+        }
+
+
+    }
 
     // public function getTarget($project_id, $financial_year_id, $indicator_id, $organisations)
     // {

@@ -129,8 +129,8 @@ class Upload extends Component
 
 
                             foreach ($data as $row) {
-
-                                $insert = HouseholdRtcConsumption::create($row);
+                                $row['period_id'] = $this->submissionPeriodId;
+                                HouseholdRtcConsumption::create($row);
 
                             }
 

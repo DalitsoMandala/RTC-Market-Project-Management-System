@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\IndicatorsContent;
 use App\Http\Controllers\TestingController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
@@ -24,9 +25,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function () {
-    $filePath = public_path('storage\imports\hh_1720372440.xlsx');
+    $test = new IndicatorsContent(id: 1);
+    return $test->content();
 
-    return Response::download($filePath, 'hh_1720372440.xlsx');
 });
 
 // TestingController route
