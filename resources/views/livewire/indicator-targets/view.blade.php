@@ -2,7 +2,7 @@
     <h3 class="py-2">Targets</h3>
     <div class="row">
         @foreach ($data as $dt)
-            <div class="col-3  ">
+            <div class="col-3 ">
                 <div class="border  shadow-none card @if ($dt->financial_year == $currentYear) border-success @endif ">
                     <div class=" card-header d-flex justify-content-between">
                         <h3 class="card-title" style="font-size: 14px">Year {{ $dt->financial_year }} </h3>
@@ -20,8 +20,8 @@
                             current = @js(collect($dt->data)->sum('current_value'));
                         }">
 
-                            <p class="mb-1 text-uppercase fw-medium text-muted text-truncate text-center"> LOP</p>
-                            <h4 class="mb-0 fs-22 fw-semibold ff-secondary text-center">
+                            <p class="mb-1 text-center text-uppercase fw-medium text-muted text-truncate"> LOP</p>
+                            <h4 class="mb-0 text-center fs-22 fw-semibold ff-secondary">
                                 <span x-text="current+'/'+target"></span>
                             </h4>
 
@@ -38,9 +38,15 @@
                                     current: @js($results->current_value),
                                     target: @js($results->target_value),
                                     calculatePercentage(value, total) {
+                                        if (Math.floor((value / total) * 100) > 100) {
+                                            return 100;
+                                        }
                                         return Math.floor((value / total) * 100);
-                                    }
+                                    },
+                                    currentTargets: @js($targets)
+
                                 }">
+
                                     <p class="mb-1"><span x-text="title"></span>
                                         (<span x-text="current+'/' + target"></span>)
                                         <span class="float-end"
@@ -55,6 +61,7 @@
                                                     calculatePercentage(current, target) < 50,
                                                 'bg-danger': calculatePercentage(current, target) >= 0 &&
                                                     calculatePercentage(current, target) < 25,
+
                                             }"
                                             :style="{
                                                 'width': calculatePercentage(current, target) + '%'

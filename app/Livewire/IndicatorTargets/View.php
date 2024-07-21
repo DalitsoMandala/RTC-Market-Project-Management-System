@@ -2,6 +2,7 @@
 
 namespace App\Livewire\IndicatorTargets;
 
+use App\Helpers\IndicatorsContent;
 use App\Livewire\Tables\IndicatorTable;
 use App\Models\AssignedTarget;
 use App\Models\FinancialYear;
@@ -11,6 +12,7 @@ use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
 use App\Models\TargetDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
@@ -30,6 +32,7 @@ class View extends Component
     public $currentYear;
 
     public $data;
+
     public function save()
     {
 
@@ -41,6 +44,7 @@ class View extends Component
         $this->financial_years = FinancialYear::where('project_id', $this->project_id)->get();
         $people = ResponsiblePerson::where('indicator_id', $this->indicator_id)->pluck('organisation_id');
         $this->organisations = Organisation::whereIn('id', $people)->get();
+        $myOrganisation = Auth::user()->organisation->id;
         $today = Carbon::now();
 
 
@@ -66,8 +70,25 @@ class View extends Component
             if ($assignedTargets->isNotEmpty()) {
                 $model->data = $assignedTargets->map(function ($assignedTarget) {
                     $assignedTarget->organisation = Organisation::find($assignedTarget->organisation_id)->name;
+
+                    foreach ($this->getTargets() as $targetModel) {
+                        if ($targetModel['organisation'] == $assignedTarget->organisation) {
+                            $assigned = $assignedTarget->id;
+                            AssignedTarget::find($assigned)->update([
+                                'current_value' => $targetModel['Total'],
+                            ]);
+                            $assignedTarget->current_value = $targetModel['Total'];
+
+                        }
+
+                    }
+
+
+
                     return $assignedTarget;
                 });
+
+
             } else {
                 $model->data = [];
             }
@@ -77,26 +98,33 @@ class View extends Component
 
         $this->data = $data;
 
-
     }
 
 
-    public function getIndicatorClasses($indicator_id)
+    public function getTargets()
     {
-        $indicator = Indicator::find($indicator_id);
 
-        if ($indicator) {
 
-            switch ($indicator->number) {
-                case 'value':
-                    # code...
-                    break;
+        $content = $this->getIndicatorClasses($this->indicator_id);
 
-                default:
-                    # code...
-                    break;
-            }
+        if ($content['class'] != null) {
+
+            $class = new $content['class'];
+            $data = $class->getCurrentTargets($this->financial_years->pluck('id'), $this->organisations->pluck('id'));
+
+
+            return $data;
+
         }
+
+        return [];
+    }
+
+    public function getIndicatorClasses($indicator_id): Collection
+    {
+        $indicatorContent = new IndicatorsContent(id: $indicator_id);
+
+        return $indicatorContent->content();
 
 
     }

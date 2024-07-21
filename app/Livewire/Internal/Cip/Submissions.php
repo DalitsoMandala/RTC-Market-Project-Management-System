@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use App\Models\FinancialYear;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\RpmFarmerDomMarket;
 use App\Models\RpmFarmerFollowUp;
@@ -13,6 +14,8 @@ use App\Models\RpmProcessorInterMarket;
 use App\Models\RtcProductionFarmer;
 use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
+use App\Models\SubmissionPeriod;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -51,6 +54,14 @@ class Submissions extends Component
 
             $submission = Submission::find($this->rowId);
 
+            $period = SubmissionPeriod::find($submission->period_id);
+
+            $financialYear = FinancialYear::find($period->financial_year_id);
+            $user = User::find($submission->user_id);
+
+            $organisation = $user->organisation->id;
+
+
             if ($this->status === 'approved') {
 
                 $table = json_decode($submission->table_name);
@@ -67,6 +78,9 @@ class Submissions extends Component
 
                             $batch['created_at'] = now();
                             $batch['updated_at'] = now();
+                            $batch['financial_year_id'] = $financialYear->id;
+                            $batch['period_id'] = $period->id;
+                            $batch['organisation_id'] = $organisation;
                             $data[] = $batch;
                         }
                         if ($table[0] == 'household_rtc_consumption') {

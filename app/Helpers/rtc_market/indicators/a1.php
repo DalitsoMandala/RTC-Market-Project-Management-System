@@ -4,6 +4,7 @@ namespace App\Helpers\rtc_market\indicators;
 
 use App\Livewire\Internal\Cip\Submissions;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\Organisation;
 use App\Models\RtcProductionFarmer;
 use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
@@ -213,12 +214,25 @@ class A1
     }
 
 
-    public function getDisaggregationsByOrganisation($user_id, $financial_year_id)
+    public function getCurrentTargets($financial_year_ids, $organisation_ids)
     {
+        $builder = $this->builder()->select([
+            'organisation_id',
+            DB::raw('COUNT(*) AS Total'),
+        ])
+            ->where('actor_name', '!=', null)
+            ->whereIn('organisation_id', $organisation_ids)
+            ->whereIn('financial_year_id', $financial_year_ids)
+            ->groupBy('organisation_id');
 
-        $builder = $this->builder()->where('user_id', $user_id)->where('actor_name', '!=', null)->get();
-        return $builder;
+        $final = $builder->get()->map(function ($query) {
+            $model = Organisation::find($query->organisation_id);
+            $query->organisation = $model->name;
+            return $query;
+        });
 
+
+        return $final->toArray();
     }
     public function getDisaggregations()
     {

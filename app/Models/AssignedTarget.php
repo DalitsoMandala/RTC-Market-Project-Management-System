@@ -9,5 +9,5 @@ class AssignedTarget extends Model
 {
     use HasFactory;
 
-
+    protected $guarded = [];
 }

@@ -81,7 +81,7 @@ class UserSeeder extends Seeder
             'email' => 'dcd@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 4,
+            'organisation_id' => 5,
         ])->assignRole(['external', 'organiser']);
 
         User::create([

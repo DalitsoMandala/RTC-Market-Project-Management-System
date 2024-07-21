@@ -248,6 +248,8 @@ class AddData extends Component
 
                 foreach ($data as $dt) {
                     $dt['period_id'] = $this->submissionPeriodId;
+                    $dt['organisation_id'] = Auth::user()->organisation->id;
+                    $dt['financial_year_id'] = $this->selectedFinancialYear;
                     HouseholdRtcConsumption::create($dt);
                 }
 
@@ -331,6 +333,9 @@ class AddData extends Component
                         session()->flash('error', 'You have already submitted your data for this indicator.');
                         $this->dispatch('to-top');
                     } else {
+
+
+
                         Submission::create([
                             'batch_no' => $uuid,
                             'form_id' => $this->selectedForm,

@@ -22,7 +22,7 @@ class AssignedTargetSeeder extends Seeder
                 'indicator_target_id' => $target->id,
                 'organisation_id' => 1,
                 'target_value' => 3000,
-                'current_value' => 250,
+                'current_value' => 0,
                 'type' => 'number',
 
             ]);
@@ -31,7 +31,7 @@ class AssignedTargetSeeder extends Seeder
                 'organisation_id' => 3,
                 'target_value' => 2000,
                 'type' => 'number',
-                'current_value' => 100,
+                'current_value' => 0,
             ]);
 
             AssignedTarget::create([
@@ -39,7 +39,7 @@ class AssignedTargetSeeder extends Seeder
                 'organisation_id' => 4,
                 'target_value' => 1000,
                 'type' => 'number',
-                'current_value' => 700,
+                'current_value' => 0,
 
             ]);
             AssignedTarget::create([
@@ -47,7 +47,7 @@ class AssignedTargetSeeder extends Seeder
                 'organisation_id' => 5,
                 'target_value' => 4000,
                 'type' => 'number',
-                'current_value' => 3000,
+                'current_value' => 0,
             ]);
 
         }

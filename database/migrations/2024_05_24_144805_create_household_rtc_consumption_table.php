@@ -33,6 +33,8 @@ return new class extends Migration {
             $table->string('uuid');
             $table->foreignId('period_id')->constrained('submission_periods', 'id'); // to track changes
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('organisation_id')->constrained('organisations');
+            $table->foreignId('financial_year_id')->constrained('financial_years', 'id');
             $table->timestamps();
         });
     }
