@@ -242,12 +242,13 @@ class AddData extends Component
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
-                    'table_name' => json_encode(['household_rtc_consumption']),
+                    'table_name' => 'household_rtc_consumption',
 
                 ]);
 
                 foreach ($data as $dt) {
-                    $dt['period_id'] = $this->submissionPeriodId;
+                    $dt['submission_period_id'] = $this->submissionPeriodId;
+                    $dt['period_month_id'] = $this->selectedMonth;
                     $dt['organisation_id'] = Auth::user()->organisation->id;
                     $dt['financial_year_id'] = $this->selectedFinancialYear;
                     HouseholdRtcConsumption::create($dt);

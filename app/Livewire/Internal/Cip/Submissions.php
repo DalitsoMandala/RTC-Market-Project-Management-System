@@ -79,7 +79,8 @@ class Submissions extends Component
                             $batch['created_at'] = now();
                             $batch['updated_at'] = now();
                             $batch['financial_year_id'] = $financialYear->id;
-                            $batch['period_id'] = $period->id;
+                            $batch['submission_period_id'] = $period->id;
+                            $batch['period_month_id'] = $period->month_range_period_id;
                             $batch['organisation_id'] = $organisation;
                             $data[] = $batch;
                         }

@@ -93,6 +93,7 @@ class SubPeriod extends Component
                     ->where('financial_year_id', $this->selectedFinancialYear)
                     ->where('indicator_id', $this->selectedIndicator)
                     ->whereIn('form_id', $this->selectedForm)
+                    ->where('is_expired', false)
                     ->exists();
 
                 if ($exists) {

@@ -35,26 +35,18 @@ class A1
         $query = HouseholdRtcConsumption::query();
 
         if ($this->reporting_period && $this->financial_year) {
-            $hasValidBatchUuids = false;
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
 
-            $query->where(function ($query) use (&$hasValidBatchUuids) {
-
-                $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
-                if (!empty($submissionPeriod)) {
-                    $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
-                    if (!empty($batchUuids)) {
-                        $query->orWhereIn('uuid', $batchUuids);
-                        $hasValidBatchUuids = true;
-                    }
-                }
+                $hasData = true;
+                return $data;
+            }
 
 
-
-            });
-
-            if (!$hasValidBatchUuids) {
-                // No valid batch UUIDs found, return an empty collection
-                return $query->whereIn('uuid', []);
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
             }
         }
 

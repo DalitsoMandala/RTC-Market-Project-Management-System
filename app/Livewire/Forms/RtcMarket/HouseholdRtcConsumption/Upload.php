@@ -129,9 +129,11 @@ class Upload extends Component
 
 
                             foreach ($data as $row) {
-                                $row['period_id'] = $this->submissionPeriodId;
+                                $row['submission_period_id'] = $this->submissionPeriodId;
                                 $row['organisation_id'] = Auth::user()->organisation->id;
                                 $row['financial_year_id'] = $this->selectedFinancialYear;
+                                $row['period_month_id'] = $this->selectedMonth;
+
                                 HouseholdRtcConsumption::create($row);
 
                             }

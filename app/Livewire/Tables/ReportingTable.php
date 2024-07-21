@@ -57,6 +57,9 @@ final class ReportingTable extends PowerGridComponent
         });
 
         $finalCollection = $collection->transform(function ($item) {
+
+
+
             switch ($item['number']) {
                 case 'A1':
                     $indicator = new A1($this->reporting_period, $this->financial_year);
