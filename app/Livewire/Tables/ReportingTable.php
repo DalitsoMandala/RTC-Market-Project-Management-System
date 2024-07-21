@@ -26,7 +26,6 @@ final class ReportingTable extends PowerGridComponent
     public bool $deferLoading = true;
     public function datasource(): ?Collection
     {
-
         $builder = IndicatorDisaggregation::with(['indicator', 'indicator.project']);
 
         if ($this->project) {
@@ -46,62 +45,41 @@ final class ReportingTable extends PowerGridComponent
 
         $builder->chunk(100, function ($disaggregations) use (&$collection, &$count) {
             foreach ($disaggregations as $disaggregation) {
-                $collection->push([
+                $item = [
                     'id' => $count++,
                     'name' => $disaggregation->name,
                     'indicator_name' => $disaggregation->indicator->indicator_name,
                     'project' => $disaggregation->indicator->project->name,
                     'number' => $disaggregation->indicator->indicator_no,
                     'indicator_id' => $disaggregation->indicator->id,
-                ]);
+                ];
+
+                $content = new IndicatorsContent(name: $item['indicator_name'], number: $item['number']);
+                $getContent = $content->content();
+                if ($getContent['class'] !== null) {
+                    $indicator = new $getContent['class']($this->reporting_period, $this->financial_year);
+                    $item = $this->mapData($indicator->getDisaggregations(), $item);
+                }
+
+                $collection->push($item);
             }
         });
 
-        $finalCollection = $collection->transform(function ($item) {
-            $content = new IndicatorsContent(name: $item['indicator_name'], number: $item['number']);
-            $getContent = $content->content();
-            if ($getContent['class'] !== null) {
-
-                $indicator = new $getContent['class']($this->reporting_period, $this->financial_year);
-                $item = $this->mapData($indicator->getDisaggregations(), $item);
-            }
-
-            // switch ($item['number']) {
-            //     // case 'A1':
-            //     //  $indicator = new A1($this->reporting_period, $this->financial_year);
-            //     //$item = $this->mapData($indicator->getDisaggregations(), $item);
-            //     //break;
-            //     // case 'B1':
-            //     //     $indicator = new B1($this->reporting_period, $this->financial_year);
-            //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-            //     //     break;
-
-            //     // case 'B2':
-            //     //     $indicator = new Indicator_B2($this->reporting_period, $this->financial_year);
-            //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-            //     //     break;
-            //     // case '2.2.1':
-            //     //     $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
-            //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-            //     //     break;
-            // }
-
-            return $item;
-        });
-
-        return $finalCollection;
+        return $collection;
     }
 
     public function mapData($array, $item)
     {
-        $disaggregations = $array;
-        foreach ($disaggregations as $key => $record) {
-            $key === $item['name'] ? $item['value'] = $record : 0;
+        foreach ($array as $key => $record) {
+            if ($key === $item['name']) {
+                $item['value'] = $record;
+                break; // Once found, no need to continue looping
+            }
         }
 
         return $item;
-
     }
+
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -189,4 +167,24 @@ final class ReportingTable extends PowerGridComponent
         $this->reset('project', 'indicators', 'reporting_period', 'financial_year');
         $this->refresh();
     }
+
+    // switch ($item['number']) {
+    //     // case 'A1':
+    //     //  $indicator = new A1($this->reporting_period, $this->financial_year);
+    //     //$item = $this->mapData($indicator->getDisaggregations(), $item);
+    //     //break;
+    //     // case 'B1':
+    //     //     $indicator = new B1($this->reporting_period, $this->financial_year);
+    //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
+    //     //     break;
+
+    //     // case 'B2':
+    //     //     $indicator = new Indicator_B2($this->reporting_period, $this->financial_year);
+    //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
+    //     //     break;
+    //     // case '2.2.1':
+    //     //     $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
+    //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
+    //     //     break;
+    // }
 }

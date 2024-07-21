@@ -40,32 +40,32 @@
                                      const selectInput = new Choices($refs.selectElement, {
                                          shouldSort: false,
                                          placeholder: true,
-                                    
+
                                          choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
                                      });
-                                    
-                                    
-                                    
+
+
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
+
                                              myInput(event.detail.value);
-                                    
-                                    
-                                    
+
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
                                          selectInput.setChoiceByValue('');
-                                    
+
                                      })">
                                         <label for="" class="form-label">Project</label>
-                                        <select class="form-select form-select-sm" x-ref="selectElement">
+                                        <select class="form-select form-select-sm " x-ref="selectElement">
                                             <option value="" disabled selected>Choose an option</option>
                                         </select>
 
@@ -83,7 +83,7 @@
                                         myInput(data) {
                                             this.selected = data;
                                         },
-                                    
+
                                     }" x-init=" const input = $refs.selectElementIndicator;
                                      const selectInput = new Choices($refs.selectElementIndicator, {
                                          shouldSort: false,
@@ -92,27 +92,27 @@
                                          placeholderValue: 'Select indicators here...',
                                          choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
                                      });
-                                    
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
-                                    
+
+
                                              let selectedValues = selectInput.getValue(true);
-                                    
-                                    
+
+
                                              myInput(selectedValues);
-                                    
-                                    
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
-                                    
-                                    
+
+
                                      })">
 
 
@@ -135,9 +135,12 @@
                                         {{-- <x-flatpickr x-model="starting_period" /> --}}
 
 
-                                        <select class="form-select " name="" id=""
-                                            x-model="reportingPeriod" wire:loading.attr='disabled'
-                                            wire:target='selectedProject'>
+                                        <select
+                                            class="form-select @error('selectedReportingPeriod')
+                                            is-invalid
+                                        @enderror"
+                                            name="" id="" x-model="reportingPeriod"
+                                            wire:loading.attr='disabled' wire:target='selectedProject'>
                                             <option value="">Select one</option>
                                             @foreach ($reportingPeriod as $month)
                                                 <option value="{{ $month->id }}">{{ $month->start_month }} -
@@ -147,7 +150,7 @@
 
 
                                     </div>
-                                    @error('starting_period')
+                                    @error('selectedReportingPeriod')
                                         <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
                                 </div>
@@ -156,9 +159,12 @@
                                         <label for="" class="form-label">Financial year</label>
                                         {{-- <x-flatpickr x-model="ending_period" /> --}}
 
-                                        <select class="form-select " name="" id=""
-                                            x-model="financial_year" wire:loading.attr='disabled'
-                                            wire:target='selectedProject'>
+                                        <select
+                                            class="form-select @error('selectedFinancialYear')
+                                            is-invalid
+                                        @enderror"
+                                            name="" id="" x-model="financial_year"
+                                            wire:loading.attr='disabled' wire:target='selectedProject'>
                                             <option value="">Select one</option>
                                             @foreach ($financialYears as $year)
                                                 <option value="{{ $year->id }}">{{ $year->number }}</option>
@@ -166,7 +172,7 @@
                                         </select>
 
                                     </div>
-                                    @error('ending_period')
+                                    @error('selectedFinancialYear')
                                         <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
                                 </div>

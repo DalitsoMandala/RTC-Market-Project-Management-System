@@ -93,6 +93,8 @@ class Upload extends Component
 
                     $uuid = session()->get('uuid');
                     $batch_data = session()->get('batch_data');
+
+
                     if (empty($batch_data)) {
                         throw new UserErrorException("Your file has empty rows!");
 
