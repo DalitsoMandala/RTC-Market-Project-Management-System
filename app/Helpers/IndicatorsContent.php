@@ -25,46 +25,49 @@ class IndicatorsContent
 
     public function content(): Collection
     {
-
         if ($this->name && $this->number) {
-            $self = self::indicatorArray();
-            $selfclass = self::indicatorCalculations();
-            $query = $self->where('indicator_name', $this->name)->where('indicator_no', $this->number)->first();
-            $classes = $selfclass->where('indicator_name', $this->name)->first();
-            $query['class'] = $classes['class'];
-
-
-
-            return collect($query);
-
-
-
-
-        } else if ($this->id) {
-
-            $self = self::indicatorArray();
-            $selfclass = self::indicatorCalculations();
-            $query = $self->where('id', $this->id)->first();
-            $indicator = Indicator::find($this->id);
-
-            if ($indicator) {
-                $classes = $selfclass->where('indicator_name', $indicator->indicator_name)->first();
-                $query['class'] = $classes['class'];
-
-            } else {
-                $query['class'] = null;
-            }
-
-            return collect($query);
+            return $this->getContentByNameAndNumber();
+        } elseif ($this->id) {
+            return $this->getContentById();
         }
 
-
         return collect();
+    }
 
+    private function getContentByNameAndNumber(): Collection
+    {
+        $indicatorArray = self::indicatorArray();
+        $indicatorCalculations = self::indicatorCalculations();
 
+        $query = $indicatorArray->where('indicator_name', $this->name)
+            ->where('indicator_no', $this->number)
+            ->first();
 
+        $classes = $indicatorCalculations->where('indicator_name', $this->name)
+            ->first();
 
+        if ($query) {
+            $query['class'] = $classes['class'] ?? null;
+        }
 
+        return collect($query);
+    }
+
+    private function getContentById(): Collection
+    {
+        $indicatorArray = self::indicatorArray();
+        $indicatorCalculations = self::indicatorCalculations();
+
+        $query = $indicatorArray->where('id', $this->id)->first();
+        $indicator = Indicator::find($this->id);
+
+        if ($query && $indicator) {
+            $classes = $indicatorCalculations->where('indicator_name', $indicator->indicator_name)
+                ->first();
+            $query['class'] = $classes['class'] ?? null;
+        }
+
+        return collect($query);
     }
 
     public static function indicatorCalculations(): Collection
