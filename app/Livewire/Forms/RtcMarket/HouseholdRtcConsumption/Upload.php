@@ -7,20 +7,26 @@ use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
 use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\HouseholdImport\HrcImport;
+use App\Jobs\RandomNames;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
+use App\Models\JobProgress;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -48,10 +54,15 @@ class Upload extends Component
 
     public $openSubmission = false;
 
+    public $progress = 0;
+
     public function submitUpload()
     {
 
-        ini_set('max_execution_time', 600);
+
+        session()->put('import_progress', 34);
+        $this->getImportSession();
+
         try {
             $this->validate();
         } catch (Throwable $e) {
@@ -276,6 +287,17 @@ class Upload extends Component
 
     }
 
+
+    public $currentData;
+
+    #[On('start')]
+    public function getImportSession()
+    {
+        $data = session()->get('import_progress');
+
+        $this->currentData = $data;
+
+    }
     public function render()
     {
         return view('livewire.forms.rtc-market.household-rtc-consumption.upload');

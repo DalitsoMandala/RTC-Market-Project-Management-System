@@ -2,6 +2,7 @@
 
 use App\Helpers\IndicatorsContent;
 use App\Http\Controllers\TestingController;
+use App\Jobs\RandomNames;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
@@ -25,9 +26,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function () {
-    $test = new IndicatorsContent(id: 1);
-    return $test->content();
+    RandomNames::dispatch();
 
+    return response()->json(['message' => 'Job dispatched to generate names. Please check back later for the results.']);
 });
 
 // TestingController route

@@ -6,7 +6,11 @@ use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ArrayToUpperCase;
 use App\Helpers\ImportValidateHeading;
+use App\Jobs\chuckReader;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
+use Livewire\Livewire;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -60,77 +64,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         $this->sheetNames = $sheets;
         $this->file = $file;
     }
-    // public function collection(Collection $collection)
-    // {
-    //     //
-    //     $headings = (new HeadingRowImport)->toArray($this->file);
 
-    //     $headings = $headings[0][0];
-
-    //     // Check if the headings match the expected headings
-    //     $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-    //     if (count($missingHeadings) > 0) {
-    //         throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
-    //     }
-
-
-    //     $uuid = Uuid::uuid4()->toString();
-    //     $main_data = [];
-
-    //     foreach ($collection as $row) {
-
-    //         $entry = [
-    //             'location_data' => json_encode([
-    //                 'epa' => $row['EPA'],
-    //                 'district' => $row['DISTRICT'],
-    //                 'section' => $row['SECTION'],
-    //                 'enterprise' => $row['ENTERPRISE'],
-    //             ]),
-    //             'date_of_assessment' => $row['DATE OF ASSESSMENT'],
-    //             'actor_type' => $row['ACTOR TYPE'],
-    //             'rtc_group_platform' => $row['RTC GROUP PLATFORM'],
-    //             'producer_organisation' => $row['PRODUCER ORGANISATION'],
-    //             'actor_name' => $row['ACTOR NAME'],
-    //             'age_group' => $row['AGE GROUP'],
-    //             'sex' => $row['SEX'],
-    //             'phone_number' => $row['PHONE NUMBER'],
-    //             'household_size' => $row['HOUSEHOLD SIZE'],
-    //             'under_5_in_household' => $row['UNDER 5 IN HOUSEHOLD'],
-    //             'rtc_consumers' => $row['RTC CONSUMERS'],
-    //             'rtc_consumers_potato' => $row['RTC CONSUMERS/POTATO'],
-    //             'rtc_consumers_sw_potato' => $row['RTC CONSUMERS/SWEET POTATO'],
-    //             'rtc_consumers_cassava' => $row['RTC CONSUMERS/CASSAVA'],
-    //             'rtc_consumption_frequency' => $row['RTC CONSUMPTION FREQUENCY'],
-    //             'user_id' => $this->userId,
-    //             'uuid' => $uuid,
-    //             'main_food_data' => [],
-    //         ];
-
-    //         if ($row['RTC MAIN FOOD/CASSAVA'] === 'YES') {
-    //             $entry['main_food_data'][] = ['name' => 'CASSAVA'];
-    //         }
-    //         if ($row['RTC MAIN FOOD/POTATO'] === 'YES') {
-    //             $entry['main_food_data'][] = ['name' => 'POTATO'];
-    //         }
-    //         if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'YES') {
-    //             $entry['main_food_data'][] = ['name' => 'SWEET POTATO'];
-    //         }
-    //         $entry['main_food_data'] = json_encode($entry['main_food_data']);
-
-    //         $main_data[] = $entry;
-
-    //     }
-
-
-    //     // $main_data = ArrayToUpperCase::convert($main_data);
-    //     session()->put('uuid', $uuid);
-    //     session()->put('batch_data', $main_data);
-
-
-
-    // }
 
     public function collection(Collection $collection)
     {
@@ -146,9 +80,12 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         $uuid = Uuid::uuid4()->toString();
         session()->put('uuid', $uuid);
 
-        $chunkSize = 100; // Adjust the chunk size based on memory and performance considerations
 
-        $collection->chunk($chunkSize)->each(function ($chunk) use ($uuid) {
+        $chunkSize = 100; // Adjust the chunk size based on memory and performance considerations
+        $totalRows = $collection->count();
+        $processedRows = 0;
+
+        $collection->chunk($chunkSize)->each(function ($chunk) use ($uuid, $totalRows, &$processedRows) {
             $main_data = [];
 
             foreach ($chunk as $row) {
@@ -196,14 +133,20 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             // Store the processed chunk in the session
             $existing_data = session()->get('batch_data', []);
             session()->put('batch_data', array_merge($existing_data, $main_data));
+
+
+
+            // Update progress
+            $processedRows += $chunk->count();
+            $progress = ($processedRows / $totalRows) * 100;
+            session()->put('import_progress', $progress);
+
         });
+
+
 
         // If you need to process the entire dataset at once after chunking
         $final_data = session()->get('batch_data', []);
-        // $final_data = ArrayToUpperCase::convert($final_data);
-
-        // You can do additional processing here if needed
-        // ...
     }
 
 
