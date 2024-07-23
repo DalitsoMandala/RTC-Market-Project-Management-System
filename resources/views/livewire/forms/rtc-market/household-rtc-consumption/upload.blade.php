@@ -90,9 +90,6 @@
 
 
 
-        <div wire:poll>
-            Subscribers: {{ $currentData }}
-        </div>
 
 
     </div>

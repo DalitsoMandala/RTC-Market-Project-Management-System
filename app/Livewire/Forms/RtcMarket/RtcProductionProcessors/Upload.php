@@ -148,6 +148,12 @@ class Upload extends Component
                                 $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
                                 $idMappings[$mainSheet['#']] = $highestId;
                                 unset($mainSheet['#']);
+
+
+                                $mainSheet['submission_period_id'] = $this->submissionPeriodId;
+                                $mainSheet['organisation_id'] = Auth::user()->organisation->id;
+                                $mainSheet['financial_year_id'] = $this->selectedFinancialYear;
+                                $mainSheet['period_month_id'] = $this->selectedMonth;
                                 RtcProductionProcessor::create($mainSheet);
 
                             }

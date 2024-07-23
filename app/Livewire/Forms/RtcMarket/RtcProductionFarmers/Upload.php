@@ -153,6 +153,12 @@ class Upload extends Component
 
                                 $idMappings[$mainSheet['#']] = $highestId;
                                 unset($mainSheet['#']);
+
+                                $mainSheet['submission_period_id'] = $this->submissionPeriodId;
+                                $mainSheet['organisation_id'] = Auth::user()->organisation->id;
+                                $mainSheet['financial_year_id'] = $this->selectedFinancialYear;
+                                $mainSheet['period_month_id'] = $this->selectedMonth;
+
                                 RtcProductionFarmer::create($mainSheet);
 
                             }
