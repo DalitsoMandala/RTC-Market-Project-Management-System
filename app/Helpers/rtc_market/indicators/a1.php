@@ -269,6 +269,26 @@ class A1
 
     }
 
+    public function getEstablishmentFarmers()
+    {
+        return $this->builderFarmer()->select([
+            DB::raw('COUNT(*) AS Total'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'NEW\' THEN 1 ELSE 0 END) AS NEW'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'OLD\' THEN 1 ELSE 0 END) AS OLD'),
+
+        ])->first()->toArray();
+
+    }
+
+    public function getEstablishmentProcessors()
+    {
+        return $this->builderProcessor()->select([
+            DB::raw('COUNT(*) AS Total'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'NEW\' THEN 1 ELSE 0 END) AS NEW'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'OLD\' THEN 1 ELSE 0 END) AS OLD'),
+
+        ])->first()->toArray();
+    }
 
     public function getCurrentTargets($financial_year_ids, $organisation_ids)
     {
@@ -303,7 +323,8 @@ class A1
 
         $totalProcessorEmployees = $this->findTotalProcessorEmployees();
         $totalEmployees = $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
-
+        $totalOldEstablishment = $this->getEstablishmentFarmers()['OLD'] + $this->getEstablishmentProcessors()['OLD'];
+        $totalNewEstablishment = $this->getEstablishmentFarmers()['NEW'] + $this->getEstablishmentProcessors()['NEW'];
 
         return [
             'Total' => $this->findTotal(),
@@ -318,6 +339,8 @@ class A1
             'Potato' => (float) $crop['potato'],
             'Sweet potato' => (float) $crop['sweet_potato'],
             'Employees on RTC establishment' => $totalEmployees,
+            'New establishment' => $totalNewEstablishment,
+            'Old establishment' => $totalOldEstablishment,
         ];
 
     }

@@ -335,6 +335,166 @@ class IndicatorsContent
         ]);
     }
 
+
+    public static function indicatorDisaggregation(): Collection
+    {
+
+
+
+        return collect([
+            "Number of actors profitability engaged in commercialization of RTC" => [
+                'Total',
+                'Female',
+                'Male',
+                'Youth (18-35 yrs)',
+                'Not youth (35yrs+)',
+                'Farmers',
+                'Processors',
+                'Traders',
+                'Employees on RTC establishment',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+                'New establishment',
+                'Old establishment',
+            ],
+
+            "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities" => [
+                'Total',
+                'Cassava',
+                'Sweet potato',
+                'Potato',
+            ],
+
+            "Percentage increase in value of formal RTC exports" => [
+                'Total',
+                'Volume (Metric Tonnes)',
+                'Financial value ($)',
+                'Formal exports',
+                'Informal exports',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+                'Raw',
+                'Processed',
+            ],
+            "Percentage of value ($) of formal RTC imports substituted through local production" => [
+                'Total',
+                'Volume(Metric Tonnes)',
+                'Financial value ($)',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+                'Formal',
+            ],
+            "Number of people consuming RTC and processed products" => ['Total', 'RTC actors and households', 'School feeding beneficiaries', 'Individuals from households reached with nutrition interventions'],
+            "Percentage Increase in the volume of RTC produced" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Certified seed produce', 'Value added RTC products'],
+            "Percentage increase in RTC investment" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of local RTC varieties suitable for domestic and export markets identified for promotion" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of potential market preferred RTC genotypes in the pipeline identified" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
+            "Number of new RTC technologies developed" => ['Total', 'Improved RTC variety', 'Seed production', 'Storage', 'Agronomic production', 'Post-harvest processing', 'Cassava', 'Potato', 'Sweet potato'],
+            "Percentage increase in adoption of new RTC technologies" => ['Total', 'Improved RTC variety', 'Seed production', 'Storage', 'Agronomic production', 'Post-harvest processing', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of economic studies conducted" => ['Total'],
+            "Number of RTC and derived products recorded in official trade statistics" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
+            "Number of policy briefs developed and shared on RTC topics" => ['Total'],
+            "Number of existing agricultural programs that integrate RTC into their programs" => ['Total'],
+
+            "Number of market linkages between EGS and other seed class producers facilitated" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of private sector actors involved in production of RTC certified seed" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Area (ha) under seed multiplication" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Basic', 'Certified'],
+            "Percentage seed multipliers with formal registration" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Basic', 'Certified', 'POs', 'Individual farmers not in POs', 'Large scale farmers', 'Medium scale farmers'],
+            "Volume of seed distributed within communities to enhance POs productivity" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Basic', 'Certified'],
+            "Number of on-farm seed production technology demonstrations established" => ['Total'],
+
+            "Number of international learning visits for seed producers (OC)" => ['Total'],
+            "Percentage business plans for the production of different classes of RTC seeds that are executed" => ['Total', 'POs', 'SMEs', 'Large scale commercial farmers', 'Cassava', 'Potato', 'Sweet potato'],
+
+            "Number of stakeholder engagement events that focus on RTC development" => ['Total', 'Seed production', 'Seed multiplication', 'Seed processing'],
+
+            "Number of registered seed producers accessing markets through online Market Information System (MIS)" => [
+                'Total',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+                'Domestic markets',
+                'International markets',
+                'Individual farmers not in POs',
+                'POs',
+                'Large scale commercial farmers',
+            ],
+
+
+            "Number of RTC actors linked to online Market Information System (MIS)" => [
+                'Total',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+                'Farmers',
+                'Traders',
+                'Transporters',
+                'Individual farmers not in POs',
+                'POs',
+                'Large scale commercial farmers',
+            ],
+
+
+
+            "Number of RTC products available on the Management Information System" => [
+                'Total',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+                'Seed',
+                'Produce',
+                'Value added products',
+
+
+            ],
+
+            "Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
+            "Number of RTC actors that use certified seed" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Farmers', 'Processors', 'Traders', 'Partner', 'Staff'],
+            "Number of off-season irrigation demonstration sites established" => ['Total'],
+            "Number of demonstration sites for end-user preferred RTC varieties established" => ['Total'],
+            "Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)" => ['Total'],
+
+            "Number of market opportunities identified for RTC actors" => [
+                'Domestic markets',
+                'International markets',
+                'Imports',
+                'Exports',
+                'Seed',
+                'Produce',
+                'Value added products',
+            ],
+
+
+            "Number of contractual arrangements facilitated for commercial farmers" => [
+                'Total',
+                'Cassava',
+                'Potato',
+                'Sweet potato',
+            ],
+
+            "Number of RTC actors supported to access funds from financial service providers" => ['Total', 'Processors', 'Farmers', 'Large scale processors', 'SME', 'Loan', 'Input financing'],
+            "Number of POs that have formal contracts with buyers" => ['Total', 'Fresh', 'Processed'],
+            "Number of RTC POs selling products through aggregation centers aggregation center" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Volume (MT) of RTC products sold through collective marketing efforts by POs" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
+            "Number of households reached with RTC nutrition interventions" => ['Total'],
+            "Frequency of RTC consumption by households per week (OC)" => ['Total'],
+            "Percentage increase in households consuming RTCs as the main foodstuff (OC)" => ['Total'],
+            "Number of RTC utilization options (dishes) adopted by households (OC)" => ['Total'],
+            "Number of urban market promotions conducted" => ['Total'],
+            "Number of mass nutrition education campaigns conducted" => ['Total'],
+            "Number of RTC value-added products promoted" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of RTC actors with MBS certification for producing (or processing) RTC products" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'SMEs', 'Large scale commercial farms', 'POs'],
+            "Number of RTC value-added products developed for domestic markets" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of new RTC recipes/products adopted and branded by processors" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of domestic market opportunities identified for value-added products" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of international market opportunities identified for value-added products" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+        ]);
+
+    }
     public static function indicatorArray(): Collection
     {
         return collect([
