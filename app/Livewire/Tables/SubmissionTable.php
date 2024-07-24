@@ -77,9 +77,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-
+        
                     // foreach($submission as $index => $status){
-
+        
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -111,13 +111,16 @@ final class SubmissionTable extends PowerGridComponent
 
                 if ($model->batch_type == 'aggregate') {
 
-                    return '<a wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch" class="' . $status . '" href="#">' . $model->batch_no . '</a>';
+                    return '<a wire:click="$dispatch(\'showAggregate\', { id: ' . $model->id . ', name : `view-aggregate-modal` })" data-bs-toggle="tooltip" data-bs-title="View batch"  href="#">' . $model->batch_no . '</a>';
 
 
 
                 } else if ($model->batch_type == 'batch') {
 
-                    return '<a data-bs-toggle="tooltip" data-bs-title="View batch"  class="pe-none text-muted" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
+                    return '<a data-bs-toggle="tooltip" data-bs-title="ViewW"  class="pe-none text-muted" href="forms/' . $project_name . '/' . $formatted_name . '/' . $model->batch_no . '/view">' . $model->batch_no . '</a>';
+                } else {
+
+                    return '<a class="' . $status . '">' . $model->batch_no . '</a>';
                 }
 
             })

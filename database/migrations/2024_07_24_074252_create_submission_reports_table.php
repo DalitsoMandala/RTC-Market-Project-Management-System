@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('submission_reports', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('indicator_id')->constrained('indicators');
+            $table->foreignId('submission_id')->constrained('submissions');
+            $table->json('data');
+            $table->foreignId('submission_period_id')->constrained('submission_periods', 'id'); // to track changes
+            $table->foreignId('organisation_id')->constrained('organisations');
+            $table->foreignId('financial_year_id')->constrained('financial_years', 'id');
+            $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('submission_reports');
+    }
+};

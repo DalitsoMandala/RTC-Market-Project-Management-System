@@ -15,6 +15,7 @@ use App\Models\RtcProductionFarmer;
 use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionReport;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -106,11 +107,29 @@ class Submissions extends Component
 
                 }
 
-                Submission::find($this->rowId)->update([
+
+
+
+                $submission = Submission::find($this->rowId)->update([
                     'status' => $this->status,
                     'comments' => $this->comment,
                     'is_complete' => true,
                 ]);
+
+                if ($submission->batch_type == 'aggregate') {
+
+                    SubmissionReport::create([
+                        'financial_year_id' => $financialYear->id,
+                        'submission_period_id' => $period->id,
+                        'period_month_id' => $period->month_range_period_id,
+                        'organisation_id' => $organisation,
+                        'indicator_id' => $this->selectedIndicator,
+                        'submission_id' => $submission->id,
+                        'data' => json_encode($data),
+                    ]);
+
+                }
+
 
             }
 

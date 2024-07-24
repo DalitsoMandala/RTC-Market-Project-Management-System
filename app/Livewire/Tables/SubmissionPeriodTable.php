@@ -279,7 +279,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->tooltip('Edit Record')
-                ->class('btn btn-primary btn-sm my-1')
+                ->class('btn btn-primary goUp btn-sm my-1')
                 ->dispatch('editData', ['rowId' => $row->id]),
 
             Button::add('add-data')

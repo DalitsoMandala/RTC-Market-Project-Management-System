@@ -11,6 +11,7 @@ use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionReport;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -42,7 +43,7 @@ class Add extends Component
     public $selectedProject;
 
     public $submissionPeriodId;
-
+    public $selectedIndicator;
     public $indicatorName;
 
     public $inputs = [];
@@ -123,7 +124,7 @@ class Add extends Component
 
                 try {
 
-                    Submission::create([
+                    $submission = Submission::create([
                         'batch_no' => $uuid,
                         'form_id' => $this->selectedForm,
                         'user_id' => $currentUser->id,
@@ -136,7 +137,11 @@ class Add extends Component
 
                     ]);
 
-
+                    SubmissionReport::create([
+                        'indicator_id' => $this->selectedIndicator,
+                        'submission_id' => $submission->id,
+                        'data' => json_encode($data),
+                    ]);
 
 
 
@@ -156,7 +161,7 @@ class Add extends Component
             } else if ($currentUser->hasAnyRole('external')) {
 
                 try {
-                    Submission::create([
+                    $submission = Submission::create([
                         'batch_no' => $uuid,
                         'form_id' => $this->selectedForm,
                         'period_id' => $this->submissionPeriodId,
@@ -170,7 +175,11 @@ class Add extends Component
                     ]);
 
 
-
+                    SubmissionReport::create([
+                        'indicator_id' => $this->selectedIndicator,
+                        'submission_id' => $submission->id,
+                        'data' => json_encode($data),
+                    ]);
 
 
 

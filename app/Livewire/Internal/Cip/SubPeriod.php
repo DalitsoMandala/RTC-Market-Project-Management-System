@@ -208,6 +208,7 @@ class SubPeriod extends Component
                     }
                 }
                 $this->selectedForm = $form;
+                $this->dispatch('changed-form', forms: $this->forms);
 
             }
         }
@@ -251,6 +252,7 @@ class SubPeriod extends Component
             // Fetch the indicator by its ID
             $indicator = Indicator::find($this->selectedIndicator);
 
+
             if ($indicator) {
                 // Get the IDs of the forms associated with the indicator
                 $formIds = $indicator->forms->pluck('id');
@@ -268,6 +270,7 @@ class SubPeriod extends Component
                     // Handle empty formIds, reset or clear $this->forms as needed
                     $this->forms = collect(); // Or handle as appropriate
                 }
+
 
                 $this->dispatch('changed-form', data: $selectedForm, forms: $this->forms);
             }

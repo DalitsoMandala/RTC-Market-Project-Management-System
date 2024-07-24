@@ -3,7 +3,9 @@
 namespace App\Livewire\tables;
 
 use App\Models\Indicator;
-use Illuminate\Database\Query\Builder;
+use App\Models\IndicatorTarget;
+use App\Models\TargetDetail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -38,7 +40,7 @@ final class IndicatorTargetsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('indicator_targets');
+        return IndicatorTarget::query()->with('details');
     }
 
     public function fields(): PowerGridFields
@@ -48,46 +50,37 @@ final class IndicatorTargetsTable extends PowerGridComponent
             ->add('indicator', fn($model) => Indicator::find($model->indicator_id)->indicator_name)
             ->add('target_total', function ($model) {
 
-                $target = json_decode($model->target, true);
-                if (collect($target)->has('Total')) {
-                    $total = $target['Total'];
-                    if ($total) {
-                        $type = $target['type'];
-                        if ($type == 'percentage') {
-                            return $total . '%';
-                        } else {
-                            return $total;
+                if ($model->target_value === null) {
+                    $details = $model->details;
+                    if ($details) {
+                        $arr = $details->select([
+                            'name',
+                            'target_value',
+                            'type',
+                        ]);
+                        $imploded = [];
+                        foreach ($arr as $sep) {
+                            if ($sep['type'] == 'percentage') {
+                                $sep['type'] = '%';
+                            } else if ($sep['type'] == 'number') {
+                                $sep['type'] = '';
+                            }
+
+                            $imploded[] = $sep['name'] . '-' . $sep['target_value'] . '' . $sep['type'];
+
                         }
-                    }
-                }
-
-                if (!collect($target)->has('Total')) {
-                    $json = collect($target);
-                    $finalArray = [];
-                    foreach ($json as $key => $value) {
-
-
-                        $total = $value['Total'];
-
-                        $type = $value['type'];
-                        if ($type == 'percentage') {
-                            $finalArray[] = $total . '%';
-                        } else {
-                            $finalArray[] = $key . ': ' . $total;
-                        }
-
-
-
+                        return implode(', ', $imploded);
                     }
 
-                    return implode(', ', $finalArray);
 
                 }
+                if ($model->type == 'percentage') {
+                    $model->type = '%';
+                } else if ($model->type == 'number') {
+                    $model->type = '';
+                }
 
-
-
-
-                return null;
+                return $model->target_value . '' . $model->type;
 
             })
 
@@ -100,7 +93,7 @@ final class IndicatorTargetsTable extends PowerGridComponent
         return [
             Column::make('Id', 'id'),
             Column::make('Indicator ', 'indicator'),
-            Column::make('Target/LOP targets', 'target_total'),
+            Column::make('Target', 'target_total'),
 
             Column::action('Action'),
         ];

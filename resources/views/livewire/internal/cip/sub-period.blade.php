@@ -248,15 +248,7 @@
                                 </div>
 
                                 <div class="mb-3 " dir="ltr" x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }" x-show="row">
-                                    {{-- <input type="checkbox" x-model="switchOn" class="form-check-input"
-                                            id="status-switch"> --}}
 
-                                    {{--
-                                        <label class="form-check-label" for="status-switch">(Submission Status <span
-                                                class="badge " style="font-size: 10px"
-                                                :class="{ 'bg-success': switchOn === true, 'bg-danger': switchOn === false }">
-                                                <span x-show="switchOn === false">closed</span>
-                                                <span x-show="switchOn === true">open</span></span>)</label> --}}
                                     <label for="">Open for submissions ?</label>
                                     <div class="square-switch d-flex align-items-baseline">
                                         <input type="checkbox" x-model="switchOn" id="square-switch1" switch="none"
@@ -334,6 +326,14 @@
 
 
             })
+
+
+            $('.goUp').on('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                })
+            });
         </script>
     @endscript
 </div>
