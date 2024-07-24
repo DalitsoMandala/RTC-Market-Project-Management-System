@@ -91,7 +91,7 @@ class IndicatorsContent
             ],
             [
                 "indicator_name" => "Percentage of value ($) of formal RTC imports substituted through local production",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\Indicator_B3::class,
                 'project_name' => 'RTC MARKET',
             ],
             [

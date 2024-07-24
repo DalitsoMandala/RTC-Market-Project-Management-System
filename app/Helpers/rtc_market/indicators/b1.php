@@ -61,11 +61,15 @@ class B1
 
         if ($this->reporting_period && $this->financial_year) {
             $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            $data = RtcProductionFarmer::where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
             if ($data->get()->isNotEmpty()) {
 
                 $hasData = true;
-                return $data;
+                $dataIds = $data->get()->pluck('id');
+
+                $data2 = $query->whereIn('rpm_farmer_id', $dataIds);
+
+                $query = $data2;
             }
 
 

@@ -56,24 +56,11 @@ class Indicator_B2
 
     }
 
-    public function getRawProcessedData()
+    public function getTotals()
     {
 
         $builder = $this->builder()->get();
-
-        if ($builder->isNotEmpty()) {
-
-
-        }
-    }
-
-
-    public function getDisaggregations()
-    {
-
-        $this->getRawProcessedData();
-
-        return [
+        $data = collect([
             "Raw" => 0,
             "Total" => 0,
             "Potato" => 0,
@@ -84,6 +71,49 @@ class Indicator_B2
             "Informal exports" => 0,
             "Financial value ($)" => 0,
             "Volume (Metric Tonnes)" => 0,
+        ]);
+
+        if ($builder->isNotEmpty()) {
+
+
+            $builder->each(function ($model) use ($data) {
+                $json = collect(json_decode($model->data, true));
+
+
+
+                foreach ($data as $key => $dt) {
+
+                    if ($json->has($key)) {
+
+                        $data->put($key, $data->get($key) + $json[$key]);
+                    }
+                }
+
+            });
+
+
+        }
+
+        return $data;
+    }
+
+
+    public function getDisaggregations()
+    {
+
+        $totals = $this->getTotals();
+
+        return [
+            "Raw" => $totals['Raw'],
+            "Total" => $totals['Total'],
+            "Potato" => $totals['Potato'],
+            "Cassava" => $totals['Cassava'],
+            "Processed" => $totals['Processed'],
+            "Sweet potato" => $totals['Sweet potato'],
+            "Formal exports" => $totals['Formal exports'],
+            "Informal exports" => $totals['Informal exports'],
+            "Financial value ($)" => $totals['Financial value ($)'],
+            "Volume (Metric Tonnes)" => $totals['Volume (Metric Tonnes)'],
         ];
 
     }

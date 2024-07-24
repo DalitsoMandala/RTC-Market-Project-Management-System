@@ -182,10 +182,16 @@ class Add extends Component
 
                     ]);
 
+                    $user = User::find($submission->user_id);
+                    $period = SubmissionPeriod::find($submission->period_id);
 
                     SubmissionReport::create([
                         'indicator_id' => $this->selectedIndicator,
                         'submission_id' => $submission->id,
+                        'financial_year_id' => $this->selectedFinancialYear,
+                        'submission_period_id' => $this->submissionPeriodId,
+                        'period_month_id' => $period->month_range_period_id,
+                        'organisation_id' => $user->organisation->id,
                         'data' => json_encode($data),
                     ]);
 

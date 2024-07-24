@@ -7,6 +7,7 @@ use App\Helpers\rtc_market\indicators\A1;
 use App\Helpers\rtc_market\indicators\B1;
 use App\Helpers\rtc_market\indicators\Indicator_B2;
 use App\Models\IndicatorDisaggregation;
+use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -14,18 +15,47 @@ use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
+use PowerComponents\LivewirePowerGrid\Jobs\ExportJob;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ReportingTable extends PowerGridComponent
 {
 
+    use WithExport;
+
     public $start_date, $end_date, $project, $indicators, $financial_year, $reporting_period;
-    public $showExporting = true;
+
     public bool $deferLoading = true;
-    public function datasource(): ?Collection
+    // public $showExporting = true;
+    public function setUp(): array
     {
+        // $this->showCheckBox();
+
+        return [
+            Exportable::make('export')
+                ->striped()
+                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)
+               
+            ,
+            // ->onConnection('database'),
+
+
+
+            Header::make()->showSearchInput()->showToggleColumns(),
+            Footer::make()
+                ->showPerPage()
+                ->showRecordCount(),
+        ];
+    }
+
+
+
+    public function datasource(array $parameters): Collection
+    {
+
         $builder = IndicatorDisaggregation::with(['indicator', 'indicator.project']);
 
         if ($this->project) {
@@ -80,23 +110,7 @@ final class ReportingTable extends PowerGridComponent
         return $item;
     }
 
-    public function setUp(): array
-    {
-        // $this->showCheckBox();
 
-        return [
-            Exportable::make('export')
-                ->striped()
-                ->queues(6)
-                ->onQueue('reports')
-                ->onConnection('database')
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput()->showToggleColumns(),
-            Footer::make()
-                ->showPerPage()
-                ->showRecordCount(),
-        ];
-    }
 
     public function fields(): PowerGridFields
     {
