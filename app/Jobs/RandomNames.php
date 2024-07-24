@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class RandomNames implements ShouldQueue
 {
@@ -19,11 +20,11 @@ class RandomNames implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    protected $jobId;
+    public $progressKey2;
 
-    public function __construct($jobId)
+    public function __construct($progressKey2)
     {
-        $this->jobId = $jobId;
+        $this->progressKey2 = $progressKey2;
     }
 
     /**
@@ -35,11 +36,19 @@ class RandomNames implements ShouldQueue
 
         $data = [];
         $faker = Faker::create();
-        $total = 25;
+        $total = 1000;
 
-        foreach (range(1, $total) as $index) {
+        for ($index = 1; $index <= $total; $index++) {
+            sleep(2);
+            // Simulate work by generating random data
             $data[$faker->name] = $faker->country;
+            $calculation = ($index / $total) * 100;
+            // Update progress in the cache
+            Cache::put($this->progressKey2, $calculation);
 
         }
+
+        // Ensure the progress is set to 100% when the job is complete
+        Cache::put($this->progressKey2, 100);
     }
 }

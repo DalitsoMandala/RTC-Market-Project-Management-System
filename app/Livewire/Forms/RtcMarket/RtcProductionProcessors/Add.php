@@ -553,6 +553,10 @@ class Add extends Component
                 'aggregation_center_sales' => $this->aggregation_center_sales, // Previous season volume in metric tonnes
                 'user_id' => auth()->user()->id,
                 'uuid' => $uuid,
+                'submission_period_id' => $this->submissionPeriodId,
+                'organisation_id' => Auth::user()->organisation->id,
+                'financial_year_id' => $this->selectedFinancialYear,
+                'period_month_id' => $this->selectedMonth,
             ];
 
             //dd($firstTable);

@@ -60,8 +60,6 @@ class Upload extends Component
     {
 
 
-        session()->put('import_progress', 34);
-        $this->getImportSession();
 
         try {
             $this->validate();
@@ -89,6 +87,7 @@ class Upload extends Component
 
                     try {
                         Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
+
                     } catch (SheetImportException $e) {
 
                         $errors = $e->getErrors();
@@ -124,31 +123,41 @@ class Upload extends Component
                             session()->flash('error', 'You have already submitted your batch data for this period!');
                         } else {
 
-                            $submission = Submission::create([
-                                'batch_no' => $uuid,
-                                'form_id' => $this->selectedForm,
-                                'user_id' => $currentUser->id,
-                                'status' => 'approved',
-                                'data' => json_encode($batch_data),
-                                'batch_type' => 'batch',
-                                'period_id' => $this->submissionPeriodId,
-                                'table_name' => json_encode($table),
-                                'is_complete' => 1,
-                                'file_link' => $name,
-                            ]);
 
-                            $data = json_decode($submission->data, true);
+                            try {
+                                $submission = Submission::create([
+                                    'batch_no' => $uuid,
+                                    'form_id' => $this->selectedForm,
+                                    'user_id' => $currentUser->id,
+                                    'status' => 'approved',
+                                    'data' => json_encode($batch_data),
+                                    'batch_type' => 'batch',
+                                    'period_id' => $this->submissionPeriodId,
+                                    'table_name' => json_encode($table),
+                                    'is_complete' => 1,
+                                    'file_link' => $name,
+                                ]);
+
+                                $data = json_decode($submission->data, true);
 
 
 
-                            foreach ($data as $row) {
-                                $row['submission_period_id'] = $this->submissionPeriodId;
-                                $row['organisation_id'] = Auth::user()->organisation->id;
-                                $row['financial_year_id'] = $this->selectedFinancialYear;
-                                $row['period_month_id'] = $this->selectedMonth;
+                                foreach ($data as $row) {
+                                    $row['submission_period_id'] = $this->submissionPeriodId;
+                                    $row['organisation_id'] = Auth::user()->organisation->id;
+                                    $row['financial_year_id'] = $this->selectedFinancialYear;
+                                    $row['period_month_id'] = $this->selectedMonth;
 
-                                HouseholdRtcConsumption::create($row);
+                                    HouseholdRtcConsumption::create($row);
 
+                                }
+
+                            } catch (UserErrorException $e) {
+                                # code...
+
+                                $this->reset('upload');
+
+                                session()->flash('error', 'Something went wrong!');
                             }
 
 

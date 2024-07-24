@@ -108,13 +108,85 @@ class A1
         return $query;
     }
 
-    public function findTotalEmployees()
+    public function findTotalFarmerEmployees()
     {
-        return $this->builderFarmer()->select([
-            DB::raw('COUNT(*) AS Total'),
+        $data = $this->builderFarmer()->get();
+        $employees = $data->map(function ($model) {
+
+            $json = collect(json_decode($model->number_of_employees, true));
+
+            if ($json->has('formal')) {
+                $formal = $json->get('formal');
+                $sum = collect($formal)->except('total')->sum();
+                $model->empFormalTotal = $sum;
+            } else {
+                $model->empFormalTotal = 0;
+            }
 
 
-        ]);
+
+            if ($json->has('informal')) {
+                $formal = $json->get('informal');
+                $sum = collect($formal)->except('total')->sum();
+                $model->empInFormalTotal = $sum;
+            } else {
+                $model->empInFormalTotal = 0;
+            }
+
+            return $model;
+        });
+
+
+        $totalEmpFormal = $employees->sum('empFormalTotal');
+        $totalEmpInFormal = $employees->sum('empInFormalTotal');
+
+        return [
+            'totalEmpFormal' => $totalEmpFormal,
+            'totalEmpInFormal' => $totalEmpInFormal,
+            'Total' => $totalEmpFormal + $totalEmpInFormal
+        ];
+
+    }
+
+    public function findTotalProcessorEmployees()
+    {
+        $data = $this->builderProcessor()->get();
+        $employees = $data->map(function ($model) {
+
+            $json = collect(json_decode($model->number_of_employees, true));
+
+
+
+            if ($json->has('formal')) {
+                $formal = $json->get('formal');
+                $sum = collect($formal)->except('total')->sum();
+                $model->empFormalTotal = $sum;
+            } else {
+                $model->empFormalTotal = 0;
+            }
+
+
+
+            if ($json->has('informal')) {
+                $formal = $json->get('informal');
+                $sum = collect($formal)->except('total')->sum();
+                $model->empInFormalTotal = $sum;
+            } else {
+                $model->empInFormalTotal = 0;
+            }
+
+            return $model;
+        });
+
+
+        $totalEmpFormal = $employees->sum('empFormalTotal');
+        $totalEmpInFormal = $employees->sum('empInFormalTotal');
+
+        return [
+            'totalEmpFormal' => $totalEmpFormal,
+            'totalEmpInFormal' => $totalEmpInFormal,
+            'Total' => $totalEmpFormal + $totalEmpInFormal
+        ];
 
     }
 
@@ -226,6 +298,13 @@ class A1
         $actorType = $this->findActorType();
         $crop = $this->findByCrop();
 
+
+        $totalFarmerEmployees = $this->findTotalFarmerEmployees();
+
+        $totalProcessorEmployees = $this->findTotalProcessorEmployees();
+        $totalEmployees = $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
+
+
         return [
             'Total' => $this->findTotal(),
             'Female' => (float) $gender['FemaleCount'],
@@ -238,6 +317,7 @@ class A1
             'Cassava' => (float) $crop['cassava'],
             'Potato' => (float) $crop['potato'],
             'Sweet potato' => (float) $crop['sweet_potato'],
+            'Employees on RTC establishment' => $totalEmployees,
         ];
 
     }
