@@ -38,7 +38,7 @@ final class ReportingTable extends PowerGridComponent
             Exportable::make('export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)
-               
+
             ,
             // ->onConnection('database'),
 
