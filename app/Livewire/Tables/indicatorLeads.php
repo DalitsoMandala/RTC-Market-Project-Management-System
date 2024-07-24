@@ -2,6 +2,7 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\Form;
 use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
 use App\Models\Organisation;
@@ -55,11 +56,14 @@ final class indicatorLeads extends PowerGridComponent
             ->add('indicator_id')
             ->add('indicator', fn($model) => Indicator::find($model->indicator_id)->indicator_name)
             ->add('forms', function ($model) {
-                $forms = Indicator::find($model->indicator_id)->forms();
-                $forms = $forms->get();
-                $forms = $forms->pluck('name')->toArray();
-                return implode(', ', $forms);
 
+                $responsiblePeople = ResponsiblePerson::where('indicator_id', $model->indicator_id)
+                    ->where('organisation_id', $model->organisation_id)
+                    ->first();
+
+                $formIds = $responsiblePeople->sources->pluck('form_id')->toArray();
+                $forms = Form::whereIn('id', $formIds)->pluck('name')->toArray();
+                return implode(', ', $forms);
             })
             ->add('type_of_submission')
             ->add('aggregate_type')
@@ -75,15 +79,11 @@ final class indicatorLeads extends PowerGridComponent
             Column::make('Forms', 'forms'),
             Column::make('Organisation', 'organisation'),
 
-            Column::make('Type of submission', 'type_of_submission')
-                ->sortable()
-                ->searchable(),
 
 
 
 
 
-            Column::action('Action'),
         ];
     }
 
@@ -125,17 +125,17 @@ final class indicatorLeads extends PowerGridComponent
         $this->js('console.log(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->tooltip('Edit Record')
-                ->class('btn btn-primary my-1')
-                ->dispatch('editData', ['rowId' => $row->id]),
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('<i class="bx bx-pen"></i>')
+    //             ->id()
+    //             ->tooltip('Edit Record')
+    //             ->class('btn btn-primary my-1')
+    //             ->dispatch('editData', ['rowId' => $row->id]),
+    //     ];
+    // }
 
     public function updated()
     {

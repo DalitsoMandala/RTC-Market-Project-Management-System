@@ -1,38 +1,7 @@
 <div>
 
     <style>
-        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice {
-            display: flex;
-            flex-direction: row;
 
-            padding-right: 10px;
-            margin-right: .375rem;
-            margin-bottom: .375rem;
-            font-size: 12px;
-            color: #212529;
-            cursor: auto;
-
-            border-radius: 10rem;
-            background-color: #3980c0;
-            border-color: #3980c0;
-            color: #fff;
-            word-break: break-all;
-            box-sizing: border-box;
-            font-weight: 500;
-        }
-
-        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice .select2-selection__choice__remove {
-            width: .75rem;
-            height: .75rem;
-            padding: .55em;
-            margin-right: .25rem;
-            overflow: hidden;
-            text-indent: 100%;
-            white-space: nowrap;
-            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") 50%/.75rem auto no-repeat;
-
-            border: 0;
-        }
     </style>
     <div class="container-fluid">
 
@@ -55,14 +24,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-
-
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
+                <x-alerts />
                 <div class="card">
                     <div class="card-body">
                         <livewire:tables.indicatorTable :userId="auth()->user()->id" />

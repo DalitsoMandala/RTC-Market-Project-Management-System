@@ -4,6 +4,9 @@ namespace App\Helpers\rtc_market\indicators;
 
 use App\Livewire\Internal\Cip\Submissions;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\Organisation;
+use App\Models\RtcProductionFarmer;
+use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,42 +32,95 @@ class A1
     }
     public function builder(): Builder
     {
-
         $query = HouseholdRtcConsumption::query();
 
-        if ($this->reporting_period || $this->financial_year) {
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
+
+                $hasData = true;
+                return $data;
+            }
 
 
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
-
-
-
-
-
-
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
         }
 
         return $query;
+    }
+
+    public function builderFarmer(): Builder
+    {
+        $query = RtcProductionFarmer::query();
+
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
+
+                $hasData = true;
+                return $data;
+            }
+
+
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
+        }
+
+        return $query;
+    }
+
+
+    public function builderProcessor(): Builder
+    {
+        $query = RtcProductionProcessor::query();
+
+        if ($this->reporting_period && $this->financial_year) {
+            $hasValidBatchUuids = false;
+
+            $query->where(function ($query) use (&$hasValidBatchUuids) {
+
+                $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
+                if (!empty($submissionPeriod)) {
+                    $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
+                    if (!empty($batchUuids)) {
+                        $query->orWhereIn('uuid', $batchUuids);
+                        $hasValidBatchUuids = true;
+                    }
+                }
+
+
+
+            });
+
+            if (!$hasValidBatchUuids) {
+                // No valid batch UUIDs found, return an empty collection
+                return $query->whereIn('uuid', []);
+            }
+        }
+
+        return $query;
+    }
+
+    public function findTotalEmployees()
+    {
+        return $this->builderFarmer()->select([
+            DB::raw('COUNT(*) AS Total'),
+
+
+        ]);
 
     }
 
     public function findTotal()
     {
-        return $this->builder()->count();
+        return $this->builder()->where('actor_name', '!=', null)->count();
     }
 
     public function findGender()
@@ -139,6 +195,28 @@ class A1
     {
         return $this->countActor()->where('age_group', $age)->first()->toArray();
 
+    }
+
+
+    public function getCurrentTargets($financial_year_ids, $organisation_ids)
+    {
+        $builder = $this->builder()->select([
+            'organisation_id',
+            DB::raw('COUNT(*) AS Total'),
+        ])
+            ->where('actor_name', '!=', null)
+            ->whereIn('organisation_id', $organisation_ids)
+            ->whereIn('financial_year_id', $financial_year_ids)
+            ->groupBy('organisation_id');
+
+        $final = $builder->get()->map(function ($query) {
+            $model = Organisation::find($query->organisation_id);
+            $query->organisation = $model->name;
+            return $query;
+        });
+
+
+        return $final->toArray();
     }
 
     public function getDisaggregations()

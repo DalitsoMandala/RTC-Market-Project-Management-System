@@ -29,9 +29,9 @@ class Reports extends Component
     public $filtered;
 
     public $reportingPeriod = [];
-
+    #[Validate('required')]
     public $selectedReportingPeriod;
-
+    #[Validate('required')]
     public $selectedFinancialYear;
 
     public $financialYears = [];

@@ -16,7 +16,7 @@ class IndicatorA1 extends Component
     public $rowId;
     public $cropCount = [];
     public $indicator_no;
-
+    public $indicator_id, $project_id;
     public $indicator_name;
     public $cassavaFarmerValue;
 
@@ -31,6 +31,7 @@ class IndicatorA1 extends Component
     public $dataByActorYouth = [];
 
     public $dataByActorNotYouth = [];
+    public $total;
     public function setData($id)
     {
         $this->resetErrorBag();
@@ -57,7 +58,7 @@ class IndicatorA1 extends Component
         $a1 = new A1();
         try {
             $this->data = $a1->getDisaggregations();//
-
+            $this->total = $this->data['Total'];
             $this->dataByCrop = [
                 'Farmers' => $a1->RtcActorByCrop('FARMER'),
                 'Processors' => $a1->RtcActorByCrop('PROCESSOR'),
@@ -99,7 +100,7 @@ class IndicatorA1 extends Component
             ];
 
         } catch (\Throwable $th) {
-            dd($th);
+
         }
 
     }

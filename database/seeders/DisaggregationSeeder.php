@@ -36,7 +36,7 @@ class DisaggregationSeeder extends Seeder
                     'Processed',
                 ],
             ],
-            "B3" => ["Percentage of value ($) of formal RTC imports substituted through local production" => ['Total', 'Value: Volume(Metric Tonnes)', 'Financial value($)', 'Cassava', 'Potato', 'Sweet potato', 'Formal']],
+            "B3" => ["Percentage of value ($) of formal RTC imports substituted through local production" => ['Total', 'Volume(Metric Tonnes)', 'Financial value ($)', 'Cassava', 'Potato', 'Sweet potato', 'Formal']],
             "B4" => ["Number of people consuming RTC and processed products" => ['Total', 'RTC actors and households', 'School feeding beneficiaries', 'Individuals from households reached with nutrition interventions']],
             "B5" => ["Percentage Increase in the volume of RTC produced" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Certified seed produce', 'Value added RTC products']],
             "B6" => ["Percentage increase in RTC investment" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],
@@ -58,7 +58,7 @@ class DisaggregationSeeder extends Seeder
             "2.2.5" => ["Number of on-farm seed production technology demonstrations established" => ['Total']],
             "2.3.1" => [
                 "Number of international learning visits for seed producers (OC)" => ['Total'],
-                "Percentage business plans for the production of different classes of RTC seeds that are executed" => ['Total', 'POs', 'SME', 'Large scale commercial farmers', 'Cassava', 'Potato', 'Sweet potato'],
+                "Percentage business plans for the production of different classes of RTC seeds that are executed" => ['Total', 'POs', 'SMEs', 'Large scale commercial farmers', 'Cassava', 'Potato', 'Sweet potato'],
             ],
             "2.3.2" => ["Number of stakeholder engagement events that focus on RTC development" => ['Total', 'Seed production', 'Seed multiplication', 'Seed processing']],
             "2.3.3" => [
@@ -138,7 +138,7 @@ class DisaggregationSeeder extends Seeder
             "3.5.5" => ["Number of urban market promotions conducted" => ['Total']],
             "3.5.6" => ["Number of mass nutrition education campaigns conducted" => ['Total']],
             "4.1.1" => ["Number of RTC value-added products promoted" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],
-            "4.1.2" => ["Number of RTC actors with MBS certification for producing (or processing) RTC products" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'SMEs', 'Large scale commercial farms', 'PO\'s']],
+            "4.1.2" => ["Number of RTC actors with MBS certification for producing (or processing) RTC products" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'SMEs', 'Large scale commercial farms', 'POs']],
             "4.1.3" => ["Number of RTC value-added products developed for domestic markets" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],
             "4.1.4" => ["Number of new RTC recipes/products adopted and branded by processors" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],
             "4.1.5" => ["Number of domestic market opportunities identified for value-added products" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],

@@ -31,7 +31,12 @@ return new class extends Migration {
             $table->integer('rtc_consumption_frequency')->nullable(); // Limit to positive values
             $table->json('main_food_data')->nullable();
             $table->string('uuid');
+
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('submission_period_id')->constrained('submission_periods', 'id'); // to track changes
+            $table->foreignId('organisation_id')->constrained('organisations');
+            $table->foreignId('financial_year_id')->constrained('financial_years', 'id');
+            $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id');
             $table->timestamps();
         });
     }

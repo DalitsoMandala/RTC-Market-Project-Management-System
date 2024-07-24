@@ -51,10 +51,10 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
         $epaNames = ArrayToUpperCase::convert($epaNames);
         $organisationNames = ArrayToUpperCase::convert($organisationNames);
         $sectionNames = ArrayToUpperCase::convert($sectionNames);
-
+        $rand = rand(100, 1000);
 
         if ($this->test) {
-            foreach (range(1, 5) as $index) {
+            foreach (range(1, $rand) as $index) {
 
                 $data[] = [
                     'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
@@ -96,7 +96,7 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                     'ACTOR NAME' => strtoupper($faker->name),
                     'AGE GROUP' => $faker->randomElement(['YOUTH', 'NOT YOUTH']),
                     'SEX' => $faker->randomElement(['MALE', 'FEMALE']),
-                    'PHONE NUMBER' => $faker->phoneNumber,
+                    'PHONE NUMBER' => $faker->numerify('###-###-####'),
                     'HOUSEHOLD SIZE' => $faker->numberBetween(1, 100),
                     'UNDER 5 IN HOUSEHOLD' => $faker->numberBetween(1, 100),
                     'RTC CONSUMERS' => $faker->numberBetween(1, 100),

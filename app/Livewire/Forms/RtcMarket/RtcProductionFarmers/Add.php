@@ -592,9 +592,9 @@ class Add extends Component
                 if (is_array($value)) {
 
                     if (empty($value)) {
-                        $secondTable[$key] = null;
+                        $firstTable[$key] = null;
                     } else {
-                        $secondTable[$key] = json_encode($value);
+                        $firstTable[$key] = json_encode($value);
 
                     }
 

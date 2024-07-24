@@ -1,6 +1,8 @@
 <?php
 
+use App\Helpers\IndicatorsContent;
 use App\Http\Controllers\TestingController;
+use App\Jobs\RandomNames;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
@@ -14,6 +16,7 @@ use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Livewire\Internal\Cip\SubPeriod;
+use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
 use Illuminate\Support\Facades\Route;
@@ -23,9 +26,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function () {
-    $filePath = public_path('storage\imports\hh_1720372440.xlsx');
+    RandomNames::dispatch();
 
-    return Response::download($filePath, 'hh_1720372440.xlsx');
+    return response()->json(['message' => 'Job dispatched to generate names. Please check back later for the results.']);
 });
 
 // TestingController route
@@ -41,6 +44,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\ManageUsers::class)->name('admin-users');
     Route::get('/organisations', \App\Livewire\Admin\ManageOrganisations::class)->name('admin-organisations');
+    Route::get('/indicator-responsibilities', \App\Livewire\Admin\ManageResponsibilities::class)->name('admin-responsibilities');
 });
 
 // CIP Internal routes
@@ -54,6 +58,8 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
+    Route::get('/indicators-targets', Targets::class)->name('cip-targets');
+
     // Form routes
     $formPrefix = '/forms/{project}';
 

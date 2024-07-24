@@ -77,9 +77,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-        
+
                     // foreach($submission as $index => $status){
-        
+
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -206,9 +206,11 @@ final class SubmissionTable extends PowerGridComponent
             ->add('file_link', function ($model) {
 
                 if ($model->file_link) {
-                    return $model->file_link ?? '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
+                    return '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
 
                 }
+
+                return null;
 
             })
             ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)

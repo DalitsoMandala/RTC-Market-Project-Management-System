@@ -4,18 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('forms', function (Blueprint $table) {
+        Schema::create('target_details', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
             $table->string('name');
-            $table->string('type');
-            $table->foreignId('project_id')->constrained('projects', 'id');
+            $table->integer('target_value');
+            $table->enum('type', ['number', 'percentage'])->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('forms');
+        Schema::dropIfExists('target_details');
     }
 };

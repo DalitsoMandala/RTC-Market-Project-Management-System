@@ -22,7 +22,10 @@ class indicatorBuilder
             "1.1.4" => "Percentage increase in adoption of new RTC technologies",
             "1.2.1" => "Number of economic studies conducted",
             "1.2.2" => "Number of RTC and derived products recorded in official trade statistics",
-            "1.3.1" => ["Number of policy briefs developed and shared on RTC topics", "Number of existing agricultural programs that integrate RTC into their programs"],
+            "1.3.1" => [
+                "Number of policy briefs developed and shared on RTC topics",
+                "Number of existing agricultural programs that integrate RTC into their programs",
+            ],
             "2.1.1" => "Number of market linkages between EGS and other seed class producers facilitated",
             "2.2.1" => "Number of private sector actors involved in production of RTC certified seed",
             "2.2.2" => "Area (ha) under seed multiplication",

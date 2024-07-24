@@ -198,14 +198,15 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $user = Auth::user();
         $organisation = $user->organisation;
         $indicator = $form->indicators->where('id', $model->indicator_id)->first();
-        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
+        $person = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
+
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-        if ($checkTypeofSubmission->contains('aggregate') || $form->name == 'REPORT FORM') {
+        if ($form->name == 'REPORT FORM') {
 
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
@@ -302,67 +303,45 @@ final class SubmissionPeriodTable extends PowerGridComponent
     // {
     //     return view('livewire.submission-view', ['row' => $row]);
     // }
+
     public function actionRules($row): array
     {
+        $user = Auth::user();
+        $organisationId = $user->organisation->id;
+        $indicator = Indicator::find($row->indicator_id);
+
+        $responsiblePeople = ResponsiblePerson::where('indicator_id', $row->indicator_id)
+            ->where('organisation_id', $organisationId)
+            ->first();
+
+        // Check if the organisation has responsible people
+        $hasResponsiblePeople = $responsiblePeople !== null;
+
+        // Check if the responsible person has the required form
+        $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->where('form_id', $row->form_id)->isNotEmpty() : false;
+
+        // Check if the organisation is responsible for the indicator
+        $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
+
         return [
             // Hide button edit for ID 1
             Rule::button('edit')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
+
+            // Rules for adding data
             Rule::button('add-data')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess)
                 ->disable(),
 
-            Rule::button('add-data')
-                ->when(function ($row) {
-                    $user = Auth::user();
-                    $organisation = $user->organisation->id;
-
-                    $indicator = Indicator::find($row->indicator_id);
-                    $responsiblePeople = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
-                    $oganisations = Organisation::whereIn('id', $responsiblePeople)->where('id', $organisation)->get();
-
-                    if ($oganisations->isNotEmpty()) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                })
-                ->disable(),
+            // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
-                ->disable(),
-
-            Rule::button('upload')
-                ->when(function ($row) {
-                    $user = Auth::user();
-                    $organisation = $user->organisation->id;
-
-                    $indicator = Indicator::find($row->indicator_id);
-                    $responsiblePeople = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
-                    $oganisations = Organisation::whereIn('id', $responsiblePeople)->where('id', $organisation)->get();
-
-                    if ($oganisations->isNotEmpty()) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                })
-                ->disable(),
-
-            Rule::button('upload')
-                ->when(function ($row) {
-                    $form = Form::find($row->form_id);
-
-                    if ($form->name == 'REPORT FORM' || $form->name == 'SCHOOL RTC CONSUMPTION FORM') {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM', 'SCHOOL RTC CONSUMPTION FORM'])))
                 ->disable(),
         ];
     }
+
     public function updated()
     {
 

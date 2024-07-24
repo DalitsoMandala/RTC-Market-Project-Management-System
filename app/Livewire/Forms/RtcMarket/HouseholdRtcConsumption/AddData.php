@@ -242,11 +242,19 @@ class AddData extends Component
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
-                    'table_name' => json_encode(['household_rtc_consumption']),
+                    'table_name' => 'household_rtc_consumption',
 
                 ]);
 
-                HouseholdRtcConsumption::insert($data);
+                foreach ($data as $dt) {
+                    $dt['submission_period_id'] = $this->submissionPeriodId;
+                    $dt['period_month_id'] = $this->selectedMonth;
+                    $dt['organisation_id'] = Auth::user()->organisation->id;
+                    $dt['financial_year_id'] = $this->selectedFinancialYear;
+                    HouseholdRtcConsumption::create($dt);
+                }
+
+
 
                 $this->reset('epa', 'section', 'district', 'enterprise');
                 $this->resetErrorBag();
@@ -326,6 +334,9 @@ class AddData extends Component
                         session()->flash('error', 'You have already submitted your data for this indicator.');
                         $this->dispatch('to-top');
                     } else {
+
+
+
                         Submission::create([
                             'batch_no' => $uuid,
                             'form_id' => $this->selectedForm,
@@ -367,7 +378,7 @@ class AddData extends Component
                         'table_name' => 'household_rtc_consumption',
                     ]);
 
-               
+
                     session()->flash('success', 'Successfully submitted! <a href="' . route('external-submissions') . '#manual-submission">View Submission here</a>');
 
 

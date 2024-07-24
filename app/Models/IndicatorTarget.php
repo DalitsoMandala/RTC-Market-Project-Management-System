@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class IndicatorTarget extends Model
 {
     use HasFactory;
+
+    public function assignedTargets()
+    {
+        return $this->hasMany(AssignedTarget::class, 'indicator_target_id');
+    }
 }

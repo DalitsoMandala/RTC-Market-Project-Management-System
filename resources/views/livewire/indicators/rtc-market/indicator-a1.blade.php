@@ -1,14 +1,14 @@
 <div>
 
     <div x-data="{
-    
+
         downloadForm() {
             // Create a new workbook
             var wb = XLSX.utils.book_new();
-    
+
             // List of table IDs
             var tableIds = ['table1', 'table2', 'table3', 'table4', 'table5', 'table6']; // Add more table IDs as needed
-    
+
             // Loop through each table ID
             tableIds.forEach(function(id, index) {
                 // Get the table element
@@ -20,12 +20,18 @@
                     XLSX.utils.book_append_sheet(wb, ws, 'Sheet' + (index + 1));
                 }
             });
-    
+
             // Write the workbook to a file
             XLSX.writeFile(wb, '{{ $indicator_name }}_{{ $indicator_no }}.xlsx');
         }
     }">
 
+
+        <div class="row">
+            <div class="col">
+                <livewire:indicator-targets.view :indicator_id="$indicator_id" :project_id="$project_id" :total="$total" />
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="alert alert-primary" role="alert">
@@ -92,7 +98,7 @@
                                 position: 'top'
                             }
                         }
-                
+
                         let chart = new ApexCharts($refs.chart, options);
                         chart.render();
                     }
@@ -119,7 +125,7 @@
                                 position: 'right'
                             }
                         }
-                
+
                         let chart = new ApexCharts($refs.chart, options);
                         chart.render();
                     }
@@ -190,7 +196,7 @@
                                         type: 'bar', // Choose bar chart for this data
                                         stacked: false, // Stack bars to show male and female side-by-side
                                     },
-                        
+
                                     xaxis: {
                                         categories: chartData.map(item => item.name), // Use category labels from data
                                         title: {
@@ -219,7 +225,7 @@
                                     },
                                     colors: ['#006989', '#E88D67', '#FA7070']
                                 };
-                        
+
                                 let chart = new ApexCharts($refs.chart, options);
                                 chart.render();
                             }
@@ -356,7 +362,7 @@
                             values: [],
                             init() {
                                 let data = @js($dataByAge);
-                                console.log(data);
+
                                 const chartData = [
                                     { name: 'Farmers', male: data.youth.Farmers, female: data.not_youth.Farmers },
                                     { name: 'Processors', male: data.youth.Processors, female: data.not_youth.Processors },
@@ -367,7 +373,7 @@
                                         type: 'bar', // Choose bar chart for this data
                                         stacked: false, // Stack bars to show male and female side-by-side
                                     },
-                        
+
                                     xaxis: {
                                         categories: chartData.map(item => item.name), // Use category labels from data
                                         title: {
@@ -396,7 +402,7 @@
                                     },
                                     colors: ['#006989', '#E88D67', '#FA7070']
                                 };
-                        
+
                                 let chart = new ApexCharts($refs.chart, options);
                                 chart.render();
                             }

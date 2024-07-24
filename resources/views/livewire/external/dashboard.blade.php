@@ -24,7 +24,7 @@
 
 
                                 <h3 class="mb-0 text-white"> Welcome Back, {{ auth()->user()->name }}!</h3>
-
+                                <h4 class="text-white">({{ auth()->user()->organisation->name }})</h4>
                                 <p class="px-4 mt-4 text-white-50"> Explore, engage, and make the most of your
                                     experience. We're thrilled to have you on board!"</p>
 
