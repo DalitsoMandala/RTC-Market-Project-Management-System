@@ -29,36 +29,25 @@ class B1
     public function Farmerbuilder(): Builder
     {
 
-        $query = RtcProductionFarmer::query();
-
-
-        if ($this->reporting_period || $this->financial_year) {
-
-
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
+        $query = RtcProductionFarmer::query()->where('name_of_actor', '!=', null);
 
 
 
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
+
+                $hasData = true;
+                return $data;
+            }
 
 
-
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
         }
-
-
 
         return $query;
 
@@ -69,30 +58,21 @@ class B1
 
         $query = RpmFarmerFollowUp::query();
 
-        if ($this->reporting_period || $this->financial_year) {
+
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
+
+                $hasData = true;
+                return $data;
+            }
 
 
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
-
-
-
-
-
-
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
         }
 
         return $query;
@@ -103,30 +83,21 @@ class B1
     {
 
         $query = RtcProductionProcessor::query();
-        if ($this->reporting_period || $this->financial_year) {
+
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
+
+                $hasData = true;
+                return $data;
+            }
 
 
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
-
-
-
-
-
-
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
         }
 
         return $query;
@@ -138,30 +109,21 @@ class B1
 
         $query = RpmProcessorFollowUp::query();
 
-        if ($this->reporting_period || $this->financial_year) {
+
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
+
+                $hasData = true;
+                return $data;
+            }
 
 
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
-
-
-
-
-
-
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
         }
 
         return $query;
@@ -170,104 +132,70 @@ class B1
 
     public function findCropCount()
     {
-        // Query the first table
-        $farmerCrop = $this->Farmerbuilder()
-            ->selectRaw('
-                SUM(CAST(JSON_EXTRACT(number_of_plantlets_produced, "$.potato") AS UNSIGNED)) as potato,
-                SUM(CAST(JSON_EXTRACT(number_of_plantlets_produced, "$.cassava") AS UNSIGNED)) as cassava,
-                SUM(CAST(JSON_EXTRACT(number_of_plantlets_produced, "$.sweet_potato") AS UNSIGNED)) as sweet_potato
-            ')
-            ->first();
+        $farmer = $this->Farmerbuilder()->get();
+        $followupFarmer = $this->FarmerFollowupbuilder()->get();
+        $data = collect([
+            'potato' => 0,
+            'cassava' => 0,
+            'sweet_potato' => 0,
+        ]);
 
-        if ($farmerCrop) {
-            $farmerCrop = $farmerCrop->toArray();
-        } else {
-            $farmerCrop = ['potato' => 0, 'cassava' => 0, 'sweet_potato' => 0];
-        }
+        $farmer->each(function ($model) use ($data) {
+            $json = collect(json_decode($model->number_of_plantlets_produced, true));
 
-        // Query the second table
-        $farmerCropFollowup = $this->FarmerFollowupbuilder()
-            ->selectRaw('
-                SUM(CAST(JSON_EXTRACT(number_of_plantlets_produced, "$.potato") AS UNSIGNED)) as potato,
-                SUM(CAST(JSON_EXTRACT(number_of_plantlets_produced, "$.cassava") AS UNSIGNED)) as cassava,
-                SUM(CAST(JSON_EXTRACT(number_of_plantlets_produced, "$.sweet_potato") AS UNSIGNED)) as sweet_potato
-            ')
-            ->first();
+            if ($json->has('potato')) {
 
-        if ($farmerCropFollowup) {
-            $farmerCropFollowup = $farmerCropFollowup->toArray();
-        } else {
-            $farmerCropFollowup = ['potato' => 0, 'cassava' => 0, 'sweet_potato' => 0];
-        }
+                $data->put('potato', $data->get('potato') + $json['potato']);
+            }
 
-        // Merge and sum the results
-        $result = $this->mergeAndSumArrays([$farmerCrop, $farmerCropFollowup]);
+            if ($json->has('cassava')) {
+                $data->put('cassava', $data->get('cassava') + $json['cassava']);
+            }
 
-        return $result;
+            if ($json->has('sweet_potato')) {
+                $data->put('sweet_potato', $data->get('sweet_potato') + $json['sweet_potato']);
+            }
+        });
+
+
+        $followupFarmer->each(function ($model) use ($data) {
+            $json = collect(json_decode($model->number_of_plantlets_produced, true));
+
+            if ($json->has('potato')) {
+
+                $data->put('potato', $data->get('potato') + $json['potato']);
+            }
+
+            if ($json->has('cassava')) {
+                $data->put('cassava', $data->get('cassava') + $json['cassava']);
+            }
+
+            if ($json->has('sweet_potato')) {
+                $data->put('sweet_potato', $data->get('sweet_potato') + $json['sweet_potato']);
+            }
+        });
+
+
+        return $data;
     }
     public function findTotal()
     {
-        // Initial totals
-        $total = 0;
-        $total2 = 0;
-
-        // Query the first table
-        $farmerTotal = $this->Farmerbuilder()
-            ->selectRaw('
-                SUM(CAST(JSON_EXTRACT(total_production_value_previous_season, "$.total") AS UNSIGNED)) as total
-            ')
-            ->first();
-
-        if ($farmerTotal) {
-            // Convert the result to an array and access the total value
-            $farmerTotalArray = $farmerTotal->toArray();
-            $total = $farmerTotalArray['total'];
-        }
-
-        // // Query the second table (assuming a different builder)
-        // $farmerTotalFollowup = $this->FarmerFollowupbuilder() // Corrected to use a different builder
-        //     ->selectRaw('
-        //         SUM(CAST(JSON_EXTRACT(total_production_value_previous_season, "$.total") AS UNSIGNED)) as total
-        //     ')
-        //     ->first();
-
-        // if ($farmerTotalFollowup) {
-        //     // Convert the result to an array and access the total value
-        //     $farmerTotalFollowupArray = $farmerTotalFollowup->toArray();
-        //     $total2 = $farmerTotalFollowupArray['total'];
-        // }
-
-        // Sum the totals from both queries
-        $combinedTotal = $total + 0;
-
-        // Return the combined total
-        return $combinedTotal;
-    }
-
-    public function mergeAndSumArrays($arrays)
-    {
-        $result = [];
-
-        foreach ($arrays as $array) {
-            foreach ($array as $key => $value) {
-                if (!isset($result[$key])) {
-                    $result[$key] = 0;
-                }
-                $result[$key] += (float) $value;
-            }
-        }
-
-        return $result;
+        return [
+            'farmer' => $this->Farmerbuilder()->count(),
+            'farmer_followup' => $this->FarmerFollowupbuilder()->count(),
+        ];
     }
 
     public function getDisaggregations()
     {
 
+        $total = $this->findTotal()['farmer'] + $this->findTotal()['farmer_followup'];
+        $crop = $this->findCropCount();
         return [
-            'Total' => $this->findTotal(),
-            'Cassava' => $this->findCropCount()['cassava'],
-            'Sweet potato' => $this->findCropCount()['sweet_potato'],
-            'Potato' => $this->findCropCount()['potato'],
+            'Total' => $total,
+            'Cassava' => $crop['cassava'],
+            'Sweet potato' => $crop['sweet_potato'],
+            'Potato' => $crop['potato'],
         ];
 
     }

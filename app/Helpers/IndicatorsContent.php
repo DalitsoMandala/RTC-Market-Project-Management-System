@@ -81,12 +81,12 @@ class IndicatorsContent
             ],
             [
                 "indicator_name" => "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\B1::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in value of formal RTC exports",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\Indicator_B2::class,
                 'project_name' => 'RTC MARKET',
             ],
             [

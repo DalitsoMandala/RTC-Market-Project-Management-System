@@ -12,6 +12,7 @@ use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
+use App\Models\User;
 use App\Notifications\ManualDataAddedNotification;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -111,6 +112,7 @@ class Add extends Component
         $currentUser = Auth::user();
         $uuid = Uuid::uuid4()->toString();
 
+
         $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
             ->where('batch_type', 'aggregate')
             ->where('user_id', auth()->user()->id)->first();
@@ -136,10 +138,16 @@ class Add extends Component
                         'table_name' => json_encode(['reports']),
 
                     ]);
+                    $user = User::find($submission->user_id);
+                    $period = SubmissionPeriod::find($submission->period_id);
 
                     SubmissionReport::create([
                         'indicator_id' => $this->selectedIndicator,
                         'submission_id' => $submission->id,
+                        'financial_year_id' => $this->selectedFinancialYear,
+                        'submission_period_id' => $this->submissionPeriodId,
+                        'period_month_id' => $period->month_range_period_id,
+                        'organisation_id' => $user->organisation->id,
                         'data' => json_encode($data),
                     ]);
 

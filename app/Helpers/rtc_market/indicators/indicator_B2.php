@@ -4,8 +4,10 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -26,83 +28,63 @@ class Indicator_B2
     public function builder(): Builder
     {
 
-        $query = Submission::query()->where('batch_type', 'aggregate')->where('status', 'approved');
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->where('indicator_no', 'B2')->first();
 
-        if ($this->reporting_period || $this->financial_year) {
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
 
+        if ($this->reporting_period && $this->financial_year) {
+            $hasData = false;
+            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
+            if ($data->get()->isNotEmpty()) {
 
-            $query->where(function ($query) {
-                if ($this->reporting_period) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->where('period_id', $this->reporting_period)->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-
-                }
-                if ($this->financial_year) {
-                    $filterUuids = $query->pluck('uuid')->unique()->toArray();
-                    $submissions = Submission::whereIn('batch_no', $filterUuids)->pluck('period_id')->unique();
-                    $periods = SubmissionPeriod::whereIn('id', $submissions->toArray())->where('financial_year_id', $this->financial_year)->pluck('id');
-                    $submissions = Submission::where('period_id', $periods->toArray())->pluck('batch_no');
-                    $query->whereIn('uuid', $submissions->toArray());
-                }
-            });
+                $hasData = true;
+                return $data;
+            }
 
 
-
-
-
-
+            if (!$hasData) {
+                // No data found, return an empty collection
+                return $query->whereIn('id', []);
+            }
         }
+
+
+
+
 
         return $query;
 
     }
 
-    public function getAggregateTotal()
+    public function getRawProcessedData()
     {
 
-        // Fetch submissions with specific conditions
-        $submissions = $this->builder()
-            ->get();
+        $builder = $this->builder()->get();
 
-        // Define keys to sum from the JSON data
-        $keysToSum = [
-            "Raw",
-            "Total",
-            "Potato",
-            "Cassava",
-            "Processed",
-            "Sweet potato",
-            "Formal exports",
-            "Informal exports",
-            "Financial value ($)",
-            "Volume (Metric Tonnes)",
-        ];
-
-        // Initialize totals array
-        $totals = array_fill_keys($keysToSum, 0);
+        if ($builder->isNotEmpty()) {
 
 
-        // Iterate through each submission
-        foreach ($submissions as $submission) {
-            $data = json_decode($submission->data, true);
-
-            // Sum up the specified keys
-            foreach ($keysToSum as $key) {
-                if (isset($data[$key])) {
-                    $totals[$key] += (float) $data[$key]; // Convert to float in case of numeric values
-                }
-            }
         }
-
-        return $totals;
-
     }
+
 
     public function getDisaggregations()
     {
 
-        return $this->getAggregateTotal();
+        $this->getRawProcessedData();
+
+        return [
+            "Raw" => 0,
+            "Total" => 0,
+            "Potato" => 0,
+            "Cassava" => 0,
+            "Processed" => 0,
+            "Sweet potato" => 0,
+            "Formal exports" => 0,
+            "Informal exports" => 0,
+            "Financial value ($)" => 0,
+            "Volume (Metric Tonnes)" => 0,
+        ];
 
     }
 

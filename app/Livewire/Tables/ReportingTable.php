@@ -22,7 +22,7 @@ final class ReportingTable extends PowerGridComponent
 {
 
     public $start_date, $end_date, $project, $indicators, $financial_year, $reporting_period;
-
+    public $showExporting = true;
     public bool $deferLoading = true;
     public function datasource(): ?Collection
     {
@@ -87,6 +87,9 @@ final class ReportingTable extends PowerGridComponent
         return [
             Exportable::make('export')
                 ->striped()
+                ->queues(6)
+                ->onQueue('reports')
+                ->onConnection('database')
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
