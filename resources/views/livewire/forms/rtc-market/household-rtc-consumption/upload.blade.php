@@ -83,15 +83,7 @@
                         </div>
                     </form>
 
-                    <div>
-                        @if ($importing && !$importFinished)
-                            <div wire:poll.1000ms="updateImportProgress">Importing...please wait.</div>
-                        @endif
 
-                        @if ($importFinished)
-                            Finished importing.
-                        @endif
-                    </div>
 
 
                 </div>
