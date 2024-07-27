@@ -45,7 +45,7 @@
                     <div class="col">
                         <h4>Summary</h4>
                     </div>
-                    <div class="col-2">
+                    <div class="col-2 d-none">
                         <div class="form-group">
 
                             <select class="form-control" wire:model.live.debounce.lazy='project'>
@@ -59,11 +59,13 @@
                 </div>
 
                 <div class="mt-3 row">
-                    <div class="col-12 col-md-8">
+                    <div class="col-12 col-md-8 ">
                         <div class="card">
-                            <div class="card-header">{{ $data['name'] }}</div>
-                            <div class="row">
-                                <div class="col" x-data="{
+                            <div class="card-header">
+                                <h5 class="card-title">{{ $data['name'] }}</h5>
+                            </div>
+                            <div class="row ">
+                                <div class="col-12 col-sm-6" x-data="{
                                     chartData: @js($data['actors']),
                                     categories: ['Farmers', 'Processors', 'Traders'],
                                     values: [],
@@ -73,8 +75,8 @@
                                         options = {
                                             chart: {
                                                 type: 'pie',
-                                
-                                
+
+
                                             },
                                             labels: this.categories,
                                             series: this.values,
@@ -83,7 +85,7 @@
                                                 position: 'top'
                                             }
                                         }
-                                
+
                                         let chart = new ApexCharts($refs.chart, options);
                                         chart.render();
                                     }
@@ -91,7 +93,7 @@
                                     <div x-ref="chart"></div>
                                 </div>
 
-                                <div class="border col border-left" x-data="{
+                                <div class=" col-12 col-sm-6" x-data="{
                                     chartData: @js($data['actors']),
                                     categories: ['Cassava', 'Potato', 'Sweet potato'],
                                     values: [],
@@ -101,7 +103,7 @@
                                         options = {
                                             chart: {
                                                 type: 'donut',
-                                
+
                                             },
                                             labels: this.categories,
                                             series: this.values,
@@ -110,7 +112,7 @@
                                                 position: 'top'
                                             }
                                         }
-                                
+
                                         let chart = new ApexCharts($refs.chart, options);
                                         chart.render();
                                     }
@@ -120,31 +122,18 @@
                             </div>
 
                         </div>
+
+
                     </div>
-                    <div class="col-12 col-md-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row d-flex justify-content-center">
-                                    <div class="col">
-                                        <p class="mb-1 text-dark fw-semibold">Number of indicators</p>
-                                        <h4 class="my-1">{{ $indicatorCount }}</h4>
-                                        <hr>
-                                        <a name="" id="" class="btn btn-primary btn-sm"
-                                            href="indicators" role="button">View Details <i
-                                                class="bx bx-arrow-to-right"></i></a>
-                                    </div>
-                                    <div class="col-auto align-self-center">
-                                        <div
-                                            class="d-flex justify-content-center align-items-center thumb-md rounded-circle">
-                                            <i class="p-1 bx bx-bar-chart-alt-2 h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="col-12 col-md-4 d-flex align-items-stretch">
 
+
+                        <div class="card w-100">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    Calendar
+                                </h5>
                             </div>
-                        </div>
-
-                        <div class="card d-none">
                             <div class="card-body">
 
                                 <div class="row">
@@ -160,15 +149,173 @@
 
                 </div>
 
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Submissions progress</h5>
+                            </div>
+                            <div class="card-body" x-data="{
+                                init() {
+
+                                    let chartData = @js($submissions);
+                                    const months = [
+                                        'January', 'February', 'March', 'April', 'May', 'June',
+                                        'July', 'August', 'September', 'October', 'November', 'December'
+                                    ];
+                                    let currentYear = new Date().getFullYear();
+
+
+                                    const seriesData = months.map((month, index) => {
+                                        const data = chartData.find(item => item.month === index + 1);
+                                        return data ? data.total : 0;
+                                    });
+
+                                    options = {
+                                        chart: {
+                                            type: 'area',
+                                            height: '400px'
+                                        },
+                                        series: [{
+                                            name: 'Submissions',
+                                            data: seriesData
+                                        }],
+                                        dataLabels: {
+                                            enabled: false
+                                        },
+                                        stroke: {
+                                            curve: 'smooth'
+                                        },
+                                        xaxis: {
+                                            categories: months
+                                        },
+                                        colors: ['#E88D67', '#FA7070'],
+                                        tooltip: {
+                                            x: {
+                                                format: 'dd/MM/yy'
+                                            },
+                                        },
+                                    };
+
+                                    let chart = new ApexCharts($refs.chart, options);
+                                    chart.render();
+                                }
+                            }">
+
+                                <div x-ref="chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="row">
+            <div class="col-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Recent attendance register</h5>
+                    </div>
+                    <div class="p-0 card-body">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="table-light">
+
+                                    <tr>
+                                        <th scope="col">Name of participant</th>
+                                        <th scope="col">Registration Date</th>
+                                        <th>Meeting Title</th>
+                                        <th scope="col">Type of Meeting</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($attendance as $people)
+                                        <tr class="">
+                                            <td scope="row">
+                                                <div class="d-flex">
+                                                    <img src="{{ asset('assets/images/users/usr.png') }}" alt=""
+                                                        class="shadow avatar-sm rounded-circle me-2">
+                                                    <span class="text-capitalize"> {{ $people->name }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($people->created_at)->format('d/m/Y') }}
+                                            </td>
+                                            <td>
+                                                {{ $people->meetingTitle }}
+                                            </td>
+                                            <td>
+                                                {{ $people->meetingCategory }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+
+
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Quick access to forms</h5>
+                    </div>
+                    <div class="p-0 card-body">
+                        <div class="list-group list-group-flush">
+                            @foreach ($quickForms as $form)
+                                @php
+                                    $form_name = str_replace(' ', '-', strtolower($form->name));
+                                    $project = str_replace(' ', '-', strtolower($form->project->name));
+                                    $link = '';
+
+                                @endphp
+
+                                @if ($form->name == 'REPORT FORM')
+                                    <a class="pe-none text-muted"
+                                        href="forms/{{ $project }}/{{ $form_name }}/view"
+                                        class="list-group-item list-group-item-action">{{ $form->name }}</a>
+                                @elseif($form->name == 'ATTENDANCE REGISTER')
+                                    <a href="forms/{{ $project }}/{{ $form_name }}"
+                                        class="list-group-item list-group-item-action">{{ $form->name }}</a>
+                                @else
+                                    <a href="forms/{{ $project }}/{{ $form_name }}/view"
+                                        class="list-group-item list-group-item-action">{{ $form->name }}</a>
+                                @endif
+                            @endforeach
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
 
 
 
-
-
-
-
     </div>
-
+    @assets
+        <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js'></script>
+    @endassets
+    @script
+        <script>
+            let calendarEl = document.getElementById('calendar');
+            let calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    start: 'title', // will normally be on the left. if RTL, will be on the right
+                    center: '',
+                    end: 'today prev,next'
+                }
+            });
+            calendar.render();
+        </script>
+    @endscript
 </div>

@@ -10,4 +10,14 @@ class AssignedTarget extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function organisation()
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id');
+    }
+
+    public function final_target()
+    {
+        return $this->belongsTo(IndicatorTarget::class, 'indicator_target_id');
+    }
 }

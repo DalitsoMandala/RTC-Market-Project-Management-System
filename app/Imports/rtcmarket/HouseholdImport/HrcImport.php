@@ -7,9 +7,14 @@ use App\Exceptions\UserErrorException;
 use App\Helpers\ArrayToUpperCase;
 use App\Helpers\ImportValidateHeading;
 use App\Jobs\chuckReader;
+use App\Models\User;
+use App\Notifications\JobNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
@@ -19,6 +24,7 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
@@ -26,7 +32,7 @@ use Ramsey\Uuid\Uuid;
 
 HeadingRowFormatter::default('none');
 
-class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidation, SkipsOnFailure
+class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidation, SkipsOnFailure, WithChunkReading
 {
     /**
      * @param Collection $collection
@@ -78,7 +84,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         }
 
         $uuid = Uuid::uuid4()->toString();
-        session()->put('uuid', $uuid);
+
 
 
         $main_data = [];
@@ -134,7 +140,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
     }
 
 
-
+    public function chunkSize(): int
+    {
+        return 1000; // Adjust the chunk size based on your requirements
+    }
     public function onFailure(Failure ...$failures)
     {
 
@@ -147,10 +156,47 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 'values' => $failure->values(),
             ];
         }
+
+
+
         throw new SheetImportException('HH_CONSUMPTION', $errors);
 
     }
 
+
+    public function registerEvents(): array
+    {
+        return [
+                // Handle by a closure.
+            BeforeImport::class => function (BeforeImport $event) {
+                // dd($event);
+                $diff = ImportValidateHeading::validateHeadings($this->sheetNames, $this->expectedSheetNames);
+
+                if (count($diff) > 0) {
+
+                    throw new UserErrorException("File contains invalid sheets!");
+
+                }
+
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($key == 'HH_CONSUMPTION') {
+                        if ($sheet <= 1) {
+                            throw new UserErrorException("The first sheet can not contain empty rows!");
+                        }
+
+                    }
+                }
+
+
+
+
+            },
+
+        ];
+    }
     public function rules(): array
     {
         return [

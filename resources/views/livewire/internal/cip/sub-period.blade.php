@@ -16,12 +16,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Add submission period</h4>
+                    <h4 class="mb-0">Submission period</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Add submission period</li>
+                            <li class="breadcrumb-item active">Submission period</li>
                         </ol>
                     </div>
 
@@ -67,69 +67,69 @@
 
 
                                     <div class="mb-3" wire:ignore x-init="() => {
-                                    
+
                                         $('#select-indicators').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-                                    
-                                    
+
+
                                         $('#select-indicators').on('select2:select', function(e) {
                                             let data = e.params.data;
                                             setTimeout(() => {
                                                 $wire.set('selectedIndicator', data.id);
                                             }, 500)
-                                    
-                                    
+
+
                                         });
-                                    
-                                    
+
+
                                         $wire.on('update-indicator', (e) => {
-                                    
-                                    
-                                    
-                                    
+
+
+
+
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
+
+
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-                                    
+
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption).trigger('change');
                                             });
-                                    
+
                                             selectElement.val('').trigger('change');
-                                    
+
                                             selectElement.select2
                                             setTimeout(() => {
                                                 $wire.set('selectedIndicator', null);
                                             }, 500)
-                                    
-                                    
+
+
                                         });
-                                    
+
                                         $wire.on('select-indicator', (e) => {
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
+
+
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-                                    
+
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption).trigger('change');
                                             });
-                                    
+
                                             selectElement.val(e.selected).trigger('change');
-                                    
+
                                         })
                                     }">
                                         <label for="" class="form-label">Select Indicator</label>
@@ -159,18 +159,18 @@
                                         selectedForm: [],
                                         forms: [],
                                         setForms(data, forms) {
-                                    
+
                                             this.forms = forms;
-                                    
+
                                             let newData = data.map(num => num.toString());
-                                    
-                                    
+
+
                                         },
-                                    
+
                                         selectForm() {
                                             $wire.selectedForm = this.selectedForm;
                                         }
-                                    
+
                                     }" @change="selectForm()"
                                     @changed-form.window="setForms($event.detail.data,$event.detail.forms)"
                                     x-init="">

@@ -51,8 +51,12 @@ final class FormTable extends PowerGridComponent
         $user = User::find($this->userId);
 
         $organisation_id = $user->organisation->id;
+        $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
+            ->whereHas('sources')  // Ensure that the relationship 'sources' exists
+            ->pluck('indicator_id')
+            ->toArray();
 
-        $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)->pluck('indicator_id')->toArray();
+
         $query = SubmissionPeriod::with(['form', 'form.indicators'])->whereIn('indicator_id', $myIndicators);
 
 
@@ -82,7 +86,7 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-    
+
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {

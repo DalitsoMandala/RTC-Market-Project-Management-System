@@ -102,7 +102,7 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get('/indicators/view/{id}', ViewIndicator::class)->name('external-indicator-view');
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
     Route::get('/submissions', \App\Livewire\External\Submissions::class)->name('external-submissions');
-
+    Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     // Form routes
     $formPrefix = '/forms/{project}';
     Route::get($formPrefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);

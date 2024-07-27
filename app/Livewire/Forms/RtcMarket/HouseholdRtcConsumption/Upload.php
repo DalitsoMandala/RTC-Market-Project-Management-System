@@ -6,21 +6,19 @@ use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
 use App\Helpers\SheetNamesValidator;
-use App\Imports\rtcmarket\HouseholdImport\HrcImport;
-use App\Jobs\RandomNames;
+use App\Jobs\hrcImportJob;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
-use App\Models\JobProgress;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
-use App\Notifications\BatchDataAddedNotification;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Bus\Batch;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -31,6 +29,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
+use session;
 use Throwable;
 
 class Upload extends Component
@@ -55,11 +54,15 @@ class Upload extends Component
     public $openSubmission = false;
 
     public $progress = 0;
+    public $importing = false;
+    public $batchId;
 
+    public $importFinished = false;
+    public $file;
+    public $filename;
+    public $importErrors = [];
     public function submitUpload()
     {
-
-
 
         try {
             $this->validate();
@@ -69,132 +72,50 @@ class Upload extends Component
             throw $e;
         }
 
-
         try {
             //code...
 
             $userId = auth()->user()->id;
 
             if ($this->upload) {
+                $this->uniqueId = Str::uuid()->toString();
 
-                $name = 'hh_' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs('public/imports', $name);
+                $this->file = $this->upload->store('imports', 'public');
 
-                $path = public_path('storage\imports\\' . $name);
+                // Get the filename from the stored path
+                $filename = basename($this->file);
+
+                // Generate the full path to the file
+                $path = storage_path('app/public/imports/' . $filename);
+
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 try {
 
-                    try {
-                        Excel::import(new HrcImport($userId, $sheets, $this->upload), $this->upload);
-
-                    } catch (SheetImportException $e) {
-
-                        $errors = $e->getErrors();
-                        $sheet = $e->getSheet();
+                    $this->importing = true;
 
 
-                        session()->flash('import_failures', $errors);
-                        throw new UserErrorException('Errors on sheet: ' . $sheet);
-                    }
+                    $batch = Bus::batch([
+                        new hrcImportJob($path, $sheets, $userId),
+                    ])
+                        ->catch(function (Batch $batch, SheetImportException $e) {
+                            Cache::put('validation_import_errors', $e->getMessage());
+                            Cache::put('validation_error_sheet', $e->getSheet());
+                            Cache::put('validation_errors', $e->getErrors());
+                        })
+                        ->catch(function (Batch $batch, UserErrorException $e) {
+
+                            Cache::put('errors', $e->getMessage());
+                        })
+
+                        ->dispatch();
 
 
-
-
-                    $uuid = session()->get('uuid');
-                    $batch_data = session()->get('batch_data');
-
-
-                    if (empty($batch_data)) {
-                        throw new UserErrorException("Your file has empty rows!");
-
-                    }
-                    $currentUser = Auth::user();
-                    $table = ['household_rtc_consumption'];
-                    if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
-
-                        $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
-                            ->where('batch_type', 'batch')
-                            ->where('user_id', auth()->user()->id)->first();
-                        if ($checkSubmission) {
-
-                            $this->reset('upload');
-
-                            session()->flash('error', 'You have already submitted your batch data for this period!');
-                        } else {
-
-
-                            try {
-                                $submission = Submission::create([
-                                    'batch_no' => $uuid,
-                                    'form_id' => $this->selectedForm,
-                                    'user_id' => $currentUser->id,
-                                    'status' => 'approved',
-                                    'data' => json_encode($batch_data),
-                                    'batch_type' => 'batch',
-                                    'period_id' => $this->submissionPeriodId,
-                                    'table_name' => json_encode($table),
-                                    'is_complete' => 1,
-                                    'file_link' => $name,
-                                ]);
-
-                                $data = json_decode($submission->data, true);
+                    $this->batchId = $batch->id;
 
 
 
-                                foreach ($data as $row) {
-                                    $row['submission_period_id'] = $this->submissionPeriodId;
-                                    $row['organisation_id'] = Auth::user()->organisation->id;
-                                    $row['financial_year_id'] = $this->selectedFinancialYear;
-                                    $row['period_month_id'] = $this->selectedMonth;
 
-                                    HouseholdRtcConsumption::create($row);
-
-                                }
-
-                            } catch (UserErrorException $e) {
-                                # code...
-
-                                $this->reset('upload');
-
-                                session()->flash('error', 'Something went wrong!');
-                            }
-
-
-
-                            session()->flash('success', 'Successfully submitted!');
-                            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
-                        }
-
-                    } else if ($currentUser->hasAnyRole('external')) {
-
-                        $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
-                            ->where('batch_type', 'batch')
-                            ->where('user_id', auth()->user()->id)->first();
-                        if ($checkSubmission) {
-
-                            $this->reset('upload');
-                            $this->dispatch('removeUploadedFile');
-                            session()->flash('error', 'You have already submitted your batch data!');
-                        } else {
-                            Submission::create([
-                                'batch_no' => $uuid,
-                                'form_id' => $this->selectedForm,
-                                'period_id' => $this->submissionPeriodId,
-                                'user_id' => $currentUser->id,
-                                'data' => json_encode($batch_data),
-                                'batch_type' => 'batch',
-                                'table_name' => json_encode($table),
-                                'file_link' => $name,
-                            ]);
-
-
-
-                            session()->flash('success', 'Successfully submitted!');
-                            $this->redirect(route('external-submissions') . '#batch-submission');
-
-                        }
-                    }
 
                 } catch (UserErrorException $e) {
 
@@ -216,6 +137,156 @@ class Upload extends Component
         }
 
         $this->removeTemporaryFile();
+
+    }
+
+
+    public function checkError($string, $substring)
+    {
+
+        if (str_contains($string, $substring)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+    public function getImportBatchProperty()
+    {
+        if (!$this->batchId) {
+            return null;
+        }
+
+        return Bus::findBatch($this->batchId);
+    }
+
+    public function updateImportProgress()
+    {
+
+
+        $this->importFinished = $this->importBatch->finished();
+
+        if ($this->importFinished) {
+            Storage::delete($this->file);
+
+            $this->importing = false;
+            if (Cache::get('validation_import_errors')) {
+
+                $errors = Cache::get('validation_errors');
+                $sheet = Cache::get('validation_error_sheet', );
+                session()->flash('import_failures', $errors);
+                session()->flash('error', 'Errors on sheet: ' . $sheet);
+                Cache::forget('validation_errors');
+                Cache::forget('validation_error_sheet');
+                Cache::forget('validation_import_errors');
+            }
+            if (Cache::get('errors')) {
+
+                $errors = Cache::get('errors');
+
+                session()->flash('error', $errors);
+                Cache::forget('errors');
+            }
+
+
+
+        }
+    }
+
+
+    public function getImportErrors()
+    {
+        return Cache::get('import_errors_' . auth()->user()->id);
+    }
+
+    public function submitData($name)
+    {
+        $uuid = session()->get('uuid');
+        $batch_data = session()->get('batch_data');
+
+        if (empty($batch_data)) {
+            throw new UserErrorException("Your file has empty rows!");
+
+        }
+        $currentUser = Auth::user();
+        $table = ['household_rtc_consumption'];
+        if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+
+            $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
+                ->where('batch_type', 'batch')
+                ->where('user_id', auth()->user()->id)->first();
+            if ($checkSubmission) {
+
+                $this->reset('upload');
+
+                session()->flash('error', 'You have already submitted your batch data for this period!');
+            } else {
+
+                try {
+                    $submission = Submission::create([
+                        'batch_no' => $uuid,
+                        'form_id' => $this->selectedForm,
+                        'user_id' => $currentUser->id,
+                        'status' => 'approved',
+                        'data' => json_encode($batch_data),
+                        'batch_type' => 'batch',
+                        'period_id' => $this->submissionPeriodId,
+                        'table_name' => json_encode($table),
+                        'is_complete' => 1,
+                        'file_link' => $name,
+                    ]);
+
+                    $data = json_decode($submission->data, true);
+
+                    foreach ($data as $row) {
+                        $row['submission_period_id'] = $this->submissionPeriodId;
+                        $row['organisation_id'] = Auth::user()->organisation->id;
+                        $row['financial_year_id'] = $this->selectedFinancialYear;
+                        $row['period_month_id'] = $this->selectedMonth;
+
+                        HouseholdRtcConsumption::create($row);
+
+                    }
+
+                } catch (UserErrorException $e) {
+                    # code...
+
+                    $this->reset('upload');
+
+                    session()->flash('error', 'Something went wrong!');
+                }
+
+                session()->flash('success', 'Successfully submitted!');
+                $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+            }
+
+        } else if ($currentUser->hasAnyRole('external')) {
+
+            $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
+                ->where('batch_type', 'batch')
+                ->where('user_id', auth()->user()->id)->first();
+            if ($checkSubmission) {
+
+                $this->reset('upload');
+                $this->dispatch('removeUploadedFile');
+                session()->flash('error', 'You have already submitted your batch data!');
+            } else {
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $this->selectedForm,
+                    'period_id' => $this->submissionPeriodId,
+                    'user_id' => $currentUser->id,
+                    'data' => json_encode($batch_data),
+                    'batch_type' => 'batch',
+                    'table_name' => json_encode($table),
+                    'file_link' => $name,
+                ]);
+
+                session()->flash('success', 'Successfully submitted!');
+                $this->redirect(route('external-submissions') . '#batch-submission');
+
+            }
+        }
 
     }
 
@@ -295,7 +366,6 @@ class Upload extends Component
         }
 
     }
-
 
     public $currentData;
 

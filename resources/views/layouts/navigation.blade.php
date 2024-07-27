@@ -136,9 +136,15 @@
                                             <span data-key="t-utility">Forms</span>
 
                                         </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="/external/submission-periods" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Submission Periods</span>
+
+                                        </a>
                                         <a class="dropdown-item dropdown-toggle arrow-none" href="/external/submissions"
                                             id="topnav-utility" role="button">
-                                            <span data-key="t-utility">My Submissions</span>
+                                            <span data-key="t-utility">Submissions</span>
 
                                         </a>
 

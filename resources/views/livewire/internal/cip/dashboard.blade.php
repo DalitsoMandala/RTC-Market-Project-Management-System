@@ -30,7 +30,7 @@
                                     experience. We're thrilled to have you on board!"</p>
 
                                 <div class="pt-2 mt-4 mb-2">
-                                    <a href="#" class="btn btn-primary">View Profile <i
+                                    <a href="/profile" class="btn btn-primary">View Profile <i
                                             class="mdi mdi-arrow-right ms-1"></i></a>
                                 </div>
                             </div>
@@ -77,8 +77,8 @@
                                         options = {
                                             chart: {
                                                 type: 'pie',
-
-
+                                
+                                
                                             },
                                             labels: this.categories,
                                             series: this.values,
@@ -87,7 +87,7 @@
                                                 position: 'top'
                                             }
                                         }
-
+                                
                                         let chart = new ApexCharts($refs.chart, options);
                                         chart.render();
                                     }
@@ -105,7 +105,7 @@
                                         options = {
                                             chart: {
                                                 type: 'donut',
-
+                                
                                             },
                                             labels: this.categories,
                                             series: this.values,
@@ -114,7 +114,7 @@
                                                 position: 'top'
                                             }
                                         }
-
+                                
                                         let chart = new ApexCharts($refs.chart, options);
                                         chart.render();
                                     }
@@ -160,20 +160,20 @@
                             </div>
                             <div class="card-body" x-data="{
                                 init() {
-
+                            
                                     let chartData = @js($submissions);
                                     const months = [
                                         'January', 'February', 'March', 'April', 'May', 'June',
                                         'July', 'August', 'September', 'October', 'November', 'December'
                                     ];
                                     let currentYear = new Date().getFullYear();
-
-
+                            
+                            
                                     const seriesData = months.map((month, index) => {
                                         const data = chartData.find(item => item.month === index + 1);
                                         return data ? data.total : 0;
                                     });
-
+                            
                                     options = {
                                         chart: {
                                             type: 'area',
@@ -199,7 +199,7 @@
                                             },
                                         },
                                     };
-
+                            
                                     let chart = new ApexCharts($refs.chart, options);
                                     chart.render();
                                 }
@@ -221,7 +221,7 @@
                     </div>
                     <div class="p-0 card-body">
                         <div class="table-responsive">
-                            <table class="table ">
+                            <table class="table mb-0">
                                 <thead class="table-light">
 
                                     <tr>

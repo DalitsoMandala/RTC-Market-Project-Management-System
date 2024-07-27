@@ -77,9 +77,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-        
+
                     // foreach($submission as $index => $status){
-        
+
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -238,7 +238,7 @@ final class SubmissionTable extends PowerGridComponent
             Column::make('SUBMISSION PERIOD', 'month_range')
             ,
 
-            Column::make('Financial Year', 'financial_year'),
+            Column::make('Project Year', 'financial_year'),
             Column::make('Status', 'status_formatted')
                 ->sortable()
                 ->searchable(),
