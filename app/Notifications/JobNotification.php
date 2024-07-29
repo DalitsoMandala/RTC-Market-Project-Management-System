@@ -10,15 +10,16 @@ use Illuminate\Notifications\Notification;
 class JobNotification extends Notification
 {
     use Queueable;
-    public $error;
+    public $error, $uuid;
     /**
      * Create a new notification instance.
      */
-    public function __construct($error)
+    public function __construct($uuid, $error)
     {
         //
 
         $this->error = $error;
+        $this->uuid = $uuid;
     }
 
     /**
@@ -51,7 +52,8 @@ class JobNotification extends Notification
     {
         return [
             //
-            'error-job' => 'hsss',
+            'uuid' => $this->uuid,
+            'errors' => json_encode($this->error),
         ];
     }
 }

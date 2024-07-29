@@ -7,12 +7,20 @@ use App\Exceptions\UserErrorException;
 use App\Helpers\ArrayToUpperCase;
 use App\Helpers\ImportValidateHeading;
 use App\Jobs\chuckReader;
+use App\Jobs\ProcessDataChunk;
+use App\Jobs\SaveSubmissionData;
+use App\Jobs\SaveTableData;
+use App\Models\ImportError;
+use App\Models\Submission;
 use App\Models\User;
 use App\Notifications\JobNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
@@ -24,7 +32,9 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
@@ -32,7 +42,7 @@ use Ramsey\Uuid\Uuid;
 
 HeadingRowFormatter::default('none');
 
-class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidation, SkipsOnFailure, WithChunkReading
+class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidation, SkipsOnFailure, WithChunkReading, ShouldQueue
 {
     /**
      * @param Collection $collection
@@ -64,33 +74,46 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
     public $sheetNames = [];
     public $expectedSheetNames = ['HH_CONSUMPTION'];
     public $location, $userId, $file;
-    public function __construct($userId, $sheets, $file = null)
+    public $uuid;
+
+    public $totalRows;
+    public $submissionData = [];
+    public function __construct($userId, $sheets, $file = null, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->sheetNames = $sheets;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
     }
 
 
     public function collection(Collection $collection)
     {
-        $headings = (new HeadingRowImport)->toArray($this->file);
-        $headings = $headings[0][0];
 
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-        if (count($missingHeadings) > 0) {
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-        }
 
-        $uuid = Uuid::uuid4()->toString();
+        // ImportError::create([
+        //     'uuid' => $this->uuid,
+        //     'errors' => json_encode($this->failures),
+        //     'sheet' => 'HH_CONSUMPTION',
+        // ]);
 
 
 
-        $main_data = [];
 
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
         foreach ($collection as $row) {
+            # code...
+
+
+
             $entry = [
+                'submission_period_id' => $submissionData['submission_period_id'],
+                'organisation_id' => $submissionData['organisation_id'],
+                'financial_year_id' => $submissionData['financial_year_id'],
+                'period_month_id' => $submissionData['period_month_id'],
                 'location_data' => json_encode([
                     'epa' => $row['EPA'],
                     'district' => $row['DISTRICT'],
@@ -112,7 +135,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 'rtc_consumers_sw_potato' => $row['RTC CONSUMERS/SWEET POTATO'],
                 'rtc_consumers_cassava' => $row['RTC CONSUMERS/CASSAVA'],
                 'rtc_consumption_frequency' => $row['RTC CONSUMPTION FREQUENCY'],
-                'user_id' => $this->userId,
+                'user_id' => Auth::id(),
                 'uuid' => $uuid,
                 'main_food_data' => [],
             ];
@@ -128,16 +151,29 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             }
             $entry['main_food_data'] = json_encode($entry['main_food_data']);
 
-            $main_data[] = $entry;
+            $batch[] = $entry;
         }
 
 
-        session()->put('uuid', $uuid);
+        unset($submissionData['submission_period_id']);
+        unset($submissionData['organisation_id']);
+        unset($submissionData['financial_year_id']);
+        unset($submissionData['period_month_id']);
+        $submissionData['batch_no'] = $uuid;
 
-        session()->put('batch_data', $main_data);
 
+        $submissionData['data'] = json_encode($batch);
+        Submission::create($submissionData);
+
+        // Update progress
+        $progress = cache()->get($uuid . '_progress', 0) + count($batch);
+
+        cache()->put($uuid . '_progress', $progress);
+        cache()->put($uuid . '_total', $this->totalRows);
 
     }
+
+
 
 
     public function chunkSize(): int
@@ -147,9 +183,8 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
     public function onFailure(Failure ...$failures)
     {
 
-        $errors = [];
         foreach ($failures as $failure) {
-            $errors[] = [
+            $this->failures[] = [
                 'row' => $failure->row(),
                 'attribute' => $failure->attribute(),
                 'errors' => $failure->errors(),
@@ -158,8 +193,8 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         }
 
 
+        throw new SheetImportException('HH_CONSUMPTION', $failures);
 
-        throw new SheetImportException('HH_CONSUMPTION', $errors);
 
     }
 
@@ -182,18 +217,47 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                 foreach ($sheets as $key => $sheet) {
 
-                    if ($key == 'HH_CONSUMPTION') {
-                        if ($sheet <= 1) {
-                            throw new UserErrorException("The first sheet can not contain empty rows!");
-                        }
-
+                    if ($key == 'HH_CONSUMPTION' && $sheet <= 1) {
+                        throw new UserErrorException("The first sheet cannot contain empty rows!");
                     }
                 }
 
+                $headings = (new HeadingRowImport)->toArray($this->file);
+                $headings = $headings[0][0];
 
+                // Check if the headings match the expected headings
+                $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
+                if (count($missingHeadings) > 0) {
+                    throw new UserErrorException("This file has invalid headings. Please upload your data using the template file above");
+                }
+
+                $this->totalRows = intval($sheets['HH_CONSUMPTION']) - 1;
 
 
             },
+
+
+            ImportFailed::class => function (ImportFailed $event) {
+                $uuid = $this->uuid;
+                $exception = $event->getException();
+
+                if ($exception instanceof SheetImportException) {
+                    // Handle the custom exception
+                    $failures = $exception->getErrors();
+                    $sheet = $exception->getSheet();
+
+                    ImportError::create([
+                        'uuid' => $uuid,
+                        'errors' => json_encode($failures),
+                        'sheet' => $sheet,
+                    ]);
+
+                    Submission::where('batch_no', $uuid)->delete();
+
+                }
+
+            }
+
 
         ];
     }

@@ -19,17 +19,15 @@ use App\Livewire\Internal\Cip\SubPeriod;
 use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
+use App\Models\User;
+use App\Notifications\JobNotification;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
-Route::get('/test', function () {
-    RandomNames::dispatch();
 
-    return response()->json(['message' => 'Job dispatched to generate names. Please check back later for the results.']);
-});
 
 // TestingController route
 Route::get('/export/{name}', [TestingController::class, 'index']);
