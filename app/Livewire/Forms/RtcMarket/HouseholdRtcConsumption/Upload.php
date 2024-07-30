@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -96,8 +98,8 @@ class Upload extends Component
 
                 $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
-                $this->updateJobStatus();
 
+                $this->updateJobStatus();
 
                 try {
 
@@ -196,13 +198,17 @@ class Upload extends Component
             if ($progress > 0 && $progress == $total) {
 
                 $this->reset('upload');
-
+                $this->importing = false;
+                $this->importingFinished = true;
                 $this->dispatch('import-finished');
                 $userId = auth()->user()->id;
                 $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
                 if ($importJob) {
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                    $this->importId = Uuid::uuid4()->toString();
                 }
+
+
 
             }
 
@@ -235,6 +241,10 @@ class Upload extends Component
     public function updateJobStatus()
     {
 
+        $pendingjob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'pending')->orWhere('status', 'processing')->first();
+        if ($pendingjob) {
+            throw new UserErrorException('You have a pending import running in your background! Please wait... You can see the progress in your submissions page');
+        }
 
         $job = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('is_finished', true)->first();
         if ($job) {
@@ -313,9 +323,16 @@ class Upload extends Component
             }
         }
 
+
+
         $this->importId = $uuid;
+        $finishedJob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'completed')->where('is_finished', true)->first();
+        if ($finishedJob) {
 
 
+            $this->importId = Uuid::uuid4()->toString();
+
+        }
 
     }
     public function downloadTemplate()

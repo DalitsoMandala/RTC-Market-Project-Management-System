@@ -279,12 +279,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                     $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
                     if ($importErrors) {
 
-                        $importErrors->update([
-                            'errors' => json_encode($failures),
-                            'sheet' => $sheet,
-                            'type' => 'validation',
-                            'user_id' => $this->userId,
-                        ]);
+                        $importErrors->delete();
                     } else {
                         ImportError::create([
                             'uuid' => $uuid,
@@ -294,6 +289,9 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                             'user_id' => $this->userId,
                         ]);
                     }
+
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
 
 
                     Submission::where('batch_no', $uuid)->delete();
@@ -309,12 +307,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                     $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
                     if ($importErrors) {
 
-                        $importErrors->update([
-                            'errors' => json_encode($failures),
-                            'sheet' => $sheet,
-                            'type' => 'normal',
-                            'user_id' => $this->userId,
-                        ]);
+                        $importErrors->delete();
                     } else {
                         ImportError::create([
                             'uuid' => $uuid,
@@ -331,6 +324,9 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                 }
 
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!'));
+
                 Cache::put($this->uuid . '_status', 'finished');
                 cache()->forget($this->uuid . '_progress');
                 cache()->forget($this->uuid . '_total');
@@ -342,9 +338,11 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
                 }
 
-                // You can add additional logic here if needed, such as sending notifications
-                // or updating related records in your database.
-    
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
+
+
+
                 Cache::put($this->uuid . '_status', 'finished');
                 cache()->forget($this->uuid . '_progress');
                 cache()->forget($this->uuid . '_total');

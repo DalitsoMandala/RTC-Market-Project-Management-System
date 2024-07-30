@@ -108,6 +108,7 @@
                                         <div class="text-muted">
                                             <p class="mb-1 font-size-13">{{ $notification->data['message'] }}
                                             </p>
+                                            <p>Your ID : {{ $notification->data['uuid'] }}</p>
                                             <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
                                                     class="mdi mdi-clock-outline"></i>
                                                 {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
