@@ -2,6 +2,7 @@
 
 namespace App\Imports\rtcmarket\HouseholdImport;
 
+use App\Exceptions\ImportDataBaseError;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ArrayToUpperCase;
@@ -10,7 +11,9 @@ use App\Jobs\chuckReader;
 use App\Jobs\ProcessDataChunk;
 use App\Jobs\SaveSubmissionData;
 use App\Jobs\SaveTableData;
+use App\Models\HouseholdRtcConsumption;
 use App\Models\ImportError;
+use App\Models\JobProgress;
 use App\Models\Submission;
 use App\Models\User;
 use App\Notifications\JobNotification;
@@ -85,22 +88,27 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         $this->file = $file;
         $this->submissionData = $submissionData;
         $this->uuid = $uuid;
+        cache()->put($this->uuid . '_status', 'pending', now()->addMinutes(10));
+        cache()->put($this->uuid . '_progress', 0, now()->addMinutes(10));
+        cache()->put($this->uuid . '_errors', null, now()->addMinutes(10));
+
+
     }
 
 
     public function collection(Collection $collection)
     {
 
+        if (!empty($this->failures)) {
 
-        // ImportError::create([
-        //     'uuid' => $this->uuid,
-        //     'errors' => json_encode($this->failures),
-        //     'sheet' => 'HH_CONSUMPTION',
-        // ]);
+            throw new SheetImportException('HH_CONSUMPTION', $this->failures);
+        }
 
 
-
-
+        $importJob = JobProgress::where('user_id', $this->userId)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
+        }
         $submissionData = $this->submissionData;
         $uuid = $this->uuid;
         $batch = [];
@@ -135,7 +143,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 'rtc_consumers_sw_potato' => $row['RTC CONSUMERS/SWEET POTATO'],
                 'rtc_consumers_cassava' => $row['RTC CONSUMERS/CASSAVA'],
                 'rtc_consumption_frequency' => $row['RTC CONSUMPTION FREQUENCY'],
-                'user_id' => Auth::id(),
+                'user_id' => $this->userId,
                 'uuid' => $uuid,
                 'main_food_data' => [],
             ];
@@ -154,31 +162,47 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             $batch[] = $entry;
         }
 
-
-        unset($submissionData['submission_period_id']);
-        unset($submissionData['organisation_id']);
-        unset($submissionData['financial_year_id']);
-        unset($submissionData['period_month_id']);
-        $submissionData['batch_no'] = $uuid;
-
-
-        $submissionData['data'] = json_encode($batch);
-        Submission::create($submissionData);
-
-        // Update progress
-        $progress = cache()->get($uuid . '_progress', 0) + count($batch);
-
-        cache()->put($uuid . '_progress', $progress);
-        cache()->put($uuid . '_total', $this->totalRows);
-
+        $this->processBatch($batch, $submissionData, $uuid, $importJob);
     }
 
 
+    protected function processBatch($batch, $submissionData, $uuid, $importJob)
+    {
+        try {
+            unset($submissionData['submission_period_id']);
+            unset($submissionData['organisation_id']);
+            unset($submissionData['financial_year_id']);
+            unset($submissionData['period_month_id']);
+            $submissionData['batch_no'] = $uuid;
+            $submissionData['data'] = json_encode($batch);
+
+            $submission = Submission::create($submissionData);
+
+
+            foreach ($batch as $dt) {
+                HouseholdRtcConsumption::create($dt);
+            }
+        } catch (\Exception $e) {
+            throw new UserErrorException('Something went wrong!: ' . $e->getMessage());
+        }
+
+        // Update progress
+        $progress = cache()->get($uuid . '_progress', 0) + count($batch);
+        cache()->put($uuid . '_progress', $progress);
+        cache()->put($uuid . '_total', $this->totalRows);
+
+        if ($importJob) {
+            if ($progress > 0) {
+                $sum = ($progress / $this->totalRows) * 100;
+                $importJob->update(['progress' => $sum]);
+            }
+        }
+    }
 
 
     public function chunkSize(): int
     {
-        return 1000; // Adjust the chunk size based on your requirements
+        return 250; // Adjust the chunk size based on your requirements
     }
     public function onFailure(Failure ...$failures)
     {
@@ -193,7 +217,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         }
 
 
-        throw new SheetImportException('HH_CONSUMPTION', $failures);
+
 
 
     }
@@ -240,23 +264,55 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             ImportFailed::class => function (ImportFailed $event) {
                 $uuid = $this->uuid;
                 $exception = $event->getException();
+                $importJob = JobProgress::where('user_id', $this->userId)->first();
+                if ($importJob) {
+                    $importJob->delete();
+                }
+
 
                 if ($exception instanceof SheetImportException) {
                     // Handle the custom exception
                     $failures = $exception->getErrors();
-                    $sheet = $exception->getSheet();
+                    $sheet = 'HH_CONSUMPTION';
 
                     ImportError::create([
                         'uuid' => $uuid,
                         'errors' => json_encode($failures),
                         'sheet' => $sheet,
+                        'type' => 'validation',
                     ]);
 
                     Submission::where('batch_no', $uuid)->delete();
+                    HouseholdRtcConsumption::where('batch_no', $uuid)->delete();
+                    Cache::put($this->uuid . '_status', 'finished');
+                    cache()->forget($this->uuid . '_progress');
+                    cache()->forget($this->uuid . '_total');
+
+                } else if ($exception instanceof UserErrorException) {
+                    $failures = 'Something went wrong!';
+                    \Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
+                    $sheet = 'HH_CONSUMPTION';
+
+                    ImportError::create([
+                        'uuid' => $uuid,
+                        'errors' => json_encode($failures),
+                        'sheet' => $sheet,
+                        'type' => 'normal',
+                    ]);
+                    Submission::where('batch_no', $uuid)->delete();
+                    HouseholdRtcConsumption::where('batch_no', $uuid)->delete();
+
+                    Cache::put($this->uuid . '_status', 'finished');
+                    cache()->forget($this->uuid . '_progress');
+                    cache()->forget($this->uuid . '_total');
 
                 }
 
-            }
+
+
+            },
+
+
 
 
         ];

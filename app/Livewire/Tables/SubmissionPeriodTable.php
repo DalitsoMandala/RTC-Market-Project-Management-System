@@ -21,6 +21,7 @@ use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Ramsey\Uuid\Uuid;
 
 final class SubmissionPeriodTable extends PowerGridComponent
 {
@@ -267,7 +268,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
         $this->redirect($route);
     }

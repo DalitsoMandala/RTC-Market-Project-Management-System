@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('uuid');
             $table->json('errors');
             $table->string('sheet');
+            $table->enum('type', ['validation', 'normal']);
             $table->timestamps();
         });
     }

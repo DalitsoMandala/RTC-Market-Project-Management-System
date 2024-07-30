@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Exceptions;
+
+use Exception;
+
+class ImportDataBaseError extends Exception
+{
+    //
+
+    protected $errors;
+    public function __construct(string $message = 'Something went wrong!', $errors = null)
+    {
+        $this->errors = $errors;
+    }
+
+
+
+
+
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+}

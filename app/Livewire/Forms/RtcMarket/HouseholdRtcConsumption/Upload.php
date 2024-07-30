@@ -14,11 +14,14 @@ use App\Models\HouseholdRtcConsumption;
 use App\Models\ImportError;
 use App\Models\Indicator;
 use App\Models\JobProgress;
+use App\Models\JobProgressCheck;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\User;
 use App\Notifications\BatchDataAddedNotification;
+use App\Notifications\JobNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -64,7 +67,7 @@ class Upload extends Component
     public $importProgress = 0;
     public $importId;
 
-
+    public $queue = false;
     public function submitUpload()
     {
 
@@ -76,6 +79,21 @@ class Upload extends Component
             $this->dispatch('errorRemove');
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
+        }
+
+        try {
+            $job = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->first();
+            if ($job) {
+                throw new UserErrorException('You have a pending upload in the background!');
+            }
+        } catch (UserErrorException $e) {
+            $this->reset('upload');
+            $this->importing = true;
+            $this->importingFinished = false;
+
+
+            session()->flash('error', $e->getMessage());
+
         }
 
 
@@ -91,14 +109,19 @@ class Upload extends Component
 
                 $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
+                $this->updateJobStatus();
+
 
                 try {
 
 
-                    $this->importId = Uuid::uuid4()->toString();
+
                     $table = ['household_rtc_consumption'];
                     $this->importing = true;
                     $this->importingFinished = false;
+
+
+
                     Excel::import(new HrcImport($userId, $sheets, $this->upload->path(), $this->importId, [
                         'submission_period_id' => $this->submissionPeriodId,
                         'organisation_id' => Auth::user()->organisation->id,
@@ -119,7 +142,7 @@ class Upload extends Component
 
 
 
-                    $this->dispatch('search_errors');
+
 
 
 
@@ -154,19 +177,25 @@ class Upload extends Component
     {
 
         $importError = ImportError::where('uuid', $this->importId)->first();
-        $errors = cache()->get($this->importId . '_errors', null);
+
         if ($importError) {
             $this->Import_errors = json_decode($importError->errors, true);
             $this->importing = false;
 
             $this->reset('upload');
-            session()->flash('import_failures', $this->Import_errors);
+            if ($importError->type == 'validation') {
+                session()->flash('import_failures', $this->Import_errors);
+            } else {
+                session()->flash('error', $this->Import_errors);
+            }
+
             $this->importingFinished = true;
             ImportError::where('uuid', $this->importId)->delete();
-            $this->importId = Uuid::uuid4()->toString();
+
 
         } else {
             // Check progress
+
 
             $progress = cache()->get($this->importId . '_progress', 0);
             $total = cache()->get($this->importId . '_total', 0);
@@ -174,10 +203,18 @@ class Upload extends Component
             if ($progress > 0 && $progress == $total) {
 
                 $this->reset('upload');
-
+                $job = JobProgress::where('user_id', auth()->user()->id)->first();
+                if ($job) {
+                    $job->delete();
+                }
                 $this->dispatch('import-finished');
-                $this->importId = Uuid::uuid4()->toString();
+                ImportError::where('uuid', $this->importId)->delete();
+
+
             }
+
+
+
 
 
         }
@@ -190,6 +227,7 @@ class Upload extends Component
 
 
         $user = auth()->user();
+        cache()->clear();
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('external-submissions') . '#batch-submission');
@@ -200,7 +238,33 @@ class Upload extends Component
 
 
     }
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+
+    public function updateJobStatus()
+    {
+
+
+        $job = JobProgress::where('user_id', auth()->user()->id)->first();
+        if ($job) {
+            $job->delete();
+        }
+        JobProgress::create([
+            'user_id' => auth()->user()->id,
+            'job_id' => 'importJob_' . auth()->user()->id,
+            'status' => 'pending',
+        ]);
+
+
+    }
+
+    public function checkJobProgress()
+    {
+        $job = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->first();
+        if ($job) {
+            $this->importing = true;
+        }
+
+    }
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
     {
 
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
@@ -248,6 +312,10 @@ class Upload extends Component
             }
         }
 
+        $this->importId = $uuid;
+
+        $this->checkJobProgress();
+
     }
     public function downloadTemplate()
     {
@@ -278,16 +346,7 @@ class Upload extends Component
     }
 
 
-    public $currentData;
 
-    #[On('start')]
-    public function getImportSession()
-    {
-        $data = session()->get('import_progress');
-
-        $this->currentData = $data;
-
-    }
     public function render()
     {
         return view('livewire.forms.rtc-market.household-rtc-consumption.upload');

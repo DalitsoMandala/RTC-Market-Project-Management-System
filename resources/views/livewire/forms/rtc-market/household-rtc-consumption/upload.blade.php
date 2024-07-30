@@ -149,5 +149,11 @@
 
     </div>
 
+    @script
+        <script>
+            $wire.checkJobProgress();
+        </script>
+    @endscript
+
 
 </div>

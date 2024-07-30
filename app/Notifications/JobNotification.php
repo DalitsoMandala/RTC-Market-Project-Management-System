@@ -14,11 +14,11 @@ class JobNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($uuid, $error)
+    public function __construct($uuid, )
     {
         //
 
-        $this->error = $error;
+
         $this->uuid = $uuid;
     }
 
@@ -51,9 +51,9 @@ class JobNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+
             'uuid' => $this->uuid,
-            'errors' => json_encode($this->error),
+            'message' => 'File import has started you will be notified when the file has finished importing!',
         ];
     }
 }

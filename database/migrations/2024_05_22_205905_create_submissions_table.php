@@ -13,9 +13,9 @@ return new class extends Migration {
         Schema::create('submissions', function (Blueprint $table) {
             $table->id();
             $table->string('batch_no');
-            $table->foreignId('form_id')->constrained('forms', 'id')->onDelete('cascade');
-            $table->foreignId('period_id')->constrained('submission_periods', 'id')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users', 'id');
+            $table->foreignId('form_id')->constrained('forms', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('user_id')->constrained('users', 'id')->onUpdate('cascade')->onDelete('cascade');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->json('data');
             $table->enum('batch_type', ['batch', 'manual', 'aggregate'])->default('manual');

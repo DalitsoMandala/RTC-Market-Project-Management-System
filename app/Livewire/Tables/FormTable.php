@@ -19,12 +19,16 @@ final class FormTable extends PowerGridComponent
 {
     use WithExport;
     public $organisation;
+    public bool $deferLoading = true;
+
+
     public function setUp(): array
     {
 
         return [
             Exportable::make('export')
                 ->striped()
+
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()

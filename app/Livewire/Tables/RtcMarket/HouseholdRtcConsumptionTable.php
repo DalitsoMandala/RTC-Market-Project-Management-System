@@ -5,8 +5,9 @@ namespace App\Livewire\Tables\RtcMarket;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Submission;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection as CollectionSupport;
+
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -21,15 +22,16 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
     use WithExport;
     public $userId;
-
+    public bool $deferLoading = true;
     public $uuid;
+
     public function setUp(): array
     {
         // $this->showCheckBox();
 
         return [
             Exportable::make('export')
-
+                ->queues(200)
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput()->showToggleColumns(),
@@ -39,38 +41,12 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): CollectionSupport
+    public function datasource(): Builder
     {
 
         $user = User::find($this->userId);
-        //  dd($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true);
-        $query = HouseholdRtcConsumption::query();
-        return $query->get();
-        // if ($user->hasAnyRole('cip') === true && $user->hasAnyRole('organiser') === true) {
-        //     if ($this->uuid) {
-        //         $query->where('uuid', $this->uuid)->get();
-        //         $count = Submission::where('batch_no', $this->uuid)->where('status', 'pending')->first();
-        //         if ($count) {
 
-        //             $data = json_decode($count->data, true);
-        //             $query = collect($data);
-        //             return $query;
-        //         }
-        //     }
-
-        //     return $query->get();
-
-        // } else if ($user->hasAnyRole('external') === true) {
-
-        //     $query->where('user_id', $this->userId)->get();
-
-        //     if ($this->uuid) {
-
-        //         $query->where('uuid', $this->uuid)->get();
-        //     }
-
-        //     return $query->get();
-        // }
+        return HouseholdRtcConsumption::query();
 
 
 
