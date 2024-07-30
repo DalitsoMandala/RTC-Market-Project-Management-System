@@ -22,6 +22,7 @@ use App\Livewire\Internal\Cip\ViewSubmissions;
 use App\Models\User;
 use App\Notifications\JobNotification;
 use Illuminate\Support\Facades\Route;
+use Ramsey\Uuid\Uuid;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -60,7 +61,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
 
     // Form routes
     $formPrefix = '/forms/{project}';
-
+    $randId = Uuid::uuid4()->toString();
     Route::get($formPrefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
     Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
     Route::get($formPrefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);

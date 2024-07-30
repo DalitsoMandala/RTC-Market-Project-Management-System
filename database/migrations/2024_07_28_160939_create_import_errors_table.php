@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('import_errors', function (Blueprint $table) {
             $table->id();
             $table->string('uuid');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->json('errors');
             $table->string('sheet');
             $table->enum('type', ['validation', 'normal']);

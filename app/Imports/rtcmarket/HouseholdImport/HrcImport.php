@@ -104,8 +104,8 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             throw new SheetImportException('HH_CONSUMPTION', $this->failures);
         }
 
-
-        $importJob = JobProgress::where('user_id', $this->userId)->first();
+        //start processing the job
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
         if ($importJob) {
             $importJob->update(['status' => 'processing']);
         }
@@ -264,9 +264,9 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             ImportFailed::class => function (ImportFailed $event) {
                 $uuid = $this->uuid;
                 $exception = $event->getException();
-                $importJob = JobProgress::where('user_id', $this->userId)->first();
+                $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
                 if ($importJob) {
-                    $importJob->delete();
+                    $importJob->update(['status' => 'failed', 'is_finished' => true]);
                 }
 
 
@@ -275,45 +275,80 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                     $failures = $exception->getErrors();
                     $sheet = 'HH_CONSUMPTION';
 
-                    ImportError::create([
-                        'uuid' => $uuid,
-                        'errors' => json_encode($failures),
-                        'sheet' => $sheet,
-                        'type' => 'validation',
-                    ]);
+
+                    $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
+                    if ($importErrors) {
+
+                        $importErrors->update([
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'validation',
+                            'user_id' => $this->userId,
+                        ]);
+                    } else {
+                        ImportError::create([
+                            'uuid' => $uuid,
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'validation',
+                            'user_id' => $this->userId,
+                        ]);
+                    }
+
 
                     Submission::where('batch_no', $uuid)->delete();
-                    HouseholdRtcConsumption::where('batch_no', $uuid)->delete();
-                    Cache::put($this->uuid . '_status', 'finished');
-                    cache()->forget($this->uuid . '_progress');
-                    cache()->forget($this->uuid . '_total');
+                    HouseholdRtcConsumption::where('uuid', $uuid)->delete();
+
 
                 } else if ($exception instanceof UserErrorException) {
                     $failures = 'Something went wrong!';
                     \Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
                     $sheet = 'HH_CONSUMPTION';
 
-                    ImportError::create([
-                        'uuid' => $uuid,
-                        'errors' => json_encode($failures),
-                        'sheet' => $sheet,
-                        'type' => 'normal',
-                    ]);
-                    Submission::where('batch_no', $uuid)->delete();
-                    HouseholdRtcConsumption::where('batch_no', $uuid)->delete();
 
-                    Cache::put($this->uuid . '_status', 'finished');
-                    cache()->forget($this->uuid . '_progress');
-                    cache()->forget($this->uuid . '_total');
+                    $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
+                    if ($importErrors) {
+
+                        $importErrors->update([
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'normal',
+                            'user_id' => $this->userId,
+                        ]);
+                    } else {
+                        ImportError::create([
+                            'uuid' => $uuid,
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'normal',
+                            'user_id' => $this->userId,
+                        ]);
+                    }
+
+                    Submission::where('batch_no', $uuid)->delete();
+                    HouseholdRtcConsumption::where('uuid', $uuid)->delete();
+
 
                 }
 
-
+                Cache::put($this->uuid . '_status', 'finished');
+                cache()->forget($this->uuid . '_progress');
+                cache()->forget($this->uuid . '_total');
 
             },
+            AfterImport::class => function (AfterImport $event) {
+                $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                }
 
-
-
+                // You can add additional logic here if needed, such as sending notifications
+                // or updating related records in your database.
+    
+                Cache::put($this->uuid . '_status', 'finished');
+                cache()->forget($this->uuid . '_progress');
+                cache()->forget($this->uuid . '_total');
+            },
 
         ];
     }

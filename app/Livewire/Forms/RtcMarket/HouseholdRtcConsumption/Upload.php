@@ -81,20 +81,7 @@ class Upload extends Component
             throw $e;
         }
 
-        try {
-            $job = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->first();
-            if ($job) {
-                throw new UserErrorException('You have a pending upload in the background!');
-            }
-        } catch (UserErrorException $e) {
-            $this->reset('upload');
-            $this->importing = true;
-            $this->importingFinished = false;
 
-
-            session()->flash('error', $e->getMessage());
-
-        }
 
 
         try {
@@ -121,8 +108,8 @@ class Upload extends Component
                     $this->importingFinished = false;
 
 
-
-                    Excel::import(new HrcImport($userId, $sheets, $this->upload->path(), $this->importId, [
+                    $this->dispatch('notify');
+                    Excel::queueImport(new HrcImport($userId, $sheets, $this->upload->path(), $this->importId, [
                         'submission_period_id' => $this->submissionPeriodId,
                         'organisation_id' => Auth::user()->organisation->id,
                         'financial_year_id' => $this->selectedFinancialYear,
@@ -140,7 +127,8 @@ class Upload extends Component
                     ]), $this->upload->path());
 
 
-
+                    $user = User::find($userId);
+                    $user->notify(new JobNotification($this->importId, 'File import has started you will be notified when the file has finished importing!'));
 
 
 
@@ -176,7 +164,7 @@ class Upload extends Component
     public function checkErrors()
     {
 
-        $importError = ImportError::where('uuid', $this->importId)->first();
+        $importError = ImportError::where('uuid', $this->importId)->where('user_id', auth()->user()->id)->first();
 
         if ($importError) {
             $this->Import_errors = json_decode($importError->errors, true);
@@ -190,8 +178,13 @@ class Upload extends Component
             }
 
             $this->importingFinished = true;
-            ImportError::where('uuid', $this->importId)->delete();
+            $userId = auth()->user()->id;
 
+            $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
+            if ($importJob) {
+                $importJob->update(['status' => 'failed', 'is_finished' => true]);
+            }
+            $importError->delete();
 
         } else {
             // Check progress
@@ -203,13 +196,13 @@ class Upload extends Component
             if ($progress > 0 && $progress == $total) {
 
                 $this->reset('upload');
-                $job = JobProgress::where('user_id', auth()->user()->id)->first();
-                if ($job) {
-                    $job->delete();
-                }
-                $this->dispatch('import-finished');
-                ImportError::where('uuid', $this->importId)->delete();
 
+                $this->dispatch('import-finished');
+                $userId = auth()->user()->id;
+                $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                }
 
             }
 
@@ -243,25 +236,33 @@ class Upload extends Component
     {
 
 
-        $job = JobProgress::where('user_id', auth()->user()->id)->first();
+        $job = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('is_finished', true)->first();
         if ($job) {
-            $job->delete();
+
+            $job->update([
+                'user_id' => auth()->user()->id,
+                'job_id' => $this->importId,
+                'status' => 'pending',
+                'is_finished' => false,
+            ]);
+        } else {
+            JobProgress::create([
+                'user_id' => auth()->user()->id,
+                'job_id' => $this->importId,
+                'status' => 'pending',
+            ]);
         }
-        JobProgress::create([
-            'user_id' => auth()->user()->id,
-            'job_id' => 'importJob_' . auth()->user()->id,
-            'status' => 'pending',
-        ]);
+
 
 
     }
 
     public function checkJobProgress()
     {
-        $job = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->first();
-        if ($job) {
-            $this->importing = true;
-        }
+        // $job = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->orWhere('status', 'pending')->first();
+        // if ($job) {
+        //     $this->importing = true;
+        // }
 
     }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
@@ -314,7 +315,7 @@ class Upload extends Component
 
         $this->importId = $uuid;
 
-        $this->checkJobProgress();
+
 
     }
     public function downloadTemplate()

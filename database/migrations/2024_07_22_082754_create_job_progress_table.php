@@ -12,10 +12,11 @@ return new class extends Migration {
     {
         Schema::create('job_progress', function (Blueprint $table) {
             $table->id();
-            $table->string('job_id')->unique();
+            $table->string('job_id');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->string('status')->default('pending');
             $table->integer('progress')->default(0);
+            $table->integer('is_finished')->default(0);
             $table->timestamps();
         });
     }

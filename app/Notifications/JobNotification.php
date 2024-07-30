@@ -10,16 +10,17 @@ use Illuminate\Notifications\Notification;
 class JobNotification extends Notification
 {
     use Queueable;
-    public $error, $uuid;
+    public $message, $uuid;
     /**
      * Create a new notification instance.
      */
-    public function __construct($uuid, )
+    public function __construct($uuid, $message)
     {
         //
 
 
         $this->uuid = $uuid;
+        $this->message = $message;
     }
 
     /**
@@ -53,7 +54,11 @@ class JobNotification extends Notification
         return [
 
             'uuid' => $this->uuid,
-            'message' => 'File import has started you will be notified when the file has finished importing!',
+            'message' => $this->message,
         ];
+    }
+    public function databaseType(object $notifiable): string
+    {
+        return 'imports';
     }
 }
