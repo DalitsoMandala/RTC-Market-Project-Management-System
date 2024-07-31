@@ -72,7 +72,6 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue
         cache()->put("submissions.{$this->uuid}.market", []);
         cache()->put("submissions.{$this->uuid}.intermarket", []);
 
-
     }
 
     public function sheets(): array
