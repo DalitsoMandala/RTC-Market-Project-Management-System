@@ -5,7 +5,9 @@ namespace App\Imports\rtcmarket\RtcProductionImport;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Models\JobProgress;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -20,6 +22,9 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow, WithValidat
 {
     public $userId;
     public $file;
+    public $uuid;
+    public $submissionData = [];
+    private $failures = [];
     public $expectedHeadings = [
         'RECRUIT ID',
         'DATE RECORDED',
@@ -30,32 +35,35 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow, WithValidat
         'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)',
         'FINANCIAL VALUE OF SALES (MALAWI KWACHA)',
     ];
-    public function __construct($userId, $file)
+    public function __construct($userId, $file, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
     }
     public function collection(Collection $collection)
     {
 
-        $headings = (new HeadingRowImport)->toArray($this->file);
+        if (!empty($this->failures)) {
+            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
-        $headings = $headings[2][0];
-
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-        if (count($missingHeadings) > 0) {
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
+            throw new SheetImportException('RTC_FARM_AGR', $this->failures);
         }
 
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
+        }
 
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
 
 
         foreach ($collection as $row) {
 
-            $main_data[] = [
+            $batch[] = [
                 'rpm_farmer_id' => $row['RECRUIT ID'],
                 'date_recorded' => $row['DATE RECORDED'],
                 'partner_name' => $row['PARTNER NAME'],
@@ -70,28 +78,47 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow, WithValidat
 
         }
 
-        session()->put('batch_data.agreement', $main_data);
+        $this->processBatch($batch, $this->submissionData, $uuid, $importJob);
 
     }
 
 
+    protected function processBatch($batch, $submissionData, $uuid, $importJob)
+    {
+
+
+        $existingData = cache()->get("submissions.{$this->uuid}.agreement", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.agreement", $mergedData);
+
+        $progress = 60;
+        cache()->put($uuid . '_progress', $progress);
+
+
+
+        $importJob->update(['progress' => $progress]);
+
+
+    }
+
     public function rules(): array
     {
-        $getBatchMainData = session()->get('batch_data');
+        $main_data = [];
+        $getBatchMainData = cache()->get("submissions.{$this->uuid}.main");
         $ids = array();
-        if (!empty($getBatchMainData['main'])) {
-            $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
+        if (!empty($getBatchMainData)) {
+            $ids = collect($getBatchMainData)->pluck('#')->toArray();
 
         }
         return [
-            'RECRUIT ID' => ['required', 'integer', Rule::in($ids)],
-            'DATE RECORDED' => ['required', 'date'],
-            'PARTNER NAME' => ['required', 'string'],
-            'COUNTRY' => ['required', 'string'],
-            'DATE OF MAXIMUM SALE' => ['required', 'date'],
-            'PRODUCT TYPE' => ['required', 'string'],
-            'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => ['required', 'numeric'],
-            'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => ['required', 'numeric'],
+            'RECRUIT ID' => ['integer', Rule::in($ids)],
+            'DATE RECORDED' => ['date'],
+            'PARTNER NAME' => ['string'],
+            'COUNTRY' => ['string'],
+            'DATE OF MAXIMUM SALE' => ['date'],
+            'PRODUCT TYPE' => ['string'],
+            'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => ['numeric'],
+            'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => ['numeric'],
         ];
     }
 
@@ -107,7 +134,7 @@ class RpmFarmerImportSheet3 implements ToCollection, WithHeadingRow, WithValidat
                 'values' => $failure->values(),
             ];
         }
-        throw new SheetImportException('RTC_FARM_AGR', $errors);
+
 
     }
 }

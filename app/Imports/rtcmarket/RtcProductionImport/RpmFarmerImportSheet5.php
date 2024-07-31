@@ -5,7 +5,18 @@ namespace App\Imports\rtcmarket\RtcProductionImport;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Jobs\sendtoTableJob;
+use App\Models\JobProgress;
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\RpmFarmerDomMarket;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\RpmFarmerInterMarket;
+use App\Models\RtcProductionFarmer;
+use App\Models\Submission;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -20,6 +31,12 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow, WithValidat
 {
     public $userId;
     public $file;
+    public $uuid;
+    public $submissionData = [];
+    public $failures = [];
+    public $mappings = [];
+
+    public $highestId;
     public $expectedHeadings = [
         'RECRUIT ID',
         'DATE RECORDED',
@@ -31,34 +48,38 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow, WithValidat
         'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)',
         'FINANCIAL VALUE OF SALES',
     ];
-    public function __construct($userId, $file)
+    public function __construct($userId, $file, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
+        $this->highestId = RtcProductionFarmer::max('id');
     }
     public function collection(Collection $collection)
     {
 
-        $headings = (new HeadingRowImport)->toArray($this->file);
+        if (!empty($this->failures)) {
+            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
-        $headings = $headings[4][0];
-
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-        if (count($missingHeadings) > 0) {
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
+            throw new SheetImportException('RTC_FARM_FLUP', $this->failures);
         }
 
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
+        }
 
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
 
 
 
         foreach ($collection as $row) {
 
 
-            $main_data[] = [
+            $batch[] = [
                 'rpm_farmer_id' => $row['RECRUIT ID'],
                 'date_recorded' => $row['DATE RECORDED'],
                 'crop_type' => $row['CROP TYPE'],
@@ -74,16 +95,60 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow, WithValidat
 
         }
 
-        session()->put('batch_data.intermarket', $main_data);
+
+
+
+        $this->processBatch($batch, $this->submissionData, $uuid, $importJob, $this->highestId);
 
 
     }
+    protected function processBatch($batch, $submissionData, $uuid, $importJob, $highestId)
+    {
+
+        $existingData = cache()->get("submissions.{$this->uuid}.intermarket", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.intermarket", $mergedData);
+
+        $finalData = [
+            'main' => cache()->get("submissions.{$this->uuid}.main"),
+            'followup' => cache()->get("submissions.{$this->uuid}.followup"),
+            'agreement' => cache()->get("submissions.{$this->uuid}.agreement"),
+            'market' => cache()->get("submissions.{$this->uuid}.market"),
+            'intermarket' => cache()->get("submissions.{$this->uuid}.intermarket"),
+        ];
+
+        $sub = $submissionData;
+        unset($sub['submission_period_id']);
+        unset($sub['organisation_id']);
+        unset($sub['financial_year_id']);
+        unset($sub['period_month_id']);
+        $sub['batch_no'] = $uuid;
+        $sub['data'] = json_encode($finalData);
+
+        $submissionID = Submission::create($sub);
+
+        $data = json_decode($sub['data'], true);
+        $existingMappingData = cache()->get("submissions.{$this->uuid}.mapping", []);
+        // Merge the existing mapping data with the new data
+        $mergedMappingData = array_merge($existingMappingData, [$submissionID->id]);
+        // Store the merged mapping data in cache
+        cache()->put("submissions.{$this->uuid}.mapping", $mergedMappingData);
+
+
+        $progress = 100;
+        cache()->put($uuid . '_progress', $progress);
+        $importJob->update(['progress' => $progress, 'is_finished' => 1]);
+
+    }
+
+
     public function rules(): array
     {
-        $getBatchMainData = session()->get('batch_data');
+        $main_data = [];
+        $getBatchMainData = cache()->get("submissions.{$this->uuid}.main");
         $ids = array();
-        if (!empty($getBatchMainData['main'])) {
-            $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
+        if (!empty($getBatchMainData)) {
+            $ids = collect($getBatchMainData)->pluck('#')->toArray();
 
         }
         return [
@@ -111,7 +176,7 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow, WithValidat
                 'values' => $failure->values(),
             ];
         }
-        throw new SheetImportException('RTC_FARM_MARKETS', $errors);
+
 
     }
 }

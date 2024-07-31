@@ -5,6 +5,7 @@ namespace App\Imports\rtcmarket\RtcProductionImport;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Models\JobProgress;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -20,6 +21,9 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
 {
     public $userId;
     public $file;
+    public $uuid;
+    public $submissionData = [];
+    private $failures = [];
     // follow up
     public $expectedHeadings = [
         'RECRUIT ID',
@@ -63,35 +67,40 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
 
     ];
 
-    public function __construct($userId, $file)
+    public function __construct($userId, $file, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
     }
 
     public function collection(Collection $collection)
     {
 
-        $headings = (new HeadingRowImport)->toArray($this->file);
+        if (!empty($this->failures)) {
+            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
-        $headings = $headings[1][0];
-
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-        if (count($missingHeadings) > 0) {
-
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
+            throw new SheetImportException('RTC_FARM_FLUP', $this->failures);
         }
 
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
+        }
+
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
 
         foreach ($collection as $row) {
 
 
 
 
-            $main_data[] = [
+
+
+            $batch[] = [
                 'rpm_farmer_id' => $row['RECRUIT ID'],
                 'location_data' => json_encode([
                     'enterprise' => $row['ENTERPRISE'],
@@ -173,27 +182,45 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
 
         }
 
-        session()->put('batch_data.followup', $main_data);
+        $this->processBatch($batch, $this->submissionData, $uuid, $importJob);
+
+    }
+
+    protected function processBatch($batch, $submissionData, $uuid, $importJob)
+    {
+
+
+        $existingData = cache()->get("submissions.{$this->uuid}.followup", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.followup", $mergedData);
+
+        $progress = 40;
+        cache()->put($uuid . '_progress', $progress);
+
+
+
+        $importJob->update(['progress' => $progress]);
 
 
     }
+
     public function rules(): array
     {
 
         $main_data = [];
-        $getBatchMainData = session()->get('batch_data');
+        $getBatchMainData = cache()->get("submissions.{$this->uuid}.main");
         $ids = array();
-        if (!empty($getBatchMainData['main'])) {
-            $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
+        if (!empty($getBatchMainData)) {
+            $ids = collect($getBatchMainData)->pluck('#')->toArray();
 
         }
         return [
-            'RECRUIT ID' => ['required', 'integer', Rule::in($ids)],
-            'ENTERPRISE' => ['required', 'string'],
-            'GROUP NAME' => ['required', 'string'],
-            'DISTRICT' => ['required', 'string'],
-            'EPA' => ['required', 'string'],
-            'SECTION' => ['required', 'string'],
+            'RECRUIT ID' => ['integer', Rule::in($ids)],
+            'ENTERPRISE' => ['string'],
+            'GROUP NAME' => ['string'],
+            'DISTRICT' => ['string'],
+            'EPA' => ['string'],
+            'SECTION' => ['string'],
             'AREA UNDER CULTIVATION/TOTAL' => ['nullable', 'numeric'],
             'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
             'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
@@ -242,7 +269,7 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
                 'values' => $failure->values(),
             ];
         }
-        throw new SheetImportException('RTC_FARM_FLUP', $errors);
+
 
     }
 }

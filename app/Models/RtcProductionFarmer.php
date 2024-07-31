@@ -9,7 +9,7 @@ class RtcProductionFarmer extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
-
+    protected $table = "rtc_production_farmers";
     public function followups()
     {
         return $this->hasMany(RpmFarmerFollowUp::class, 'rpm_farmer_id');

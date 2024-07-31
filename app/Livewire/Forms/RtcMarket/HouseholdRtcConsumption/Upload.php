@@ -25,6 +25,7 @@ use App\Notifications\JobNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
@@ -111,7 +112,8 @@ class Upload extends Component
 
 
                     $this->dispatch('notify');
-                    Excel::queueImport(new HrcImport($userId, $sheets, $this->upload->path(), $this->importId, [
+
+                    Excel::queueImport(new HrcImport($userId, $sheets, $path, $this->importId, [
                         'submission_period_id' => $this->submissionPeriodId,
                         'organisation_id' => Auth::user()->organisation->id,
                         'financial_year_id' => $this->selectedFinancialYear,
@@ -126,7 +128,9 @@ class Upload extends Component
                         'is_complete' => 1,
                         'file_link' => $name,
 
-                    ]), $this->upload->path());
+                    ]), $path);
+
+
 
 
                     $user = User::find($userId);
@@ -152,7 +156,7 @@ class Upload extends Component
 
         } catch (\Exception $th) {
             //throw $th;
-
+            $this->reset('upload');
             session()->flash('error', 'Something went wrong!');
             Log::channel('system_log')->error($th);
 
@@ -241,7 +245,7 @@ class Upload extends Component
     public function updateJobStatus()
     {
 
-        $pendingjob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'pending')->orWhere('status', 'processing')->first();
+        $pendingjob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'processing')->first();
         if ($pendingjob) {
             throw new UserErrorException('You have a pending import running in your background! Please wait... You can see the progress in your submissions page');
         }

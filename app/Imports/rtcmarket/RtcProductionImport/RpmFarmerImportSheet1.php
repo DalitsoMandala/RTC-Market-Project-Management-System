@@ -5,6 +5,10 @@ namespace App\Imports\rtcmarket\RtcProductionImport;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Models\HouseholdRtcConsumption;
+use App\Models\JobProgress;
+use App\Models\RtcProductionFarmer;
+use App\Models\Submission;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -20,6 +24,11 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
 {
     public $userId;
     public $file;
+    public $uuid;
+    private $failures = [];
+
+    private $mappings = [];
+    public $submissionData = [];
     public $expectedHeadings = [
         '#',
         'ENTERPRISE',
@@ -105,34 +114,40 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
         'TOTAL AGGREGATION CENTER SALES VOLUME',
 
     ];
-    public function __construct($userId, $file)
+    public function __construct($userId, $file, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
     }
 
     public function collection(Collection $collection)
     {
-        $headings = (new HeadingRowImport)->toArray($this->file);
 
-        $headings = $headings[0][0];
-
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-        if (count($missingHeadings) > 0) {
-
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
+        if (!empty($this->failures)) {
+            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
+            throw new SheetImportException('RTC_FARMERS', $this->failures);
+        }
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
         }
 
-        $uuid = Uuid::uuid4()->toString();
-        $main_data = [];
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
+
+        $highestId = RtcProductionFarmer::max('id');
 
         foreach ($collection as $row) {
 
-            $main_data[] = [
+            $batch[] = [
                 '#' => $row['#'],
+                'submission_period_id' => $submissionData['submission_period_id'],
+                'organisation_id' => $submissionData['organisation_id'],
+                'financial_year_id' => $submissionData['financial_year_id'],
+                'period_month_id' => $submissionData['period_month_id'],
                 'location_data' => json_encode([
                     'enterprise' => $row['ENTERPRISE'],
                     'district' => $row['DISTRICT'],
@@ -249,15 +264,35 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
 
         }
 
+        $this->processBatch($batch, $this->submissionData, $uuid, $importJob);
 
 
-        session()->put('uuid', $uuid);
-
-        session()->put('batch_data.main', $main_data);
 
 
 
     }
+
+
+    protected function processBatch($batch, $submissionData, $uuid, $importJob)
+    {
+
+
+        $existingData = cache()->get("submissions.{$this->uuid}.main", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.main", $mergedData);
+
+
+
+        $progress = 20;
+        cache()->put($uuid . '_progress', $progress);
+
+
+
+        $importJob->update(['progress' => $progress]);
+
+
+    }
+
 
 
     public function rules(): array
@@ -363,7 +398,7 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
                 'values' => $failure->values(),
             ];
         }
-        throw new SheetImportException('RTC_FARMERS', $errors);
+
 
     }
 }

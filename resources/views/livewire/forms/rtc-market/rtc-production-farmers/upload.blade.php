@@ -52,9 +52,64 @@
                             </div>
                         </div>
                         <div id="table-form">
+                            <div class="row">
+                                <div class="col">
+
+                                    <div x-data
+                                        @import-finished.window="setTimeout(()=>{
+
+                                                $wire.importing = false;
+                                        $wire.importingFinished = true;
+
+                                        $wire.sendToLocation();
+
+                                        },2000)">
+                                    </div>
+                                    @if ($importing && !$importingFinished)
+                                        <div class="alert alert-warning" wire:poll.1500ms='checkErrors()'>Importing your
+                                            file
+                                            Please wait....</div>
+
+
+
+                                        <div x-data="{
+                                            progress: 0,
+                                            total: 0,
+                                            updatedProgress() {
+                                                sum = Math.floor((this.progress / this.total) * 100);
+                                                return sum;
+                                            }
+                                        }"
+                                            @progress-update.window="progress = $event.detail.progress; total = $event.detail.total">
+
+                                            <div x-show="progress > 0">
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Import Progress: <span x-text="progress"></span>/<span
+                                                            x-text="total"></span></p>
+
+                                                    <p class="fw-bolder text-primary"> <span
+                                                            x-text="updatedProgress() + '%'"></span></p>
+
+                                                </div>
+
+                                                <div x-data class="my-2 progress progress-sm">
+                                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                                        role="progressbar" :style="{ width: updatedProgress() + '%' }"
+                                                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                </div>
+                            </div>
                             <div class="row justify-content-center">
 
-                                <div class="col-12 ">
+                                <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
                                     <x-filepond-single instantUpload="true" wire:model='upload' />
                                     @error('upload')
                                         <div class="d-flex justify-content-center">
@@ -65,12 +120,13 @@
                                         <button type="submit" @uploading-files.window="disableButton = true"
                                             @finished-uploading.window="disableButton = false"
                                             :disabled="disableButton === true || openSubmission === false"
-                                            class="btn btn-primary">
+                                            class="btn btn-primary ">
                                             Submit data
                                         </button>
 
 
                                     </div>
+
 
                                 </div>
                             </div>

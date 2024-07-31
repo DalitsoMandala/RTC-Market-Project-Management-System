@@ -56,7 +56,7 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
 
         if ($this->test) {
             $count = 1;
-            foreach (range(1, 20) as $index) {
+            foreach (range(1, 10) as $index) {
 
                 $data[] = [
                     '#' => $count++,
