@@ -91,7 +91,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         cache()->put($this->uuid . '_status', 'pending', now()->addMinutes(10));
         cache()->put($this->uuid . '_progress', 0, now()->addMinutes(10));
         cache()->put($this->uuid . '_errors', null, now()->addMinutes(10));
-
+        cache()->put("submissions.{$this->uuid}.main", []);
 
     }
 
@@ -168,41 +168,45 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
     protected function processBatch($batch, $submissionData, $uuid, $importJob)
     {
-        try {
+
+        $existingData = cache()->get("submissions.{$this->uuid}.main", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.main", $mergedData);
+
+        foreach ($batch as $dt) {
+            HouseholdRtcConsumption::create($dt);
+        }
+
+        // Update progress
+        $progress = count($mergedData);
+        $percentage = ($progress / $this->totalRows) * 100;
+        cache()->put($this->uuid . '_progress', $percentage, now()->addMinutes(10));
+
+        if ($importJob) {
+            $importJob->update(['progress' => $percentage]);
+        }
+
+        // Create submission only when progress reaches 100%
+        if ($percentage >= 100) {
             unset($submissionData['submission_period_id']);
             unset($submissionData['organisation_id']);
             unset($submissionData['financial_year_id']);
             unset($submissionData['period_month_id']);
             $submissionData['batch_no'] = $uuid;
-            $submissionData['data'] = json_encode($batch);
+            $submissionData['data'] = json_encode($mergedData);
 
-            $submission = Submission::create($submissionData);
-
-
-            foreach ($batch as $dt) {
-                HouseholdRtcConsumption::create($dt);
-            }
-        } catch (\Exception $e) {
-            throw new UserErrorException('Something went wrong!: ' . $e->getMessage());
-        }
-
-        // Update progress
-        $progress = cache()->get($uuid . '_progress', 0) + count($batch);
-        cache()->put($uuid . '_progress', $progress);
-        cache()->put($uuid . '_total', $this->totalRows);
-
-        if ($importJob) {
-            if ($progress > 0) {
-                $sum = ($progress / $this->totalRows) * 100;
-                $importJob->update(['progress' => $sum]);
-            }
+            Submission::create($submissionData);
         }
     }
 
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 
     public function chunkSize(): int
     {
-        return 250; // Adjust the chunk size based on your requirements
+        return 1000;
     }
     public function onFailure(Failure ...$failures)
     {

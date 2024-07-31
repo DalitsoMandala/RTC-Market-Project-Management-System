@@ -74,27 +74,23 @@
 
                                         <div x-data="{
                                             progress: 0,
-                                            total: 0,
-                                            updatedProgress() {
-                                                sum = Math.floor((this.progress / this.total) * 100);
-                                                return sum;
-                                            }
+
+
                                         }"
-                                            @progress-update.window="progress = $event.detail.progress; total = $event.detail.total">
+                                            @progress-update.window="progress = $event.detail.progress; ">
 
                                             <div x-show="progress > 0">
-                                                <div class="d-flex justify-content-between">
-                                                    <p>Import Progress: <span x-text="progress"></span>/<span
-                                                            x-text="total"></span></p>
+                                                <div class="d-flex justify-content-end">
+
 
                                                     <p class="fw-bolder text-primary"> <span
-                                                            x-text="updatedProgress() + '%'"></span></p>
+                                                            x-text="progress + '%'"></span></p>
 
                                                 </div>
 
                                                 <div x-data class="my-2 progress progress-sm">
                                                     <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                                        role="progressbar" :style="{ width: updatedProgress() + '%' }"
+                                                        role="progressbar" :style="{ width: progress + '%' }"
                                                         aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
 
                                                     </div>

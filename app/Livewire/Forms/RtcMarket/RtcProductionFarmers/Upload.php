@@ -399,9 +399,9 @@ class Upload extends Component
 
 
             $progress = cache()->get($this->importId . '_progress', 0);
-            $total = cache()->get($this->importId . '_total', 0);
-            $this->dispatch('progress-update', progress: $progress, total: $total);
-            if ($progress > 0 && $progress == $total) {
+
+            $this->dispatch('progress-update', progress: $progress);
+            if ($progress > 0 && $progress == 100) {
 
                 $this->reset('upload');
                 $this->importing = false;

@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -35,7 +36,7 @@ use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 
-class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue
+class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, WithChunkReading, WithBatchInserts
 {
     use Importable, RegistersEventListeners;
 
@@ -120,6 +121,14 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue
 
         ];
     }
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 
+    public function chunkSize(): int
+    {
+        return 1000;
+    }
 
 }
