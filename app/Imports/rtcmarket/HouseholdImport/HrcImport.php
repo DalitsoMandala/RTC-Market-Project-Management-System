@@ -179,7 +179,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
         // Update progress
         $progress = count($mergedData);
-        $percentage = floor(($progress / $this->totalRows)) * 100;
+        $percentage = floor(($progress / $this->totalRows) * 100);
         cache()->put($this->uuid . '_progress', $percentage, now()->addMinutes(10));
 
         if ($importJob) {

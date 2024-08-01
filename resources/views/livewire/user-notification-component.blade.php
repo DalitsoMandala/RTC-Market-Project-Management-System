@@ -92,7 +92,7 @@
 
                                 $routePrefix = $currentRoute->getPrefix(); // Get the route prefix
 
-                            @endphp
+                             @endphp
 
                             <a href="{{ $routePrefix }}/submissions" class="text-reset notification-item">
                                 <div class="d-flex border-bottom align-items-start ">

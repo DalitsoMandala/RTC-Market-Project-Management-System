@@ -159,7 +159,7 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
 
                 } else if ($exception instanceof UserErrorException) {
                     $failures = 'Something went wrong!';
-                    \Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
+                    Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
                     $sheet = 'RTC_FARMERS';
 
 

@@ -70,7 +70,7 @@ class Upload extends Component
     public $importingFinished = false;
 
     public $importProgress = 0;
-    public $importId;
+    public $importId, $showReport;
 
     public $queue = false;
 
@@ -195,19 +195,24 @@ class Upload extends Component
         } else {
             // Check progress
 
+            $userId = auth()->user()->id;
+            $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
 
-            $progress = cache()->get($this->importId . '_progress', 0);
+            if ($importJob) {
+                $this->progress = $importJob->progress;
 
-            $this->dispatch('progress-update', progress: $progress);
+            }
 
-            if ($progress > 0 && $progress == 100) {
+            $this->dispatch('progress-update', progress: $this->progress ?? 0);
+
+            if ($this->progress > 0 && $this->progress == 100) {
+
 
                 $this->reset('upload');
                 $this->importing = false;
                 $this->importingFinished = true;
                 $this->dispatch('import-finished');
-                $userId = auth()->user()->id;
-                $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
+
                 if ($importJob) {
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
                     $this->importId = Uuid::uuid4()->toString();
@@ -231,17 +236,14 @@ class Upload extends Component
     {
 
 
-        $userId = auth()->user()->id;
-        $user = User::find($userId);
-
-
+        $user = auth()->user();
+        cache()->clear();
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
-            return redirect(route('external-submissions') . '#batch-submission');
-        } else if ($user->hasAnyRole('organiser')) {
-
+            $this->redirect(route('external-submissions') . '#batch-submission');
+        } else {
             session()->flash('success', 'Successfully submitted!');
-            return redirect(route('cip-internal-submissions') . '#batch-submission');
+            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
 
 
@@ -366,7 +368,7 @@ class Upload extends Component
                     unlink($temporaryFilePath);
                 } catch (\Exception $e) {
                     // Handle the exception (e.g., log the error)
-                    \Log::error('Failed to delete temporary file: ' . $e->getMessage());
+                    Log::error('Failed to delete temporary file: ' . $e->getMessage());
                 }
             }
 

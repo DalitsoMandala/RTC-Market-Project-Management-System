@@ -197,17 +197,24 @@ class Upload extends Component
             // Check progress
 
 
-            $progress = cache()->get($this->importId . '_progress', 0);
+            $userId = auth()->user()->id;
+            $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
 
-            $this->dispatch('progress-update', progress: $progress);
-            if ($progress > 0 && $progress == 100) {
+            if ($importJob) {
+                $this->progress = $importJob->progress;
+
+            }
+
+            $this->dispatch('progress-update', progress: $this->progress ?? 0);
+
+            if ($this->progress > 0 && $this->progress == 100) {
+
 
                 $this->reset('upload');
                 $this->importing = false;
                 $this->importingFinished = true;
                 $this->dispatch('import-finished');
-                $userId = auth()->user()->id;
-                $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
+
                 if ($importJob) {
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
                     $this->importId = Uuid::uuid4()->toString();

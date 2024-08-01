@@ -57,15 +57,7 @@
                             <div class="row">
                                 <div class="col">
 
-                                    <div x-data
-                                        @import-finished.window="setTimeout(()=>{
-
-                                                $wire.importing = false;
-                                        $wire.importingFinished = true;
-
-                                        $wire.sendToLocation();
-
-                                        },2000)">
+                               
                                     </div>
                                     @if ($importing && !$importingFinished)
                                         <div class="alert alert-warning" wire:poll.1500ms='checkErrors()'>Importing your
@@ -145,9 +137,6 @@
 
     </div>
 
-    @script
-        <script></script>
-    @endscript
 
 
 </div>
