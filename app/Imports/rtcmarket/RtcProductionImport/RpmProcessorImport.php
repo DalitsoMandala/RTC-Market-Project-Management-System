@@ -142,20 +142,20 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
                     $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
 
 
-                    $farmers = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
+                    $processors = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
 
 
-                    RpmProcessorFollowUp::whereIn('rpm_farmer_id', $farmers)->delete();
-                    RpmProcessorInterMarket::whereIn('rpm_farmer_id', $farmers)->delete();
-                    RpmProcessorConcAgreement::whereIn('rpm_farmer_id', $farmers)->delete();
-                    RpmProcessorDomMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorFollowUp::whereIn('rpm_processor_id', $processors)->delete();
+                    RpmProcessorInterMarket::whereIn('rpm_processor_id', $processors)->delete();
+                    RpmProcessorConcAgreement::whereIn('rpm_processor_id', $processors)->delete();
+                    RpmProcessorDomMarket::whereIn('rpm_processor_id', $processors)->delete();
                     Submission::where('batch_no', $uuid)->delete();
                     RtcProductionProcessor::where('uuid', $uuid)->delete();
 
                 } else if ($exception instanceof UserErrorException) {
                     $failures = 'Something went wrong!';
                     Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
-                    $sheet = 'RTC_FARMERS';
+                    $sheet = 'RTC_processorS';
 
 
                     $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
@@ -171,13 +171,13 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
                             'user_id' => $this->userId,
                         ]);
                     }
-                    $farmers = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
+                    $processors = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
 
 
-                    RpmProcessorFollowUp::whereIn('rpm_farmer_id', $farmers)->delete();
-                    RpmProcessorInterMarket::whereIn('rpm_farmer_id', $farmers)->delete();
-                    RpmProcessorConcAgreement::whereIn('rpm_farmer_id', $farmers)->delete();
-                    RpmProcessorDomMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorFollowUp::whereIn('rpm_processor_id', $processors)->delete();
+                    RpmProcessorInterMarket::whereIn('rpm_processor_id', $processors)->delete();
+                    RpmProcessorConcAgreement::whereIn('rpm_processor_id', $processors)->delete();
+                    RpmProcessorDomMarket::whereIn('rpm_processor_id', $processors)->delete();
                     Submission::where('batch_no', $uuid)->delete();
                     RtcProductionProcessor::where('uuid', $uuid)->delete();
 
@@ -206,20 +206,20 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
                     Submission::where('batch_no', $this->uuid)->update([
                         'status' => 'approved',
                     ]);
-                    $farmers = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
+                    $processors = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
                     RtcProductionProcessor::where('uuid', $this->uuid)->update([
                         'status' => 'approved',
                     ]);
-                    RpmProcessorFollowUp::whereIn('rpm_farmer_id', $farmers)->update([
+                    RpmProcessorFollowUp::whereIn('rpm_processor_id', $processors)->update([
                         'status' => 'approved',
                     ]);
-                    RpmProcessorInterMarket::whereIn('rpm_farmer_id', $farmers)->update([
+                    RpmProcessorInterMarket::whereIn('rpm_processor_id', $processors)->update([
                         'status' => 'approved',
                     ]);
-                    RpmProcessorConcAgreement::whereIn('rpm_farmer_id', $farmers)->update([
+                    RpmProcessorConcAgreement::whereIn('rpm_processor_id', $processors)->update([
                         'status' => 'approved',
                     ]);
-                    RpmProcessorDomMarket::whereIn('rpm_farmer_id', $farmers)->update([
+                    RpmProcessorDomMarket::whereIn('rpm_processor_id', $processors)->update([
                         'status' => 'approved',
                     ]);
                 }
