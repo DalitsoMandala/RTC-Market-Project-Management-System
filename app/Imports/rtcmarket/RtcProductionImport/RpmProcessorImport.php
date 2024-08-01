@@ -2,19 +2,39 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
+use Exception;
+use App\Models\User;
+use App\Models\Submission;
+use App\Models\ImportError;
+use App\Models\JobProgress;
+use Illuminate\Support\Facades\Log;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RpmProcessorDomMarket;
+use Illuminate\Support\Facades\Cache;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Models\RtcProductionProcessor;
+use App\Notifications\JobNotification;
+use App\Models\RpmProcessorInterMarket;
+use App\Exceptions\SheetImportException;
+use App\Models\RpmProcessorConcAgreement;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet1;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet2;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet3;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet4;
-use Exception;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\RegistersEventListeners;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Events\BeforeImport;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImportSheet5;
 
-class RpmProcessorImport implements WithMultipleSheets, WithEvents
+class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue, WithChunkReading, WithBatchInserts
 {
     use Importable, RegistersEventListeners;
 
@@ -29,23 +49,37 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents
         'RTC_PROC_AGREEMENT',
         'RTC_PROC_MARKETS',
     ];
-
-    public function __construct($userId, $sheets, $file = null)
+    public $uuid;
+    public $submissionData = [];
+    public function __construct($userId, $sheets, $file = null, $uuid, $submissionData)
     {
+
         $this->userId = $userId;
         $this->sheetNames = $sheets;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
+        cache()->put($this->uuid . '_status', 'pending');
+        cache()->put($this->uuid . '_progress', 0);
+        cache()->put($this->uuid . '_errors', null);
+
+        cache()->put("submissions.{$this->uuid}.main", []);
+        cache()->put("submissions.{$this->uuid}.followup", []);
+        cache()->put("submissions.{$this->uuid}.agreement", []);
+        cache()->put("submissions.{$this->uuid}.market", []);
+        cache()->put("submissions.{$this->uuid}.intermarket", []);
+
     }
 
     public function sheets(): array
     {
         return [
 
-            new RpmProcessorImportSheet1($this->userId, $this->file),
-            new RpmProcessorImportSheet2($this->userId, $this->file),
-            new RpmProcessorImportSheet3($this->userId, $this->file),
-            new RpmProcessorImportSheet4($this->userId, $this->file),
-            new RpmProcessorImportSheet5($this->userId, $this->file),
+            new RpmProcessorImportSheet1($this->userId, $this->file, $this->uuid, $this->submissionData),
+            new RpmProcessorImportSheet2($this->userId, $this->file, $this->uuid, $this->submissionData),
+            new RpmProcessorImportSheet3($this->userId, $this->file, $this->uuid, $this->submissionData),
+            new RpmProcessorImportSheet4($this->userId, $this->file, $this->uuid, $this->submissionData),
+            new RpmProcessorImportSheet5($this->userId, $this->file, $this->uuid, $this->submissionData),
         ];
     }
     public function registerEvents(): array
@@ -74,6 +108,141 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents
                 }
             },
 
+
+            ImportFailed::class => function (ImportFailed $event) {
+                $uuid = $this->uuid;
+                $exception = $event->getException();
+                $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'failed', 'is_finished' => true]);
+                }
+
+
+                if ($exception instanceof SheetImportException) {
+                    // Handle the custom exception
+                    $failures = $exception->getErrors();
+                    $sheet = $exception->getSheet();
+
+
+                    $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
+                    if ($importErrors) {
+
+                        $importErrors->delete();
+                    } else {
+                        ImportError::create([
+                            'uuid' => $uuid,
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'validation',
+                            'user_id' => $this->userId,
+                        ]);
+                    }
+
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
+
+
+                    $farmers = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
+
+
+                    RpmProcessorFollowUp::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorInterMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorConcAgreement::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorDomMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    Submission::where('batch_no', $uuid)->delete();
+                    RtcProductionProcessor::where('uuid', $uuid)->delete();
+
+                } else if ($exception instanceof UserErrorException) {
+                    $failures = 'Something went wrong!';
+                    Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
+                    $sheet = 'RTC_FARMERS';
+
+
+                    $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
+                    if ($importErrors) {
+
+                        $importErrors->delete();
+                    } else {
+                        ImportError::create([
+                            'uuid' => $uuid,
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'normal',
+                            'user_id' => $this->userId,
+                        ]);
+                    }
+                    $farmers = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
+
+
+                    RpmProcessorFollowUp::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorInterMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorConcAgreement::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmProcessorDomMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    Submission::where('batch_no', $uuid)->delete();
+                    RtcProductionProcessor::where('uuid', $uuid)->delete();
+
+
+                }
+
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!'));
+
+                Cache::put($this->uuid . '_status', 'finished');
+                cache()->forget($this->uuid . '_progress');
+                cache()->forget($this->uuid . '_total');
+
+            },
+            AfterImport::class => function (AfterImport $event) {
+                $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                }
+
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
+
+
+                if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
+                    Submission::where('batch_no', $this->uuid)->update([
+                        'status' => 'approved',
+                    ]);
+                    $farmers = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
+                    RtcProductionProcessor::where('uuid', $this->uuid)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmProcessorFollowUp::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmProcessorInterMarket::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmProcessorConcAgreement::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmProcessorDomMarket::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                }
+
+
+                Cache::put($this->uuid . '_status', 'finished');
+                cache()->forget($this->uuid . '_progress');
+                cache()->forget($this->uuid . '_total');
+            },
+
+
+
+
+
         ];
+    }
+    public function batchSize(): int
+    {
+        return 200;
+    }
+
+    public function chunkSize(): int
+    {
+        return 200;
     }
 }

@@ -81,17 +81,20 @@ class IndicatorsContent
             ],
             [
                 "indicator_name" => "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities",
-                'class' => \App\Helpers\rtc_market\indicators\B1::class,
+                //  'class' => \App\Helpers\rtc_market\indicators\B1::class,
+                'class' => null,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in value of formal RTC exports",
-                'class' => \App\Helpers\rtc_market\indicators\Indicator_B2::class,
+                //  'class' => \App\Helpers\rtc_market\indicators\Indicator_B2::class,
+                'class' => null,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage of value ($) of formal RTC imports substituted through local production",
-                'class' => \App\Helpers\rtc_market\indicators\Indicator_B3::class,
+                // 'class' => \App\Helpers\rtc_market\indicators\Indicator_B3::class,
+                'class' => null,
                 'project_name' => 'RTC MARKET',
             ],
             [

@@ -5,6 +5,7 @@ namespace App\Imports\rtcmarket\RtcProductionImport;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Models\JobProgress;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -20,6 +21,9 @@ class RpmProcessorImportSheet4 implements ToCollection, WithHeadingRow, WithVali
 {
     public $userId;
     public $file;
+    public $uuid;
+    public $submissionData = [];
+    public $failures = [];
     public $expectedHeadings = [
         'RECRUIT ID',
         'DATE RECORDED',
@@ -31,44 +35,35 @@ class RpmProcessorImportSheet4 implements ToCollection, WithHeadingRow, WithVali
         'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)',
         'FINANCIAL VALUE OF SALES',
     ];
-    public function __construct($userId, $file)
+    public function __construct($userId, $file, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
     }
     public function collection(Collection $collection)
     {
 
-        $headings = (new HeadingRowImport)->toArray($this->file);
+        if (!empty($this->failures)) {
+            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
-        $headings = $headings[3][0];
-
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-        if (count($missingHeadings) > 0) {
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
+            throw new SheetImportException('RTC_FARM_DOM', $this->failures);
         }
 
-
-        $main_data = [];
-        $getBatchMainData = session()->get('batch_data');
-        $ids = array();
-        if (!empty($getBatchMainData['main'])) {
-            $ids = collect($getBatchMainData['main'])->pluck('#')->toArray();
-
-        } else {
-            throw new UserErrorException("Your file has empty rows!");
-
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
         }
+
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
+
+
         foreach ($collection as $row) {
-            if (!in_array($row['RECRUIT ID'], $ids)) {
-                throw new UserErrorException("Your file has invalid IDs in Follow up sheet!");
 
-            }
-
-            $main_data[] = [
+            $batch[] = [
                 'rpm_processor_id' => $row['RECRUIT ID'],
                 'date_recorded' => $row['DATE RECORDED'],
                 'crop_type' => $row['CROP TYPE'],
@@ -83,11 +78,27 @@ class RpmProcessorImportSheet4 implements ToCollection, WithHeadingRow, WithVali
 
         }
 
-        session()->put('batch_data.market', $main_data);
+        $this->processBatch($batch, $this->submissionData, $uuid, $importJob);
 
 
     }
+    protected function processBatch($batch, $submissionData, $uuid, $importJob)
+    {
 
+
+        $existingData = cache()->get("submissions.{$this->uuid}.market", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.market", $mergedData);
+
+        $progress = 80;
+        cache()->put($uuid . '_progress', $progress);
+
+
+
+        $importJob->update(['progress' => $progress]);
+
+
+    }
 
     public function rules(): array
     {
@@ -99,7 +110,7 @@ class RpmProcessorImportSheet4 implements ToCollection, WithHeadingRow, WithVali
 
         }
         return [
-            'RECRUIT ID' => ['required', 'integer', Rule::in($ids)],
+            'RECRUIT ID' => ['required', 'integer'],
             'DATE RECORDED' => ['required', 'date_format:Y-m-d'],
             'CROP TYPE' => ['nullable', 'string'],
             'MARKET NAME' => ['nullable', 'string'],

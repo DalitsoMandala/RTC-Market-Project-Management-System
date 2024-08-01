@@ -2,37 +2,24 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
-use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Helpers\SheetNamesValidator;
-use App\Imports\rtcmarket\HouseholdImport\HrcImport;
 use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
-use App\Jobs\sendtoTableJob;
 use App\Models\FinancialYear;
 use App\Models\Form;
-use App\Models\HouseholdRtcConsumption;
 use App\Models\ImportError;
 use App\Models\Indicator;
 use App\Models\JobProgress;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
-use App\Models\RpmFarmerConcAgreement;
-use App\Models\RpmFarmerDomMarket;
-use App\Models\RpmFarmerFollowUp;
-use App\Models\RpmFarmerInterMarket;
-use App\Models\RtcProductionFarmer;
-use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
-use App\Notifications\BatchDataAddedNotification;
 use App\Notifications\JobNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -63,7 +50,6 @@ class Upload extends Component
 
     public $openSubmission = false;
 
-
     public $progress = 0;
     public $Import_errors = [];
     public $importing = false;
@@ -73,8 +59,6 @@ class Upload extends Component
     public $importId, $showReport;
 
     public $queue = false;
-
-
 
     public function submitUpload()
     {
@@ -99,17 +83,13 @@ class Upload extends Component
                 $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
-
                 $this->updateJobStatus();
 
                 try {
 
-
-
                     $table = ['rtc_production_farmers', 'rpm_farmer_follow_ups', 'rpm_farmer_conc_agreements', 'rpm_farmer_dom_markets', 'rpm_farmer_inter_markets'];
                     $this->importing = true;
                     $this->importingFinished = false;
-
 
                     $this->dispatch('notify');
 
@@ -130,26 +110,14 @@ class Upload extends Component
 
                     ]), $path);
 
-
-
-
-
-
                     $user = User::find($userId);
                     $user->notify(new JobNotification($this->importId, 'File import has started you will be notified when the file has finished importing!'));
-
-
-
-
-
-
 
                 } catch (UserErrorException $e) {
 
                     $this->reset('upload');
                     $this->importing = false;
                     $this->importingFinished = true;
-
 
                     session()->flash('error', $e->getMessage());
                 }
@@ -207,7 +175,6 @@ class Upload extends Component
 
             if ($this->progress > 0 && $this->progress == 100) {
 
-
                 $this->reset('upload');
                 $this->importing = false;
                 $this->importingFinished = true;
@@ -219,22 +186,14 @@ class Upload extends Component
                     $this->sendToLocation();
                 }
 
-
-
             }
 
-
-
-
-
         }
-
 
     }
 
     public function sendToLocation()
     {
-
 
         $user = auth()->user();
         cache()->clear();
@@ -245,7 +204,6 @@ class Upload extends Component
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
-
 
     }
 
@@ -274,8 +232,6 @@ class Upload extends Component
                 'form_name' => Form::find($this->selectedForm)->name,
             ]);
         }
-
-
 
     }
 
@@ -340,13 +296,11 @@ class Upload extends Component
         $finishedJob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'completed')->where('is_finished', true)->first();
         if ($finishedJob) {
 
-
             $this->importId = Uuid::uuid4()->toString();
 
         }
 
     }
-
 
     public function downloadTemplate()
     {

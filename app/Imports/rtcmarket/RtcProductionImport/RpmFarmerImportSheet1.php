@@ -10,6 +10,7 @@ use App\Models\JobProgress;
 use App\Models\RtcProductionFarmer;
 use App\Models\Submission;
 use Illuminate\Support\Collection;
+use Log;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -126,7 +127,7 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
     {
 
         if (!empty($this->failures)) {
-            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
+            Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
             throw new SheetImportException('RTC_FARMERS', $this->failures);
         }
         $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
@@ -138,7 +139,6 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
         $uuid = $this->uuid;
         $batch = [];
 
-        $highestId = RtcProductionFarmer::max('id');
 
         foreach ($collection as $row) {
 

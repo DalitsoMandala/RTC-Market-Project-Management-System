@@ -5,6 +5,7 @@ namespace App\Imports\rtcmarket\RtcProductionImport;
 use App\Exceptions\SheetImportException;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
+use App\Models\JobProgress;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -20,12 +21,17 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow, WithVali
 {
     public $userId;
     public $file;
+    public $uuid;
+    public $submissionData = [];
+    private $failures = [];
     // follow up
 
-    public function __construct($userId, $file)
+    public function __construct($userId, $file, $uuid, $submissionData)
     {
         $this->userId = $userId;
         $this->file = $file;
+        $this->submissionData = $submissionData;
+        $this->uuid = $uuid;
     }
     public $expectedHeadings = [
         'RECRUIT ID',
@@ -56,25 +62,25 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow, WithVali
     public function collection(Collection $collection)
     {
 
-        $headings = (new HeadingRowImport)->toArray($this->file);
+        if (!empty($this->failures)) {
+            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
-        $headings = $headings[1][0];
-
-        // Check if the headings match the expected headings
-        $missingHeadings = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
-
-        if (count($missingHeadings) > 0) {
-
-            throw new UserErrorException("Something went wrong. Please upload your data using the template file above");
-
+            throw new SheetImportException('RTC_PROC_FLUP', $this->failures);
         }
 
+        $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+        if ($importJob) {
+            $importJob->update(['status' => 'processing']);
+        }
 
+        $submissionData = $this->submissionData;
+        $uuid = $this->uuid;
+        $batch = [];
 
 
         foreach ($collection as $row) {
 
-            $main_data[] = [
+            $batch[] = [
                 'rpm_processor_id' => $row['RECRUIT ID'],
                 'location_data' => json_encode([
                     'enterprise' => $row['ENTERPRISE'],
@@ -112,7 +118,24 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow, WithVali
 
         }
 
-        session()->put('batch_data.followup', $main_data);
+        $this->processBatch($batch, $this->submissionData, $uuid, $importJob);
+
+    }
+    protected function processBatch($batch, $submissionData, $uuid, $importJob)
+    {
+
+
+        $existingData = cache()->get("submissions.{$this->uuid}.followup", []);
+        $mergedData = array_merge($existingData, $batch);
+        cache()->put("submissions.{$this->uuid}.followup", $mergedData);
+
+        $progress = 40;
+        cache()->put($uuid . '_progress', $progress);
+
+
+
+        $importJob->update(['progress' => $progress]);
+
 
     }
 
@@ -128,7 +151,7 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow, WithVali
         }
 
         return [
-            'RECRUIT ID' => ['required', 'integer', Rule::in($ids)],
+            'RECRUIT ID' => ['required', 'integer'],
             'ENTERPRISE' => ['nullable', 'string'],
             'GROUP NAME' => ['nullable', 'string'],
             'DISTRICT' => ['nullable', 'string'],
@@ -165,7 +188,7 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow, WithVali
                 'values' => $failure->values(),
             ];
         }
-        throw new SheetImportException('RTC_PROC_FLUP', $errors);
+
 
     }
 

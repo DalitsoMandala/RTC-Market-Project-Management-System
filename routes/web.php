@@ -19,6 +19,8 @@ use App\Livewire\Internal\Cip\SubPeriod;
 use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
 use App\Models\User;
 use App\Notifications\JobNotification;
 use Illuminate\Support\Facades\Route;
@@ -29,7 +31,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 
+Route::get('/test', function () {
 
+});
 // TestingController route
 Route::get('/export/{name}', [TestingController::class, 'index']);
 
@@ -76,7 +80,7 @@ Route::middleware(['auth', 'role:internal', 'role:cip'])->prefix('cip')->group(f
 
 
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
+    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup/{id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);

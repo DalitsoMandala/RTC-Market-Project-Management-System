@@ -6,16 +6,20 @@ use App\Helpers\IndicatorsContent;
 use App\Helpers\rtc_market\indicators\A1;
 use App\Helpers\rtc_market\indicators\B1;
 use App\Helpers\rtc_market\indicators\Indicator_B2;
+use App\Jobs\readBigDataJob;
 use App\Models\IndicatorDisaggregation;
 use Illuminate\Bus\Batch;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 use Livewire\Attributes\On;
+use PowerComponents\LivewirePowerGrid\Cache;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\Jobs\ExportJob;
+use PowerComponents\LivewirePowerGrid\Lazy;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
@@ -33,10 +37,14 @@ final class ReportingTable extends PowerGridComponent
     public function setUp(): array
     {
         // $this->showCheckBox();
-
+        $this->persist(
+            tableItems: ['columns', 'filters', 'sort'],
+            prefix: auth()->user()->id
+        );
         return [
             Exportable::make('export')
                 ->striped()
+
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)
 
             ,
@@ -52,22 +60,16 @@ final class ReportingTable extends PowerGridComponent
     }
 
 
-
     public function datasource(array $parameters): Collection
     {
-
         $builder = IndicatorDisaggregation::with(['indicator', 'indicator.project']);
 
         if ($this->project) {
-            $builder = $builder->whereHas('indicator.project', function ($query) {
-                $query->where('id', $this->project);
-            });
+            $builder->whereHas('indicator.project', fn($query) => $query->where('id', $this->project));
         }
 
         if ($this->indicators) {
-            $builder = $builder->whereHas('indicator', function ($query) {
-                $query->whereIn('id', $this->indicators);
-            });
+            $builder->whereHas('indicator', fn($query) => $query->whereIn('id', $this->indicators));
         }
 
         $collection = collect();
@@ -75,30 +77,38 @@ final class ReportingTable extends PowerGridComponent
 
         $builder->chunk(100, function ($disaggregations) use (&$collection, &$count) {
             foreach ($disaggregations as $disaggregation) {
-                $item = [
-                    'id' => $count++,
-                    'name' => $disaggregation->name,
-                    'indicator_name' => $disaggregation->indicator->indicator_name,
-                    'project' => $disaggregation->indicator->project->name,
-                    'number' => $disaggregation->indicator->indicator_no,
-                    'indicator_id' => $disaggregation->indicator->id,
-                ];
-
-                $content = new IndicatorsContent(name: $item['indicator_name'], number: $item['number']);
-                $getContent = $content->content();
-                if ($getContent['class'] !== null) {
-                    $indicator = new $getContent['class']($this->reporting_period, $this->financial_year);
-                    $item = $this->mapData($indicator->getDisaggregations(), $item);
-                }
-
+                $item = $this->prepareItem($disaggregation, $count++);
                 $collection->push($item);
             }
         });
 
+
         return $collection;
     }
 
-    public function mapData($array, $item)
+    private function prepareItem($disaggregation, int $count): array
+    {
+        $item = [
+            'id' => $count,
+            'name' => $disaggregation->name,
+            'indicator_name' => $disaggregation->indicator->indicator_name,
+            'project' => $disaggregation->indicator->project->name,
+            'number' => $disaggregation->indicator->indicator_no,
+            'indicator_id' => $disaggregation->indicator->id,
+        ];
+
+        $content = new IndicatorsContent(name: $item['indicator_name'], number: $item['number']);
+        $getContent = $content->content();
+
+        if ($getContent['class'] !== null) {
+            $indicator = new $getContent['class']($this->reporting_period, $this->financial_year);
+            $item = $this->mapData($indicator->getDisaggregations(), $item);
+        }
+
+        return $item;
+    }
+
+    public function mapData(array $array, array $item): array
     {
         foreach ($array as $key => $record) {
             if ($key === $item['name']) {
@@ -109,8 +119,6 @@ final class ReportingTable extends PowerGridComponent
 
         return $item;
     }
-
-
 
     public function fields(): PowerGridFields
     {
