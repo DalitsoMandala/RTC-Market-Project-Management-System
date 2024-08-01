@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('target_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
+            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->string('name');
             $table->integer('target_value');
             $table->enum('type', ['number', 'percentage'])->nullable();

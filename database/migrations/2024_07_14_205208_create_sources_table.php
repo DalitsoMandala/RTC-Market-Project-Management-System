@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('sources', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('person_id')->constrained('responsible_people', 'id');
-            $table->foreignId('form_id')->constrained('forms', 'id');
+            $table->foreignId('person_id')->constrained('responsible_people', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('form_id')->constrained('forms', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

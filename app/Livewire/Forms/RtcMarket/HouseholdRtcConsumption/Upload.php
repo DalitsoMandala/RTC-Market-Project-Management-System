@@ -192,6 +192,7 @@ class Upload extends Component
             }
             $importError->delete();
 
+            cache()->clear();
         } else {
             // Check progress
 
@@ -264,6 +265,7 @@ class Upload extends Component
                 'user_id' => auth()->user()->id,
                 'job_id' => $this->importId,
                 'status' => 'pending',
+                'form_name' => Form::find($this->selectedForm)->name,
             ]);
         }
 

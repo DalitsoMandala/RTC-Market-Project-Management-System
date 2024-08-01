@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('indicator_no');
             $table->text('indicator_name');
-            $table->foreignId('project_id')->constrained('projects', 'id');
+            $table->foreignId('project_id')->constrained('projects', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

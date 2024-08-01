@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('rpm_processor_follow_ups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
+            $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->json('location_data')->nullable();
             $table->date('date_of_follow_up')->nullable();
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)

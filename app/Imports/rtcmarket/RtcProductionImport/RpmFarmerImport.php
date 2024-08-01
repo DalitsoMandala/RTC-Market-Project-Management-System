@@ -114,6 +114,95 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
 
 
 
+            ImportFailed::class => function (ImportFailed $event) {
+                $uuid = $this->uuid;
+                $exception = $event->getException();
+                $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'failed', 'is_finished' => true]);
+                }
+
+
+                if ($exception instanceof SheetImportException) {
+                    // Handle the custom exception
+                    $failures = $exception->getErrors();
+                    $sheet = $exception->getSheet();
+
+
+                    $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
+                    if ($importErrors) {
+
+                        $importErrors->delete();
+                    } else {
+                        ImportError::create([
+                            'uuid' => $uuid,
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'validation',
+                            'user_id' => $this->userId,
+                        ]);
+                    }
+
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
+
+
+                    Submission::where('batch_no', $uuid)->delete();
+                    RtcProductionFarmer::where('uuid', $uuid)->delete();
+                    RpmFollowUpFarmer::where('uuid', $uuid)->delete();
+                    Rtc::where('uuid', $uuid)->delete();
+                    RtcProductionFarmer::where('uuid', $uuid)->delete();
+                    RtcProductionFarmer::where('uuid', $uuid)->delete();
+
+                } else if ($exception instanceof UserErrorException) {
+                    $failures = 'Something went wrong!';
+                    \Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
+                    $sheet = 'RTC_FARMERS';
+
+
+                    $importErrors = ImportError::where('user_id', $this->userId)->where('uuid', $this->uuid)->first();
+                    if ($importErrors) {
+
+                        $importErrors->delete();
+                    } else {
+                        ImportError::create([
+                            'uuid' => $uuid,
+                            'errors' => json_encode($failures),
+                            'sheet' => $sheet,
+                            'type' => 'normal',
+                            'user_id' => $this->userId,
+                        ]);
+                    }
+
+                    Submission::where('batch_no', $uuid)->delete();
+                    HouseholdRtcConsumption::where('uuid', $uuid)->delete();
+
+
+                }
+
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!'));
+
+                Cache::put($this->uuid . '_status', 'finished');
+                cache()->forget($this->uuid . '_progress');
+                cache()->forget($this->uuid . '_total');
+
+            },
+            AfterImport::class => function (AfterImport $event) {
+                $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                }
+
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
+
+
+
+                Cache::put($this->uuid . '_status', 'finished');
+                cache()->forget($this->uuid . '_progress');
+                cache()->forget($this->uuid . '_total');
+            },
 
 
 

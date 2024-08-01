@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('assigned_targets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id');
-            $table->foreignId('organisation_id')->constrained('organisations', 'id');
+            $table->foreignId('indicator_target_id')->constrained('indicator_targets', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('organisation_id')->constrained('organisations', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->integer('target_value');
             $table->integer('current_value')->default(0);
             $table->json('detail')->nullable();

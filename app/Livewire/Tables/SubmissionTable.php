@@ -30,6 +30,8 @@ final class SubmissionTable extends PowerGridComponent
     public $filter;
     public $userId;
     public bool $showFilters = true;
+
+    public $row = 1;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -47,27 +49,30 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-
+        $query = null;
         if ($this->userId) {
             $user = Auth::user();
             if ($user->hasAnyRole('external')) {
-                return Submission::query()->where('user_id', $user->id)->where('batch_type', $this->filter)->select([
+                $query = Submission::query()->where('user_id', $user->id)->where('batch_type', $this->filter)->select([
                     '*',
-                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-                ])->orderBy('created_at', 'desc');
+                    //  DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+                ]);
 
             } else {
-                return Submission::query()->where('batch_type', $this->filter)->select([
+                $query = Submission::query()->where('batch_type', $this->filter)->select([
                     '*',
-                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-                ])->orderBy('created_at', 'desc');
+                    //   DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+                ]);
+                ;
 
             }
         }
-        return Submission::query()->where('batch_type', $this->filter)->select([
+        $query = Submission::query()->where('batch_type', $this->filter)->select([
             '*',
-            DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-        ])->orderBy('created_at', 'desc');
+            // DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
+        ]);
+
+        return $query;
     }
 
     public function filters(): array
@@ -77,9 +82,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
                     // $submissionArray = [];
-
+        
                     // foreach($submission as $index => $status){
-
+        
                     // }
                     // dd($submission->get());
                     return $submission->get();
@@ -96,7 +101,9 @@ final class SubmissionTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('row_num')
+            ->add('row_num', function () {
+                return $this->row++;
+            })
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
 
@@ -223,7 +230,7 @@ final class SubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            //  Column::make('Id', 'row_num'),
+            Column::make('Id', 'row_num'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),

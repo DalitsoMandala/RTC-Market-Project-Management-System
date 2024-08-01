@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('rpm_farmer_follow_ups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id');
+            $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->json('location_data')->nullable();
             $table->date('date_of_follow_up')->nullable();
 

@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->integer('female_count')->nullable();
             $table->integer('total')->nullable();
             $table->string('uuid');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

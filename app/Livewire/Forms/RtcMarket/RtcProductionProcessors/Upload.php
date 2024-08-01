@@ -11,7 +11,9 @@ use App\Helpers\SheetNamesValidator;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
 use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\ImportError;
 use App\Models\Indicator;
+use App\Models\JobProgress;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\RpmProcessorConcAgreement;
@@ -21,7 +23,9 @@ use App\Models\RpmProcessorInterMarket;
 use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\User;
 use App\Notifications\BatchDataAddedNotification;
+use App\Notifications\JobNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +35,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
 use Throwable;
 
 class Upload extends Component
@@ -54,7 +59,15 @@ class Upload extends Component
     public $submissionPeriodId;
 
     public $openSubmission = false;
+    public $progress = 0;
+    public $Import_errors = [];
+    public $importing = false;
+    public $importingFinished = false;
 
+    public $importProgress = 0;
+    public $importId;
+
+    public $queue = false;
 
     public function save()
     {
@@ -81,162 +94,121 @@ class Upload extends Component
             if ($this->upload) {
 
                 $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs('public/imports', $name);
-
                 $path = public_path('storage\imports\\' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
+
+                $this->updateJobStatus();
+
                 try {
 
-                    try {
-
-                        Excel::import(new RpmProcessorImport($userId, $sheets, $this->upload), $this->upload);
-                    } catch (SheetImportException $e) {
-
-                        $errors = $e->getErrors();
-                        $sheet = $e->getSheet();
 
 
-                        session()->flash('import_failures', $errors);
-                        throw new UserErrorException('Errors on sheet: ' . $sheet);
-                    }
+                    $table = ['rtc_production_farmers', 'rpm_farmer_follow_ups', 'rpm_farmer_conc_agreements', 'rpm_farmer_dom_markets', 'rpm_farmer_inter_markets'];
+                    $this->importing = true;
+                    $this->importingFinished = false;
 
 
-                    $uuid = session()->get('uuid');
-                    $batch_data = session()->get('batch_data');
-                    if (empty($batch_data['main'])) {
-                        throw new UserErrorException("Your file has empty rows!");
+                    $this->dispatch('notify');
 
-                    }
-                    $currentUser = Auth::user();
-                    $table = ['rtc_production_processors', 'rpm_processor_follow_ups', 'rpm_processor_conc_agreements', 'rpm_processor_dom_markets', 'rpm_processor_inter_markets'];
-                    if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+                    Excel::import(new RpmProcessorImport($userId, $sheets, $path, $this->importId, [
+                        'submission_period_id' => $this->submissionPeriodId,
+                        'organisation_id' => Auth::user()->organisation->id,
+                        'financial_year_id' => $this->selectedFinancialYear,
+                        'period_month_id' => $this->selectedMonth,
+                        'form_id' => $this->selectedForm,
+                        'user_id' => Auth::user()->id,
+                        'status' => 'approved',
+                        'data' => [],
+                        'batch_type' => 'batch',
+                        'period_id' => $this->submissionPeriodId,
+                        'table_name' => json_encode($table),
+                        'is_complete' => 1,
+                        'file_link' => $name,
 
-                        $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
-                            ->where('batch_type', 'batch')
-                            ->where('user_id', auth()->user()->id)->first();
-                        if ($checkSubmission) {
-
-                            $this->reset('upload');
-                            $this->dispatch('removeUploadedFile');
-
-                            session()->flash('error', 'You have already submitted your batch data for this period!');
-                        } else {
-
-                            $submission = Submission::create([
-                                'batch_no' => $uuid,
-                                'form_id' => $this->selectedForm,
-                                'user_id' => $currentUser->id,
-                                'status' => 'approved',
-                                'data' => json_encode($batch_data),
-                                'batch_type' => 'batch',
-                                'period_id' => $this->submissionPeriodId,
-                                'table_name' => json_encode($table),
-                                'is_complete' => 1,
-                                'file_link' => $name,
-                            ]);
-
-                            $data = json_decode($submission->data, true);
-                            $idMappings = [];
-                            $highestId = RtcProductionProcessor::max('id');
-                            foreach ($data['main'] as $mainSheet) {
-                                $highestId++;
-                                $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
-                                $idMappings[$mainSheet['#']] = $highestId;
-                                unset($mainSheet['#']);
-
-
-                                $mainSheet['submission_period_id'] = $this->submissionPeriodId;
-                                $mainSheet['organisation_id'] = Auth::user()->organisation->id;
-                                $mainSheet['financial_year_id'] = $this->selectedFinancialYear;
-                                $mainSheet['period_month_id'] = $this->selectedMonth;
-                                RtcProductionProcessor::create($mainSheet);
-
-                            }
-
-                            foreach ($data['followup'] as $mainSheet) {
-                                $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                                $mainSheet['rpm_processor_id'] = $newId;
-
-                                $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                                $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                                $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                                $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
-                                $mainTable = RpmProcessorFollowUp::create($mainSheet);
-
-                                // follow up data
-
-                            }
-
-                            foreach ($data['agreement'] as $mainSheet) {
-                                $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                                $mainSheet['rpm_processor_id'] = $newId;
-                                $mainTable = RpmProcessorConcAgreement::create($mainSheet);
-
-                                // conc agreement
-
-                            }
-
-                            foreach ($data['market'] as $mainSheet) {
-                                $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                                $mainSheet['rpm_processor_id'] = $newId;
-                                $mainTable = RpmProcessorDomMarket::create($mainSheet);
-
-                                // dom market
-
-                            }
-
-                            foreach ($data['intermarket'] as $mainSheet) {
-                                $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                                $mainSheet['rpm_processor_id'] = $newId;
-                                $mainTable = RpmProcessorInterMarket::create($mainSheet);
+                    ]), $path);
 
 
 
-                            }
-
-                            // $link = 'cip/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                            //   $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
 
 
-                            session()->flash('success', 'Successfully submitted!');
-                            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
-                        }
 
-                    } else if ($currentUser->hasAnyRole('external')) {
-
-                        $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
-                            ->where('batch_type', 'batch')
-                            ->where('user_id', auth()->user()->id)->first();
-                        if ($checkSubmission) {
+                    $user = User::find($userId);
+                    $user->notify(new JobNotification($this->importId, 'File import has started you will be notified when the file has finished importing!'));
 
 
-                            $this->dispatch('removeUploadedFile');
-                            session()->flash('error', 'You have already submitted your batch data!');
-                        } else {
-                            Submission::create([
-                                'batch_no' => $uuid,
-                                'form_id' => $this->selectedForm,
-                                'period_id' => $this->submissionPeriodId,
-                                'user_id' => $currentUser->id,
-                                'data' => json_encode($batch_data),
-                                'batch_type' => 'batch',
-                                'table_name' => json_encode($table),
-                                'file_link' => $name,
-                            ]);
-                            //     $link = 'external/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                            //     $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
+
+                    //     // $data = json_decode($submission->data, true);
+                    //     // $idMappings = [];
+                    //     // $highestId = RtcProductionProcessor::max('id');
+                    //     // foreach ($data['main'] as $mainSheet) {
+                    //     //     $highestId++;
+                    //     //     $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
+                    //     //     $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                    //     //     $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                    //     //     $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                    //     //     $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+                    //     //     $idMappings[$mainSheet['#']] = $highestId;
+                    //     //     unset($mainSheet['#']);
 
 
-                            session()->flash('success', 'Successfully submitted!');
-                            $this->redirect(route('external-submissions') . '#batch-submission');
+                    //     //     $mainSheet['submission_period_id'] = $this->submissionPeriodId;
+                    //     //     $mainSheet['organisation_id'] = Auth::user()->organisation->id;
+                    //     //     $mainSheet['financial_year_id'] = $this->selectedFinancialYear;
+                    //     //     $mainSheet['period_month_id'] = $this->selectedMonth;
+                    //     //     RtcProductionProcessor::create($mainSheet);
 
-                        }
-                    }
+                    //     // }
+
+                    //     // foreach ($data['followup'] as $mainSheet) {
+                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
+                    //     //     $mainSheet['rpm_processor_id'] = $newId;
+
+                    //     //     $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
+                    //     //     $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
+                    //     //     $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
+                    //     //     $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+                    //     //     $mainTable = RpmProcessorFollowUp::create($mainSheet);
+
+                    //     //     // follow up data
+
+                    //     // }
+
+                    //     // foreach ($data['agreement'] as $mainSheet) {
+                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
+                    //     //     $mainSheet['rpm_processor_id'] = $newId;
+                    //     //     $mainTable = RpmProcessorConcAgreement::create($mainSheet);
+
+                    //     //     // conc agreement
+
+                    //     // }
+
+                    //     // foreach ($data['market'] as $mainSheet) {
+                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
+                    //     //     $mainSheet['rpm_processor_id'] = $newId;
+                    //     //     $mainTable = RpmProcessorDomMarket::create($mainSheet);
+
+                    //     //     // dom market
+
+                    //     // }
+
+                    //     // foreach ($data['intermarket'] as $mainSheet) {
+                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
+                    //     //     $mainSheet['rpm_processor_id'] = $newId;
+                    //     //     $mainTable = RpmProcessorInterMarket::create($mainSheet);
+
+
+
+                    //     // }
+
+                    //     // $link = 'cip/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
+                    //     //   $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
+
+
+                    //     session()->flash('success', 'Successfully submitted!');
+                    //     $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+                    // }
+
 
                 } catch (UserErrorException $e) {
 
@@ -260,7 +232,113 @@ class Upload extends Component
 
     }
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function checkErrors()
+    {
+
+        $importError = ImportError::where('uuid', $this->importId)->where('user_id', auth()->user()->id)->first();
+
+        if ($importError) {
+            $this->Import_errors = json_decode($importError->errors, true);
+            $this->importing = false;
+
+            $this->reset('upload');
+            if ($importError->type == 'validation') {
+                session()->flash('import_failures', $this->Import_errors);
+            } else {
+                session()->flash('error', $this->Import_errors);
+            }
+
+            $this->importingFinished = true;
+            $userId = auth()->user()->id;
+
+            $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
+            if ($importJob) {
+                $importJob->update(['status' => 'failed', 'is_finished' => true]);
+            }
+            $importError->delete();
+
+        } else {
+            // Check progress
+
+
+            $progress = cache()->get($this->importId . '_progress', 0);
+
+            $this->dispatch('progress-update', progress: $progress);
+            if ($progress > 0 && $progress == 100) {
+
+                $this->reset('upload');
+                $this->importing = false;
+                $this->importingFinished = true;
+                $this->dispatch('import-finished');
+                $userId = auth()->user()->id;
+                $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
+                if ($importJob) {
+                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                    $this->importId = Uuid::uuid4()->toString();
+                }
+
+
+
+            }
+
+
+
+
+
+        }
+
+
+    }
+
+    public function sendToLocation()
+    {
+
+
+        $user = auth()->user();
+        cache()->clear();
+        if ($user->hasAnyRole('external')) {
+            session()->flash('success', 'Successfully submitted!');
+            $this->redirect(route('external-submissions') . '#batch-submission');
+        } else {
+            session()->flash('success', 'Successfully submitted!');
+            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+        }
+
+
+    }
+
+    public function updateJobStatus()
+    {
+
+        $pendingjob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'processing')->first();
+        if ($pendingjob) {
+            throw new UserErrorException('You have a pending import running in your background! Please wait... You can see the progress in your submissions page');
+        }
+
+        $job = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('is_finished', true)->first();
+        if ($job) {
+
+            $job->update([
+                'user_id' => auth()->user()->id,
+                'job_id' => $this->importId,
+                'status' => 'pending',
+                'is_finished' => false,
+            ]);
+        } else {
+            JobProgress::create([
+                'user_id' => auth()->user()->id,
+                'job_id' => $this->importId,
+                'status' => 'pending',
+                'form_name' => Form::find($this->selectedForm)->name,
+            ]);
+        }
+
+
+
+    }
+
+
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
     {
 
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
@@ -306,6 +384,15 @@ class Upload extends Component
             } else {
                 $this->openSubmission = false;
             }
+        }
+
+        $this->importId = $uuid;
+        $finishedJob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'completed')->where('is_finished', true)->first();
+        if ($finishedJob) {
+
+
+            $this->importId = Uuid::uuid4()->toString();
+
         }
 
     }

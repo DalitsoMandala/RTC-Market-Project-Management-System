@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('rpm_processor_conc_agreements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id');
+            $table->foreignId('rpm_processor_id')->constrained('rtc_production_processors', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->date('date_recorded')->nullable();
             $table->string('partner_name')->nullable();
             $table->string('country')->nullable();

@@ -31,6 +31,7 @@
                                    </tr>
                                </thead>
                                <tbody>
+
                                    @foreach (session()->get('import_failures') as $failure)
                                        <tr>
                                            <td><strong>{{ $failure['row'] }}</strong></td>
