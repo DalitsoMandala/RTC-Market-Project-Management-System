@@ -199,6 +199,7 @@ class Upload extends Component
             $progress = cache()->get($this->importId . '_progress', 0);
 
             $this->dispatch('progress-update', progress: $progress);
+
             if ($progress > 0 && $progress == 100) {
 
                 $this->reset('upload');
@@ -210,6 +211,7 @@ class Upload extends Component
                 if ($importJob) {
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
                     $this->importId = Uuid::uuid4()->toString();
+                    $this->sendToLocation();
                 }
 
 
@@ -229,14 +231,17 @@ class Upload extends Component
     {
 
 
-        $user = auth()->user();
-        cache()->clear();
+        $userId = auth()->user()->id;
+        $user = User::find($userId);
+
+
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
-            $this->redirect(route('external-submissions') . '#batch-submission');
-        } else {
+            return redirect(route('external-submissions') . '#batch-submission');
+        } else if ($user->hasAnyRole('organiser')) {
+
             session()->flash('success', 'Successfully submitted!');
-            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+            return redirect(route('cip-internal-submissions') . '#batch-submission');
         }
 
 

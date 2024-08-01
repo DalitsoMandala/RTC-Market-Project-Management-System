@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes (optional)
             $table->decimal('financial_value_of_sales', 18, 2)->nullable(); // Financial value
             //    $table->string('uuid');
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });
     }

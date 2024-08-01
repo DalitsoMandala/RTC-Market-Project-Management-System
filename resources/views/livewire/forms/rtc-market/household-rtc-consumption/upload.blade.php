@@ -76,8 +76,8 @@
 
                                         <div x-data="{
                                             progress: 0,
-
-
+                                        
+                                        
                                         }"
                                             @progress-update.window="progress = $event.detail.progress; ">
 
@@ -146,9 +146,7 @@
     </div>
 
     @script
-        <script>
-            $wire.checkJobProgress();
-        </script>
+        <script></script>
     @endscript
 
 

@@ -147,11 +147,14 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
                     $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
 
 
+                    $farmers = RtcProductionFarmer::where('uuid', $this->uuid)->pluck('id');
+
+
+                    RpmFarmerFollowUp::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmFarmerInterMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmFarmerConcAgreement::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmFarmerDomMarket::whereIn('rpm_farmer_id', $farmers)->delete();
                     Submission::where('batch_no', $uuid)->delete();
-                    RtcProductionFarmer::where('uuid', $uuid)->delete();
-                    RpmFollowUpFarmer::where('uuid', $uuid)->delete();
-                    Rtc::where('uuid', $uuid)->delete();
-                    RtcProductionFarmer::where('uuid', $uuid)->delete();
                     RtcProductionFarmer::where('uuid', $uuid)->delete();
 
                 } else if ($exception instanceof UserErrorException) {
@@ -173,9 +176,15 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
                             'user_id' => $this->userId,
                         ]);
                     }
+                    $farmers = RtcProductionFarmer::where('uuid', $this->uuid)->pluck('id');
 
+
+                    RpmFarmerFollowUp::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmFarmerInterMarket::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmFarmerConcAgreement::whereIn('rpm_farmer_id', $farmers)->delete();
+                    RpmFarmerDomMarket::whereIn('rpm_farmer_id', $farmers)->delete();
                     Submission::where('batch_no', $uuid)->delete();
-                    HouseholdRtcConsumption::where('uuid', $uuid)->delete();
+                    RtcProductionFarmer::where('uuid', $uuid)->delete();
 
 
                 }
@@ -198,6 +207,28 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
                 $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
 
 
+                if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
+                    Submission::where('batch_no', $this->uuid)->update([
+                        'status' => 'approved',
+                    ]);
+                    $farmers = RtcProductionFarmer::where('uuid', $this->uuid)->pluck('id');
+                    RtcProductionFarmer::where('uuid', $this->uuid)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmFarmerFollowUp::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmFarmerInterMarket::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmFarmerConcAgreement::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                    RpmFarmerDomMarket::whereIn('rpm_farmer_id', $farmers)->update([
+                        'status' => 'approved',
+                    ]);
+                }
+
 
                 Cache::put($this->uuid . '_status', 'finished');
                 cache()->forget($this->uuid . '_progress');
@@ -212,12 +243,12 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
     }
     public function batchSize(): int
     {
-        return 1000;
+        return 200;
     }
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 200;
     }
 
 }

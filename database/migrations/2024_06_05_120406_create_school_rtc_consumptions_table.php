@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->integer('total')->nullable();
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });
     }

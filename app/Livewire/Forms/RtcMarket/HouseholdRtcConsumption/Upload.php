@@ -211,6 +211,7 @@ class Upload extends Component
                 if ($importJob) {
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
                     $this->importId = Uuid::uuid4()->toString();
+                    $this->sendToLocation();
                 }
 
 

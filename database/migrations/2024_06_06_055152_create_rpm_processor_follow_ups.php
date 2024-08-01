@@ -29,6 +29,7 @@ return new class extends Migration {
             $table->decimal('aggregation_center_sales', 8, 2)->nullable();
             // Previous season volume in metric tonnes
             // $table->string('uuid');
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });
     }

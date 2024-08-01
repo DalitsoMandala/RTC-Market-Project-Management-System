@@ -29,7 +29,7 @@ return new class extends Migration {
             $table->boolean('uses_certified_seed')->default(false);
             // Marketing columns
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
-
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });
     }

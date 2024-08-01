@@ -179,7 +179,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
         // Update progress
         $progress = count($mergedData);
-        $percentage = ($progress / $this->totalRows) * 100;
+        $percentage = floor(($progress / $this->totalRows)) * 100;
         cache()->put($this->uuid . '_progress', $percentage, now()->addMinutes(10));
 
         if ($importJob) {
@@ -199,14 +199,11 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
         }
     }
 
-    public function batchSize(): int
-    {
-        return 1000;
-    }
+
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 200;
     }
     public function onFailure(Failure ...$failures)
     {
@@ -344,9 +341,11 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                 $user = User::find($this->userId);
                 $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
-
-
-
+                if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
+                    HouseholdRtcConsumption::where('uuid', $this->uuid)->update([
+                        'status' => 'approved',
+                    ]);
+                }
                 Cache::put($this->uuid . '_status', 'finished');
                 cache()->forget($this->uuid . '_progress');
                 cache()->forget($this->uuid . '_total');

@@ -37,7 +37,7 @@ return new class extends Migration {
             $table->foreignId('organisation_id')->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
-            $table->tinyInteger('status')->default(0); // approved/denied
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });
     }
