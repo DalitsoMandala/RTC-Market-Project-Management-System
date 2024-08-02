@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
@@ -11,7 +9,7 @@ use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class Indicator_B2
+class indicator_B2
 {
     protected $financial_year, $reporting_period, $project;
     public function __construct($reporting_period = null, $financial_year = null)

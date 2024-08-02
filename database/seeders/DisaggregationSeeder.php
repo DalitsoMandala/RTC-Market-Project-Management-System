@@ -129,7 +129,7 @@ class DisaggregationSeeder extends Seeder
             ],
             "3.4.1" => ["Number of RTC actors supported to access funds from financial service providers" => ['Total', 'Processors', 'Farmers', 'Large scale processors', 'SME', 'Loan', 'Input financing']],
             "3.4.2" => ["Number of POs that have formal contracts with buyers" => ['Total', 'Fresh', 'Processed']],
-            "3.4.4" => ["Number of RTC POs selling products through aggregation centers aggregation center" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],
+            "3.4.4" => ["Number of RTC POs selling products through aggregation centers" => ['Total', 'Cassava', 'Potato', 'Sweet potato']],
             "3.4.5" => ["Volume (MT) of RTC products sold through collective marketing efforts by POs" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed']],
             "3.5.1" => ["Number of households reached with RTC nutrition interventions" => ['Total']],
             "3.5.2" => ["Frequency of RTC consumption by households per week (OC)" => ['Total']],

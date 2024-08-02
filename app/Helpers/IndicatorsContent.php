@@ -2,32 +2,30 @@
 
 namespace App\Helpers;
 
+
 use App\Models\Indicator;
 use Illuminate\Support\Collection;
 
-
 class IndicatorsContent
 {
-
-
     public $id;
     public $name;
     public $number;
 
     public function __construct($id = null, $name = null, $number = null)
     {
-
         $this->id = $id;
         $this->name = $name;
         $this->number = $number;
     }
 
-
     public function content(): Collection
     {
         if ($this->name && $this->number) {
             return $this->getContentByNameAndNumber();
-        } elseif ($this->id) {
+        }
+
+        if ($this->id) {
             return $this->getContentById();
         }
 
@@ -43,10 +41,8 @@ class IndicatorsContent
             ->where('indicator_no', $this->number)
             ->first();
 
-        $classes = $indicatorCalculations->where('indicator_name', $this->name)
-            ->first();
-
         if ($query) {
+            $classes = $indicatorCalculations->where('indicator_name', $this->name)->first();
             $query['class'] = $classes['class'] ?? null;
         }
 
@@ -59,12 +55,12 @@ class IndicatorsContent
         $indicatorCalculations = self::indicatorCalculations();
 
         $query = $indicatorArray->where('id', $this->id)->first();
-        $indicator = Indicator::find($this->id);
-
-        if ($query && $indicator) {
-            $classes = $indicatorCalculations->where('indicator_name', $indicator->indicator_name)
-                ->first();
-            $query['class'] = $classes['class'] ?? null;
+        if ($query) {
+            $indicator = Indicator::find($this->id);
+            if ($indicator) {
+                $classes = $indicatorCalculations->where('indicator_name', $indicator->indicator_name)->first();
+                $query['class'] = $classes['class'] ?? null;
+            }
         }
 
         return collect($query);
@@ -72,278 +68,274 @@ class IndicatorsContent
 
     public static function indicatorCalculations(): Collection
     {
-
         return collect([
             [
+
                 "indicator_name" => "Number of actors profitability engaged in commercialization of RTC",
-                'class' => \App\Helpers\rtc_market\indicators\A1::class,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_A1::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities",
-                //  'class' => \App\Helpers\rtc_market\indicators\B1::class,
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_B1::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in value of formal RTC exports",
-                //  'class' => \App\Helpers\rtc_market\indicators\Indicator_B2::class,
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_B2::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage of value ($) of formal RTC imports substituted through local production",
-                // 'class' => \App\Helpers\rtc_market\indicators\Indicator_B3::class,
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_B3::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of people consuming RTC and processed products",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_B4::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage Increase in the volume of RTC produced",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_B5::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in RTC investment",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_B6::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of local RTC varieties suitable for domestic and export markets identified for promotion",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_1_1::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of potential market preferred RTC genotypes in the pipeline identified",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_1_2::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of new RTC technologies developed",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_1_3::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in adoption of new RTC technologies",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_1_4::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of economic studies conducted",
-                'class' => null,
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_2_1::class,
                 'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC and derived products recorded in official trade statistics",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_2_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of existing agricultural programs that integrate RTC into their programs",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_3_1_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of policy briefs developed and shared on RTC topics",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_1_3_1_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of market linkages between EGS and other seed class producers facilitated",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_1_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of private sector actors involved in production of RTC certified seed",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_2_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Area (ha) under seed multiplication",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_2_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage seed multipliers with formal registration",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_2_3::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Volume of seed distributed within communities to enhance POs productivity",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_2_4::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of on-farm seed production technology demonstrations established",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_2_5::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of international learning visits for seed producers (OC)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_1_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage business plans for the production of different classes of RTC seeds that are executed",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_1_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of stakeholder engagement events that focus on RTC development",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of registered seed producers accessing markets through online Market Information System (MIS)",
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_3::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC actors linked to online Market Information System (MIS)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_4::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC products available on the Management Information System",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_5::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_1_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC actors that use certified seed",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_2_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_2_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of off-season irrigation demonstration sites established",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_2_3::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of demonstration sites for end-user preferred RTC varieties established",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_2_4::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_2_5::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of market opportunities identified for RTC actors",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_3_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of contractual arrangements facilitated for commercial farmers",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_3_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC actors supported to access funds from financial service providers",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_4_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of POs that have formal contracts with buyers",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_4_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC aggregation centers established",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_4_3::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
-                "indicator_name" => "Number of RTC POs selling products through aggregation centers aggregation center",
-                'class' => null,
-                'project_name' => '',
+                "indicator_name" => "Number of RTC POs selling products through aggregation centers",
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_4_4::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Volume (MT) of RTC products sold through collective marketing efforts by POs",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_4_5::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of households reached with RTC nutrition interventions",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_5_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Frequency of RTC consumption by households per week (OC)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_5_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Percentage increase in households consuming RTCs as the main foodstuff (OC)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_5_3::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC utilization options (dishes) adopted by households (OC)",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_5_4::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of urban market promotions conducted",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_5_5::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of mass nutrition education campaigns conducted",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_3_5_6::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC value-added products promoted",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_4_1_1::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC actors with MBS certification for producing (or processing) RTC products",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_4_1_2::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of RTC value-added products developed for domestic markets",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_4_1_3::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of new RTC recipes/products adopted and branded by processors",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_4_1_4::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of domestic market opportunities identified for value-added products",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_4_1_5::class,
+                'project_name' => 'RTC MARKET',
             ],
             [
                 "indicator_name" => "Number of international market opportunities identified for value-added products",
-                'class' => null,
-                'project_name' => '',
+                'class' => \App\Helpers\rtc_market\indicators\indicator_4_1_6::class,
+                'project_name' => 'RTC MARKET',
             ],
         ]);
-    }
 
+    }
 
     public static function indicatorDisaggregation(): Collection
     {
-
-
-
         return collect([
             "Number of actors profitability engaged in commercialization of RTC" => [
                 'Total',
@@ -361,14 +353,12 @@ class IndicatorsContent
                 'New establishment',
                 'Old establishment',
             ],
-
             "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities" => [
                 'Total',
                 'Cassava',
                 'Sweet potato',
                 'Potato',
             ],
-
             "Percentage increase in value of formal RTC exports" => [
                 'Total',
                 'Volume (Metric Tonnes)',
@@ -401,19 +391,15 @@ class IndicatorsContent
             "Number of RTC and derived products recorded in official trade statistics" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
             "Number of policy briefs developed and shared on RTC topics" => ['Total'],
             "Number of existing agricultural programs that integrate RTC into their programs" => ['Total'],
-
             "Number of market linkages between EGS and other seed class producers facilitated" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
             "Number of private sector actors involved in production of RTC certified seed" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
             "Area (ha) under seed multiplication" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Basic', 'Certified'],
             "Percentage seed multipliers with formal registration" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Basic', 'Certified', 'POs', 'Individual farmers not in POs', 'Large scale farmers', 'Medium scale farmers'],
             "Volume of seed distributed within communities to enhance POs productivity" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Basic', 'Certified'],
             "Number of on-farm seed production technology demonstrations established" => ['Total'],
-
             "Number of international learning visits for seed producers (OC)" => ['Total'],
             "Percentage business plans for the production of different classes of RTC seeds that are executed" => ['Total', 'POs', 'SMEs', 'Large scale commercial farmers', 'Cassava', 'Potato', 'Sweet potato'],
-
             "Number of stakeholder engagement events that focus on RTC development" => ['Total', 'Seed production', 'Seed multiplication', 'Seed processing'],
-
             "Number of registered seed producers accessing markets through online Market Information System (MIS)" => [
                 'Total',
                 'Cassava',
@@ -425,8 +411,6 @@ class IndicatorsContent
                 'POs',
                 'Large scale commercial farmers',
             ],
-
-
             "Number of RTC actors linked to online Market Information System (MIS)" => [
                 'Total',
                 'Cassava',
@@ -439,9 +423,6 @@ class IndicatorsContent
                 'POs',
                 'Large scale commercial farmers',
             ],
-
-
-
             "Number of RTC products available on the Management Information System" => [
                 'Total',
                 'Cassava',
@@ -450,17 +431,13 @@ class IndicatorsContent
                 'Seed',
                 'Produce',
                 'Value added products',
-
-
             ],
-
             "Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
             "Number of RTC actors that use certified seed" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
             "Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Farmers', 'Processors', 'Traders', 'Partner', 'Staff'],
             "Number of off-season irrigation demonstration sites established" => ['Total'],
             "Number of demonstration sites for end-user preferred RTC varieties established" => ['Total'],
             "Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)" => ['Total'],
-
             "Number of market opportunities identified for RTC actors" => [
                 'Domestic markets',
                 'International markets',
@@ -470,18 +447,15 @@ class IndicatorsContent
                 'Produce',
                 'Value added products',
             ],
-
-
             "Number of contractual arrangements facilitated for commercial farmers" => [
                 'Total',
                 'Cassava',
                 'Potato',
                 'Sweet potato',
             ],
-
             "Number of RTC actors supported to access funds from financial service providers" => ['Total', 'Processors', 'Farmers', 'Large scale processors', 'SME', 'Loan', 'Input financing'],
             "Number of POs that have formal contracts with buyers" => ['Total', 'Fresh', 'Processed'],
-            "Number of RTC POs selling products through aggregation centers aggregation center" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
+            "Number of RTC POs selling products through aggregation centers" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
             "Volume (MT) of RTC products sold through collective marketing efforts by POs" => ['Total', 'Cassava', 'Potato', 'Sweet potato', 'Fresh', 'Processed'],
             "Number of households reached with RTC nutrition interventions" => ['Total'],
             "Frequency of RTC consumption by households per week (OC)" => ['Total'],
@@ -496,8 +470,8 @@ class IndicatorsContent
             "Number of domestic market opportunities identified for value-added products" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
             "Number of international market opportunities identified for value-added products" => ['Total', 'Cassava', 'Potato', 'Sweet potato'],
         ]);
-
     }
+
     public static function indicatorArray(): Collection
     {
         return collect([
@@ -693,7 +667,7 @@ class IndicatorsContent
             ],
             [
                 "id" => 39,
-                "indicator_name" => "Number of RTC POs selling products through aggregation centers aggregation center",
+                "indicator_name" => "Number of RTC POs selling products through aggregation centers",
                 "indicator_no" => "3.4.4",
             ],
             [
@@ -762,7 +736,5 @@ class IndicatorsContent
                 "indicator_no" => "4.1.6",
             ],
         ]);
-
     }
-
 }

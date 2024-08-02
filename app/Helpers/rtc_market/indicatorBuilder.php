@@ -50,7 +50,7 @@ class indicatorBuilder
             "3.4.1" => "Number of RTC actors supported to access funds from financial service providers",
             "3.4.2" => "Number of POs that have formal contracts with buyers",
             "3.4.3" => "Number of RTC aggregation centers established",
-            "3.4.4" => "Number of RTC POs selling products through aggregation centers aggregation center",
+            "3.4.4" => "Number of RTC POs selling products through aggregation centers",
             "3.4.5" => "Volume (MT) of RTC products sold through collective marketing efforts by POs",
             "3.5.1" => "Number of households reached with RTC nutrition interventions",
             "3.5.2" => "Frequency of RTC consumption by households per week (OC)",

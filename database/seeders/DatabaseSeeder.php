@@ -27,5 +27,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PeriodSeeder::class);
         $this->call(SubmissionSeeder::class);
         $this->call(SourceSeeder::class);
+        $this->call(IndicatorClassSeeder::class);
     }
 }

@@ -11,7 +11,7 @@ use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class Indicator_B3
+class indicator_B3
 {
     protected $financial_year, $reporting_period, $project;
     public function __construct($reporting_period = null, $financial_year = null)

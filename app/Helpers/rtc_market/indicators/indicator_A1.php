@@ -2,6 +2,7 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+
 use App\Livewire\Internal\Cip\Submissions;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Organisation;
@@ -12,7 +13,7 @@ use App\Models\SubmissionPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
-class A1
+class indicator_A1
 {
 
     protected $disaggregations = [];

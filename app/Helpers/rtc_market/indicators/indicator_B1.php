@@ -10,7 +10,7 @@ use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
-class B1
+class indicator_B1
 {
     protected $disaggregations = [];
     protected $start_date;

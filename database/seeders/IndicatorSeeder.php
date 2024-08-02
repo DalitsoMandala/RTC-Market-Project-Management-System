@@ -53,7 +53,7 @@ class IndicatorSeeder extends Seeder
             'Number of RTC actors supported to access funds from financial service providers',
             'Number of POs that have formal contracts with buyers',
             'Number of RTC aggregation centers established',
-            'Number of RTC POs selling products through aggregation centers aggregation center',
+            'Number of RTC POs selling products through aggregation centers',
             'Volume (MT) of RTC products sold through collective marketing efforts by POs',
             'Number of households reached with RTC nutrition interventions',
             'Frequency of RTC consumption by households per week (OC)',

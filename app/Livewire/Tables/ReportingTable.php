@@ -49,9 +49,6 @@ final class ReportingTable extends PowerGridComponent
 
             ,
             // ->onConnection('database'),
-
-
-
             Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
                 ->showPerPage()
@@ -84,6 +81,8 @@ final class ReportingTable extends PowerGridComponent
 
 
         return $collection;
+
+
     }
 
     private function prepareItem($disaggregation, int $count): array
