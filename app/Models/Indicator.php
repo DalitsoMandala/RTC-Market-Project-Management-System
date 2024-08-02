@@ -35,4 +35,8 @@ class Indicator extends Model
         return $this->hasMany(IndicatorDisaggregation::class, 'indicator_id');
     }
 
+    public function class()
+    {
+        return $this->hasOne(IndicatorClass::class, 'indicator_id');
+    }
 }

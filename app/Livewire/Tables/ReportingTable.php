@@ -9,6 +9,7 @@ use App\Helpers\rtc_market\indicators\Indicator_B2;
 use App\Jobs\readBigDataJob;
 use App\Models\IndicatorDisaggregation;
 use Illuminate\Bus\Batch;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Livewire\Attributes\On;
@@ -30,17 +31,14 @@ final class ReportingTable extends PowerGridComponent
 
     use WithExport;
 
-    public $start_date, $end_date, $project, $indicators, $financial_year, $reporting_period;
+    public $start_date, $end_date, $project, $indicators, $financial_year, $reporting_period, $data;
 
-    public bool $deferLoading = true;
+    public bool $deferLoading = false;
     // public $showExporting = true;
     public function setUp(): array
     {
         // $this->showCheckBox();
-        $this->persist(
-            tableItems: ['columns', 'filters', 'sort'],
-            prefix: auth()->user()->id
-        );
+        $this->data = $this->data;
         return [
             Exportable::make('export')
                 ->striped()
@@ -57,67 +55,14 @@ final class ReportingTable extends PowerGridComponent
     }
 
 
-    public function datasource(array $parameters): Collection
+    public function datasource(): Collection
     {
-        $builder = IndicatorDisaggregation::with(['indicator', 'indicator.project']);
 
-        if ($this->project) {
-            $builder->whereHas('indicator.project', fn($query) => $query->where('id', $this->project));
-        }
-
-        if ($this->indicators) {
-            $builder->whereHas('indicator', fn($query) => $query->whereIn('id', $this->indicators));
-        }
-
-        $collection = collect();
-        $count = 1;
-
-        $builder->chunk(100, function ($disaggregations) use (&$collection, &$count) {
-            foreach ($disaggregations as $disaggregation) {
-                $item = $this->prepareItem($disaggregation, $count++);
-                $collection->push($item);
-            }
-        });
-
-
-        return $collection;
+        return $this->data;
 
 
     }
 
-    private function prepareItem($disaggregation, int $count): array
-    {
-        $item = [
-            'id' => $count,
-            'name' => $disaggregation->name,
-            'indicator_name' => $disaggregation->indicator->indicator_name,
-            'project' => $disaggregation->indicator->project->name,
-            'number' => $disaggregation->indicator->indicator_no,
-            'indicator_id' => $disaggregation->indicator->id,
-        ];
-
-        $content = new IndicatorsContent(name: $item['indicator_name'], number: $item['number']);
-        $getContent = $content->content();
-
-        if ($getContent['class'] !== null) {
-            $indicator = new $getContent['class']($this->reporting_period, $this->financial_year);
-            $item = $this->mapData($indicator->getDisaggregations(), $item);
-        }
-
-        return $item;
-    }
-
-    public function mapData(array $array, array $item): array
-    {
-        foreach ($array as $key => $record) {
-            if ($key === $item['name']) {
-                $item['value'] = $record;
-                break; // Once found, no need to continue looping
-            }
-        }
-
-        return $item;
-    }
 
     public function fields(): PowerGridFields
     {
@@ -130,23 +75,23 @@ final class ReportingTable extends PowerGridComponent
             ->add('value')
         ;
     }
-    public function filters(): array
-    {
-        return [
-            // Filter::datetimepicker('date_established'),
-            // Filter::datetimepicker('date_ending'),
-            Filter::select('name', 'name')
-                ->dataSource(function () {
-                    $submission = IndicatorDisaggregation::select(['name'])->distinct();
+    // public function filters(): array
+    // {
+    //     return [
+    //         // Filter::datetimepicker('date_established'),
+    //         // Filter::datetimepicker('date_ending'),
+    //         // Filter::select('name', 'name')
+    //         //     ->dataSource(function () {
+    //         //         $submission = IndicatorDisaggregation::select(['name'])->distinct();
 
-                    return $submission->get();
-                })
-                ->optionLabel('name')
-                ->optionValue('name')
-            ,
+    //         //         return $submission->get();
+    //         //     })
+    //         //     ->optionLabel('name')
+    //         //     ->optionValue('name')
 
-        ];
-    }
+
+    //     ];
+    // }
     public function columns(): array
     {
         return [

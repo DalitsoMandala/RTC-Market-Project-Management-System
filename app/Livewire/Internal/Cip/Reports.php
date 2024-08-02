@@ -2,13 +2,17 @@
 
 namespace App\Livewire\Internal\Cip;
 
-use App\Models\FinancialYear;
-use App\Models\Indicator;
+use Throwable;
+use App\Jobs\Mapper;
 use App\Models\Project;
-use App\Models\ReportingPeriodMonth;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
+use App\Models\Indicator;
+use Illuminate\Bus\Batch;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Bus;
+use App\Models\ReportingPeriodMonth;
 
 class Reports extends Component
 {
@@ -35,11 +39,13 @@ class Reports extends Component
     public $selectedFinancialYear;
 
     public $financialYears = [];
+    public $data = [];
+    public bool $loadingData = true;
     public function mount()
     {
         $this->projects = Project::get();
         $this->indicators = Indicator::get();
-
+        $this->load();
 
     }
 
@@ -82,6 +88,47 @@ class Reports extends Component
             $this->reportingPeriod = $reporting_months;
             $financialyears = FinancialYear::where('project_id', $project->id)->get();
             $this->financialYears = $financialyears;
+
+        }
+
+    }
+
+
+
+    public function load()
+    {
+        $this->loadingData = true;
+        $batch = Bus::batch([
+            new Mapper()
+        ])->before(function (Batch $batch) {
+            // The batch has been created but no jobs have been added...
+
+        })->progress(function (Batch $batch) {
+            // A single job has completed successfully...
+        })->then(function (Batch $batch) {
+            // All jobs completed successfully...
+        })->catch(function (Batch $batch, Throwable $e) {
+            // First batch job failure detected...
+        })->finally(function (Batch $batch) {
+            // The batch has finished executing...
+
+        })
+
+            ->dispatch();
+
+    }
+
+
+    public function readCache()
+    {
+
+        $this->loadingData = true;
+        $data = cache()->get('report_', []);
+
+        if (!empty($data)) {
+
+            $this->data = $data;
+            $this->loadingData = false;
 
         }
 

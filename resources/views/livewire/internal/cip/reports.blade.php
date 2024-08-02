@@ -40,29 +40,29 @@
                                      const selectInput = new Choices($refs.selectElement, {
                                          shouldSort: false,
                                          placeholder: true,
-
+                                    
                                          choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
                                      });
-
-
-
+                                    
+                                    
+                                    
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-
+                                    
                                              myInput(event.detail.value);
-
-
-
+                                    
+                                    
+                                    
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-
-
+                                    
+                                    
                                          selectInput.removeActiveItems(); // Clear the selected item
                                          selectInput.setChoiceByValue('');
-
+                                    
                                      })">
                                         <label for="" class="form-label">Project</label>
                                         <select class="form-select form-select-sm " x-ref="selectElement">
@@ -83,7 +83,7 @@
                                         myInput(data) {
                                             this.selected = data;
                                         },
-
+                                    
                                     }" x-init=" const input = $refs.selectElementIndicator;
                                      const selectInput = new Choices($refs.selectElementIndicator, {
                                          shouldSort: false,
@@ -92,27 +92,27 @@
                                          placeholderValue: 'Select indicators here...',
                                          choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
                                      });
-
+                                    
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-
-
+                                    
+                                    
                                              let selectedValues = selectInput.getValue(true);
-
-
+                                    
+                                    
                                              myInput(selectedValues);
-
-
+                                    
+                                    
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-
-
+                                    
+                                    
                                          selectInput.removeActiveItems(); // Clear the selected item
-
-
+                                    
+                                    
                                      })">
 
 
@@ -192,28 +192,74 @@
                         <hr>
                         <div class="row">
                             <div class="col-12">
-                                <livewire:tables.reporting-table />
+                                {{-- <livewire:tables.reporting-table /> --}}
+
+
+                                @if ($loadingData)
+                                    <div x-data wire:poll.2000ms='readCache()'
+                                        class="d-flex justify-content-center align-items-center">
+                                        <div class="spinner-border text-primary spinner-border-lg" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table
+                                            class="table table-striped table-hover table-borderless table-primary align-middle">
+                                            <thead class="table-light">
+                                                <caption>
+                                                    Table Name
+                                                </caption>
+                                                <tr>
+                                                    <th>Column 1</th>
+                                                    <th>Column 2</th>
+                                                    <th>Column 3</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="table-group-divider">
+                                                <tr class="table-primary">
+                                                    <td scope="row">Item</td>
+                                                    <td>Item</td>
+                                                    <td>Item</td>
+                                                </tr>
+                                                <tr class="table-primary">
+                                                    <td scope="row">Item</td>
+                                                    <td>Item</td>
+                                                    <td>Item</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                @endif
+
+
+
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-
-
-
-
     </div>
 
-    @script
-        <script>
-            Alpine.store('loadData', {
-                indicators: @json($indicators),
 
-            })
-        </script>
-    @endscript
+
+
+
+
+
+</div>
+
+@script
+    <script>
+        Alpine.store('loadData', {
+            indicators: @json($indicators),
+
+        })
+    </script>
+@endscript
 </div>

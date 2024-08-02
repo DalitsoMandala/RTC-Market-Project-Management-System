@@ -3,6 +3,7 @@
 namespace App\Livewire\Internal\Cip;
 
 use App\Helpers\rtc_market\indicators\A1;
+use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Models\AttendanceRegister;
 use App\Models\Form;
 use App\Models\Indicator;
@@ -24,7 +25,7 @@ class Dashboard extends Component
     public $quickForms;
     public function mount()
     {
-        $a1 = new A1();
+        $a1 = new indicator_A1();
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $this->fill([
             'indicatorCount' => Indicator::count(),

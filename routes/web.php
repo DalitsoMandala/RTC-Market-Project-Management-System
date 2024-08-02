@@ -1,39 +1,70 @@
 <?php
 
-use App\Helpers\IndicatorsContent;
-use App\Http\Controllers\TestingController;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
 use App\Jobs\RandomNames;
-use App\Livewire\External\Dashboard as ExternalDashboard;
-use App\Livewire\External\ViewIndicator;
-use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
-use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
-use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
-use App\Livewire\Internal\Cip\Assignments;
-use App\Livewire\Internal\Cip\Dashboard;
+use App\Models\Indicator;
+use Illuminate\Http\Request;
+use App\Helpers\IndicatorsContent;
 use App\Livewire\Internal\Cip\Forms;
-use App\Livewire\Internal\Cip\Indicators;
+use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
-use App\Livewire\Internal\Cip\Submissions;
-use App\Livewire\Internal\Cip\SubPeriod;
 use App\Livewire\Internal\Cip\Targets;
+use App\Notifications\JobNotification;
+use App\Models\IndicatorDisaggregation;
+use App\Livewire\External\ViewIndicator;
+use App\Livewire\Internal\Cip\Dashboard;
+use App\Livewire\Internal\Cip\SubPeriod;
+use App\Livewire\Internal\Cip\Indicators;
+use App\Livewire\Internal\Cip\Assignments;
+use App\Livewire\Internal\Cip\Submissions;
+use App\Http\Controllers\TestingController;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
-use App\Models\Indicator;
-use App\Models\IndicatorDisaggregation;
-use App\Models\User;
-use App\Notifications\JobNotification;
-use Illuminate\Support\Facades\Route;
-use Ramsey\Uuid\Uuid;
+use App\Livewire\External\Dashboard as ExternalDashboard;
+use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
+use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
+use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
+use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
+Route::get('/test', function (Request $request) {
+    $project = null; // Get project ID from request
+    $indicators = null; // Get indicators array from request
 
-Route::get('/test', function () {
+    $builder = IndicatorDisaggregation::with(['indicator.project:id,name', 'indicator.class:indicator_id,class', 'indicator:id,indicator_no,indicator_name,project_id']);
 
+    // Apply conditions only if the variables are not null
+    if ($project) {
+        $builder->whereHas('indicator.project', fn($query) => $query->where('id', $project));
+    }
+
+    if ($indicators) {
+        $builder->whereHas('indicator', fn($query) => $query->whereIn('id', $indicators));
+    }
+
+    // Paginate results
+    $perPage = 15; // Adjust per-page count as needed
+    $results = $builder->paginate($perPage);
+
+    // Map results
+    $results->getCollection()->transform(function ($query) {
+        if ($query->indicator && $query->indicator->class) {
+            $classModel = $query->indicator->class->class;
+            if ($classModel) {
+                $indicatorClass = new $classModel();
+                $query->indicator['data'] = $indicatorClass->getDisaggregations();
+            }
+        }
+        return $query;
+    });
+
+    return response()->json($results);
 });
+
 // TestingController route
 Route::get('/export/{name}', [TestingController::class, 'index']);
 
