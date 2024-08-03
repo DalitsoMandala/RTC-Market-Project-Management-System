@@ -49,7 +49,7 @@ class JobNotification extends Notification
             ->subject('Data Import');
 
         if (!empty($this->errors)) {
-            Log::info($this->errors);
+
             $fileName = 'errors_' . now()->format('Y_m_d_H_i_s') . '.txt';
             $filePath = 'errors/' . $fileName; // Storage path within the 'storage/app' directory
 

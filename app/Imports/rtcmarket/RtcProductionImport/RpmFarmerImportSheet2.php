@@ -79,7 +79,7 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
     {
 
         if (!empty($this->failures)) {
-            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
+            //  \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
             throw new SheetImportException('RTC_FARM_FLUP', $this->failures);
         }
@@ -262,7 +262,7 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
 
         $errors = [];
         foreach ($failures as $failure) {
-            $errors[] = [
+            $this->failures[] = [
                 'row' => $failure->row(),
                 'attribute' => $failure->attribute(),
                 'errors' => $failure->errors(),

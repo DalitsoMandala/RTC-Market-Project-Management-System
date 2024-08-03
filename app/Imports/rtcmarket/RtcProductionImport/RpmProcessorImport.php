@@ -106,6 +106,11 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
 
                     }
                 }
+
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'File import has started you will be notified when the file has finished importing!', []));
+
+
             },
 
 
@@ -129,17 +134,18 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
 
                         $importErrors->delete();
                     } else {
-                        ImportError::create([
+                        $getError = ImportError::create([
                             'uuid' => $uuid,
                             'errors' => json_encode($failures),
                             'sheet' => $sheet,
                             'type' => 'validation',
                             'user_id' => $this->userId,
                         ]);
-                    }
 
-                    $user = User::find($this->userId);
-                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
+                        $user = User::find($this->userId);
+                        $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!', json_decode($getError->errors), $sheet));
+
+                    }
 
 
                     $processors = RtcProductionProcessor::where('uuid', $this->uuid)->pluck('id');
@@ -180,12 +186,10 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
                     RpmProcessorDomMarket::whereIn('rpm_processor_id', $processors)->delete();
                     Submission::where('batch_no', $uuid)->delete();
                     RtcProductionProcessor::where('uuid', $uuid)->delete();
-
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
 
                 }
-
-                $user = User::find($this->userId);
-                $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!'));
 
                 Cache::put($this->uuid . '_status', 'finished');
                 cache()->forget($this->uuid . '_progress');
@@ -198,10 +202,9 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
                     $importJob->update(['status' => 'completed', 'is_finished' => true]);
                 }
 
+
                 $user = User::find($this->userId);
-                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
-
-
+                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
                     Submission::where('batch_no', $this->uuid)->update([
                         'status' => 'approved',

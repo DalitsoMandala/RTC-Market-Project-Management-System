@@ -46,7 +46,6 @@ class RpmProcessorImportSheet3 implements ToCollection, WithHeadingRow, SkipsOnF
 
 
         if (!empty($this->failures)) {
-            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
             throw new SheetImportException('RTC_PROC_AGR', $this->failures);
         }
@@ -125,7 +124,7 @@ class RpmProcessorImportSheet3 implements ToCollection, WithHeadingRow, SkipsOnF
     {
         $errors = [];
         foreach ($failures as $failure) {
-            $errors[] = [
+            $this->failures[] = [
                 'row' => $failure->row(),
                 'attribute' => $failure->attribute(),
                 'errors' => $failure->errors(),

@@ -54,7 +54,7 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
         $rand = rand(100, 1000);
 
         if ($this->test) {
-            foreach (range(1, 5000) as $index) {
+            foreach (range(1, 100) as $index) {
 
                 $data[] = [
                     'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
@@ -89,7 +89,7 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                     ]),
                     'EPA' => $faker->randomElement($epaNames),
                     'SECTION' => $faker->randomElement($sectionNames),
-                    'DATE OF ASSESSMENT' => $faker->date(),
+                    'DATE OF ASSESSMENT' => $faker->date('Y-m-d'),
                     'ACTOR TYPE' => $faker->randomElement(['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']),
                     'RTC GROUP PLATFORM' => $faker->randomElement(['HOUSEHOLD', 'SEED']),
                     'PRODUCER ORGANISATION' => $faker->randomElement($organisationNames),

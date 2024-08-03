@@ -8,7 +8,8 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
 class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, WithHeadings
-{public $test = false;
+{
+    public $test = false;
 
     public function __construct($test = false)
     {
@@ -29,10 +30,10 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
 
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'DATE RECORDED' => $faker->date(),
+                    'DATE RECORDED' => $faker->date('Y-m-d'),
                     'PARTNER NAME' => strtoupper($faker->name),
                     'COUNTRY' => strtoupper($faker->country),
-                    'DATE OF MAXIMUM SALE' => $faker->date,
+                    'DATE OF MAXIMUM SALE' => $faker->date('Y-m-d'),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
                     'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => $faker->numberBetween(1, 100) * 10,
@@ -59,4 +60,5 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
             'FINANCIAL VALUE OF SALES (MALAWI KWACHA)',
         ];
 
-    }}
+    }
+}

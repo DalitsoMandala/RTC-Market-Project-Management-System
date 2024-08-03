@@ -38,10 +38,10 @@ class RtcProductionProcessorConcAgreement implements FromCollection, WithTitle, 
 
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'DATE RECORDED' => $faker->date(),
+                    'DATE RECORDED' => $faker->date('Y-m-d'),
                     'PARTNER NAME' => strtoupper($faker->name),
                     'COUNTRY' => strtoupper($faker->country),
-                    'DATE OF MAXIMUM SALE' => $faker->date,
+                    'DATE OF MAXIMUM SALE' => $faker->date('Y-m-d'),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
                     'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => $faker->numberBetween(1, 100) * 10,

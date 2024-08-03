@@ -46,9 +46,8 @@ class RpmProcessorImportSheet4 implements ToCollection, WithHeadingRow, WithVali
     {
 
         if (!empty($this->failures)) {
-            \Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
 
-            throw new SheetImportException('RTC_FARM_DOM', $this->failures);
+            throw new SheetImportException('RTC_PROC_DOM', $this->failures);
         }
 
         $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
@@ -126,13 +125,13 @@ class RpmProcessorImportSheet4 implements ToCollection, WithHeadingRow, WithVali
     {
         $errors = [];
         foreach ($failures as $failure) {
-            $errors[] = [
+            $this->failures[] = [
                 'row' => $failure->row(),
                 'attribute' => $failure->attribute(),
                 'errors' => $failure->errors(),
                 'values' => $failure->values(),
             ];
         }
-        throw new SheetImportException('SheetName', $errors); // Replace 'SheetName' with actual sheet name if possible
+
     }
 }

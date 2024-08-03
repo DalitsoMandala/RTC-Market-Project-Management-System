@@ -366,7 +366,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             '*.DISTRICT' => 'string|max:255|nullable',
             '*.SECTION' => 'string|max:255|nullable',
             '*.ENTERPRISE' => 'string|max:255|nullable',
-            '*.DATE OF ASSESSMENT' => 'date|nullable',
+            '*.DATE OF ASSESSMENT' => 'date|nullable|date_format:Y-m-d',
             '*.ACTOR TYPE' => 'string|max:255|in:FARMER,PROCESSOR,TRADER,INDIVIDUALS FROM NUTRITION INTERVENTION,OTHER|nullable',
             '*.RTC GROUP PLATFORM' => 'string|max:255|nullable',
             '*.PRODUCER ORGANISATION' => 'string|max:255|nullable',

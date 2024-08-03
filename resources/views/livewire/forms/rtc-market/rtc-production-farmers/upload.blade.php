@@ -155,19 +155,5 @@
 
 
     </div>
-    @script
-        <script>
-            $wire.on('upload-finished', () => {
-
-                setTimeout(() => {
-
-                    $wire.importing = false;
-                    $wire.importingFinished = true;
-
-                    $wire.sendToLocation();
-
-                }, 2000)
-            })
-        </script>
-    @endscript
+    
 </div>

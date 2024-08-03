@@ -31,11 +31,11 @@ class RtcProductionProcessorInterMarkets implements FromCollection, WithTitle, W
 
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'DATE RECORDED' => $faker->date(),
+                    'DATE RECORDED' => $faker->date('Y-m-d'),
                     'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'MARKET NAME' => strtoupper($faker->streetName),
                     'COUNTRY' => strtoupper($faker->country),
-                    'DATE OF MAXIMUM SALE' => $faker->date(),
+                    'DATE OF MAXIMUM SALE' => $faker->date('Y-m-d'),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD' => $faker->numberBetween(1, 100) * 10,
                     'FINANCIAL VALUE OF SALES' => $faker->numberBetween(1, 100) * 10,

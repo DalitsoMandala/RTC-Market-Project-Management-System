@@ -2,27 +2,31 @@
 
 namespace App\Imports\rtcmarket\RtcProductionImport;
 
-use App\Exceptions\SheetImportException;
+use Log;
+use Ramsey\Uuid\Uuid;
+use App\Models\Submission;
+use App\Models\JobProgress;
+use Illuminate\Support\Collection;
+use App\Models\RtcProductionFarmer;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ImportValidateHeading;
 use App\Models\HouseholdRtcConsumption;
-use App\Models\JobProgress;
-use App\Models\RtcProductionFarmer;
-use App\Models\Submission;
-use Illuminate\Support\Collection;
-use Log;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\HeadingRowImport;
+use App\Exceptions\SheetImportException;
+use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
-use Ramsey\Uuid\Uuid;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithEvents;
 
 HeadingRowFormatter::default('none');
-class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidation, SkipsOnFailure
+class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidation, SkipsOnFailure, WithEvents
 {
+    use Importable, RegistersEventListeners;
     public $userId;
     public $file;
     public $uuid;
@@ -127,7 +131,9 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
     {
 
         if (!empty($this->failures)) {
-            Log::channel('system_log')->error('Import validation errors: ' . var_export($this->failures));
+
+
+
             throw new SheetImportException('RTC_FARMERS', $this->failures);
         }
         $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
@@ -300,88 +306,88 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
 
 
         return [
-            '#' => ['required', 'numeric', 'distinct'],
-            'ENTERPRISE' => ['required', 'string'],
-            'DISTRICT' => ['required', 'string'],
-            'EPA' => ['required', 'string'],
-            'SECTION' => ['required', 'string'],
-            'DATE OF RECRUITMENT' => ['required', 'date_format:Y-m-d'],
-            'NAME OF ACTOR' => ['required', 'string'],
-            'NAME OF REPRESENTATIVE' => ['required', 'string'],
-            'PHONE NUMBER' => ['nullable', 'string'],
-            'TYPE' => ['nullable', 'string'],
-            'APPROACH' => ['nullable', 'string'],
-            'SECTOR' => ['nullable', 'string'],
-            'NUMBER OF MEMBERS/TOTAL' => ['nullable', 'numeric'],
-            'NUMBER OF MEMBERS/FEMALE 18-35YRS' => ['nullable', 'numeric'],
-            'NUMBER OF MEMBERS/FEMALE 35YRS+' => ['nullable', 'numeric'],
-            'NUMBER OF MEMBERS/MALE 18-35YRS' => ['nullable', 'numeric'],
-            'NUMBER OF MEMBERS/MALE 35YRS+' => ['nullable', 'numeric'],
-            'GROUP' => ['nullable', 'string'],
-            'ESTABLISHMENT STATUS' => ['nullable', 'string'],
-            'IS REGISTERED' => ['nullable', 'in:YES,NO'],
-            'REGISTRATION DETAILS/REGISTRATION BODY' => ['nullable', 'string'],
-            'REGISTRATION DETAILS/REGISTRATION NUMBER' => ['nullable', 'string'],
-            'REGISTRATION DETAILS/REGISTRATION DATE' => ['nullable', 'date_format:Y-m-d'],
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => ['nullable', 'numeric'],
-            'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => ['nullable', 'numeric'],
-            'AREA UNDER CULTIVATION/TOTAL' => ['nullable', 'numeric'],
-            'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CULTIVATION/VARIETY 3 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CULTIVATION/VARIETY 4 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CULTIVATION/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
-            'NUMBER OF PLANTLETS PRODUCED/CASSAVA' => ['nullable', 'numeric'],
-            'NUMBER OF PLANTLETS PRODUCED/POTATO' => ['nullable', 'numeric'],
-            'NUMBER OF PLANTLETS PRODUCED/SWEET POTATO' => ['nullable', 'numeric'],
-            'NUMBER OF SCREEN HOUSE VINES HARVESTED' => ['nullable', 'numeric'],
-            'NUMBER OF SCREEN HOUSE MIN TUBERS HARVESTED' => ['nullable', 'numeric'],
-            'NUMBER OF SAH PLANTS PRODUCED' => ['nullable', 'numeric'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/TOTAL' => ['nullable', 'numeric'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 3 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 4 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 6 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 7 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/TOTAL' => ['nullable', 'numeric'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 3 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 4 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 6 (SPECIFY)' => ['nullable', 'string'],
-            'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 7 (SPECIFY)' => ['nullable', 'string'],
-            'IS REGISTERED SEED PRODUCER' => ['nullable', 'in:YES,NO'],
-            'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION NUMBER' => ['nullable', 'string'],
-            'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION DATE' => ['nullable', 'date_format:Y-m-d'],
-            'USES CERTIFIED SEED' => ['nullable', 'in:YES,NO'],
-            'MARKET SEGMENT/FRESH' => ['nullable', 'in:YES,NO'],
-            'MARKET SEGMENT/PROCESSED' => ['nullable', 'in:YES,NO'],
-            'HAS RTC MARKET CONTRACT' => ['nullable', 'in:YES,NO'],
-            'TOTAL VOLUME PRODUCTION PREVIOUS SEASON' => ['nullable', 'numeric'],
-            'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => ['nullable', 'numeric'],
-            'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => ['nullable', 'date_format:Y-m-d'],
-            'TOTAL VOLUME IRRIGATION PRODUCTION PREVIOUS SEASON' => ['nullable', 'numeric'],
-            'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => ['nullable', 'numeric'],
-            'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => ['nullable', 'date_format:Y-m-d'],
-            'SELLS TO DOMESTIC MARKETS' => ['nullable', 'in:YES,NO'],
-            'SELLS TO INTERNATIONAL MARKETS' => ['nullable', 'in:YES,NO'],
-            'USES MARKET INFORMATION SYSTEMS' => ['nullable', 'in:YES,NO'],
-            'MARKET INFORMATION SYSTEMS' => ['nullable', 'string'],
-            'SELLS TO AGGREGATION CENTERS' => ['nullable', 'in:YES,NO'],
-            'AGGREGATION CENTERS/RESPONSE' => ['nullable', 'string'],
-            'AGGREGATION CENTERS/SPECIFY' => ['nullable', 'string'],
-            'TOTAL AGGREGATION CENTER SALES VOLUME' => ['nullable', 'numeric'],
+            '*.#' => ['required', 'numeric', 'distinct'],
+            '*.ENTERPRISE' => ['required', 'string'],
+            '*.DISTRICT' => ['required', 'string'],
+            '*.EPA' => ['required', 'string'],
+            '*.SECTION' => ['required', 'string'],
+            '*.DATE OF RECRUITMENT' => ['required', 'date_format:Y-m-d'],
+            '*.NAME OF ACTOR' => ['required', 'string'],
+            '*.NAME OF REPRESENTATIVE' => ['required', 'string'],
+            '*.PHONE NUMBER' => ['nullable', 'string'],
+            '*.TYPE' => ['nullable', 'string'],
+            '*.APPROACH' => ['nullable', 'string'],
+            '*.SECTOR' => ['nullable', 'string'],
+            '*.NUMBER OF MEMBERS/TOTAL' => ['nullable', 'numeric'],
+            '*.NUMBER OF MEMBERS/FEMALE 18-35YRS' => ['nullable', 'numeric'],
+            '*.NUMBER OF MEMBERS/FEMALE 35YRS+' => ['nullable', 'numeric'],
+            '*.NUMBER OF MEMBERS/MALE 18-35YRS' => ['nullable', 'numeric'],
+            '*.NUMBER OF MEMBERS/MALE 35YRS+' => ['nullable', 'numeric'],
+            '*.GROUP' => ['nullable', 'string'],
+            '*.ESTABLISHMENT STATUS' => ['nullable', 'string'],
+            '*.IS REGISTERED' => ['nullable', 'in:YES,NO'],
+            '*.REGISTRATION DETAILS/REGISTRATION BODY' => ['nullable', 'string'],
+            '*.REGISTRATION DETAILS/REGISTRATION NUMBER' => ['nullable', 'string'],
+            '*.REGISTRATION DETAILS/REGISTRATION DATE' => ['nullable', 'date_format:Y-m-d'],
+            '*.NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 18-35YRS' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/MALE 35YRS+' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES (TOTAL)' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 18-35YRS' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => ['nullable', 'numeric'],
+            '*.NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => ['nullable', 'numeric'],
+            '*.AREA UNDER CULTIVATION/TOTAL' => ['nullable', 'numeric'],
+            '*.AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CULTIVATION/VARIETY 3 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CULTIVATION/VARIETY 4 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CULTIVATION/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
+            '*.NUMBER OF PLANTLETS PRODUCED/CASSAVA' => ['nullable', 'numeric'],
+            '*.NUMBER OF PLANTLETS PRODUCED/POTATO' => ['nullable', 'numeric'],
+            '*.NUMBER OF PLANTLETS PRODUCED/SWEET POTATO' => ['nullable', 'numeric'],
+            '*.NUMBER OF SCREEN HOUSE VINES HARVESTED' => ['nullable', 'numeric'],
+            '*.NUMBER OF SCREEN HOUSE MIN TUBERS HARVESTED' => ['nullable', 'numeric'],
+            '*.NUMBER OF SAH PLANTS PRODUCED' => ['nullable', 'numeric'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/TOTAL' => ['nullable', 'numeric'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 3 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 4 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 6 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 7 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/TOTAL' => ['nullable', 'numeric'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 1 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 2 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 3 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 4 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 6 (SPECIFY)' => ['nullable', 'string'],
+            '*.AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 7 (SPECIFY)' => ['nullable', 'string'],
+            '*.IS REGISTERED SEED PRODUCER' => ['nullable', 'in:YES,NO'],
+            '*.REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION NUMBER' => ['nullable', 'string'],
+            '*.REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION DATE' => ['nullable', 'date_format:Y-m-d'],
+            '*.USES CERTIFIED SEED' => ['nullable', 'in:YES,NO'],
+            '*.MARKET SEGMENT/FRESH' => ['nullable', 'in:YES,NO'],
+            '*.MARKET SEGMENT/PROCESSED' => ['nullable', 'in:YES,NO'],
+            '*.HAS RTC MARKET CONTRACT' => ['nullable', 'in:YES,NO'],
+            '*.TOTAL VOLUME PRODUCTION PREVIOUS SEASON' => ['nullable', 'numeric'],
+            '*.TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => ['nullable', 'numeric'],
+            '*.TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => ['nullable', 'date_format:Y-m-d'],
+            '*.TOTAL VOLUME IRRIGATION PRODUCTION PREVIOUS SEASON' => ['nullable', 'numeric'],
+            '*.TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => ['nullable', 'numeric'],
+            '*.TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => ['nullable', 'date_format:Y-m-d'],
+            '*.SELLS TO DOMESTIC MARKETS' => ['nullable', 'in:YES,NO'],
+            '*.SELLS TO INTERNATIONAL MARKETS' => ['nullable', 'in:YES,NO'],
+            '*.USES MARKET INFORMATION SYSTEMS' => ['nullable', 'in:YES,NO'],
+            '*.MARKET INFORMATION SYSTEMS' => ['nullable', 'string'],
+            '*.SELLS TO AGGREGATION CENTERS' => ['nullable', 'in:YES,NO'],
+            '*.AGGREGATION CENTERS/RESPONSE' => ['nullable', 'string'],
+            '*.AGGREGATION CENTERS/SPECIFY' => ['nullable', 'string'],
+            '*.TOTAL AGGREGATION CENTER SALES VOLUME' => ['nullable', 'numeric'],
         ];
     }
 
@@ -391,7 +397,7 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
 
         $errors = [];
         foreach ($failures as $failure) {
-            $errors[] = [
+            $this->failures[] = [
                 'row' => $failure->row(),
                 'attribute' => $failure->attribute(),
                 'errors' => $failure->errors(),

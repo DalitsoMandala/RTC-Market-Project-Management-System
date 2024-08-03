@@ -29,11 +29,11 @@ class RtcProductionProcessorDomMarkets implements FromCollection, WithTitle, Wit
 
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'DATE RECORDED' => $faker->date(),
+                    'DATE RECORDED' => $faker->date('Y-m-d'),
                     'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'MARKET NAME' => strtoupper($faker->streetName),
                     'DISTRICT' => strtoupper($faker->streetName),
-                    'DATE OF MAXIMUM SALE' => $faker->date(),
+                    'DATE OF MAXIMUM SALE' => $faker->date('Y-m-d'),
                     'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
                     'FINANCIAL VALUE OF SALES' => $faker->numberBetween(1, 100) * 10,

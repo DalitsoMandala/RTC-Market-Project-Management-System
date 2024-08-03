@@ -55,7 +55,7 @@ class Upload extends Component
     public $selectedProject;
 
     public $selectedForm;
-
+    public $showReport;
     public $submissionPeriodId;
 
     public $openSubmission = false;
@@ -96,7 +96,7 @@ class Upload extends Component
                 $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs('public/imports', $name);
 
-                $path = public_path('storage\imports\\' . $name);
+                $path = storage_path('app/public/imports/' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 $this->updateJobStatus();
@@ -134,88 +134,16 @@ class Upload extends Component
 
 
 
-                    $user = User::find($userId);
-                    $user->notify(new JobNotification($this->importId, 'File import has started you will be notified when the file has finished importing!'));
 
-
-
-                    //     // $data = json_decode($submission->data, true);
-                    //     // $idMappings = [];
-                    //     // $highestId = RtcProductionProcessor::max('id');
-                    //     // foreach ($data['main'] as $mainSheet) {
-                    //     //     $highestId++;
-                    //     //     $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
-                    //     //     $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                    //     //     $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                    //     //     $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                    //     //     $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
-                    //     //     $idMappings[$mainSheet['#']] = $highestId;
-                    //     //     unset($mainSheet['#']);
-
-
-                    //     //     $mainSheet['submission_period_id'] = $this->submissionPeriodId;
-                    //     //     $mainSheet['organisation_id'] = Auth::user()->organisation->id;
-                    //     //     $mainSheet['financial_year_id'] = $this->selectedFinancialYear;
-                    //     //     $mainSheet['period_month_id'] = $this->selectedMonth;
-                    //     //     RtcProductionProcessor::create($mainSheet);
-
-                    //     // }
-
-                    //     // foreach ($data['followup'] as $mainSheet) {
-                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                    //     //     $mainSheet['rpm_processor_id'] = $newId;
-
-                    //     //     $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-                    //     //     $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-                    //     //     $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-                    //     //     $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
-                    //     //     $mainTable = RpmProcessorFollowUp::create($mainSheet);
-
-                    //     //     // follow up data
-
-                    //     // }
-
-                    //     // foreach ($data['agreement'] as $mainSheet) {
-                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                    //     //     $mainSheet['rpm_processor_id'] = $newId;
-                    //     //     $mainTable = RpmProcessorConcAgreement::create($mainSheet);
-
-                    //     //     // conc agreement
-
-                    //     // }
-
-                    //     // foreach ($data['market'] as $mainSheet) {
-                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                    //     //     $mainSheet['rpm_processor_id'] = $newId;
-                    //     //     $mainTable = RpmProcessorDomMarket::create($mainSheet);
-
-                    //     //     // dom market
-
-                    //     // }
-
-                    //     // foreach ($data['intermarket'] as $mainSheet) {
-                    //     //     $newId = $idMappings[$mainSheet['rpm_processor_id']];
-                    //     //     $mainSheet['rpm_processor_id'] = $newId;
-                    //     //     $mainTable = RpmProcessorInterMarket::create($mainSheet);
-
-
-
-                    //     // }
-
-                    //     // $link = 'cip/forms/rtc-market/household-consumption-form/' . $uuid . '/view';
-                    //     //   $currentUser->notify(new BatchDataAddedNotification($uuid, $link));
-
-
-                    //     session()->flash('success', 'Successfully submitted!');
-                    //     $this->redirect(route('cip-internal-submissions') . '#batch-submission');
-                    // }
 
 
                 } catch (UserErrorException $e) {
 
 
-                    $this->reset('upload');
 
+                    $this->reset('upload');
+                    $this->importing = false;
+                    $this->importingFinished = true;
 
                     session()->flash('error', $e->getMessage());
                 }
@@ -424,7 +352,7 @@ class Upload extends Component
                     unlink($temporaryFilePath);
                 } catch (\Exception $e) {
                     // Handle the exception (e.g., log the error)
-                    \Log::error('Failed to delete temporary file: ' . $e->getMessage());
+                    Log::error('Failed to delete temporary file: ' . $e->getMessage());
                 }
             }
 

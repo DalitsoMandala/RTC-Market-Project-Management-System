@@ -28,14 +28,14 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
         $data = [];
         $count = 1;
         if ($this->test) {
-            foreach (range(1, 3000) as $index) {
+            foreach (range(1, 100) as $index) {
                 $data[] = [
                     '#' => $count++,
                     'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
                     'DISTRICT' => $faker->randomElement(Help::getFakerNames()['districtNames']),
                     'EPA' => $faker->randomElement(Help::getFakerNames()['epaNames']),
                     'SECTION' => $faker->randomElement(Help::getFakerNames()['sectionNames']),
-                    'DATE OF RECRUITMENT' => $faker->date,
+                    'DATE OF RECRUITMENT' => $faker->date('Y-m-d'),
                     'NAME OF ACTOR' => $faker->randomElement(Help::getFakerNames()['organisationNames']),
                     'NAME OF REPRESENTATIVE' => strtoupper($faker->name),
                     $faker->numerify('###-###-####'),
@@ -56,7 +56,7 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
                     'IS REGISTERED' => $faker->randomElement(['YES', 'NO']),
                     'REGISTRATION DETAILS/REGISTRATION BODY' => strtoupper($faker->company),
                     'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->uuid,
-                    'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date,
+                    'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date('Y-m-d'),
                     'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES (TOTAL)' => $faker->randomNumber,
                     'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
                     'NUMBER OF EMPLOYEES/FORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
@@ -72,10 +72,10 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
                     'HAS RTC MARKET CONTRACT' => $faker->randomElement(['YES', 'NO']),
                     'TOTAL VOLUME PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->numberBetween(1, 100) * 10,
-                    'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date,
+                    'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
                     'TOTAL VOLUME IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => $faker->numberBetween(1, 100) * 10,
-                    'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date,
+                    'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
                     'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', 'NO']),
                     'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', 'NO']),
                     'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', 'NO']),

@@ -80,7 +80,8 @@ class Upload extends Component
                 $name = 'rpmf' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs('public/imports', $name);
 
-                $path = public_path('storage\imports\\' . $name);
+                // Use storage_path to get the absolute path
+                $path = storage_path('app/public/imports/' . $name);
                 $sheets = SheetNamesValidator::getSheetNames($path);
 
                 $this->updateJobStatus();
