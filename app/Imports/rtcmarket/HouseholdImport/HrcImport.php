@@ -2,46 +2,47 @@
 
 namespace App\Imports\rtcmarket\HouseholdImport;
 
-use App\Exceptions\ImportDataBaseError;
-use App\Exceptions\SheetImportException;
-use App\Exceptions\UserErrorException;
-use App\Helpers\ArrayToUpperCase;
-use App\Helpers\ImportValidateHeading;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Livewire;
 use App\Jobs\chuckReader;
-use App\Jobs\ProcessDataChunk;
-use App\Jobs\SaveSubmissionData;
+use App\Models\Submission;
 use App\Jobs\SaveTableData;
-use App\Models\HouseholdRtcConsumption;
 use App\Models\ImportError;
 use App\Models\JobProgress;
-use App\Models\Submission;
-use App\Models\User;
-use App\Notifications\JobNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Jobs\ProcessDataChunk;
+use App\Jobs\SaveSubmissionData;
+use App\Helpers\ArrayToUpperCase;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
-use Livewire\Livewire;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\RegistersEventListeners;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
+use Illuminate\Support\Facades\Cache;
+use App\Exceptions\UserErrorException;
+use App\Helpers\ImportValidateHeading;
+use App\Notifications\JobNotification;
+use App\Exceptions\ImportDataBaseError;
+use App\Models\HouseholdRtcConsumption;
+use Illuminate\Support\Facades\Artisan;
+use Maatwebsite\Excel\HeadingRowImport;
+use App\Exceptions\SheetImportException;
 use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
-use Maatwebsite\Excel\HeadingRowImport;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
-use Ramsey\Uuid\Uuid;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 
 HeadingRowFormatter::default('none');
 
@@ -259,6 +260,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 $this->totalRows = intval($sheets['HH_CONSUMPTION']) - 1;
 
 
+                $user = User::find($this->userId);
+                $user->notify(new JobNotification($this->uuid, 'File import has started you will be notified when the file has finished importing!', []));
+
+
             },
 
 
@@ -282,17 +287,18 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                         $importErrors->delete();
                     } else {
-                        ImportError::create([
+                        $getError = ImportError::create([
                             'uuid' => $uuid,
                             'errors' => json_encode($failures),
                             'sheet' => $sheet,
                             'type' => 'validation',
                             'user_id' => $this->userId,
                         ]);
+                        $user = User::find($this->userId);
+                        $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!', json_decode($getError->errors), $sheet));
                     }
 
-                    $user = User::find($this->userId);
-                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!'));
+
 
 
                     Submission::where('batch_no', $uuid)->delete();
@@ -301,7 +307,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                 } else if ($exception instanceof UserErrorException) {
                     $failures = 'Something went wrong!';
-                    \Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
+                    Log::channel('system_log')->error('Import Error:' . $exception->getMessage());
                     $sheet = 'HH_CONSUMPTION';
 
 
@@ -321,12 +327,12 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                     Submission::where('batch_no', $uuid)->delete();
                     HouseholdRtcConsumption::where('uuid', $uuid)->delete();
-
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
 
                 }
 
-                $user = User::find($this->userId);
-                $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import, your file had validation errors!'));
+
 
                 Cache::put($this->uuid . '_status', 'finished');
                 cache()->forget($this->uuid . '_progress');
@@ -340,7 +346,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 }
 
                 $user = User::find($this->userId);
-                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!'));
+                $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
                     HouseholdRtcConsumption::where('uuid', $this->uuid)->update([
                         'status' => 'approved',

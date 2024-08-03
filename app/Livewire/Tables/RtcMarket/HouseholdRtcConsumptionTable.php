@@ -31,7 +31,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
         return [
             Exportable::make('export')
-                ->queues(200)
+                ->queues(500)
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput()->showToggleColumns(),

@@ -133,10 +133,6 @@ class Upload extends Component
 
 
 
-                    $user = User::find($userId);
-                    $user->notify(new JobNotification($this->importId, 'File import has started you will be notified when the file has finished importing!'));
-
-
 
 
 
