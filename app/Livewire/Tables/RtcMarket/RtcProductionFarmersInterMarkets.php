@@ -2,8 +2,9 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -20,15 +21,15 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 {
     use WithExport;
-
+    public bool $deferLoading = true;
     public function setUp(): array
     {
 
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -38,7 +39,7 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('rpm_farmer_inter_markets');
+        return RpmFarmerInterMarket::query();
     }
 
     public function fields(): PowerGridFields

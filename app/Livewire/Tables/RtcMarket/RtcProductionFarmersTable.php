@@ -5,6 +5,7 @@ namespace App\Livewire\Tables\RtcMarket;
 use App\Models\Form;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RtcProductionFarmer;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -26,62 +27,33 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 {
     use WithExport;
     public $routePrefix;
+    public bool $deferLoading = true;
     public function setUp(): array
     {
         //  $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Header::make()
+                ->showSearchInput()
+                ->includeViewOnTop('components.export-data')
+            ,
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
     }
 
-    public function datasource(): Collection
+    public function datasource(): EloquentBuilder
     {
 
-        return RtcProductionFarmer::get();
+        return RtcProductionFarmer::query();
 
 
     }
-    public function sort($field, $direction)
-    {
-        $data = $this->datasource();
-        $fieldPath = explode('.', $field);
-        $fieldName = array_shift($fieldPath);
 
-        if ($this->isJsonField($fieldName)) {
-            $data = $data->sortBy(function ($item) use ($fieldPath) {
-                $json = json_decode($item->{array_shift($fieldPath)});
-                return data_get($json, implode('.', $fieldPath));
-            }, SORT_REGULAR, $direction === 'desc')->values();
-        } else {
-            $data = $data->sortBy($field, SORT_REGULAR, $direction === 'desc')->values();
-        }
-
-        return $data;
-    }
-
-    private function isJsonField($field)
-    {
-        $jsonFields = [
-            'location_data',
-            'number_of_members',
-            'area_under_cultivation',
-            'number_of_plantlets_produced',
-            'basic_seed_multiplication',
-            'market_segment',
-            'total_production_value_previous_season',
-            'total_irrigation_production_value_previous_season',
-            'aggregation_centers',
-        ];
-
-        return in_array($field, $jsonFields);
-    }
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()

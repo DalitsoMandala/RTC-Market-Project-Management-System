@@ -21,15 +21,15 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 final class RtcProductionFarmersFollowU extends PowerGridComponent
 {
     use WithExport;
-
+    public bool $deferLoading = true;
     public function setUp(): array
     {
         // $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()

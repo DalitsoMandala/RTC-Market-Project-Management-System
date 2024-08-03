@@ -30,10 +30,10 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         // $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->queues(500)
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            // Exportable::make('export')
+            //     ->queues(500)
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
                 ->showPerPage()
