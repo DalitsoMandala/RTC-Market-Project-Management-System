@@ -581,7 +581,7 @@ class AddFollowUp extends Component
                             'conc_partner_name' => null,
                             'conc_country' => null,
                             'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => null,
+                            'conc_product_type' => 'SEED',
                             'conc_volume_sold_previous_period' => null,
                             'conc_financial_value_of_sales' => null,
                         ],
@@ -592,11 +592,11 @@ class AddFollowUp extends Component
                     collect([
                         [
                             'dom_date_recorded' => null,
-                            'dom_crop_type' => null,
+                            'dom_crop_type' => 'CASSAVA',
                             'dom_market_name' => null,
                             'dom_district' => null,
                             'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => null,
+                            'dom_product_type' => 'SEED',
                             'dom_volume_sold_previous_period' => null,
                             'dom_financial_value_of_sales' => null,
                         ],
@@ -606,11 +606,11 @@ class AddFollowUp extends Component
                     collect([
                         [
                             'inter_date_recorded' => null,
-                            'inter_crop_type' => null,
+                            'inter_crop_type' => 'CASSAVA',
                             'inter_market_name' => null,
                             'inter_country' => null,
                             'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => null,
+                            'inter_product_type' => 'SEED',
                             'inter_volume_sold_previous_period' => null,
                             'inter_financial_value_of_sales' => null,
                         ],

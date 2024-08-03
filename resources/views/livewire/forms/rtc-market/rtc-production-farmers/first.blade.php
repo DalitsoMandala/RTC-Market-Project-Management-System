@@ -116,25 +116,27 @@ $watch('number_of_members', (v) => {
     <div class="mb-3">
 
         <div class="row">
-            <div class="col-12">
+            {{-- <div class="col-12">
                 <label for="female1835">Total:</label>
-                <input type="number" class="form-control @error('number_of_members.total') is-invalid @enderror"
-                    id="female1835" x-model="number_of_members.total">
+                <input type="number" min="0" step="any"
+                    class="form-control @error('number_of_members.total') is-invalid @enderror" id="female1835"
+                    x-model="number_of_members.total">
                 @error('number_of_members.total')
                     <x-error>{{ $message }}</x-error>
                 @enderror
-            </div>
+            </div> --}}
             <div class="col">
                 <label for="female1835">FEMALE 18-35YRS:</label>
-                <input type="number" class="form-control @error('number_of_members.female_18_35') is-invalid @enderror"
-                    id="female1835" x-model="number_of_members.female_18_35">
+                <input type="number" min="0" step="any"
+                    class="form-control @error('number_of_members.female_18_35') is-invalid @enderror" id="female1835"
+                    x-model="number_of_members.female_18_35">
                 @error('number_of_members.female_18_35')
                     <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="col">
                 <label for="female35plus">FEMALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_members.female_35_plus') is-invalid @enderror"
                     id="female35plus" x-model="number_of_members.female_35_plus">
                 @error('number_of_members.female_35_plus')
@@ -145,15 +147,16 @@ $watch('number_of_members', (v) => {
         <div class="row">
             <div class="col">
                 <label for="male1835">MALE 18-35YRS:</label>
-                <input type="number" class="form-control @error('number_of_members.male_18_35') is-invalid @enderror"
-                    id="male1835" x-model="number_of_members.male_18_35">
+                <input type="number" min="0" step="any"
+                    class="form-control @error('number_of_members.male_18_35') is-invalid @enderror" id="male1835"
+                    x-model="number_of_members.male_18_35">
                 @error('number_of_members.male_18_35')
                     <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="col">
                 <label for="male35plus">MALE 35YRS +:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror" id="male35plus"
                     x-model="number_of_members.male_35_plus">
                 @error('number_of_members.male_35_plus')
@@ -274,7 +277,7 @@ $watch('registration_details', (v) => {
 
             <div class="mb-3">
                 <label for="formalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.female_18_35') is-invalid @enderror"
                     id="formalFemale1835" wire:model="number_of_employees.formal.female_18_35">
                 @error('number_of_employees.formal.female_18_35')
@@ -283,7 +286,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="formalFemale35">FEMALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.female_35_plus') is-invalid @enderror"
                     id="formalFemale35" wire:model="number_of_employees.formal.female_35_plus">
                 @error('number_of_employees.formal.female_35_plus')
@@ -294,7 +297,7 @@ $watch('registration_details', (v) => {
         <div class="col">
             <div class="mb-3">
                 <label for="formalMale1835">MALE 18-35YRS:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.male_18_35') is-invalid @enderror"
                     id="formalMale1835" wire:model="number_of_employees.formal.male_18_35">
                 @error('number_of_employees.formal.male_18_35')
@@ -303,7 +306,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="formalMale35">MALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.male_35_plus') is-invalid @enderror"
                     id="formalMale35" wire:model="number_of_employees.formal.male_35_plus">
                 @error('number_of_employees.formal.male_35_plus')
@@ -320,7 +323,7 @@ $watch('registration_details', (v) => {
 
             <div class="mb-3">
                 <label for="informalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.female_18_35') is-invalid @enderror"
                     id="informalFemale1835" wire:model="number_of_employees.informal.female_18_35">
                 @error('number_of_employees.informal.female_18_35')
@@ -329,7 +332,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="informalFemale35">FEMALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.female_35_plus') is-invalid @enderror"
                     id="informalFemale35" wire:model="number_of_employees.informal.female_35_plus">
                 @error('number_of_employees.informal.female_35_plus')
@@ -340,7 +343,7 @@ $watch('registration_details', (v) => {
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="informalMale1835">MALE 18-35YRS: </label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.male_18_35') is-invalid @enderror"
                     id="informalMale1835" wire:model="number_of_employees.informal.male_18_35">
                 @error('number_of_employees.informal.male_18_35')
@@ -349,7 +352,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="informalMale35">MALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.male_35_plus') is-invalid @enderror"
                     id="informalMale35" wire:model="number_of_employees.informal.male_35_plus">
                 @error('number_of_employees.informal.male_35_plus')
@@ -378,7 +381,7 @@ $watch('registration_details', (v) => {
             <div class="mb-3">
                 <label for="areaUnderCultivationVariety1" class="form-label">Area
                     Under Cultivation (Variety 1):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_cultivation.variety_1') is-invalid @enderror"
                     id="areaUnderCultivationVariety1" wire:model="area_under_cultivation.variety_1">
                 @error('area_under_cultivation.variety_1')
@@ -390,7 +393,7 @@ $watch('registration_details', (v) => {
             <div class="mb-3">
                 <label for="areaUnderCultivationVariety2" class="form-label">Area
                     Under Cultivation (Variety 2):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_cultivation.variety_2') is-invalid @enderror"
                     id="areaUnderCultivationVariety2" wire:model="area_under_cultivation.variety_2">
                 @error('area_under_cultivation.variety_2')
@@ -402,7 +405,7 @@ $watch('registration_details', (v) => {
             <div class="mb-3">
                 <label for="areaUnderCultivationVariety3" class="form-label">Area
                     Under Cultivation (Variety 3):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_cultivation.variety_3') is-invalid @enderror"
                     id="areaUnderCultivationVariety3" wire:model="area_under_cultivation.variety_3">
                 @error('area_under_cultivation.variety_3')
@@ -414,7 +417,7 @@ $watch('registration_details', (v) => {
             <div class="mb-3">
                 <label for="areaUnderCultivationVariety4" class="form-label">Area
                     Under Cultivation (Variety 4):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_cultivation.variety_4') is-invalid @enderror"
                     id="areaUnderCultivationVariety4" wire:model="area_under_cultivation.variety_4">
                 @error('area_under_cultivation.variety_4')
@@ -426,7 +429,7 @@ $watch('registration_details', (v) => {
             <div class="mb-3">
                 <label for="areaUnderCultivationVariety5" class="form-label">Area
                     Under Cultivation (Variety 5):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_cultivation.variety_5') is-invalid @enderror"
                     id="areaUnderCultivationVariety5" wire:model="area_under_cultivation.variety_5">
                 @error('area_under_cultivation.variety_5')
@@ -466,7 +469,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="cassavaPlantlets" class="form-label">Number of
                     Plantlets Produced (Cassava):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_plantlets_produced.cassava') is-invalid @enderror"
                     id="cassavaPlantlets" x-model="number_of_plantlets_produced.cassava">
                 @error('number_of_plantlets_produced.cassava')
@@ -478,7 +481,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="potatoPlantlets" class="form-label">Number of
                     Plantlets Produced (Potato):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_plantlets_produced.potato') is-invalid @enderror"
                     id="potatoPlantlets" x-model="number_of_plantlets_produced.potato">
                 @error('number_of_plantlets_produced.potato')
@@ -490,7 +493,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="sweetPotatoPlantlets" class="form-label">Number of
                     Plantlets Produced (Sweet Potato):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_plantlets_produced.sweet_potato') is-invalid @enderror"
                     id="sweetPotatoPlantlets" x-model="number_of_plantlets_produced.sweet_potato">
                 @error('number_of_plantlets_produced.sweet_potato')
@@ -517,7 +520,8 @@ $watch('number_of_plantlets_produced', (v) => {
 }" x-show="group=='EARLY GENERATION SEED PRODUCER'">
     <label for="numberOfScreenHouseVines" class="form-label">Number of Screen
         House Vines Harvested (Sweet Potatoes)</label>
-    <input type="number" class="form-control @error('number_of_screen_house_vines_harvested') is-invalid @enderror"
+    <input type="number" min="0" step="any"
+        class="form-control @error('number_of_screen_house_vines_harvested') is-invalid @enderror"
         id="numberOfScreenHouseVines" x-model='number_of_screen_house_vines_harvested'>
     @error('number_of_screen_house_vines_harvested')
         <x-error>{{ $message }}</x-error>
@@ -537,7 +541,7 @@ $watch('number_of_plantlets_produced', (v) => {
 }" x-show="group=='EARLY GENERATION SEED PRODUCER' ">
     <label for="numberOfMiniTubers" class="form-label">Number of Screen House
         Mini-Tubers Harvested (Potato)</label>
-    <input type="number"
+    <input type="number" min="0" step="any"
         class="form-control @error('number_of_screen_house_min_tubers_harvested') is-invalid @enderror"
         id="numberOfMiniTubers" x-model='number_of_screen_house_min_tubers_harvested'>
     @error('number_of_screen_house_min_tubers_harvested')
@@ -558,8 +562,9 @@ $watch('number_of_plantlets_produced', (v) => {
 }" x-show=" group=='EARLY GENERATION SEED PRODUCER'">
     <label for="numberOfSAHPlants" class="form-label">Number of SAH Plants
         Produced (Cassava)</label>
-    <input type="number" class="form-control @error('number_of_sah_plants_produced') is-invalid @enderror"
-        id="numberOfSAHPlants" x-model='number_of_sah_plants_produced'>
+    <input type="number" min="0" step="any"
+        class="form-control @error('number_of_sah_plants_produced') is-invalid @enderror" id="numberOfSAHPlants"
+        x-model='number_of_sah_plants_produced'>
     @error('number_of_sah_plants_produced')
         <x-error>{{ $message }}</x-error>
     @enderror
@@ -588,7 +593,7 @@ $watch('number_of_plantlets_produced', (v) => {
     <div class="mb-3">
         <label for="areaUnderBasicSeedTotal" class="form-label">Area Under Basic
             Seed Multiplication (Total):</label>
-        <input type="number"
+        <input type="number" min="0" step="any"
             class="form-control @error('area_under_basic_seed_multiplication.total') is-invalid @enderror"
             id="areaUnderBasicSeedTotal" wire:model="area_under_basic_seed_multiplication.total">
         @error('area_under_basic_seed_multiplication.total')
@@ -601,7 +606,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety1Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 1):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_1') is-invalid @enderror"
                     id="variety1Seed" wire:model="area_under_basic_seed_multiplication.variety_1">
                 @error('area_under_basic_seed_multiplication.variety_1')
@@ -613,7 +618,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety2Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 2):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_2') is-invalid @enderror"
                     id="variety2Seed" wire:model="area_under_basic_seed_multiplication.variety_2">
                 @error('area_under_basic_seed_multiplication.variety_2')
@@ -625,7 +630,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety3Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 3):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_3') is-invalid @enderror"
                     id="variety3Seed" wire:model="area_under_basic_seed_multiplication.variety_3">
                 @error('area_under_basic_seed_multiplication.variety_3')
@@ -640,7 +645,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety4Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 4):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_4') is-invalid @enderror"
                     id="variety4Seed" wire:model="area_under_basic_seed_multiplication.variety_4">
                 @error('area_under_basic_seed_multiplication.variety_4')
@@ -652,7 +657,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety5Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 5):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_5') is-invalid @enderror"
                     id="variety5Seed" wire:model="area_under_basic_seed_multiplication.variety_5">
                 @error('area_under_basic_seed_multiplication.variety_5')
@@ -664,7 +669,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety6Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 6):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_6') is-invalid @enderror"
                     id="variety6Seed" wire:model="area_under_basic_seed_multiplication.variety_6">
                 @error('area_under_basic_seed_multiplication.variety_6')
@@ -679,7 +684,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety7Seed" class="form-label">Area Under Basic Seed
                     Multiplication (Variety 7):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_basic_seed_multiplication.variety_7') is-invalid @enderror"
                     id="variety7Seed" wire:model="area_under_basic_seed_multiplication.variety_7">
                 @error('area_under_basic_seed_multiplication.variety_7')
@@ -700,7 +705,7 @@ $watch('number_of_plantlets_produced', (v) => {
     <div class="mb-3">
         <label for="areaUnderCertifiedSeedTotal" class="form-label">Area Under
             Certified Seed Multiplication (Total):</label>
-        <input type="number"
+        <input type="number" min="0" step="any"
             class="form-control @error('area_under_certified_seed_multiplication.total') is-invalid @enderror"
             id="areaUnderCertifiedSeedTotal" wire:model="area_under_certified_seed_multiplication.total">
 
@@ -714,7 +719,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety1CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 1):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_1') is-invalid @enderror"
                     id="variety1CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_1">
                 @error('area_under_certified_seed_multiplication.variety_1')
@@ -726,7 +731,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety2CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 2):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_2') is-invalid @enderror"
                     id="variety2CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_2">
 
@@ -739,7 +744,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety3CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 3):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_3') is-invalid @enderror"
                     id="variety3CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_3">
                 @error('area_under_certified_seed_multiplication.variety_3')
@@ -754,7 +759,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety4CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 4):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_4') is-invalid @enderror"
                     id="variety4CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_4">
                 @error('area_under_certified_seed_multiplication.variety_4')
@@ -766,7 +771,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety5CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 5):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_5') is-invalid @enderror"
                     id="variety5CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_5">
                 @error('area_under_certified_seed_multiplication.variety_5')
@@ -778,7 +783,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety6CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 6):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_6') is-invalid @enderror"
                     id="variety6CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_6">
                 @error('area_under_certified_seed_multiplication.variety_6')
@@ -791,7 +796,7 @@ $watch('number_of_plantlets_produced', (v) => {
             <div class="mb-3">
                 <label for="variety7CertifiedSeed" class="form-label">Area Under
                     Certified Seed Multiplication (Variety 7):</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('area_under_certified_seed_multiplication.variety_7') is-invalid @enderror"
                     id="variety7CertifiedSeed" wire:model="area_under_certified_seed_multiplication.variety_7">
                 @error('area_under_certified_seed_multiplication.variety_7')
@@ -851,8 +856,9 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="registrationNumber" class="form-label">Seed Service Unit
             Registration Number:</label>
-        <input type="text" class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror" id="registrationNumber"
-            wire:model="seed_service_unit_registration_details.registration_number">
+        <input type="text"
+            class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror"
+            id="registrationNumber" wire:model="seed_service_unit_registration_details.registration_number">
         @error('seed_service_unit_registration_details.registration_number')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -861,8 +867,9 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="registrationDate" class="form-label">Seed Service Unit
             Registration Date:</label>
-        <input type="date" class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror " id="registrationDate"
-            wire:model="seed_service_unit_registration_details.registration_date">
+        <input type="date"
+            class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror "
+            id="registrationDate" wire:model="seed_service_unit_registration_details.registration_date">
         @error('seed_service_unit_registration_details.registration_date')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -941,7 +948,8 @@ $watch('registration_details', (v) => {
 <div class="mb-3">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
-    <input type="number" class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
+    <input type="number" min="0" step="any"
+        class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
         id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
     @error('total_vol_production_previous_season')
         <x-error>{{ $message }}</x-error>
@@ -957,7 +965,7 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Total Production
             Value Previous Season (Financial Value-MWK):</label>
-        <input type="number"
+        <input type="number" min="0" step="any"
             class="form-control  @error('total_production_value_previous_season.total') is-invalid @enderror"
             id="totalProductionValue" wire:model="total_production_value_previous_season.total">
         @error('total_production_value_previous_season.total')
@@ -983,7 +991,7 @@ $watch('registration_details', (v) => {
     <label for="totalVolumeIrrigation" class="form-label">Total Volume of
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
-    <input type="number"
+    <input type="number" min="0" step="any"
         class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror"
         id="totalVolumeIrrigation" wire:model='total_vol_irrigation_production_previous_season'>
     @error('total_vol_irrigation_production_previous_season')
@@ -999,7 +1007,7 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="totalIrrigationProductionValue" class="form-label">Total
             Irrigation Production Value Previous Season:</label>
-        <input type="number"
+        <input type="number" min="0" step="any"
             class="form-control  @error('total_irrigation_production_value_previous_season.tota') is-invalid @enderror"
             id="totalIrrigationProductionValue" wire:model="total_irrigation_production_value_previous_season.total">
         @error('total_irrigation_production_value_previous_season.tota')
@@ -1179,7 +1187,8 @@ $watch('aggregation_center_sales', (v) => {
         <label for="totalVolumeSoldThroughAggregation" class="form-label">Total Volume
             of RTC Sold Through Aggregation Centers in Previous Season (Metric
             Tonnes)</label>
-        <input type="number" class="form-control  @error('aggregation_center_sales') is-invalid @enderror"
+        <input type="number" min="0" step="any"
+            class="form-control  @error('aggregation_center_sales') is-invalid @enderror"
             id="totalVolumeSoldThroughAggregation" x-model='aggregation_center_sales'>
 
         @error('aggregation_center_sales')

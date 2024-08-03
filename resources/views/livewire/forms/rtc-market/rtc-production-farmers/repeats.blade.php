@@ -86,7 +86,7 @@
             <label for="conc_volume_sold_previous_period_{{ $index }}" class="form-label">VOLUME SOLD
                 PREVIOUS
                 PERIOD (METRIC TONNES)</label>
-            <input type="number" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control  @error('inputOne.' . $index . '.conc_volume_sold_previous_period') is-invalid @enderror"
                 id="conc_volume_sold_previous_period_{{ $index }}"
                 wire:model="inputOne.{{ $index }}.conc_volume_sold_previous_period">
@@ -100,7 +100,7 @@
                 SALES
                 (MALAWI KWACHA)
             </label>
-            <input type="number" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control  @error('inputOne.' . $index . '.conc_financial_value_of_sales') is-invalid @enderror "
                 id="conc_financial_value_of_sales_{{ $index }}"
                 wire:model="inputOne.{{ $index }}.conc_financial_value_of_sales">
@@ -232,7 +232,7 @@
             <label for="dom_volume_sold_previous_period_{{ $index }}" class="form-label">VOLUME SOLD
                 PREVIOUS
                 PERIOD (METRIC TONNES)</label>
-            <input type="number" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control  @error('inputTwo.' . $index . '.dom_volume_sold_previous_period') is-invalid @enderror"
                 id="dom_volume_sold_previous_period_{{ $index }}"
                 wire:model="inputTwo.{{ $index }}.dom_volume_sold_previous_period">
@@ -244,7 +244,7 @@
         <div class="mb-3">
             <label for="dom_financial_value_of_sales_{{ $index }}" class="form-label">FINANCIAL VALUE OF
                 SALES</label>
-            <input type="number" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control  @error('inputTwo.' . $index . '.dom_financial_value_of_sales') is-invalid @enderror"
                 id="dom_financial_value_of_sales_{{ $index }}"
                 wire:model="inputTwo.{{ $index }}.dom_financial_value_of_sales">
@@ -379,7 +379,7 @@
         <div class="mb-3">
             <label for="inter_volume_sold_previous_period_{{ $index }}" class="form-label">VOLUME SOLD
                 PREVIOUS PERIOD (METRIC TONNES)</label>
-            <input type="number" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control   @error('inputThree.' . $index . '.inter_volume_sold_previous_period') is-invalid @enderror"
                 id="inter_volume_sold_previous_period_{{ $index }}"
                 wire:model="inputThree.{{ $index }}.inter_volume_sold_previous_period">
@@ -391,7 +391,7 @@
         <div class="mb-3">
             <label for="inter_financial_value_of_sales_{{ $index }}" class="form-label">FINANCIAL VALUE OF
                 SALES</label>
-            <input type="number" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control   @error('inputThree.' . $index . '.inter_financial_value_of_sales') is-invalid @enderror"
                 id="inter_financial_value_of_sales_{{ $index }}"
                 wire:model="inputThree.{{ $index }}.inter_financial_value_of_sales">

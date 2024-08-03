@@ -33,7 +33,12 @@ class Add extends Component
     use LivewireAlert;
     public $form_name = 'RTC PRODUCTION AND MARKETING FORM FARMERS';
     public $selectedIndicator, $submissionPeriodId;
-    public $location_data = [];
+    public $location_data = [
+        'enterprise' => null,
+        'district' => null,
+        'epa' => null,
+        'section' => null,
+    ];
     public $date_of_recruitment;
     public $name_of_actor;
     public $name_of_representative;
@@ -42,7 +47,7 @@ class Add extends Component
     public $approach; // For producer organizations only
     public $sector;
     public $number_of_members = [
-        'total' => null,
+        //   'total' => null,
         'female_18_35' => null,
         'female_35_plus' => null,
         'male_18_35' => null,
@@ -59,14 +64,14 @@ class Add extends Component
     ];
     public $number_of_employees = [
         'formal' => [
-            'total' => null,
+            // 'total' => null,
             'female_18_35' => null,
             'female_35_plus' => null,
             'male_18_35' => null,
             'male_35_plus' => null,
         ],
         'informal' => [
-            'total' => null,
+            //  'total' => null,
             'female_18_35' => null,
             'female_35_plus' => null,
             'male_18_35' => null,
@@ -144,30 +149,7 @@ class Add extends Component
     public $aggregation_center_sales; // Previous season volume in metric tonnes
 
     //2
-    public $f_location_data = [];
-    public $f_date_of_follow_up;
-    public $f_area_under_cultivation = [];
-    public $f_number_of_plantlets_produced = [];
-    public $f_number_of_screen_house_vines_harvested;
-    public $f_number_of_screen_house_min_tubers_harvested;
-    public $f_number_of_sah_plants_produced;
-    public $f_area_under_basic_seed_multiplication = [];
-    public $f_area_under_certified_seed_multiplication = [];
-    public $f_is_registered_seed_producer = false;
-    public $f_seed_service_unit_registration_details = [];
-    public $f_uses_certified_seed = false;
-    public $f_market_segment = [];
-    public $f_has_rtc_market_contract = false;
-    public $f_total_vol_production_previous_season;
-    public $f_total_production_value_previous_season = [];
-    public $f_total_vol_irrigation_production_previous_season;
-    public $f_total_irrigation_production_value_previous_season = [];
-    public $f_sells_to_domestic_markets = false;
-    public $f_sells_to_international_markets = false;
-    public $f_uses_market_information_systems = false;
-    public $f_market_information_systems;
-    public $f_aggregation_centers = [];
-    public $f_aggregation_center_sales;
+
 
     public $inputOne = [];
 
@@ -221,6 +203,7 @@ class Add extends Component
                 'number_of_plantlets_produced.*' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
                 'market_information_systems' => 'required_if_accepted:uses_market_information_systems',
                 'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
+
             ];
 
 
@@ -545,6 +528,8 @@ class Add extends Component
             } else {
                 $this->market_segment['processed'] = "NO";
             }
+
+
             $firstTable = [
                 'location_data' => $this->location_data,
                 'date_of_recruitment' => $this->date_of_recruitment,
@@ -766,7 +751,7 @@ class Add extends Component
                             'conc_partner_name' => null,
                             'conc_country' => null,
                             'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => null,
+                            'conc_product_type' => 'SEED',
                             'conc_volume_sold_previous_period' => null,
                             'conc_financial_value_of_sales' => null,
                         ],
@@ -777,11 +762,11 @@ class Add extends Component
                     collect([
                         [
                             'dom_date_recorded' => null,
-                            'dom_crop_type' => null,
+                            'dom_crop_type' => 'CASSAVA',
                             'dom_market_name' => null,
                             'dom_district' => null,
                             'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => null,
+                            'dom_product_type' => 'SEED',
                             'dom_volume_sold_previous_period' => null,
                             'dom_financial_value_of_sales' => null,
                         ],
@@ -791,11 +776,11 @@ class Add extends Component
                     collect([
                         [
                             'inter_date_recorded' => null,
-                            'inter_crop_type' => null,
+                            'inter_crop_type' => 'CASSAVA',
                             'inter_market_name' => null,
                             'inter_country' => null,
                             'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => null,
+                            'inter_product_type' => 'SEED',
                             'inter_volume_sold_previous_period' => null,
                             'inter_financial_value_of_sales' => null,
                         ],
@@ -856,7 +841,7 @@ class Add extends Component
                             'conc_partner_name' => null,
                             'conc_country' => null,
                             'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => null,
+                            'conc_product_type' => 'SEED',
                             'conc_volume_sold_previous_period' => null,
                             'conc_financial_value_of_sales' => null,
                         ],
@@ -867,11 +852,11 @@ class Add extends Component
                     collect([
                         [
                             'dom_date_recorded' => null,
-                            'dom_crop_type' => null,
+                            'dom_crop_type' => 'CASSAVA',
                             'dom_market_name' => null,
                             'dom_district' => null,
                             'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => null,
+                            'dom_product_type' => 'SEED',
                             'dom_volume_sold_previous_period' => null,
                             'dom_financial_value_of_sales' => null,
                         ],
@@ -881,11 +866,11 @@ class Add extends Component
                     collect([
                         [
                             'inter_date_recorded' => null,
-                            'inter_crop_type' => null,
+                            'inter_crop_type' => 'CASSAVA',
                             'inter_market_name' => null,
                             'inter_country' => null,
                             'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => null,
+                            'inter_product_type' => 'SEED',
                             'inter_volume_sold_previous_period' => null,
                             'inter_financial_value_of_sales' => null,
                         ],
