@@ -19,17 +19,17 @@ final class FormTable extends PowerGridComponent
 {
     use WithExport;
     public $organisation;
-    public bool $deferLoading = true;
+    public $num = 1;
 
 
     public function setUp(): array
     {
 
         return [
-            Exportable::make('export')
-                ->striped()
+            // Exportable::make('export')
+            //     ->striped()
 
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -40,49 +40,22 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        if ($this->organisation) {
-            // Eager load the 'project' and 'indicators' relationships
-            $forms = Form::with(['project', 'indicators'])->get();
 
-            // Collect all indicator IDs manually
-            $indicatorIds = [];
-            foreach ($forms as $form) {
-                foreach ($form->indicators as $indicator) {
-                    $indicatorIds[] = $indicator->id;
-                }
-            }
-
-            // Remove duplicate IDs
-            $indicatorIds = array_unique($indicatorIds);
-
-            // Retrieve the organisation by name
-            $organisation = Organisation::where('name', $this->organisation)->firstOrFail();
-
-            // Retrieve responsible people based on the unique indicator IDs and organisation ID
-            $responsiblePeople = ResponsiblePerson::whereIn('indicator_id', $indicatorIds)
-                ->where('organisation_id', $organisation->id)
-                ->get();
-
-            // Filter the indicators to only those associated with responsible people
-            $filteredIndicators = $responsiblePeople->pluck('indicator_id')->toArray();
-
-            // Filter the forms based on the filtered indicators
-            $filteredForms = Form::with(['project', 'indicators'])
-                ->whereHas('indicators', function ($query) use ($filteredIndicators) {
-                    $query->whereIn('indicators.id', $filteredIndicators);
-                })
-            ;
-
-            return $filteredForms;
-
-        }
-        return Form::query()->with('project');
+        return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM');
+    }
+    public function relationSearch(): array
+    {
+        return [
+            'project' => [ // relationship on dishes model
+                'name'
+            ],
+        ];
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('id', fn($model) => $this->num++)
             ->add('name')
             ->add('name_formatted', function ($model) {
 
@@ -92,9 +65,9 @@ final class FormTable extends PowerGridComponent
                     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
                 } else
                     if ($model->name == 'ATTENDANCE REGISTER') {
-                        return '<a   href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
+                        return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
                     } else {
-                        return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                        return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
                     }
 
 
@@ -116,8 +89,8 @@ final class FormTable extends PowerGridComponent
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Project', 'project')
-                ->sortable(),
+            Column::make('Project', 'project', )
+                ->searchable(),
 
             Column::make('Type', 'type')
                 ->sortable()
