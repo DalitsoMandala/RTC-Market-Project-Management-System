@@ -10,21 +10,29 @@ use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\Submission;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
-
+    #[Lazy]
     public $data;
     public $project;
     public $indicatorCount;
     public $submissions;
 
     public $attendance;
-
+    public $showContent = false;
     public $quickForms;
     public function mount()
     {
+
+
+    }
+
+    public function loadData()
+    {
+
         $a1 = new indicator_A1();
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $this->fill([
@@ -46,7 +54,11 @@ class Dashboard extends Component
         $this->attendance = AttendanceRegister::get()->take(5);
         $this->quickForms = Form::with(['project', 'indicators'])->whereNot('name', 'REPORT FORM')->get()->take(5);
 
+
+        $this->showContent = true;
     }
+
+
 
     public function render()
     {
