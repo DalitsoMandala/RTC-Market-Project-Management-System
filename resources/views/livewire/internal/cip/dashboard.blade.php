@@ -363,11 +363,5 @@
 
     </div>
 
-    @assets
-        <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js'></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
-    @endassets
-    @script
-        <script></script>
-    @endscript
+
 </div>

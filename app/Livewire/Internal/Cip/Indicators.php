@@ -3,17 +3,19 @@
 namespace App\Livewire\Internal\Cip;
 
 use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\IndicatorForm;
-use App\Models\Organisation;
 use App\Models\Project;
+use Livewire\Component;
+use App\Models\Indicator;
+use Livewire\Attributes\On;
+use App\Models\Organisation;
+use App\Models\IndicatorForm;
+use Livewire\Attributes\Lazy;
 use App\Models\ResponsiblePerson;
+use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
-use Livewire\Component;
 
+#[Lazy]
 class Indicators extends Component
 {
     use LivewireAlert;

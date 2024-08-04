@@ -29,9 +29,9 @@ final class IndicatorTable extends PowerGridComponent
         //   $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -50,7 +50,7 @@ final class IndicatorTable extends PowerGridComponent
             $user = User::find($this->userId);
             $organisation_id = $user->organisation->id;
 
-            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators'])->whereHas('responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators'])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
             });
             return $data;
@@ -74,10 +74,10 @@ final class IndicatorTable extends PowerGridComponent
                 $user = User::find($this->userId);
                 if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
 
-                    return '<a  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline"  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
 
                 } else {
-                    return '<a  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
 
                 }
 
@@ -114,9 +114,11 @@ final class IndicatorTable extends PowerGridComponent
         $showActionColumn = false; // Set this variable based on your condition
 
         $columns = [
-            Column::make('Id', 'id'),
-            Column::make('Indicator #', 'indicator_no_bold')
+            Column::make('Id', 'id')
                 ->sortable()
+            ,
+            Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
+
                 ->searchable(),
             Column::make('Indicator', 'name_link', 'indicator_name')
                 ->sortable()
@@ -129,9 +131,9 @@ final class IndicatorTable extends PowerGridComponent
         $user = Auth::user();
         if ($user->hasAnyRole('internal')) {
             $columns[] = Column::make('Sources', 'sources');
-            $columns[] = Column::action('Action');
+            //   $columns[] = Column::action('Action');
         } else {
-            $columns[] = Column::action('Action')->hidden();
+            //    $columns[] = Column::action('Action')->hidden();
         }
 
         return $columns;
@@ -150,16 +152,16 @@ final class IndicatorTable extends PowerGridComponent
         $this->refresh();
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal']),
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('<i class="bx bx-pen"></i>')
+    //             ->id()
+    //             ->class('btn btn-primary')
+    //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal']),
+    //     ];
+    // }
 
     public function actionRules($row): array
     {
