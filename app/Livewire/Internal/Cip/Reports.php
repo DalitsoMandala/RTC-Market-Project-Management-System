@@ -4,6 +4,7 @@ namespace App\Livewire\Internal\Cip;
 
 use Throwable;
 use App\Jobs\Mapper;
+use App\Livewire\Tables\ReportingTable;
 use App\Models\Project;
 use Livewire\Component;
 use App\Models\Indicator;
@@ -45,7 +46,7 @@ class Reports extends Component
     {
         $this->projects = Project::get();
         $this->indicators = Indicator::get();
-        $this->load();
+
 
     }
 
@@ -60,21 +61,66 @@ class Reports extends Component
             // 'start_date' => $this->starting_period == "" ? null : $this->starting_period,
             //'end_date' => $this->ending_period  == "" ? null : $this->ending_period,
         ];
+        $this->loadingData = true;
+        $this->load();
 
 
-
-        $this->dispatch('filtered-data', $this->filtered);
+        //$this->dispatch('filtered-data', $this->filtered);
     }
 
     #[On('reset-filters')]
     public function resetFilters()
     {
-        $this->selectedProject = null;
-        $this->selectedIndicators = [];
-        $this->selectedReportingPeriod = null;
-        $this->selectedFinancialYear = null;
-        $this->reset('financialYears', 'reportingPeriod');
+        $this->loadingData = true;
+        $this->reset('financialYears', 'reportingPeriod', 'filtered', 'selectedProject', 'selectedIndicators', 'selectedReportingPeriod', 'selectedFinancialYear');
 
+
+        $this->load();
+
+    }
+
+    public function load()
+    {
+
+        if (!empty($this->filtered)) {
+
+            $batch = Bus::batch([
+                new Mapper($this->filtered)
+            ])->before(function (Batch $batch) {
+                // The batch has been created but no jobs have been added...
+
+            })->progress(function (Batch $batch) {
+                // A single job has completed successfully...
+            })->then(function (Batch $batch) {
+                // All jobs completed successfully...
+            })->catch(function (Batch $batch, Throwable $e) {
+                // First batch job failure detected...
+            })->finally(function (Batch $batch) {
+                // The batch has finished executing...
+
+            })
+
+                ->dispatch();
+        } else {
+            $batch = Bus::batch([
+                new Mapper([])
+            ])->before(function (Batch $batch) {
+                // The batch has been created but no jobs have been added...
+
+            })->progress(function (Batch $batch) {
+                // A single job has completed successfully...
+            })->then(function (Batch $batch) {
+                // All jobs completed successfully...
+            })->catch(function (Batch $batch, Throwable $e) {
+                // First batch job failure detected...
+            })->finally(function (Batch $batch) {
+                // The batch has finished executing...
+
+            })
+
+                ->dispatch();
+
+        }
 
     }
     public function updated($property, $value)
@@ -95,28 +141,6 @@ class Reports extends Component
 
 
 
-    public function load()
-    {
-        $this->loadingData = true;
-        $batch = Bus::batch([
-            new Mapper()
-        ])->before(function (Batch $batch) {
-            // The batch has been created but no jobs have been added...
-
-        })->progress(function (Batch $batch) {
-            // A single job has completed successfully...
-        })->then(function (Batch $batch) {
-            // All jobs completed successfully...
-        })->catch(function (Batch $batch, Throwable $e) {
-            // First batch job failure detected...
-        })->finally(function (Batch $batch) {
-            // The batch has finished executing...
-
-        })
-
-            ->dispatch();
-
-    }
 
 
     public function readCache()
@@ -126,10 +150,9 @@ class Reports extends Component
         $data = cache()->get('report_', []);
 
         if (!empty($data)) {
-
-            $this->data = $data;
             $this->loadingData = false;
-
+            $this->data = $data;
+            $this->dispatch('loaded-data', data: $this->data);
         }
 
     }

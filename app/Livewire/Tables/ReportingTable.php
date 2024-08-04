@@ -2,29 +2,32 @@
 
 namespace App\Livewire\Tables;
 
-use App\Helpers\IndicatorsContent;
-use App\Helpers\rtc_market\indicators\A1;
-use App\Helpers\rtc_market\indicators\B1;
-use App\Helpers\rtc_market\indicators\Indicator_B2;
-use App\Jobs\readBigDataJob;
-use App\Models\IndicatorDisaggregation;
+use Throwable;
+use App\Jobs\Mapper;
+use App\Models\User;
 use Illuminate\Bus\Batch;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
+use App\Jobs\readBigDataJob;
+use App\Helpers\IndicatorsContent;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
-use Livewire\Attributes\On;
+use App\Models\IndicatorDisaggregation;
+use App\Helpers\rtc_market\indicators\A1;
+use App\Helpers\rtc_market\indicators\B1;
+use PowerComponents\LivewirePowerGrid\Lazy;
 use PowerComponents\LivewirePowerGrid\Cache;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\Jobs\ExportJob;
-use PowerComponents\LivewirePowerGrid\Lazy;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use App\Helpers\rtc_market\indicators\Indicator_B2;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Jobs\ExportJob;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class ReportingTable extends PowerGridComponent
 {
@@ -32,33 +35,51 @@ final class ReportingTable extends PowerGridComponent
     use WithExport;
 
     public $start_date, $end_date, $project, $indicators, $financial_year, $reporting_period, $data;
+    public $collection = [];
 
-    public bool $deferLoading = false;
     // public $showExporting = true;
     public function setUp(): array
     {
-        // $this->showCheckBox();
-        $this->data = $this->data;
+
+
+
         return [
             Exportable::make('export')
                 ->striped()
-
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV)
-
-            ,
-            // ->onConnection('database'),
+                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
-                ->showPerPage()
+
+                ->showRecordCount(),
+        ];
+
+
+
+    }
+
+
+    #[On('loaded')]
+
+    public function setData($data)
+    {
+
+        $this->collection = $data;
+        $this->refresh();
+        $this->setUp = [
+            Exportable::make('export')
+                ->striped()
+                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Header::make()->showSearchInput()->showToggleColumns(),
+            Footer::make()
+
                 ->showRecordCount(),
         ];
     }
 
-
     public function datasource(): Collection
     {
 
-        return $this->data;
+        return collect($this->collection);
 
 
     }
@@ -137,23 +158,5 @@ final class ReportingTable extends PowerGridComponent
         $this->refresh();
     }
 
-    // switch ($item['number']) {
-    //     // case 'A1':
-    //     //  $indicator = new A1($this->reporting_period, $this->financial_year);
-    //     //$item = $this->mapData($indicator->getDisaggregations(), $item);
-    //     //break;
-    //     // case 'B1':
-    //     //     $indicator = new B1($this->reporting_period, $this->financial_year);
-    //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-    //     //     break;
 
-    //     // case 'B2':
-    //     //     $indicator = new Indicator_B2($this->reporting_period, $this->financial_year);
-    //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-    //     //     break;
-    //     // case '2.2.1':
-    //     //     $indicator = new Indicator_2_2_1($this->start_date, $this->end_date);
-    //     //     $item = $this->mapData($indicator->getDisaggregations(), $item);
-    //     //     break;
-    // }
 }

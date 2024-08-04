@@ -178,10 +178,12 @@
                                 </div>
                                 <div class="col-3 align-self-end">
                                     <div class="mb-1" x-data>
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="submit"
+                                            class="btn btn-primary @if ($loadingData) disabled @endif">
                                             <i class="bx bx-filter"></i> Filter Data
                                         </button>
-                                        <button class="btn btn-primary"
+                                        <button
+                                            class="btn btn-primary @if ($loadingData) disabled @endif"
                                             @click="$wire.dispatch('reset-filters')">Reset</button>
                                     </div>
 
@@ -203,39 +205,28 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="table-responsive">
-                                        <table
-                                            class="table table-striped table-hover table-borderless table-primary align-middle">
-                                            <thead class="table-light">
-                                                <caption>
-                                                    Table Name
-                                                </caption>
-                                                <tr>
-                                                    <th>Column 1</th>
-                                                    <th>Column 2</th>
-                                                    <th>Column 3</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="table-group-divider">
-                                                <tr class="table-primary">
-                                                    <td scope="row">Item</td>
-                                                    <td>Item</td>
-                                                    <td>Item</td>
-                                                </tr>
-                                                <tr class="table-primary">
-                                                    <td scope="row">Item</td>
-                                                    <td>Item</td>
-                                                    <td>Item</td>
-                                                </tr>
-                                            </tbody>
-                                            <tfoot>
-
-                                            </tfoot>
-                                        </table>
-                                    </div>
                                 @endif
 
 
+                                <div class="table-responsive" wire:ignore x-data="{ show: $wire.entangle('loadingData') }"
+                                    :class="{ 'pe-none opacity-25': show === true }">
+                                    <table class="table table-striped table-bordered " id="reports">
+                                        <thead class="text-uppercase table-primary">
+                                            <tr style="font-size: 12px;" class="text-uppercase">
+                                                <th scope="col" style="color: #6b6a6a;">ID</th>
+                                                <th scope="col" style="color: #6b6a6a;">Dissagregation</th>
+                                                <th scope="col" style="color: #6b6a6a;">Value</th>
+                                                <th style="color: #6b6a6a;">Indicator Name</th>
+                                                <th style="color: #6b6a6a;">Project</th>
+                                                <th style="color: #6b6a6a;">Reporting Period</th>
+                                                <th style="color: #6b6a6a;">Project Year</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="font-size: 12px">
+
+                                        </tbody>
+                                    </table>
+                                </div>
 
                             </div>
 
@@ -254,12 +245,83 @@
 
 </div>
 
+
 @script
     <script>
         Alpine.store('loadData', {
             indicators: @json($indicators),
 
-        })
+        });
+
+        $(document).ready(function() {
+
+            $wire.load();
+
+
+            $('#reports').DataTable();
+        });
+        $wire.on('loaded-data', (e) => {
+
+
+            loadData(e.data);
+        });
+
+        function loadData(data) {
+            if ($.fn.DataTable.isDataTable('#reports')) {
+                $('#reports').DataTable().clear().destroy();
+            }
+            let tbody = $('#reports tbody');
+            tbody.empty(); // Clear any existing data
+
+            data.forEach(function(row) {
+                let tr = $('<tr>');
+                tr.append($('<td>').text(row.id));
+                tr.append($('<td>').text(row.name));
+                tr.append($('<td>').text(row.value));
+                tr.append($('<td>').text(row.indicator_name));
+                tr.append($('<td>').text(row.project));
+                tr.append($('<td>').text(row.reporting_period));
+                tr.append($('<td>').text(row.financial_year));
+                tbody.append(tr);
+            });
+
+            //             // Initialize or reinitialize DataTable
+
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            let yyyy = today.getFullYear();
+            today = mm + '_' + dd + '_' + yyyy;
+            $('#reports').DataTable({
+                // Your DataTable options here
+                dom: 'Bfrtip',
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                    titleAttr: 'Excel',
+                    title: 'Report ' + today,
+                    className: 'bg-primary btn-sm'
+                }],
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                scroller: true
+            });
+
+        }
     </script>
 @endscript
+
+@push('scripts')
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+@endpush
 </div>
