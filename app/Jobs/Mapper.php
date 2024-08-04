@@ -4,10 +4,13 @@ namespace App\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\SubmissionPeriod;
 use App\Helpers\IndicatorsContent;
+use App\Models\FinancialYear;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Queue\SerializesModels;
 use App\Models\IndicatorDisaggregation;
+use App\Models\ReportingPeriodMonth;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,17 +19,36 @@ class Mapper implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
     public $reporting_period, $financial_year, $project;
+    public $whichPeriod = null;
+    public $whichYear = null;
     public $indicators = [];
     /**
      * Create a new job instance.
      */
-    public function __construct($reporting_period = null, $financial_year = null, $indicators = [], $project = null)
+    public function __construct(array $filtered)
     {
         //
-        $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->indicators = $indicators;
-        $this->project = $project;
+
+        if (isset($filtered['reporting_period'])) {
+            $this->reporting_period = $filtered['reporting_period'];
+        }
+
+        if (isset($filtered['financial_year'])) {
+            $this->financial_year = $filtered['financial_year'];
+        }
+
+        if (isset($filtered['project'])) {
+            $this->project = $filtered['project'];
+        }
+
+        if (isset($filtered['indicators'])) {
+            $this->indicators = $filtered['indicators'];
+        }
+
+        // $this->reporting_period = $reporting_period;
+        // $this->financial_year = $financial_year;
+        // $this->indicators = $indicators;
+        // $this->project = $project;
         Cache::put('report_', []);
 
     }
@@ -104,6 +126,17 @@ class Mapper implements ShouldQueue
 
     private function prepareItem($disaggregation, int $count): array
     {
+
+        $year = null;
+        $period = null;
+        if ($this->reporting_period != null && $this->financial_year != null) {
+            $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
+            if (!empty($submissionPeriod)) {
+                $year = FinancialYear::find($this->financial_year)->number;
+                $period = ReportingPeriodMonth::find($this->reporting_period)->start_month . ' - ' . ReportingPeriodMonth::find($this->reporting_period)->end_month;
+            }
+        }
+
         $item = [
             'id' => $count,
             'name' => $disaggregation->name,
@@ -111,6 +144,8 @@ class Mapper implements ShouldQueue
             'project' => $disaggregation->indicator->project->name,
             'number' => $disaggregation->indicator->indicator_no,
             'indicator_id' => $disaggregation->indicator->id,
+            'reporting_period' => $period ?? 'All Months',
+            'financial_year' => $year ?? 'All Years'
         ];
 
         $content = new IndicatorsContent(name: $item['indicator_name'], number: $item['number']);

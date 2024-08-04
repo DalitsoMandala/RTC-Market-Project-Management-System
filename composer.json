@@ -14,7 +14,8 @@
         "openspout/openspout": "^4.24",
         "power-components/livewire-powergrid": "^5.6",
         "ramsey/uuid": "^4.7",
-        "spatie/laravel-permission": "^6.7"
+        "spatie/laravel-permission": "^6.7",
+        "yajra/laravel-datatables": "11.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",
