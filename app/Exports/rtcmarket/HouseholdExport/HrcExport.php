@@ -54,7 +54,7 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
         $rand = rand(100, 1000);
 
         if ($this->test) {
-            foreach (range(1, 100) as $index) {
+            foreach (range(1, 6000) as $index) {
 
                 $data[] = [
                     'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),

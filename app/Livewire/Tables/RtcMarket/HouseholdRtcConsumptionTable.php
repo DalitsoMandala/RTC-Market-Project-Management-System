@@ -2,21 +2,25 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
-use App\Models\HouseholdRtcConsumption;
-use App\Models\Submission;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Exports\TableExport;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
+use App\Models\HouseholdRtcConsumption;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Illuminate\Support\Collection;
 
 final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
@@ -24,6 +28,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public $userId;
     public bool $deferLoading = true;
     public $uuid;
+    public string $sortField = 'id';
+    public $count = 1;
 
     public function setUp(): array
     {
@@ -34,7 +40,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             //     ->queues(500)
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput()->showToggleColumns(),
+            Header::make()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -56,6 +62,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('count', fn($model) => $this->count++)
             ->add('location_id')
             ->add('enterprise', function ($model) {
                 $data = json_decode($model->location_data);
@@ -97,7 +104,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 if ($count > 0) {
                     return 'Yes';
                 } else {
-                    return '';
+                    return 'No';
                 }
 
             })
@@ -109,7 +116,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 if ($count > 0) {
                     return 'Yes';
                 } else {
-                    return '';
+                    return 'No';
                 }
 
             })
@@ -121,26 +128,83 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 if ($count > 0) {
                     return 'Yes';
                 } else {
-                    return '';
+                    return 'No';
+                }
+
+            })
+
+            ->add('rtc_main_food_cassava', function ($model) {
+                $data = json_decode($model->main_food_data, true);
+                $data = collect($data);
+                $count = $data->where('name', 'CASSAVA')->count();
+
+                if ($count > 0) {
+                    return 'Yes';
+                } else {
+                    return 'No';
                 }
 
             })
             ->add('rtc_consumption_frequency')
-            ->add('submitted_by', fn($model) => User::find($model->user_id)->name)
+            ->add('submitted_by', fn($model) => User::find($model->user_id)->organisation->name)
             ->add('created_at')
+            ->add('created_at_formatted', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y'))
             ->add('updated_at');
     }
 
+    public function jsonChange($data)
+    {
+        return json_decode($data, true);
+
+    }
+
+    #[On('export')]
+    public function export()
+    {
+        $data = $this->getFilteredSortedData();
+        return Excel::download(new TableExport($data), 'data.xlsx');
+    }
+
+    protected function getFilteredSortedData(): Collection
+    {
+
+
+        // Get the filtered and sorted data
+        $data = $this->datasource()->get()->map(function ($model) {
+            switch ($model) {
+                case 'location_data':
+
+
+
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
+        });
+
+        return collect($data);
+    }
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get()->map(function ($item) {
+            return $item->toArray();
+        });
+    }
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Id', 'count'),
 
             //  Column::make('Location id', 'location_id'),
-            Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
+            Column::make('Enterprise', 'enterprise', 'location_data->enterprise')
+                ->sortable(),
+
             Column::make('District', 'district', 'location_data->district')->sortable(),
-            Column::make('EPA', 'epa'),
-            Column::make('Section', 'section'),
+            Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
+            Column::make('Section', 'section', 'location_data->section')->sortable()->searchable(),
             Column::make('Date of assessment', 'date_of_assessment_formatted', 'date_of_assessment')
                 ->sortable(),
 
@@ -160,7 +224,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Age group', 'age_group')
+            Column::make('Age group', 'age_group', 'age_group')
                 ->sortable()
                 ->searchable(),
 
@@ -203,23 +267,35 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('RTC MAIN FOOD/SWEET POTATO', 'rtc_main_food_sw_potato')
             ,
 
-            Column::make('Submission Date', 'created_at')
+            Column::make('Submission Date', 'created_at_formatted', 'created_at')
                 ->sortable()
                 ->searchable(),
 
             Column::make('Submitted By', 'submitted_by')
-                ->sortable()
-                ->searchable(),
+            ,
 
             Column::make('UUID', 'uuid'),
 
         ];
     }
 
-    public function filters(): array
+    public function crops()
     {
         return [
-            Filter::datepicker('date_of_assessment'),
+            ['name' => 'CASSAVA'],
+            ['name' => 'SWEET POTATO'],
+            ['name' => 'POTATO']
+        ];
+    }
+    public function filters(): array
+    {
+        //  dd($this->crops());
+        return [
+            Filter::inputText('enterprise', 'location_data->enterprise'),
+            Filter::inputText('section', 'location_data->section'),
+            Filter::inputText('epa', 'location_data->epa'),
+            Filter::inputText('district', 'location_data->district'),
+
         ];
     }
 

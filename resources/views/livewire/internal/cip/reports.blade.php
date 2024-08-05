@@ -204,10 +204,7 @@
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
                                     </div>
-                                @else
                                 @endif
-
-
                                 <div class="table-responsive" wire:ignore x-data="{ show: $wire.entangle('loadingData') }"
                                     :class="{ 'pe-none opacity-25': show === true }">
                                     <table class="table table-striped table-bordered " id="reports">
@@ -313,15 +310,5 @@
     </script>
 @endscript
 
-@push('scripts')
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
-@endpush
+
 </div>
