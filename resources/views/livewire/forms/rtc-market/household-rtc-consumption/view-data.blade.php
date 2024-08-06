@@ -56,8 +56,8 @@
                             </div>
                         @endif
 
-                        <div class="table-responsive pb-5 " wire:ignore x-data="{ show: $wire.entangle('loadingData') }"
-                            :class="{ 'pe-none opacity-25': show === true }">
+                        <div class="table-responsive pb-5 col-md-12" style="margin: 10px 0 10px;" wire:ignore
+                            x-data="{ show: $wire.entangle('loadingData') }" :class="{ 'pe-none opacity-25': show === true }">
                             <table class="table table-striped  nowrap align-middle w-100" id="hrc">
                                 <thead class="table-primary text-uppercase text-secondary">
                                     <tr style="font-size: 12px;color:#6b6a6a;">
@@ -125,7 +125,7 @@
 
         });
 
-        $wire.on('loaded-data', (e) => {
+        $wire.on('loaded-data-farmer', (e) => {
 
 
             loadData(e.data);
