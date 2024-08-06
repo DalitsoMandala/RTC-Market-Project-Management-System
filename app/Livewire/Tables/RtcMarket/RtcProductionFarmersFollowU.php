@@ -30,7 +30,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            Header::make()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),

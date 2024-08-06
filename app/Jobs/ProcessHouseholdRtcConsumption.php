@@ -68,6 +68,6 @@ class ProcessHouseholdRtcConsumption implements ShouldQueue
         });
 
 
-        Cache::put('hrc_batch', $results, now()->addMinutes(10)); // Cache for 10 min
+        Cache::put('hrc_batch', $results, now()->addMinutes(1)); // Cache for 10 min
     }
 }

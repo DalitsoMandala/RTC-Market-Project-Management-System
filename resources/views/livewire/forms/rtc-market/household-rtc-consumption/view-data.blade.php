@@ -47,16 +47,20 @@
 
                     <div class="card-body ">
 
-                        @if ($loadingData)
-                            <div x-data wire:poll.2000ms='readCache()'
+                        <livewire:tables.rtc-market.household-rtc-consumption-table />
+
+                        {{-- @if ($loadingData)
+                            <div wire:poll.5s='checkJobStatus()'
                                 class="d-flex justify-content-center align-items-center">
                                 <div class="spinner-border text-primary spinner-border-lg" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
-                            </div>
-                        @endif
 
-                        <div class="table-responsive pb-5 col-md-12" style="margin: 10px 0 10px;" wire:ignore
+                            </div>
+                        @endif --}}
+
+
+                        {{-- <div class="table-responsive pb-5 col-md-12" style="margin: 10px 0 10px;" wire:ignore
                             x-data="{ show: $wire.entangle('loadingData') }" :class="{ 'pe-none opacity-25': show === true }">
                             <table class="table table-striped  nowrap align-middle w-100" id="hrc">
                                 <thead class="table-primary text-uppercase text-secondary">
@@ -96,7 +100,7 @@
                             </table>
 
 
-                        </div>
+                        </div> --}}
 
 
                     </div>
@@ -117,19 +121,18 @@
 
 @script
     <script>
-        $(document).ready(function() {
-            $('#hrc').DataTable();
-            setTimeout(() => {
-                $wire.load();
-            }, 1000);
-
-        });
-
-        $wire.on('loaded-data-farmer', (e) => {
+        $('#hrc').DataTable();
 
 
-            loadData(e.data);
-        });
+
+
+
+        // $wire.on('loaded-data', (e) => {
+        //     clearInterval(intervalId);
+        //     loadData(e.data);
+        // });
+
+
 
         function loadData(data) {
             if ($.fn.DataTable.isDataTable('#hrc')) {

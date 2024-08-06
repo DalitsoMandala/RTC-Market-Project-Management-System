@@ -101,8 +101,6 @@ class View extends Component
 
             $this->dispatch('loaded-data-farmer', data: $this->farm_data, followUp: $this->followUp_data, agreement: $this->agreement_data, dOm: $this->dom_data, inter: $this->inter_data);
             $this->loadingData = false;
-        } else {
-            $this->load();
         }
 
     }

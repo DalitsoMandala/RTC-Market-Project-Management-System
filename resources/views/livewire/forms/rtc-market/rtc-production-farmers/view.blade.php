@@ -38,14 +38,17 @@
                     </div>
                     <div class="card-body" id="#datatable">
 
-                        @if ($loadingData)
-                            <div x-data wire:poll.2000ms='readCache()'
-                                class="d-flex justify-content-center align-items-center">
+
+                        {{-- @if ($loadingData)
+                            <div wire:poll.5s='readCache()' class="d-flex justify-content-center align-items-center">
                                 <div class="spinner-border text-primary spinner-border-lg" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
+
                             </div>
-                        @endif
+                        @endif --}}
+
+
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
@@ -89,30 +92,28 @@
                         <div class="tab-content">
                             <div class="mt-2 tab-pane active fade show" id="normal" role="tabpanel"
                                 aria-labelledby="home-tab">
-                                {{-- <livewire:tables.rtc-market.rtc-production-farmers-table :key="'rpm1'"
+                                <livewire:tables.rtc-market.rtc-production-farmers-table :key="'rpm1'"
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
-                                     --}}
-                                @include('livewire.forms.rtc-market.rtc-production-farmers.farmer-table')
-
                             </div>
 
                             <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
                                 aria-labelledby="profile-tab">
 
-                                @include('livewire.forms.rtc-market.rtc-production-farmers.followup-table')
+                                <livewire:tables.rtcmarket.rtc-production-farmers-follow-u :key="'rpm2'"
+                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
                             <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                @include('livewire.forms.rtc-market.rtc-production-farmers.agreement-table')
+                                <livewire:tables.rtcmarket.rtc-production-farmers-conc-agreement />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                @include('livewire.forms.rtc-market.rtc-production-farmers.dom-table')
+                                <livewire:tables.rtcmarket.rtc-production-farmers-dom-markets />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                @include('livewire.forms.rtc-market.rtc-production-farmers.inter-table')
+                                <livewire:tables.rtcmarket.rtc-production-farmers-inter-markets />
                             </div>
 
                         </div>

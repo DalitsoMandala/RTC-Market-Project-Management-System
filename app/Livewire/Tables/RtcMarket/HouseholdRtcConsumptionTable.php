@@ -4,13 +4,19 @@ namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
 use App\Models\Submission;
+use App\Jobs\ExportDataJob;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Exports\TableExport;
 use Illuminate\Support\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\HouseholdRtcConsumption;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
@@ -20,26 +26,23 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-use Illuminate\Support\Collection;
 
 final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
+
     use WithExport;
+
     public $userId;
     public bool $deferLoading = true;
     public $uuid;
     public string $sortField = 'id';
     public $count = 1;
-
     public function setUp(): array
     {
         // $this->showCheckBox();
 
         return [
-            // Exportable::make('export')
-            //     ->queues(500)
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
@@ -50,7 +53,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        $user = User::find($this->userId);
+
 
         return HouseholdRtcConsumption::query();
 
@@ -161,37 +164,92 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     #[On('export')]
     public function export()
     {
-        $data = $this->getFilteredSortedData();
-        return Excel::download(new TableExport($data), 'data.xlsx');
-    }
+        // Get data for export
+        $data = $this->getDataForExport();
 
-    protected function getFilteredSortedData(): Collection
-    {
+        // Define the path for the Excel file
+        $path = storage_path('app/public/household_rtc_consumption.xlsx');
 
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Enterprise',
+                'District',
+                'EPA',
+                'Section',
+                'Date of assessment',
+                'Actor type',
+                'Rtc group platform',
+                'Producer organisation',
+                'Actor name',
+                'Age group',
+                'Sex',
+                'Phone number',
+                'Household size',
+                'Under 5 in household',
+                'Rtc consumers',
+                'Rtc consumers/Potato',
+                'Rtc consumers/Sweet Potato',
+                'Rtc consumers/Cassava',
+                'Rtc consumption frequency',
+                'RTC MAIN FOOD/CASSAVA',
+                'RTC MAIN FOOD/POTATO',
+                'RTC MAIN FOOD/SWEET POTATO',
+                'Submission Date',
+                'Submitted By',
+                'UUID',
+            ]);
 
-        // Get the filtered and sorted data
-        $data = $this->datasource()->get()->map(function ($model) {
-            switch ($model) {
-                case 'location_data':
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
 
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $location = json_decode($item->location_data);
+                $main_food = json_decode($item->main_food_data);
 
+                $row = [
+                    'enterprise' => $location->enterprise ?? null,
+                    'district' => $location->district ?? null,
+                    'epa' => $location->epa ?? null,
+                    'section' => $location->section ?? null,
+                    'date_of_assessment' => Carbon::parse($item->date_of_assessment)->format('d/m/Y'),
+                    'actor_type' => $item->actor_type,
+                    'rtc_group_platform' => $item->rtc_group_platform,
+                    'producer_organisation' => $item->producer_organisation,
+                    'actor_name' => $item->actor_name,
+                    'age_group' => $item->age_group,
+                    'sex' => $item->sex,
+                    'phone_number' => $item->phone_number,
+                    'household_size' => $item->household_size,
+                    'under_5_in_household' => $item->under_5_in_household,
+                    'rtc_consumers' => $item->rtc_consumers,
+                    'rtc_consumers_potato' => $item->rtc_consumers_potato,
+                    'rtc_consumers_sw_potato' => $item->rtc_consumers_sw_potato,
+                    'rtc_consumers_cassava' => $item->rtc_consumers_cassava,
+                    'rtc_consumption_frequency' => $item->rtc_consumption_frequency,
+                    'cassava_count' => collect($main_food)->contains('name', 'CASSAVA') ? 'Yes' : 'No',
+                    'potato_count' => collect($main_food)->contains('name', 'POTATO') ? 'Yes' : 'No',
+                    'sweet_potato_count' => collect($main_food)->contains('name', 'SWEET POTATO') ? 'Yes' : 'No',
+                    'submission_date' => Carbon::parse($item->created_at)->format('d/m/Y'),
+                    'submitted_by' => $item->user->organisation->name,
+                    'uuid' => $item->uuid,
+                ];
 
-                    break;
-
-                default:
-                    # code...
-                    break;
+                $writer->addRow($row);
             }
-        });
+        }
 
-        return collect($data);
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
     }
     protected function getDataForExport()
     {
         // Get the data as a collection
-        return $this->datasource()->get()->map(function ($item) {
-            return $item->toArray();
-        });
+        return $this->datasource()->get();
     }
     public function columns(): array
     {

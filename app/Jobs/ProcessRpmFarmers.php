@@ -46,7 +46,7 @@ class ProcessRpmFarmers implements ShouldQueue
             'rpm_farmers_flp' => $this->mapDataFarmerFlp(),
             'rpm_farmers_dom' => $this->mapDataFarmerDom(),
             'rpm_farmers_inter' => $this->mapDataFarmerInter(),
-        ]);
+        ], now()->addMinutes(1));
     }
 
     public function mapDataFarmerFlp()

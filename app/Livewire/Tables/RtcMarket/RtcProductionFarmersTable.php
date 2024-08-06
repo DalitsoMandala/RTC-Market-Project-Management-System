@@ -82,10 +82,18 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 return $data->section;
             })
             ->add('sector')
-            ->add('number_of_members')
-            ->add('number_of_members_total', function ($model) {
 
-                return json_decode($model->number_of_members)->total ?? 0;
+            ->add('number_of_members_total', function ($model) {
+                $number_of_members_total = (
+                    json_decode($model->number_of_members)->female_18_35 +
+                    json_decode($model->number_of_members)->male_18_35 +
+                    json_decode($model->number_of_members)->male_35_plus +
+                    json_decode($model->number_of_members)->female_35_plus
+
+
+                );
+
+                return $number_of_members_total;
             })
             ->add('number_of_members_female_18_35', function ($model) {
 
@@ -113,20 +121,50 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('registration_details')
 
             ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body ?? null)
-            ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date ?? null)
+            ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date === null ? null : Carbon::parse(json_decode($model->registration_details)->registration_date)->format('d/m/Y'))
             ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number ?? null)
-            ->add('number_of_employees')
-            ->add('area_under_cultivation', function ($model) {
-                return json_decode($model->area_under_cultivation)->total ?? 0;
+
+            ->add('number_of_employees_formal_female_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->formal->female_18_35 ?? 0;
+            })
+            ->add('number_of_employees_formal_male_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->formal->male_18_35 ?? 0;
+            })
+            ->add('number_of_employees_formal_male_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->formal->male_35_plus ?? 0;
+            })
+            ->add('number_of_employees_formal_female_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->formal->female_35_plus ?? 0;
+            })
+            ->add('number_of_employees_formal_total', function ($model) {
+                $formal = json_decode($model->number_of_employees)->formal;
+                return ($formal->female_18_35 ?? 0) + ($formal->male_18_35 ?? 0) + ($formal->male_35_plus ?? 0) + ($formal->female_35_plus ?? 0);
+            })
+            ->add('number_of_employees_informal_female_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->informal->female_18_35 ?? 0;
+            })
+            ->add('number_of_employees_informal_male_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->informal->male_18_35 ?? 0;
+            })
+            ->add('number_of_employees_informal_male_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->informal->male_35_plus ?? 0;
+            })
+            ->add('number_of_employees_informal_female_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->informal->female_35_plus ?? 0;
+            })
+            ->add('number_of_employees_informal_total', function ($model) {
+                $informal = json_decode($model->number_of_employees)->informal;
+                return ($informal->female_18_35 ?? 0) + ($informal->male_18_35 ?? 0) + ($informal->male_35_plus ?? 0) + ($informal->female_35_plus ?? 0);
             })
 
-            //   ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
+
+            ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
             ->add('area_under_cultivation_variety_1', fn($model) => json_decode($model->area_under_cultivation)->variety_1 ?? null)
             ->add('area_under_cultivation_variety_2', fn($model) => json_decode($model->area_under_cultivation)->variety_2 ?? null)
             ->add('area_under_cultivation_variety_3', fn($model) => json_decode($model->area_under_cultivation)->variety_3 ?? null)
             ->add('area_under_cultivation_variety_4', fn($model) => json_decode($model->area_under_cultivation)->variety_4 ?? null)
             ->add('area_under_cultivation_variety_5', fn($model) => json_decode($model->area_under_cultivation)->variety_5 ?? null)
-            ->add('number_of_plantlets_produced')
+
             ->add('number_of_plantlets_produced_potato', fn($model) => json_decode($model->number_of_plantlets_produced)->potato ?? null ?? null)
             ->add('number_of_plantlets_produced_cassava', fn($model) => json_decode($model->number_of_plantlets_produced)->cassava ?? null ?? null)
             ->add('number_of_plantlets_produced_sw_potato', fn($model) => json_decode($model->number_of_plantlets_produced)->sweet_potato ?? null ?? null)
@@ -134,7 +172,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('number_of_screen_house_vines_harvested', fn($model) => $model->number_of_screen_house_vines_harvested ?? null)
             ->add('number_of_screen_house_min_tubers_harvested', fn($model) => $model->number_of_screen_house_min_tubers_harvested ?? null)
             ->add('number_of_sah_plants_produced', fn($model) => $model->number_of_sah_plants_produced ?? null)
-            ->add('area_under_basic_seed_multiplication')
+
             ->add('basic_seed_multiplication_total', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->total ?? null)
             ->add('basic_seed_multiplication_variety_1', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_1 ?? null)
             ->add('basic_seed_multiplication_variety_2', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_2 ?? null)
@@ -143,7 +181,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('basic_seed_multiplication_variety_5', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_5 ?? null)
             ->add('basic_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6 ?? null)
             ->add('basic_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7 ?? null)
-            ->add('area_under_certified_seed_multiplication')
+
             ->add('area_under_certified_seed_multiplication_total', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->total ?? null)
             ->add('area_under_certified_seed_multiplication_variety_1', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_1 ?? null)
             ->add('area_under_certified_seed_multiplication_variety_2', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_2 ?? null)
@@ -153,18 +191,17 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('area_under_certified_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6 ?? null)
             ->add('area_under_certified_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7 ?? null)
             ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'Yes' : 'No')
-            ->add('seed_service_unit_registration_details_date', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_date ?? null)
+            ->add('seed_service_unit_registration_details_date', fn($model) => Carbon::parse(json_decode($model->seed_service_unit_registration_details)->registration_date)->format('d/m/Y') ?? null)
             ->add('seed_service_unit_registration_details_number', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_number ?? null)
-            ->add('service_unit_date')
-            ->add('service_unit_number')
+
             ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
             ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
             ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
             ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
-            ->add('total_vol_production_previous_season', fn($model) => $model->total_vol_production_previous_season ?? 0)
+
             ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
             ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-            ->add('total_vol_irrigation_production_previous_season', fn($model) => $model->total_vol_irrigation_production_previous_season ?? 0)
+
             ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
             ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
             ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
@@ -215,9 +252,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of members/total', 'number_of_members_total')
-                ->sortable()
-                ->searchable(),
+
             Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35')
                 ->sortable()
                 ->searchable(),
@@ -230,7 +265,9 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus')
                 ->sortable()
                 ->searchable(),
-
+            Column::make('Number of members/total', 'number_of_members_total')
+                ->sortable()
+                ->searchable(),
             Column::make('Group', 'group')
                 ->sortable()
                 ->searchable(),
@@ -253,7 +290,47 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/total', 'area_under_cultivation', 'area_under_cultivation')
+            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under cultivation/total', 'area_under_cultivation_total', 'area_under_cultivation')
                 ->sortable()
                 ->searchable(),
 
@@ -398,9 +475,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total production previous season', 'total_vol_production_previous_season')
-                ->sortable()
-                ->searchable(),
+
 
             Column::make('Total production value previous season/total', 'total_production_value_previous_season_total')
                 ->sortable()
@@ -410,9 +485,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total irrigation production previous season', 'total_vol_irrigation_production_previous_season')
-                ->sortable()
-                ->searchable(),
+
 
             Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total')
                 ->sortable()
