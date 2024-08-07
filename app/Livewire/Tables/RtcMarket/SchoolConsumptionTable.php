@@ -2,19 +2,21 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
-use Illuminate\Database\Query\Builder;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SchoolConsumptionTable extends PowerGridComponent
 {
@@ -25,10 +27,8 @@ final class SchoolConsumptionTable extends PowerGridComponent
         // $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+
+            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -72,14 +72,83 @@ final class SchoolConsumptionTable extends PowerGridComponent
             ->add('updated_at');
     }
 
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
+    }
+    #[On('export')]
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/school_consumption.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'School Name',
+                'District',
+                'EPA',
+                'Section',
+                'Date (Formatted)',
+                'Crop',
+                'Male Count',
+                'Female Count',
+                'Total',
+                'UUID',
+                'User ID',
+
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $location_data = json_decode($item->location_data);
+
+                $row = [
+                    'id' => $item->id,
+                    'school_name' => $location_data->school_name ?? null,
+                    'district' => $location_data->district ?? null,
+                    'epa' => $location_data->epa ?? null,
+                    'section' => $location_data->section ?? null,
+                    'date_formatted' => Carbon::parse($item->date)->format('d/m/Y'),
+                    'crop' => $item->crop,
+                    'male_count' => $item->male_count,
+                    'female_count' => $item->female_count,
+                    'total' => $item->total,
+                    'uuid' => $item->uuid,
+                    'user_id' => $item->user_id,
+
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
+
+
+
+
     public function columns(): array
     {
         return [
             Column::make('Id', 'id'),
             Column::make('School Name', 'school_name', 'location_data->school_name')->sortable(),
-            Column::make('District', 'district', 'location_data->district'),
-            Column::make('EPA', 'epa'),
-            Column::make('Section', 'section'),
+            Column::make('District', 'district', 'location_data->district')->sortable(),
+            Column::make('EPA', 'location_data->epa')->sortable(),
+            Column::make('Section', 'location_data->section')->sortable(),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
@@ -123,26 +192,4 @@ final class SchoolConsumptionTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: ' . $row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id]),
-    //     ];
-    // }
-
-    /*
-public function actionRules($row): array
-{
-return [
-// Hide button edit for ID 1
-Rule::button('edit')
-->when(fn($row) => $row->id === 1)
-->hide(),
-];
-}
- */
 }
