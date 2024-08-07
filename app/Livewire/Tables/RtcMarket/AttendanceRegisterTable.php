@@ -2,20 +2,22 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use Illuminate\Database\Query\Builder;
+use App\Models\AttendanceRegister;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\On;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class AttendanceRegisterTable extends PowerGridComponent
 {
@@ -29,7 +31,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            Header::make()->includeViewOnTop('components.export-data-att'),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -38,7 +40,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('attendance_registers');
+        return AttendanceRegister::query();
     }
 
     public function fields(): PowerGridFields
@@ -74,6 +76,79 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 return Carbon::parse($model->created_at)->format('d/m/Y');
             })
             ->add('updated_at');
+    }
+
+    #[On('export')]
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/attendance_register.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'Meeting Title',
+                'Meeting Category',
+                'RTC Crop',
+                'Venue',
+                'District',
+                'Start Date (Formatted)',
+                'End Date (Formatted)',
+                'Total Days',
+                'Name',
+                'Sex',
+                'Organization',
+                'Designation',
+                'Phone Number',
+                'Email',
+
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $crops = json_decode($item->rtcCrop, true);
+                $rtcCrop = implode(', ', $crops);
+
+                $row = [
+                    'id' => $item->id,
+                    'meetingTitle' => $item->meetingTitle,
+                    'meetingCategory' => $item->meetingCategory,
+                    'rtcCrop' => $rtcCrop,
+                    'venue' => $item->venue,
+                    'district' => $item->district,
+                    'startDate_formatted' => Carbon::parse($item->startDate)->format('d/m/Y'),
+                    'endDate_formatted' => Carbon::parse($item->endDate)->format('d/m/Y'),
+                    'totalDays' => $item->totalDays,
+                    'name' => $item->name,
+                    'sex' => $item->sex,
+                    'organization' => $item->organization,
+                    'designation' => $item->designation,
+                    'phone_number' => $item->phone_number,
+                    'email' => $item->email,
+
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
     }
 
     public function columns(): array

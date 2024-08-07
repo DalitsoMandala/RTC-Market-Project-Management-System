@@ -2,10 +2,11 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
+use App\Models\SchoolRtcConsumption;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -37,7 +38,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('school_rtc_consumption');
+        return SchoolRtcConsumption::query();
     }
 
     public function fields(): PowerGridFields
@@ -80,6 +81,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
     #[On('export')]
     public function export()
     {
+
         // Get data for export
         $data = $this->getDataForExport();
 

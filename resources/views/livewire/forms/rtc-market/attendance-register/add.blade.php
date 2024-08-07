@@ -106,7 +106,7 @@
                                         class="form-select @error('district')
                                         is-invalid
                                     @enderror"
-                                        wire:model='location_data.district'>
+                                        wire:model='district'>
                                         <option disabled value="">Choose one</option>
                                         <option>BALAKA</option>
                                         <option>BLANTYRE</option>
