@@ -347,7 +347,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                 $user = User::find($this->userId);
                 $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
-                if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
                     HouseholdRtcConsumption::where('uuid', $this->uuid)->update([
                         'status' => 'approved',
                     ]);

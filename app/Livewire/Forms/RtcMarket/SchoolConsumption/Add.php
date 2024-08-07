@@ -2,23 +2,24 @@
 
 namespace App\Livewire\Forms\RtcMarket\SchoolConsumption;
 
-use App\Models\FinancialYear;
+use Throwable;
+use Carbon\Carbon;
 use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
 use App\Models\Indicator;
+use App\Models\Submission;
+use App\Models\FinancialYear;
+use App\Models\SubmissionPeriod;
+use Livewire\Attributes\Validate;
 use App\Models\ReportingPeriodMonth;
 use App\Models\SchoolRtcConsumption;
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use App\Notifications\ManualDataAddedNotification;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\ValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\Validate;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
-use Throwable;
+use Illuminate\Validation\ValidationException;
+use App\Notifications\ManualDataAddedNotification;
 
 class Add extends Component
 {
@@ -125,35 +126,69 @@ class Add extends Component
             $now = Carbon::now();
 
             $uuid = Uuid::uuid4()->toString();
-            $data = [
-                'date' => $this->date,
-                'location_data' => json_encode($this->location_data),
-                'male_count' => $this->male_count,
-                'female_count' => $this->female_count,
-                'total' => $this->total,
-                'crop' => $this->crop,
-                'uuid' => $uuid,
-                'user_id' => auth()->user()->id,
-                'submission_period_id' => $this->submissionPeriodId,
-                'period_month_id' => $this->selectedMonth,
-                'organisation_id' => Auth::user()->organisation->id,
-                'financial_year_id' => $this->selectedFinancialYear,
-            ];
+            $user = User::find($userId);
 
+            if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
 
-            Submission::create([
-                'batch_no' => $uuid,
-                'form_id' => $this->selectedForm,
-                'user_id' => $currentUser->id,
-                'status' => 'approved',
-                'data' => json_encode($data),
-                'batch_type' => 'manual',
-                'is_complete' => 1,
-                'period_id' => $this->submissionPeriodId,
-                'table_name' => json_encode(['school_rtc_consumption']),
+                $data = [
+                    'date' => $this->date,
+                    'location_data' => json_encode($this->location_data),
+                    'male_count' => $this->male_count,
+                    'female_count' => $this->female_count,
+                    'total' => $this->total,
+                    'crop' => $this->crop,
+                    'uuid' => $uuid,
+                    'user_id' => auth()->user()->id,
+                    'submission_period_id' => $this->submissionPeriodId,
+                    'period_month_id' => $this->selectedMonth,
+                    'organisation_id' => Auth::user()->organisation->id,
+                    'financial_year_id' => $this->selectedFinancialYear,
+                    'status' => 'approved'
+                ];
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $this->selectedForm,
+                    'user_id' => $currentUser->id,
+                    'status' => 'approved',
+                    'data' => json_encode($data),
+                    'batch_type' => 'manual',
+                    'is_complete' => 1,
+                    'period_id' => $this->submissionPeriodId,
+                    'table_name' => json_encode(['school_rtc_consumption']),
 
-            ]);
-            SchoolRtcConsumption::create($data);
+                ]);
+                SchoolRtcConsumption::create($data);
+            } else {
+                $data = [
+                    'date' => $this->date,
+                    'location_data' => json_encode($this->location_data),
+                    'male_count' => $this->male_count,
+                    'female_count' => $this->female_count,
+                    'total' => $this->total,
+                    'crop' => $this->crop,
+                    'uuid' => $uuid,
+                    'user_id' => auth()->user()->id,
+                    'submission_period_id' => $this->submissionPeriodId,
+                    'period_month_id' => $this->selectedMonth,
+                    'organisation_id' => Auth::user()->organisation->id,
+                    'financial_year_id' => $this->selectedFinancialYear,
+                    //    'status' => 'p'
+                ];
+                Submission::create([
+                    'batch_no' => $uuid,
+                    'form_id' => $this->selectedForm,
+                    'user_id' => $currentUser->id,
+                    //   'status' => 'approved',
+                    'data' => json_encode($data),
+                    'batch_type' => 'manual',
+                    'is_complete' => 1,
+                    'period_id' => $this->submissionPeriodId,
+                    'table_name' => json_encode(['school_rtc_consumption']),
+
+                ]);
+                SchoolRtcConsumption::create($data);
+            }
+
 
             session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/school-rtc-consumption-form/view">View Submission here</a>');
             return redirect()->to(url()->previous());

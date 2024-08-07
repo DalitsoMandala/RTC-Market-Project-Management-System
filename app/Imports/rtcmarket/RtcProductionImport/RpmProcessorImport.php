@@ -205,7 +205,7 @@ class RpmProcessorImport implements WithMultipleSheets, WithEvents, ShouldQueue,
 
                 $user = User::find($this->userId);
                 $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
-                if ($user->hasAnyRole('organiser') || $user->hasAnyRole('admin')) {
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
                     Submission::where('batch_no', $this->uuid)->update([
                         'status' => 'approved',
                     ]);

@@ -149,8 +149,8 @@ final class SchoolConsumptionTable extends PowerGridComponent
             Column::make('Id', 'id'),
             Column::make('School Name', 'school_name', 'location_data->school_name')->sortable(),
             Column::make('District', 'district', 'location_data->district')->sortable(),
-            Column::make('EPA', 'location_data->epa')->sortable(),
-            Column::make('Section', 'location_data->section')->sortable(),
+            Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
+            Column::make('Section', 'section', 'location_data->section')->sortable(),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
