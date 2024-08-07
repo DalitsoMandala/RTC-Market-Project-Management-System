@@ -2,20 +2,24 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use App\Models\RtcProductionProcessor;
-use Illuminate\Database\Query\Builder;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
+use App\Models\RpmFarmerFollowUp;
 use Illuminate\Support\Facades\DB;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RtcProductionProcessor;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionProcessorsFollowU extends PowerGridComponent
 {
@@ -29,16 +33,17 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data'),
+            Header::make()->includeViewOnTop('components.export-data-processors-follow-up'),
             Footer::make()
                 ->showPerPage()
+                ->pageName('processors-followup')
                 ->showRecordCount(),
         ];
     }
 
     public function datasource(): Builder
     {
-        return DB::table('rpm_processor_follow_ups');
+        return RpmProcessorFollowUp::query();
     }
 
     public function fields(): PowerGridFields
@@ -80,6 +85,98 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
             ->add('aggregation_center_sales')
         ;
+    }
+
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
+    }
+
+
+    #[On('export-followup')]
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/rtc_production_and_marketing_processors_follow_up.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'Processor ID',
+                'Actor Name',
+                'Group Name',
+                'Date of Follow Up (Formatted)',
+                'Market Segment Fresh',
+                'Market Segment Processed',
+                'Has RTC Market Contract',
+                'Total Vol Production Previous Season',
+                'Total Production Value Previous Season Total',
+                'Total Production Value Previous Season Date',
+                'Total Vol Irrigation Production Previous Season',
+                'Total Irrigation Production Value Previous Season Total',
+                'Total Irrigation Production Value Previous Season Date',
+                'Sells to Domestic Markets',
+                'Sells to International Markets',
+                'Uses Market Information Systems',
+                'Market Information Systems',
+                'Aggregation Centers Response',
+                'Aggregation Centers Specify',
+                'Aggregation Center Sales',
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $location_data = json_decode($item->location_data);
+                $market_segment = json_decode($item->market_segment);
+                $total_production_value_previous_season = json_decode($item->total_production_value_previous_season);
+                $total_irrigation_production_value_previous_season = json_decode($item->total_irrigation_production_value_previous_season);
+                $aggregation_centers = json_decode($item->aggregation_centers);
+
+                $processor = $item->rpm_processor_id;
+                $row = RtcProductionProcessor::find($processor);
+                $actor_name = $row ? $row->name_of_actor : null;
+
+                $row = [
+                    'id' => $item->id,
+                    'rpm_processor_id' => $item->rpm_processor_id,
+                    'actor_name' => $actor_name,
+                    'group_name' => $location_data->group_name ?? null,
+                    'date_of_follow_up_formatted' => Carbon::parse($item->date_of_follow_up)->format('d/m/Y'),
+                    'market_segment_fresh' => $market_segment->fresh ?? null,
+                    'market_segment_processed' => $market_segment->processed ?? null,
+                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
+                    'total_vol_production_previous_season' => $item->total_vol_production_previous_season ?? 0,
+                    'total_production_value_previous_season_total' => $total_production_value_previous_season->total ?? 0,
+                    'total_production_value_previous_season_date' => $total_production_value_previous_season->date_of_maximum_sales ? Carbon::parse($total_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y') : null,
+                    'total_vol_irrigation_production_previous_season' => $item->total_vol_irrigation_production_previous_season ?? 0,
+                    'total_irrigation_production_value_previous_season_total' => $total_irrigation_production_value_previous_season->total ?? 0,
+                    'total_irrigation_production_value_previous_season_date' => $total_irrigation_production_value_previous_season->date_of_maximum_sales ? Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y') : null,
+                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
+                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
+                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
+                    'market_information_systems' => $item->market_information_systems ?? null,
+                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
+                    'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
+                    'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
     }
 
     public function columns(): array

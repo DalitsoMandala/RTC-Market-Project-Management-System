@@ -3,21 +3,23 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
-use Illuminate\Database\Query\Builder;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Database\Query\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionProcessorsTable extends PowerGridComponent
 {
@@ -31,9 +33,10 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data'),
+            Header::make()->includeViewOnTop('components.export-data-processors'),
             Footer::make()
                 ->showPerPage()
+                ->pageName('processors')
                 ->showRecordCount(),
         ];
     }
@@ -72,8 +75,16 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('approach')
             ->add('sector')
             ->add('number_of_members_total', function ($model) {
+                $number_of_members_total = (
+                    json_decode($model->number_of_members)->female_18_35 +
+                    json_decode($model->number_of_members)->male_18_35 +
+                    json_decode($model->number_of_members)->male_35_plus +
+                    json_decode($model->number_of_members)->female_35_plus
 
-                return json_decode($model->number_of_members)->total ?? 0;
+
+                );
+
+                return $number_of_members_total;
             })
             ->add('number_of_members_female_18_35', function ($model) {
 
@@ -102,40 +113,45 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body ?? null)
             ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date ?? null)
             ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number ?? null)
-            ->add('formal_employees_female_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->female_18_35 ?? 0;
+            ->add('number_of_employees_formal_female_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->formal->female_18_35 ?? 0;
             })
-            ->add('formal_employees_female_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->female_35_plus ?? 0;
+            ->add('number_of_employees_formal_male_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->formal->male_18_35 ?? 0;
             })
-            ->add('formal_employees_male_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->male_18_35 ?? 0;
+            ->add('number_of_employees_formal_male_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->formal->male_35_plus ?? 0;
             })
-            ->add('formal_employees_male_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->male_35_plus ?? 0;
+            ->add('number_of_employees_formal_female_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->formal->female_35_plus ?? 0;
             })
-            ->add('informal_employees_total', function ($model) {
-                return json_decode($model->number_of_employees)->total ?? 0;
+            ->add('number_of_employees_formal_total', function ($model) {
+                $formal = json_decode($model->number_of_employees)->formal;
+                return ($formal->female_18_35 ?? 0) + ($formal->male_18_35 ?? 0) + ($formal->male_35_plus ?? 0) + ($formal->female_35_plus ?? 0);
             })
-            ->add('informal_employees_female_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->female_18_35 ?? 0;
+            ->add('number_of_employees_informal_female_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->informal->female_18_35 ?? 0;
             })
-            ->add('informal_employees_female_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->female_35_plus ?? 0;
+            ->add('number_of_employees_informal_male_18_35', function ($model) {
+                return json_decode($model->number_of_employees)->informal->male_18_35 ?? 0;
             })
-            ->add('informal_employees_male_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->male_18_35 ?? 0;
+            ->add('number_of_employees_informal_male_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->informal->male_35_plus ?? 0;
             })
-            ->add('informal_employees_male_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->male_35_plus ?? 0;
+            ->add('number_of_employees_informal_female_35_plus', function ($model) {
+                return json_decode($model->number_of_employees)->informal->female_35_plus ?? 0;
+            })
+            ->add('number_of_employees_informal_total', function ($model) {
+                $informal = json_decode($model->number_of_employees)->informal;
+                return ($informal->female_18_35 ?? 0) + ($informal->male_18_35 ?? 0) + ($informal->male_35_plus ?? 0) + ($informal->female_35_plus ?? 0);
             })
             ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
             ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
             ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
-            ->add('total_vol_production_previous_season', fn($model) => $model->total_vol_production_previous_season ?? 0)
+
             ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
             ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-            ->add('total_vol_irrigation_production_previous_season', fn($model) => $model->total_vol_irrigation_production_previous_season ?? 0)
+
             ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
             ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
             ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
@@ -146,6 +162,151 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
             ->add('aggregation_center_sales');
     }
+
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
+    }
+
+    #[On('export-processors')]
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/rtc_production_and_marketing_processors.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'Enterprise',
+                'District',
+                'EPA',
+                'Section',
+                'Date of Recruitment (Formatted)',
+                'Name of Actor',
+                'Name of Representative',
+                'Phone Number',
+                'Type',
+                'Approach',
+                'Sector',
+                'Number of Members Total',
+                'Number of Members Female 18-35',
+                'Number of Members Male 18-35',
+                'Number of Members Male 35 Plus',
+                'Number of Members Female 35 Plus',
+                'Group',
+                'Establishment Status',
+                'Is Registered',
+
+                'Registration Details Body',
+                'Registration Details Date',
+                'Registration Details Number',
+                'Number of Employees Formal Female 18-35',
+                'Number of Employees Formal Male 18-35',
+                'Number of Employees Formal Male 35 Plus',
+                'Number of Employees Formal Female 35 Plus',
+                'Number of Employees Formal Total',
+                'Number of Employees Informal Female 18-35',
+                'Number of Employees Informal Male 18-35',
+                'Number of Employees Informal Male 35 Plus',
+                'Number of Employees Informal Female 35 Plus',
+                'Number of Employees Informal Total',
+                'Market Segment Fresh',
+                'Market Segment Processed',
+                'Has RTC Market Contract',
+                'Total Production Value Previous Season Total',
+                'Total Production Value Previous Season Date',
+                'Total Irrigation Production Value Previous Season Total',
+                'Total Irrigation Production Value Previous Season Date',
+                'Sells to Domestic Markets',
+                'Sells to International Markets',
+                'Uses Market Information Systems',
+                'Market Information Systems',
+                'Aggregation Centers Response',
+                'Aggregation Centers Specify',
+                'Aggregation Center Sales',
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $location_data = json_decode($item->location_data);
+                $number_of_members = json_decode($item->number_of_members);
+                $number_of_employees = json_decode($item->number_of_employees);
+                $registration_details = json_decode($item->registration_details);
+                $market_segment = json_decode($item->market_segment);
+                $aggregation_centers = json_decode($item->aggregation_centers);
+                $total_production_value_previous_season = json_decode($item->total_production_value_previous_season);
+                $total_irrigation_production_value_previous_season = json_decode($item->total_irrigation_production_value_previous_season);
+
+                $row = [
+                    'id' => $item->id,
+                    'enterprise' => $location_data->enterprise ?? null,
+                    'district' => $location_data->district ?? null,
+                    'epa' => $location_data->epa ?? null,
+                    'section' => $location_data->section ?? null,
+                    'date_of_recruitment_formatted' => Carbon::parse($item->date_of_recruitment)->format('d/m/Y'),
+                    'name_of_actor' => $item->name_of_actor,
+                    'name_of_representative' => $item->name_of_representative,
+                    'phone_number' => $item->phone_number,
+                    'type' => $item->type,
+                    'approach' => $item->approach,
+                    'sector' => $item->sector,
+                    'number_of_members_total' => ($number_of_members->female_18_35 ?? 0) + ($number_of_members->male_18_35 ?? 0) + ($number_of_members->male_35_plus ?? 0) + ($number_of_members->female_35_plus ?? 0),
+                    'number_of_members_female_18_35' => $number_of_members->female_18_35 ?? 0,
+                    'number_of_members_male_18_35' => $number_of_members->male_18_35 ?? 0,
+                    'number_of_members_male_35_plus' => $number_of_members->male_35_plus ?? 0,
+                    'number_of_members_female_35_plus' => $number_of_members->female_35_plus ?? 0,
+                    'group' => $item->group,
+                    'establishment_status' => $item->establishment_status,
+                    'is_registered' => $item->is_registered == 1 ? 'Yes' : 'No',
+
+                    'registration_details_body' => $registration_details->registration_body ?? null,
+                    'registration_details_date' => $registration_details->registration_date ?? null,
+                    'registration_details_number' => $registration_details->registration_number ?? null,
+                    'number_of_employees_formal_female_18_35' => $number_of_employees->formal->female_18_35 ?? 0,
+                    'number_of_employees_formal_male_18_35' => $number_of_employees->formal->male_18_35 ?? 0,
+                    'number_of_employees_formal_male_35_plus' => $number_of_employees->formal->male_35_plus ?? 0,
+                    'number_of_employees_formal_female_35_plus' => $number_of_employees->formal->female_35_plus ?? 0,
+                    'number_of_employees_formal_total' => ($number_of_employees->formal->female_18_35 ?? 0) + ($number_of_employees->formal->male_18_35 ?? 0) + ($number_of_employees->formal->male_35_plus ?? 0) + ($number_of_employees->formal->female_35_plus ?? 0),
+                    'number_of_employees_informal_female_18_35' => $number_of_employees->informal->female_18_35 ?? 0,
+                    'number_of_employees_informal_male_18_35' => $number_of_employees->informal->male_18_35 ?? 0,
+                    'number_of_employees_informal_male_35_plus' => $number_of_employees->informal->male_35_plus ?? 0,
+                    'number_of_employees_informal_female_35_plus' => $number_of_employees->informal->female_35_plus ?? 0,
+                    'number_of_employees_informal_total' => ($number_of_employees->informal->female_18_35 ?? 0) + ($number_of_employees->informal->male_18_35 ?? 0) + ($number_of_employees->informal->male_35_plus ?? 0) + ($number_of_employees->informal->female_35_plus ?? 0),
+                    'market_segment_fresh' => $market_segment->fresh ?? null,
+                    'market_segment_processed' => $market_segment->processed ?? null,
+                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
+                    'total_production_value_previous_season_total' => $total_production_value_previous_season->total ?? 0,
+                    'total_production_value_previous_season_date' => $total_production_value_previous_season->date_of_maximum_sales ?? null,
+                    'total_irrigation_production_value_previous_season_total' => $total_irrigation_production_value_previous_season->total ?? 0,
+                    'total_irrigation_production_value_previous_season_date' => $total_irrigation_production_value_previous_season->date_of_maximum_sales ?? null,
+                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
+                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
+                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
+                    'market_information_systems' => $item->market_information_systems ?? null,
+                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
+                    'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
+                    'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
+
 
     public function columns(): array
     {
@@ -222,34 +383,43 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
 
 
-            Column::make('Formal employees/Total', 'formal_employees_total')
+            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Formal employees/Female 18-35', 'formal_employees_female_18_35')
+
+            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Formal employees/Female 35+', 'formal_employees_female_35_plus')
+
+            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Formal employees/Male 18-35', 'formal_employees_male_18_35')
+
+            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Formal employees/Male 35+', 'formal_employees_male_35_plus')
+
+            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total')
                 ->sortable()
                 ->searchable(),
-            Column::make('Informal employees/Total', 'informal_employees_total')
+
+            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Informal employees/Female 18-35', 'informal_employees_female_18_35')
+
+            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Informal employees/Female 35+', 'informal_employees_female_35_plus')
+
+            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Informal employees/Male 18-35', 'informal_employees_male_18_35')
+
+            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Informal employees/Male 35+', 'informal_employees_male_35_plus')
+
+            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total')
                 ->sortable()
                 ->searchable(),
 
@@ -266,9 +436,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total production previous season', 'total_vol_production_previous_season')
-                ->sortable()
-                ->searchable(),
 
             Column::make('Total production value previous season/total', 'total_production_value_previous_season_total')
                 ->sortable()
@@ -278,9 +445,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total irrigation production previous season', 'total_vol_irrigation_production_previous_season')
-                ->sortable()
-                ->searchable(),
 
             Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total')
                 ->sortable()

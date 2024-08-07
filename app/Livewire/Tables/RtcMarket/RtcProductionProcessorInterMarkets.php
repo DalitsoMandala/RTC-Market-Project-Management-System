@@ -2,20 +2,23 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use App\Models\RtcProductionProcessor;
-use Illuminate\Database\Query\Builder;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\RtcProductionProcessor;
+use App\Models\RpmProcessorInterMarket;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 {
@@ -29,16 +32,17 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data'),
+            Header::make()->includeViewOnTop('components.export-data-processors-inter'),
             Footer::make()
                 ->showPerPage()
+                ->pageName('processors-international-markets')
                 ->showRecordCount(),
         ];
     }
 
     public function datasource(): Builder
     {
-        return DB::table('rpm_processor_inter_markets');
+        return RpmProcessorInterMarket::query();
     }
 
     public function fields(): PowerGridFields
@@ -68,6 +72,75 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             ->add('financial_value_of_sales')
             ->add('created_at')
             ->add('updated_at');
+    }
+
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
+    }
+    #[On('export-inter')]
+
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/rtc_production_and_marketing_processors_international_markets.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'Processor ID',
+                'Actor Name',
+                'Date Recorded (Formatted)',
+                'Crop Type',
+                'Market Name',
+                'Country',
+                'Date of Maximum Sale (Formatted)',
+                'Product Type',
+                'Volume Sold Previous Period',
+                'Financial Value of Sales',
+                'Created At',
+                'Updated At',
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $processor = $item->rpm_processor_id;
+                $row = RtcProductionProcessor::find($processor);
+                $actor_name = $row ? $row->name_of_actor : null;
+
+                $row = [
+                    'id' => $item->id,
+                    'rpm_processor_id' => $item->rpm_processor_id,
+                    'actor_name' => $actor_name,
+                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
+                    'crop_type' => $item->crop_type,
+                    'market_name' => $item->market_name,
+                    'country' => $item->country,
+                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
+                    'product_type' => $item->product_type,
+                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
+                    'financial_value_of_sales' => $item->financial_value_of_sales,
+                    'created_at' => $item->created_at,
+                    'updated_at' => $item->updated_at,
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
     }
 
     public function columns(): array
