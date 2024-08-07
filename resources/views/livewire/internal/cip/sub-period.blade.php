@@ -212,41 +212,43 @@
                                 @enderror
                             </div>
 
-
-                            <div class="mb-3" wire:loading.class='opacity-25'
-                                wire:target="selectedProject, selectedIndicator, selectedForm"
-                                wire:loading.attr='disabled'>
-                                <label for="month-select" class="form-label">Choose Reporting Period</label>
-                                <select id="month-select" class="form-select form-select-md"
-                                    wire:model.debounce.500ms='selectedMonth'>
-                                    <option value="">Select one</option>
-                                    @foreach ($months as $month)
-                                        <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
-                                            {{ $month->start_month . '-' . $month->end_month }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('selectedMonth')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
+                            <div class="@if (!$selectedProject) pe-none opacity-25 @endif">
+                                <div class="mb-3" wire:loading.class='opacity-25'
+                                    wire:target="selectedProject, selectedIndicator, selectedForm"
+                                    wire:loading.attr='disabled'>
+                                    <label for="month-select" class="form-label">Choose Reporting Period</label>
+                                    <select id="month-select" class="form-select form-select-md"
+                                        wire:model.debounce.500ms='selectedMonth'>
+                                        <option value="">Select one</option>
+                                        @foreach ($months as $month)
+                                            <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
+                                                {{ $month->start_month . '-' . $month->end_month }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('selectedMonth')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <div class="mb-3" wire:loading.class='opacity-25'
-                                wire:target="selectedProject, selectedIndicator, selectedForm"
-                                wire:loading.attr='disabled'>
-                                <label for="year-select" class="form-label">Choose Project Year</label>
-                                <select id="year-select" class="form-select form-select-md"
-                                    wire:model.debounce.500ms='selectedFinancialYear'>
-                                    <option value="">Select one</option>
-                                    @foreach ($financialYears as $year)
-                                        <option value="{{ $year->id }}">{{ $year->number }}</option>
-                                    @endforeach
-                                </select>
-                                @error('selectedFinancialYear')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
+                            <div class="@if (!$selectedProject) pe-none opacity-25 @endif">
+                                <div class="mb-3" wire:loading.class='opacity-25'
+                                    wire:target="selectedProject, selectedIndicator, selectedForm"
+                                    wire:loading.attr='disabled'>
+                                    <label for="year-select" class="form-label">Choose Project Year</label>
+                                    <select id="year-select" class="form-select form-select-md"
+                                        wire:model.debounce.500ms='selectedFinancialYear'>
+                                        <option value="">Select one</option>
+                                        @foreach ($financialYears as $year)
+                                            <option value="{{ $year->id }}">{{ $year->number }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('selectedFinancialYear')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+                                </div>
                             </div>
-
                             <div class="mb-3">
                                 <label for="start-period" class="form-label">Start of submissions</label>
                                 <x-text-input id="start-period" wire:model.debounce.500ms='start_period'
