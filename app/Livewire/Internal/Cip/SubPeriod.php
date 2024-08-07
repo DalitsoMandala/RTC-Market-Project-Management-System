@@ -25,9 +25,9 @@ class SubPeriod extends Component
     public $forms = [];
 
     public $status = true;
-    #[Validate('required')]
+    #[Validate('required', as: 'start of submissions')]
     public $start_period;
-    #[Validate('required')]
+    #[Validate('required|after:start_period', as: 'end of submissions')]
     public $end_period;
     #[Validate('required', message: 'The form field is required.')]
     public $selectedForm = [];
@@ -38,7 +38,7 @@ class SubPeriod extends Component
     public $projects = [];
     #[Validate('required')]
     public $selectedMonth;
-    #[Validate('required')]
+    #[Validate('required', as: 'project year')]
     public $selectedFinancialYear;
     #[Validate('required')]
     public $selectedProject;
@@ -48,10 +48,58 @@ class SubPeriod extends Component
 
     #[Validate('required')]
     public $selectedIndicator;
-    public function setData($id)
+
+    public $all;
+    public function mount()
+    {
+        $this->loadData();
+    }
+
+    public function loadData()
+    {
+        $this->projects = Project::all();
+        $this->financialYears = FinancialYear::all();
+        $this->months = ReportingPeriodMonth::all();
+        $this->indicators = Indicator::all();
+        $this->forms = Form::all();
+    }
+
+    #[On('editData')]
+    public function fillData($rowId)
     {
         $this->resetErrorBag();
+        $this->rowId = $rowId;
 
+        $submissionPeriod = SubmissionPeriod::findOrFail($rowId);
+        $this->start_period = Carbon::parse($submissionPeriod->date_established)->format('Y-m-d');
+        $this->end_period = Carbon::parse($submissionPeriod->date_ending)->format('Y-m-d');
+        $this->status = $submissionPeriod->is_open;
+        $this->selectedIndicator = $submissionPeriod->indicator_id;
+        $this->selectedForm = [$submissionPeriod->form_id];
+        $this->selectedMonth = $submissionPeriod->month_range_period_id;
+        $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
+
+
+        $form = Form::find($submissionPeriod->form_id);
+        if ($form) {
+            $project = $form->project;
+            $this->selectedProject = $project->id;
+            $this->updateProjectRelatedData($project);
+        }
+
+        $this->dispatch('changed-form', forms: $this->forms);
+    }
+
+    public function updateProjectRelatedData($project)
+    {
+
+
+        $period = ReportingPeriod::findOrFail($project->reporting_period_id);
+        $this->months = ReportingPeriodMonth::where('period_id', $period->id)->get();
+        $this->financialYears = FinancialYear::where('project_id', $project->id)->get();
+        $this->indicators = Indicator::where('project_id', $project->id)->get();
+
+        $this->dispatch('update-indicator', data: $this->indicators, selected: $this->selectedIndicator);
     }
 
     public function save()
@@ -63,32 +111,28 @@ class SubPeriod extends Component
             throw $e;
         }
 
-        $this->resetErrorBag();
-        try {
+        $data = [
+            'date_established' => $this->start_period,
+            'date_ending' => $this->end_period,
+            'is_open' => !$this->expired && $this->status,
+            'form_id' => $this->selectedForm,
+            'is_expired' => $this->expired ?? false,
+            'month_range_period_id' => $this->selectedMonth,
+            'financial_year_id' => $this->selectedFinancialYear,
+            'indicator_id' => $this->selectedIndicator,
+        ];
 
+        try {
             if ($this->rowId) {
                 $submissions = Submission::where('period_id', $this->rowId)->count();
                 if ($submissions === 0) {
-
-                    SubmissionPeriod::find($this->rowId)->update([
-                        'date_established' => $this->start_period,
-                        'date_ending' => $this->end_period,
-                        'is_open' => $this->expired === true ? false : $this->status,
-                        'form_id' => $this->selectedForm,
-                        'is_expired' => $this->expired ?? false,
-                        'month_range_period_id' => $this->selectedMonth,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'indicator_id' => $this->selectedIndicator,
-
-                    ]);
+                    SubmissionPeriod::find($this->rowId)->update($data);
                     session()->flash('success', 'Updated Successfully');
-
                 } else {
-                    session()->flash('error', 'Sorry you can not update this record right now because it has submissions.');
+                    session()->flash('error', 'Cannot update this record because it has submissions.');
                 }
-
             } else {
-
+                // Check if any existing records have the same criteria and are not expired
                 $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
                     ->where('financial_year_id', $this->selectedFinancialYear)
                     ->where('indicator_id', $this->selectedIndicator)
@@ -96,183 +140,47 @@ class SubPeriod extends Component
                     ->where('is_expired', false)
                     ->exists();
 
+                // Check if any form ID in the selected forms is already active
+                $activeFormExists = SubmissionPeriod::whereIn('form_id', $this->selectedForm)
+                    ->where('is_open', true)
+                    ->exists();
+
                 if ($exists) {
-                    session()->flash('error', 'This record already exists see the table below!');
+                    session()->flash('error', 'This record already exists.');
+                } elseif ($activeFormExists) {
+                    session()->flash('error', 'One of the selected forms is already active.');
                 } else {
-
-                    $find = SubmissionPeriod::whereIn('form_id', $this->selectedForm)->where('month_range_period_id', $this->selectedMonth)
-                        ->where('financial_year_id', $this->selectedFinancialYear)
-                        ->where('indicator_id', $this->selectedIndicator)
-                        ->where('is_open', true)->first();
-
-                    if ($find) {
-
-                        session()->flash('error', 'This record already exists see the table below!');
-
-                    } else {
-
-                        foreach ($this->selectedForm as $formId) {
-                            SubmissionPeriod::create([
-                                'date_established' => $this->start_period,
-                                'date_ending' => $this->end_period,
-                                'is_open' => $this->status,
-                                'form_id' => $formId,
-                                'month_range_period_id' => $this->selectedMonth,
-                                'financial_year_id' => $this->selectedFinancialYear,
-                                'indicator_id' => $this->selectedIndicator,
-                            ]);
-                        }
-
-                        session()->flash('success', 'Created Successfully');
-                        return redirect()->to(url()->previous());
+                    foreach ($this->selectedForm as $formId) {
+                        SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }
+                    session()->flash('success', 'Created Successfully');
+                    return redirect()->to(url()->previous());
                 }
-
             }
-
-
-
         } catch (Throwable $th) {
-
-            session()->flash('error', 'something went wrong');
-
+            session()->flash('error', 'Something went wrong');
         }
-
     }
 
-    public function loadData()
+    public function updatedSelectedProject($value)
     {
-
-        $this->projects = Project::get();
-        $this->financialYears = FinancialYear::get();
-        $this->months = ReportingPeriodMonth::get();
-        $this->indicators = Indicator::get();
-        $this->forms = Form::get();
-    }
-    #[On('editData')]
-    public function fillData($rowId)
-    {
-
-        $this->resetErrorBag();
-
-        $this->rowId = $rowId;
-        $monthRange = SubmissionPeriod::find($rowId)->month_range_period_id;
-        $this->start_period = Carbon::parse(SubmissionPeriod::find($rowId)->date_established)->format('Y-m-d');
-        $this->end_period = Carbon::parse(SubmissionPeriod::find($rowId)->date_ending)->format('Y-m-d');
-        $this->status = SubmissionPeriod::find($rowId)->is_open === 1 ? true : false;
-        $this->selectedIndicator = SubmissionPeriod::find($rowId)->indicator_id;
-
-        $form = SubmissionPeriod::find($rowId)->form_id;
-        $financialYear = SubmissionPeriod::find($rowId)->financial_year_id;
-        if ($form) {
-
-            $formDetails = Form::find($form);
-
-            if ($formDetails) {
-                $project = $formDetails->project->id;
-
-                $this->selectedProject = $project;
-
-                $project = Project::find($this->selectedProject);
-
-                if ($project) {
-
-                    $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
-                    $this->months = $this->months->where('period_id', $period->id);
-
-                    $this->financialYears = $this->financialYears->where('project_id', $project->id);
-                    $indicators = Indicator::where('project_id', $project->id)->get();
-                    $this->dispatch('select-indicator', data: $indicators, selected: $this->selectedIndicator);
-
-                }
-                $this->selectedMonth = $monthRange;
-                $this->selectedFinancialYear = $financialYear;
-                $indicator = Indicator::find($this->selectedIndicator);
-
-                if ($indicator) {
-                    // Get the IDs of the forms associated with the indicator
-                    $formIds = $indicator->forms->pluck('id');
-
-                    // Assign the form IDs to the class property $this->all
-                    $this->all = $formIds;
-
-                    if ($formIds->isNotEmpty()) {
-
-                        $this->forms = Form::get();
-
-                        $this->forms = $this->forms->whereIn('id', $formIds);
-
-                    } else {
-                        // Handle empty formIds, reset or clear $this->forms as needed
-                        $this->forms = collect(); // Or handle as appropriate
-                    }
-                }
-                $this->selectedForm = $form;
-                $this->dispatch('changed-form', forms: $this->forms);
-
-            }
-        }
-
-    }
-
-    public function updatedselectedProject($value)
-    {
-
         $project = Project::find($value);
-
         if ($project) {
-
-            $period = ReportingPeriod::where('id', $project->reporting_period_id)->first();
-
-            $this->months = $this->months->where('period_id', $period->id);
-            $today = Carbon::today();
-            $currentMonthYear = $today->format('Y-m');
-
-            $this->financialYears = $this->financialYears->filter(function ($financialYear) use ($currentMonthYear) {
-                $startMonthYear = Carbon::parse($financialYear->start_date)->format('Y-m');
-                $endMonthYear = Carbon::parse($financialYear->end_date)->format('Y-m');
-
-                return $currentMonthYear >= $startMonthYear && $currentMonthYear <= $endMonthYear;
-            });
-
-            $indicators = Indicator::where('project_id', $value)->get();
-            $this->dispatch('update-indicator', data: $indicators, selected: null);
-
+            $this->updateProjectRelatedData($project);
         } else {
-
             $this->loadData();
         }
-
     }
 
-    public $all;
     public function updated($property, $value)
     {
         if ($this->selectedProject && $this->selectedIndicator) {
-            // Fetch the indicator by its ID
             $indicator = Indicator::find($this->selectedIndicator);
-
-
             if ($indicator) {
-                // Get the IDs of the forms associated with the indicator
                 $formIds = $indicator->forms->pluck('id');
-
-                // Assign the form IDs to the class property $this->all
                 $this->all = $formIds;
-
-                if ($formIds->isNotEmpty()) {
-
-                    $this->forms = Form::whereIn('id', $formIds)->get()->toArray();
-                    $selectedForm = $formIds->toArray();
-                    // $this->selectedForm = $formIds->toArray();
-
-                } else {
-                    // Handle empty formIds, reset or clear $this->forms as needed
-                    $this->forms = collect(); // Or handle as appropriate
-                }
-
-
-                $this->dispatch('changed-form', data: $selectedForm, forms: $this->forms);
+                $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
+                $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }
     }
@@ -280,25 +188,16 @@ class SubPeriod extends Component
     public function updatedSelectedIndicator()
     {
         if (!$this->rowId) {
-
             $this->selectedForm = null;
         }
-
     }
 
     public function resetData()
     {
         $this->reset();
         $this->loadData();
-        $this->dispatch('update-indicator');
         $this->resetErrorBag();
-
-    }
-
-    public function mount()
-    {
-        $this->loadData();
-
+        $this->dispatch('update-indicator');
     }
     public function render()
     {
