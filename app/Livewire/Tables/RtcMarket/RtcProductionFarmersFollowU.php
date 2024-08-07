@@ -2,26 +2,28 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use Livewire\Attributes\On;
+use Illuminate\Support\Carbon;
 use App\Models\RpmFarmerFollowUp;
+use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionFarmersFollowU extends PowerGridComponent
 {
     use WithExport;
-    public bool $deferLoading = true;
+    public bool $deferLoading = false;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -30,9 +32,10 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data'),
+            Header::make()->includeViewOnTop('components.export-data-farmers-follow-up'),
             Footer::make()
                 ->showPerPage()
+                ->pageName('farmers-follow-up')
                 ->showRecordCount(),
         ];
     }
@@ -136,12 +139,152 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
         ;
     }
 
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
+    }
+    #[On('export-followup')]
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/rtc_production_and_marketing_farmers_followup.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'Farmer ID',
+                'Actor Name',
+
+                'Enterprise',
+                'District',
+                'EPA',
+                'Section',
+                'Group Name',
+                'Date of Follow Up',
+                'Date of Follow Up (Formatted)',
+                'Area Under Cultivation',
+                'Area Under Cultivation Variety 1',
+                'Area Under Cultivation Variety 2',
+                'Area Under Cultivation Variety 3',
+                'Area Under Cultivation Variety 4',
+                'Area Under Cultivation Variety 5',
+
+                'Number of Plantlets Produced Potato',
+                'Number of Plantlets Produced Cassava',
+                'Number of Plantlets Produced Sweet Potato',
+                'Number of Screen House Vines Harvested',
+                'Number of Screen House Min Tubers Harvested',
+                'Number of SAH Plants Produced',
+
+                'Basic Seed Multiplication Total',
+                'Basic Seed Multiplication Variety 1',
+                'Basic Seed Multiplication Variety 2',
+                'Basic Seed Multiplication Variety 3',
+                'Basic Seed Multiplication Variety 4',
+                'Basic Seed Multiplication Variety 5',
+                'Basic Seed Multiplication Variety 6',
+                'Basic Seed Multiplication Variety 7',
+
+                'Certified Seed Multiplication Total',
+                'Certified Seed Multiplication Variety 1',
+                'Certified Seed Multiplication Variety 2',
+                'Certified Seed Multiplication Variety 3',
+                'Certified Seed Multiplication Variety 4',
+                'Certified Seed Multiplication Variety 5',
+                'Certified Seed Multiplication Variety 6',
+                'Certified Seed Multiplication Variety 7',
+                'Is Registered Seed Producer',
+                'Seed Service Unit Registration Details Date',
+                'Seed Service Unit Registration Details Number',
+                'Service Unit Date',
+                'Service Unit Number',
+                'Uses Certified Seed'
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $location = json_decode($item->location_data);
+                $area_under_cultivation = json_decode($item->area_under_cultivation);
+                $number_of_plantlets_produced = json_decode($item->number_of_plantlets_produced);
+                $basic_seed_multiplication = json_decode($item->area_under_basic_seed_multiplication);
+                $certified_seed_multiplication = json_decode($item->area_under_certified_seed_multiplication);
+                $seed_service_unit_registration_details = json_decode($item->seed_service_unit_registration_details);
+
+                $row = [
+                    'id' => $item->id,
+                    'rpm_farmer_id' => $item->rpm_farmer_id,
+                    'actor_name' => RtcProductionFarmer::find($item->rpm_farmer_id)->name_of_actor ?? null,
+                    // 'location_data' => $item->location_data,
+                    'enterprise' => $location->enterprise ?? null,
+                    'district' => $location->district ?? null,
+                    'epa' => $location->epa ?? null,
+                    'section' => $location->section ?? null,
+                    'group_name' => $location->group_name ?? null,
+                    'date_of_follow_up' => $item->date_of_follow_up,
+                    'date_of_follow_up_formatted' => Carbon::parse($item->date_of_follow_up)->format('d/m/Y'),
+                    'area_under_cultivation' => $area_under_cultivation->total ?? 0,
+                    'area_under_cultivation_variety_1' => $area_under_cultivation->variety_1 ?? null,
+                    'area_under_cultivation_variety_2' => $area_under_cultivation->variety_2 ?? null,
+                    'area_under_cultivation_variety_3' => $area_under_cultivation->variety_3 ?? null,
+                    'area_under_cultivation_variety_4' => $area_under_cultivation->variety_4 ?? null,
+                    'area_under_cultivation_variety_5' => $area_under_cultivation->variety_5 ?? null,
+                    //  'number_of_plantlets_produced' => $item->number_of_plantlets_produced,
+                    'number_of_plantlets_produced_potato' => $number_of_plantlets_produced->potato ?? null,
+                    'number_of_plantlets_produced_cassava' => $number_of_plantlets_produced->cassava ?? null,
+                    'number_of_plantlets_produced_sw_potato' => $number_of_plantlets_produced->sweet_potato ?? null,
+                    'number_of_screen_house_vines_harvested' => $item->number_of_screen_house_vines_harvested ?? null,
+                    'number_of_screen_house_min_tubers_harvested' => $item->number_of_screen_house_min_tubers_harvested ?? null,
+                    'number_of_sah_plants_produced' => $item->number_of_sah_plants_produced ?? null,
+                    //   'area_under_basic_seed_multiplication' => $item->area_under_basic_seed_multiplication,
+                    'basic_seed_multiplication_total' => $basic_seed_multiplication->total ?? null,
+                    'basic_seed_multiplication_variety_1' => $basic_seed_multiplication->variety_1 ?? null,
+                    'basic_seed_multiplication_variety_2' => $basic_seed_multiplication->variety_2 ?? null,
+                    'basic_seed_multiplication_variety_3' => $basic_seed_multiplication->variety_3 ?? null,
+                    'basic_seed_multiplication_variety_4' => $basic_seed_multiplication->variety_4 ?? null,
+                    'basic_seed_multiplication_variety_5' => $basic_seed_multiplication->variety_5 ?? null,
+                    'basic_seed_multiplication_variety_6' => $basic_seed_multiplication->variety_6 ?? null,
+                    'basic_seed_multiplication_variety_7' => $basic_seed_multiplication->variety_7 ?? null,
+                    //    'area_under_certified_seed_multiplication' => $item->area_under_certified_seed_multiplication,
+                    'certified_seed_multiplication_total' => $certified_seed_multiplication->total ?? null,
+                    'certified_seed_multiplication_variety_1' => $certified_seed_multiplication->variety_1 ?? null,
+                    'certified_seed_multiplication_variety_2' => $certified_seed_multiplication->variety_2 ?? null,
+                    'certified_seed_multiplication_variety_3' => $certified_seed_multiplication->variety_3 ?? null,
+                    'certified_seed_multiplication_variety_4' => $certified_seed_multiplication->variety_4 ?? null,
+                    'certified_seed_multiplication_variety_5' => $certified_seed_multiplication->variety_5 ?? null,
+                    'certified_seed_multiplication_variety_6' => $certified_seed_multiplication->variety_6 ?? null,
+                    'certified_seed_multiplication_variety_7' => $certified_seed_multiplication->variety_7 ?? null,
+                    'is_registered_seed_producer' => $item->is_registered_seed_producer == 1 ? 'Yes' : 'No',
+                    'seed_service_unit_registration_details_date' => $seed_service_unit_registration_details->registration_date === null ? null : Carbon::parse($seed_service_unit_registration_details->registration_date)->format('d/m/Y'),
+                    'seed_service_unit_registration_details_number' => $seed_service_unit_registration_details->registration_number ?? null,
+                    'service_unit_date' => Carbon::parse($item->service_unit_date)->format('d/m/Y'),
+                    'service_unit_number' => $item->service_unit_number,
+                    'uses_certified_seed' => $item->uses_certified_seed == 1 ? 'Yes' : 'No',
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
     public function columns(): array
     {
         return [
             Column::make('Id', 'id'),
             Column::make('Actor Name', 'actor_name'),
-            Column::make('Actor id', 'rpm_farmer_id'),
+            Column::make('Farmer id', 'rpm_farmer_id'),
             Column::make('Group name', 'group_name'),
             Column::make('Date of follow up', 'date_of_follow_up_formatted', 'date_of_follow_up')
                 ->sortable(),

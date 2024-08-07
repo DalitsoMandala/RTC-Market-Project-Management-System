@@ -33,7 +33,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     use WithExport;
 
     public $userId;
-    public bool $deferLoading = true;
+    public bool $deferLoading = false;
     public $uuid;
     public string $sortField = 'id';
     public $count = 1;
@@ -161,7 +161,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     }
 
-    #[On('export')]
+    #[On('export-hrc')]
     public function export()
     {
         // Get data for export
@@ -260,7 +260,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Enterprise', 'enterprise', 'location_data->enterprise')
                 ->sortable(),
 
-            Column::make('District', 'district', 'location_data->district')->sortable(),
+            Column::make('District', 'district', 'location_data->district')->sortable()->searchableRaw('district'),
             Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
             Column::make('Section', 'section', 'location_data->section')->sortable()->searchable(),
             Column::make('Date of assessment', 'date_of_assessment_formatted', 'date_of_assessment')

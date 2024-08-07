@@ -151,7 +151,7 @@
 
             </div>
             <footer
-                style="text-align: center; padding: 20px; background-color: #f1f1f1; position: fixed; left: 0; bottom: 0; width: 100%;">
+                style="text-align: center; padding: 20px; background-color: #f1f1f1; left: 0; bottom: 0; width: 100%;">
                 <p>&copy; 2024 CIP Database Management System. All rights reserved.</p>
             </footer>
 

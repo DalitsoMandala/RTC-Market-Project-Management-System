@@ -2,26 +2,28 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use Livewire\Attributes\On;
+use Illuminate\Support\Carbon;
 use App\Models\RpmFarmerDomMarket;
+use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 {
     use WithExport;
-    public bool $deferLoading = true;
+    public bool $deferLoading = false;
     public function setUp(): array
     {
 
@@ -30,9 +32,10 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data'),
+            Header::make()->includeViewOnTop('components.export-data-farmers-dom'),
             Footer::make()
                 ->showPerPage()
+                ->pageName('farmers-domestic-markets')
                 ->showRecordCount(),
         ];
     }
@@ -70,13 +73,80 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
             ->add('created_at')
             ->add('updated_at');
     }
+    protected function getDataForExport()
+    {
+        // Get the data as a collection
+        return $this->datasource()->get();
+    }
+    #[On('export-dom')]
+    public function export()
+    {
+        // Get data for export
+        $data = $this->getDataForExport();
+
+        // Define the path for the Excel file
+        $path = storage_path('app/public/rtc_production_and_marketing_farmers_domestic_markets.xlsx');
+
+        // Create the writer and add the header
+        $writer = SimpleExcelWriter::create($path)
+            ->addHeader([
+                'Id',
+                'Farmer ID',
+                'Actor Name',
+                'Date Recorded (Formatted)',
+                'Crop Type',
+                'Market Name',
+                'District',
+                'Date of Maximum Sale (Formatted)',
+                'Product Type',
+                'Volume Sold Previous Period',
+                'Financial Value of Sales',
+
+            ]);
+
+        // Chunk the data and process each chunk
+        $chunks = array_chunk($data->all(), 1000);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                $farmer = $item->rpm_farmer_id;
+                $row = RtcProductionFarmer::find($farmer);
+
+                $actor_name = $row ? $row->name_of_actor : null;
+
+                $row = [
+                    'id' => $item->id,
+                    'rpm_farmer_id' => $item->rpm_farmer_id,
+                    'actor_name' => $actor_name,
+                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
+                    'crop_type' => $item->crop_type,
+                    'market_name' => $item->market_name,
+                    'district' => $item->district,
+                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
+                    'product_type' => $item->product_type,
+                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
+                    'financial_value_of_sales' => $item->financial_value_of_sales,
+
+                ];
+
+                $writer->addRow($row);
+            }
+        }
+
+        // Close the writer and get the path of the file
+        $writer->close();
+
+        // Return the file for download
+        return response()->download($path)->deleteFileAfterSend(true);
+    }
+
 
     public function columns(): array
     {
         return [
             Column::make('Id', 'id'),
             Column::make('Actor Name', 'actor_name'),
-            Column::make('Actor id', 'rpm_farmer_id'),
+            Column::make('Farmer id', 'rpm_farmer_id'),
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
