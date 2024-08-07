@@ -2,23 +2,24 @@
 
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
-use App\Exceptions\UserErrorException;
-use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
 use App\Models\Indicator;
-use App\Models\IndicatorDisaggregation;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
 use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\User;
-use App\Notifications\ManualDataAddedNotification;
+use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
+use App\Exceptions\UserErrorException;
+use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
+use App\Notifications\ManualDataAddedNotification;
 
 class Add extends Component
 {
@@ -111,7 +112,7 @@ class Add extends Component
     {
         $currentUser = Auth::user();
         $uuid = Uuid::uuid4()->toString();
-
+        $user = User::find($currentUser->id);
 
         $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
             ->where('batch_type', 'aggregate')
@@ -122,7 +123,7 @@ class Add extends Component
             $this->dispatch('notify');
         } else {
 
-            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+            if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
 
                 try {
 
@@ -148,7 +149,10 @@ class Add extends Component
                         'submission_period_id' => $this->submissionPeriodId,
                         'period_month_id' => $period->month_range_period_id,
                         'organisation_id' => $user->organisation->id,
+                        'user_id' => $user->id,
+                        'status' => 'approved',
                         'data' => json_encode($data),
+                        'uuid' => $uuid
                     ]);
 
 
@@ -160,13 +164,13 @@ class Add extends Component
 
                 } catch (UserErrorException $e) {
                     // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
+                    Log::error('Submission error: ' . $e->getMessage());
 
                     // Provide a generic error message to the user
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
 
-            } else if ($currentUser->hasAnyRole('external')) {
+            } else if ($user->hasAnyRole('external')) {
 
                 try {
                     $submission = Submission::create([
@@ -192,7 +196,10 @@ class Add extends Component
                         'submission_period_id' => $this->submissionPeriodId,
                         'period_month_id' => $period->month_range_period_id,
                         'organisation_id' => $user->organisation->id,
+                        'user_id' => $user->id,
+
                         'data' => json_encode($data),
+                        'uuid' => $uuid
                     ]);
 
 
@@ -202,7 +209,7 @@ class Add extends Component
                     $this->redirect(route('external-submissions') . '#aggregate-submission');
                 } catch (UserErrorException $e) {
                     // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
+                    Log::error('Submission error: ' . $e->getMessage());
 
                     // Provide a generic error message to the user
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');

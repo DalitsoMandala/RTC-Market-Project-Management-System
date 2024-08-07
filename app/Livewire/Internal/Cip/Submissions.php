@@ -55,12 +55,9 @@ class Submissions extends Component
 
             $submission = Submission::find($this->rowId);
 
-            $period = SubmissionPeriod::find($submission->period_id);
 
-            $financialYear = FinancialYear::find($period->financial_year_id);
-            $user = User::find($submission->user_id);
 
-            $organisation = $user->organisation->id;
+
 
 
             if ($this->status === 'approved') {
@@ -68,39 +65,43 @@ class Submissions extends Component
                 $table = json_decode($submission->table_name);
 
 
-                $decodedBatch = json_decode($submission->data, true);
+
 
 
                 if ($submission->batch_type == 'batch') {
-                    if (count($table) == 1) {
-                        $data = [];
-
-                        foreach ($decodedBatch as $batch) {
-
-                            $batch['created_at'] = now();
-                            $batch['updated_at'] = now();
-                            $batch['financial_year_id'] = $financialYear->id;
-                            $batch['submission_period_id'] = $period->id;
-                            $batch['period_month_id'] = $period->month_range_period_id;
-                            $batch['organisation_id'] = $organisation;
-                            $data[] = $batch;
-                        }
-                        if ($table[0] == 'household_rtc_consumption') {
-
-                            DB::table($table[0])->insert($data);
-                        }
-
-                    } else if (count($table) > 0) {
-
-                        if ($table[0] == 'rtc_production_farmers') {
-                            $this->populateRtcFarmers($decodedBatch);
-                        }
-                        if ($table[0] == 'rtc_production_processors') {
-
-                            $this->populateRtcProducers($decodedBatch);
-                        }
-
+                    $findData = $this->checkbatch('household_rtc_consumption', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('household_rtc_consumption')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'approved'
+                        ]);
                     }
+
+
+
+                    $findData = $this->checkbatch('rtc_production_farmers', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('rtc_production_farmers')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'approved'
+                        ]);
+                    }
+
+
+                    $findData = $this->checkbatch('rtc_production_processors', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('rtc_production_processors')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'approved'
+                        ]);
+                    }
+
+                    $findData = $this->checkbatch('attendance_registers', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('attendance_registers')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'approved'
+                        ]);
+                    }
+
+
+
 
 
 
@@ -109,6 +110,81 @@ class Submissions extends Component
 
 
 
+
+
+                if ($submission->batch_type == 'aggregate') {
+
+                    $findData = $this->checkbatch('submission_reports', $submission->batch_no);
+
+
+                    if ($findData) {
+                        DB::table('submission_reports')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'approved'
+                        ]);
+                    }
+
+                }
+                $submission = Submission::find($this->rowId)->update([
+                    'status' => $this->status,
+                    'comments' => $this->comment,
+                    'is_complete' => true,
+                ]);
+
+            } else {
+
+
+
+
+
+
+                if ($submission->batch_type == 'batch') {
+                    $findData = $this->checkbatch('household_rtc_consumption', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('household_rtc_consumption')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'denied'
+                        ]);
+                    }
+
+                    $findData = $this->checkbatch('attendance_registers', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('attendance_registers')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'denied'
+                        ]);
+                    }
+
+                    $findData = $this->checkbatch('rtc_production_farmers', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('rtc_production_farmers')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'denied'
+                        ]);
+                    }
+
+
+                    $findData = $this->checkbatch('rtc_production_processors', $submission->batch_no);
+                    if ($findData) {
+                        DB::table('rtc_production_processors')->where('uuid', $submission->batch_no)->update([
+                            'status' => 'denied'
+                        ]);
+                    }
+
+
+                }
+
+
+
+
+                if ($submission->batch_type == 'aggregate') {
+
+                    $findData = $this->checkbatch('submission_reports', $submission->batch_no);
+
+
+                    if ($findData) {
+                        DB::table('submission_reports')->where('uuid', $submission->batch_no)->delete([
+                            'status' => 'denied'
+                        ]);
+                    }
+
+                }
 
                 $submission = Submission::find($this->rowId)->update([
                     'status' => $this->status,
@@ -116,30 +192,18 @@ class Submissions extends Component
                     'is_complete' => true,
                 ]);
 
-                if ($submission->batch_type == 'aggregate') {
 
-                    SubmissionReport::create([
-                        'financial_year_id' => $financialYear->id,
-                        'submission_period_id' => $period->id,
-                        'period_month_id' => $period->month_range_period_id,
-                        'organisation_id' => $organisation,
-                        'indicator_id' => $this->selectedIndicator,
-                        'submission_id' => $submission->id,
-                        'data' => json_encode($data),
-                    ]);
 
-                }
+
+
+
+
+
 
 
             }
 
-            if ($this->status === 'denied') {
 
-                $submission->update([
-                    'is_complete' => true,
-                    'status' => $this->status,
-                ]);
-            }
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
             session()->flash('success', 'Successfully updated');
@@ -156,7 +220,11 @@ class Submissions extends Component
 
     }
 
+    public function checkbatch($table, $uuid)
+    {
+        return DB::table($table)->where('uuid', $uuid)->exists();
 
+    }
     public function populateRtcFarmers($data)
     {
         $idMappings = [];

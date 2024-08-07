@@ -51,26 +51,17 @@ final class SubmissionTable extends PowerGridComponent
     {
         $query = null;
         if ($this->userId) {
-            $user = Auth::user();
+            $user = User::find($this->userId);
             if ($user->hasAnyRole('external')) {
-                $query = Submission::query()->where('user_id', $user->id)->where('batch_type', $this->filter)->select([
-                    '*',
-                    //  DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-                ]);
+                $query = Submission::query()->where('user_id', $user->id)->where('batch_type', $this->filter);
 
             } else {
-                $query = Submission::query()->where('batch_type', $this->filter)->select([
-                    '*',
-                    //   DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-                ]);
-                ;
+                $query = Submission::query()->where('batch_type', $this->filter);
+
 
             }
         }
-        $query = Submission::query()->where('batch_type', $this->filter)->select([
-            '*',
-            // DB::raw(' ROW_NUMBER() OVER (ORDER BY id) as row_num'),
-        ]);
+        $query = Submission::query()->where('batch_type', $this->filter);
 
         return $query;
     }

@@ -14,11 +14,14 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('indicator_id')->constrained('indicators');
             $table->foreignId('submission_id')->constrained('submissions');
+            $table->foreignId('user_id')->constrained('users');
             $table->json('data');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes
             $table->foreignId('organisation_id')->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('uuid');
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });
     }

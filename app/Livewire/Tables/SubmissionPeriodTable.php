@@ -32,10 +32,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
         //  $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Header::make(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -45,7 +45,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        return SubmissionPeriod::query()->orderBy('is_open', 'desc');
+        return SubmissionPeriod::query();
     }
 
     public function fields(): PowerGridFields

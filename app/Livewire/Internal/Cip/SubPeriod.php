@@ -75,7 +75,7 @@ class SubPeriod extends Component
         $this->end_period = Carbon::parse($submissionPeriod->date_ending)->format('Y-m-d');
         $this->status = $submissionPeriod->is_open;
         $this->selectedIndicator = $submissionPeriod->indicator_id;
-        $this->selectedForm = [$submissionPeriod->form_id];
+        $this->selectedForm[] = $submissionPeriod->form_id;
         $this->selectedMonth = $submissionPeriod->month_range_period_id;
         $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
 
@@ -123,7 +123,7 @@ class SubPeriod extends Component
             'date_established' => $this->start_period,
             'date_ending' => $this->end_period,
             'is_open' => !$this->expired && $this->status,
-            'form_id' => $this->selectedForm,
+            'form_id' => $this->selectedForm[0],
             'is_expired' => $this->expired ?? false,
             'month_range_period_id' => $this->selectedMonth,
             'financial_year_id' => $this->selectedFinancialYear,
@@ -166,6 +166,7 @@ class SubPeriod extends Component
                 }
             }
         } catch (Throwable $th) {
+            dd($th);
             session()->flash('error', 'Something went wrong');
         }
     }

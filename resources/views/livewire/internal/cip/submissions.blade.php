@@ -163,7 +163,7 @@
                     <div class="modal-footer border-top-0 justify-content-center" x-data="{
                         statusGet(status) {
                             $wire.status = status;
-                            $wire.saveAGG();
+                            $wire.save();
                         }
                     
                     }">

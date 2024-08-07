@@ -126,8 +126,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body ?? null)
             ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date === null ? null : Carbon::parse(json_decode($model->registration_details)->registration_date)->format('d/m/Y'))
             ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number ?? null)
-
-           ` ->add('number_of_employees_formal_female_18_35', function ($model) {
+            ->add('number_of_employees_formal_female_18_35', function ($model) {
                 return json_decode($model->number_of_employees)->formal->female_18_35 ?? 0;
             })
             ->add('number_of_employees_formal_male_18_35', function ($model) {
@@ -158,9 +157,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('number_of_employees_informal_total', function ($model) {
                 $informal = json_decode($model->number_of_employees)->informal;
                 return ($informal->female_18_35 ?? 0) + ($informal->male_18_35 ?? 0) + ($informal->male_35_plus ?? 0) + ($informal->female_35_plus ?? 0);
-            })`
-
-
+            })
             ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
             ->add('area_under_cultivation_variety_1', fn($model) => json_decode($model->area_under_cultivation)->variety_1 ?? null)
             ->add('area_under_cultivation_variety_2', fn($model) => json_decode($model->area_under_cultivation)->variety_2 ?? null)

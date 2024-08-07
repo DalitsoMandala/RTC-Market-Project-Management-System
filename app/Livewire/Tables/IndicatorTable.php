@@ -72,7 +72,7 @@ final class IndicatorTable extends PowerGridComponent
             ->add('indicator_name')
             ->add('name_link', function ($model) {
                 $user = User::find($this->userId);
-                if ($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) {
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
 
                     return '<a class="text-decoration-underline"  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
 
