@@ -80,6 +80,8 @@ class SubPeriod extends Component
         $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
 
 
+
+
         $form = Form::find($submissionPeriod->form_id);
         if ($form) {
             $project = $form->project;
@@ -87,7 +89,13 @@ class SubPeriod extends Component
             $this->updateProjectRelatedData($project);
         }
 
-        $this->dispatch('changed-form', forms: $this->forms);
+        $indicator = Indicator::find($this->selectedIndicator);
+        if ($indicator) {
+            $formIds = $indicator->forms->pluck('id');
+            $this->all = $formIds;
+            $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
+            $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
+        }
     }
 
     public function updateProjectRelatedData($project)

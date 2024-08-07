@@ -134,6 +134,10 @@ class Add extends Component
                 'crop' => $this->crop,
                 'uuid' => $uuid,
                 'user_id' => auth()->user()->id,
+                'submission_period_id' => $this->submissionPeriodId,
+                'period_month_id' => $this->selectedMonth,
+                'organisation_id' => Auth::user()->organisation->id,
+                'financial_year_id' => $this->selectedFinancialYear,
             ];
 
 
