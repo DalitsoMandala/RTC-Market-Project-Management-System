@@ -63,7 +63,7 @@
                         <div class="tab-content">
                             <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission"
                                 role="tabpanel" aria-labelledby="home-tab">
-                                <livewire:tables.submission-table :filter="'batch'" />
+                                <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
                             {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
@@ -71,7 +71,7 @@
                             </div> --}}
                             <div wire:ignore class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.submission-table :filter="'aggregate'" />
+                                <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
                         </div>
 

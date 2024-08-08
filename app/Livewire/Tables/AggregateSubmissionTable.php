@@ -1,55 +1,54 @@
 <?php
 
-namespace App\Livewire\Tables;
+namespace App\Livewire\tables;
 
-use App\Helpers\TruncateText;
 use App\Models\Form;
+use App\Models\User;
 use App\Models\Indicator;
 use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
+use App\Helpers\TruncateText;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Models\SubmissionPeriod;
 use Illuminate\Support\Facades\DB;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class SubmissionTable extends PowerGridComponent
+final class AggregateSubmissionTable extends PowerGridComponent
 {
     use WithExport;
     public $filter;
     public $userId;
     public bool $showFilters = true;
 
-    public $row = 1;
     public function setUp(): array
     {
-        // $this->showCheckBox();
+        $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Header::make(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
     }
-
     public function datasource(): Builder
     {
-        $query = Submission::query()->where('batch_type', 'batch');
+        $query = Submission::query()->where('batch_type', 'aggregate');
         if ($this->userId) {
             $user = User::find($this->userId);
             if ($user->hasAnyRole('external')) {
@@ -74,6 +73,8 @@ final class SubmissionTable extends PowerGridComponent
                 ->optionLabel('status')
                 ->optionValue('status')
             ,
+            Filter::inputText('batch_no_formatted', 'batch_no')
+
 
         ];
 
@@ -83,14 +84,11 @@ final class SubmissionTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('row_num', function () {
-                return $this->row++;
-            })
+
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
 
                 return $model->batch_no;
-
             })
             ->add('user_id')
             ->add('username', function ($model) {
@@ -104,10 +102,8 @@ final class SubmissionTable extends PowerGridComponent
                 $form_name = str_replace(' ', '-', strtolower($form->name));
                 $project = str_replace(' ', '-', strtolower($form->project->name));
 
-                return $form_name;
-
-
-
+                // return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
+                return $form->name;
             })
             ->add('organisation')
             ->add('organisation_formatted', function ($model) {
@@ -193,7 +189,7 @@ final class SubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'row_num'),
+            Column::make('Id', 'id'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
@@ -243,25 +239,19 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('internal'))
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal']),
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('organiser')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->dispatch('showAggregate', ['id' => $row->id, 'name' => 'view-aggregate-modal']),
         ];
     }
-
+    /*
     public function actionRules($row): array
     {
-
-        $user = User::find(auth()->user()->id); //Auth::user();
-        return [
-
+       return [
+            // Hide button edit for ID 1
             Rule::button('edit')
-                ->when(fn($row) => ($row->status === 'pending' && !$user->hasAnyRole('organiser')) || ($row->is_complete === 1) || ($row->user_id === auth()->user()->id))
-                ->disable(),
-
-            // Rule::button('edit')
-            //     ->when(fn($row) => $row->is_complete === 1)
-            //     ->disable(),
+                ->when(fn($row) => $row->id === 1)
+                ->hide(),
         ];
     }
-
+    */
 }
