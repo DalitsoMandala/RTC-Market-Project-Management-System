@@ -24,6 +24,7 @@ pond = FilePond.create($refs.input, {
     forceRevert: true,
     // allowProcess: true,
     allowRemove: true,
+    allowImagePreview: false,
     onerror: (file, error) => {
         $wire.dispatch('remove-errors');
     },

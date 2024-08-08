@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('phone_number');
             $table->foreignId('organisation_id')->constrained('organisations', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->string('password');
+            $table->string('image', 1000)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

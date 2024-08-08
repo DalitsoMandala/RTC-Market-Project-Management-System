@@ -23,9 +23,13 @@
 
                 <div class="row">
                     <div class="col-12">
+
                         <h4>Profile information</h4>
                         <div class="card">
                             <div class="card-body">
+                                @if ($form_top)
+                                    <x-alerts />
+                                @endif
                                 <form wire:submit.prevent="saveProfile">
                                     @if (session()->has('profile_message'))
                                         <div class="alert alert-success">
@@ -35,8 +39,8 @@
 
                                     <div class="mb-3 form-group">
                                         <label for="email">Email</label>
-                                        <input type="email" class="form-control" id="email" wire:model="email"
-                                            readonly>
+                                        <input type="email" class="form-control bg-light" id="email"
+                                            wire:model="email" readonly>
                                     </div>
 
                                     <div class="mb-3 form-group">
@@ -52,8 +56,8 @@
 
                                         <div class="row">
                                             <div class="col-1">
-                                                <img src="assets/images/users/avatar-10.jpg" class="rounded avatar-xl"
-                                                    alt=" ">
+                                                <img src="{{ asset('storage/profiles/' . auth()->user()->image) }}"
+                                                    class="rounded avatar-xl" alt=" ">
                                             </div>
 
                                             <div class="col">
@@ -70,7 +74,7 @@
 
                                     <div class="mb-3 form-group">
                                         <label for="organization">Organization</label>
-                                        <input type="text" class="form-control" id="organization"
+                                        <input type="text" class="form-control bg-light" readonly id="organization"
                                             wire:model="organization">
                                         @error('organization')
                                             <span class="text-danger">{{ $message }}</span>
@@ -87,9 +91,13 @@
 
                 <div class="row">
                     <div class="col-12">
+
                         <h4>Security</h4>
                         <div class="card">
                             <div class="card-body">
+                                @if (!$form_top)
+                                    <x-alerts />
+                                @endif
                                 <form wire:submit.prevent="saveSecurity">
                                     @if (session()->has('security_message'))
                                         <div class="alert alert-success">

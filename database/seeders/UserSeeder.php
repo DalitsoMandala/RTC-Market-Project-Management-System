@@ -48,6 +48,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
             'organisation_id' => 1,
+            'image' => 'eliya.jpg'
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
