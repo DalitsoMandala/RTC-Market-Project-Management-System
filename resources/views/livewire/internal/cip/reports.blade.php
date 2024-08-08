@@ -294,10 +294,10 @@
                 dom: 'Bfrtip',
                 buttons: [{
                     extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i> Export to Excel',
+                    text: '<i class="fas fa-file-excel"></i> Export',
                     titleAttr: 'Excel',
                     title: 'Report ' + today,
-                    className: 'bg-primary btn-sm'
+                    className: 'btn btn-soft-dark waves-effect waves-light'
                 }],
                 paging: true,
                 searching: true,
