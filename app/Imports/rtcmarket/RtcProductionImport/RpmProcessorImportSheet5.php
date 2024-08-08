@@ -116,7 +116,7 @@ class RpmProcessorImportSheet5 implements ToCollection, WithHeadingRow, WithVali
         unset($sub['financial_year_id']);
         unset($sub['period_month_id']);
         $sub['batch_no'] = $uuid;
-        $sub['data'] = json_encode($finalData);
+        // $sub['data'] = json_encode($finalData);
 
         Submission::create($sub);
 

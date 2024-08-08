@@ -194,8 +194,9 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             unset($submissionData['organisation_id']);
             unset($submissionData['financial_year_id']);
             unset($submissionData['period_month_id']);
+            unset($submissionData['data']);
             $submissionData['batch_no'] = $uuid;
-            $submissionData['data'] = json_encode($mergedData);
+            //  $submissionData['data'] = json_encode($mergedData);
 
             Submission::create($submissionData);
         }

@@ -71,6 +71,7 @@ class Upload extends Component
     public $importId;
 
     public $queue = false;
+    public $showReport = false;
     public function submitUpload()
     {
 
@@ -124,7 +125,7 @@ class Upload extends Component
                         'data' => [],
                         'batch_type' => 'batch',
                         'period_id' => $this->submissionPeriodId,
-                        'table_name' => json_encode($table),
+                        'table_name' => 'household_rtc_consumption',
                         'is_complete' => 1,
                         'file_link' => $name,
 
@@ -236,7 +237,7 @@ class Upload extends Component
     {
 
 
-        $user = auth()->user();
+        $user = User::find(auth()->user()->id);
         cache()->clear();
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
@@ -367,7 +368,7 @@ class Upload extends Component
                     unlink($temporaryFilePath);
                 } catch (\Exception $e) {
                     // Handle the exception (e.g., log the error)
-                    \Log::channel('system')->error('Failed to delete temporary file: ' . $e->getMessage());
+                    Log::channel('system')->error('Failed to delete temporary file: ' . $e->getMessage());
                 }
             }
 

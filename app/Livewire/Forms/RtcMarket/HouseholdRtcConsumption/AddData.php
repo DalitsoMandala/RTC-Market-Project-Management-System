@@ -2,28 +2,29 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
-use App\Exceptions\UserErrorException;
-
-use App\Helpers\LogError;
-use App\Models\FinancialYear;
-use App\Models\Form;
-use App\Models\HouseholdRtcConsumption;
-use App\Models\Indicator;
-use App\Models\ReportingPeriodMonth;
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use App\Notifications\AggregateDataAddedNotification;
-use App\Notifications\ManualDataAddedNotification;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
 use Throwable;
+
+use Carbon\Carbon;
+use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
+use App\Helpers\LogError;
+use App\Models\Indicator;
+use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use App\Models\SubmissionPeriod;
+use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Exceptions\UserErrorException;
+use App\Models\HouseholdRtcConsumption;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Notifications\ManualDataAddedNotification;
+use App\Notifications\AggregateDataAddedNotification;
 
 class AddData extends Component
 {
@@ -236,7 +237,7 @@ class AddData extends Component
                     'form_id' => $this->selectedForm,
                     'user_id' => $currentUser->id,
                     'status' => 'approved',
-                    'data' => json_encode($data),
+                    //     'data' => json_encode($data),
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
@@ -263,8 +264,9 @@ class AddData extends Component
                 return redirect()->to(url()->previous());
 
             } catch (UserErrorException $e) {
+
                 // Log the actual error for debugging purposes
-                \Log::error('Submission error: ' . $e->getMessage());
+                Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
@@ -273,8 +275,9 @@ class AddData extends Component
 
 
         } catch (Throwable $th) {
+
             session()->flash('error', 'Something went wrong!');
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
         }
 
     }
@@ -321,8 +324,8 @@ class AddData extends Component
             $userId = auth()->user()->id;
 
             $currentUser = Auth::user();
-
-            if ($currentUser->hasAnyRole('internal') && $currentUser->hasAnyRole('organiser')) {
+            $user = User::find($userId);
+            if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
 
                 try {
                     $checkSubmissions = Submission::where('period_id', $this->submissionPeriodId)
@@ -340,7 +343,7 @@ class AddData extends Component
                             'form_id' => $this->selectedForm,
                             'user_id' => $currentUser->id,
                             'status' => 'approved',
-                            'data' => json_encode($this->aggregateData),
+                            //       'data' => json_encode($this->aggregateData),
                             'batch_type' => 'aggregate',
                             'is_complete' => 1,
                             'period_id' => $this->submissionPeriodId,
@@ -355,13 +358,13 @@ class AddData extends Component
                     }
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
-                    \Log::error('Submission error: ' . $e->getMessage());
+                    Log::error('Submission error: ' . $e->getMessage());
 
                     // Provide a generic error message to the user
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
 
-            } else if ($currentUser->hasAnyRole('external')) {
+            } else if ($user->hasAnyRole('external')) {
 
                 try {
 
@@ -369,7 +372,7 @@ class AddData extends Component
                         'batch_no' => $uuid,
                         'form_id' => $this->selectedForm,
                         'user_id' => $currentUser->id,
-                        'data' => json_encode($this->aggregateData),
+                        //  'data' => json_encode($this->aggregateData),
                         'batch_type' => 'aggregate',
                         'is_complete' => 1,
                         'period_id' => $this->submissionPeriodId,

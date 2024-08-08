@@ -622,7 +622,7 @@ class Add extends Component
                     'form_id' => $this->selectedForm,
                     'user_id' => $currentUser->id,
                     'status' => 'approved',
-                    'data' => json_encode($finalData),
+                   // 'data' => json_encode($finalData),
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,

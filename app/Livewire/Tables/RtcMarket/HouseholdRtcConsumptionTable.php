@@ -161,7 +161,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     }
 
-    #[On('export-hrc')]
+    #[On('export')]
     public function export()
     {
         // Get data for export
