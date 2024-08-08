@@ -102,9 +102,10 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('rtc_main_food_potato', function ($model) {
                 $data = json_decode($model->main_food_data, true);
                 $data = collect($data);
-                $count = $data->where('name', 'POTATO')->count();
+                $count = $data->contains('POTATO');
 
-                if ($count > 0) {
+                if ($count) {
+
                     return 'Yes';
                 } else {
                     return 'No';
@@ -114,21 +115,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('rtc_main_food_sw_potato', function ($model) {
                 $data = json_decode($model->main_food_data, true);
                 $data = collect($data);
-                $count = $data->where('name', 'SWEET POTATO')->count();
 
-                if ($count > 0) {
-                    return 'Yes';
-                } else {
-                    return 'No';
-                }
+                $count = $data->contains('SWEET POTATO');
 
-            })
-            ->add('rtc_main_food_cassava', function ($model) {
-                $data = json_decode($model->main_food_data, true);
-                $data = collect($data);
-                $count = $data->where('name', 'CASSAVA')->count();
+                if ($count) {
 
-                if ($count > 0) {
                     return 'Yes';
                 } else {
                     return 'No';
@@ -136,12 +127,15 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             })
 
+
             ->add('rtc_main_food_cassava', function ($model) {
                 $data = json_decode($model->main_food_data, true);
                 $data = collect($data);
-                $count = $data->where('name', 'CASSAVA')->count();
 
-                if ($count > 0) {
+                $count = $data->contains('CASSAVA');
+
+                if ($count) {
+
                     return 'Yes';
                 } else {
                     return 'No';
@@ -228,9 +222,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                     'rtc_consumers_sw_potato' => $item->rtc_consumers_sw_potato,
                     'rtc_consumers_cassava' => $item->rtc_consumers_cassava,
                     'rtc_consumption_frequency' => $item->rtc_consumption_frequency,
-                    'cassava_count' => collect($main_food)->contains('name', 'CASSAVA') ? 'Yes' : 'No',
-                    'potato_count' => collect($main_food)->contains('name', 'POTATO') ? 'Yes' : 'No',
-                    'sweet_potato_count' => collect($main_food)->contains('name', 'SWEET POTATO') ? 'Yes' : 'No',
+                    'cassava_count' => collect($main_food)->contains('CASSAVA') ? 'Yes' : 'No',
+                    'potato_count' => collect($main_food)->contains('POTATO') ? 'Yes' : 'No',
+                    'sweet_potato_count' => collect($main_food)->contains('SWEET POTATO') ? 'Yes' : 'No',
                     'submission_date' => Carbon::parse($item->created_at)->format('d/m/Y'),
                     'submitted_by' => $item->user->organisation->name,
                     'uuid' => $item->uuid,
