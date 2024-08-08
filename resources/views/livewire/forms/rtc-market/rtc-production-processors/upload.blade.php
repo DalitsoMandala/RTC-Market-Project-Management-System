@@ -56,7 +56,7 @@
                                 <div class="col">
 
                                     @if ($importing && !$importingFinished)
-                                        <div class="alert alert-warning" wire:poll.1500ms='checkErrors()'>Importing your
+                                        <div class="alert alert-warning" wire:poll.5s='checkErrors()'>Importing your
                                             file
                                             Please wait....</div>
 

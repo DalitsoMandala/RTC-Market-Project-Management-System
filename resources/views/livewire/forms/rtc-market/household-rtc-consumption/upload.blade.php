@@ -57,85 +57,85 @@
                             <div class="row">
                                 <div class="col">
 
-                               
-                                    </div>
-                                    @if ($importing && !$importingFinished)
-                                        <div class="alert alert-warning" wire:poll.1500ms='checkErrors()'>Importing your
-                                            file
-                                            Please wait....</div>
+
+                                </div>
+                                @if ($importing && !$importingFinished)
+                                    <div class="alert alert-warning" wire:poll.5s='checkErrors()'>Importing your
+                                        file
+                                        Please wait....</div>
 
 
 
-                                        <div x-data="{
-                                            progress: 0,
-                                        
-                                        
-                                        }"
-                                            @progress-update.window="progress = $event.detail.progress; ">
+                                    <div x-data="{
+                                        progress: 0,
+                                    
+                                    
+                                    }"
+                                        @progress-update.window="progress = $event.detail.progress; ">
 
-                                            <div x-show="progress > 0">
-                                                <div class="d-flex justify-content-end">
+                                        <div x-show="progress > 0">
+                                            <div class="d-flex justify-content-end">
 
 
-                                                    <p class="fw-bolder text-primary"> <span
-                                                            x-text="progress + '%'"></span></p>
-
-                                                </div>
-
-                                                <div x-data class="my-2 progress progress-sm">
-                                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                                        role="progressbar" :style="{ width: progress + '%' }"
-                                                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-
-                                                    </div>
-                                                </div>
-
+                                                <p class="fw-bolder text-primary"> <span x-text="progress + '%'"></span>
+                                                </p>
 
                                             </div>
+
+                                            <div x-data class="my-2 progress progress-sm">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                                    role="progressbar" :style="{ width: progress + '%' }"
+                                                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+
+                                                </div>
+                                            </div>
+
+
                                         </div>
-                                    @endif
-
-
-                                </div>
-                            </div>
-                            <div class="row justify-content-center">
-
-                                <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
-                                    <x-filepond-single instantUpload="true" wire:model='upload' />
-                                    @error('upload')
-                                        <div class="d-flex justify-content-center">
-                                            <x-error class="text-center ">{{ $message }}</x-error>
-                                        </div>
-                                    @enderror
-                                    <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
-                                        <button type="submit" @uploading-files.window="disableButton = true"
-                                            @finished-uploading.window="disableButton = false"
-                                            :disabled="disableButton === true || openSubmission === false"
-                                            class="btn btn-primary ">
-                                            Submit data
-                                        </button>
-
-
                                     </div>
+                                @endif
+
+
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+
+                            <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
+                                <x-filepond-single instantUpload="true" wire:model='upload' />
+                                @error('upload')
+                                    <div class="d-flex justify-content-center">
+                                        <x-error class="text-center ">{{ $message }}</x-error>
+                                    </div>
+                                @enderror
+                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                    <button type="submit" @uploading-files.window="disableButton = true"
+                                        @finished-uploading.window="disableButton = false"
+                                        :disabled="disableButton === true || openSubmission === false"
+                                        class="btn btn-primary ">
+                                        Submit data
+                                    </button>
 
 
                                 </div>
+
+
                             </div>
-
                         </div>
-                    </form>
-
-
-
 
                 </div>
+                </form>
+
+
+
+
             </div>
         </div>
-
-
-
-
     </div>
+
+
+
+
+</div>
 
 
 

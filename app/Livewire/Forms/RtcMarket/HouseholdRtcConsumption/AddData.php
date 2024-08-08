@@ -202,9 +202,7 @@ class AddData extends Component
 
                 // for main food lunch,dinner,breakfast
                 foreach ($input['main_food'] as $mainfood) {
-                    $input['main_food_data'][] = [
-                        'name' => $mainfood,
-                    ];
+                    $input['main_food_data'][] = $mainfood;
 
                 }
 

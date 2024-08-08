@@ -166,6 +166,8 @@ class Upload extends Component
     public function checkErrors()
     {
 
+
+
         $importError = ImportError::where('uuid', $this->importId)->where('user_id', auth()->user()->id)->first();
 
         if ($importError) {

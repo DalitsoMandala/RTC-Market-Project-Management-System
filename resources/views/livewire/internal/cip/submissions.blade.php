@@ -60,6 +60,14 @@
                                 </button>
                             </li>
 
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
+                                    data-bs-target="#job-progress" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
+                                    Pending Submissions
+                                </button>
+                            </li>
+
                         </ul>
 
                         <!-- Tab panes -->
@@ -75,6 +83,11 @@
                             <div wire:ignore class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
+                            </div>
+
+                            <div wire:ignore class="mt-2 tab-pane fade-show" id="job-progress" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                             </div>
                         </div>
 
@@ -204,7 +217,8 @@
                         }
                     
                     }">
-                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
+                        <button type="button" @click="statusGet('denied')"
+                            class="btn btn-danger">Disapprove</button>
                         <button type="button" @click="statusGet('approved')"
                             class="pr-4 btn btn-primary">Approve</button>
 

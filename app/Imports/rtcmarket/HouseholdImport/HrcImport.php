@@ -28,6 +28,7 @@ use App\Models\HouseholdRtcConsumption;
 use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\HeadingRowImport;
 use App\Exceptions\SheetImportException;
+use Exception;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -150,13 +151,13 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             ];
 
             if ($row['RTC MAIN FOOD/CASSAVA'] === 'YES') {
-                $entry['main_food_data'][] = ['name' => 'CASSAVA'];
+                $entry['main_food_data'][] = 'CASSAVA';
             }
             if ($row['RTC MAIN FOOD/POTATO'] === 'YES') {
-                $entry['main_food_data'][] = ['name' => 'POTATO'];
+                $entry['main_food_data'][] = 'POTATO';
             }
             if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'YES') {
-                $entry['main_food_data'][] = ['name' => 'SWEET POTATO'];
+                $entry['main_food_data'][] = 'SWEET POTATO';
             }
             $entry['main_food_data'] = json_encode($entry['main_food_data']);
 
@@ -259,9 +260,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
                 $this->totalRows = intval($sheets['HH_CONSUMPTION']) - 1;
 
-
                 $user = User::find($this->userId);
                 $user->notify(new JobNotification($this->uuid, 'File import has started you will be notified when the file has finished importing!', []));
+
+
 
 
             },
