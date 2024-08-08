@@ -43,7 +43,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
         return [
 
-            Header::make()->includeViewOnTop('components.export-data'),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -254,64 +254,80 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Enterprise', 'enterprise', 'location_data->enterprise')
                 ->sortable(),
 
-            Column::make('District', 'district', 'location_data->district')->sortable()->searchableRaw('district'),
+            Column::make('District', 'district', 'location_data->district')->sortable()->searchableRaw('JSON_UNQUOTE(JSON_EXTRACT(`location_data`, "$.district"))'),
             Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
-            Column::make('Section', 'section', 'location_data->section')->sortable()->searchable(),
+            Column::make('Section', 'section', 'location_data->section')->sortable()
+            // ->searchable()
+            ,
             Column::make('Date of assessment', 'date_of_assessment_formatted', 'date_of_assessment')
                 ->sortable(),
 
             Column::make('Actor type', 'actor_type')
                 ->sortable()
-                ->searchable(),
+            // ->searchable()
+            ,
 
             Column::make('Rtc group platform', 'rtc_group_platform')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
 
             Column::make('Producer organisation', 'producer_organisation')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
 
             Column::make('Actor name', 'actor_name')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
 
             Column::make('Age group', 'age_group', 'age_group')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
 
             Column::make('Sex', 'sex')
                 ->sortable()
-                ->searchable(),
+            //   ->searchable()
+            ,
 
             Column::make('Phone number', 'phone_number')
                 ->sortable()
-                ->searchable(),
+            // ->searchable()
+            ,
 
             Column::make('Household size', 'household_size')
                 ->sortable()
-                ->searchable(),
+            //    ->searchable()
+            ,
 
             Column::make('Under 5 in household', 'under_5_in_household')
                 ->sortable()
-                ->searchable(),
+            //    ->searchable()
+            ,
 
             Column::make('Rtc consumers', 'rtc_consumers')
                 ->sortable()
-                ->searchable(),
+            //   ->searchable()
+            ,
             Column::make('Rtc consumers/Potato', 'rtc_consumers_potato')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
             Column::make('Rtc consumers/Sweet Potato', 'rtc_consumers_sw_potato')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
             Column::make('Rtc consumers/Cassava', 'rtc_consumers_cassava')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
 
             Column::make('Rtc consumption frequency', 'rtc_consumption_frequency')
                 ->sortable()
-                ->searchable(),
+            //->searchable()
+            ,
             Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food_cassava')
             ,
             Column::make('RTC MAIN FOOD/POTATO', 'rtc_main_food_potato')
@@ -321,7 +337,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             Column::make('Submission Date', 'created_at_formatted', 'created_at')
                 ->sortable()
-                ->searchable(),
+            //  ->searchable()
+            ,
 
             Column::make('Submitted By', 'submitted_by')
             ,

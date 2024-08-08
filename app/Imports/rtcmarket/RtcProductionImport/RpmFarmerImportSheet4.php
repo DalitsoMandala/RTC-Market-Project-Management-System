@@ -56,6 +56,24 @@ class RpmFarmerImportSheet4 implements ToCollection, WithHeadingRow, WithValidat
             $importJob->update(['status' => 'processing']);
         }
 
+
+
+
+        if (empty($this->failures)) {
+
+            $headings = ($collection->first()->keys())->toArray();
+            $diff = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
+
+            if (count($diff) > 0) {
+
+                throw new UserErrorException("File contains invalid headings!");
+
+            }
+
+
+        }
+
+
         $submissionData = $this->submissionData;
         $uuid = $this->uuid;
         $batch = [];

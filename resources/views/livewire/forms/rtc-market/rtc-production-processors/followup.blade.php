@@ -34,7 +34,7 @@
 <div class="mb-3">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
-    <input type="number" class="form-control" id="totalVolumeProduction"
+    <input type="number" min="0" step="any" class="form-control" id="totalVolumeProduction"
         wire:model='f_total_vol_production_previous_season'>
 </div>
 
@@ -46,7 +46,7 @@
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Total Production
             Value Previous Season (Financial Value-MWK):</label>
-        <input type="number" class="form-control" id="totalProductionValue"
+        <input type="number" min="0" step="any" class="form-control" id="totalProductionValue"
             wire:model="f_total_production_value_previous_season.total">
     </div>
 
@@ -64,7 +64,7 @@
     <label for="totalVolumeIrrigation" class="form-label">Total Volume of
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
-    <input type="number" class="form-control" id="totalVolumeIrrigation"
+    <input type="number" min="0" step="any" class="form-control" id="totalVolumeIrrigation"
         wire:model='f_total_irrigation_production_previous_season'>
 </div>
 
@@ -76,7 +76,7 @@
     <div class="mb-3">
         <label for="totalIrrigationProductionValue" class="form-label">Total
             Irrigation Production Value Previous Season:</label>
-        <input type="number" class="form-control" id="totalIrrigationProductionValue"
+        <input type="number" min="0" step="any" class="form-control" id="totalIrrigationProductionValue"
             wire:model="f_total_irrigation_production_value_previous_season.total">
     </div>
 
@@ -157,6 +157,6 @@
         Volume
         of RTC Sold Through Aggregation Centers in Previous Season (Metric
         Tonnes)</label>
-    <input type="number" class="form-control" id="totalVolumeSoldThroughAggregation"
+    <input type="number" min="0" step="any" class="form-control" id="totalVolumeSoldThroughAggregation"
         wire:model='f_aggregation_center_sales'>
 </div>

@@ -116,17 +116,17 @@ $watch('number_of_members', (v) => {
     <div class="mb-3">
 
         <div class="row">
-            <div class="col-12">
+            {{-- <div class="col-12">
                 <label for="female1835">Total:</label>
-                <input type="number" class="form-control @error('number_of_members.total') is-invalid @enderror"
+                <input type="number" min="0" step="any" class="form-control @error('number_of_members.total') is-invalid @enderror"
                     id="female1835" x-model="number_of_members.total">
                 @error('number_of_members.total')
                     <x-error>{{ $message }}</x-error>
                 @enderror
-            </div>
+            </div> --}}
             <div class="col">
                 <label for="female1835">FEMALE 18-35YRS:</label>
-                <input type="number" class="form-control @error('number_of_members.female_18_35') is-invalid @enderror"
+                <input type="number" min="0" step="any" class="form-control @error('number_of_members.female_18_35') is-invalid @enderror"
                     id="female1835" x-model="number_of_members.female_18_35">
                 @error('number_of_members.female_18_35')
                     <x-error>{{ $message }}</x-error>
@@ -134,7 +134,7 @@ $watch('number_of_members', (v) => {
             </div>
             <div class="col">
                 <label for="female35plus">FEMALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_members.female_35_plus') is-invalid @enderror"
                     id="female35plus" x-model="number_of_members.female_35_plus">
                 @error('number_of_members.female_35_plus')
@@ -145,7 +145,7 @@ $watch('number_of_members', (v) => {
         <div class="row">
             <div class="col">
                 <label for="male1835">MALE 18-35YRS:</label>
-                <input type="number" class="form-control @error('number_of_members.male_18_35') is-invalid @enderror"
+                <input type="number" min="0" step="any" class="form-control @error('number_of_members.male_18_35') is-invalid @enderror"
                     id="male1835" x-model="number_of_members.male_18_35">
                 @error('number_of_members.male_18_35')
                     <x-error>{{ $message }}</x-error>
@@ -153,9 +153,8 @@ $watch('number_of_members', (v) => {
             </div>
             <div class="col">
                 <label for="male35plus">MALE 35YRS +:</label>
-                <input type="number"
-                    class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror" id="male35plus"
-                    x-model="number_of_members.male_35_plus">
+                <input type="number" min="0" step="any" class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror"
+                    id="male35plus" x-model="number_of_members.male_35_plus">
                 @error('number_of_members.male_35_plus')
                     <x-error>{{ $message }}</x-error>
                 @enderror
@@ -274,7 +273,7 @@ $watch('registration_details', (v) => {
 
             <div class="mb-3">
                 <label for="formalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.female_18_35') is-invalid @enderror"
                     id="formalFemale1835" wire:model="number_of_employees.formal.female_18_35">
                 @error('number_of_employees.formal.female_18_35')
@@ -283,7 +282,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="formalFemale35">FEMALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.female_35_plus') is-invalid @enderror"
                     id="formalFemale35" wire:model="number_of_employees.formal.female_35_plus">
                 @error('number_of_employees.formal.female_35_plus')
@@ -294,7 +293,7 @@ $watch('registration_details', (v) => {
         <div class="col">
             <div class="mb-3">
                 <label for="formalMale1835">MALE 18-35YRS:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.male_18_35') is-invalid @enderror"
                     id="formalMale1835" wire:model="number_of_employees.formal.male_18_35">
                 @error('number_of_employees.formal.male_18_35')
@@ -303,7 +302,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="formalMale35">MALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.male_35_plus') is-invalid @enderror"
                     id="formalMale35" wire:model="number_of_employees.formal.male_35_plus">
                 @error('number_of_employees.formal.male_35_plus')
@@ -320,7 +319,7 @@ $watch('registration_details', (v) => {
 
             <div class="mb-3">
                 <label for="informalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.female_18_35') is-invalid @enderror"
                     id="informalFemale1835" wire:model="number_of_employees.informal.female_18_35">
                 @error('number_of_employees.informal.female_18_35')
@@ -329,7 +328,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="informalFemale35">FEMALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.female_35_plus') is-invalid @enderror"
                     id="informalFemale35" wire:model="number_of_employees.informal.female_35_plus">
                 @error('number_of_employees.informal.female_35_plus')
@@ -340,7 +339,7 @@ $watch('registration_details', (v) => {
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="informalMale1835">MALE 18-35YRS: </label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.male_18_35') is-invalid @enderror"
                     id="informalMale1835" wire:model="number_of_employees.informal.male_18_35">
                 @error('number_of_employees.informal.male_18_35')
@@ -349,7 +348,7 @@ $watch('registration_details', (v) => {
             </div>
             <div class="mb-3">
                 <label for="informalMale35">MALE 35YRS+:</label>
-                <input type="number"
+                <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.male_35_plus') is-invalid @enderror"
                     id="informalMale35" wire:model="number_of_employees.informal.male_35_plus">
                 @error('number_of_employees.informal.male_35_plus')
@@ -414,7 +413,7 @@ $watch('registration_details', (v) => {
 <div class="mb-3">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
-    <input type="number" class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
+    <input type="number" min="0" step="any" class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
         id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
     @error('total_vol_production_previous_season')
         <x-error>{{ $message }}</x-error>
@@ -430,7 +429,7 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Total Production
             Value Previous Season (Financial Value-MWK):</label>
-        <input type="number"
+        <input type="number" min="0" step="any"
             class="form-control  @error('total_production_value_previous_season.total') is-invalid @enderror"
             id="totalProductionValue" wire:model="total_production_value_previous_season.total">
         @error('total_production_value_previous_season.total')
@@ -456,7 +455,7 @@ $watch('registration_details', (v) => {
     <label for="totalVolumeIrrigation" class="form-label">Total Volume of
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
-    <input type="number"
+    <input type="number" min="0" step="any"
         class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror"
         id="totalVolumeIrrigation" wire:model='total_vol_irrigation_production_previous_season'>
     @error('total_vol_irrigation_production_previous_season')
@@ -472,7 +471,7 @@ $watch('registration_details', (v) => {
     <div class="mb-3">
         <label for="totalIrrigationProductionValue" class="form-label">Total
             Irrigation Production Value Previous Season:</label>
-        <input type="number"
+        <input type="number" min="0" step="any"
             class="form-control  @error('total_irrigation_production_value_previous_season.tota') is-invalid @enderror"
             id="totalIrrigationProductionValue" wire:model="total_irrigation_production_value_previous_season.total">
         @error('total_irrigation_production_value_previous_season.tota')
@@ -652,7 +651,7 @@ $watch('aggregation_center_sales', (v) => {
         <label for="totalVolumeSoldThroughAggregation" class="form-label">Total Volume
             of RTC Sold Through Aggregation Centers in Previous Season (Metric
             Tonnes)</label>
-        <input type="number" class="form-control  @error('aggregation_center_sales') is-invalid @enderror"
+        <input type="number" min="0" step="any" class="form-control  @error('aggregation_center_sales') is-invalid @enderror"
             id="totalVolumeSoldThroughAggregation" x-model='aggregation_center_sales'>
 
         @error('aggregation_center_sales')

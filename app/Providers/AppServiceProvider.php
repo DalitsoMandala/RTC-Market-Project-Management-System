@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,10 +39,10 @@ class AppServiceProvider extends ServiceProvider
 
                 } else
 
-                if ($user->hasAnyRole('desira')) {
-                    return '/desira/dashboard';
+                    if ($user->hasAnyRole('desira')) {
+                        return '/desira/dashboard';
 
-                }
+                    }
 
             } else if ($user->hasAnyRole('external')) {
 

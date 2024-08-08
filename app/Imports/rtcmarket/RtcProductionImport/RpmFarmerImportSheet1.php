@@ -15,13 +15,14 @@ use Maatwebsite\Excel\HeadingRowImport;
 use App\Exceptions\SheetImportException;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
-use Maatwebsite\Excel\Concerns\WithEvents;
 
 HeadingRowFormatter::default('none');
 class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidation, SkipsOnFailure, WithEvents
@@ -130,12 +131,32 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
     public function collection(Collection $collection)
     {
 
+
+
+
         if (!empty($this->failures)) {
 
 
 
             throw new SheetImportException('RTC_FARMERS', $this->failures);
         }
+
+
+        if (empty($this->failures)) {
+
+            $headings = ($collection->first()->keys())->toArray();
+            $diff = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
+
+            if (count($diff) > 0) {
+
+                throw new UserErrorException("File contains invalid headings!");
+
+            }
+
+
+        }
+
+
         $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
         if ($importJob) {
             $importJob->update(['status' => 'processing']);
@@ -407,4 +428,6 @@ class RpmFarmerImportSheet1 implements ToCollection, WithHeadingRow, WithValidat
 
 
     }
+
+
 }

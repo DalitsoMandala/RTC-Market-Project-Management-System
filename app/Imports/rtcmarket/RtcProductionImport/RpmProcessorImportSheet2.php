@@ -66,7 +66,19 @@ class RpmProcessorImportSheet2 implements ToCollection, WithHeadingRow, WithVali
 
             throw new SheetImportException('RTC_PROC_FLUP', $this->failures);
         }
+        if (empty($this->failures)) {
 
+            $headings = ($collection->first()->keys())->toArray();
+            $diff = ImportValidateHeading::validateHeadings($headings, $this->expectedHeadings);
+
+            if (count($diff) > 0) {
+
+                throw new UserErrorException("File contains invalid headings!");
+
+            }
+
+
+        }
         $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
         if ($importJob) {
             $importJob->update(['status' => 'processing']);

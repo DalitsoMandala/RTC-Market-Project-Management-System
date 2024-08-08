@@ -133,7 +133,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
                     : null;
             })
             ->add('seed_service_unit_registration_details_number', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_number ?? null)
-            ->add('service_unit_date', fn($model) => Carbon::parse($model->service_unit_date)->format('d/m/Y'))
+            ->add('service_unit_date', fn($model) => json_decode($model->seed_service_unit_registration_details) == null ?: Carbon::parse($model->service_unit_date)->format('d/m/Y'))
             ->add('service_unit_number')
             ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
         ;

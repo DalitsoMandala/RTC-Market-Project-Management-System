@@ -102,7 +102,7 @@ class Upload extends Component
                         'form_id' => $this->selectedForm,
                         'user_id' => Auth::user()->id,
                         'status' => 'approved',
-                        'data' => [],
+                        //    'data' => [],
                         'batch_type' => 'batch',
                         'period_id' => $this->submissionPeriodId,
                         'table_name' => json_encode($table),

@@ -594,7 +594,7 @@ class Add extends Component
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
-                    'table_name' => json_encode($table),
+                    'table_name' => 'rtc_production_processors',
 
                 ]);
 
