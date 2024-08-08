@@ -15,7 +15,7 @@ use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
-#[Lazy]
+
 class Indicators extends Component
 {
     use LivewireAlert;

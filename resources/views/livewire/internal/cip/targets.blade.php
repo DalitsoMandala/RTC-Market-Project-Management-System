@@ -22,6 +22,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header ">
+                        Targets Table
+                    </div>
+                    <div class="card-body">
+
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="targets" data-bs-toggle="tab"
@@ -36,9 +40,7 @@
 
                         </ul>
 
-                    </div>
-                    <div class="card-body">
-                        <div class="tab-content">
+                        <div class="tab-content py-2">
                             <div class="tab-pane fade show active" id="main" role="tabpanel"
                                 aria-labelledby="home-tab" tabindex="0">
 

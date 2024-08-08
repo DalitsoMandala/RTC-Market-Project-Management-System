@@ -55,7 +55,7 @@ final class FormTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id', fn($model) => $this->num++)
+            ->add('id')
             ->add('name')
             ->add('name_formatted', function ($model) {
 

@@ -33,7 +33,7 @@ final class AssignedTargetTable extends PowerGridComponent
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage()->pageName('assigned-targets')
                 ->showRecordCount(),
         ];
     }

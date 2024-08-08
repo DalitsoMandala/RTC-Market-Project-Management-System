@@ -150,11 +150,12 @@
                 {{ $slot }}
 
             </div>
-            <footer
-                style="text-align: center; padding: 20px; background-color: #f1f1f1; left: 0; bottom: 0; width: 100%;">
-                <p>&copy; 2024 CIP Database Management System. All rights reserved.</p>
-            </footer>
 
+            <footer class="footer mt-auto py-3 bg-light">
+                <div class="container text-center">
+                    <span class="text-muted">&copy; 2024 CIP Database Management System. All rights reserved.</span>
+                </div>
+            </footer>
         </div>
 
         <script src="{{ asset('assets/libs/jquery/jquery-3.7.1.min.js') }}"></script>

@@ -22,6 +22,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="card ">
+                    <div class="card-header fw-bold">
+                        Forms Table
+                    </div>
                     <div class="card-body">
                         <livewire:tables.form-table />
                     </div>

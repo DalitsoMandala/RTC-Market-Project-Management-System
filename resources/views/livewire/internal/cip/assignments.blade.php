@@ -21,10 +21,10 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            Indicators & Lead partners
-                        </h3>
+                    <div class="card-header fw-bold">
+
+                        Indicators & Lead partners
+
                     </div>
                     <div class="card-body">
                         <livewire:tables.indicator-leads />

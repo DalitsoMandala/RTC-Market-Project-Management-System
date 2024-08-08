@@ -33,8 +33,8 @@
             <div class="col-12">
                 <div class="card">
 
-                    <div class="card-header">
-                        <h3 class="card-title">Add submission period</h3>
+                    <div class="card-header fw-bold ">
+                        Add submission period
                     </div>
                     <div class="card-header" x-data="{ is_open: true }">
 

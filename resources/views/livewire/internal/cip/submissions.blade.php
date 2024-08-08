@@ -32,6 +32,9 @@
                 </div>
 
                 <div class="card " wire:ignore>
+                    <div class="card-header fw-bold ">
+                        Submissions Table
+                    </div>
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">

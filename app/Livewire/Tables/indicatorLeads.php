@@ -28,13 +28,13 @@ final class indicatorLeads extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+        //   $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Header::make(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -78,11 +78,6 @@ final class indicatorLeads extends PowerGridComponent
             Column::make('Indicator', 'indicator'),
             Column::make('Forms', 'forms'),
             Column::make('Organisation', 'organisation'),
-
-
-
-
-
 
         ];
     }

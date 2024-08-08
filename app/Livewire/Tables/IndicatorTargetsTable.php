@@ -25,16 +25,16 @@ final class IndicatorTargetsTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+
 
         return [
-            Exportable::make('export')
-                ->striped()
+            // Exportable::make('export')
+            //     ->striped()
 
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Header::make(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage()->pageName('targets')
                 ->showRecordCount(),
         ];
     }
