@@ -622,11 +622,11 @@ class Add extends Component
                     'form_id' => $this->selectedForm,
                     'user_id' => $currentUser->id,
                     'status' => 'approved',
-                   // 'data' => json_encode($finalData),
+                    // 'data' => json_encode($finalData),
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
-                    'table_name' => json_encode($table),
+                    'table_name' => 'rtc_production_farmers',
 
                 ]);
 
@@ -638,7 +638,7 @@ class Add extends Component
 
             } catch (UserErrorException $e) {
                 // Log the actual error for debugging purposes
-                \Log::error('Submission error: ' . $e->getMessage());
+                Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
@@ -648,7 +648,7 @@ class Add extends Component
 
         } catch (Throwable $th) {
             session()->flash('error', 'Something went wrong!');
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
         }
     }
 

@@ -52,20 +52,19 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('id')
             ->add('enterprise', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->enterprise;
+                return $data->enterprise ?? null;
             })
             ->add('district', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->district;
+                return $data->district ?? null;
             })
             ->add('epa', function ($model) {
                 $data = json_decode($model->location_data);
-
-                return $data->epa;
+                return $data->epa ?? null;
             })
             ->add('section', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->section;
+                return $data->section ?? null;
             })
             ->add('date_of_recruitment_formatted', fn($model) => Carbon::parse($model->date_of_recruitment)->format('d/m/Y'))
             ->add('name_of_actor')
@@ -75,34 +74,30 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('approach')
             ->add('sector')
             ->add('number_of_members_total', function ($model) {
-                $number_of_members_total = (
-                    json_decode($model->number_of_members)->female_18_35 +
-                    json_decode($model->number_of_members)->male_18_35 +
-                    json_decode($model->number_of_members)->male_35_plus +
-                    json_decode($model->number_of_members)->female_35_plus
-
-
-                );
-
-                return $number_of_members_total;
+                $number_of_members = json_decode($model->number_of_members);
+                if (is_null($number_of_members)) {
+                    return 0;
+                }
+                return ($number_of_members->female_18_35 ?? 0) +
+                    ($number_of_members->male_18_35 ?? 0) +
+                    ($number_of_members->male_35_plus ?? 0) +
+                    ($number_of_members->female_35_plus ?? 0);
             })
             ->add('number_of_members_female_18_35', function ($model) {
-
-                return json_decode($model->number_of_members)->female_18_35 ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->female_18_35 ?? 0;
             })
-
             ->add('number_of_members_male_18_35', function ($model) {
-
-                return json_decode($model->number_of_members)->male_18_35 ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->male_18_35 ?? 0;
             })
-
             ->add('number_of_members_male_35_plus', function ($model) {
-
-                return json_decode($model->number_of_members)->male_35_plus ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->male_35_plus ?? 0;
             })
             ->add('number_of_members_female_35_plus', function ($model) {
-
-                return json_decode($model->number_of_members)->female_35_plus ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->female_35_plus ?? 0;
             })
             ->add('group')
             ->add('establishment_status')
@@ -111,57 +106,94 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             })
             ->add('registration_details')
             ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body ?? null)
-            ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date ?? null)
+            ->add('registration_details_date', fn($model) => json_decode($model->registration_details) == null ? null : Carbon::parse(json_decode($model->registration_details)->registration_date)->format('d/m/Y'))
             ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number ?? null)
             ->add('number_of_employees_formal_female_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->formal->female_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->female_18_35 ?? 0;
             })
             ->add('number_of_employees_formal_male_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->formal->male_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->male_18_35 ?? 0;
             })
             ->add('number_of_employees_formal_male_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->formal->male_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->male_35_plus ?? 0;
             })
             ->add('number_of_employees_formal_female_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->formal->female_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->female_35_plus ?? 0;
             })
             ->add('number_of_employees_formal_total', function ($model) {
-                $formal = json_decode($model->number_of_employees)->formal;
-                return ($formal->female_18_35 ?? 0) + ($formal->male_18_35 ?? 0) + ($formal->male_35_plus ?? 0) + ($formal->female_35_plus ?? 0);
+                $number_of_employees = json_decode($model->number_of_employees);
+                if (is_null($number_of_employees) || !isset($number_of_employees->formal)) {
+                    return 0;
+                }
+                return ($number_of_employees->formal->female_18_35 ?? 0) +
+                    ($number_of_employees->formal->male_18_35 ?? 0) +
+                    ($number_of_employees->formal->male_35_plus ?? 0) +
+                    ($number_of_employees->formal->female_35_plus ?? 0);
             })
             ->add('number_of_employees_informal_female_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->informal->female_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->female_18_35 ?? 0;
             })
             ->add('number_of_employees_informal_male_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->informal->male_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->male_18_35 ?? 0;
             })
             ->add('number_of_employees_informal_male_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->informal->male_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->male_35_plus ?? 0;
             })
             ->add('number_of_employees_informal_female_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->informal->female_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->female_35_plus ?? 0;
             })
             ->add('number_of_employees_informal_total', function ($model) {
-                $informal = json_decode($model->number_of_employees)->informal;
-                return ($informal->female_18_35 ?? 0) + ($informal->male_18_35 ?? 0) + ($informal->male_35_plus ?? 0) + ($informal->female_35_plus ?? 0);
+                $number_of_employees = json_decode($model->number_of_employees);
+                if (is_null($number_of_employees) || !isset($number_of_employees->informal)) {
+                    return 0;
+                }
+                return ($number_of_employees->informal->female_18_35 ?? 0) +
+                    ($number_of_employees->informal->male_18_35 ?? 0) +
+                    ($number_of_employees->informal->male_35_plus ?? 0) +
+                    ($number_of_employees->informal->female_35_plus ?? 0);
             })
             ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
             ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
             ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
-
-            ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
-            ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-
-            ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
-            ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
+            ->add('total_production_value_previous_season_total', function ($model) {
+                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
+                return $total_production_value_previous_season->total ?? 0;
+            })
+            ->add('total_production_value_previous_season_date', function ($model) {
+                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
+                return $total_production_value_previous_season->date_of_maximum_sales == null ? null : Carbon::parse($total_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
+            })
+            ->add('total_irrigation_production_value_previous_season_total', function ($model) {
+                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
+                return $total_irrigation_production_value_previous_season->total ?? 0;
+            })
+            ->add('total_irrigation_production_value_previous_season_date', function ($model) {
+                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
+                return $total_irrigation_production_value_previous_season->date_of_maximum_sales == null ? null : Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
+            })
             ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
             ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
             ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
             ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
-            ->add('aggregation_centers_response', fn($model) => json_decode($model->aggregation_centers)->response == 1 ? 'Yes' : 'No' ?? null)
-            ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
+            ->add('aggregation_centers_response', function ($model) {
+                $aggregation_centers = json_decode($model->aggregation_centers);
+                return $aggregation_centers->response == 1 ? 'Yes' : 'No' ?? null;
+            })
+            ->add('aggregation_centers_specify', function ($model) {
+                $aggregation_centers = json_decode($model->aggregation_centers);
+                return $aggregation_centers->specify ?? null;
+            })
             ->add('aggregation_center_sales');
     }
+
 
     protected function getDataForExport()
     {

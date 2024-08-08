@@ -69,52 +69,48 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('approach')
             ->add('enterprise', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->enterprise;
+                return $data->enterprise ?? null;
             })
             ->add('district', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->district;
+                return $data->district ?? null;
             })
             ->add('epa', function ($model) {
                 $data = json_decode($model->location_data);
-
-                return $data->epa;
+                return $data->epa ?? null;
             })
             ->add('section', function ($model) {
                 $data = json_decode($model->location_data);
-                return $data->section;
+                return $data->section ?? null;
             })
             ->add('sector')
-
             ->add('number_of_members_total', function ($model) {
-                $number_of_members_total = (
-                    json_decode($model->number_of_members)->female_18_35 +
-                    json_decode($model->number_of_members)->male_18_35 +
-                    json_decode($model->number_of_members)->male_35_plus +
-                    json_decode($model->number_of_members)->female_35_plus
+                $number_of_members = json_decode($model->number_of_members);
 
+                if (is_null($number_of_members)) {
+                    return 0; // or any default value you consider appropriate
+                }
 
-                );
-
-                return $number_of_members_total;
+                return ($number_of_members->female_18_35 ?? 0) +
+                    ($number_of_members->male_18_35 ?? 0) +
+                    ($number_of_members->male_35_plus ?? 0) +
+                    ($number_of_members->female_35_plus ?? 0);
             })
             ->add('number_of_members_female_18_35', function ($model) {
-
-                return json_decode($model->number_of_members)->female_18_35 ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->female_18_35 ?? 0;
             })
-
             ->add('number_of_members_male_18_35', function ($model) {
-
-                return json_decode($model->number_of_members)->male_18_35 ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->male_18_35 ?? 0;
             })
-
             ->add('number_of_members_male_35_plus', function ($model) {
-
-                return json_decode($model->number_of_members)->male_35_plus ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->male_35_plus ?? 0;
             })
             ->add('number_of_members_female_35_plus', function ($model) {
-
-                return json_decode($model->number_of_members)->female_35_plus ?? 0;
+                $number_of_members = json_decode($model->number_of_members);
+                return $number_of_members->female_35_plus ?? 0;
             })
             ->add('group')
             ->add('establishment_status')
@@ -122,97 +118,229 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 return $model->is_registered == 1 ? 'Yes' : 'No';
             })
             ->add('registration_details')
+            ->add('registration_details_body', fn($model) => json_decode($model->registration_details) == null ? null : json_decode($model->registration_details)->registration_body)
+            ->add('registration_details_date', function ($model) {
+                $registration_details = json_decode($model->registration_details);
 
-            ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body ?? null)
-            ->add('registration_details_date', fn($model) => json_decode($model->registration_details)->registration_date === null ? null : Carbon::parse(json_decode($model->registration_details)->registration_date)->format('d/m/Y'))
-            ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number ?? null)
+                if (is_null($registration_details)) {
+                    return null;
+                }
+
+                return Carbon::parse(json_decode($model->registration_details)->registration_date)->format('d/m/Y');
+            })
+            ->add('registration_details_number', fn($model) => json_decode($model->registration_details) == null ? null : json_decode($model->registration_details)->registration_number)
             ->add('number_of_employees_formal_female_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->formal->female_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->female_18_35 ?? 0;
             })
             ->add('number_of_employees_formal_male_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->formal->male_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->male_18_35 ?? 0;
             })
             ->add('number_of_employees_formal_male_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->formal->male_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->male_35_plus ?? 0;
             })
             ->add('number_of_employees_formal_female_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->formal->female_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->formal->female_35_plus ?? 0;
             })
             ->add('number_of_employees_formal_total', function ($model) {
-                $formal = json_decode($model->number_of_employees)->formal;
-                return ($formal->female_18_35 ?? 0) + ($formal->male_18_35 ?? 0) + ($formal->male_35_plus ?? 0) + ($formal->female_35_plus ?? 0);
+                $number_of_employees = json_decode($model->number_of_employees);
+
+                if (is_null($number_of_employees) || !isset($number_of_employees->formal)) {
+                    return 0; // or any default value you consider appropriate
+                }
+
+                return ($number_of_employees->formal->female_18_35 ?? 0) +
+                    ($number_of_employees->formal->male_18_35 ?? 0) +
+                    ($number_of_employees->formal->male_35_plus ?? 0) +
+                    ($number_of_employees->formal->female_35_plus ?? 0);
             })
             ->add('number_of_employees_informal_female_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->informal->female_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->female_18_35 ?? 0;
             })
             ->add('number_of_employees_informal_male_18_35', function ($model) {
-                return json_decode($model->number_of_employees)->informal->male_18_35 ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->male_18_35 ?? 0;
             })
             ->add('number_of_employees_informal_male_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->informal->male_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->male_35_plus ?? 0;
             })
             ->add('number_of_employees_informal_female_35_plus', function ($model) {
-                return json_decode($model->number_of_employees)->informal->female_35_plus ?? 0;
+                $number_of_employees = json_decode($model->number_of_employees);
+                return $number_of_employees->informal->female_35_plus ?? 0;
             })
             ->add('number_of_employees_informal_total', function ($model) {
-                $informal = json_decode($model->number_of_employees)->informal;
-                return ($informal->female_18_35 ?? 0) + ($informal->male_18_35 ?? 0) + ($informal->male_35_plus ?? 0) + ($informal->female_35_plus ?? 0);
+                $number_of_employees = json_decode($model->number_of_employees);
+
+                if (is_null($number_of_employees) || !isset($number_of_employees->informal)) {
+                    return 0; // or any default value you consider appropriate
+                }
+
+                return ($number_of_employees->informal->female_18_35 ?? 0) +
+                    ($number_of_employees->informal->male_18_35 ?? 0) +
+                    ($number_of_employees->informal->male_35_plus ?? 0) +
+                    ($number_of_employees->informal->female_35_plus ?? 0);
             })
-            ->add('area_under_cultivation_total', fn($model) => json_decode($model->area_under_cultivation)->total)
-            ->add('area_under_cultivation_variety_1', fn($model) => json_decode($model->area_under_cultivation)->variety_1 ?? null)
-            ->add('area_under_cultivation_variety_2', fn($model) => json_decode($model->area_under_cultivation)->variety_2 ?? null)
-            ->add('area_under_cultivation_variety_3', fn($model) => json_decode($model->area_under_cultivation)->variety_3 ?? null)
-            ->add('area_under_cultivation_variety_4', fn($model) => json_decode($model->area_under_cultivation)->variety_4 ?? null)
-            ->add('area_under_cultivation_variety_5', fn($model) => json_decode($model->area_under_cultivation)->variety_5 ?? null)
-
-            ->add('number_of_plantlets_produced_potato', fn($model) => json_decode($model->number_of_plantlets_produced)->potato ?? null ?? null)
-            ->add('number_of_plantlets_produced_cassava', fn($model) => json_decode($model->number_of_plantlets_produced)->cassava ?? null ?? null)
-            ->add('number_of_plantlets_produced_sw_potato', fn($model) => json_decode($model->number_of_plantlets_produced)->sweet_potato ?? null ?? null)
-
+            ->add('area_under_cultivation_total', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation);
+                return $area_under_cultivation->total ?? null;
+            })
+            ->add('area_under_cultivation_variety_1', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation);
+                return $area_under_cultivation->variety_1 ?? null;
+            })
+            ->add('area_under_cultivation_variety_2', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation);
+                return $area_under_cultivation->variety_2 ?? null;
+            })
+            ->add('area_under_cultivation_variety_3', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation);
+                return $area_under_cultivation->variety_3 ?? null;
+            })
+            ->add('area_under_cultivation_variety_4', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation);
+                return $area_under_cultivation->variety_4 ?? null;
+            })
+            ->add('area_under_cultivation_variety_5', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation);
+                return $area_under_cultivation->variety_5 ?? null;
+            })
+            ->add('number_of_plantlets_produced_potato', function ($model) {
+                $number_of_plantlets_produced = json_decode($model->number_of_plantlets_produced);
+                return $number_of_plantlets_produced->potato ?? null;
+            })
+            ->add('number_of_plantlets_produced_cassava', function ($model) {
+                $number_of_plantlets_produced = json_decode($model->number_of_plantlets_produced);
+                return $number_of_plantlets_produced->cassava ?? null;
+            })
+            ->add('number_of_plantlets_produced_sw_potato', function ($model) {
+                $number_of_plantlets_produced = json_decode($model->number_of_plantlets_produced);
+                return $number_of_plantlets_produced->sweet_potato ?? null;
+            })
             ->add('number_of_screen_house_vines_harvested', fn($model) => $model->number_of_screen_house_vines_harvested ?? null)
             ->add('number_of_screen_house_min_tubers_harvested', fn($model) => $model->number_of_screen_house_min_tubers_harvested ?? null)
             ->add('number_of_sah_plants_produced', fn($model) => $model->number_of_sah_plants_produced ?? null)
-
-            ->add('basic_seed_multiplication_total', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->total ?? null)
-            ->add('basic_seed_multiplication_variety_1', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_1 ?? null)
-            ->add('basic_seed_multiplication_variety_2', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_2 ?? null)
-            ->add('basic_seed_multiplication_variety_3', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_3 ?? null)
-            ->add('basic_seed_multiplication_variety_4', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_4 ?? null)
-            ->add('basic_seed_multiplication_variety_5', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_5 ?? null)
-            ->add('basic_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6 ?? null)
-            ->add('basic_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7 ?? null)
-
-            ->add('area_under_certified_seed_multiplication_total', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->total ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_1', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_1 ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_2', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_2 ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_3', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_3 ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_4', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_4 ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_5', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_5 ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6 ?? null)
-            ->add('area_under_certified_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7 ?? null)
+            ->add('basic_seed_multiplication_total', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->total ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_1', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_1 ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_2', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_2 ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_3', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_3 ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_4', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_4 ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_5', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_5 ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_6', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_6 ?? null;
+            })
+            ->add('basic_seed_multiplication_variety_7', function ($model) {
+                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication);
+                return $basic_seed_multiplication->variety_7 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_total', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->total ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_1', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_1 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_2', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_2 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_3', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_3 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_4', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_4 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_5', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_5 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_6', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_6 ?? null;
+            })
+            ->add('area_under_certified_seed_multiplication_variety_7', function ($model) {
+                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
+                return $certified_seed_multiplication->variety_7 ?? null;
+            })
             ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'Yes' : 'No')
-            ->add('seed_service_unit_registration_details_date', fn($model) => Carbon::parse(json_decode($model->seed_service_unit_registration_details)->registration_date)->format('d/m/Y') ?? null)
+            ->add('seed_service_unit_registration_details_date', function ($model) {
+
+                $seed_service_unit_registration_details = json_decode($model->seed_service_unit_registration_details);
+
+                if (is_null($seed_service_unit_registration_details)) {
+                    return null;
+                }
+
+                return Carbon::parse(json_decode($model->seed_service_unit_registration_details)->registration_date)->format('d/m/Y');
+            })
             ->add('seed_service_unit_registration_details_number', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_number ?? null)
-
             ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
-            ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
-            ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
+            ->add('market_segment_fresh', function ($model) {
+                $market_segment = json_decode($model->market_segment);
+                return $market_segment->fresh ?? null;
+            })
+            ->add('market_segment_processed', function ($model) {
+                $market_segment = json_decode($model->market_segment);
+                return $market_segment->processed ?? null;
+            })
             ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
-
-            ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
-            ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-
-            ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
-            ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
+            ->add('total_production_value_previous_season_total', function ($model) {
+                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
+                return $total_production_value_previous_season->total ?? 0;
+            })
+            ->add('total_production_value_previous_season_date', function ($model) {
+                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
+                return $total_production_value_previous_season->date_of_maximum_sales === null ? null : Carbon::parse($total_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
+            })
+            ->add('total_irrigation_production_value_previous_season_total', function ($model) {
+                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
+                return $total_irrigation_production_value_previous_season->total ?? 0;
+            })
+            ->add('total_irrigation_production_value_previous_season_date', function ($model) {
+                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
+                return $total_irrigation_production_value_previous_season->date_of_maximum_sales === null ? null : Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
+            })
             ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
             ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
             ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
             ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
-            ->add('aggregation_centers_response', fn($model) => json_decode($model->aggregation_centers)->response == 1 ? 'Yes' : 'No' ?? null)
-            ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
-            ->add('aggregation_center_sales')
-        ;
+            ->add('aggregation_centers_response', function ($model) {
+                $aggregation_centers = json_decode($model->aggregation_centers);
+                return $aggregation_centers->response == 1 ? 'Yes' : 'No';
+            })
+            ->add('aggregation_centers_specify', function ($model) {
+                $aggregation_centers = json_decode($model->aggregation_centers);
+                return $aggregation_centers->specify ?? null;
+            })
+            ->add('aggregation_center_sales');
     }
+
 
     public function columns(): array
     {
