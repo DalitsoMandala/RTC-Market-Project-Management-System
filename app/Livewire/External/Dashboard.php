@@ -49,25 +49,39 @@ class Dashboard extends Component
             'name' => $indicator->indicator_name,
         ];
 
-        $submissions = Submission::select(
+        $submissionsQuery = Submission::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as total')
         )
             ->where('user_id', auth()->user()->id)
-            ->groupBy('year', 'month')
-        ;
+            ->groupBy('year', 'month');
 
-        $this->submissions = $submissions->get()->toArray();
+        // Fetch grouped submissions data
+        $this->submissions = $submissionsQuery->get()->toArray();
 
-        $this->attendance = AttendanceRegister::get()->take(5);
-        $this->quickForms = Form::with(['project', 'indicators'])->whereNot('name', 'REPORT FORM')->get()->take(5);
+        // Count pending submissions
+        $this->pending = Submission::where('user_id', auth()->user()->id)
+            ->where('status', 'pending')
+            ->count();
 
+        // Count today's submissions
+        $this->today = Submission::where('user_id', auth()->user()->id)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        // Retrieve the latest 5 attendance records
+        $this->attendance = AttendanceRegister::latest()->take(5)->get();
+
+        // Retrieve the latest 5 quick forms excluding 'REPORT FORM'
+        $this->quickForms = Form::with(['project', 'indicators'])
+            ->where('name', '!=', 'REPORT FORM')
+            ->latest()
+            ->take(5)
+            ->get();
 
         $this->showContent = true;
 
-        $this->pending = $submissions->get()->where('status', 'pending')->count();
-        $this->today = $submissions->get()->where('created_at', '>=', date('Y-m-d'))->count();
     }
 
     public function render()

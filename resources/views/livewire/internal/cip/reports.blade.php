@@ -214,6 +214,7 @@
                                                 <th scope="col" style="color: #6b6a6a;">Dissagregation</th>
                                                 <th scope="col" style="color: #6b6a6a;">Value</th>
                                                 <th style="color: #6b6a6a;">Indicator Name</th>
+                                                <th style="color: #6b6a6a;">Indicator Number</th>
                                                 <th style="color: #6b6a6a;">Project</th>
                                                 <th style="color: #6b6a6a;">Reporting Period</th>
                                                 <th style="color: #6b6a6a;">Project Year</th>
@@ -276,6 +277,7 @@
                 tr.append($('<td>').text(row.name));
                 tr.append($('<td>').text(row.value));
                 tr.append($('<td>').text(row.indicator_name));
+                tr.append($('<td>').text(row.number));
                 tr.append($('<td>').text(row.project));
                 tr.append($('<td>').text(row.reporting_period));
                 tr.append($('<td>').text(row.financial_year));

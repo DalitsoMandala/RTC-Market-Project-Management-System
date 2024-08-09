@@ -34,8 +34,7 @@ final class TargetProgressTable extends PowerGridComponent
 
             Header::make(),
             Footer::make()
-                ->showPerPage()
-                ->showRecordCount(),
+
         ];
     }
 
