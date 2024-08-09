@@ -16,7 +16,10 @@ class indicator_B1
     protected $start_date;
     protected $end_date;
     protected $financial_year, $reporting_period, $project;
-    public function __construct($reporting_period = null, $financial_year = null)
+    protected $organisation_id;
+
+    protected $target_year_id;
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
     {
 
 
@@ -24,12 +27,14 @@ class indicator_B1
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
         //$this->project = $project;
+        $this->organisation_id = $organisation_id;
+        $this->target_year_id = $target_year_id;
 
     }
     public function Farmerbuilder(): Builder
     {
 
-        $query = RtcProductionFarmer::query()->where('name_of_actor', '!=', null);
+        $query = RtcProductionFarmer::query()->where('name_of_actor', '!=', null)->where('status', 'approved');
 
 
 
@@ -56,7 +61,7 @@ class indicator_B1
     public function FarmerFollowupbuilder(): Builder
     {
 
-        $query = RpmFarmerFollowUp::query();
+        $query = RpmFarmerFollowUp::query()->where('status', 'approved');
 
 
         if ($this->reporting_period && $this->financial_year) {
@@ -86,7 +91,7 @@ class indicator_B1
     public function Processorbuilder(): Builder
     {
 
-        $query = RtcProductionProcessor::query();
+        $query = RtcProductionProcessor::query()->where('status', 'approved');
 
         if ($this->reporting_period && $this->financial_year) {
             $hasData = false;
@@ -111,7 +116,7 @@ class indicator_B1
     public function ProcessorFollowupbuilder(): Builder
     {
 
-        $query = RpmProcessorFollowUp::query();
+        $query = RpmProcessorFollowUp::query()->where('status', 'approved');
 
 
         if ($this->reporting_period && $this->financial_year) {

@@ -20,11 +20,12 @@ class indicator_A1
     protected $start_date;
     protected $end_date;
 
+
+
+    protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
     protected $target_year_id;
-
-    protected $financial_year, $reporting_period, $project;
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
     {
 
@@ -39,7 +40,7 @@ class indicator_A1
     }
     public function builder(): Builder
     {
-        $query = HouseholdRtcConsumption::query();
+        $query = HouseholdRtcConsumption::query()->where('status', 'approved');
 
         if ($this->reporting_period && $this->financial_year) {
             $hasData = false;
@@ -69,7 +70,7 @@ class indicator_A1
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query();
+        $query = RtcProductionFarmer::query()->where('status', 'approved');
 
         if ($this->reporting_period && $this->financial_year) {
             $hasData = false;
@@ -101,7 +102,7 @@ class indicator_A1
 
     public function builderProcessor(): Builder
     {
-        $query = RtcProductionProcessor::query();
+        $query = RtcProductionProcessor::query()->where('status', 'approved');
 
         if ($this->reporting_period && $this->financial_year) {
             $hasValidBatchUuids = false;

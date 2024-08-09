@@ -149,15 +149,17 @@ class SubPeriod extends Component
                     ->exists();
 
                 // Check if any form ID in the selected forms is already active
-                $activeFormExists = SubmissionPeriod::whereIn('form_id', $this->selectedForm)
-                    ->where('is_open', true)
-                    ->exists();
+                // $activeFormExists = SubmissionPeriod::whereIn('form_id', $this->selectedForm)
+                //     ->where('is_open', true)
+                //     ->exists();
 
                 if ($exists) {
                     session()->flash('error', 'This record already exists.');
-                } elseif ($activeFormExists) {
-                    session()->flash('error', 'One of the selected forms is already active.');
-                } else {
+                }
+                // elseif ($activeFormExists) {
+                //     session()->flash('error', 'One of the selected forms is already active.');
+                // } 
+                else {
                     foreach ($this->selectedForm as $formId) {
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }

@@ -116,6 +116,10 @@ class Add extends Component
 
         $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
             ->where('batch_type', 'aggregate')
+            ->where(function ($query) {
+                $query->where('status', '=', 'pending')
+                    ->orWhere('status', '=', 'approved');
+            })
             ->where('user_id', auth()->user()->id)->first();
 
         if ($checkSubmission) {
@@ -132,11 +136,11 @@ class Add extends Component
                         'form_id' => $this->selectedForm,
                         'user_id' => $currentUser->id,
                         'status' => 'approved',
-                        'data' => json_encode($data),
+                        //         'data' => json_encode($data),
                         'batch_type' => 'aggregate',
                         'is_complete' => 1,
                         'period_id' => $this->submissionPeriodId,
-                        'table_name' => json_encode(['reports']),
+                        'table_name' => 'reports',
 
                     ]);
                     $user = User::find($submission->user_id);
@@ -178,11 +182,11 @@ class Add extends Component
                         'form_id' => $this->selectedForm,
                         'period_id' => $this->submissionPeriodId,
                         'user_id' => $currentUser->id,
-                        'data' => json_encode($data),
+                        //'data' => json_encode($data),
                         'batch_type' => 'aggregate',
                         //   'status' => 'approved',
                         'is_complete' => 1,
-                        'table_name' => json_encode(['reports']),
+                        'table_name' => 'reports',
 
                     ]);
 
@@ -197,7 +201,6 @@ class Add extends Component
                         'period_month_id' => $period->month_range_period_id,
                         'organisation_id' => $user->organisation->id,
                         'user_id' => $user->id,
-
                         'data' => json_encode($data),
                         'uuid' => $uuid
                     ]);

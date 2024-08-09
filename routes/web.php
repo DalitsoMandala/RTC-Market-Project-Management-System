@@ -6,6 +6,8 @@ use App\Jobs\RandomNames;
 use App\Models\Indicator;
 use Illuminate\Http\Request;
 use App\Helpers\IndicatorsContent;
+use App\Helpers\rtc_market\indicators\indicator_B2;
+use App\Helpers\rtc_market\indicators\indicator_B4;
 use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
@@ -32,37 +34,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function (Request $request) {
-    $project = null; // Get project ID from request
-    $indicators = null; // Get indicators array from request
+    $indicator = new indicator_B4();
 
-    $builder = IndicatorDisaggregation::with(['indicator.project:id,name', 'indicator.class:indicator_id,class', 'indicator:id,indicator_no,indicator_name,project_id']);
+    dd($indicator->getDisaggregations());
 
-    // Apply conditions only if the variables are not null
-    if ($project) {
-        $builder->whereHas('indicator.project', fn($query) => $query->where('id', $project));
-    }
-
-    if ($indicators) {
-        $builder->whereHas('indicator', fn($query) => $query->whereIn('id', $indicators));
-    }
-
-    // Paginate results
-    $perPage = 15; // Adjust per-page count as needed
-    $results = $builder->paginate($perPage);
-
-    // Map results
-    $results->getCollection()->transform(function ($query) {
-        if ($query->indicator && $query->indicator->class) {
-            $classModel = $query->indicator->class->class;
-            if ($classModel) {
-                $indicatorClass = new $classModel();
-                $query->indicator['data'] = $indicatorClass->getDisaggregations();
-            }
-        }
-        return $query;
-    });
-
-    return response()->json($results);
 });
 
 // TestingController route

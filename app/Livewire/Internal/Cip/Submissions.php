@@ -43,7 +43,9 @@ class Submissions extends Component
         $this->rowId = $id;
         $this->status = $submission->status === 'pending' ? null : $submission->status;
         $this->comment = $submission->comments;
-        $json_data = json_decode($submission->data, true);
+        $uuid = $submission->batch_no;
+        $reports = SubmissionReport::where('uuid', $uuid)->first();
+        $json_data = json_decode($reports->data, true);
         $this->inputs = $json_data;
     }
 
@@ -179,7 +181,7 @@ class Submissions extends Component
 
 
                     if ($findData) {
-                        DB::table('submission_reports')->where('uuid', $submission->batch_no)->delete([
+                        DB::table('submission_reports')->where('uuid', $submission->batch_no)->update([
                             'status' => 'denied'
                         ]);
                     }
