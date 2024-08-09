@@ -3,6 +3,7 @@
 namespace App\Livewire\External;
 
 use App\Helpers\rtc_market\indicators\A1;
+use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Models\AttendanceRegister;
 use App\Models\Form;
 use App\Models\Indicator;
@@ -16,21 +17,29 @@ use Livewire\Component;
 
 class Dashboard extends Component
 {
-    use LivewireAlert;
-    #[Validate('required')]
-    public $variable;
-
+    #[Lazy]
     public $data;
     public $project;
     public $indicatorCount;
     public $submissions;
 
     public $attendance;
-
+    public $showContent = false;
     public $quickForms;
+
+    public $pending;
+
+    public $today;
     public function mount()
     {
-        $a1 = new A1();
+
+
+    }
+
+    public function loadData()
+    {
+
+        $a1 = new indicator_A1();
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $this->fill([
             'indicatorCount' => Indicator::count(),
@@ -40,18 +49,27 @@ class Dashboard extends Component
             'name' => $indicator->indicator_name,
         ];
 
-        $this->submissions = Submission::select(
+        $submissions = Submission::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as total')
         )
+            ->where('user_id', auth()->user()->id)
             ->groupBy('year', 'month')
-            ->get()->toArray();
+        ;
+
+        $this->submissions = $submissions->get()->toArray();
 
         $this->attendance = AttendanceRegister::get()->take(5);
         $this->quickForms = Form::with(['project', 'indicators'])->whereNot('name', 'REPORT FORM')->get()->take(5);
 
+
+        $this->showContent = true;
+
+        $this->pending = $submissions->get()->where('status', 'pending')->count();
+        $this->today = $submissions->get()->where('created_at', '>=', date('Y-m-d'))->count();
     }
+
     public function render()
     {
         return view('livewire.external.dashboard', [

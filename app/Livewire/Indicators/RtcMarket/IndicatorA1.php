@@ -3,6 +3,7 @@
 namespace App\Livewire\Indicators\RtcMarket;
 
 use App\Helpers\rtc_market\indicators\A1;
+use App\Helpers\rtc_market\indicators\indicator_A1;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\Validate;
@@ -55,7 +56,7 @@ class IndicatorA1 extends Component
 
     public function calculations()
     {
-        $a1 = new A1();
+        $a1 = new indicator_A1();
         try {
             $this->data = $a1->getDisaggregations();//
             $this->total = $this->data['Total'];
