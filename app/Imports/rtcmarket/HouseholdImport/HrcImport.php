@@ -196,6 +196,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             unset($submissionData['period_month_id']);
             unset($submissionData['data']);
             $submissionData['batch_no'] = $uuid;
+            $submissionData['status'] = 'pending';
             //  $submissionData['data'] = json_encode($mergedData);
 
             Submission::create($submissionData);
@@ -352,6 +353,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
                     HouseholdRtcConsumption::where('uuid', $this->uuid)->update([
+                        'status' => 'approved',
+                    ]);
+
+                    Submission::where('batch_no', $this->uuid)->update([
                         'status' => 'approved',
                     ]);
                 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class IndicatorTarget extends Model
 {
@@ -16,6 +17,8 @@ class IndicatorTarget extends Model
 
     public function details()
     {
-        return $this->hasMany(TargetDetail::class, 'indicator_target_id');
+        return $this->hasOne(TargetDetail::class, 'indicator_target_id');
     }
+
+
 }

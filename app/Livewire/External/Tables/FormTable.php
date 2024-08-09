@@ -2,29 +2,30 @@
 
 namespace App\Livewire\external\Tables;
 
-use App\Models\FinancialYear;
-use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use App\Models\User;
-use Carbon\Carbon;
 use id;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use App\Models\Indicator;
+use App\Models\Submission;
 use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use App\Models\SubmissionPeriod;
+use App\Models\ResponsiblePerson;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class FormTable extends PowerGridComponent
 {
@@ -86,7 +87,7 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-
+    
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {
@@ -260,7 +261,7 @@ final class FormTable extends PowerGridComponent
 
         $routePrefix = $this->currentRoutePrefix;
 
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
+        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
         $this->redirect($route);
     }

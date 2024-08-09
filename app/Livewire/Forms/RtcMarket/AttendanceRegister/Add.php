@@ -9,6 +9,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 use Throwable;
 
 class Add extends Component
@@ -92,7 +93,7 @@ class Add extends Component
                     'designation' => $this->designation,
                     'phone_number' => $this->phone_number,
                     'user_id' => auth()->user()->id,
-
+                    'uuid' => Uuid::uuid4()->toString(),
                 ];
 
 

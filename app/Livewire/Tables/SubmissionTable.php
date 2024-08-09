@@ -254,9 +254,9 @@ final class SubmissionTable extends PowerGridComponent
         $user = User::find(auth()->user()->id); //Auth::user();
         return [
 
-            Rule::button('edit')
-                ->when(fn($row) => ($row->status === 'pending' && !$user->hasAnyRole('organiser')) || ($row->is_complete === 1) || ($row->user_id === auth()->user()->id))
-                ->disable(),
+            // Rule::button('edit')
+            //     ->when(fn($row) => ($row->status === 'pending' && !$user->hasAnyRole('organiser')) || ($row->is_complete === 1) || ($row->user_id === auth()->user()->id))
+            //     ->disable(),
 
             // Rule::button('edit')
             //     ->when(fn($row) => $row->is_complete === 1)

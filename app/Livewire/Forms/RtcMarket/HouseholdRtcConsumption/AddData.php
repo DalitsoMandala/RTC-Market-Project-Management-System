@@ -250,6 +250,7 @@ class AddData extends Component
                     $dt['period_month_id'] = $this->selectedMonth;
                     $dt['organisation_id'] = Auth::user()->organisation->id;
                     $dt['financial_year_id'] = $this->selectedFinancialYear;
+                    $dt['status'] = 'approved';
                     HouseholdRtcConsumption::create($dt);
                 }
 

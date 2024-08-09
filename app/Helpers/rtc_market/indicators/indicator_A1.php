@@ -20,8 +20,12 @@ class indicator_A1
     protected $start_date;
     protected $end_date;
 
+    protected $organisation_id;
+
+    protected $target_year_id;
+
     protected $financial_year, $reporting_period, $project;
-    public function __construct($reporting_period = null, $financial_year = null)
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
     {
 
 
@@ -29,6 +33,8 @@ class indicator_A1
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
         //$this->project = $project;
+        $this->organisation_id = $organisation_id;
+        $this->target_year_id = $target_year_id;
 
     }
     public function builder(): Builder
@@ -49,6 +55,13 @@ class indicator_A1
                 // No data found, return an empty collection
                 return $query->whereIn('id', []);
             }
+        }
+
+
+        if ($this->organisation_id && $this->target_year_id) {
+            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+            $query = $data;
+
         }
 
         return $query;
@@ -73,6 +86,14 @@ class indicator_A1
                 return $query->whereIn('id', []);
             }
         }
+
+
+        if ($this->organisation_id && $this->target_year_id) {
+            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+            $query = $data;
+
+        }
+
 
         return $query;
     }
@@ -105,6 +126,13 @@ class indicator_A1
                 return $query->whereIn('uuid', []);
             }
         }
+
+        if ($this->organisation_id && $this->target_year_id) {
+            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+            $query = $data;
+
+        }
+
 
         return $query;
     }

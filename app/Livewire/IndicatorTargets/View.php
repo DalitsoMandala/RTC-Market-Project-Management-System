@@ -41,62 +41,7 @@ class View extends Component
 
     public function mount()
     {
-        $this->financial_years = FinancialYear::where('project_id', $this->project_id)->get();
-        $people = ResponsiblePerson::where('indicator_id', $this->indicator_id)->pluck('organisation_id');
-        $this->organisations = Organisation::whereIn('id', $people)->get();
-        $myOrganisation = Auth::user()->organisation->id;
-        $today = Carbon::now();
 
-
-        $date = FinancialYear::where('project_id', $this->project_id)->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)->first();
-        if ($date) {
-            $this->currentYear = $date->number;
-        } else {
-            $this->currentYear = null;
-        }
-
-
-        $target = IndicatorTarget::where('indicator_id', $this->indicator_id)
-            ->where('project_id', $this->project_id)
-            ->get();
-
-        $data = $target->map(function ($model) {
-            $financialYear = FinancialYear::find($model->financial_year_id);
-            $model->financial_year = $financialYear->number;
-            $model->start_date = $financialYear->start_date;
-            $model->end_date = $financialYear->end_date;
-            $assignedTargets = AssignedTarget::where('indicator_target_id', $model->id)->get();
-            if ($assignedTargets->isNotEmpty()) {
-                $model->data = $assignedTargets->map(function ($assignedTarget) {
-                    $assignedTarget->organisation = Organisation::find($assignedTarget->organisation_id)->name;
-
-                    foreach ($this->getTargets() as $targetModel) {
-                        if ($targetModel['organisation'] == $assignedTarget->organisation) {
-                            $assigned = $assignedTarget->id;
-                            AssignedTarget::find($assigned)->update([
-                                'current_value' => $targetModel['Total'],
-                            ]);
-                            $assignedTarget->current_value = $targetModel['Total'];
-
-                        }
-
-                    }
-
-
-
-                    return $assignedTarget;
-                });
-
-
-            } else {
-                $model->data = [];
-            }
-
-            return $model;
-        });
-
-        $this->data = $data;
 
     }
 
