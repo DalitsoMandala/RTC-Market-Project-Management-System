@@ -210,7 +210,25 @@
         <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+        <script>
+            document.addEventListener('livewire:init', () => {
 
+                Livewire.hook('request', ({
+                    fail
+                }) => {
+                    fail(({
+                        status,
+                        preventDefault
+                    }) => {
+                        if (status === 419) {
+                            location.reload(true)
+
+                            preventDefault()
+                        }
+                    })
+                })
+            })
+        </script>
         @stack('scripts')
         <script>
             $(document).ready(function() {
