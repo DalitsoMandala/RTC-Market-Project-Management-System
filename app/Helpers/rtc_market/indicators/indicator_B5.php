@@ -249,13 +249,15 @@ class indicator_B5
     public function followUpBuilder()
     {
 
-        return RpmFarmerFollowUp::query();
+        $farmer = $this->builder()->pluck('id');
+
+        return RpmFarmerFollowUp::query()->whereIn('rpm_farmer_id', $farmer);
     }
 
     public function followUpBuilderProcessor()
     {
-
-        return RpmProcessorFollowUp::query();
+        $processor = $this->builderProcessor()->pluck('id');
+        return RpmProcessorFollowUp::query()->whereIn('rpm_processor_id', $processor);
     }
 
     public function getCertifiedSeed()
