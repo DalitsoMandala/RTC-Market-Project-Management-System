@@ -63,7 +63,13 @@ class indicator_A1
             $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
             $query = $data;
 
-        }
+        } else
+            if ($this->organisation_id && $this->target_year_id == null) {
+                $data = $query->where('organisation_id', $this->organisation_id);
+                $query = $data;
+
+            }
+
 
         return $query;
     }
@@ -93,8 +99,12 @@ class indicator_A1
             $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
             $query = $data;
 
-        }
+        } else
+            if ($this->organisation_id && $this->target_year_id == null) {
+                $data = $query->where('organisation_id', $this->organisation_id);
+                $query = $data;
 
+            }
 
         return $query;
     }
@@ -132,8 +142,12 @@ class indicator_A1
             $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
             $query = $data;
 
-        }
+        } else
+            if ($this->organisation_id && $this->target_year_id == null) {
+                $data = $query->where('organisation_id', $this->organisation_id);
+                $query = $data;
 
+            }
 
         return $query;
     }

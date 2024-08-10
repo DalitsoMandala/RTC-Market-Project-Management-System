@@ -43,10 +43,15 @@ class Submissions extends Component
         $this->rowId = $id;
         $this->status = $submission->status === 'pending' ? null : $submission->status;
         $this->comment = $submission->comments;
-        $uuid = $submission->batch_no;
-        $reports = SubmissionReport::where('uuid', $uuid)->first();
-        $json_data = json_decode($reports->data, true);
-        $this->inputs = $json_data;
+
+        if ($submission->table_name == 'reports') {
+            $uuid = $submission->batch_no;
+            $reports = SubmissionReport::where('uuid', $uuid)->first();
+            $json_data = json_decode($reports->data, true);
+            $this->inputs = $json_data;
+
+        }
+
     }
 
     public function save()

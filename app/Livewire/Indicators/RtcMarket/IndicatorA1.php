@@ -56,7 +56,9 @@ class IndicatorA1 extends Component
 
     public function calculations()
     {
-        $a1 = new indicator_A1();
+
+        $organisation = auth()->user()->organisation;
+        $a1 = new indicator_A1(organisation_id: $organisation->id);
         try {
             $this->data = $a1->getDisaggregations();//
             $this->total = $this->data['Total'];

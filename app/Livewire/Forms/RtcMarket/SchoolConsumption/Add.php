@@ -35,7 +35,7 @@ class Add extends Component
     public $crop = 'POTATO';
     public $male_count;
     public $female_count;
-    public $total;
+    public $total = 0;
 
 
     public $submissionPeriodId;
@@ -154,7 +154,7 @@ class Add extends Component
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
-                    'table_name' => json_encode(['school_rtc_consumption']),
+                    'table_name' => 'school_rtc_consumption',
 
                 ]);
                 SchoolRtcConsumption::create($data);
@@ -172,18 +172,18 @@ class Add extends Component
                     'period_month_id' => $this->selectedMonth,
                     'organisation_id' => Auth::user()->organisation->id,
                     'financial_year_id' => $this->selectedFinancialYear,
-                    //    'status' => 'p'
+                    'status' => 'approved',
                 ];
                 Submission::create([
                     'batch_no' => $uuid,
                     'form_id' => $this->selectedForm,
                     'user_id' => $currentUser->id,
-                    //   'status' => 'approved',
+                    'status' => 'approved',
                     //   'data' => json_encode($data),
                     'batch_type' => 'manual',
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
-                    'table_name' => json_encode(['school_rtc_consumption']),
+                    'table_name' => 'school_rtc_consumption',
 
                 ]);
                 SchoolRtcConsumption::create($data);
@@ -200,6 +200,11 @@ class Add extends Component
 
     }
 
+
+    public function updated($property, $value)
+    {
+        $this->total = ($this->male_count ?? 0) + ($this->female_count ?? 0);
+    }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
 

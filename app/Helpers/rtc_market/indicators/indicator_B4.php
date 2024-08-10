@@ -90,18 +90,15 @@ class indicator_B4
     {
 
 
-        $total = $this->builder()->count() + $this->builderSchool()->count();
+        $total = $this->builder()->count() + $this->builderSchool()->sum('Total');
+        $rtcActors = $this->builder()->count();
+        $school = $this->builderSchool()->sum('Total');
+        $interventions = $this->builder()->where('actor_type', 'INDIVIDUALS FROM NUTRITION INTERVENTION')->count();
         return [
             "Total" => $total,
-            "Volume(Metric Tonnes)" => 0,
-            "Financial value ($)" => 0,
-            "Cassava" => 0,
-            "Potato" => 0,
-            "Sweet potato" => 0,
-            "Formal" => 0,
-            "RTC actors and households" => 0,
-            "School feeding beneficiaries" => 0,
-            "Individuals from households reached with nutrition interventions" => 0,
+            "RTC actors and households" => $rtcActors,
+            "School feeding beneficiaries" => $school,
+            "Individuals from households reached with nutrition interventions" => $interventions,
         ];
     }
 

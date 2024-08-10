@@ -277,8 +277,10 @@ final class FormTable extends PowerGridComponent
             Rule::button('add-data')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
+            // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 ||
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM', 'SCHOOL RTC CONSUMPTION FORM'])))
                 ->disable(),
 
             Rule::button('upload')

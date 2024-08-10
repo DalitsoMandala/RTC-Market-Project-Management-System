@@ -179,7 +179,7 @@
                                             class="form-control @error('male_count')
                                             is-invalid
                                         @enderror"
-                                            id="male_count" wire:model="male_count">
+                                            id="male_count" wire:model.live.debounce.600ms="male_count">
                                         @error('male_count')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -191,7 +191,7 @@
                                             class="form-control @error('female_count')
                                             is-invalid
                                         @enderror"
-                                            id="female_count" wire:model="female_count">
+                                            id="female_count" wire:model.live.debounce.600ms="female_count">
                                         @error('female_count')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -199,7 +199,7 @@
 
                                     <div class="mb-3">
                                         <label for="total" class="form-label">TOTAL</label>
-                                        <input type="number"
+                                        <input type="number" readonly
                                             class="form-control bg-light @error('total')
                                             is-invalid
                                         @enderror"

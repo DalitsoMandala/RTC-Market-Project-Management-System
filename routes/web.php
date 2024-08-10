@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Helpers\IndicatorsContent;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
+use App\Helpers\rtc_market\indicators\indicator_B5;
 use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
@@ -34,7 +35,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function (Request $request) {
-    $indicator = new indicator_B4();
+    $indicator = new indicator_B5();
 
     dd($indicator->getDisaggregations());
 

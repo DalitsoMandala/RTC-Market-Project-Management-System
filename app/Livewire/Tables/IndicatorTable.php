@@ -43,7 +43,7 @@ final class IndicatorTable extends PowerGridComponent
     {
         $user = User::find($this->userId);
         if ($user->hasAnyRole('internal')) {
-            return Indicator::query()->with(['project']);
+            return Indicator::query()->with(['project', 'disaggregations']);
 
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
@@ -104,6 +104,16 @@ final class IndicatorTable extends PowerGridComponent
                 $formNames = implode(', ', $forms);
                 return $formNames;
             })
+
+            ->add('disaggregations', function ($model) {
+                $disaggregations = $model->disaggregations;
+
+                if ($disaggregations) {
+                    $implode = $disaggregations->pluck('name')->toArray();
+                    return strtoupper(implode(', ', $implode));
+
+                }
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -125,7 +135,7 @@ final class IndicatorTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Project name', 'project_name'),
             Column::make('Lead partner', 'lead_partner'),
-
+            Column::make('Disaggregations', 'disaggregations')
         ];
 
         $user = Auth::user();
@@ -133,6 +143,8 @@ final class IndicatorTable extends PowerGridComponent
             $columns[] = Column::make('Sources', 'sources');
             //   $columns[] = Column::action('Action');
         } else {
+
+
             //    $columns[] = Column::action('Action')->hidden();
         }
 
