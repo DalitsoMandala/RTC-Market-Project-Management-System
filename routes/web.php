@@ -6,9 +6,11 @@ use App\Jobs\RandomNames;
 use App\Models\Indicator;
 use Illuminate\Http\Request;
 use App\Helpers\IndicatorsContent;
+use App\Helpers\rtc_market\indicators\indicator_1_1_1;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
 use App\Helpers\rtc_market\indicators\indicator_B5;
+use App\Helpers\rtc_market\indicators\indicator_B6;
 use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
@@ -35,7 +37,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function (Request $request) {
-    $indicator = new indicator_B5();
+    $indicator = new indicator_1_1_1();
 
     dd($indicator->getDisaggregations());
 

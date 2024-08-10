@@ -198,7 +198,7 @@
 
 
                                 @if ($loadingData)
-                                    <div x-data wire:poll.2000ms='readCache()'
+                                    <div x-data wire:poll.5s='readCache()'
                                         class="d-flex justify-content-center align-items-center">
                                         <div class="spinner-border text-primary spinner-border-lg" role="status">
                                             <span class="visually-hidden">Loading...</span>

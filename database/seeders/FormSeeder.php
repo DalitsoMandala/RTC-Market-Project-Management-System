@@ -55,7 +55,7 @@ class FormSeeder extends Seeder
             '2.2.1' => ['REPORT FORM'],
             '2.2.2' => ['RTC PRODUCTION AND MARKETING FORM FARMERS', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS'],
             '2.2.3' => ['REPORT FORM'],
-            '2.2.4' => ['SEED DISTRIBUTION REGISTER'],
+            '2.2.4' => ['REPORT FORM'],
             '2.2.5' => ['REPORT FORM'],
             '2.3.1' => ['REPORT FORM'],
             '2.3.2' => ['REPORT FORM'],
