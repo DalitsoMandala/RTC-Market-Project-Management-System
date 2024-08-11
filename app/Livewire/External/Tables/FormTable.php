@@ -226,14 +226,15 @@ final class FormTable extends PowerGridComponent
         $user = Auth::user();
         $organisation = $user->organisation;
         $indicator = $form->indicators->where('id', $model->indicator_id)->first();
-        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
+        $person = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
+
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
 
-        if ($checkTypeofSubmission->contains('aggregate') && $form->name == 'REPORT FORM') {
+        if ($form->name == 'REPORT FORM') {
 
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;

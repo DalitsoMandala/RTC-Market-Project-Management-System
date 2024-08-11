@@ -29,7 +29,7 @@
 
 
                         @php
-                            $component = $indicatorService->getComponent($indicator_no, $project_name);
+                            $component = $indicatorService->getComponent($indicator_name, $project_name);
                         @endphp
 
                         @if ($component)

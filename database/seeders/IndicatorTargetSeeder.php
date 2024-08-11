@@ -41,7 +41,7 @@ class IndicatorTargetSeeder extends Seeder
             'Percentage seed multipliers with formal registration' => ['Total' => 5, 'type' => 'percentage'],
             'Volume of seed distributed within communities to enhance POs productivity' => [
                 'Potato' => ['Total' => 10, 'type' => 'number'],
-                'Sweetpotato' => ['Total' => 12000, 'type' => 'number'],
+                'Sweet potato' => ['Total' => 12000, 'type' => 'number'],
                 'Cassava' => ['Total' => 3000, 'type' => 'number'],
             ],
             'Number of on-farm seed production technology demonstrations established' => ['Total' => 6, 'type' => 'number'],
@@ -102,7 +102,7 @@ class IndicatorTargetSeeder extends Seeder
             'Percentage seed multipliers with formal registration' => ['Total' => 10, 'type' => 'percentage'],
             'Volume of seed distributed within communities to enhance POs productivity' => [
                 'Potato' => ['Total' => 20, 'type' => 'number'],
-                'Sweetpotato' => ['Total' => 20000, 'type' => 'number'],
+                'Sweet potato' => ['Total' => 20000, 'type' => 'number'],
                 'Cassava' => ['Total' => 5000, 'type' => 'number'],
             ],
             'Number of on-farm seed production technology demonstrations established' => ['Total' => 6, 'type' => 'number'],
@@ -161,7 +161,7 @@ class IndicatorTargetSeeder extends Seeder
             'Percentage seed multipliers with formal registration' => ['Total' => 10, 'type' => 'percentage'],
             'Volume of seed distributed within communities to enhance POs productivity' => [
                 'Potato' => ['Total' => 30, 'type' => 'number'],
-                'Sweetpotato' => ['Total' => 30000, 'type' => 'number'],
+                'Sweet potato' => ['Total' => 30000, 'type' => 'number'],
                 'Cassava' => ['Total' => 10000, 'type' => 'number'],
             ],
             'Number of on-farm seed production technology demonstrations established' => ['Total' => 6, 'type' => 'number'],
@@ -220,7 +220,7 @@ class IndicatorTargetSeeder extends Seeder
             'Percentage seed multipliers with formal registration' => ['Total' => 10, 'type' => 'percentage'],
             'Volume of seed distributed within communities to enhance POs productivity' => [
                 'Potato' => ['Total' => 40, 'type' => 'number'],
-                'Sweetpotato' => ['Total' => 40000, 'type' => 'number'],
+                'Sweet potato' => ['Total' => 40000, 'type' => 'number'],
                 'Cassava' => ['Total' => 15000, 'type' => 'number'],
             ],
             'Number of on-farm seed production technology demonstrations established' => ['Total' => 6, 'type' => 'number'],

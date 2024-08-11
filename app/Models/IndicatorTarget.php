@@ -17,7 +17,7 @@ class IndicatorTarget extends Model
 
     public function details()
     {
-        return $this->hasOne(TargetDetail::class, 'indicator_target_id');
+        return $this->hasMany(TargetDetail::class, 'indicator_target_id');
     }
 
 

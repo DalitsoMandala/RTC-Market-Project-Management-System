@@ -31,7 +31,9 @@ final class TargetProgressTable extends PowerGridComponent
 
 
         return [
-
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make(),
             Footer::make()
 
@@ -66,142 +68,230 @@ final class TargetProgressTable extends PowerGridComponent
         return $query;
     }
 
+
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id', )
+            ->add('id')
             ->add('number')
             ->add('indicator_target', function ($model) {
-                $Indicator_target = $model->indicatorTargets;
+                $indicatorTarget = $model->indicatorTargets;
 
+                if ($indicatorTarget->isNotEmpty()) {
+                    $target = $indicatorTarget->first(); // Use `first()` instead of `[0]`
+    
+                    $type = $target->type == 'percentage' ? '%' : '';
 
-                if ($Indicator_target->isNotEmpty()) {
+                    // Initialize $value with $target->target_value if it exists
+                    $value = $target->target_value !== null ? $target->target_value . $type : null;
 
-                    if ($Indicator_target[0]->target_value != null) {
+                    // Handle multiple details
+                    if (isset($target->details) && is_iterable($target->details)) {
+                        $details = collect($target->details);
 
-                        $type = $Indicator_target[0]->type == 'percentage' ? '%' : '';
-                        return $Indicator_target[0]->target_value . $type;
-                    } else {
-                        $type = $Indicator_target[0]->details->type == 'percentage' ? '%' : '';
-                        return $Indicator_target[0]->details->target_value . $type;
+                        $detailValues = $details->map(function ($detail) use ($type) {
+                            $detailType = $detail->type == 'percentage' ? '%' : '';
+                            return $detail->target_value . $detailType . ' (' . $detail->name . ')';
+                        });
+
+                        $value = $value ? $value . ', ' : '';
+                        $value .= $detailValues->implode(', ');
+                    }
+
+                    return $value !== null ? $value : null;
+                }
+
+                return null;
+            })
+
+            ->add('organisations', function ($model) {
+                $indicatorTarget = $model->indicatorTargets;
+
+                if ($indicatorTarget->isNotEmpty()) {
+                    $assignedTargets = $indicatorTarget->first()->assignedTargets;
+
+                    if ($assignedTargets->isNotEmpty()) {
+                        $html = '<ul class="list-group   rounded-0">';
+
+                        foreach ($assignedTargets as $assignedTarget) {
+                            $organisationName = $assignedTarget->organisation->name ?? 'Unknown';
+                            $html .= '<li class="list-group-item text-nowrap">' . $organisationName . '</li>';
+                        }
+
+                        $html .= '</ul>';
+                        return $html;
                     }
                 }
 
                 return null;
-
             })
 
-            ->add('organisations', function ($model) {
-                $Indicator_target = $model->indicatorTargets;
+            ->add('target_value', function ($model) {
+                $indicatorTarget = $model->indicatorTargets;
 
-                if ($Indicator_target->isNotEmpty() && $Indicator_target->first()->assignedTargets->isNotEmpty()) {
+                if ($indicatorTarget->isNotEmpty()) {
+                    $assignedTargets = $indicatorTarget->first()->assignedTargets;
 
-                    $assignedTargets = $Indicator_target->first()->assignedTargets;
-                    $html = '<ul class="list-group list-group-flush p-0">';
+                    if ($assignedTargets->isNotEmpty()) {
+                        $html = '<ul class="list-group rounded-0">';
 
-                    foreach ($assignedTargets as $assignedTarget) {
-                        $html .= '
-                            <li class="list-group-item">' . $assignedTarget->organisation->name . '</li>  
-                      ';
+                        foreach ($assignedTargets as $assignedTarget) {
+                            $indicator = Indicator::find($this->indicator_id);
+                            $currentValues = [];
+                            $currentValue = 0;
 
+                            if ($indicator) {
+                                $class = $indicator->class->class;
+
+                                if (class_exists($class)) {
+                                    $classQuery = new $class(organisation_id: $assignedTarget->organisation_id, target_year_id: $model->id);
+                                    $data = $classQuery->getDisaggregations();
+
+                                    if ($assignedTarget->type == 'number' || $assignedTarget->type == 'percentage') {
+                                        $assignedTarget->update(['current_value' => $data['Total'] ?? 0]);
+                                        $currentValue = $data['Total'] ?? 0;
+                                        $html .= '<li class="list-group-item text-nowrap">' . $currentValue . '</li>';
+                                    } else {
+                                        $details = json_decode($assignedTarget->detail, true);
+
+                                        foreach ($details as $detail) {
+                                            $detailType = $detail['type'] == 'percentage' ? '%' : '';
+                                            $currentValues[] = $detail['name'] . ': ' . $detail['target_value'] . $detailType;
+                                        }
+                                        $html .= '<li class="list-group-item text-nowrap">' . implode(', ', $currentValues) . '</li>';
+                                    }
+                                }
+                            }
+                        }
+
+                        $html .= '</ul>';
+                        return $html;
                     }
-                    $html .= '  </ul>';
-                    return $html;
                 }
+
+                return null;
             })
 
             ->add('current_value', function ($model) {
-                $Indicator_target = $model->indicatorTargets;
+                $indicatorTarget = $model->indicatorTargets;
 
-                if ($Indicator_target->isNotEmpty() && $Indicator_target->first()->assignedTargets->isNotEmpty()) {
+                if ($indicatorTarget->isNotEmpty()) {
+                    $assignedTargets = $indicatorTarget->first()->assignedTargets;
 
-                    $assignedTargets = $Indicator_target->first()->assignedTargets;
-                    $html = '<ul class="list-group list-group-flush p-0">';
+                    if ($assignedTargets->isNotEmpty()) {
+                        $html = '<ul class="list-group rounded-0">';
 
-                    foreach ($assignedTargets as $assignedTarget) {
+                        foreach ($assignedTargets as $assignedTarget) {
+                            $indicator = Indicator::find($this->indicator_id);
+                            $currentValues = [];
+                            $currentValue = 0;
 
-                        $indicatir = Indicator::find($this->indicator_id);
-                        $currentValue = 0;
+                            if ($indicator) {
+                                $class = $indicator->class->class;
 
-                        if ($indicatir) {
+                                if (class_exists($class)) {
+                                    $classQuery = new $class(organisation_id: $assignedTarget->organisation_id, target_year_id: $model->id);
+                                    $data = $classQuery->getDisaggregations();
 
-                            $class = $indicatir->class->class;
+                                    if ($assignedTarget->type == 'number' || $assignedTarget->type == 'percentage') {
+                                        $assignedTarget->update(['current_value' => $data['Total'] ?? 0]);
+                                        $currentValue = $data['Total'] ?? 0;
+                                        $html .= '<li class="list-group-item text-nowrap">' . $currentValue . '</li>';
+                                    } else {
+                                        $details = json_decode($assignedTarget->detail, true);
+                                        $data = $classQuery->getDisaggregations();
+                                        $DbArray = [];
+                                        foreach ($details as $detail) {
+                                            $detailType = $detail['type'] == 'percentage' ? '%' : '';
+                                            foreach ($data as $name => $value) {
 
-                            $classQuery = new $class(organisation_id: $assignedTarget->organisation_id, target_year_id: $model->id); // indicator helper classes in helpers
-                            $totals = $classQuery->getDisaggregations()['Total'];
-                            if ($assignedTarget->type == 'number') {
+                                                if ($name == $detail['name']) {
+                                                    $detail['current_value'] = $value;
 
-                                AssignedTarget::find($assignedTarget->id)->update([
-                                    'current_value' => $totals
-                                ]);
-                                $currentValue = $totals;
+                                                }
+                                            }
+
+                                            $DbArray[] = $detail;
+
+                                            //$assignedTarget->update(['detail' => json_encode($details)]);
+    
+                                            $currentValues[] = $detail['name'] . ': ' . $detail['current_value'] . $detailType;
+
+
+                                        }
+                                        $assignedTarget->update(['detail' => json_encode($DbArray)]);
+
+
+
+                                        $html .= '<li class="list-group-item text-nowrap">' . implode(', ', $currentValues) . '</li>';
+                                    }
+                                }
                             }
-
-
                         }
-                        $html .= '
-                            <li class="list-group-item">' . $currentValue . '</li>  
-                      ';
 
+                        $html .= '</ul>';
+                        return $html;
                     }
-                    $html .= '  </ul>';
-                    return $html;
                 }
-            })
 
-
-            ->add('target_value', function ($model) {
-                $Indicator_target = $model->indicatorTargets;
-
-                if ($Indicator_target->isNotEmpty() && $Indicator_target->first()->assignedTargets->isNotEmpty()) {
-
-                    $assignedTargets = $Indicator_target->first()->assignedTargets;
-                    $html = '<ul class="list-group list-group-flush p-0">';
-
-                    foreach ($assignedTargets as $assignedTarget) {
-                        $html .= '
-                            <li class="list-group-item">' . $assignedTarget->target_value . '</li>  
-                      ';
-
-                    }
-                    $html .= '  </ul>';
-                    return $html;
-                }
+                return null;
             })
 
             ->add('progress', function ($model) {
-                $Indicator_target = $model->indicatorTargets;
+                $indicatorTarget = $model->indicatorTargets;
 
-                if ($Indicator_target->isNotEmpty() && $Indicator_target->first()->assignedTargets->isNotEmpty()) {
+                if ($indicatorTarget->isNotEmpty()) {
+                    $assignedTargets = $indicatorTarget->first()->assignedTargets;
 
-                    $assignedTargets = $Indicator_target->first()->assignedTargets;
-                    $html = '<ul class="list-group list-group-flush p-0">';
+                    if ($assignedTargets->isNotEmpty()) {
+                        $html = '<ul class="list-group rounded-0">';
 
-                    foreach ($assignedTargets as $assignedTarget) {
-                        $assigned = AssignedTarget::find($assignedTarget->id);
-                        $current = $assigned->current_value;
-                        $target = $assigned->target_value;
-                        $progress = $target == 0 ? 0 : ($current / $target) * 100;
-                        $progress = floor($progress) >= 100 ? 100 : floor($progress);
+                        foreach ($assignedTargets as $assignedTarget) {
 
-                        $progressData = '<span class="text-primary fw-bold">' . floor($progress) . '%</span>';
-                        $html .= '
-                            <li class="list-group-item">' . $progressData . '</li>  
-                      ';
+                            if ($assignedTarget->type == 'number' || $assignedTarget->type == 'percentage') {
+                                $current = $assignedTarget->current_value ?? 0;
+                                $target = $assignedTarget->target_value ?? 0;
+                                $progress = $target == 0 ? 0 : ($current / $target) * 100;
+                                $progress = min(100, floor($progress));
 
+                                $progressData = '<span class="text-primary fw-bold">' . $progress . '%</span>';
+                                $html .= '<li class="list-group-item text-nowrap">' . $progressData . '</li>';
+                            } else {
+                                $details = json_decode($assignedTarget->detail);
+                                $progressForEachDetail = [];
+                                foreach ($details as $detail) {
+                                    $current = $detail->current_value ?? 0;
+                                    $target = $detail->target_value ?? 0;
+                                    $progress = $target == 0 ? 0 : ($current / $target) * 100;
+                                    $progress = min(100, floor($progress));
+                                    $progressForEachDetail[] = $detail->name . ': <span class="text-primary fw-bold">' . $progress . '%</span>';
+                                    ;
+
+                                }
+                                $html .= '<li class="list-group-item text-nowrap ">' . implode(', ', $progressForEachDetail) . '</li>';
+
+                            }
+                        }
+
+
+
+                        $html .= '</ul>';
+                        return $html;
                     }
-                    $html .= '  </ul>';
-                    return $html;
                 }
+
+                return null;
             })
+
+
             ->add('start_date_formatted', fn($model) => Carbon::parse($model->start_date)->format('d/m/Y'))
             ->add('end_date_formatted', fn($model) => Carbon::parse($model->end_date)->format('d/m/Y'))
-            ->add('project', function ($model) {
-                return $model->project->name;
-            })
+            ->add('project', fn($model) => $model->project->name ?? 'Unknown Project')
             ->add('created_at')
             ->add('updated_at');
     }
+
 
 
 
@@ -220,11 +310,13 @@ final class TargetProgressTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()->bodyAttribute('p-0'),
 
-            Column::make('Current value', 'current_value')
+
+
+            Column::make('Target value', 'target_value')
                 ->sortable()
                 ->searchable()->bodyAttribute('p-0'),
 
-            Column::make('Target value', 'target_value')
+            Column::make('Current value', 'current_value')
                 ->sortable()
                 ->searchable()->bodyAttribute('p-0'),
 

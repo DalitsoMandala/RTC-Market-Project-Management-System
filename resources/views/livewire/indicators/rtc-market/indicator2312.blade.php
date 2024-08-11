@@ -83,20 +83,24 @@
                     values: [],
                     init() {
                         let data = this.chartData;
-                        this.values = [data['Total']];
+                        categories = Object.keys(data); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
+                        seriesData = Object.values(data); // [0, 0, 0, 0]
+                
+                
+                
                         options = {
                             chart: {
-                                type: 'pie',
-                                width: 400,
-                
+                                type: 'bar'
                             },
-                            labels: this.categories,
-                            series: this.values,
+                            series: [{
+                                name: 'Count',
+                                data: seriesData
+                            }],
                             colors: ['#006989', '#E88D67', '#FA7070'],
-                            legend: {
-                                position: 'top'
+                            xaxis: {
+                                categories: categories
                             }
-                        }
+                        };
                 
                         let chart = new ApexCharts($refs.chart, options);
                         chart.render();
