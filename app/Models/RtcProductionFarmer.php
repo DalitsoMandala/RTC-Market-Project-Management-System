@@ -14,6 +14,21 @@ class RtcProductionFarmer extends Model
     {
         return $this->hasMany(RpmFarmerFollowUp::class, 'rpm_farmer_id');
     }
+
+    public function doms()
+    {
+        return $this->hasMany(RpmFarmerDomMarket::class, 'rpm_farmer_id');
+    }
+
+    public function intermarkets()
+    {
+        return $this->hasMany(RpmFarmerInterMarket::class, 'rpm_farmer_id');
+    }
+
+    public function agreements()
+    {
+        return $this->hasMany(RpmFarmerConcAgreement::class, 'rpm_farmer_id');
+    }
     protected function convertAttributesToUpper()
     {
         foreach ($this->attributes as $key => $value) {

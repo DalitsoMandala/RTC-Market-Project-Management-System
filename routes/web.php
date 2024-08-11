@@ -7,6 +7,9 @@ use App\Models\Indicator;
 use Illuminate\Http\Request;
 use App\Helpers\IndicatorsContent;
 use App\Helpers\rtc_market\indicators\indicator_1_1_1;
+use App\Helpers\rtc_market\indicators\indicator_2_2_2;
+use App\Helpers\rtc_market\indicators\indicator_3_1_1;
+use App\Helpers\rtc_market\indicators\indicator_3_5_4;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
 use App\Helpers\rtc_market\indicators\indicator_B5;
@@ -37,7 +40,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 // Test route (empty)
 Route::get('/test', function (Request $request) {
-    $indicator = new indicator_1_1_1();
+    $indicator = new indicator_3_5_4();
 
     dd($indicator->getDisaggregations());
 

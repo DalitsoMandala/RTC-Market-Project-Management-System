@@ -76,6 +76,8 @@ class Reports extends Component
 
 
         $this->load();
+        $this->resetErrorBag();
+        $this->resetValidation();
 
     }
 

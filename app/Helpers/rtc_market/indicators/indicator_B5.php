@@ -153,52 +153,53 @@ class indicator_B5
 
     public function getFarmerContractual()
     {
-        return RpmFarmerConcAgreement::query();
+        return $this->builderFarmer()->with('agreements')->whereHas('agreements');
 
     }
 
     public function getFarmerDom()
     {
-        return RpmFarmerDomMarket::query();
+        return $this->builderFarmer()->with('doms')->whereHas('doms');
+
 
     }
 
     public function getFarmerInter()
     {
-        return RpmFarmerInterMarket::query();
+        return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
+
 
     }
 
     public function getProcessorContractual()
     {
-        return RpmProcessorConcAgreement::query();
+        return $this->builderProcessor()->with('agreements')->whereHas('agreements');
+
 
     }
 
     public function getProcessorDom()
     {
 
-        return RpmProcessorDomMarket::query();
+        return $this->builderProcessor()->with('doms')->whereHas('doms');
     }
 
     public function getProcessorInter()
     {
-        return RpmProcessorInterMarket::query();
+        return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
 
     }
-
-
     public function getTotal()
     {
         $farmer = $this->builderFarmer()->get()->sum('total_vol_production_previous_season');
         $processor = $this->builderProcessor()->get()->sum('total_vol_production_previous_season');
 
-        $farmerContractual = $this->getFarmerContractual()->get()->sum('volume_sold_previous_period');
-        $farmerDom = $this->getFarmerDom()->get()->sum('volume_sold_previous_period');
-        $farmerInter = $this->getFarmerInter()->get()->sum('volume_sold_previous_period');
-        $processorContractual = $this->getProcessorContractual()->get()->sum('volume_sold_previous_period');
-        $processorDom = $this->getProcessorDom()->get()->sum('volume_sold_previous_period');
-        $processorInter = $this->getProcessorInter()->get()->sum('volume_sold_previous_period');
+        $farmerContractual = $this->getFarmerContractual()->get()->pluck('agreements')->flatten()->sum('volume_sold_previous_period');
+        $farmerDom = $this->getFarmerDom()->get()->pluck('doms')->flatten()->sum('volume_sold_previous_period');
+        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten()->sum('volume_sold_previous_period');
+        $processorContractual = $this->getProcessorContractual()->get()->pluck('agreements')->flatten()->sum('volume_sold_previous_period');
+        $processorDom = $this->getProcessorDom()->get()->pluck('doms')->flatten()->sum('volume_sold_previous_period');
+        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten()->sum('volume_sold_previous_period');
         $farmerDetail = $farmer + $farmerContractual + $farmerDom + $farmerInter;
         $processorDetail = $processor + $processorContractual + $processorDom + $processorInter;
 
@@ -207,37 +208,34 @@ class indicator_B5
 
     }
 
+
     public function getCropTotal()
     {
+        // Use getFarmerDom() to get the builder and then retrieve the flattened collection of doms
+        $farmerDom = $this->getFarmerDom()->get()->pluck('doms')->flatten();
 
-        $farmerDOm = $this->getFarmerDom()->select([
-            DB::raw("SUM(CASE WHEN crop_type = 'POTATO' THEN 1 ELSE 0 END) as potato"),
-            DB::raw("SUM(CASE WHEN crop_type = 'CASSAVA' THEN 1 ELSE 0 END) as cassava"),
-            DB::raw("SUM(CASE WHEN crop_type = 'SWEET POTATO' THEN 1 ELSE 0 END) as sweet_potato"),
-        ])->first();
+        // Aggregate crop types within the doms collection
+        $totalPotato = $farmerDom->where('crop_type', 'POTATO')->count();
+        $totalCassava = $farmerDom->where('crop_type', 'CASSAVA')->count();
+        $totalSweetPotato = $farmerDom->where('crop_type', 'SWEET POTATO')->count();
 
-        $farmerInter = $this->getFarmerInter()->select([
-            DB::raw("SUM(CASE WHEN crop_type = 'POTATO' THEN 1 ELSE 0 END) as potato"),
-            DB::raw("SUM(CASE WHEN crop_type = 'CASSAVA' THEN 1 ELSE 0 END) as cassava"),
-            DB::raw("SUM(CASE WHEN crop_type = 'SWEET POTATO' THEN 1 ELSE 0 END) as sweet_potato"),
-        ])->first();
+        // Repeat similar logic for other related methods
+        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten();
+        $processorDom = $this->getProcessorDom()->get()->pluck('doms')->flatten();
+        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten();
 
+        // Aggregate for other relationships
+        $totalPotato += $farmerInter->where('crop_type', 'POTATO')->count();
+        $totalCassava += $farmerInter->where('crop_type', 'CASSAVA')->count();
+        $totalSweetPotato += $farmerInter->where('crop_type', 'SWEET POTATO')->count();
 
-        $processorDOm = $this->getProcessorDom()->select([
-            DB::raw("SUM(CASE WHEN crop_type = 'POTATO' THEN 1 ELSE 0 END) as potato"),
-            DB::raw("SUM(CASE WHEN crop_type = 'CASSAVA' THEN 1 ELSE 0 END) as cassava"),
-            DB::raw("SUM(CASE WHEN crop_type = 'SWEET POTATO' THEN 1 ELSE 0 END) as sweet_potato"),
-        ])->first();
+        $totalPotato += $processorDom->where('crop_type', 'POTATO')->count();
+        $totalCassava += $processorDom->where('crop_type', 'CASSAVA')->count();
+        $totalSweetPotato += $processorDom->where('crop_type', 'SWEET POTATO')->count();
 
-        $processorInter = $this->getProcessorInter()->select([
-            DB::raw("SUM(CASE WHEN crop_type = 'POTATO' THEN 1 ELSE 0 END) as potato"),
-            DB::raw("SUM(CASE WHEN crop_type = 'CASSAVA' THEN 1 ELSE 0 END) as cassava"),
-            DB::raw("SUM(CASE WHEN crop_type = 'SWEET POTATO' THEN 1 ELSE 0 END) as sweet_potato"),
-        ])->first();
-
-        $totalPotato = $farmerDOm->potato + $farmerInter->potato + $processorDOm->potato + $processorInter->potato;
-        $totalCassava = $farmerDOm->cassava + $farmerInter->cassava + $processorDOm->cassava + $processorInter->cassava;
-        $totalSweetPotato = $farmerDOm->sweet_potato + $farmerInter->sweet_potato + $processorDOm->sweet_potato + $processorInter->sweet_potato;
+        $totalPotato += $processorInter->where('crop_type', 'POTATO')->count();
+        $totalCassava += $processorInter->where('crop_type', 'CASSAVA')->count();
+        $totalSweetPotato += $processorInter->where('crop_type', 'SWEET POTATO')->count();
 
         return [
             'Potato' => $totalPotato,
@@ -246,36 +244,43 @@ class indicator_B5
         ];
     }
 
+
+
     public function followUpBuilder()
     {
 
-        $farmer = $this->builder()->pluck('id');
 
-        return RpmFarmerFollowUp::query()->whereIn('rpm_farmer_id', $farmer);
+        return $this->builderFarmer()->with('followups')->whereHas('followups');
+
+
     }
 
     public function followUpBuilderProcessor()
     {
-        $processor = $this->builderProcessor()->pluck('id');
-        return RpmProcessorFollowUp::query()->whereIn('rpm_processor_id', $processor);
+
+        return $this->builderProcessor()->with('followups')->whereHas('followups');
+
     }
+
 
     public function getCertifiedSeed()
     {
+
+        $followups = $this->followUpBuilder()->get()->pluck('followups')->flatten();
         $farmer = $this->builderFarmer()->where('uses_certified_seed', 1)->get()->count();
-        $farmerFollowup = $this->followUpBuilder()->where('uses_certified_seed', 1)->get()->count();
+        $farmerFollowup = $followups->where('uses_certified_seed', 1)->count();
 
         return $farmer + $farmerFollowup;
     }
 
     public function getValueAddedProducts()
     {
-        $farmerDOm = $this->getFarmerDom()->where('product_type', 'VALUE ADDED PRODUCTS')->get()->count();
-        $farmerInter = $this->getFarmerInter()->where('product_type', 'VALUE ADDED PRODUCTS')->get()->count();
-        $farmerConc = $this->getFarmerContractual()->where('product_type', 'VALUE ADDED PRODUCTS')->get()->count();
-        $processorDOm = $this->getProcessorDom()->where('product_type', 'VALUE ADDED PRODUCTS')->get()->count();
-        $processorInter = $this->getProcessorInter()->where('product_type', 'VALUE ADDED PRODUCTS')->get()->count();
-        $processorConc = $this->getProcessorContractual()->where('product_type', 'VALUE ADDED PRODUCTS')->get()->count();
+        $farmerDOm = $this->getFarmerDom()->get()->pluck('doms')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
+        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
+        $farmerConc = $this->getFarmerContractual()->get()->pluck('agreements')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
+        $processorDOm = $this->getProcessorDom()->get()->pluck('doms')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
+        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
+        $processorConc = $this->getProcessorContractual()->get()->pluck('agreements')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
 
 
         return $farmerDOm + $farmerInter + $farmerConc + $processorDOm + $processorInter + $processorConc;

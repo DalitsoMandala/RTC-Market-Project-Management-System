@@ -2,13 +2,14 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Models\RpmFarmerFollowUp;
-use App\Models\RpmProcessorFollowUp;
-use App\Models\RtcProductionFarmer;
-use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\RtcProductionFarmer;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RtcProductionProcessor;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class indicator_B1
 {
@@ -71,8 +72,10 @@ class indicator_B1
 
     public function FarmerFollowupbuilder(): Builder
     {
+        $farmer = $this->Farmerbuilder()->pluck('id');
 
-        $query = RpmFarmerFollowUp::query()->where('status', 'approved');
+
+        $query = RpmFarmerFollowUp::query()->where('status', 'approved')->whereIn('rpm_farmer_id', $farmer);
 
 
         if ($this->reporting_period && $this->financial_year) {
