@@ -5,7 +5,7 @@
             <!-- LOGO -->
             <div class="navbar-brand-box">
 
-                <a href="index.html" class="logo">
+                <a href="/" class="logo">
 
                     <span class="logo-xl">
                         <x-application-logo width="22" /> <span class="logo-txt">CDMS</span>

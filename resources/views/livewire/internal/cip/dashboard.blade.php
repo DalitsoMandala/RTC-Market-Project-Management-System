@@ -78,7 +78,7 @@
                     <div class="mt-3 row">
                         <div class="col-12 col-md-8 ">
                             <div class="card">
-                                <div class="card-header bg-primary-subtle  text-dark py-3 ">
+                                <div class="card-header fw-bold  text-dark py-3 ">
                                     {{ $data['name'] }}
                                 </div>
                                 <div class="row ">
@@ -146,7 +146,7 @@
 
 
                             <div class="card w-100">
-                                <div class="card-header bg-primary-subtle   py-3 ">
+                                <div class="card-header fw-bold   py-3 ">
 
                                     Calendar
 
@@ -182,7 +182,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header bg-primary-subtle   py-3">
+                                <div class="card-header fw-bold   py-3">
                                     Submissions progress
                                 </div>
                                 <div class="card-body" x-data="{
@@ -243,7 +243,7 @@
             <div class="row">
                 <div class="col-7">
                     <div class="card">
-                        <div class="card-header bg-primary-subtle   py-3">
+                        <div class="card-header fw-bold   py-3">
                             Recent attendance register
                         </div>
                         <div class="p-0 card-body">
@@ -316,7 +316,7 @@
 
 
                     <div class="list-group list-group-fill-success">
-                        <a href="#" class="list-group-item list-group-item-action  pe-none bg-primary-subtle "><i
+                        <a href="#" class="list-group-item list-group-item-action  pe-none fw-bold "><i
                                 class="ri-download-2-fill align-middle me-2"></i>Quick access to forms</a>
                         @foreach ($quickForms as $form)
                             @php
