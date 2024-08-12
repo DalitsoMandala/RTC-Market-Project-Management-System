@@ -48,7 +48,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     }
     public function datasource(): Builder
     {
-        $query = Submission::query()->where('batch_type', 'aggregate');
+        $query = Submission::query()->with('period.indicator')->where('batch_type', 'aggregate');
         if ($this->userId) {
             $user = User::find($this->userId);
             if ($user->hasAnyRole('external')) {
@@ -59,6 +59,21 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
 
         return $query;
+    }
+
+    public function relationSearch(): array
+    {
+        return [
+            'period.indicator' => [ // relationship on dishes model
+                'indicator_name', // column enabled to search
+
+            ],
+
+
+
+
+
+        ];
     }
 
     public function filters(): array
@@ -73,8 +88,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->optionLabel('status')
                 ->optionValue('status')
             ,
-            Filter::inputText('batch_no_formatted', 'batch_no')
-
+            Filter::inputText('batch_no_formatted', 'batch_no'),
+            Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
 
         ];
 
@@ -206,7 +221,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
             Column::make('Project Year', 'financial_year'),
             Column::make('Status', 'status_formatted')
-                ->sortable()
+
                 ->searchable(),
 
             // Column::make('Submission Period', 'reporting_period')
@@ -217,7 +232,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
-            Column::make('File', 'file_link'),
+
             Column::action('Action'),
             // Column::make('Created at', 'created_at')
             //     ->sortable()

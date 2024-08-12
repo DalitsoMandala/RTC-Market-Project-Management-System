@@ -39,4 +39,10 @@ class Indicator extends Model
     {
         return $this->hasOne(IndicatorClass::class, 'indicator_id');
     }
+
+    public function submissionPeriods()
+    {
+
+        return $this->hasMany(SubmissionPeriod::class, 'indicator_id');
+    }
 }

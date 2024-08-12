@@ -49,7 +49,7 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = Submission::query()->where('batch_type', 'batch');
+        $query = Submission::query()->with('period.indicator')->where('batch_type', 'batch');
         if ($this->userId) {
             $user = User::find($this->userId);
             if ($user->hasAnyRole('external')) {
@@ -74,11 +74,25 @@ final class SubmissionTable extends PowerGridComponent
                 ->optionLabel('status')
                 ->optionValue('status')
             ,
-
+            Filter::inputText('batch_no_formatted', 'batch_no'),
+            Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
         ];
 
     }
+    public function relationSearch(): array
+    {
+        return [
+            'period.indicator' => [ // relationship on dishes model
+                'indicator_name', // column enabled to search
 
+            ],
+
+
+
+
+
+        ];
+    }
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
