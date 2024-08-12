@@ -220,7 +220,7 @@
                         status,
                         preventDefault
                     }) => {
-                        if (status === 419) {
+                        if (status === 419 || status === 500) {
                             location.reload(true)
 
                             preventDefault()

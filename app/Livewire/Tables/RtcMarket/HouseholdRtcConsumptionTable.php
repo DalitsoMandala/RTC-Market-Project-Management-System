@@ -61,6 +61,8 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     }
 
+
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -245,18 +247,21 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         // Get the data as a collection
         return $this->datasource()->get();
     }
+
+
     public function columns(): array
     {
         return [
-            Column::make('Id', 'count'),
+            Column::make('Id', 'id'),
 
             //  Column::make('Location id', 'location_id'),
             Column::make('Enterprise', 'enterprise', 'location_data->enterprise')
+                ->searchable()
                 ->sortable(),
 
-            Column::make('District', 'district', 'location_data->district')->sortable()->searchableRaw('JSON_UNQUOTE(JSON_EXTRACT(`location_data`, "$.district"))'),
-            Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
-            Column::make('Section', 'section', 'location_data->section')->sortable()
+            Column::make('District', 'district', 'location_data->district')->searchable(),
+            Column::make('EPA', 'epa', 'location_data->epa')->sortable()->searchable(),
+            Column::make('Section', 'section', 'location_data->section')->sortable()->searchable()
             // ->searchable()
             ,
             Column::make('Date of assessment', 'date_of_assessment_formatted', 'date_of_assessment')
@@ -264,32 +269,32 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             Column::make('Actor type', 'actor_type')
                 ->sortable()
-            // ->searchable()
+                ->searchable()
             ,
 
             Column::make('Rtc group platform', 'rtc_group_platform')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
 
             Column::make('Producer organisation', 'producer_organisation')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
 
             Column::make('Actor name', 'actor_name')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
 
             Column::make('Age group', 'age_group', 'age_group')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
 
             Column::make('Sex', 'sex')
                 ->sortable()
-            //   ->searchable()
+                ->searchable()
             ,
 
             Column::make('Phone number', 'phone_number')
@@ -311,15 +316,15 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->sortable()
             //   ->searchable()
             ,
-            Column::make('Rtc consumers/Potato', 'rtc_consumers_potato')
+            Column::make('Rtc consumers/Potato', 'rtc_consumers_potato', 'rtc_consumers')
                 ->sortable()
             //  ->searchable()
             ,
-            Column::make('Rtc consumers/Sweet Potato', 'rtc_consumers_sw_potato')
+            Column::make('Rtc consumers/Sweet Potato', 'rtc_consumers_sw_potato', 'rtc_consumers')
                 ->sortable()
             //  ->searchable()
             ,
-            Column::make('Rtc consumers/Cassava', 'rtc_consumers_cassava')
+            Column::make('Rtc consumers/Cassava', 'rtc_consumers_cassava', 'rtc_consumers')
                 ->sortable()
             //  ->searchable()
             ,
@@ -337,13 +342,13 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             Column::make('Submission Date', 'created_at_formatted', 'created_at')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
 
-            Column::make('Submitted By', 'submitted_by')
+            Column::make('Submitted By', 'submitted_by')->searchable()
             ,
 
-            Column::make('UUID', 'uuid'),
+            Column::make('UUID', 'uuid')->searchable(),
 
         ];
     }
@@ -364,7 +369,41 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Filter::inputText('section', 'location_data->section'),
             Filter::inputText('epa', 'location_data->epa'),
             Filter::inputText('district', 'location_data->district'),
+            Filter::inputText('rtc_main_food_potato')
+                ->operators(['contains'])
+                ->builder(function (Builder $builder, mixed $value) {
+                    $getValue = strtolower($value['value']);
+                    if ($getValue == 'yes') {
+                        $builder->whereJsonContains('main_food_data', 'POTATO');
+                    } else {
+                        $builder->whereJsonDoesntContain('main_food_data', 'POTATO');
+                    }
 
+                }),
+
+            Filter::inputText('rtc_main_food_cassava')
+                ->operators(['contains'])
+                ->builder(function (Builder $builder, mixed $value) {
+                    $getValue = strtolower($value['value']);
+                    if ($getValue == 'yes') {
+                        $builder->whereJsonContains('main_food_data', 'CASSAVA');
+                    } else {
+                        $builder->whereJsonDoesntContain('main_food_data', 'CASSAVA');
+                    }
+
+                }),
+
+            Filter::inputText('rtc_main_food_sw_potato')
+                ->operators(['contains'])
+                ->builder(function (Builder $builder, mixed $value) {
+                    $getValue = strtolower($value['value']);
+                    if ($getValue == 'yes') {
+                        $builder->whereJsonContains('main_food_data', 'SWEET POTATO');
+                    } else {
+                        $builder->whereJsonDoesntContain('main_food_data', 'SWEET POTATO');
+                    }
+
+                }),
         ];
     }
 
