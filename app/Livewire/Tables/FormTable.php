@@ -41,7 +41,7 @@ final class FormTable extends PowerGridComponent
     {
 
 
-        return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM');
+        return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM')->where('name', '!=', 'SEED DISTRIBUTION REGISTER');
     }
     public function relationSearch(): array
     {

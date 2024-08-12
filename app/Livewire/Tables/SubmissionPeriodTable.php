@@ -45,7 +45,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        return SubmissionPeriod::query();
+        return SubmissionPeriod::query()->with(['form', 'financialYears', 'reportingMonths']);
     }
 
     public function fields(): PowerGridFields
@@ -121,6 +121,25 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('updated_at');
     }
 
+    public function relationSearch(): array
+    {
+        return [
+            'forms' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+            'reportingMonths' => [ // relationship on dishes model
+                'start_date', // column enabled to search
+                'end_date', // column enabled to search
+            ],
+
+
+
+
+
+        ];
+    }
+
     public function columns(): array
     {
         return [
@@ -136,14 +155,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
                 ->sortable(),
 
-            Column::make('Status', 'is_open_toggle')
+            Column::make('Status', 'is_open_toggle', 'is_open')
                 ->sortable()
                 ->searchable(),
             Column::make('Months', 'month_range')
             ,
 
             Column::make('Financial Year', 'financial_year')
-                ->sortable()
+
                 ->searchable(),
 
             Column::make('Indicator', 'indicator')
@@ -152,23 +171,23 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('Assigned Organisations', 'assigned')
             ,
 
-            Column::make('Expired', 'is_expired_toggle')
+            Column::make('Expired', 'is_expired_toggle', 'is_expired')
                 ->sortable()
                 ->searchable(),
 
             Column::make('Submissions', 'submissions')
-                ->sortable()
+
                 ->searchable(),
             Column::make('Submission/Batch', 'submission_batch')
-                ->sortable()
+
                 ->searchable(),
 
             Column::make('Submissions/Aggregate', 'submission_aggregate')
-                ->sortable()
+
                 ->searchable(),
 
             Column::make('Submissions/Manual', 'submission_manual')
-                ->sortable()
+
                 ->searchable(),
 
             Column::action('Action'),
