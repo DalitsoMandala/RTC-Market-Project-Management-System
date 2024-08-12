@@ -243,15 +243,25 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->dispatch('showAggregate', ['id' => $row->id, 'name' => 'view-aggregate-modal']),
         ];
     }
-    /*
+
     public function actionRules($row): array
     {
-       return [
+
+
+        return [
             // Hide button edit for ID 1
             Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
+                ->disable(),
+
+            Rule::button('edit')
+                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external'))
+                ->disable(),
+
+            Rule::button('edit')
+                ->when(fn($row) => $row->status == 'denied')
+                ->disable(),
         ];
     }
-    */
+
 }

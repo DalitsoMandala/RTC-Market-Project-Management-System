@@ -160,31 +160,23 @@ class Submissions extends Component
                 if ($submission->batch_type == 'batch') {
                     $findData = $this->checkbatch('household_rtc_consumption', $submission->batch_no);
                     if ($findData) {
-                        DB::table('household_rtc_consumption')->where('uuid', $submission->batch_no)->update([
-                            'status' => 'denied'
-                        ]);
+                        DB::table('household_rtc_consumption')->where('uuid', $submission->batch_no)->delete();
                     }
 
                     $findData = $this->checkbatch('attendance_registers', $submission->batch_no);
                     if ($findData) {
-                        DB::table('attendance_registers')->where('uuid', $submission->batch_no)->update([
-                            'status' => 'denied'
-                        ]);
+                        DB::table('attendance_registers')->where('uuid', $submission->batch_no)->delete();
                     }
 
                     $findData = $this->checkbatch('rtc_production_farmers', $submission->batch_no);
                     if ($findData) {
-                        DB::table('rtc_production_farmers')->where('uuid', $submission->batch_no)->update([
-                            'status' => 'denied'
-                        ]);
+                        DB::table('rtc_production_farmers')->where('uuid', $submission->batch_no)->delete();
                     }
 
 
                     $findData = $this->checkbatch('rtc_production_processors', $submission->batch_no);
                     if ($findData) {
-                        DB::table('rtc_production_processors')->where('uuid', $submission->batch_no)->update([
-                            'status' => 'denied'
-                        ]);
+                        DB::table('rtc_production_processors')->where('uuid', $submission->batch_no)->delete();
                     }
 
 
@@ -199,9 +191,7 @@ class Submissions extends Component
 
 
                     if ($findData) {
-                        DB::table('submission_reports')->where('uuid', $submission->batch_no)->update([
-                            'status' => 'denied'
-                        ]);
+                        DB::table('submission_reports')->where('uuid', $submission->batch_no)->delete();
                     }
 
                 }

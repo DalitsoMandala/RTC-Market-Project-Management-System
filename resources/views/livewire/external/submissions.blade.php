@@ -161,3 +161,14 @@
     </div>
 
 </div>
+@script
+    <script>
+        if (window.location.hash !== '') {
+            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+            if (button) {
+                button.click();
+
+            }
+        }
+    </script>
+@endscript
