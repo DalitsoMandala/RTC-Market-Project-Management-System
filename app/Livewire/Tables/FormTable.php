@@ -3,17 +3,19 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
+use App\Models\User;
 use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class FormTable extends PowerGridComponent
 {
@@ -40,6 +42,23 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
+        $user = User::find(auth()->user()->id);
+
+        // if ($user->hasAnyRole('external')) {
+        //     $responsiblePeople = ResponsiblePerson::where('organisation_id', $user->organisation->id)
+        //         ->with('sources.form')
+        //         ->get();
+
+        //     $forms = $responsiblePeople->flatMap(function ($person) {
+        //         return $person->sources->pluck('form');
+        //     })->unique();
+
+        //     $formIds = $forms->pluck('id');
+        //     return Form::query()->with('project', 'indicators')->where('name', '!=', 'SEED DISTRIBUTION REGISTER')->whereIn('id', $formIds);
+        // }
+
+
+
 
         return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM')->where('name', '!=', 'SEED DISTRIBUTION REGISTER');
     }
@@ -55,16 +74,24 @@ final class FormTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('id', function ($model) {
+
+            })
             ->add('name')
             ->add('name_formatted', function ($model) {
 
                 $form_name = str_replace(' ', '-', strtolower($model->name));
                 $project = str_replace(' ', '-', strtolower($model->project->name));
                 if ($model->name == 'REPORT FORM') {
-                    return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                    return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 } else
                     if ($model->name == 'ATTENDANCE REGISTER') {
+
+                        $user = User::find(auth()->user()->id);
+
+                        if ($user->hasAnyRole('external')) {
+                            return '<a class="text-decoration-underline pe-none opacity-25"  href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
+                        }
                         return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
                     } else {
                         return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
@@ -85,7 +112,7 @@ final class FormTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
