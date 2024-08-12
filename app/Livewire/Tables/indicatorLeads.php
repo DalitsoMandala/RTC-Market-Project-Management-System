@@ -44,7 +44,7 @@ final class indicatorLeads extends PowerGridComponent
     public function datasource(): Collection
     {
 
-        return ResponsiblePerson::with(['indicator', 'organisation'])->get();
+        return ResponsiblePerson::with(['indicator', 'organisation', 'sources.form'])->get();
     }
 
     public function fields(): PowerGridFields
@@ -89,15 +89,16 @@ final class indicatorLeads extends PowerGridComponent
             // Filter::datetimepicker('date_established'),
             // Filter::datetimepicker('date_ending'),
             Filter::inputText('indicator')
-                // ->dataSource(function () {
-                //     $submission = Indicator::select(['indicator_name'])->distinct();
 
-                //     return $submission->get();
-                // })
-                // ->optionLabel('indicator_name')
-                // ->optionValue('indicator_name')
                 ->filterRelation('indicator', 'indicator_name')
             ,
+
+            Filter::inputText('organisation')
+
+                ->filterRelation('organisation', 'name')
+            ,
+
+
 
         ];
     }
@@ -110,6 +111,10 @@ final class indicatorLeads extends PowerGridComponent
                 // nested relation and column enabled to search
             ],
             'organisation' => [
+                'name',
+            ],
+
+            'sources.forms' => [
                 'name',
             ]
             ,

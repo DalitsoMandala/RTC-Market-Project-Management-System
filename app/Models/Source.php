@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Source extends Model
 {
@@ -12,6 +13,12 @@ class Source extends Model
 
     public function person()
     {
-        return $this->belongsTo(ResponsiblePerson::class,'person_id');
+        return $this->belongsTo(ResponsiblePerson::class, 'person_id');
     }
+
+    public function form()
+    {
+        return $this->belongsTo(Form::class, 'form_id');
+    }
+
 }

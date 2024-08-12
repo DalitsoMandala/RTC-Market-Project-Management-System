@@ -27,4 +27,10 @@ class Form extends Model
     {
         return $this->belongsToMany(Indicator::class, 'indicator_form');
     }
+
+    public function sources()
+    {
+        return $this->hasMany(Source::class, 'form_id');
+    }
+
 }
