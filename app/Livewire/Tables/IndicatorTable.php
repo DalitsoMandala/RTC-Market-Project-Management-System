@@ -43,14 +43,14 @@ final class IndicatorTable extends PowerGridComponent
     {
         $user = User::find($this->userId);
         if ($user->hasAnyRole('internal')) {
-            return Indicator::query()->with(['project', 'disaggregations']);
+            return Indicator::query()->with(['project', 'disaggregations', 'responsiblePeopleforIndicators.organisation', 'forms']);
 
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
             $user = User::find($this->userId);
             $organisation_id = $user->organisation->id;
 
-            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators'])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
+            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators', 'disaggregations', 'forms'])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
             });
             return $data;
@@ -60,6 +60,31 @@ final class IndicatorTable extends PowerGridComponent
 
     }
 
+    public function relationSearch(): array
+    {
+        return [
+            'project' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+            'disaggregations' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+
+            'responsiblePeopleforIndicators.organisation' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+            'forms' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+
+
+
+        ];
+    }
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
