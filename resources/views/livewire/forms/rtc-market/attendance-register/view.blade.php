@@ -20,7 +20,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-
+                <livewire:tables.rtcmarket.attendance-register-table />
             </div>
         </div>
 

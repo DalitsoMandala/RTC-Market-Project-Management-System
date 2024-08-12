@@ -149,7 +149,7 @@
                                     </div>
                                 </li>
 
-                                <li class="nav-item ">
+                                <li class="nav-item d-none">
                                     <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">

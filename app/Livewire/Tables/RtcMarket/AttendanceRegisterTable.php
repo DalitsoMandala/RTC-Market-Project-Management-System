@@ -31,7 +31,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-att'),
+            Header::make()->includeViewOnTop('components.export-data-att')->showSearchInput(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -72,7 +72,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('designation')
             ->add('phone_number')
             ->add('email')
-            ->add('created_at', function ($model) {
+            ->add('created_at_formatted', function ($model) {
                 return Carbon::parse($model->created_at)->format('d/m/Y');
             })
             ->add('updated_at');
@@ -179,7 +179,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Date of Submission', 'created_at', 'created_at')
+            Column::make('Date of Submission', 'created_at_formatted', 'created_at')
                 ->sortable(),
             Column::make('Meeting Title', 'meetingTitle')
                 ->sortable()
