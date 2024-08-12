@@ -17,6 +17,7 @@ use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\User;
+use App\Notifications\SubmissionNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -137,6 +138,18 @@ class Submissions extends Component
                     'is_complete' => true,
                 ]);
 
+
+                $submission = Submission::find($this->rowId);
+
+                $user = User::find($submission->user_id);
+
+
+
+                $user->notify(new SubmissionNotification(status: 'accepted', batchId: $submission->batch_no));
+
+
+
+
             } else {
 
 
@@ -205,6 +218,13 @@ class Submissions extends Component
 
 
 
+
+                $submission = Submission::find($this->rowId);
+
+                $user = User::find($submission->user_id);
+
+
+                $user->notify(new SubmissionNotification('denied', 'Batch No. ' . $submission->batch_no . ' : ' . $this->comment));
 
 
 
