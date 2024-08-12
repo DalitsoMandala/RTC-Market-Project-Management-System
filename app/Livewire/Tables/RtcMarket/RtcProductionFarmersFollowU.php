@@ -288,38 +288,40 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
             Column::make('Group name', 'group_name'),
             Column::make('Date of follow up', 'date_of_follow_up_formatted', 'date_of_follow_up')
                 ->sortable(),
-            Column::make('Area under cultivation/total', 'area_under_cultivation')
+            Column::make('Area under cultivation/total', 'area_under_cultivation', 'area_under_cultivation')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 1', 'area_under_cultivation_variety_1')
+            Column::make('Area under cultivation/variety 1', 'area_under_cultivation_variety_1', 'area_under_cultivation->variety_1')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 2', 'area_under_cultivation_variety_2')
+            Column::make('Area under cultivation/variety 2', 'area_under_cultivation_variety_2', 'area_under_cultivation->variety_2')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 3', 'area_under_cultivation_variety_3')
+            Column::make('Area under cultivation/variety 3', 'area_under_cultivation_variety_3', 'area_under_cultivation->variety_3')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 4', 'area_under_cultivation_variety_4')
+            Column::make('Area under cultivation/variety 4', 'area_under_cultivation_variety_4', 'area_under_cultivation->variety_4')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 5', 'area_under_cultivation_variety_5')
+            Column::make('Area under cultivation/variety 5', 'area_under_cultivation_variety_5', 'area_under_cultivation->variety_5')
                 ->sortable()
                 ->searchable(),
 
 
-            Column::make('Number of plantlets produced/cassava', 'number_of_plantlets_produced_cassava')
+
+
+            Column::make('Number of plantlets produced/cassava', 'number_of_plantlets_produced_cassava', 'number_of_plantlets_produced->cassava')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of plantlets produced/potato', 'number_of_plantlets_produced_potato')
+            Column::make('Number of plantlets produced/potato', 'number_of_plantlets_produced_potato', 'number_of_plantlets_produced->potato')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of plantlets produced/sweet potato', 'number_of_plantlets_produced_sw_potato')
+            Column::make('Number of plantlets produced/sweet potato', 'number_of_plantlets_produced_sw_potato', 'number_of_plantlets_produced->sweet_potato')
                 ->sortable()
                 ->searchable(),
 
@@ -335,83 +337,82 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total')
+            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total', 'area_under_basic_seed_multiplication->total')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety', 'basic_seed_multiplication_variety_1')
+            Column::make('Area under basic seed multiplication/variety 1', 'basic_seed_multiplication_variety_1', 'area_under_basic_seed_multiplication->variety_1')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 2', 'basic_seed_multiplication_variety_2')
+            Column::make('Area under basic seed multiplication/variety 2', 'basic_seed_multiplication_variety_2', 'area_under_basic_seed_multiplication->variety_2')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 3', 'basic_seed_multiplication_variety_3')
+            Column::make('Area under basic seed multiplication/variety 3', 'basic_seed_multiplication_variety_3', 'area_under_basic_seed_multiplication->variety_3')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 4', 'basic_seed_multiplication_variety_4')
+            Column::make('Area under basic seed multiplication/variety 4', 'basic_seed_multiplication_variety_4', 'area_under_basic_seed_multiplication->variety_4')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 5', 'basic_seed_multiplication_variety_5')
+            Column::make('Area under basic seed multiplication/variety 5', 'basic_seed_multiplication_variety_5', 'area_under_basic_seed_multiplication->variety_5')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 6', 'basic_seed_multiplication_variety_6')
+            Column::make('Area under basic seed multiplication/variety 6', 'basic_seed_multiplication_variety_6', 'area_under_basic_seed_multiplication->variety_6')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 7', 'basic_seed_multiplication_variety_7')
-                ->sortable()
-                ->searchable(),
-
-
-
-            Column::make('Area under certified seed multiplication/total', 'area_under_certified_seed_multiplication_total')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety', 'area_under_certified_seed_multiplication_variety_1')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety 2', 'area_under_certified_seed_multiplication_variety_2')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety 3', 'area_under_certified_seed_multiplication_variety_3')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety 4', 'area_under_certified_seed_multiplication_variety_4')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety 5', 'area_under_certified_seed_multiplication_variety_5')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety 6', 'area_under_certified_seed_multiplication_variety_6')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Area under certified seed multiplication/variety 7', 'area_under_certified_seed_multiplication_variety_7')
+            Column::make('Area under basic seed multiplication/variety 7', 'basic_seed_multiplication_variety_7', 'area_under_basic_seed_multiplication->variety_7')
                 ->sortable()
                 ->searchable(),
 
 
+
+
+            Column::make('Area under certified seed multiplication/total', 'area_under_certified_seed_multiplication_total', 'area_under_certified_seed_multiplication->total')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 1', 'area_under_certified_seed_multiplication_variety_1', 'area_under_certified_seed_multiplication->variety_1')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 2', 'area_under_certified_seed_multiplication_variety_2', 'area_under_certified_seed_multiplication->variety_2')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 3', 'area_under_certified_seed_multiplication_variety_3', 'area_under_certified_seed_multiplication->variety_3')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 4', 'area_under_certified_seed_multiplication_variety_4', 'area_under_certified_seed_multiplication->variety_4')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 5', 'area_under_certified_seed_multiplication_variety_5', 'area_under_certified_seed_multiplication->variety_5')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 6', 'area_under_certified_seed_multiplication_variety_6', 'area_under_certified_seed_multiplication->variety_6')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under certified seed multiplication/variety 7', 'area_under_certified_seed_multiplication_variety_7', 'area_under_certified_seed_multiplication->variety_7')
+                ->sortable()
+                ->searchable(),
 
             Column::make('Is registered seed producer', 'is_registered_seed_producer')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Seed service unit registration details/reg. date', 'seed_service_unit_registration_details_date')
+            Column::make('Seed service unit registration details/reg. date', 'seed_service_unit_registration_details_date', 'seed_service_unit_registration_details->registration_date')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Seed service unit registration details/ reg. number', 'seed_service_unit_registration_details_number')
+            Column::make('Seed service unit registration details/ reg. number', 'seed_service_unit_registration_details_number', 'seed_service_unit_registration_details->registration_number')
                 ->sortable()
                 ->searchable(),
 

@@ -39,7 +39,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()
-                //->showSearchInput()
+                // ->showSearchInput()
                 ->includeViewOnTop('components.export-data-farmers')
             ,
             Footer::make()
@@ -345,7 +345,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::action('Action'),
+            Column::action('Action')->bodyAttribute('text-nowrap '),
             Column::make('Id', 'id'),
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable(),
@@ -354,10 +354,10 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Enterprise', 'enterprise', 'location_data->enterprise'),
+            Column::make('Enterprise', 'enterprise', 'location_data->enterprise')->sortable(),
             Column::make('District', 'district', 'location_data->district')->sortable(),
-            Column::make('EPA', 'epa'),
-            Column::make('Section', 'section'),
+            Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
+            Column::make('Section', 'section', 'location_data->section')->sortable(),
 
 
             Column::make('Name of representative', 'name_of_representative')
@@ -381,19 +381,19 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->searchable(),
 
 
-            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35')
+            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35', 'number_of_members->male_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Female 18-35', 'number_of_members_female_18_35')
+            Column::make('Number of members/Female 18-35', 'number_of_members_female_18_35', 'number_of_members->female_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus')
+            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus', 'number_of_members->male_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus')
+            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus', 'number_of_members->female_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/total', 'number_of_members_total')
+            Column::make('Number of members/total', 'number_of_members_total', 'number_of_members->total')
                 ->sortable()
                 ->searchable(),
             Column::make('Group', 'group')
@@ -408,57 +408,57 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Registration details/Body', 'registration_details_body')
+            Column::make('Registration details/Body', 'registration_details_body', 'registration_details->registration_body')
                 ->sortable()
                 ->searchable(),
-            Column::make('Registration details/date', 'registration_details_date')
+            Column::make('Registration details/date', 'registration_details_date', 'registration_details->registration_date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Registration details/number', 'registration_details_number')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35')
+            Column::make('Registration details/number', 'registration_details_number', 'registration_details->number')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35')
+            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35', 'number_of_employees->formal->female_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus')
+            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35', 'number_of_employees->formal->male_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus')
+            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus', 'number_of_employees->formal->male_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total')
+            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus', 'number_of_employees->formal->female_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35')
+            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total', 'number_of_employees->formal->total')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35')
+            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35', 'number_of_employees->informal->female_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus')
+            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35', 'number_of_employees->informal->male_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus')
+            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus', 'number_of_employees->informal->male_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total')
+            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus', 'number_of_employees->informal->female_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/total', 'area_under_cultivation_total', 'area_under_cultivation')
+            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total', 'number_of_employees->informal->total')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Area under cultivation/total', 'area_under_cultivation_total', 'area_under_cultivation', )
                 ->sortable()
                 ->searchable(),
 
@@ -466,31 +466,31 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 2', 'area_under_cultivation_variety_2')
+            Column::make('Area under cultivation/variety 2', 'area_under_cultivation_variety_2', 'area_under_cultivation->variety_2')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 3', 'area_under_cultivation_variety_3')
+            Column::make('Area under cultivation/variety 3', 'area_under_cultivation_variety_3', 'area_under_cultivation->variety_3')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 4', 'area_under_cultivation_variety_4')
+            Column::make('Area under cultivation/variety 4', 'area_under_cultivation_variety_4', 'area_under_cultivation->variety_4')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under cultivation/variety 5', 'area_under_cultivation_variety_5')
+            Column::make('Area under cultivation/variety 5', 'area_under_cultivation_variety_5', 'area_under_cultivation->variety_5')
                 ->sortable()
                 ->searchable(),
 
 
 
-            Column::make('Number of plantlets produced/cassava', 'number_of_plantlets_produced_cassava')
+            Column::make('Number of plantlets produced/cassava', 'number_of_plantlets_produced_cassava', 'number_of_plantlets_produced->cassava')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of plantlets produced/potato', 'number_of_plantlets_produced_potato')
+            Column::make('Number of plantlets produced/potato', 'number_of_plantlets_produced_potato', 'number_of_plantlets_produced->potato')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of plantlets produced/sweet potato', 'number_of_plantlets_produced_sw_potato')
+            Column::make('Number of plantlets produced/sweet potato', 'number_of_plantlets_produced_sw_potato', 'number_of_plantlets_produced->sweet_potato')
                 ->sortable()
                 ->searchable(),
 
@@ -506,69 +506,69 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total', )
+            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total', 'basic_seed_multiplication->total')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety', 'basic_seed_multiplication_variety_1')
+            Column::make('Area under basic seed multiplication/variety', 'basic_seed_multiplication_variety_1', 'basic_seed_multiplication->variety_1')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 2', 'basic_seed_multiplication_variety_2')
+            Column::make('Area under basic seed multiplication/variety 2', 'basic_seed_multiplication_variety_2', 'basic_seed_multiplication->variety_2')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 3', 'basic_seed_multiplication_variety_3')
+            Column::make('Area under basic seed multiplication/variety 3', 'basic_seed_multiplication_variety_3', 'basic_seed_multiplication->variety_3')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 4', 'basic_seed_multiplication_variety_4')
+            Column::make('Area under basic seed multiplication/variety 4', 'basic_seed_multiplication_variety_4', 'basic_seed_multiplication->variety_4')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 5', 'basic_seed_multiplication_variety_5')
+            Column::make('Area under basic seed multiplication/variety 5', 'basic_seed_multiplication_variety_5', 'basic_seed_multiplication->variety_5')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 6', 'basic_seed_multiplication_variety_6')
+            Column::make('Area under basic seed multiplication/variety 6', 'basic_seed_multiplication_variety_6', 'basic_seed_multiplication->variety_6')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/variety 7', 'basic_seed_multiplication_variety_7')
+            Column::make('Area under basic seed multiplication/variety 7', 'basic_seed_multiplication_variety_7', 'basic_seed_multiplication->variety_7')
                 ->sortable()
                 ->searchable(),
 
 
 
-            Column::make('Area under certified seed multiplication/total', 'area_under_certified_seed_multiplication_total')
+            Column::make('Area under certified seed multiplication/total', 'area_under_certified_seed_multiplication_total', 'area_under_certified_seed_multiplication->total')
 
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety', 'area_under_certified_seed_multiplication_variety_1')
+            Column::make('Area under certified seed multiplication/variety', 'area_under_certified_seed_multiplication_variety_1', 'area_under_certified_seed_multiplication->variety_1')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety 2', 'area_under_certified_seed_multiplication_variety_2')
+            Column::make('Area under certified seed multiplication/variety 2', 'area_under_certified_seed_multiplication_variety_2', 'area_under_certified_seed_multiplication->variety_2')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety 3', 'area_under_certified_seed_multiplication_variety_3')
+            Column::make('Area under certified seed multiplication/variety 3', 'area_under_certified_seed_multiplication_variety_3', 'area_under_certified_seed_multiplication->variety_3')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety 4', 'area_under_certified_seed_multiplication_variety_4')
+            Column::make('Area under certified seed multiplication/variety 4', 'area_under_certified_seed_multiplication_variety_4', 'area_under_certified_seed_multiplication->variety_4')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety 5', 'area_under_certified_seed_multiplication_variety_5')
+            Column::make('Area under certified seed multiplication/variety 5', 'area_under_certified_seed_multiplication_variety_5', 'area_under_certified_seed_multiplication->variety_5')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety 6', 'area_under_certified_seed_multiplication_variety_6')
+            Column::make('Area under certified seed multiplication/variety 6', 'area_under_certified_seed_multiplication_variety_6', 'area_under_certified_seed_multiplication->variety_6')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under certified seed multiplication/variety 7', 'area_under_certified_seed_multiplication_variety_7')
+            Column::make('Area under certified seed multiplication/variety 7', 'area_under_certified_seed_multiplication_variety_7', 'area_under_certified_seed_multiplication->variety_7')
                 ->sortable()
                 ->searchable(),
 
@@ -578,11 +578,11 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Seed service unit registration details/reg. date', 'seed_service_unit_registration_details_date')
+            Column::make('Seed service unit registration details/reg. date', 'seed_service_unit_registration_details_date', 'seed_service_unit_registration_details->registration_date')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Seed service unit registration details/ reg. number', 'seed_service_unit_registration_details_number')
+            Column::make('Seed service unit registration details/ reg. number', 'seed_service_unit_registration_details_number', 'seed_service_unit_registration_details->registration_number')
                 ->sortable()
                 ->searchable(),
 
@@ -591,13 +591,11 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Market segment/fresh', 'market_segment_fresh')
-                ->sortable()
-                ->searchable(),
+            ,
 
 
             Column::make('Market segment/processed', 'market_segment_processed')
-                ->sortable()
-                ->searchable(),
+            ,
 
             Column::make('Has rtc market contract', 'has_rtc_market_contract')
                 ->sortable()
@@ -605,22 +603,22 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
 
 
-            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total')
+            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total', 'total_production_value_previous_season->total')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date')
-                ->sortable()
-                ->searchable(),
-
-
-
-            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total')
+            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date', 'total_production_value_previous_season->date_of_maximum_sales')
                 ->sortable()
                 ->searchable(),
 
 
-            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date')
+
+            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total', 'total_irrigation_production_value_previous_season->total')
+                ->sortable()
+                ->searchable(),
+
+
+            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date', 'total_irrigation_production_value_previous_season->date_of_maximum_sales')
                 ->sortable()
                 ->searchable(),
 
@@ -657,6 +655,10 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
         ];
     }
+
+
+
+
     protected function getDataForExport()
     {
         // Get the data as a collection
@@ -878,7 +880,10 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            // Filter::datepicker('date_of_recruitment'),
+            Filter::inputText('enterprise', 'location_data->enterprise'),
+            Filter::inputText('section', 'location_data->section'),
+            Filter::inputText('epa', 'location_data->epa'),
+            Filter::inputText('district', 'location_data->district'),
         ];
     }
 
@@ -914,7 +919,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
                 ->render(function ($model) use ($route) {
                     return Blade::render(<<<HTML
-            <a href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" ><i class="bx bxs-add-to-queue"></i></a>
+            <a href="$route"  data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" >Add <i class="bx bx-plus"></i></a>
             HTML);
                 })
 

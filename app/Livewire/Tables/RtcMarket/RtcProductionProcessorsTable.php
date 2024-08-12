@@ -376,19 +376,19 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of members/total', 'number_of_members_total')
+            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35', 'number_of_members->male_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35')
+            Column::make('Number of members/Female 18-35', 'number_of_members_female_18_35', 'number_of_members->female_18_35')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Female 18-35', 'number_of_members_female_18_35')
+            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus', 'number_of_members->male_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus')
+            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus', 'number_of_members->female_35_plus')
                 ->sortable()
                 ->searchable(),
-            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus')
+            Column::make('Number of members/total', 'number_of_members_total', 'number_of_members->total')
                 ->sortable()
                 ->searchable(),
 
@@ -403,55 +403,54 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Registration details/Body', 'registration_details_body')
+            Column::make('Registration details/Body', 'registration_details_body', 'registration_details->registration_body')
                 ->sortable()
                 ->searchable(),
-            Column::make('Registration details/date', 'registration_details_date')
+            Column::make('Registration details/date', 'registration_details_date', 'registration_details->registration_date')
                 ->sortable()
                 ->searchable(),
-            Column::make('Registration details/number', 'registration_details_number')
-                ->sortable()
-                ->searchable(),
-
-
-
-            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35')
+            Column::make('Registration details/number', 'registration_details_number', 'registration_details->number')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35')
+
+            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35', 'number_of_employees->formal->female_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus')
+            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35', 'number_of_employees->formal->male_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus')
+            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus', 'number_of_employees->formal->male_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total')
+            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus', 'number_of_employees->formal->female_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35')
+            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total', 'number_of_employees->formal->total')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35')
+            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35', 'number_of_employees->informal->female_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus')
+            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35', 'number_of_employees->informal->male_18_35')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus')
+            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus', 'number_of_employees->informal->male_35_plus')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total')
+            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus', 'number_of_employees->informal->female_35_plus')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total', 'number_of_employees->informal->total')
                 ->sortable()
                 ->searchable(),
 
@@ -460,30 +459,30 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->searchable(),
 
 
+
+            Column::make('Market segment/fresh', 'market_segment_fresh')
+            ,
+
+
             Column::make('Market segment/processed', 'market_segment_processed')
+            ,
+
+            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total', 'total_production_value_previous_season->total')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Has rtc market contract', 'has_rtc_market_contract')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date')
+            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date', 'total_production_value_previous_season->date_of_maximum_sales')
                 ->sortable()
                 ->searchable(),
 
 
-            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total')
+
+            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total', 'total_irrigation_production_value_previous_season->total')
                 ->sortable()
                 ->searchable(),
 
 
-            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date')
+            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date', 'total_irrigation_production_value_previous_season->date_of_maximum_sales')
                 ->sortable()
                 ->searchable(),
 
@@ -525,9 +524,13 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            //  Filter::datepicker('date_of_recruitment'),
+            Filter::inputText('enterprise', 'location_data->enterprise'),
+            Filter::inputText('section', 'location_data->section'),
+            Filter::inputText('epa', 'location_data->epa'),
+            Filter::inputText('district', 'location_data->district'),
         ];
     }
+
 
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
