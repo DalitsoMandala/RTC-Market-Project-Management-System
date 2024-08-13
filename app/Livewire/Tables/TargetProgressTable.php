@@ -149,9 +149,8 @@ final class TargetProgressTable extends PowerGridComponent
                                     $data = $classQuery->getDisaggregations();
 
                                     if ($assignedTarget->type == 'number' || $assignedTarget->type == 'percentage') {
-                                        $assignedTarget->update(['current_value' => $data['Total'] ?? 0]);
-                                        $currentValue = $data['Total'] ?? 0;
-                                        $html .= '<li class="list-group-item text-nowrap">' . $currentValue . '</li>';
+                                        $type = $assignedTarget->type == 'percentage' ? '%' : '';
+                                        $html .= '<li class="list-group-item text-nowrap">' . $assignedTarget->target_value . $type . '</li>';
                                     } else {
                                         $details = json_decode($assignedTarget->detail, true);
 
@@ -195,9 +194,28 @@ final class TargetProgressTable extends PowerGridComponent
                                     $data = $classQuery->getDisaggregations();
 
                                     if ($assignedTarget->type == 'number' || $assignedTarget->type == 'percentage') {
+
+
+                                        if ($assignedTarget->type == 'percentage') {
+                                            $baselineValue = $indicatorTarget->first()->baseline_value;
+                                            $annualValue = $data['Total'] ?? 0;
+                                            $calculation = ($annualValue - $baselineValue) * 100 / $baselineValue;
+
+
+
+
+                                        }
+
+
+
+
                                         $assignedTarget->update(['current_value' => $data['Total'] ?? 0]);
                                         $currentValue = $data['Total'] ?? 0;
                                         $html .= '<li class="list-group-item text-nowrap">' . $currentValue . '</li>';
+
+
+
+
                                     } else {
                                         $details = json_decode($assignedTarget->detail, true);
                                         $data = $classQuery->getDisaggregations();
@@ -292,7 +310,11 @@ final class TargetProgressTable extends PowerGridComponent
             ->add('updated_at');
     }
 
+    public function makeCalculations()
+    {
 
+
+    }
 
 
     public function columns(): array

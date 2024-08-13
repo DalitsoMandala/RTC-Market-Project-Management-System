@@ -129,6 +129,17 @@
             }, 500);
         
         
+        })
+        
+        $wire.on('showDataAggregate', (e) => {
+            setTimeout(() => {
+                $wire.dispatch('set', { id: e.id });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
         })">
 
 
@@ -193,7 +204,38 @@
                     </div>
                 </form>
             </x-modal>
+            <x-modal id="view-data-agg-modal" title="Approve Submission">
 
+                <div x-data="{
+                    data: $wire.entangle('inputs'),
+                
+                
+                
+                }">
+
+
+
+                    <template x-for="(value, name) in data" :key="index">
+
+                        <div class="mb-3">
+                            <label for="" class="form-label" x-text="name"></label>
+                            <input readonly type="text" required class="form-control bg-light "
+                                placeholder="Enter value" aria-describedby="helpId" :value="value" />
+                            <div class="invalid-feedback">
+                                This field requires a value.
+                            </div>
+
+                        </div>
+
+
+                    </template>
+
+
+
+                </div>
+
+
+            </x-modal>
 
             <x-modal id="view-submission-modal" title="Approve Submission">
                 <form wire:submit.debounce.1000ms='save'>

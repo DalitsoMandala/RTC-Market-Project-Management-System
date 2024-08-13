@@ -262,14 +262,14 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-
+                $baseline_value = 20000;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
                     'project_id' => 1,
                     'financial_year_id' => 1,
-                    'type' => isset($values['Total']) ? $values['type'] : 'detail'
-
+                    'type' => isset($values['Total']) ? $values['type'] : 'detail',
+                    'baseline_value' => $baseline_value
 
                 ]);
 
@@ -285,6 +285,7 @@ class IndicatorTargetSeeder extends Seeder
                             'target_value' => $value['Total'],
                             'name' => $name,
                             'type' => $value['type'],
+
                         ]);
                     }
 
@@ -299,14 +300,14 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-
+                $baseline_value = 20000;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
                     'project_id' => 1,
                     'financial_year_id' => 2,
-                    'type' => isset($values['Total']) ? $values['type'] : 'detail'
-
+                    'type' => isset($values['Total']) ? $values['type'] : 'detail',
+                    'baseline_value' => $baseline_value
 
                 ]);
 
@@ -323,6 +324,7 @@ class IndicatorTargetSeeder extends Seeder
                             'target_value' => $value['Total'],
                             'name' => $name,
                             'type' => $value['type'],
+
                         ]);
                     }
 
@@ -336,14 +338,14 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-
+                $baseline_value = 20000;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
                     'project_id' => 1,
                     'financial_year_id' => 3,
-                    'type' => isset($values['Total']) ? $values['type'] : 'detail'
-
+                    'type' => isset($values['Total']) ? $values['type'] : 'detail',
+                    'baseline_value' => $baseline_value
 
                 ]);
 
@@ -370,14 +372,14 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-
+                $baseline_value = 20000;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
                     'project_id' => 1,
                     'financial_year_id' => 4,
-                    'type' => isset($values['Total']) ? $values['type'] : 'detail'
-
+                    'type' => isset($values['Total']) ? $values['type'] : 'detail',
+                    'baseline_value' => $baseline_value
 
                 ]);
 
@@ -399,6 +401,11 @@ class IndicatorTargetSeeder extends Seeder
             }
 
         }
+
+
+        IndicatorTarget::where('type', '!=', 'percentage')->update([
+            'baseline_value' => null
+        ]);
 
 
     }
