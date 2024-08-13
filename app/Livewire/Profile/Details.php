@@ -72,7 +72,10 @@ class Details extends Component
             }
 
             $user->save();
+
+
             session()->flash('success', 'Profile updated successfully.');
+            return redirect()->to(url()->previous());
         } catch (Throwable $th) {
             session()->flash('error', 'Something went wrong.');
         }
@@ -121,6 +124,7 @@ class Details extends Component
             $user->save();
 
             session()->flash('success', 'Password updated successfully.');
+            return redirect()->to(url()->previous());
         } catch (Throwable $th) {
             session()->flash('error', 'Something went wrong.');
         }

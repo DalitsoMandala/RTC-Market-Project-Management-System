@@ -2,18 +2,21 @@
 
 namespace App\Livewire\External;
 
-use App\Helpers\rtc_market\indicators\A1;
-use App\Helpers\rtc_market\indicators\indicator_A1;
-use App\Models\AttendanceRegister;
-use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\Project;
-use App\Models\Submission;
 use data;
-use Illuminate\Support\Facades\DB;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\Validate;
+use App\Models\Form;
+use App\Models\User;
+use App\Models\Project;
 use Livewire\Component;
+use App\Models\Indicator;
+use App\Models\Submission;
+use App\Models\SubmissionPeriod;
+use App\Models\ResponsiblePerson;
+use Livewire\Attributes\Validate;
+use App\Models\AttendanceRegister;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\rtc_market\indicators\A1;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Helpers\rtc_market\indicators\indicator_A1;
 
 class Dashboard extends Component
 {
@@ -30,8 +33,32 @@ class Dashboard extends Component
     public $pending;
 
     public $today;
+
+    public $openSubmissions = 0;
     public function mount()
     {
+
+        $user = User::find(auth()->user()->id);
+
+        $organisation_id = $user->organisation->id;
+        $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
+            ->whereHas('sources')  // Ensure that the relationship 'sources' exists
+            ->pluck('indicator_id')
+            ->toArray();
+
+
+        $query = SubmissionPeriod::with(['form', 'form.indicators'])->whereIn('indicator_id', $myIndicators)->where('is_open', true);
+
+
+        // // Query SubmissionPeriods with the necessary relationships
+        // $query = SubmissionPeriod::with(['form', 'form.indicators'])
+        //     ->whereHas('form.indicators.responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
+        //         $query->where('organisation_id', $organisation_id);
+        //     })
+
+        // ;
+
+        $this->openSubmissions = $query->count();
 
 
     }

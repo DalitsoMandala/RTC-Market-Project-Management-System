@@ -54,6 +54,22 @@
 
 
         @if ($showContent)
+            @if ($openSubmissions > 0)
+                <div class="row">
+                    <div class="col">
+
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                            <strong>Submission are open!</strong> Please submit your data/reports before the closing
+                            dates. <a href="/external/submission-periods" class="alert-link">Click Here</a>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            @endif
             <div class="row animate__animated  animate__fadeIn">
 
                 <div class="col-12">
