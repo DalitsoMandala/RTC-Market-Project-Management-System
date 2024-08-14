@@ -69,76 +69,76 @@
 
 
                                     <div class="mb-3 " wire:ignore x-init="() => {
-                                    
+
                                         $('#select-indicators').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-                                    
-                                    
+
+
                                         $('#select-indicators').on('select2:select', function(e) {
                                             let data = e.params.data;
-                                    
+
                                             setTimeout(() => {
                                                 $wire.set('selectedIndicator', data.id);
                                             }, 500)
-                                    
-                                    
+
+
                                         });
-                                    
-                                    
+
+
                                         $wire.on('update-indicator', (e) => {
-                                    
-                                    
-                                    
-                                    
+
+
+
+
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
+
+
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-                                    
+
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption);
                                             });
                                             // Refresh Select2 to reflect changes
                                             selectElement.trigger('change');
-                                    
-                                    
+
+
                                             if (e.selected) {
                                                 selectElement.val([e.selected]).trigger('change');
                                             }
-                                    
-                                    
-                                    
+
+
+
                                             // setTimeout(() => {
                                             //     $wire.set('selectedIndicator', null);
                                             // }, 500)
-                                    
-                                    
+
+
                                         });
-                                    
+
                                         $wire.on('select-indicator', (e) => {
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
+
+
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-                                    
+
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption).trigger('change');
                                             });
-                                    
-                                    
-                                    
+
+
+
                                         })
                                     }">
                                         <label for="" class="form-label">Select Indicator</label>
@@ -168,25 +168,25 @@
                                     selectedForm: [],
                                     forms: [],
                                     setForms(forms) {
-                                
+
                                         this.forms = forms;
                                         selected = $wire.selectedForm;
-                                
+
                                         if (selected.length > 0 && selected != null) {
-                                
+
                                             this.selectedForm = selected;
-                                
+
                                         }
-                                
-                                
+
+
                                     },
-                                
+
                                     selectForm() {
                                         $wire.selectedForm = this.selectedForm;
-                                
-                                
+
+
                                     }
-                                
+
                                 }" @change="selectForm()"
                                 @changed-form.window="setForms($event.detail.forms)" x-init="">
                                 <div class="@if (!$selectedIndicator) pe-none opacity-25 @endif">
@@ -327,30 +327,37 @@
     </div>
 
 
-    @script
-        <script>
-            const tooltipTriggerList = document.querySelectorAll('button[title]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-            $wire.on('reload-tooltips', () => {
-
-                setTimeout(() => {
-                    const tooltipTriggerList = document.querySelectorAll('button[title]');
-                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                        tooltipTriggerEl))
-
-                }, 1000);
-
-
-            })
-
-
-            $('.goUp').on('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                })
-            });
-        </script>
-    @endscript
 </div>
+
+@script
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('button[title]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+        $wire.on('reload-tooltips', () => {
+
+            setTimeout(() => {
+                const tooltipTriggerList = document.querySelectorAll('button[title]');
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                    tooltipTriggerEl))
+
+            }, 1000);
+
+
+        })
+
+
+        $('.goUp').on('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        });
+
+        setTimeout(() => {
+            $wire.dispatch('timeout');
+   
+        }, 1000);
+    </script>
+@endscript

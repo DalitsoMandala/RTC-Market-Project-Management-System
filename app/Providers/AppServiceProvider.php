@@ -36,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
                 //internal users
 
                 if ($user->hasAnyRole('cip')) {
+
+                    if ($user->hasAnyRole('staff')) {
+                        return '/staff/dashboard';
+                    }
                     return '/cip/dashboard';
 
                 } else

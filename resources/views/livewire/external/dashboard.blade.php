@@ -49,6 +49,81 @@
 
             </div>
 
+            <div class="loading">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-8">
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="placeholder-glow">
+                                        <span class="placeholder col-12"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-4">
+
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="placeholder-glow">
+                                        <span class="placeholder col-12"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col">
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="placeholder-glow">
+                                        <span class="placeholder col-12"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-8">
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="placeholder-glow">
+                                        <span class="placeholder col-12"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-4">
+
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="placeholder-glow">
+                                        <span class="placeholder col-12"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
 
         </div>
 

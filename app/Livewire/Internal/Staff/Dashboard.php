@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Internal\Cip;
+namespace App\Livewire\Internal\Staff;
 
 use App\Helpers\rtc_market\indicators\A1;
 use App\Helpers\rtc_market\indicators\indicator_A1;
@@ -62,7 +62,7 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.internal.cip.dashboard', [
+        return view('livewire.internal.staff.dashboard', [
             'projects' => Project::get(),
         ]);
     }

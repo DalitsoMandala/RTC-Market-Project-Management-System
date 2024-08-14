@@ -73,6 +73,15 @@ final class FormTable extends PowerGridComponent
 
     }
 
+
+    #[On('timeout')]
+    public function timeout(){
+        SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
+            'is_expired' => 1,
+            'is_open' => 0
+        ]);
+    }
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -87,7 +96,7 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-    
+
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {
@@ -120,7 +129,7 @@ final class FormTable extends PowerGridComponent
                     return "<span class='text-danger'>Expired!</span>";
                 } else {
                     if ($model->is_expired === 1 && !$date->isPast()) {
-                        return "<span class='text-danger'>Cancelled!</span>";
+                        return "<span class='text-danger'>Expired!</span>";
                     } else {
                         return "<b>{$date_end}</b>";
                     }
@@ -155,7 +164,11 @@ final class FormTable extends PowerGridComponent
 
     public function columns(): array
     {
-        return [
+        $user = User::find($this->userId);
+        $columns = [];
+
+
+        $columns = [
             Column::make('Id', 'id'),
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
@@ -175,12 +188,19 @@ final class FormTable extends PowerGridComponent
             ,
             Column::make('Submission Dates', 'submission_duration')
             ,
-            Column::make('Time remaining', 'remaining_days'),
 
-            Column::make('Submission status', 'submission_status'),
 
-            Column::action('Action'),
+
         ];
+
+        // Conditionally add more columns if the user does not have the 'staff' role
+        if ($user && !$user->hasAnyRole('staff')) {
+            $columns[] = Column::make('Time remaining', 'remaining_days');
+            $columns[] = Column::make('Submission status', 'submission_status');
+        }
+
+        $columns[] = Column::action('Action');
+        return $columns;
     }
 
     public function filters(): array
@@ -271,9 +291,7 @@ final class FormTable extends PowerGridComponent
     {
         return [
 
-            Rule::rows()
-                ->when(fn($model) => $model->is_open === 0)
-                ->setAttribute('class', 'table-light pe-none opacity-50'),
+
 
             Rule::button('add-data')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)

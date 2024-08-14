@@ -162,6 +162,76 @@
                     </nav>
                 @endhasallroles
 
+                @hasallroles('internal|staff')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('cip-staff-dashboard') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-tachometer'></i>
+                                        <span data-key="t-dashboards">Dashboard</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('cip-staff-indicators') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Indicators</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Manage Data</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-staff-forms') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Forms</span>
+
+                                        </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-staff-submission-period') }}" id="topnav-utility"
+                                            role="button">
+                                            <span data-key="t-utility">Submission Periods</span>
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-staff-submissions') }}" id="topnav-utility"
+                                            role="button">
+                                            <span data-key="t-utility">Submissions</span>
+
+                                        </a>
+
+
+                                    </div>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('cip-staff-reports') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-table'></i>
+                                        <span data-key="t-dashboards">Reports</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
+
                 @hasallroles('external|donor')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
@@ -186,14 +256,7 @@
                                 </li>
 
 
-                                <li class="nav-item d-none">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-table'></i>
-                                        <span data-key="t-dashboards">Reports</span>
-                                    </a>
-                                </li>
+
                             </ul>
                         </div>
                     </nav>

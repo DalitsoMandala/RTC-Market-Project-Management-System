@@ -42,7 +42,7 @@
         <div class="row @if ($showContent) d-none @endif" x-data x-init="setTimeout(() => {
             $wire.loadData()
         }, 5000)">
-            <div class="col-12">
+            <div class="col-12 mb-5">
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="spinner-border text-primary spinner-border-lg" role="status">
                         <span class="visually-hidden">Loading...</span>

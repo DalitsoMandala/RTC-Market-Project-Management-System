@@ -38,6 +38,10 @@ class AuthenticatedSessionController extends Controller
             //internal users
 
             if ($user->hasAnyRole('cip')) {
+
+                if ($user->hasAnyRole('staff')) {
+                    return redirect()->intended(route('cip-staff-dashboard'));
+                }
                 return redirect()->intended(route('cip-internal-dashboard'));
 
             } else

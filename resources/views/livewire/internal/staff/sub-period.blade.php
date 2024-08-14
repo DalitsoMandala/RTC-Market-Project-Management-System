@@ -73,7 +73,7 @@
     <script>
         setTimeout(() => {
             $wire.dispatch('timeout');
-            console.log('ss');
+
         }, 1000);
     </script>
 @endscript

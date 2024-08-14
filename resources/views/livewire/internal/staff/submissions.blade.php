@@ -214,10 +214,5 @@
 
             }
         }
-
-        setTimeout(() => {
-            $wire.dispatch('timeout');
-
-        }, 5000);
     </script>
 @endscript
