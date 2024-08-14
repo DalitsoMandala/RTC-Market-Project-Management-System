@@ -30,6 +30,7 @@ class UserSeeder extends Seeder
         Role::create(['name' => 'organiser']);
         Role::create(['name' => 'staff']);
         Role::create(['name' => 'admin']);
+        Role::create(['name' => 'donor']);
         //
         Role::create(['name' => 'cip']);
         Role::create(['name' => 'desira']);
@@ -43,6 +44,14 @@ class UserSeeder extends Seeder
         ])->assignRole(['admin']);
 
         User::create([
+            'name' => 'Jamila',
+            'email' => 'donor@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => 11,
+        ])->assignRole(['external', 'donor']);
+
+        User::create([
             'name' => 'Eliya Kapalasa',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
@@ -52,15 +61,15 @@ class UserSeeder extends Seeder
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
-            'name' => 'Roder Mawu',
-            'email' => 'organiserp@example.com',
+            'name' => 'Dalitso M.',
+            'email' => 'dalitso@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
             'organisation_id' => 1,
         ])->assignRole(['internal', 'cip', 'organiser']);
 
         User::create([
-            'name' => 'Jack Mone',
+            'name' => 'Thoko Mvula',
             'email' => 'staff@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
@@ -76,6 +85,14 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => 3,
         ])->assignRole(['external', 'organiser']);
+
+        User::create([
+            'name' => 'John Smith 2',
+            'email' => 'iita2@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => 3,
+        ])->assignRole(['external', 'staff']);
 
         User::create([
             'name' => 'Jack Smith',
@@ -100,6 +117,7 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('MINISTRY OF TRADE'),
         ])->assignRole(['external', 'organiser']);
+
 
         //roletype,project,position
     }

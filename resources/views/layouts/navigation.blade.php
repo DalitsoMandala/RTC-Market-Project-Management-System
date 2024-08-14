@@ -93,7 +93,7 @@
                         </div>
                     </nav>
                 @endhasallroles
-                @hasallroles('external')
+                @hasallroles('external|organiser')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -162,7 +162,42 @@
                     </nav>
                 @endhasallroles
 
+                @hasallroles('external|donor')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('donor-dashboard') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-tachometer'></i>
+                                        <span data-key="t-dashboards">Dashboard</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('donor-indicators') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Indicators</span>
+                                    </a>
+                                </li>
+
+
+                                <li class="nav-item d-none">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-table'></i>
+                                        <span data-key="t-dashboards">Reports</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
             </div>
         </div>
 
@@ -192,7 +227,8 @@
                     id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
                     <img class="rounded-circle header-profile-user"
-                        src="{{ asset('storage/profiles/' . auth()->user()->image) }}" alt="Header Avatar">
+                        src="{{ auth()->user()->image != null ? asset('storage/profiles/' . auth()->user()->image) : asset('assets/avatar.png') }}"
+                        alt="Header Avatar">
                 </button>
                 <div class="pt-0 dropdown-menu dropdown-menu-end">
                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}</h6>

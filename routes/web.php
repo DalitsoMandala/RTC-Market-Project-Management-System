@@ -213,5 +213,12 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
 });
 
+
+Route::middleware(['auth', 'role:donor'])->prefix('executive')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Donor\Dashboard::class)->name('donor-dashboard');
+    Route::get('/indicators', \App\Livewire\Donor\Indicators::class)->name('donor-indicators');
+    Route::get('/indicators/view/{id}', \App\Livewire\Donor\ViewIndicator::class)->name('donor-indicator-view');
+
+});
 // Authentication routes
 require __DIR__ . '/auth.php';

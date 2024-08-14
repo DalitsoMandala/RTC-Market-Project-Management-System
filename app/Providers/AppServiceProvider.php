@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
@@ -25,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         RedirectIfAuthenticated::redirectUsing(function ($request) {
 
-            $user = auth()->user();
+            $user = User::find(auth()->user()->id);
 
             if ($user->hasAnyRole('admin')) {
 
@@ -46,10 +47,14 @@ class AppServiceProvider extends ServiceProvider
 
             } else if ($user->hasAnyRole('external')) {
 
-                return '/external/dashboard';
+                if ($user->hasAnyRole('donor')) {
+                    return '/external/executive';
+                } else {
 
-            } else {
-                return '/';
+                    return '/external/dashboard';
+                }
+
+
             }
 
         });
