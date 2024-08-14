@@ -25,13 +25,13 @@
                                 <div class="p-2 mt-4">
                                     <form method="POST" action="{{ route('login') }}">
                                         @csrf
-
+                                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                         <div class="mb-3">
                                             <x-input-label for="email" :value="__('Email')" />
                                             <x-text-input id="email" class="" type="email" name="email"
                                                 required autofocus placeholder="Enter your email" />
 
-                                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+
                                         </div>
 
                                         <div class="mb-3">

@@ -227,7 +227,7 @@
                     id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
                     <img class="rounded-circle header-profile-user"
-                        src="{{ auth()->user()->image != null ? asset('storage/profiles/' . auth()->user()->image) : asset('assets/avatar.png') }}"
+                        src="{{ auth()->user()->image != null ? asset('storage/profiles/' . auth()->user()->image) : asset('assets/images/users/usr.png') }}"
                         alt="Header Avatar">
                 </button>
                 <div class="pt-0 dropdown-menu dropdown-menu-end">

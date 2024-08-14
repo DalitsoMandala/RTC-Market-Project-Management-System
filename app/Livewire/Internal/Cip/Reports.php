@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Bus;
 use App\Models\ReportingPeriodMonth;
 use Livewire\Attributes\Lazy;
 
-#[Lazy]
+
 class Reports extends Component
 {
 
