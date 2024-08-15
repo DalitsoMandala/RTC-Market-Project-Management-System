@@ -32,30 +32,59 @@ class Dashboard extends Component
 
     public function loadData()
     {
+        $this->loadIndicatorData();
+        $this->loadSubmissionData();
+        $this->loadAttendanceData();
+        $this->loadQuickFormsData();
+        $this->showContent = true;
+    }
 
-        $a1 = new indicator_A1();
+    private function loadIndicatorData()
+    {
+        $indicatorA1 = new Indicator_A1();
         $indicator = Indicator::where('indicator_no', 'A1')->first();
-        $this->fill([
-            'indicatorCount' => Indicator::count(),
-        ]);
-        $this->data = [
-            'actors' => $a1->getDisaggregations(),
-            'name' => $indicator->indicator_name,
-        ];
 
+        if ($indicator) {
+            $this->fill([
+                'indicatorCount' => Indicator::count(),
+            ]);
+
+            $this->data = [
+                'actors' => $indicatorA1->getDisaggregations(),
+                'name' => $indicator->indicator_name,
+            ];
+        } else {
+            // Handle the case where the indicator is not found
+            $this->data = [
+                'actors' => [],
+                'name' => '',
+            ];
+        }
+    }
+
+    private function loadSubmissionData()
+    {
         $this->submissions = Submission::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as total')
         )
             ->groupBy('year', 'month')
-            ->get()->toArray();
+            ->get()
+            ->toArray();
+    }
 
-        $this->attendance = AttendanceRegister::get()->take(5);
-        $this->quickForms = Form::with(['project', 'indicators'])->whereNot('name', 'REPORT FORM')->get()->take(5);
+    private function loadAttendanceData()
+    {
+        $this->attendance = AttendanceRegister::take(5)->get();
+    }
 
-
-        $this->showContent = true;
+    private function loadQuickFormsData()
+    {
+        $this->quickForms = Form::with(['project', 'indicators'])
+            ->whereNot('name', 'REPORT FORM')
+            ->take(5)
+            ->get();
     }
 
 

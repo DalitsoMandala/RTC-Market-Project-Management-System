@@ -365,7 +365,7 @@ class AddData extends Component
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
 
-            } else if ($user->hasAnyRole('external')) {
+            } else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
 
                 try {
 

@@ -52,7 +52,7 @@ final class SubmissionTable extends PowerGridComponent
         $query = Submission::query()->with('period.indicator')->where('batch_type', 'batch');
         if ($this->userId) {
             $user = User::find($this->userId);
-            if ($user->hasAnyRole('external')) {
+            if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
                 $query = $query->where('user_id', $user->id);
 
             }
@@ -273,7 +273,7 @@ final class SubmissionTable extends PowerGridComponent
                 ->disable(),
 
             Rule::button('edit')
-                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external'))
+                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
                 ->disable(),
 
             Rule::button('edit')

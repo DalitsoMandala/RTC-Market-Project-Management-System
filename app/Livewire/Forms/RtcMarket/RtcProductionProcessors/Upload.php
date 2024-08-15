@@ -227,16 +227,19 @@ class Upload extends Component
     {
 
 
-        $user = auth()->user();
+
+        $user = User::find(auth()->user()->id);
         cache()->clear();
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('external-submissions') . '#batch-submission');
+        } else if ($user->hasAnyRole('staff')) {
+            session()->flash('success', 'Successfully submitted!');
+            $this->redirect(route('cip-staff-submissions') . '#batch-submission');
         } else {
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
-
 
     }
 

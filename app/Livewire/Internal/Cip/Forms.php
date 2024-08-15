@@ -11,43 +11,7 @@ use Livewire\Component;
 
 class Forms extends Component
 {
-    use LivewireAlert;
-    #[Validate('required')]
-    public $name;
-    #[Validate('required')]
-    public $type = 'routine/recurring';
-    public $rowId;
 
-    public function setData($id)
-    {
-        $this->resetErrorBag();
-        $form = Form::find($id);
-        $this->rowId = $id;
-        $this->name = $form->name;
-        $this->type = $form->type;
-    }
-
-    public function save()
-    {
-        $this->validate();
-
-        try {
-
-            Form::find($this->rowId)->update([
-                'name' => $this->name,
-                'type' => $this->type
-            ]);
-
-            $this->alert('success', 'Successfully updated');
-            $this->dispatch('refresh');
-        } catch (\Throwable $th) {
-            $this->alert('error', 'Something went wrong');
-            Log::error($th);
-        }
-
-        $this->dispatch('hideModal');
-        $this->reset();
-    }
 
     public function render()
     {
