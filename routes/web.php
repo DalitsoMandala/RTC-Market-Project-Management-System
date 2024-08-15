@@ -134,7 +134,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/organisations', \App\Livewire\Admin\ManageOrganisations::class)->name('admin-organisations');
     Route::get('/indicator-responsibilities', \App\Livewire\Admin\ManageResponsibilities::class)->name('admin-responsibilities');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
-
+    Route::get('/organisation-list', \App\Livewire\Admin\System\OrganisationList::class)->name('admin-organisation-list');
 });
 
 // CIP Internal routes
