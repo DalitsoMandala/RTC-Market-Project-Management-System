@@ -9,8 +9,8 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Page Name</li>
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">System settings</a></li>
+                            <li class="breadcrumb-item active">Organisation list</li>
                         </ol>
                     </div>
 
@@ -22,7 +22,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Organisations/Partners</h4>
+                        <h4 class="card-title">Organisation Table</h4>
                     </div>
                     <div class="card-body">
                         <livewire:admin.organisation-table />
@@ -68,8 +68,8 @@
 
                     <div class="mb-3">
 
-
-                        <x-text-input placeholder="Confirm by typing CDMS" wire:model='confirm' />
+                        <label for="">Confirm by typing "CDMS" in the field below</label>
+                        <x-text-input placeholder="" wire:model='confirm' />
 
                         @error('confirm')
                             <x-error>{{ $message }}</x-error>

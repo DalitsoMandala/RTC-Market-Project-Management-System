@@ -47,7 +47,7 @@
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
+                                            href="{{ route('admin-users') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">List Users</span>
 
                                         </a>

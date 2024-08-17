@@ -130,9 +130,9 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
-    Route::get('/users', \App\Livewire\Admin\ManageUsers::class)->name('admin-users');
-    Route::get('/organisations', \App\Livewire\Admin\ManageOrganisations::class)->name('admin-organisations');
-    Route::get('/indicator-responsibilities', \App\Livewire\Admin\ManageResponsibilities::class)->name('admin-responsibilities');
+    Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
+    // Route::get('/organisations', \App\Livewire\Admin\ManageOrganisations::class)->name('admin-organisations');
+    // Route::get('/indicator-responsibilities', \App\Livewire\Admin\ManageResponsibilities::class)->name('admin-responsibilities');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
     Route::get('/organisation-list', \App\Livewire\Admin\System\OrganisationList::class)->name('admin-organisation-list');
 });

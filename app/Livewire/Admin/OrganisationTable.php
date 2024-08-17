@@ -68,6 +68,8 @@ final class OrganisationTable extends PowerGridComponent
         ];
     }
 
+
+
     #[\Livewire\Attributes\On('hideModal')]
     public function edit(): void
     {
