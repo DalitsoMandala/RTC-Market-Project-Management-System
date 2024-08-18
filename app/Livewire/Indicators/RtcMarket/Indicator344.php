@@ -13,7 +13,7 @@ use Livewire\Component;
 
 class Indicator344 extends Component
 {
-          use LivewireAlert;
+    use LivewireAlert;
     #[Validate('required')]
 
     public $rowId;
@@ -23,23 +23,28 @@ class Indicator344 extends Component
     public $indicator_name;
 
     public $total;
- 
 
-  
+
+
 
     public function calculations()
     {
 
         $organisation = auth()->user()->organisation;
         $class = Indicator::find($this->indicator_id)->class()->first();
-        $newClass = new $class->class(organisation_id: $organisation->id);
+        $newClass = null;
+        if (auth()->user()->hasAnyRole('admin')) {
+            $newClass = new $class->class();
+        } else {
+            $newClass = new $class->class(organisation_id: $organisation->id);
+        }
 
 
 
         try {
             $this->data = $newClass->getDisaggregations();//
             $this->total = $this->data['Total'];
-           
+
 
         } catch (\Throwable $th) {
 

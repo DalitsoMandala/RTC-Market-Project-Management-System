@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CgiarProjectSeeder::class); //
         $this->call(ReportPeriodSeeder::class);
         $this->call(ProjectSeeder::class);
-        $this->call(PartnerSeeder::class);
         $this->call(IndicatorSeeder::class);
         $this->call(IndicatorTargetSeeder::class);
         $this->call(AssignedTargetSeeder::class);

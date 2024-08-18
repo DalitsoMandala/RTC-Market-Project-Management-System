@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Indicators\RtcMarket;
 
-use App\Helpers\rtc_market\indicators\A1;
-use App\Helpers\rtc_market\indicators\indicator_A1;
-use Illuminate\Support\Facades\Log;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
+use App\Models\Indicator;
+use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\rtc_market\indicators\A1;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Helpers\rtc_market\indicators\indicator_A1;
 
 class IndicatorA1 extends Component
 {
@@ -58,26 +59,32 @@ class IndicatorA1 extends Component
     {
 
         $organisation = auth()->user()->organisation;
-        $a1 = new indicator_A1(organisation_id: $organisation->id);
+        $class = Indicator::find($this->indicator_id)->class()->first();
+        $newClass = null;
+        if (auth()->user()->hasAnyRole('admin')) {
+            $newClass = new $class->class();
+        } else {
+            $newClass = new $class->class(organisation_id: $organisation->id);
+        }
         try {
-            $this->data = $a1->getDisaggregations();//
+            $this->data = $newClass->getDisaggregations();//
             $this->total = $this->data['Total'];
             $this->dataByCrop = [
-                'Farmers' => $a1->RtcActorByCrop('FARMER'),
-                'Processors' => $a1->RtcActorByCrop('PROCESSOR'),
-                'Traders' => $a1->RtcActorByCrop('TRADER'),
+                'Farmers' => $newClass->RtcActorByCrop('FARMER'),
+                'Processors' => $newClass->RtcActorByCrop('PROCESSOR'),
+                'Traders' => $newClass->RtcActorByCrop('TRADER'),
             ];
 
             $this->dataByActorMales = [
-                'Farmers' => (int) $a1->RtcActorBySex('MALE')['farmer'],
-                'Processors' => (int) $a1->RtcActorBySex('MALE')['processor'],
-                'Traders' => (int) $a1->RtcActorBySex('MALE')['trader'],
+                'Farmers' => (int) $newClass->RtcActorBySex('MALE')['farmer'],
+                'Processors' => (int) $newClass->RtcActorBySex('MALE')['processor'],
+                'Traders' => (int) $newClass->RtcActorBySex('MALE')['trader'],
             ];
 
             $this->dataByActorFemales = [
-                'Farmers' => (int) $a1->RtcActorBySex('FEMALE')['farmer'],
-                'Processors' => (int) $a1->RtcActorBySex('FEMALE')['processor'],
-                'Traders' => (int) $a1->RtcActorBySex('FEMALE')['trader'],
+                'Farmers' => (int) $newClass->RtcActorBySex('FEMALE')['farmer'],
+                'Processors' => (int) $newClass->RtcActorBySex('FEMALE')['processor'],
+                'Traders' => (int) $newClass->RtcActorBySex('FEMALE')['trader'],
             ];
 
             $this->dataBySex = [
@@ -86,14 +93,14 @@ class IndicatorA1 extends Component
 
             ];
             $this->dataByActorYouth = [
-                'Farmers' => (int) $a1->RtcActorByAge('YOUTH')['farmer'],
-                'Processors' => (int) $a1->RtcActorByAge('YOUTH')['processor'],
-                'Traders' => (int) $a1->RtcActorByAge('YOUTH')['trader'],
+                'Farmers' => (int) $newClass->RtcActorByAge('YOUTH')['farmer'],
+                'Processors' => (int) $newClass->RtcActorByAge('YOUTH')['processor'],
+                'Traders' => (int) $newClass->RtcActorByAge('YOUTH')['trader'],
             ];
             $this->dataByActorNotYouth = [
-                'Farmers' => (int) $a1->RtcActorByAge('NOT YOUTH')['farmer'],
-                'Processors' => (int) $a1->RtcActorByAge('NOT YOUTH')['processor'],
-                'Traders' => (int) $a1->RtcActorByAge('NOT YOUTH')['trader'],
+                'Farmers' => (int) $newClass->RtcActorByAge('NOT YOUTH')['farmer'],
+                'Processors' => (int) $newClass->RtcActorByAge('NOT YOUTH')['processor'],
+                'Traders' => (int) $newClass->RtcActorByAge('NOT YOUTH')['trader'],
             ];
 
             $this->dataByAge = [

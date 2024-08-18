@@ -22,8 +22,9 @@ class Indicator extends Model
 
     public function organisation()
     {
-        return $this->belongsTo(Organisation::class, 'organisation_id');
+        return $this->hasManyThrough(Organisation::class, ResponsiblePerson::class, 'indicator_id', 'id', 'id', 'organisation_id');
     }
+
 
     public function forms()
     {

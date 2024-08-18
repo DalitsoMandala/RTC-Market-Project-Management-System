@@ -21,6 +21,9 @@ class Form extends Model
     public function submissionPeriods()
     {
         return $this->hasMany(SubmissionPeriod::class, 'form_id');
+
+
+
     }
 
     public function indicators()

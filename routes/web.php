@@ -138,6 +138,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/cgiar-projects', \App\Livewire\Admin\Data\CgiarProjects::class)->name('admin-cgiar-projects');
     Route::get('/projects', \App\Livewire\Admin\Data\Projects::class)->name('admin-projects');
     Route::get('/reporting-periods', \App\Livewire\Admin\Data\ReportingPeriod::class)->name('admin-period');
+    Route::get('/indicators', \App\Livewire\Admin\Data\Indicators::class)->name('admin-indicators');
+    Route::get('/indicators/view/{id}', \App\Livewire\Admin\Data\ViewIndicators::class)->name('admin-indicator-view');
+    Route::get('/indicators/lead-partners', \App\Livewire\Admin\Data\LeadPartners::class)->name('admin-leads');
+    Route::get('/indicators/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
+    // Route::get('/forms', \App\Livewire\Admin\Data\Forms::class)->name('admin-forms');
+    // Route::get('/submissions', \App\Livewire\Admin\Data\Submissions::class)->name('admin-submissions');
+    // Route::get('/reports', \App\Livewire\Admin\Reports::class)->name('admin-reports');
+    // Route::get('/indicators-targets', \App\Livewire\Admin\IndicatorsTargets::class)->name('admin-indicators-targets');
+    // Route::get('/indicators-assignments', \App\Livewire\Admin\IndicatorsAssignments::class)->name('admin-indicators-assignments');
 
 });
 

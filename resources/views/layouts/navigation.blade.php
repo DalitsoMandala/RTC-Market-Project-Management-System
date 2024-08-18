@@ -87,11 +87,25 @@
                                         </div>
 
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Indicators</span>
 
-                                        </a>
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Indicator Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-indicators') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Indicators</a>
+
+                                                <a href="{{ route('admin-leads') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Lead partners</a>
+
+                                                <a href="{{ route('admin-sources') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Indicator Forms</a>
+
+                                            </div>
+                                        </div>
 
 
                                     </div>
@@ -137,8 +151,9 @@
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>

@@ -62,7 +62,7 @@
                                 @enderror
                             </div>
 
-
+                            
                             <div class="indicators ">
 
                                 <div class="@if (!$selectedProject) pe-none opacity-25 @endif">
@@ -357,7 +357,7 @@
 
         setTimeout(() => {
             $wire.dispatch('timeout');
-   
+
         }, 1000);
     </script>
 @endscript
