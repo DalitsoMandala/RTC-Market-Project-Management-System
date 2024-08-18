@@ -67,6 +67,25 @@
 
 
 
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Project Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-cgiar-projects') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Cgiar Projects</a>
+
+                                                <a href="{{ route('admin-period') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Reporting Periods</a>
+
+                                                <a href="{{ route('admin-projects') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Projects</a>
+
+                                            </div>
+                                        </div>
+
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
@@ -77,6 +96,8 @@
 
                                     </div>
                                 </li>
+
+
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
@@ -125,8 +146,9 @@
 
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
                                         <span data-key="t-dashboards">Indicators</span>
                                     </a>
