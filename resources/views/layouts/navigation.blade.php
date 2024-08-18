@@ -102,7 +102,7 @@
                                                     data-key="t-range-slider">Lead partners</a>
 
                                                 <a href="{{ route('admin-sources') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Indicator Forms</a>
+                                                    data-key="t-range-slider">Organisation Forms</a>
 
                                             </div>
                                         </div>

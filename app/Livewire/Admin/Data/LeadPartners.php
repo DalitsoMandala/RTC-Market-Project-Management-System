@@ -19,6 +19,12 @@ class LeadPartners extends Component
     #[Validate('required', 'lead partners')]
     public $selectedLeadPartners = [];
     public $indicators;
+
+    public $forms;
+
+    #[Validate('required', 'forms')]
+    public $selectedForms = [];
+
     public $rowId;
     public function save()
     {
@@ -35,6 +41,9 @@ class LeadPartners extends Component
 
                 ]);
             }
+
+            $indicator->forms()->sync($this->selectedForms);
+
             $this->dispatch('refresh');
             $this->alert('success', 'Indicator updated successfully');
 
@@ -55,8 +64,15 @@ class LeadPartners extends Component
 
         $responsiblePeople = $row->organisation->pluck('id');
         $this->selectedLeadPartners = $responsiblePeople;
-        $this->dispatch('updateSelect', data: $responsiblePeople);
+
+        $forms = $row->forms->pluck('id');
+
+
+        $this->selectedForms = $forms->toArray();
+
+        $this->dispatch('updateSelect', data: $responsiblePeople, formData: $this->selectedForms);
         $this->rowId = $rowId;
+
 
 
 
@@ -64,7 +80,7 @@ class LeadPartners extends Component
     public function mount()
     {
         $this->leadPartners = Organisation::get();
-        $this->sources = Form::get();
+        $this->forms = Form::whereNot('name', 'ATTENDANCE REGISTER')->whereNot('name', 'SEED DISTRIBUTION REGISTER')->get();
         $this->indicators = Indicator::get();
 
     }

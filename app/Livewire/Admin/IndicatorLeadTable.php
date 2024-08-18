@@ -2,6 +2,7 @@
 
 namespace App\Livewire\admin;
 
+use App\Models\Form;
 use App\Models\Indicator;
 use Illuminate\Support\Carbon;
 use App\Models\ResponsiblePerson;
@@ -39,7 +40,7 @@ final class IndicatorLeadTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Indicator::with(['organisation']);
+        return Indicator::with(['organisation', 'forms']);
     }
 
     public function fields(): PowerGridFields
@@ -56,6 +57,13 @@ final class IndicatorLeadTable extends PowerGridComponent
             })
             ->add('indicator_id')
             ->add('indicator', fn($model) => $model->indicator_name)
+            ->add('forms', function ($model) {
+                $formIds = $model->forms->pluck('id');
+
+                $forms = Form::whereIn('id', $formIds)->get()->pluck('name')->toArray();
+
+                return implode(', ', $forms);
+            })
             ->add('type_of_submission')
             ->add('form_id')
             ->add('created_at')
@@ -69,7 +77,7 @@ final class IndicatorLeadTable extends PowerGridComponent
             Column::make('Indicator', 'indicator'),
             Column::make('Organisation', 'organisation')->searchable(),
 
-
+            Column::make('Forms', 'forms')->searchable(),
 
 
             Column::action('Action'),

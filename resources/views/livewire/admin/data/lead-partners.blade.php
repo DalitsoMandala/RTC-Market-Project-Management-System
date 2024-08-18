@@ -112,6 +112,51 @@
                         @enderror
 
                     </div>
+
+                    <div class="mb-3">
+                        <label for="" class="form-label">Forms</label>
+
+                        <div x-data="{
+                            selected: {},
+                        
+                        }" x-init="() => {
+                        
+                            $('#selectInput2').select2({
+                                width: '100%',
+                                theme: 'bootstrap-5',
+                                containerCssClass: 'select2--small',
+                                dropdownCssClass: 'select2--small',
+                            });
+                        
+                            $wire.on('updateSelect', (e) => {
+                                $('#selectInput2').val(e.formData);
+                                $('#selectInput2').trigger('change');
+                        
+                            })
+                        
+                            $('#selectInput2').on('change', function(e) {
+                                var selectedValue = $(this).val();
+                                $wire.selectedForms = selectedValue;
+                            });
+                        }" wire:ignore>
+                            <select class="form-select form-select " name="" id="selectInput2" multiple
+                                x-model="selected">
+                                <option value="" disabled>Select one...</option>
+                                @foreach ($forms as $form)
+                                    <option value="{{ $form->id }}">{{ $form->name }}</option>
+                                @endforeach
+
+
+                            </select>
+
+                        </div>
+
+
+                        @error('selectedForms')
+                            <x-error>{{ $message }}</x-error>
+                        @enderror
+
+                    </div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary mt-5">
                             Submit
