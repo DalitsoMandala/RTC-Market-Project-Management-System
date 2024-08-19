@@ -4,8 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Indicator;
 use App\Models\Organisation;
-use App\Models\ResponsiblePerson;
 use Illuminate\Database\Seeder;
+use App\Models\ResponsiblePerson;
+use Illuminate\Support\Collection;
 
 class IndicatorSeeder extends Seeder
 {
@@ -184,153 +185,406 @@ class IndicatorSeeder extends Seeder
             '4.1.6' => ['TRADELINE'],
         ];
 
-        $responsiblePeopleArray = [];
-        foreach ($indicatorNo as $indicator) {
-            $indicatorIds = Indicator::where('indicator_no', $indicator)->pluck('id');
-            foreach ($indicatorIds as $indicatorId) {
-                //  $organisationIds = Organisation::whereIn('name', $partners)->pluck('id')->toArray();
 
-                $conditions = match ($indicator) {
-                    'A1', 'B1' => [
+        $indicatorArray = [
+            [
+                "id" => 1,
+                "indicator_name" => "Number of actors profitability engaged in commercialization of RTC",
+                "indicator_no" => "A1",
+            ],
+            [
+                "id" => 2,
+                "indicator_name" => "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities",
+                "indicator_no" => "B1",
+            ],
+            [
+                "id" => 3,
+                "indicator_name" => "Percentage increase in value of formal RTC exports",
+                "indicator_no" => "B2",
+            ],
+            [
+                "id" => 4,
+                "indicator_name" => "Percentage of value ($) of formal RTC imports substituted through local production",
+                "indicator_no" => "B3",
+            ],
+            [
+                "id" => 5,
+                "indicator_name" => "Number of people consuming RTC and processed products",
+                "indicator_no" => "B4",
+            ],
+            [
+                "id" => 6,
+                "indicator_name" => "Percentage Increase in the volume of RTC produced",
+                "indicator_no" => "B5",
+            ],
+            [
+                "id" => 7,
+                "indicator_name" => "Percentage increase in RTC investment",
+                "indicator_no" => "B6",
+            ],
+            [
+                "id" => 8,
+                "indicator_name" => "Number of local RTC varieties suitable for domestic and export markets identified for promotion",
+                "indicator_no" => "1.1.1",
+            ],
+            [
+                "id" => 9,
+                "indicator_name" => "Number of potential market preferred RTC genotypes in the pipeline identified",
+                "indicator_no" => "1.1.2",
+            ],
+            [
+                "id" => 10,
+                "indicator_name" => "Number of new RTC technologies developed",
+                "indicator_no" => "1.1.3",
+            ],
+            [
+                "id" => 11,
+                "indicator_name" => "Percentage increase in adoption of new RTC technologies",
+                "indicator_no" => "1.1.4",
+            ],
+            [
+                "id" => 12,
+                "indicator_name" => "Number of economic studies conducted",
+                "indicator_no" => "1.2.1",
+            ],
+            [
+                "id" => 13,
+                "indicator_name" => "Number of RTC and derived products recorded in official trade statistics",
+                "indicator_no" => "1.2.2",
+            ],
+            [
+                "id" => 14,
+                "indicator_name" => "Number of existing agricultural programs that integrate RTC into their programs",
+                "indicator_no" => "1.3.1",
+            ],
+            [
+                "id" => 15,
+                "indicator_name" => "Number of policy briefs developed and shared on RTC topics",
+                "indicator_no" => "1.3.1",
+            ],
+            [
+                "id" => 16,
+                "indicator_name" => "Number of market linkages between EGS and other seed class producers facilitated",
+                "indicator_no" => "2.1.1",
+            ],
+            [
+                "id" => 17,
+                "indicator_name" => "Number of private sector actors involved in production of RTC certified seed",
+                "indicator_no" => "2.2.1",
+            ],
+            [
+                "id" => 18,
+                "indicator_name" => "Area (ha) under seed multiplication",
+                "indicator_no" => "2.2.2",
+            ],
+            [
+                "id" => 19,
+                "indicator_name" => "Percentage seed multipliers with formal registration",
+                "indicator_no" => "2.2.3",
+            ],
+            [
+                "id" => 20,
+                "indicator_name" => "Volume of seed distributed within communities to enhance POs productivity",
+                "indicator_no" => "2.2.4",
+            ],
+            [
+                "id" => 21,
+                "indicator_name" => "Number of on-farm seed production technology demonstrations established",
+                "indicator_no" => "2.2.5",
+            ],
+            [
+                "id" => 22,
+                "indicator_name" => "Number of international learning visits for seed producers (OC)",
+                "indicator_no" => "2.3.1",
+            ],
+            [
+                "id" => 23,
+                "indicator_name" => "Percentage business plans for the production of different classes of RTC seeds that are executed",
+                "indicator_no" => "2.3.1",
+            ],
+            [
+                "id" => 24,
+                "indicator_name" => "Number of stakeholder engagement events that focus on RTC development",
+                "indicator_no" => "2.3.2",
+            ],
+            [
+                "id" => 25,
+                "indicator_name" => "Number of registered seed producers accessing markets through online Market Information System (MIS)",
+                "indicator_no" => "2.3.3",
+            ],
+            [
+                "id" => 26,
+                "indicator_name" => "Number of RTC actors linked to online Market Information System (MIS)",
+                "indicator_no" => "2.3.4",
+            ],
+            [
+                "id" => 27,
+                "indicator_name" => "Number of RTC products available on the Management Information System",
+                "indicator_no" => "2.3.5",
+            ],
+            [
+                "id" => 28,
+                "indicator_name" => "Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production",
+                "indicator_no" => "3.1.1",
+            ],
+            [
+                "id" => 29,
+                "indicator_name" => "Number of RTC actors that use certified seed",
+                "indicator_no" => "3.2.1",
+            ],
+            [
+                "id" => 30,
+                "indicator_name" => "Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)",
+                "indicator_no" => "3.2.2",
+            ],
+            [
+                "id" => 31,
+                "indicator_name" => "Number of off-season irrigation demonstration sites established",
+                "indicator_no" => "3.2.3",
+            ],
+            [
+                "id" => 32,
+                "indicator_name" => "Number of demonstration sites for end-user preferred RTC varieties established",
+                "indicator_no" => "3.2.4",
+            ],
+            [
+                "id" => 33,
+                "indicator_name" => "Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)",
+                "indicator_no" => "3.2.5",
+            ],
+            [
+                "id" => 34,
+                "indicator_name" => "Number of market opportunities identified for RTC actors",
+                "indicator_no" => "3.3.1",
+            ],
+            [
+                "id" => 35,
+                "indicator_name" => "Number of contractual arrangements facilitated for commercial farmers",
+                "indicator_no" => "3.3.2",
+            ],
+            [
+                "id" => 36,
+                "indicator_name" => "Number of RTC actors supported to access funds from financial service providers",
+                "indicator_no" => "3.4.1",
+            ],
+            [
+                "id" => 37,
+                "indicator_name" => "Number of POs that have formal contracts with buyers",
+                "indicator_no" => "3.4.2",
+            ],
+            [
+                "id" => 38,
+                "indicator_name" => "Number of RTC aggregation centers established",
+                "indicator_no" => "3.4.3",
+            ],
+            [
+                "id" => 39,
+                "indicator_name" => "Number of RTC POs selling products through aggregation centers",
+                "indicator_no" => "3.4.4",
+            ],
+            [
+                "id" => 40,
+                "indicator_name" => "Volume (MT) of RTC products sold through collective marketing efforts by POs",
+                "indicator_no" => "3.4.5",
+            ],
+            [
+                "id" => 41,
+                "indicator_name" => "Number of households reached with RTC nutrition interventions",
+                "indicator_no" => "3.5.1",
+            ],
+            [
+                "id" => 42,
+                "indicator_name" => "Frequency of RTC consumption by households per week (OC)",
+                "indicator_no" => "3.5.2",
+            ],
+            [
+                "id" => 43,
+                "indicator_name" => "Percentage increase in households consuming RTCs as the main foodstuff (OC)",
+                "indicator_no" => "3.5.3",
+            ],
+            [
+                "id" => 44,
+                "indicator_name" => "Number of RTC utilization options (dishes) adopted by households (OC)",
+                "indicator_no" => "3.5.4",
+            ],
+            [
+                "id" => 45,
+                "indicator_name" => "Number of urban market promotions conducted",
+                "indicator_no" => "3.5.5",
+            ],
+            [
+                "id" => 46,
+                "indicator_name" => "Number of mass nutrition education campaigns conducted",
+                "indicator_no" => "3.5.6",
+            ],
+            [
+                "id" => 47,
+                "indicator_name" => "Number of RTC value-added products promoted",
+                "indicator_no" => "4.1.1",
+            ],
+            [
+                "id" => 48,
+                "indicator_name" => "Number of RTC actors with MBS certification for producing (or processing) RTC products",
+                "indicator_no" => "4.1.2",
+            ],
+            [
+                "id" => 49,
+                "indicator_name" => "Number of RTC value-added products developed for domestic markets",
+                "indicator_no" => "4.1.3",
+            ],
+            [
+                "id" => 50,
+                "indicator_name" => "Number of new RTC recipes/products adopted and branded by processors",
+                "indicator_no" => "4.1.4",
+            ],
+            [
+                "id" => 51,
+                "indicator_name" => "Number of domestic market opportunities identified for value-added products",
+                "indicator_no" => "4.1.5",
+            ],
+            [
+                "id" => 52,
+                "indicator_name" => "Number of international market opportunities identified for value-added products",
+                "indicator_no" => "4.1.6",
+            ],
+        ];
+
+
+        foreach ($indicatorArray as $indicator) {
+            $indicatorIds = Indicator::where('id', $indicator['id'])->pluck('id');
+
+            foreach ($indicatorIds as $indicatorId) {
+
+                $conditions = match ($indicator['indicator_name']) {
+                    'Number of actors profitability engaged in commercialization of RTC',
+                    'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities' => [
                         ['names' => ['CIP', 'IITA', 'DAES', 'DCD'], 'type' => 'normal'],
-                    ], //done
-                    'B2' => [
-                        ['names' => ['MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
-                        //  ['names' => ['CIP'], 'type' => 'normal'],
                     ],
-                    'B3' => [
+                    'Percentage increase in value of formal RTC exports' => [
+                        ['names' => ['MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
+                    ],
+                    'Percentage of value ($) of formal RTC imports substituted through local production' => [
                         ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
                     ],
-                    'B4' => [
-                        //  ['names' => ['IITA', 'DAES',], 'type' => 'aggregate'],
+                    'Number of people consuming RTC and processed products' => [
                         ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
                     ],
-                    'B5' => [
-                        //  ['names' => ['IITA'], 'type' => 'aggregate'],
+                    'Percentage Increase in the volume of RTC produced' => [
                         ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
                     ],
-                    'B6' => [
+                    'Percentage increase in RTC investment' => [
                         ['names' => ['CIP'], 'type' => 'aggregate'],
                     ],
-                    '1.1.1' => [
+                    'Number of local RTC varieties suitable for domestic and export markets identified for promotion' => [
                         ['names' => ['IITA', 'TRADELINE', 'MINISTRY OF TRADE', 'CIP'], 'type' => 'aggregate'],
-                        // ['names' => ['CIP'], 'type' => 'normal'],
                     ],
-                    '1.1.2', '1.1.3' => [
+                    'Number of potential market preferred RTC genotypes in the pipeline identified',
+                    'Number of new RTC technologies developed' => [
                         ['names' => ['DARS'], 'type' => 'aggregate'],
                     ],
-                    '1.1.4' => [
+                    'Percentage increase in adoption of new RTC technologies' => [
                         ['names' => ['IITA', 'DARS', 'RTCDT', 'DAES', 'CIP'], 'type' => 'aggregate'],
-                        // ['names' => ['CIP'], 'type' => 'normal'],
                     ],
-                    '1.2.1' => [
+                    'Number of economic studies conducted' => [
                         ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
-                        //  ['names' => ['CIP'], 'type' => 'normal'],
                     ],
-                    '1.2.2' => [
+                    'Number of RTC and derived products recorded in official trade statistics' => [
                         ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
                     ],
-                    '1.3.1' => [
+                    'Number of existing agricultural programs that integrate RTC into their programs', 'Number of policy briefs developed and shared on RTC topics' => [
                         ['names' => ['RTCDT'], 'type' => 'aggregate'],
                     ],
 
-                    '2.1.1' => [
+
+                    'Number of market linkages between EGS and other seed class producers facilitated' => [
                         ['names' => ['TRADELINE'], 'type' => 'aggregate'],
                     ],
-                    '2.2.1' => [
-                        // ['names' => ['IITA'], 'type' => 'aggregate'],
+                    'Number of private sector actors involved in production of RTC certified seed' => [
                         ['names' => ['CIP', 'IITA'], 'type' => 'normal'],
                     ],
-                    '2.2.2' => [
-                        //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                    'Area (ha) under seed multiplication',
+                    'Percentage seed multipliers with formal registration' => [
                         ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
                     ],
-
-                    '2.2.3' => [
-                        //   ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
-                        ['names' => ['CIP', 'IITA', 'DAES'], 'type' => 'normal'],
-                    ],
-                    '2.2.4' => [
-                        // ['names' => ['DAES', 'IITA'], 'type' => 'aggregate'],
+                    'Volume of seed distributed within communities to enhance POs productivity' => [
                         ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
                     ],
-                    '2.2.5' => [
+                    'Number of on-farm seed production technology demonstrations established' => [
                         ['names' => ['DAES'], 'type' => 'aggregate'],
                     ],
-                    '2.3.1' => [
+                    'Number of international learning visits for seed producers (OC)' => [
                         ['names' => ['IITA', 'CIP'], 'type' => 'aggregate'],
-                        //  ['names' => ['CIP'], 'type' => 'normal'],
                     ],
-                    '2.3.2' => [
+                    'Percentage business plans for the production of different classes of RTC seeds that are executed' => [
                         ['names' => ['TRADELINE', 'RTCDT'], 'type' => 'aggregate'],
                     ],
-                    '2.3.3' => [
+                    'Number of stakeholder engagement events that focus on RTC development' => [
                         ['names' => ['ACE'], 'type' => 'aggregate'],
                     ],
-                    '2.3.4' => [
+                    'Number of registered seed producers accessing markets through online Market Information System (MIS)' => [
                         ['names' => ['ACE', 'TRADELINE'], 'type' => 'aggregate'],
                     ],
-                    '2.3.5' => [
+                    'Number of RTC actors linked to online Market Information System (MIS)', 'Number of RTC products available on the Management Information System' => [
                         ['names' => ['ACE', 'DAES'], 'type' => 'aggregate'],
                     ],
-                    '3.1.1' => [
-                        // ['names' => ['DAES', 'IITA', 'RTCDT'], 'type' => 'aggregate'],
+                    'Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production' => [
                         ['names' => ['CIP', 'DAES', 'IITA'], 'type' => 'normal'],
                     ],
-                    '3.2.1' => [
-                        //  ['names' => ['IITA', 'RTCDT'], 'type' => 'aggregate'],
+                    'Number of RTC actors that use certified seed' => [
                         ['names' => ['CIP'], 'type' => 'normal'],
                     ],
-                    '3.2.2' => [
+                    'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)' => [
                         ['names' => ['ACE', 'DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
-
-                    '3.2.3', '3.2.4' => [
+                    'Number of off-season irrigation demonstration sites established',
+                    'Number of demonstration sites for end-user preferred RTC varieties established' => [
                         ['names' => ['DAES'], 'type' => 'aggregate'],
                     ],
-
-                    '3.2.5' => [
+                    'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)' => [
                         ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
-
-                    '3.3.1', '3.3.2', '3.4.1', '3.4.2', '3.4.3', '3.4.4', '3.4.5' => [
+                    'Number of market opportunities identified for RTC actors',
+                    'Number of contractual arrangements facilitated for commercial farmers',
+                    'Number of RTC actors supported to access funds from financial service providers',
+                    'Number of POs that have formal contracts with buyers',
+                    'Number of RTC aggregation centers established',
+                    'Number of RTC POs selling products through aggregation centers',
+                    'Volume (MT) of RTC products sold through collective marketing efforts by POs' => [
                         ['names' => ['TRADELINE'], 'type' => 'aggregate'],
                     ],
-
-                    '3.5.1' => [
+                    'Number of households reached with RTC nutrition interventions' => [
                         ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
-                    '3.5.2', '3.5.3', '3.5.4' => [
+                    'Frequency of RTC consumption by households per week (OC)',
+                    'Percentage increase in households consuming RTCs as the main foodstuff (OC)',
+                    'Number of RTC utilization options (dishes) adopted by households (OC)' => [
                         ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'normal'],
                     ],
-
-                    '3.5.5' => [
+                    'Number of urban market promotions conducted' => [
                         ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
-
-                    '3.5.6' => [
+                    'Number of mass nutrition education campaigns conducted' => [
                         ['names' => ['DAES'], 'type' => 'aggregate'],
                     ],
-
-                    '4.1.1' => [
+                    'Number of RTC value-added products promoted' => [
                         ['names' => ['RTCDT', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
-
-                    '4.1.2' => [
+                    'Number of RTC actors with MBS certification for producing (or processing) RTC products' => [
                         ['names' => ['RTCDT', 'MINISTRY OF TRADE'], 'type' => 'aggregate'],
                     ],
-
-                    '4.1.3' => [
+                    'Number of RTC value-added products developed for domestic markets' => [
                         ['names' => ['MINISTRY OF TRADE'], 'type' => 'aggregate'],
                     ],
-                    '4.1.4' => [
+                    'Number of new RTC recipes/products adopted and branded by processors' => [
                         ['names' => ['DAES', 'CIP', 'IITA'], 'type' => 'aggregate'],
                     ],
-                    '4.1.5', '4.1.6' => [
+                    'Number of domestic market opportunities identified for value-added products',
+                    'Number of international market opportunities identified for value-added products' => [
                         ['names' => ['TRADELINE'], 'type' => 'aggregate'],
                     ],
                     default => []
                 };
+
 
                 foreach ($conditions as $condition) {
 
@@ -352,7 +606,8 @@ class IndicatorSeeder extends Seeder
                     }
                 }
             }
-
         }
+
+
     }
 }

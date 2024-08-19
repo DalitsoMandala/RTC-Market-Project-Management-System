@@ -16,6 +16,9 @@ class AmountSplitter
 
     public function split(): array
     {
+        if ($this->people === 0) {
+            return []; // Return an empty array if there are no people
+        }
         // Calculate base amount for each person
         $baseAmount = intdiv($this->amount, $this->people);
 

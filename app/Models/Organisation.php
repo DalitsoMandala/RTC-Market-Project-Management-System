@@ -18,4 +18,11 @@ class Organisation extends Model
     {
         return $this->hasMany(ResponsiblePerson::class, 'organisation_id');
     }
+
+    /**
+     * Get all of the comments for the Organisation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+
 }

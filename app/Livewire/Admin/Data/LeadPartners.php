@@ -80,7 +80,7 @@ class LeadPartners extends Component
     public function mount()
     {
         $this->leadPartners = Organisation::get();
-        $this->forms = Form::whereNot('name', 'ATTENDANCE REGISTER')->whereNot('name', 'SEED DISTRIBUTION REGISTER')->get();
+        $this->forms = Form::whereNot('name', 'ATTENDANCE REGISTER')->whereNot('name', 'SEED DISTRIBUTION REGISTER')->whereNot('name', 'EMBASSY OF IRELAND')->get();
         $this->indicators = Indicator::get();
 
     }
