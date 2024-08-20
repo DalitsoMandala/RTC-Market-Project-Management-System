@@ -9,6 +9,7 @@ class TargetDetail extends Model
 {
     use HasFactory;
     protected $table = 'target_details';
+    protected $guarded = [];
     public function indicator_target()
     {
         return $this->belongsTo(IndicatorTarget::class, 'indicator_target_id');
