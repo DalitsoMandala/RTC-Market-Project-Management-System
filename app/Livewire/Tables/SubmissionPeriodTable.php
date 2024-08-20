@@ -3,25 +3,26 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
+use Ramsey\Uuid\Uuid;
+use App\Models\Source;
 use App\Models\Indicator;
-use App\Models\Organisation;
-use App\Models\ResponsiblePerson;
-use App\Models\SubmissionPeriod;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
+use App\Models\Organisation;
+use Illuminate\Support\Carbon;
+use App\Models\SubmissionPeriod;
+use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use Ramsey\Uuid\Uuid;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SubmissionPeriodTable extends PowerGridComponent
 {
@@ -75,7 +76,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
             ->add('assigned', function ($model) {
                 $indicator = Indicator::find($model->indicator_id);
-                $responsiblePeople = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+
+                $checkIds = $indicator->responsiblePeopleforIndicators->pluck('id');
+                $sources = Source::whereIn('person_id', $checkIds)->where('form_id', $model->form_id)->pluck('person_id');
+                $responsiblePeople = $indicator->responsiblePeopleforIndicators->whereIn('id', $sources)->pluck('organisation_id');
                 $oganisations = Organisation::whereIn('id', $responsiblePeople)->pluck('name');
                 return implode(', ', $oganisations->toArray());
 
@@ -225,6 +229,8 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $project = str_replace(' ', '-', strtolower($form->project->name));
 
         $routePrefix = $this->currentRoutePrefix;
+
+
 
         if ($form->name == 'REPORT FORM') {
 
