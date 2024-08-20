@@ -26,7 +26,7 @@ class IndicatorSources extends Component
 
     public $forms = [];
 
-    #[Validate('required')]
+    // #[Validate('required')]
     public $selectedForms = [];
 
     public $rowId;
@@ -54,7 +54,7 @@ class IndicatorSources extends Component
             $this->alert('success', 'Indicator updated successfully');
 
         } catch (\Throwable $th) {
-            dd($th);
+
             $this->alert('error', 'Something went wrong');
             Log::error($th);
         }
