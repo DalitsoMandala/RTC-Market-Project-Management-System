@@ -334,6 +334,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                     $user = User::find($this->userId);
                     $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
 
+                } else if ($exception instanceof Exception) {
+
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
                 }
 
 
