@@ -25,9 +25,9 @@
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-dashboard') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
@@ -112,7 +112,32 @@
                                         </div>
 
 
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Operations Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-forms') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Forms</a>
+
+                                                <a href="{{ route('admin-submissions') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Submissions</a>
+
+                                                <a href="{{ route('admin-reports') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Reports</a>
+
+                                            </div>
+                                        </div>
+
+
+
+
                                     </div>
+
+
                                 </li>
 
 

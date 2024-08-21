@@ -142,7 +142,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/indicators/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
     Route::get('/indicators-targets', \App\Livewire\Admin\Data\IndicatorTargets::class)->name('admin-indicators-targets');
     Route::get('/assigned-targets', \App\Livewire\Admin\Data\AssignedTargets::class)->name('admin-assigned-targets');
-
+    Route::get('/forms', \App\Livewire\Admin\Operations\Forms::class)->name('admin-forms');
+    Route::get('/submissions', \App\Livewire\Admin\Operations\Submissions::class)->name('admin-submissions');
+    Route::get('/reports', \App\Livewire\Admin\Operations\Reports::class)->name('admin-reports');
 });
 
 // CIP Internal routes
@@ -190,7 +192,6 @@ Route::middleware(['auth', 'role:organiser'])->prefix('cip')->group(function () 
 
 
     Route::get($formPrefix . '/attendance-register/', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-    //    / Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
 
 });
 
@@ -236,7 +237,6 @@ Route::middleware(['auth', 'role:staff'])->prefix('staff')->group(function () {
 
 
     Route::get($formPrefix . '/attendance-register/', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-    //    / Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
 
 });
 
