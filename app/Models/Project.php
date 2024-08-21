@@ -25,6 +25,11 @@ class Project extends Model
         return $this->belongsTo(ReportingPeriod::class, 'reporting_period_id');
     }
 
+    public function cgiarProject()
+    {
+        return $this->belongsTo(Cgiar_Project::class, 'cgiar_project_id');
+    }
+
     public function financialYears()
     {
         return $this->hasMany(FinancialYear::class, 'project_id');

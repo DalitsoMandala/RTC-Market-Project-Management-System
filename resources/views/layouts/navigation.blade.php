@@ -19,6 +19,160 @@
             </button>
 
             <div class="topnav">
+                @hasallroles('admin')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-dashboard') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-tachometer'></i>
+                                        <span data-key="t-dashboards">Dashboard</span>
+                                    </a>
+                                </li>
+
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Manage Users</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('admin-users') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">List Users</span>
+
+                                        </a>
+
+
+                                    </div>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Data Management</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Project Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-cgiar-projects') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Cgiar Projects</a>
+
+                                                <a href="{{ route('admin-period') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Reporting Periods</a>
+
+                                                <a href="{{ route('admin-projects') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Projects</a>
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Indicator Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-indicators') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Indicators</a>
+
+                                                <a href="{{ route('admin-leads') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Lead partners</a>
+
+                                                <a href="{{ route('admin-sources') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Organisation Forms</a>
+                                                <a href="{{ route('admin-indicators-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Indicator Targets</a>
+
+                                                <a href="{{ route('admin-assigned-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Assigned Targets</a>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Operations Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-forms') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Forms</a>
+
+                                                <a href="{{ route('admin-submissions') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Submissions</a>
+
+                                                <a href="{{ route('admin-reports') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Reports</a>
+
+                                            </div>
+                                        </div>
+
+
+
+
+                                    </div>
+
+
+                                </li>
+
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">System settings</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('admin-setup') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">System setup</span>
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('admin-organisation-list') }}" id="topnav-utility"
+                                            role="button">
+                                            <span data-key="t-utility">Organisation list</span>
+
+                                        </a>
+
+
+
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
+
                 @hasallroles('internal|cip|organiser')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
@@ -26,8 +180,9 @@
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('cip-internal-dashboard') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
@@ -35,8 +190,9 @@
 
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
                                         <span data-key="t-dashboards">Indicators</span>
                                     </a>
@@ -72,8 +228,8 @@
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
-                                        <a class="dropdown-item dropdown-toggle arrow-none" href="{{ route('cip-leads') }}"
-                                            id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-leads') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Indicators & Lead Partners</span>
 
                                         </a>
@@ -99,9 +255,9 @@
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-dashboard') }}"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('external-dashboard') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>

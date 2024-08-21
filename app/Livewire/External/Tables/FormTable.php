@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Form;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
+use App\Models\Source;
 use App\Models\Indicator;
 use App\Models\Submission;
 use Livewire\Attributes\On;
@@ -51,14 +52,23 @@ final class FormTable extends PowerGridComponent
     {
         $user = User::find($this->userId);
 
+
+
         $organisation_id = $user->organisation->id;
+        $personIds = ResponsiblePerson::where('organisation_id', $organisation_id)->pluck('id')->toArray();
+        $sources = Source::whereIn('person_id', $personIds)->pluck('form_id')->unique();
+
         $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
             ->whereHas('sources')  // Ensure that the relationship 'sources' exists
             ->pluck('indicator_id')
             ->toArray();
 
 
-        $query = SubmissionPeriod::with(['form', 'form.indicators'])->whereIn('indicator_id', $myIndicators);
+        $query = SubmissionPeriod::with([
+            'form',
+            'form.indicators'
+        ])->whereIn('indicator_id', $myIndicators);
+
 
 
         // // Query SubmissionPeriods with the necessary relationships
@@ -75,7 +85,8 @@ final class FormTable extends PowerGridComponent
 
 
     #[On('timeout')]
-    public function timeout(){
+    public function timeout()
+    {
         SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
             'is_expired' => 1,
             'is_open' => 0
@@ -96,7 +107,7 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-
+    
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {
@@ -169,7 +180,7 @@ final class FormTable extends PowerGridComponent
 
 
         $columns = [
-            Column::make('Id', 'id'),
+            //     Column::make('Id', 'id'),
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
@@ -289,6 +300,23 @@ final class FormTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
+
+        $user = Auth::user();
+        $organisationId = $user->organisation->id;
+        $indicator = Indicator::find($row->indicator_id);
+
+        $responsiblePeople = ResponsiblePerson::where('indicator_id', $row->indicator_id)
+            ->where('organisation_id', $organisationId)
+            ->first();
+
+        // Check if the organisation has responsible people
+        $hasResponsiblePeople = $responsiblePeople !== null;
+
+        // Check if the responsible person has the required form
+        $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->where('form_id', $row->form_id)->isNotEmpty() : false;
+
+        // Check if the organisation is responsible for the indicator
+        $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
         return [
 
 
@@ -297,9 +325,10 @@ final class FormTable extends PowerGridComponent
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
             // Rules for uploading data
-            Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 ||
-                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM', 'SCHOOL RTC CONSUMPTION FORM'])))
+
+            // Rules for adding data
+            Rule::button('add-data')
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess)
                 ->disable(),
 
             Rule::button('upload')

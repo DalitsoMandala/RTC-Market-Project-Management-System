@@ -32,7 +32,12 @@ class IndicatorB1 extends Component
 
         $organisation = auth()->user()->organisation;
         $class = Indicator::find($this->indicator_id)->class()->first();
-        $newClass = new $class->class(organisation_id: $organisation->id);
+        $newClass = null;
+        if (auth()->user()->hasAnyRole('admin')) {
+            $newClass = new $class->class();
+        } else {
+            $newClass = new $class->class(organisation_id: $organisation->id);
+        }
 
 
 

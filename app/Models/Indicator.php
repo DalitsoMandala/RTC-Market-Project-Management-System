@@ -22,8 +22,9 @@ class Indicator extends Model
 
     public function organisation()
     {
-        return $this->belongsTo(Organisation::class, 'organisation_id');
+        return $this->hasManyThrough(Organisation::class, ResponsiblePerson::class, 'indicator_id', 'id', 'id', 'organisation_id');
     }
+
 
     public function forms()
     {
@@ -44,5 +45,15 @@ class Indicator extends Model
     {
 
         return $this->hasMany(SubmissionPeriod::class, 'indicator_id');
+    }
+
+    /**
+     * Get all of the comments for the Indicator
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assignedTargets()
+    {
+        return $this->hasMany(AssignedTarget::class, 'indicator_id');
     }
 }

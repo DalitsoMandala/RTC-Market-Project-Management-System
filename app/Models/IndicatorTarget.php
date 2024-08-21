@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class IndicatorTarget extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function assignedTargets()
     {
@@ -18,6 +19,21 @@ class IndicatorTarget extends Model
     public function details()
     {
         return $this->hasMany(TargetDetail::class, 'indicator_target_id');
+    }
+
+    public function indicator(): BelongsTo
+    {
+        return $this->belongsTo(Indicator::class, 'indicator_id');
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'id');
+    }
+
+    public function financialYear(): BelongsTo
+    {
+        return $this->belongsTo(FinancialYear::class, 'financial_year_id', 'id');
     }
 
 

@@ -196,6 +196,10 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
                     $user = User::find($this->userId);
                     $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
 
+                }else if ($exception instanceof Exception) {
+
+                    $user = User::find($this->userId);
+                    $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
                 }
 
 
@@ -215,6 +219,8 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
 
 
                 if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+
+
                     Submission::where('batch_no', $this->uuid)->update([
                         'status' => 'approved',
                     ]);

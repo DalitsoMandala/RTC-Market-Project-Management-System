@@ -119,7 +119,7 @@ class Upload extends Component
                         'period_month_id' => $this->selectedMonth,
                         'form_id' => $this->selectedForm,
                         'user_id' => Auth::user()->id,
-                        'status' => 'approved',
+
                         //  'data' => [],
                         'batch_type' => 'batch',
                         'period_id' => $this->submissionPeriodId,

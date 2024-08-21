@@ -79,31 +79,44 @@ final class TargetProgressTable extends PowerGridComponent
                 $indicatorTarget = $model->indicatorTargets;
 
                 if ($indicatorTarget->isNotEmpty()) {
-                    $target = $indicatorTarget->first(); // Use `first()` instead of `[0]`
-    
-                    $type = $target->type == 'percentage' ? '%' : '';
+                    $target = $indicatorTarget->first();
 
-                    // Initialize $value with $target->target_value if it exists
-                    $value = $target->target_value !== null ? $target->target_value . $type : null;
+                    // Simple null check
+                    if ($target && $target->target_value !== null) {
+                        $type = $target->type == 'percentage' ? '%' : '';
+                        $value = $target->target_value . $type;
 
-                    // Handle multiple details
-                    if (isset($target->details) && is_iterable($target->details)) {
-                        $details = collect($target->details);
+                        // Check if details exist and process them
+                        if (!empty($target->details)) {
+                            $details = collect($target->details);
 
-                        $detailValues = $details->map(function ($detail) use ($type) {
-                            $detailType = $detail->type == 'percentage' ? '%' : '';
-                            return $detail->target_value . $detailType . ' (' . $detail->name . ')';
-                        });
+                            if ($details->count() > 1) {
+                                $detailValues = $details->map(function ($detail) {
+                                    if ($detail) {
+                                        $detailType = $detail->type == 'percentage' ? '%' : '';
+                                        return $detail->target_value . $detailType . ' (' . $detail->name . ')';
+                                    }
+                                    return null;
+                                })->filter()->implode(', ');
 
-                        $value = $value ? $value . ', ' : '';
-                        $value .= $detailValues->implode(', ');
+                                $value .= ', ' . $detailValues;
+                            } else {
+                                $singleDetail = $details->first();
+                                if ($singleDetail) {
+                                    $detailType = $singleDetail->type == 'percentage' ? '%' : '';
+                                    $value .= ' ' . $singleDetail->target_value . $detailType . ' (' . $singleDetail->name . ')';
+                                }
+                            }
+                        }
+
+                        return $value;
                     }
-
-                    return $value !== null ? $value : null;
                 }
 
                 return null;
             })
+
+
 
             ->add('organisations', function ($model) {
                 $indicatorTarget = $model->indicatorTargets;
