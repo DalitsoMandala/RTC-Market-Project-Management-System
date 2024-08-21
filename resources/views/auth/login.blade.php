@@ -1,6 +1,6 @@
 <x-guest-layout>
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+
 
     <div class="authentication-bg min-vh-100">
         <div class="bg-overlay"></div>
@@ -10,7 +10,7 @@
                     <div class="col-md-8 col-lg-6 col-xl-5">
 
                         <div class="mb-4 text-center">
-                            <a href="index.html">
+                            <a href="/">
                                 <x-application-logo width="50" /> <span
                                     class="logo-txt">{{ config('app.name') }}</span>
                             </a>
@@ -22,6 +22,7 @@
                                     <h5 class="text-primary">Welcome!</h5>
                                     <p class="text-muted">Sign in </p>
                                 </div>
+                                <x-auth-session-status class="mb-4" :status="session('status')" />
                                 <div class="p-2 mt-4">
                                     <form method="POST" action="{{ route('login') }}">
                                         @csrf
