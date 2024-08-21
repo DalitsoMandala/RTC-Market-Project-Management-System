@@ -46,4 +46,14 @@ class Indicator extends Model
 
         return $this->hasMany(SubmissionPeriod::class, 'indicator_id');
     }
+
+    /**
+     * Get all of the comments for the Indicator
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function assignedTargets()
+    {
+        return $this->hasMany(AssignedTarget::class, 'indicator_id');
+    }
 }

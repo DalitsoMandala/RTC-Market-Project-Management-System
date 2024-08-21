@@ -101,7 +101,7 @@
                                 <label for="financial_year_id" class="form-label">Financial Year</label>
                                 <select wire:model="financial_year_id" disabled id="financial_year_id"
                                     class="form-select" required>
-                                    <option value="">Select Financial Year</option>
+                                    <option value="">Select Project Year</option>
                                     @foreach ($financial_years as $year)
                                         <option value="{{ $year->id }}">{{ $year->number }}</option>
                                     @endforeach

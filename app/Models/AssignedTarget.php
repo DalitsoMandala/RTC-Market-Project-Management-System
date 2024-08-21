@@ -20,4 +20,11 @@ class AssignedTarget extends Model
     {
         return $this->belongsTo(IndicatorTarget::class, 'indicator_target_id');
     }
+
+    /**
+     * Get the user that owns the AssignedTarget
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+
 }

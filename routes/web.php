@@ -131,8 +131,6 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
-    // Route::get('/organisations', \App\Livewire\Admin\ManageOrganisations::class)->name('admin-organisations');
-    // Route::get('/indicator-responsibilities', \App\Livewire\Admin\ManageResponsibilities::class)->name('admin-responsibilities');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
     Route::get('/organisation-list', \App\Livewire\Admin\System\OrganisationList::class)->name('admin-organisation-list');
     Route::get('/cgiar-projects', \App\Livewire\Admin\Data\CgiarProjects::class)->name('admin-cgiar-projects');
@@ -143,12 +141,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/indicators/lead-partners', \App\Livewire\Admin\Data\LeadPartners::class)->name('admin-leads');
     Route::get('/indicators/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
     Route::get('/indicators-targets', \App\Livewire\Admin\Data\IndicatorTargets::class)->name('admin-indicators-targets');
-
-    // Route::get('/forms', \App\Livewire\Admin\Data\Forms::class)->name('admin-forms');
-    // Route::get('/submissions', \App\Livewire\Admin\Data\Submissions::class)->name('admin-submissions');
-    // Route::get('/reports', \App\Livewire\Admin\Reports::class)->name('admin-reports');
-
-    // Route::get('/indicators-assignments', \App\Livewire\Admin\IndicatorsAssignments::class)->name('admin-indicators-assignments');
+    Route::get('/assigned-targets', \App\Livewire\Admin\Data\AssignedTargets::class)->name('admin-assigned-targets');
 
 });
 

@@ -105,6 +105,9 @@
                                                     data-key="t-range-slider">Organisation Forms</a>
                                                 <a href="{{ route('admin-indicators-targets') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Indicator Targets</a>
+
+                                                <a href="{{ route('admin-assigned-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Assigned Targets</a>
                                             </div>
                                         </div>
 
