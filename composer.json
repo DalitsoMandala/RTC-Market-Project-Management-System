@@ -15,6 +15,7 @@
         "power-components/livewire-powergrid": "^5.6",
         "ramsey/uuid": "^4.7",
         "rappasoft/laravel-livewire-tables": "^3.4",
+        "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-permission": "^6.7",
         "spatie/simple-excel": "^3.6",
         "yajra/laravel-datatables": "11.0"
