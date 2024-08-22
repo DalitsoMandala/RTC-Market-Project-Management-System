@@ -17,8 +17,8 @@ class IndicatorTargets extends Component
     use LivewireAlert;
     public $financial_year_id;
     public $project_id;
-    public $target_value;
-    public $baseline_value;
+    public $target_value = 0;
+    public $baseline_value = 0;
     public $type;
     public $rowId;
     public $targetDetails = [];
@@ -166,8 +166,8 @@ class IndicatorTargets extends Component
             } else {
                 $indicatorTarget = IndicatorTarget::create([
                     'indicator_id' => $this->selectedIndicator,
-                    'target_value' => $this->target_value,
-                    'baseline_value' => $this->baseline_value,
+                    'target_value' => $this->target_value == 0,
+                    'baseline_value' => $this->baseline_value ?? 0,
                     'financial_year_id' => $this->financial_year_id,
                     'project_id' => $this->project_id,
                     'type' => $this->type,
@@ -186,7 +186,7 @@ class IndicatorTargets extends Component
 
 
         } catch (\Throwable $th) {
-
+            dd($th);
             $this->alert('error', 'Something went wrong');
             Log::error($th);
         }

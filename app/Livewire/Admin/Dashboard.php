@@ -41,9 +41,11 @@ class Dashboard extends Component
     ];
     public function mount()
     {
+
+
         $this->topData['users'] = User::count();
-        $this->topData['inactiveUsers'] = User::whereNotNull('deleted_at')->count();
-        $this->topData['activeUsers'] = User::whereNull('deleted_at')->count();
+        $this->topData['inactiveUsers'] = User::withTrashed()->whereNotNull('deleted_at')->count();
+        $this->topData['activeUsers'] = User::withTrashed()->whereNull('deleted_at')->count();
         $this->topData['projects'] = Project::count();
         $this->topData['forms'] = Form::count();
         $this->topData['indicators'] = Indicator::count();

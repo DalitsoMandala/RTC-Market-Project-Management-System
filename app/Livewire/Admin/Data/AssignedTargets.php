@@ -86,9 +86,27 @@ class AssignedTargets extends Component
         if ($this->selectedFinancialYear && $this->selectedProject && $this->indicator_id) {
 
             $indicator = Indicator::find($this->indicator_id);
+            $row = IndicatorTarget::where('indicator_id', $this->indicator_id)->where('project_id', $this->selectedProject)->where('financial_year_id', $this->selectedFinancialYear)->first();
             if ($indicator) {
                 $organisations = $indicator->organisation->pluck('id');
                 $this->organisations = Organisation::whereIn('id', $organisations)->get();
+
+
+                if ($row) {
+                    $this->lop_target_value = $row->target_value;
+                    $this->lop_type = $row->type;
+                    if ($this->lop_type == 'detail') {
+                        $details = $row->details()->get();
+                        $this->lop_details = '';
+                        foreach ($details as $detail) {
+                            $detail->type = $detail->type == 'percentage' ? '%' : '';
+                            $this->lop_details .= $detail->name . ' (' . $detail->target_value . $detail->type . ') <br/> ';
+
+                        }
+
+                    }
+                    $this->rowId = $row->id;
+                }
             }
         }
     }
@@ -221,6 +239,7 @@ class AssignedTargets extends Component
             $this->dispatch('refresh');
 
         } catch (\Throwable $th) {
+            dd($th);
             Log::error($th);
             session()->flash('error', 'An error occurred while saving the assigned target.');
         }

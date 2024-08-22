@@ -220,7 +220,7 @@
                         status,
                         preventDefault
                     }) => {
-                        if (status === 419 || status === 500) {
+                        if (status === 419) {
                             location.reload(true)
 
                             preventDefault()
@@ -233,6 +233,25 @@
         <script>
             $(document).ready(function() {
                 $('.preloader').fadeOut('slow');
+
+            });
+
+            $(document).ajaxError(function(event, jqxhr, settings, exception) {
+                if (jqxhr.status === 419) { // 419 is the status code for Laravel's CSRF token mismatch
+
+                    window.location.href = '/login'; // Redirect to the login page
+                }
+            });
+            $(document).ready(function() {
+                // Set a timeout to start fading out the alert after 10 seconds
+                setTimeout(function() {
+                    $('.alert-success').fadeOut(3000, function() {
+                        $(this).remove(); // Remove the alert from the DOM after fading out
+                    });
+
+
+                }, 10000); // 10 seconds
+
 
             });
         </script>
