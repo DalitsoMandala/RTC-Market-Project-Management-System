@@ -26,7 +26,7 @@ class SubmissionPeriod extends Model
     }
     public function reportingMonths()
     {
-        return $this->belongsTo(reportingPeriodMonth::class, 'month_range_period_id');
+        return $this->belongsTo(ReportingPeriodMonth::class, 'month_range_period_id');
     }
 
     public function indicator()
