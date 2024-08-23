@@ -98,9 +98,9 @@
 
                             <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
                                 aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.farmer-follow-up-table :key="'rpm2'" :userId="auth()->user()->id"
+                                    :routePrefix="Route::current()->getPrefix()" />
 
-                                <livewire:tables.rtcmarket.rtc-production-farmers-follow-u :key="'rpm2'"
-                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
                             <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"

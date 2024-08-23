@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Tables\RtcMarket;
+namespace App\Livewire\tables\RtcMarket;
 
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
@@ -20,7 +20,8 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class RtcProductionFarmersFollowU extends PowerGridComponent
+
+final class FarmerFollowUpTable extends PowerGridComponent
 {
     use WithExport;
     public bool $deferLoading = false;
