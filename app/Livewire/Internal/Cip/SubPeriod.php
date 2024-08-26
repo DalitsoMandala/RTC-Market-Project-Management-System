@@ -2,20 +2,23 @@
 
 namespace App\Livewire\Internal\Cip;
 
-use App\Models\FinancialYear;
-use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\Project;
-use App\Models\ReportingPeriod;
-use App\Models\ReportingPeriodMonth;
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use Carbon\Carbon;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
-use Livewire\Component;
 use Throwable;
+use Carbon\Carbon;
+use App\Models\Form;
+use App\Models\User;
+use App\Models\Project;
+use Livewire\Component;
+use App\Models\Indicator;
+use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use App\Models\ReportingPeriod;
+use App\Models\SubmissionPeriod;
+use App\Models\ResponsiblePerson;
+use Livewire\Attributes\Validate;
+use App\Models\ReportingPeriodMonth;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Notifications\EmployeeBroadcastNotification;
 
 class SubPeriod extends Component
 {
@@ -129,7 +132,7 @@ class SubPeriod extends Component
             'financial_year_id' => $this->selectedFinancialYear,
             'indicator_id' => $this->selectedIndicator,
         ];
-
+        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
         try {
             if ($this->rowId) {
                 $submissions = Submission::where('period_id', $this->rowId)->count();
@@ -155,23 +158,65 @@ class SubPeriod extends Component
 
                 if ($exists) {
                     session()->flash('error', 'This record already exists.');
+
+                    return;
                 }
                 // elseif ($activeFormExists) {
                 //     session()->flash('error', 'One of the selected forms is already active.');
-                // } 
+                // }
                 else {
                     foreach ($this->selectedForm as $formId) {
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }
                     session()->flash('success', 'Created Successfully');
+
+
+
                     return redirect()->to(url()->previous());
                 }
             }
         } catch (Throwable $th) {
-            dd($th);
+
             session()->flash('error', 'Something went wrong');
         }
     }
+
+    public function sendBroadcast($Indicator, $forms)
+    {
+
+
+
+        $users = User::all();
+        $indicatorFound = Indicator::find($Indicator);
+        foreach ($users as $user) {
+
+            if ($user->hasAnyRole('external')) {
+                $organisationId = $user->organisation->id;
+
+
+                $responsiblePeople = ResponsiblePerson::where('indicator_id', $indicatorFound->id)
+                    ->where('organisation_id', $organisationId)
+                    ->first();
+
+
+                // Check if the organisation has responsible people
+                $hasResponsiblePeople = $responsiblePeople !== null;
+
+                // Check if the responsible person has the required form
+                $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
+
+                if ($hasFormAccess) {
+
+                    $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
+                    $link = env('APP_URL');
+                    $user->notify(new EmployeeBroadcastNotification($messageContent, $link));
+                }
+
+            }
+
+        }
+    }
+
 
     public function updatedSelectedProject($value)
     {

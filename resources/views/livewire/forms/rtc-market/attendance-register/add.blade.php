@@ -255,7 +255,7 @@
 
                     </div>
                     <div class="card-body" id="table">
-                        <livewire:tables.rtcmarket.attendance-register-table :count="5" />
+                        <livewire:tables.rtc-market.attendance-register-table :count="5" />
                     </div>
                 </div>
             </div>

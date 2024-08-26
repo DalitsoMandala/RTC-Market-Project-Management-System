@@ -98,22 +98,22 @@
 
                             <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.farmer-follow-up-table :key="'rpm2'" :userId="auth()->user()->id"
-                                    :routePrefix="Route::current()->getPrefix()" />
 
+                                <livewire:tables.rtc-market.rtc-production-farmers-follow-u :key="'rpm2'"
+                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
                             <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rtc-production-farmers-conc-agreement />
+                                <livewire:tables.rtc-market.rtc-production-farmers-conc-agreement />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rtc-production-farmers-dom-markets />
+                                <livewire:tables.rtc-market.rtc-production-farmers-dom-markets />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rtc-production-farmers-inter-markets />
+                                <livewire:tables.rtc-market.rtc-production-farmers-inter-markets />
                             </div>
 
                         </div>

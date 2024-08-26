@@ -87,21 +87,21 @@
                             <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
                                 aria-labelledby="profile-tab">
 
-                                <livewire:tables.rtcmarket.rtc-production-processors-follow-u :key="'rpm2'"
+                                <livewire:tables.rtc-market.rtc-production-processors-follow-u :key="'rpm2'"
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
                             <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rtc-production-processors-conc-agreement />
+                                <livewire:tables.rtc-market.rtc-production-processors-conc-agreement />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rtc-production-processor-dom-markets />
+                                <livewire:tables.rtc-market.rtc-production-processor-dom-markets />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rtc-production-processor-inter-markets />
+                                <livewire:tables.rtc-market.rtc-production-processor-inter-markets />
                             </div>
 
                         </div>
