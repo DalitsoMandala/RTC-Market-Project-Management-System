@@ -14,6 +14,7 @@ use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\ReportingPeriod;
 use App\Models\SubmissionPeriod;
+use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
 use App\Models\ReportingPeriodMonth;
@@ -132,7 +133,7 @@ class SubPeriod extends Component
             'financial_year_id' => $this->selectedFinancialYear,
             'indicator_id' => $this->selectedIndicator,
         ];
-        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
+
         try {
             if ($this->rowId) {
                 $submissions = Submission::where('period_id', $this->rowId)->count();
@@ -171,7 +172,7 @@ class SubPeriod extends Component
                     session()->flash('success', 'Created Successfully');
 
 
-
+                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
                     return redirect()->to(url()->previous());
                 }
             }
@@ -209,7 +210,8 @@ class SubPeriod extends Component
 
                     $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
                     $link = env('APP_URL');
-                    $user->notify(new EmployeeBroadcastNotification($messageContent, $link));
+
+                    SendNotificationJob::dispatch($user, $messageContent, $link);
                 }
 
             }

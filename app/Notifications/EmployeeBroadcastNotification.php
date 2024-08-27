@@ -35,11 +35,4 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
             ->line('Thank you for your attention!');
     }
 
-    public function toArray($notifiable)
-    {
-        return [
-            'message' => $this->messageContent,
-            'link' => $this->link,
-        ];
-    }
 }

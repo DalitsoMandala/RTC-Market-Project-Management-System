@@ -9,6 +9,7 @@ use App\Models\FinancialYear;
 use App\Models\AssignedTarget;
 use App\Helpers\AmountSplitter;
 use App\Models\IndicatorTarget;
+use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
 use App\Livewire\Internal\Cip\Forms;
@@ -24,12 +25,14 @@ use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Http\Controllers\TestingController;
+use App\Livewire\Internal\Cip\SubPeriodStaff;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\Internal\Cip\ViewSubmissions;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
 use App\Helpers\rtc_market\indicators\indicator_B5;
 use App\Helpers\rtc_market\indicators\indicator_B6;
+use App\Notifications\EmployeeBroadcastNotification;
 use App\Helpers\rtc_market\indicators\indicator_1_1_1;
 use App\Helpers\rtc_market\indicators\indicator_2_2_2;
 use App\Helpers\rtc_market\indicators\indicator_3_1_1;
@@ -39,85 +42,19 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-use App\Livewire\Internal\Cip\SubPeriodStaff;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-// Test route (empty)
-// Route::get('/test', function (Request $request) {
-//     $indicators = IndicatorTarget::with('details')->get();
 
-//     $indicators->each(function ($indicatorTarget) {
-//         $people = ResponsiblePerson::where('indicator_id', $indicatorTarget->indicator_id)->get();
+Route::get('/test', function (Request $request) {
+    $user = User::find(11);
+    $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
+    $link = env('APP_URL');
 
-//         if ($indicatorTarget->target_value !== null && $indicatorTarget->type !== 'detail') {
-//             $splits = (new AmountSplitter($people->count(), $indicatorTarget->target_value))->split();
+    // Dispatch the job to the queue
 
-//             $targets = $people->map(function ($person, $index) use ($splits, $indicatorTarget) {
-//                 $data = [
-//                     'organisation_id' => $person->organisation_id,
-//                     'target_value' => $splits[$index],
-//                     'indicator_target_id' => $indicatorTarget->id,
-//                     'type' => $indicatorTarget->type,
-//                     'current_value' => 0,
-//                 ];
-
-//                 //      AssignedTarget::create($data);
-
-
-//             });
-
-
-
-//             // Process $targets as needed
-//         } elseif ($indicatorTarget->target_value === null && $indicatorTarget->type === 'detail') {
-//             $targetDetails = $indicatorTarget->details;
-//             $names = $targetDetails->mapWithKeys(function ($targetDetail) use ($people) {
-//                 $splits = (new AmountSplitter($people->count(), $targetDetail->target_value))->split();
-
-//                 $temp = $people->map(function ($person, $index) use ($splits, $targetDetail) {
-//                     return [
-//                         'organisation_id' => $person->organisation_id,
-//                         'target_value' => $splits[$index],
-//                         'type' => $targetDetail->type,
-//                     ];
-//                 });
-
-//                 return [$targetDetail->name => $temp];
-//             });
-
-
-//             foreach ($people as $organisation) {
-//                 $filteredNames = $names->map(function ($collection) use ($organisation) {
-//                     return $collection->filter(function ($item) use ($organisation) {
-//                         return $item['organisation_id'] === $organisation->organisation_id;
-//                     })->first();
-//                 });
-//                 $finalArray = [];
-//                 foreach ($filteredNames as $key => $item) {
-
-//                     $finalArray[] = [
-//                         'name' => $key,
-//                         'target_value' => $item['target_value'],
-//                         'type' => $item['type'],
-//                     ];
-//                 }
-//                 AssignedTarget::create([
-//                     'organisation_id' => $organisation->organisation_id,
-//                     'target_value' => 0,
-//                     'indicator_target_id' => $indicatorTarget->id,
-//                     'type' => 'detail',
-//                     'detail' => json_encode($finalArray),
-//                     'current_value' => 0,
-//                 ]);
-
-//             }
-
-
-//         }
-//     });
-// });
+});
 
 // TestingController route
 Route::get('/export/{name}', [TestingController::class, 'index']);
