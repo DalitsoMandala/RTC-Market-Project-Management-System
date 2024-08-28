@@ -27,7 +27,7 @@
     }">
 
 
-        <div class="row">
+        <div class="row d-none">
             <div class="col">
                 <livewire:indicator-targets.view :indicator_id="$indicator_id" :project_id="$project_id" :total="$total" />
             </div>
