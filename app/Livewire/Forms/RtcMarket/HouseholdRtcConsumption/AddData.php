@@ -43,7 +43,7 @@ class AddData extends Component
     public $district;
 
 
-    public $enterprise;
+    public $enterprise = 'CASSAVA';
 
     public $period;
 
@@ -93,11 +93,11 @@ class AddData extends Component
             'inputs.*.sex' => 'required',
             'inputs.*.phone_number' => 'required',
             'inputs.*.household_size' => 'required|numeric|min:0',
-            'inputs.*.under_5_in_household' => 'required|numeric|min:0',
+            'inputs.*.under_5_in_household' => 'required|numeric|min:0|lte:inputs.*.household_size',
             'inputs.*.rtc_consumers' => 'required|numeric|min:0|lte:inputs.*.household_size',
-            'inputs.*.rtc_consumers_potato' => 'required|numeric|min:0',
-            'inputs.*.rtc_consumers_sw_potato' => 'required|numeric|min:0',
-            'inputs.*.rtc_consumers_cassava' => 'required|numeric|min:0',
+            'inputs.*.rtc_consumers_potato' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'inputs.*.rtc_consumers_sw_potato' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'inputs.*.rtc_consumers_cassava' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
             'inputs.*.rtc_consumption_frequency' => 'required|numeric|min:0',
             'inputs.*.main_food' => 'required',
         ];

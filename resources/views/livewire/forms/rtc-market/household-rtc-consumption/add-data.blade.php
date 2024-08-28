@@ -68,7 +68,20 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="" class="form-label ">ENTERPRISE</label>
-                                    <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" />
+                                    <div class="form-group">
+
+                                        <select
+                                            class="form-select @error('enterprise')
+                                            is-invalid
+                                        @enderror"
+                                            wire:model='enterprise'>
+                                            <option value="">Select one</option>
+                                            <option value="CASSAVA">Cassava</option>
+                                            <option value="POTATO">Potato</option>
+                                            <option value="SWEET POTATO">Sweet potato</option>
+                                        </select>
+                                    </div>
+                                    {{-- <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
                                     @error('enterprise')
                                         <x-error>{{ $message }}</x-error>
                                     @enderror
@@ -460,7 +473,7 @@
             });
 
             document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                input.setAttribute('step', '0.01');
+                input.setAttribute('step', 'any');
             });
         </script>
     @endscript
