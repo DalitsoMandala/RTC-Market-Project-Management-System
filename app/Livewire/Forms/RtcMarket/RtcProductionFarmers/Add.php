@@ -34,7 +34,7 @@ class Add extends Component
     public $form_name = 'RTC PRODUCTION AND MARKETING FORM FARMERS';
     public $selectedIndicator, $submissionPeriodId;
     public $location_data = [
-        'enterprise' => null,
+        'enterprise' => 'CASSAVA',
         'district' => null,
         'epa' => null,
         'section' => null,

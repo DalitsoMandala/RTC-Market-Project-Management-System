@@ -28,10 +28,10 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
         $data = [];
         $count = 1;
         if ($this->test) {
-            foreach (range(1, 100) as $index) {
+            foreach (range(1, 10) as $index) {
                 $data[] = [
                     '#' => $count++,
-                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
+                    'ENTERPRISE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'DISTRICT' => $faker->randomElement(Help::getFakerNames()['districtNames']),
                     'EPA' => $faker->randomElement(Help::getFakerNames()['epaNames']),
                     'SECTION' => $faker->randomElement(Help::getFakerNames()['sectionNames']),

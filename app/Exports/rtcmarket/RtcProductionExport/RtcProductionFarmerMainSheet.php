@@ -56,11 +56,11 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
 
         if ($this->test) {
             $count = 1;
-            foreach (range(1, 100) as $index) {
+            foreach (range(1, 10) as $index) {
 
                 $data[] = [
                     '#' => $count++,
-                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
+                    'ENTERPRISE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',
                         'BLANTYRE',

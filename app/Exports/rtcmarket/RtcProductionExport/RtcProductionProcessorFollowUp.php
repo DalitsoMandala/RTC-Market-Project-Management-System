@@ -30,8 +30,8 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
         if ($this->test) {
             foreach (range(1, 20) as $index) {
                 $data[] = [
-                    'RECRUIT ID' => $faker->numberBetween(1, 20),
-                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
+                    'RECRUIT ID' => $faker->numberBetween(1, 10),
+                    'ENTERPRISE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'GROUP NAME' => strtoupper($faker->name),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',

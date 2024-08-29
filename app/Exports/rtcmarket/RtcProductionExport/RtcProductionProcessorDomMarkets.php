@@ -28,7 +28,7 @@ class RtcProductionProcessorDomMarkets implements FromCollection, WithTitle, Wit
             foreach (range(1, 5) as $index) {
 
                 $data[] = [
-                    'RECRUIT ID' => $faker->numberBetween(1, 20),
+                    'RECRUIT ID' => $faker->numberBetween(1, 10),
                     'DATE RECORDED' => $faker->date('Y-m-d'),
                     'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
                     'MARKET NAME' => strtoupper($faker->streetName),

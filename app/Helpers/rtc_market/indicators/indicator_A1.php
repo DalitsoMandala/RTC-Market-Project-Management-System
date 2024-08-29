@@ -371,7 +371,7 @@ class indicator_A1
         $totalNewEstablishment = $this->getEstablishmentFarmers()['NEW'] + $this->getEstablishmentProcessors()['NEW'];
 
         return [
-            'Total' => $this->findTotal(),
+            'Total' => $this->findTotal() + $totalEmployees,
             'Female' => (float) $gender['FemaleCount'],
             'Male' => (float) $gender['MaleCount'],
             'Youth (18-35 yrs)' => (float) $age['youth'],

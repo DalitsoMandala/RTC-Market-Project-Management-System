@@ -78,13 +78,28 @@
                             <div class="card col-12 col-md-12">
                                 <div class="card-header fw-bold" id="section-0">Location</div>
                                 <div class="card-body">
+
                                     <div class="mb-3">
-                                        <label for="" class="form-label">ENTERPRISE</label>
-                                        <x-text-input wire:model='location_data.enterprise' :class="$errors->has('location_data.enterprise') ? 'is-invalid' : ''" />
+                                        <label for="" class="form-label ">ENTERPRISE</label>
+                                        <div class="form-group">
+
+                                            <select
+                                                class="form-select @error('location_data.enterprise')
+                                                is-invalid
+                                            @enderror"
+                                                wire:model='location_data.enterprise'>
+                                                <option value="">Select one</option>
+                                                <option value="CASSAVA">Cassava</option>
+                                                <option value="POTATO">Potato</option>
+                                                <option value="SWEET POTATO">Sweet potato</option>
+                                            </select>
+                                        </div>
+                                        {{-- <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
                                         @error('location_data.enterprise')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="" class="form-label">DISTRICT</label>
                                         <select
