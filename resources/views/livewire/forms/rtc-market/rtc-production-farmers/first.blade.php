@@ -100,31 +100,26 @@
 <div class="mb-3" x-data="{
     type: $wire.entangle('type'),
     number_of_members: $wire.entangle('number_of_members'),
+
+
 }" x-init="$watch('type', (v) => {
     if (v != 'PRODUCER ORGANIZATION') {
         number_of_members = {};
         $wire.resetValues('number_of_members');
     }
+
+
 });
 
 $watch('number_of_members', (v) => {
-    $wire.number_of_members = v;
-
+    v.total = parseInt(v.female_18_35 || 0) + parseInt(v.female_35_plus || 0) + parseInt(v.male_18_35 || 0) + parseInt(v.male_35_plus || 0);
 });" x-show="type=='PRODUCER ORGANIZATION'">
     <label for="numberOfMembers" class="form-label">Number of Members (For Producer Organizations Only)</label>
 
     <div class="mb-3">
 
         <div class="row">
-            {{-- <div class="col-12">
-                <label for="female1835">Total:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_members.total') is-invalid @enderror" id="female1835"
-                    x-model="number_of_members.total">
-                @error('number_of_members.total')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div> --}}
+
             <div class="col">
                 <label for="female1835">FEMALE 18-35YRS:</label>
                 <input type="number" min="0" step="any"
@@ -160,6 +155,16 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror" id="male35plus"
                     x-model="number_of_members.male_35_plus">
                 @error('number_of_members.male_35_plus')
+                    <x-error>{{ $message }}</x-error>
+                @enderror
+            </div>
+
+            <div class="col-12">
+                <label for="female1835">Total Members:</label>
+                <input type="number" min="0" step="any"
+                    class="form-control bg-light @error('number_of_members.total') is-invalid @enderror"
+                    id="female1835" readonly x-model="number_of_members.total">
+                @error('number_of_members.total')
                     <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
@@ -226,12 +231,6 @@ $watch('number_of_members', (v) => {
         registration_details = {};
         $wire.resetValues('registration_details');
     }
-});
-$watch('registration_details', (v) => {
-
-
-    $wire.registration_details = v;
-
 });" x-show='is_registered == 1'>
     <label for="registrationDetails" class="form-label">Registration
         Details</label>
@@ -267,11 +266,19 @@ $watch('registration_details', (v) => {
 </div>
 
 <!-- Number of Employees on RTC Establishment -->
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    number_of_employees: $wire.entangle('number_of_employees')
+}" x-init="$watch('number_of_employees', (v) => {
+
+    v.formal.total = parseInt(v.formal.female_18_35 || 0) + parseInt(v.formal.female_35_plus || 0) + parseInt(v.formal.male_18_35 || 0) + parseInt(v.formal.male_35_plus || 0);
+    v.informal.total = parseInt(v.informal.female_18_35 || 0) + parseInt(v.informal.female_35_plus || 0) + parseInt(v.informal.male_18_35 || 0) + parseInt(v.informal.male_35_plus || 0);
+});">
+
     <label for="numberOfEmployees" class="form-label">Number of Employees on RTC
         Establishment</label>
     <div class="row">
         <strong class="my-3">Formal Employees</strong>
+
         <div class="col">
 
 
@@ -279,7 +286,7 @@ $watch('registration_details', (v) => {
                 <label for="formalFemale1835">FEMALE 18-35YRS:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.female_18_35') is-invalid @enderror"
-                    id="formalFemale1835" wire:model="number_of_employees.formal.female_18_35">
+                    id="formalFemale1835" x-model="number_of_employees.formal.female_18_35">
                 @error('number_of_employees.formal.female_18_35')
                     <x-error>{{ $message }}</x-error>
                 @enderror
@@ -288,18 +295,20 @@ $watch('registration_details', (v) => {
                 <label for="formalFemale35">FEMALE 35YRS+:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.female_35_plus') is-invalid @enderror"
-                    id="formalFemale35" wire:model="number_of_employees.formal.female_35_plus">
+                    id="formalFemale35" x-model="number_of_employees.formal.female_35_plus">
                 @error('number_of_employees.formal.female_35_plus')
                     <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
+
+
         <div class="col">
             <div class="mb-3">
                 <label for="formalMale1835">MALE 18-35YRS:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.male_18_35') is-invalid @enderror"
-                    id="formalMale1835" wire:model="number_of_employees.formal.male_18_35">
+                    id="formalMale1835" x-model="number_of_employees.formal.male_18_35">
                 @error('number_of_employees.formal.male_18_35')
                     <x-error>{{ $message }}</x-error>
                 @enderror
@@ -308,10 +317,21 @@ $watch('registration_details', (v) => {
                 <label for="formalMale35">MALE 35YRS+:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.formal.male_35_plus') is-invalid @enderror"
-                    id="formalMale35" wire:model="number_of_employees.formal.male_35_plus">
+                    id="formalMale35" x-model="number_of_employees.formal.male_35_plus">
                 @error('number_of_employees.formal.male_35_plus')
                     <x-error>{{ $message }}</x-error>
                 @enderror
+            </div>
+        </div>
+
+        <div class="col-12">
+
+            <div class="mb-3">
+                <label for="formalFemale1835">Total Formal Employees:</label>
+                <input type="number" min="0" step="any"
+                    class="form-control bg-light @error('number_of_employees.formal.total') is-invalid @enderror"
+                    readonly id="formalFemale1835" x-model="number_of_employees.formal.total">
+
             </div>
         </div>
     </div>
@@ -325,7 +345,7 @@ $watch('registration_details', (v) => {
                 <label for="informalFemale1835">FEMALE 18-35YRS:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.female_18_35') is-invalid @enderror"
-                    id="informalFemale1835" wire:model="number_of_employees.informal.female_18_35">
+                    id="informalFemale1835" x-model="number_of_employees.informal.female_18_35">
                 @error('number_of_employees.informal.female_18_35')
                     <x-error>{{ $message }}</x-error>
                 @enderror
@@ -334,7 +354,7 @@ $watch('registration_details', (v) => {
                 <label for="informalFemale35">FEMALE 35YRS+:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.female_35_plus') is-invalid @enderror"
-                    id="informalFemale35" wire:model="number_of_employees.informal.female_35_plus">
+                    id="informalFemale35" x-model="number_of_employees.informal.female_35_plus">
                 @error('number_of_employees.informal.female_35_plus')
                     <x-error>{{ $message }}</x-error>
                 @enderror
@@ -345,7 +365,7 @@ $watch('registration_details', (v) => {
                 <label for="informalMale1835">MALE 18-35YRS: </label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.male_18_35') is-invalid @enderror"
-                    id="informalMale1835" wire:model="number_of_employees.informal.male_18_35">
+                    id="informalMale1835" x-model="number_of_employees.informal.male_18_35">
                 @error('number_of_employees.informal.male_18_35')
                     <x-error>{{ $message }}</x-error>
                 @enderror
@@ -354,17 +374,28 @@ $watch('registration_details', (v) => {
                 <label for="informalMale35">MALE 35YRS+:</label>
                 <input type="number" min="0" step="any"
                     class="form-control @error('number_of_employees.informal.male_35_plus') is-invalid @enderror"
-                    id="informalMale35" wire:model="number_of_employees.informal.male_35_plus">
+                    id="informalMale35" x-model="number_of_employees.informal.male_35_plus">
                 @error('number_of_employees.informal.male_35_plus')
                     <x-error>{{ $message }}</x-error>
                 @enderror
+            </div>
+        </div>
+
+        <div class="col-12">
+
+            <div class="mb-3">
+                <label for="formalFemale1835">Total Informal Employees:</label>
+                <input type="number" min="0" step="any"
+                    class="form-control bg-light @error('number_of_employees.informal.total') is-invalid @enderror"
+                    readonly id="formalFemale1835" x-model="number_of_employees.informal.total">
+
             </div>
         </div>
     </div>
 </div>
 
 
-{{-- @error('type') is-invalid @enderror --}}
+
 
 
 <div class="alert alert-primary" id="section-b" role="alert">
@@ -452,12 +483,6 @@ $watch('registration_details', (v) => {
         number_of_plantlets_produced = {};
         $wire.resetValues('number_of_plantlets_produced');
     }
-});
-$watch('number_of_plantlets_produced', (v) => {
-
-
-    $wire.number_of_plantlets_produced = v;
-
 });"
     x-show="group=='EARLY GENERATION SEED PRODUCER'">
 
@@ -582,9 +607,7 @@ $watch('number_of_plantlets_produced', (v) => {
             }
         });
 
-        this.$watch('area_under_basic_seed_multiplication', (v) => {
-            $wire.area_under_basic_seed_multiplication = v;
-        });
+
     }
 }" x-show="group=='EARLY GENERATION SEED PRODUCER'">
     <label for="areaUnderBasicSeed" class="my-3 form-label fw-bold">Area Under
@@ -846,10 +869,6 @@ $watch('number_of_plantlets_produced', (v) => {
         registration_details = {};
         $wire.resetValues('seed_service_unit_registration_details');
     }
-});
-$watch('registration_details', (v) => {
-
-    $wire.registration_details = v;
 });" x-show='is_registered_seed_producer == 1'>
     <label for="seedRegistrationDetails" class="form-label">Registration Details
         (Seed Services Unit)</label>
@@ -1107,12 +1126,6 @@ $watch('registration_details', (v) => {
         market_information_systems = {};
         $wire.resetValues('market_information_systems');
     }
-});
-
-$watch('market_information_systems', (v) => {
-
-    $wire.market_information_systems = v;
-
 });" x-show='uses_market_information_systems == 1'>
     <label for="" class="form-label">Specify Market Information System</label>
     <input type="text" class="form-control  @error('market_information_systems') is-invalid @enderror"
@@ -1139,15 +1152,6 @@ $watch('market_information_systems', (v) => {
         $wire.resetValues('aggregation_center_sales');
         $wire.resetValues('aggregation_centers');
     }
-});
-
-$watch('aggregation_center_sales', (v) => {
-
-
-
-    $wire.aggregation_center_sales = v;
-
-
 });">
     <div class="mb-3">
         <label for="sellThroughAggregationCenters" class="my-3 form-label ">Do

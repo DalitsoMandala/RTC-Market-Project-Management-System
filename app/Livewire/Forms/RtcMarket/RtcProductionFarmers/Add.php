@@ -496,6 +496,9 @@ class Add extends Component
 
     public function save()
     {
+
+
+
         try {
 
             $this->validate();
@@ -505,6 +508,8 @@ class Add extends Component
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
         }
+
+
 
         $this->validateDynamicForms();
 
@@ -527,6 +532,19 @@ class Add extends Component
                 $this->market_segment['processed'] = "YES";
             } else {
                 $this->market_segment['processed'] = "NO";
+            }
+
+            foreach ($this->number_of_members as $key => $value) {
+                $this->number_of_members[$key] = $value ? $value : 0;
+            }
+
+            foreach ($this->number_of_employees as $type => $group) {
+                foreach ($group as $key => $value) {
+                    // Check if the value is null and set it to 0
+                    if (is_null($value)) {
+                        $this->number_of_employees[$type][$key] = 0;
+                    }
+                }
             }
 
 
