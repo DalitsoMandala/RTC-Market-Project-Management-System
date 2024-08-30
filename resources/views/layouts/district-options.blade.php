@@ -1,0 +1,27 @@
+<option>BALAKA</option>
+<option>BLANTYRE</option>
+<option>CHIKWAWA</option>
+<option>CHIRADZULU</option>
+<option>CHITIPA</option>
+<option>DEDZA</option>
+<option>DOWA</option>
+<option>KARONGA</option>
+<option>KASUNGU</option>
+<option>LILONGWE</option>
+<option>MACHINGA</option>
+<option>MANGOCHI</option>
+<option>MCHINJI</option>
+<option>MULANJE</option>
+<option>MWANZA</option>
+<option>MZIMBA</option>
+<option>NENO</option>
+<option>NKHATA BAY</option>
+<option>NKHOTAKOTA</option>
+<option>NSANJE</option>
+<option>NTCHEU</option>
+<option>NTCHISI</option>
+<option>PHALOMBE</option>
+<option>RUMPHI</option>
+<option>SALIMA</option>
+<option>THYOLO</option>
+<option>ZOMBA</option>

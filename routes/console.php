@@ -1,8 +1,13 @@
 <?php
 
+use Illuminate\Support\Stringable;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+use App\Console\Commands\FetchExchangeRates;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+
+
+Schedule::command('exchange-rates:fetch')->daily()->at('06:00')->onFailure(function (Stringable $output) {
+    // dd($output);
+});

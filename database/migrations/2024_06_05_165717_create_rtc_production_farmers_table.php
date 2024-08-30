@@ -45,9 +45,10 @@ return new class extends Migration {
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);
             $table->boolean('uses_market_information_systems')->default(false);
-            $table->text('market_information_systems')->nullable();
+            $table->json('market_information_systems')->nullable();
+            $table->boolean('sells_to_aggregation_centers')->default(false);
             $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('aggregation_center_sales', 8, 2)->nullable(); // Previous season volume in metric tonnes
+            $table->decimal('total_vol_aggregation_center_sales', 8, 2)->nullable(); // Previous season volume in metric tonnes
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes

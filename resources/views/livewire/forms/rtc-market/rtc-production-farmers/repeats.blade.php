@@ -5,8 +5,11 @@
     inputOne: $wire.entangle('inputOne')
 }" x-init="$watch('has_rtc_market_contract', (v) => {
 
-    if (v != 1) {
+    if (v == 0) {
         $wire.resetValues('inputOne');
+    } else {
+        $wire.resetValues('inputOne');
+        $wire.addInputOne();
     }
 });" x-show='has_rtc_market_contract == 1'>
     <div class="alert alert-primary" id="section-f" role="alert">
@@ -42,14 +45,17 @@
             @enderror
         </div>
 
+
         <div class="mb-3">
             <label for="conc_country_{{ $index }}" class="form-label">COUNTRY</label>
-            <input type="text"
-                class="form-control  @error('inputOne.' . $index . '.conc_country') is-invalid @enderror"
-                id="conc_country_{{ $index }}" wire:model="inputOne.{{ $index }}.conc_country">
-            @error('inputOne.' . $index . '.conc_country')
-                <x-error>{{ $message }}</x-error>
-            @enderror
+
+            <select class="form-select  @error('inputOne.' . $index . '.conc_country') is-invalid @enderror"
+                wire:model="inputOne.{{ $index }}.conc_country">
+                <option value="">Select one</option>
+                @include('layouts.countries-options')
+            </select>
+
+
         </div>
 
         <div class="mb-3">
@@ -135,8 +141,11 @@
     inputTwo: $wire.entangle('inputTwo')
 }" x-init="$watch('sells_to_domestic_markets', (v) => {
 
-    if (v != 1) {
+    if (v == 0) {
         $wire.resetValues('inputTwo');
+    } else {
+        $wire.resetValues('inputTwo');
+        $wire.addInputTwo();
     }
 });" x-show='sells_to_domestic_markets == 1'>
     {{-- DO YOU SELL YOUR RTC PRODUCTS TO DOMESTIC MARKETS? –SPECIFY PARTNER --}}
@@ -190,9 +199,14 @@
 
         <div class="mb-3">
             <label for="dom_district_{{ $index }}" class="form-label">DISTRICT</label>
-            <input type="text"
-                class="form-control  @error('inputTwo.' . $index . '.dom_district') is-invalid @enderror"
-                id="dom_district_{{ $index }}" wire:model="inputTwo.{{ $index }}.dom_district">
+
+            <select class="form-select  @error('inputTwo.' . $index . '.dom_district') is-invalid @enderror"
+                wire:model="inputTwo.{{ $index }}.dom_district">
+                <option value="">Select one</option>
+                @include('layouts.district-options')
+            </select>
+
+
             @error('inputTwo.' . $index . '.dom_district')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -277,8 +291,11 @@
     inputThree: $wire.entangle('inputThree')
 }" x-init="$watch('sells_to_international_markets', (v) => {
 
-    if (v != 1) {
+    if (v == 0) {
         $wire.resetValues('inputThree');
+    } else {
+        $wire.resetValues('inputThree');
+        $wire.addInputThree();
     }
 });" x-show='sells_to_international_markets == 1'>
 
@@ -338,12 +355,14 @@
 
         <div class="mb-3">
             <label for="inter_country_{{ $index }}" class="form-label">COUNTRY</label>
-            <input type="text"
-                class="form-control   @error('inputThree.' . $index . '.inter_country') is-invalid @enderror"
-                id="inter_country_{{ $index }}" wire:model="inputThree.{{ $index }}.inter_country">
-            @error('inputThree.' . $index . '.inter_country')
-                <x-error>{{ $message }}</x-error>
-            @enderror
+
+            <select class="form-select  @error('inputThree.' . $index . '.inter_country') is-invalid @enderror"
+                wire:model="inputThree.{{ $index }}.inter_country">
+                <option value="">Select one</option>
+                @include('layouts.countries-options')
+            </select>
+
+
         </div>
 
         <div class="mb-3">
