@@ -570,11 +570,13 @@ class Add extends Component
                 //   $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-processors/view">View Submission here</a>');
+                session()->flash('info', 'Your ID is: <b>' . substr($uuid, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+
                 return redirect()->to(url()->previous());
 
             } catch (UserErrorException $e) {
                 // Log the actual error for debugging purposes
-                \Log::error('Submission error: ' . $e->getMessage());
+                Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());

@@ -39,18 +39,9 @@
         <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
 
 
-        @if (session()->has('success'))
-            <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-        @endif
-        @if (session()->has('error'))
-            <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-        @endif
 
-        @if (session()->has('validation_error'))
-            <x-error-alert>{!! session()->get('validation_error') !!}</x-error-alert>
-        @endif
+        <x-alerts></x-alerts>
 
-        {{ var_export($errors) }}
 
         @if ($openSubmission === false)
             <div class="alert alert-warning" role="alert">

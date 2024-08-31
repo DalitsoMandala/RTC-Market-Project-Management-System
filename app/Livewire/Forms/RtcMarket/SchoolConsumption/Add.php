@@ -191,6 +191,8 @@ class Add extends Component
 
 
             session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/school-rtc-consumption-form/view">View Submission here</a>');
+            session()->flash('info', 'Your ID is: <b>' . substr($uuid, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+
             return redirect()->to(url()->previous());
         } catch (\Exception $e) {
             # code...

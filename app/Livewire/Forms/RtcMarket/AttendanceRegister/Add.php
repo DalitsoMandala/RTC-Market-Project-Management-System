@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\RtcMarket\AttendanceRegister;
 use App\Exceptions\UserErrorException;
 use App\Livewire\tables\RtcMarket\AttendanceRegisterTable;
 use App\Models\AttendanceRegister;
+use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
@@ -77,6 +78,8 @@ class Add extends Component
 
             try {
 
+                $uuid = Uuid::uuid4()->toString();
+
                 $data = [
                     'meetingTitle' => $this->meetingTitle,
                     'meetingCategory' => $this->meetingCategory,
@@ -113,10 +116,11 @@ class Add extends Component
 
                 $this->dispatch('refresh-data');
                 session()->flash('success', 'Successfully submitted! <a href="#table">View Sumbissions</a>');
+                session()->flash('info', 'Your ID is: <b>' . substr($uuid, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
             } catch (UserErrorException $e) {
                 # code...
-                \Log::error('Submission error: ' . $e->getMessage());
+                Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
@@ -126,7 +130,7 @@ class Add extends Component
             # code...
 
             session()->flash('error', 'Something went wrong!');
-            \Log::error($th->getMessage());
+            Log::error($th->getMessage());
         }
 
     }
