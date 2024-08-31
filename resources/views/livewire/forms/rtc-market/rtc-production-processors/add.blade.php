@@ -50,7 +50,7 @@
             <x-error-alert>{!! session()->get('validation_error') !!}</x-error-alert>
         @endif
 
-
+        {{ var_export($errors) }}
 
         @if ($openSubmission === false)
             <div class="alert alert-warning" role="alert">
@@ -155,7 +155,7 @@
                         <div class="card-body">
                             @include('livewire.forms.rtc-market.rtc-production-processors.first')
 
-                            @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
+                            @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
 
                             <div class="d-grid col-12 justify-content-center" x-data>
 

@@ -202,6 +202,7 @@ class Add extends Component
                 'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'required|date',
                 'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
                 'area_under_basic_seed_multiplication.*.area' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
+                'establishment_status' => 'required',
             ];
 
 
@@ -593,8 +594,6 @@ class Add extends Component
                 'sells_to_international_markets' => $this->sells_to_international_markets,
                 'uses_market_information_systems' => $this->uses_market_information_systems,
                 'market_information_systems' => $this->market_information_systems,
-                'aggregation_center_sales' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
-                'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
                 'user_id' => auth()->user()->id,
                 'uuid' => $uuid,
                 'submission_period_id' => $this->submissionPeriodId,
@@ -602,6 +601,9 @@ class Add extends Component
                 'financial_year_id' => $this->selectedFinancialYear,
                 'period_month_id' => $this->selectedMonth,
                 'status' => 'approved',
+                'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
+                'aggregation_center_sales' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
+                'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
             ];
 
 

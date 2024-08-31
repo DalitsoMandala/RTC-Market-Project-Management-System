@@ -441,15 +441,18 @@ $watch('number_of_members', (v) => {
                         </div>
                     </div>
 
+
+                    <div class="col-2" x-data> <button type="button" class="btn btn-danger"
+                            @click="$wire.removeAreaofCultivation({{ $index }})"
+                            @if ($index == 0) disabled @endif>
+                            -
+                        </button>
+                    </div>
                 </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
-                    <button type="button" class="btn btn-primary"
-                        @click="$wire.removeAreaofCultivation({{ $index }})"
-                        @if ($index == 0) disabled @endif>
-                        -
-                    </button>
+
                     <button type="button" class="btn btn-primary" @click='$wire.addAreaofCultivation()'>
                         +
                     </button>
@@ -640,16 +643,18 @@ $watch('number_of_members', (v) => {
                             @enderror
                         </div>
                     </div>
-
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-danger"
+                            @click="$wire.removeBasicSeed({{ $index }})"
+                            @if ($index == 0) disabled @endif>
+                            -
+                        </button>
+                    </div>
                 </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
-                    <button type="button" class="btn btn-primary"
-                        @click="$wire.removeBasicSeed({{ $index }})"
-                        @if ($index == 0) disabled @endif>
-                        -
-                    </button>
+
                     <button type="button" class="btn btn-primary" @click='$wire.addBasicSeed()'>
                         +
                     </button>
@@ -702,16 +707,19 @@ $watch('number_of_members', (v) => {
                             @enderror
                         </div>
                     </div>
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-danger"
+                            @click="$wire.removeCertifiedSeed({{ $index }})"
+                            @if ($index == 0) disabled @endif>
+                            -
+                        </button>
+                    </div>
 
                 </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
-                    <button type="button" class="btn btn-primary"
-                        @click="$wire.removeCertifiedSeed({{ $index }})"
-                        @if ($index == 0) disabled @endif>
-                        -
-                    </button>
+
                     <button type="button" class="btn btn-primary" @click='$wire.addCertifiedSeed()'>
                         +
                     </button>
@@ -1116,16 +1124,20 @@ $watch('number_of_members', (v) => {
                                 @enderror
                             </div>
                         </div>
+                        <div class="col-2" x-data>
+                            <button type="button" class="btn btn-danger"
+                                @click="$wire.removeMIS({{ $index }})"
+                                @if ($index == 0) disabled @endif>
+                                -
+                            </button>
+                        </div>
 
 
                     </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
-                        <button type="button" class="btn btn-primary" @click="$wire.removeMIS({{ $index }})"
-                            @if ($index == 0) disabled @endif>
-                            -
-                        </button>
+
                         <button type="button" class="btn btn-primary" @click='$wire.addMIS()'>
                             +
                         </button>
@@ -1215,15 +1227,17 @@ $watch('number_of_members', (v) => {
                         </div>
 
 
+                        <div class="col-2" x-data> <button type="button" class="btn btn-danger"
+                                @click="$wire.removeSales({{ $index }})"
+                                @if ($index == 0) disabled @endif>
+                                -
+                            </button>
+                        </div>
                     </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
-                        <button type="button" class="btn btn-primary"
-                            @click="$wire.removeSales({{ $index }})"
-                            @if ($index == 0) disabled @endif>
-                            -
-                        </button>
+
                         <button type="button" class="btn btn-primary" @click='$wire.addSales()'>
                             +
                         </button>
