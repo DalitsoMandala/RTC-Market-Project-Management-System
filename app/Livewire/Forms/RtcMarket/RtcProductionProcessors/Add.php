@@ -586,7 +586,7 @@ class Add extends Component
 
         } catch (Throwable $th) {
             # code...
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
         }
