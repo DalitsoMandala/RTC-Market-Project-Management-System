@@ -602,7 +602,7 @@ class Add extends Component
                 'period_month_id' => $this->selectedMonth,
                 'status' => 'approved',
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                'aggregation_center_sales' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
+                'aggregation_centers' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
             ];
 
@@ -665,7 +665,7 @@ class Add extends Component
 
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
-                session()->flash('info', 'Your ID is: <b>' . substr($uuid, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+                session()->flash('info', 'Your ID is: <b>' . substr($recruit->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
                 return redirect()->to(url()->previous());
 

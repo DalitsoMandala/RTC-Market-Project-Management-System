@@ -74,6 +74,38 @@
                                 </button>
                             </li>
 
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="reg-tab" data-bs-toggle="tab"
+                                    data-bs-target="#reg_details" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
+                                    Registration Details
+                                </button>
+                            </li>
+
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="market-tab" data-bs-toggle="tab"
+                                    data-bs-target="#market_segment" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
+                                    Market Segment
+                                </button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="mis-tab" data-bs-toggle="tab" data-bs-target="#mis"
+                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Market Information Systems
+                                </button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="aggrSales-tab" data-bs-toggle="tab"
+                                    data-bs-target="#aggrSales" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
+                                    Aggregation sales
+                                </button>
+                            </li>
                         </ul>
 
                         <!-- Tab panes -->
@@ -103,6 +135,25 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-processor-inter-markets />
                             </div>
+
+                            <div class="mt-2 tab-pane fade show" id="reg_details" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rpm-processor-register />
+                            </div>
+                            <div class="mt-2 tab-pane fade show" id="market_segment" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rpm-processor-market-segment />
+                            </div>
+                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rpm-processor-m-i-s />
+                            </div>
+                            <div class="mt-2 tab-pane fade show" id="aggrSales" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rpm-processor-agg-centers />
+                            </div>
+
+
 
                         </div>
 

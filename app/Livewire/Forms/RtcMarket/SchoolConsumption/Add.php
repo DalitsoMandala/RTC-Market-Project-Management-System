@@ -127,7 +127,7 @@ class Add extends Component
 
             $uuid = Uuid::uuid4()->toString();
             $user = User::find($userId);
-
+            $latest = '';
             if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
 
                 $data = [
@@ -157,7 +157,7 @@ class Add extends Component
                     'table_name' => 'school_rtc_consumption',
 
                 ]);
-                SchoolRtcConsumption::create($data);
+                $latest = SchoolRtcConsumption::create($data);
             } else {
                 $data = [
                     'date' => $this->date,
@@ -186,12 +186,12 @@ class Add extends Component
                     'table_name' => 'school_rtc_consumption',
 
                 ]);
-                SchoolRtcConsumption::create($data);
+                $latest = SchoolRtcConsumption::create($data);
             }
 
 
             session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/school-rtc-consumption-form/view">View Submission here</a>');
-            session()->flash('info', 'Your ID is: <b>' . substr($uuid, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+            session()->flash('info', 'Your ID is: <b>' . substr($latest->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
             return redirect()->to(url()->previous());
         } catch (\Exception $e) {

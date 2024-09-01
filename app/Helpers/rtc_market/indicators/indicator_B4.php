@@ -44,7 +44,7 @@ class indicator_B4
 
 
             if (!$hasData) {
-                // No data found, return an empty collection
+                // NO data found, return an empty collection
                 return $query->whereIn('id', []);
             }
         }
@@ -82,7 +82,7 @@ class indicator_B4
 
 
             if (!$hasData) {
-                // No data found, return an empty collection
+                // NO data found, return an empty collection
                 return $query->whereIn('id', []);
             }
         }

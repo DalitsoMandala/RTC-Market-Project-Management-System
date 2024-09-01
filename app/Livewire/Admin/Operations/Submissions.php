@@ -214,7 +214,7 @@ class Submissions extends Component
                 $user = User::find($submission->user_id);
 
 
-                $user->notify(new SubmissionNotification('denied', 'Batch No. ' . $submission->batch_no . ' : ' . $this->comment));
+                $user->notify(new SubmissionNotification('denied', 'Batch NO. ' . $submission->batch_no . ' : ' . $this->comment));
 
 
 

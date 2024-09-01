@@ -228,7 +228,7 @@ class Add extends Component
             'number_of_members.male_35_plus' => 'Male Members 35+',
             'aggregation_center_sales.*.name' => 'aggregation center sales name',
             'total_vol_aggregation_center_sales' => 'total aggregation center sales previous season',
-            'market_information_systems' => 'market information systems',
+            'market_information_systems.*.name' => 'market information systems',
             'uses_market_information_systems' => 'sell your products through market information systems',
             'area_under_cultivation.*.variety' => 'area under cultivation (variety)',
             'area_under_cultivation.*.area' => 'area under cultivation (area)',
@@ -507,7 +507,7 @@ class Add extends Component
                 'financial_year_id' => $this->selectedFinancialYear,
                 'period_month_id' => $this->selectedMonth,
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                'aggregation_center_sales' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
+                'aggregation_centers' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,// Previous season volume in metric tonnes
             ];
 
@@ -570,7 +570,7 @@ class Add extends Component
                 //   $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-processors/view">View Submission here</a>');
-                session()->flash('info', 'Your ID is: <b>' . substr($uuid, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+                session()->flash('info', 'Your ID is: <b>' . substr($recruit->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
                 return redirect()->to(url()->previous());
 

@@ -207,22 +207,28 @@
 
 
     </div>
-    @script
-        <script>
-            let textInputs = document.querySelectorAll('input[type="text"]');
 
-            // Attach event listener to each input
-            textInputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    // Convert input value to uppercase
-                    this.value = this.value.toUpperCase();
-                });
-
-            });
-
-            document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                input.setAttribute('step', '0.01');
-            });
-        </script>
-    @endscript
 </div>
+@script
+    <script>
+        let textInputs = document.querySelectorAll('input[type="text"]');
+
+        // Attach event listener to each input
+        textInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                // Convert input value to uppercase
+                this.value = this.value.toUpperCase();
+            });
+
+            input.addEventListener('paste', function() {
+                // Convert input value to uppercase
+                this.value = this.value.toUpperCase();
+            });
+
+        });
+
+        document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.setAttribute('step', 'any');
+        });
+    </script>
+@endscript

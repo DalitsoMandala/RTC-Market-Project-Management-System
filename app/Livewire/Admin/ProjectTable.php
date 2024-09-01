@@ -52,7 +52,7 @@ final class ProjectTable extends PowerGridComponent
 
             ->add('start_date_formatted', fn($model) => Carbon::parse($model->start_date)->format('d/m/Y'))
             ->add('is_active')
-            ->add('is_active_formatted', fn($model) => $model->is_active ? 'Yes' : 'No')
+            ->add('is_active_formatted', fn($model) => $model->is_active ? 'YES' : 'NO')
             ->add('cgiar_project_id')
             ->add('cgiar_project_id_formatted', fn($model) => $model->cgiarProject->name)
             ->add('reporting_period_id')

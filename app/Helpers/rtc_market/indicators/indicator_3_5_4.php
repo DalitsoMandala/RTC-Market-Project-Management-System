@@ -45,7 +45,7 @@ class indicator_3_5_4
 
 
             if (!$hasData) {
-                // No data found, return an empty collection
+                // NO data found, return an empty collection
                 return $query->whereIn('id', []);
             }
         }

@@ -102,7 +102,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('is_expired')
             ->add('is_expired_toggle', function ($model) {
                 $open = $model->is_expired === 1 ? 'bg-danger' : 'bg-secondary';
-                $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
+                $is_expired = $model->is_expired === 1 ? 'YES' : 'NO';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
             })

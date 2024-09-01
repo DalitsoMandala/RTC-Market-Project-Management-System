@@ -56,9 +56,9 @@ class ProcessHouseholdRtcConsumption implements ShouldQueue
                 $item->date_of_assessment = Carbon::parse($item->date_of_assessment)->format('d/m/Y');
 
                 $food = collect($main_food);
-                $item->cassava_count = $food->contains('name', 'CASSAVA') ? 'Yes' : 'No';
-                $item->potato_count = $food->contains('name', 'POTATO') ? 'Yes' : 'No';
-                $item->sweet_potato_count = $food->contains('name', 'SWEET POTATO') ? 'Yes' : 'No';
+                $item->cassava_count = $food->contains('name', 'CASSAVA') ? 'YES' : 'NO';
+                $item->potato_count = $food->contains('name', 'POTATO') ? 'YES' : 'NO';
+                $item->sweet_potato_count = $food->contains('name', 'SWEET POTATO') ? 'YES' : 'NO';
 
                 $item->submission_date = Carbon::parse($item->created_at)->format('d/m/Y');
                 $item->submitted_by = $item->user->organisation->name;

@@ -235,6 +235,15 @@
                 this.value = this.value.toUpperCase();
             });
 
+            input.addEventListener('paste', function() {
+                // Convert input value to uppercase
+                this.value = this.value.toUpperCase();
+            });
+
+        });
+
+        document.querySelectorAll('input[type="number"]').forEach(function(input) {
+            input.setAttribute('step', 'any');
         });
     </script>
 @endscript

@@ -112,7 +112,7 @@ final class FormTable extends PowerGridComponent
             ->add('type')
             ->add('open_for_submission', function ($model) {
 
-                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
+                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">YES</span>' : '<span class="badge bg-danger">NO</span>';
 
             })
             ->add('project_id')

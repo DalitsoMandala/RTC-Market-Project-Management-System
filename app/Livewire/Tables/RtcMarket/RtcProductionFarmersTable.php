@@ -115,7 +115,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('group')
             ->add('establishment_status')
             ->add('is_registered', function ($model) {
-                return $model->is_registered == 1 ? 'Yes' : 'No';
+                return $model->is_registered == 1 ? 'YES' : 'NO';
             })
             ->add('registration_details')
             ->add('registration_details_body', fn($model) => json_decode($model->registration_details) == null ? null : json_decode($model->registration_details)->registration_body)
@@ -288,7 +288,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
                 return $certified_seed_multiplication->variety_7 ?? null;
             })
-            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'Yes' : 'No')
+            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'YES' : 'NO')
             ->add('seed_service_unit_registration_details_date', function ($model) {
 
                 $seed_service_unit_registration_details = json_decode($model->seed_service_unit_registration_details);
@@ -300,7 +300,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 return Carbon::parse(json_decode($model->seed_service_unit_registration_details)->registration_date)->format('d/m/Y');
             })
             ->add('seed_service_unit_registration_details_number', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_number ?? null)
-            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
+            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'YES' : 'NO')
             ->add('market_segment_fresh', function ($model) {
                 $market_segment = json_decode($model->market_segment);
                 return $market_segment->fresh ?? null;
@@ -309,7 +309,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 $market_segment = json_decode($model->market_segment);
                 return $market_segment->processed ?? null;
             })
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
+            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'YES' : 'NO')
             ->add('total_production_value_previous_season_total', function ($model) {
                 $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
                 return $total_production_value_previous_season->total ?? 0;
@@ -326,13 +326,13 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
                 return $total_irrigation_production_value_previous_season->date_of_maximum_sales === null ? null : Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
             })
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
+            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'YES' : 'NO')
+            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'YES' : 'NO')
+            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'YES' : 'NO')
             ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
             ->add('aggregation_centers_response', function ($model) {
                 $aggregation_centers = json_decode($model->aggregation_centers);
-                return $aggregation_centers->response == 1 ? 'Yes' : 'No';
+                return $aggregation_centers->response == 1 ? 'YES' : 'NO';
             })
             ->add('aggregation_centers_specify', function ($model) {
                 $aggregation_centers = json_decode($model->aggregation_centers);
@@ -798,7 +798,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                         ($members->female_35_plus ?? 0),
                     'group' => $item->group,
                     'establishment_status' => $item->establishment_status,
-                    'is_registered' => $item->is_registered == 1 ? 'Yes' : 'No',
+                    'is_registered' => $item->is_registered == 1 ? 'YES' : 'NO',
                     'registration_details_body' => $registration_details->registration_body ?? null,
                     'registration_details_date' => $registration_details == null ? null : Carbon::parse($registration_details->registration_date)->format('d/m/Y'),
                     'registration_details_number' => $registration_details->registration_number ?? null,
@@ -846,22 +846,22 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                     'area_under_certified_seed_multiplication_variety_5' => $certified_seed_multiplication->variety_5 ?? null,
                     'area_under_certified_seed_multiplication_variety_6' => $certified_seed_multiplication->variety_6 ?? null,
                     'area_under_certified_seed_multiplication_variety_7' => $certified_seed_multiplication->variety_7 ?? null,
-                    'is_registered_seed_producer' => $item->is_registered_seed_producer == 1 ? 'Yes' : 'No',
+                    'is_registered_seed_producer' => $item->is_registered_seed_producer == 1 ? 'YES' : 'NO',
                     'seed_service_unit_registration_details_date' => $seed_service_unit_registration_details == null ? null : Carbon::parse($seed_service_unit_registration_details->registration_date)->format('d/m/Y'),
                     'seed_service_unit_registration_details_number' => $seed_service_unit_registration_details->registration_number ?? null,
-                    'uses_certified_seed' => $item->uses_certified_seed == 1 ? 'Yes' : 'No',
+                    'uses_certified_seed' => $item->uses_certified_seed == 1 ? 'YES' : 'NO',
                     'market_segment_fresh' => $market_segment->fresh ?? null,
                     'market_segment_processed' => $market_segment->processed ?? null,
-                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
+                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'YES' : 'NO',
                     'total_production_value_previous_season_total' => json_decode($item->total_production_value_previous_season)->total ?? 0,
                     'total_production_value_previous_season_date' => json_decode($item->total_production_value_previous_season) == null ? null : Carbon::parse(json_decode($item->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y'),
                     'total_irrigation_production_value_previous_season_total' => json_decode($item->total_irrigation_production_value_previous_season)->total ?? 0,
                     'total_irrigation_production_value_previous_season_date' => json_decode($item->total_irrigation_production_value_previous_season) == null ? null : Carbon::parse(json_decode($item->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y'),
-                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
-                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
-                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
+                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'YES' : 'NO',
+                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'YES' : 'NO',
+                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'YES' : 'NO',
                     'market_information_systems' => $item->market_information_systems ?? null,
-                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
+                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'YES' : 'NO',
                     'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
                     'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
                 ];

@@ -3,11 +3,12 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
+use App\Models\RtcProductionProcessor;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -43,13 +44,16 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('rtc_production_processors');
+        return RtcProductionProcessor::query();
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('unique_id', function ($model) {
+                return str_pad($model->id, 5, '0', STR_PAD_LEFT);
+            })
             ->add('enterprise', function ($model) {
                 $data = json_decode($model->location_data);
                 return $data->enterprise ?? null;
@@ -102,12 +106,9 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('group')
             ->add('establishment_status')
             ->add('is_registered', function ($model) {
-                return $model->is_registered == 1 ? 'Yes' : 'No';
+                return $model->is_registered == 1 ? 'YES' : 'NO';
             })
             ->add('registration_details')
-            ->add('registration_details_body', fn($model) => json_decode($model->registration_details)->registration_body ?? null)
-            ->add('registration_details_date', fn($model) => json_decode($model->registration_details) == null ? null : Carbon::parse(json_decode($model->registration_details)->registration_date)->format('d/m/Y'))
-            ->add('registration_details_number', fn($model) => json_decode($model->registration_details)->registration_number ?? null)
             ->add('number_of_employees_formal_female_18_35', function ($model) {
                 $number_of_employees = json_decode($model->number_of_employees);
                 return $number_of_employees->formal->female_18_35 ?? 0;
@@ -160,13 +161,23 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                     ($number_of_employees->informal->male_35_plus ?? 0) +
                     ($number_of_employees->informal->female_35_plus ?? 0);
             })
-            ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
-            ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
+
+            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'YES' : 'NO')
             ->add('total_production_value_previous_season_total', function ($model) {
                 $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
                 return $total_production_value_previous_season->total ?? 0;
             })
+
+            ->add('total_production_value_previous_season_value', function ($model) {
+                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
+                return $total_production_value_previous_season->value ?? 0;
+            })
+            ->add('total_production_value_previous_season_rate', function ($model) {
+                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
+                return $total_production_value_previous_season->rate ?? 0;
+            })
+
+
             ->add('total_production_value_previous_season_date', function ($model) {
                 $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
                 return $total_production_value_previous_season->date_of_maximum_sales == null ? null : Carbon::parse($total_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
@@ -175,23 +186,32 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
                 return $total_irrigation_production_value_previous_season->total ?? 0;
             })
+            ->add('total_irrigation_production_value_previous_season_value', function ($model) {
+                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
+                return $total_irrigation_production_value_previous_season->value ?? 0;
+            })
+            ->add('total_irrigation_production_value_previous_season_rate', function ($model) {
+                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
+                return $total_irrigation_production_value_previous_season->rate ?? 0;
+            })
             ->add('total_irrigation_production_value_previous_season_date', function ($model) {
                 $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
                 return $total_irrigation_production_value_previous_season->date_of_maximum_sales == null ? null : Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
             })
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
-            ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
-            ->add('aggregation_centers_response', function ($model) {
-                $aggregation_centers = json_decode($model->aggregation_centers);
-                return $aggregation_centers->response == 1 ? 'Yes' : 'No' ?? null;
+            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'YES' : 'NO')
+            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'YES' : 'NO')
+            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'YES' : 'NO')
+
+            ->add('sells_to_aggregation_centers', function ($model) {
+                return $model->sells_to_aggregation_centers == 1 ? 'YES' : 'NO';
             })
-            ->add('aggregation_centers_specify', function ($model) {
-                $aggregation_centers = json_decode($model->aggregation_centers);
-                return $aggregation_centers->specify ?? null;
-            })
-            ->add('aggregation_center_sales');
+            // ->add('aggregation_centers_specify', function ($model) {
+            //     $aggregation_centers = json_decode($model->aggregation_centers);
+            //     return $aggregation_centers->specify ?? null;
+            // })
+            // ->add('aggregation_center_sales');
+
+        ;
     }
 
 
@@ -278,7 +298,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 $total_irrigation_production_value_previous_season = json_decode($item->total_irrigation_production_value_previous_season);
 
                 $row = [
-                    'id' => $item->id,
+                    'id' => str_pad($item->id, 5, '0', STR_PAD_LEFT),
                     'enterprise' => $location_data->enterprise ?? null,
                     'district' => $location_data->district ?? null,
                     'epa' => $location_data->epa ?? null,
@@ -297,7 +317,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                     'number_of_members_female_35_plus' => $number_of_members->female_35_plus ?? 0,
                     'group' => $item->group,
                     'establishment_status' => $item->establishment_status,
-                    'is_registered' => $item->is_registered == 1 ? 'Yes' : 'No',
+                    'is_registered' => $item->is_registered == 1 ? 'YES' : 'NO',
 
                     'registration_details_body' => $registration_details->registration_body ?? null,
                     'registration_details_date' => $registration_details->registration_date ?? null,
@@ -314,16 +334,16 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                     'number_of_employees_informal_total' => ($number_of_employees->informal->female_18_35 ?? 0) + ($number_of_employees->informal->male_18_35 ?? 0) + ($number_of_employees->informal->male_35_plus ?? 0) + ($number_of_employees->informal->female_35_plus ?? 0),
                     'market_segment_fresh' => $market_segment->fresh ?? null,
                     'market_segment_processed' => $market_segment->processed ?? null,
-                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
+                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'YES' : 'NO',
                     'total_production_value_previous_season_total' => $total_production_value_previous_season->total ?? 0,
                     'total_production_value_previous_season_date' => $total_production_value_previous_season->date_of_maximum_sales ?? null,
                     'total_irrigation_production_value_previous_season_total' => $total_irrigation_production_value_previous_season->total ?? 0,
                     'total_irrigation_production_value_previous_season_date' => $total_irrigation_production_value_previous_season->date_of_maximum_sales ?? null,
-                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
-                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
-                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
+                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'YES' : 'NO',
+                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'YES' : 'NO',
+                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'YES' : 'NO',
                     'market_information_systems' => $item->market_information_systems ?? null,
-                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
+                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'YES' : 'NO',
                     'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
                     'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
                 ];
@@ -343,8 +363,9 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::action('Action'),
-            Column::make('Id', 'id'),
+            // Column::action('Action'),
+            Column::make('Id', 'unique_id', 'id')->searchable()
+                ->sortable(),
 
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable(),
@@ -403,15 +424,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Registration details/Body', 'registration_details_body', 'registration_details->registration_body')
-                ->sortable()
-                ->searchable(),
-            Column::make('Registration details/date', 'registration_details_date', 'registration_details->registration_date')
-                ->sortable()
-                ->searchable(),
-            Column::make('Registration details/number', 'registration_details_number', 'registration_details->number')
-                ->sortable()
-                ->searchable(),
+
 
 
             Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35', 'number_of_employees->formal->female_18_35')
@@ -454,20 +467,9 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Market segment/fresh', 'market_segment_fresh')
-                ->sortable()
-                ->searchable(),
 
 
-
-            Column::make('Market segment/fresh', 'market_segment_fresh')
-            ,
-
-
-            Column::make('Market segment/processed', 'market_segment_processed')
-            ,
-
-            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total', 'total_production_value_previous_season->total')
+            Column::make('Total production value previous season/total', 'total_production_value_previous_season_value', 'total_production_value_previous_season->value')
                 ->sortable()
                 ->searchable(),
 
@@ -476,8 +478,15 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->searchable(),
 
 
+            Column::make('Total production value previous season($)', 'total_production_value_previous_season_total', 'total_production_value_previous_season->total')
+                ->sortable()
+                ->searchable(),
 
-            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total', 'total_irrigation_production_value_previous_season->total')
+            Column::make('Total production value previous season/rate', 'total_production_value_previous_season_rate', 'total_production_value_previous_season->rate')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_value', 'total_irrigation_production_value_previous_season->value')
                 ->sortable()
                 ->searchable(),
 
@@ -485,6 +494,16 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date', 'total_irrigation_production_value_previous_season->date_of_maximum_sales')
                 ->sortable()
                 ->searchable(),
+
+            Column::make('Total irrigation production value previous season($)', 'total_irrigation_production_value_previous_season_total', 'total_irrigation_production_value_previous_season->total')
+                ->sortable()
+                ->searchable(),
+
+
+            Column::make('Total irrigation production value previous season/rate', 'total_irrigation_production_value_previous_season_rate', 'total_irrigation_production_value_previous_season->rate')
+                ->sortable()
+                ->searchable(),
+
 
             Column::make('Sells to domestic markets', 'sells_to_domestic_markets')
                 ->sortable()
@@ -498,22 +517,11 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Market information systems', 'market_information_systems')
+
+            Column::make('Sells to aggregation centers', 'sells_to_aggregation_centers')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Aggregation centers/Response', 'aggregation_centers_response')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Aggregation centers/Specify', 'aggregation_centers_specify')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Aggregation center sales', 'aggregation_center_sales')
-                ->sortable()
-                ->searchable(),
 
 
 
@@ -538,29 +546,29 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS')->first();
+    // public function actions($row): array
+    // {
+    //     $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS')->first();
 
-        $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
+    //     $form_name = str_replace(' ', '-', strtolower($form->name));
+    //     $project = str_replace(' ', '-', strtolower($form->project->name));
 
-        $route = '' . $this->routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $row->id . '';
+    //     $route = '' . $this->routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $row->id . '';
 
-        return [
+    //     return [
 
 
-            Button::add('add-follow-up')
+    //         Button::add('add-follow-up')
 
-                ->render(function ($model) use ($route) {
-                    return Blade::render(<<<HTML
-            <a  href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" ><i class="bx bxs-add-to-queue"></i></a>
-            HTML);
-                })
+    //             ->render(function ($model) use ($route) {
+    //                 return Blade::render(<<<HTML
+    //         <a  href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" ><i class="bx bxs-add-to-queue"></i></a>
+    //         HTML);
+    //             })
 
-            ,
-        ];
-    }
+    //         ,
+    //     ];
+    // }
 
 
 

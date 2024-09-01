@@ -126,7 +126,7 @@ final class FarmerFollowUpTable extends PowerGridComponent
             ->add('area_under_certified_seed_multiplication_variety_5', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_5 ?? null)
             ->add('area_under_certified_seed_multiplication_variety_6', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_6 ?? null)
             ->add('area_under_certified_seed_multiplication_variety_7', fn($model) => json_decode($model->area_under_basic_seed_multiplication)->variety_7 ?? null)
-            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'Yes' : 'No')
+            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'YES' : 'NO')
             ->add('seed_service_unit_registration_details_date', function ($model) {
                 $details = json_decode($model->seed_service_unit_registration_details);
                 return $details && isset($details->registration_date)
@@ -136,7 +136,7 @@ final class FarmerFollowUpTable extends PowerGridComponent
             ->add('seed_service_unit_registration_details_number', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_number ?? null)
             ->add('service_unit_date', fn($model) => json_decode($model->seed_service_unit_registration_details) == null ?: Carbon::parse($model->service_unit_date)->format('d/m/Y'))
             ->add('service_unit_number')
-            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
+            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'YES' : 'NO')
         ;
     }
 
@@ -262,12 +262,12 @@ final class FarmerFollowUpTable extends PowerGridComponent
                     'certified_seed_multiplication_variety_5' => $certified_seed_multiplication->variety_5 ?? null,
                     'certified_seed_multiplication_variety_6' => $certified_seed_multiplication->variety_6 ?? null,
                     'certified_seed_multiplication_variety_7' => $certified_seed_multiplication->variety_7 ?? null,
-                    'is_registered_seed_producer' => $item->is_registered_seed_producer == 1 ? 'Yes' : 'No',
+                    'is_registered_seed_producer' => $item->is_registered_seed_producer == 1 ? 'YES' : 'NO',
                     'seed_service_unit_registration_details_date' => $seed_service_unit_registration_details->registration_date === null ? null : Carbon::parse($seed_service_unit_registration_details->registration_date)->format('d/m/Y'),
                     'seed_service_unit_registration_details_number' => $seed_service_unit_registration_details->registration_number ?? null,
                     'service_unit_date' => Carbon::parse($item->service_unit_date)->format('d/m/Y'),
                     'service_unit_number' => $item->service_unit_number,
-                    'uses_certified_seed' => $item->uses_certified_seed == 1 ? 'Yes' : 'No',
+                    'uses_certified_seed' => $item->uses_certified_seed == 1 ? 'YES' : 'NO',
                 ];
 
                 $writer->addRow($row);
