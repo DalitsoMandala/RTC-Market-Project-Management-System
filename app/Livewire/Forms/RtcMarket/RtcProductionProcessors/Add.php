@@ -348,6 +348,12 @@ class Add extends Component
 
     public function addMoreData($recruit)
     {
+
+        $dates = [
+            'created_at' => now(),
+            'updated_at' => now(),
+            'status' => 'approved'
+        ];
         try {
             $thirdTable = array();
 
@@ -363,7 +369,7 @@ class Add extends Component
                     'product_type' => $input['conc_product_type'],
                     'volume_sold_previous_period' => $input['conc_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['conc_financial_value_of_sales'],
-
+                    ...$dates
                 ];
             }
 
@@ -385,6 +391,7 @@ class Add extends Component
                     'product_type' => $input['dom_product_type'],
                     'volume_sold_previous_period' => $input['dom_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['dom_financial_value_of_sales'],
+                    ...$dates
                 ];
             }
 
@@ -408,6 +415,7 @@ class Add extends Component
                     'product_type' => $input['inter_product_type'],
                     'volume_sold_previous_period' => $input['inter_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['inter_financial_value_of_sales'],
+                    ...$dates
                 ];
             }
 
@@ -434,6 +442,7 @@ class Add extends Component
 
     public function save()
     {
+
         try {
 
             $this->validate();
@@ -467,11 +476,7 @@ class Add extends Component
                 }
             }
 
-            $segment = collect($this->market_segment);
-            $market_segment = [
-                'fresh' => $segment->contains('FRESH') ? 'FRESH' : null,
-                'processed' => $segment->contains('PROCESSED') ? 'PROCESSED' : null,
-            ];
+
 
 
 
@@ -499,7 +504,7 @@ class Add extends Component
                 'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                 'sells_to_international_markets' => $this->sells_to_international_markets,
                 'uses_market_information_systems' => $this->uses_market_information_systems,
-                'market_information_systems' => $this->market_information_systems,
+                'market_information_systems' => $this->uses_market_information_systems ? $this->market_information_systems : null,
                 'user_id' => auth()->user()->id,
                 'uuid' => $uuid,
                 'submission_period_id' => $this->submissionPeriodId,
@@ -507,8 +512,9 @@ class Add extends Component
                 'financial_year_id' => $this->selectedFinancialYear,
                 'period_month_id' => $this->selectedMonth,
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                'aggregation_centers' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
+                'aggregation_centers' => $this->sells_to_aggregation_centers ? $this->aggregation_center_sales : null, // Stores aggregation center details (array of objects with name and volume sold)
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,// Previous season volume in metric tonnes
+                'status' => 'approved'
             ];
 
             //dd($firstTable);
@@ -635,9 +641,9 @@ class Add extends Component
         $this->inputOne[] = [
             'conc_date_recorded' => null,
             'conc_partner_name' => null,
-            'conc_country' => null,
+            'conc_country' => 'Malawi',
             'conc_date_of_maximum_sale' => null,
-            'conc_product_type' => null,
+            'conc_product_type' => 'SEED',
             'conc_volume_sold_previous_period' => null,
             'conc_financial_value_of_sales' => null,
         ];
@@ -656,11 +662,11 @@ class Add extends Component
         // Add a new set of empty values
         $this->inputTwo[] = [
             'dom_date_recorded' => null,
-            'dom_crop_type' => null,
+            'dom_crop_type' => 'CASSAVA',
             'dom_market_name' => null,
             'dom_district' => null,
             'dom_date_of_maximum_sale' => null,
-            'dom_product_type' => null,
+            'dom_product_type' => 'SEED',
             'dom_volume_sold_previous_period' => null,
             'dom_financial_value_of_sales' => null,
         ];
@@ -679,11 +685,11 @@ class Add extends Component
         // Add a new set of empty values
         $this->inputThree[] = [
             'inter_date_recorded' => null,
-            'inter_crop_type' => null,
+            'inter_crop_type' => 'CASSAVA',
             'inter_market_name' => null,
-            'inter_country' => null,
+            'inter_country' => 'Malawi',
             'inter_date_of_maximum_sale' => null,
-            'inter_product_type' => null,
+            'inter_product_type' => 'SEED',
             'inter_volume_sold_previous_period' => null,
             'inter_financial_value_of_sales' => null,
         ];
@@ -785,9 +791,9 @@ class Add extends Component
                         [
                             'conc_date_recorded' => null,
                             'conc_partner_name' => null,
-                            'conc_country' => null,
+                            'conc_country' => 'Malawi',
                             'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => null,
+                            'conc_product_type' => 'SEED',
                             'conc_volume_sold_previous_period' => null,
                             'conc_financial_value_of_sales' => null,
                         ],
@@ -798,11 +804,11 @@ class Add extends Component
                     collect([
                         [
                             'dom_date_recorded' => null,
-                            'dom_crop_type' => null,
+                            'dom_crop_type' => 'CASSAVA',
                             'dom_market_name' => null,
                             'dom_district' => null,
                             'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => null,
+                            'dom_product_type' => 'SEED',
                             'dom_volume_sold_previous_period' => null,
                             'dom_financial_value_of_sales' => null,
                         ],
@@ -812,11 +818,11 @@ class Add extends Component
                     collect([
                         [
                             'inter_date_recorded' => null,
-                            'inter_crop_type' => null,
+                            'inter_crop_type' => 'CASSAVA',
                             'inter_market_name' => null,
-                            'inter_country' => null,
+                            'inter_country' => 'Malawi',
                             'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => null,
+                            'inter_product_type' => 'SEED',
                             'inter_volume_sold_previous_period' => null,
                             'inter_financial_value_of_sales' => null,
                         ],

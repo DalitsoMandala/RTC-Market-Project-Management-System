@@ -163,13 +163,13 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow, WithValidat
 
             $highestId++;
 
-            $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
-            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'YES' ? true : false;
-            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'YES' ? true : false;
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+            $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'Yes' ? true : false;
+            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] == 'Yes' ? true : false;
+            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] == 'Yes' ? true : false;
+            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'Yes' ? true : false;
+            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'Yes' ? true : false;
+            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'Yes' ? true : false;
+            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'Yes' ? true : false;
 
 
 
@@ -190,8 +190,8 @@ class RpmFarmerImportSheet5 implements ToCollection, WithHeadingRow, WithValidat
 
             $newId = $this->mappings[$mainSheet['rpm_farmer_id']];
             $mainSheet['rpm_farmer_id'] = $newId;
-            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'YES';
-            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'YES';
+            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'Yes';
+            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'Yes';
 
             RpmFarmerFollowUp::create($mainSheet);
         }

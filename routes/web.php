@@ -143,14 +143,14 @@ Route::middleware(['auth', 'role:organiser'])->prefix('cip')->group(function () 
     Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/followup/{id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
+    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
 
 
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup/{id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
+    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
 
 
 

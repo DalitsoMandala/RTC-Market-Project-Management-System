@@ -459,22 +459,26 @@
     </div>
 
 
-    @script
-        <script>
-            let textInputs = document.querySelectorAll('input[type="text"]');
-
-            // Attach event listener to each input
-            textInputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    // Convert input value to uppercase
-                    this.value = this.value.toUpperCase();
-                });
-
-            });
-
-            document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                input.setAttribute('step', 'any');
-            });
-        </script>
-    @endscript
 </div>
+@assets
+    <style>
+        input[type="text"] {
+            text-transform: uppercase;
+        }
+    </style>
+@endassets
+@script
+    <script>
+        // Function to transform input text to uppercase
+        function enforceUppercase(element) {
+            element.value = element.value.toUpperCase();
+        }
+
+        // Attach event listener to all current and future text inputs
+        document.addEventListener('input', function(event) {
+            if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
+                enforceUppercase(event.target);
+            }
+        });
+    </script>
+@endscript

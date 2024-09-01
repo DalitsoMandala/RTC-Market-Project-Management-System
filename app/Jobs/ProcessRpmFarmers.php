@@ -106,13 +106,13 @@ class ProcessRpmFarmers implements ShouldQueue
                 $item->area_under_certified_seed_multiplication_variety_6 = $area_under_certified_seed_multiplication->variety_6 ?? null;
                 $item->area_under_certified_seed_multiplication_variety_7 = $area_under_certified_seed_multiplication->variety_7 ?? null;
 
-                $item->is_registered_seed_producer = $item->is_registered_seed_producer == 1 ? 'YES' : 'NO';
+                $item->is_registered_seed_producer = $item->is_registered_seed_producer == 1 ? 'Yes' : 'No';
                 $item->seed_service_unit_registration_details_date = $seed_service_unit_registration_details && isset($seed_service_unit_registration_details->registration_date)
                     ? Carbon::parse($seed_service_unit_registration_details->registration_date)->format('d/m/Y')
                     : null;
                 $item->seed_service_unit_registration_details_number = $seed_service_unit_registration_details->registration_number ?? null;
                 $item->service_unit_date = Carbon::parse($item->service_unit_date)->format('d/m/Y');
-                $item->uses_certified_seed = $item->uses_certified_seed == 1 ? 'YES' : 'NO';
+                $item->uses_certified_seed = $item->uses_certified_seed == 1 ? 'Yes' : 'No';
 
                 // Add the item to results
                 $results->push($item);
@@ -162,7 +162,7 @@ class ProcessRpmFarmers implements ShouldQueue
                 $item->number_of_members_male_18_35 = $number_of_members->male_18_35 ?? 0;
                 $item->number_of_members_male_35_plus = $number_of_members->male_35_plus ?? 0;
                 $item->number_of_members_female_35_plus = $number_of_members->female_35_plus ?? 0;
-                $item->is_registered = $item->is_registered == 1 ? 'YES' : 'NO';
+                $item->is_registered = $item->is_registered == 1 ? 'Yes' : 'No';
                 $item->registration_details_body = $registration_details->registration_body ?? null;
                 $item->registration_details_date = $registration_details->registration_date ? Carbon::parse($registration_details->registration_date)->format('d/m/Y') : null;
                 $item->registration_details_number = $registration_details->registration_number ?? null;
@@ -196,23 +196,23 @@ class ProcessRpmFarmers implements ShouldQueue
                 $item->area_under_certified_seed_multiplication_variety_6 = $area_under_certified_seed_multiplication->variety_6 ?? null;
                 $item->area_under_certified_seed_multiplication_variety_7 = $area_under_certified_seed_multiplication->variety_7 ?? null;
 
-                $item->is_registered_seed_producer = $item->is_registered_seed_producer == 1 ? 'YES' : 'NO';
+                $item->is_registered_seed_producer = $item->is_registered_seed_producer == 1 ? 'Yes' : 'No';
                 $item->seed_service_unit_registration_details_date = $seed_service_unit_registration_details->registration_date ? Carbon::parse($seed_service_unit_registration_details->registration_date)->format('d/m/Y') : null;
                 $item->seed_service_unit_registration_details_number = $seed_service_unit_registration_details->registration_number ?? null;
-                $item->uses_certified_seed = $item->uses_certified_seed == 1 ? 'YES' : 'NO';
+                $item->uses_certified_seed = $item->uses_certified_seed == 1 ? 'Yes' : 'No';
                 $item->market_segment_fresh = $market_segment->fresh ?? null;
                 $item->market_segment_processed = $market_segment->processed ?? null;
-                $item->has_rtc_market_contract = $item->has_rtc_market_contract == 1 ? 'YES' : 'NO';
+                $item->has_rtc_market_contract = $item->has_rtc_market_contract == 1 ? 'Yes' : 'No';
                 $item->total_production_value_previous_season_date = Carbon::parse($total_production_value_previous_season->date_of_maximum_sales ?? null)->format('d/m/Y');
                 $item->total_production_value_previous_season_total = $total_production_value_previous_season->total ?? null;
 
                 $item->total_irrigation_production_value_previous_season_date = Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales ?? null)->format('d/m/Y');
                 $item->total_irrigation_production_value_previous_season_total = $total_irrigation_production_value_previous_season->total;
 
-                $item->sells_to_domestic_markets = $item->sells_to_domestic_markets == 1 ? 'YES' : 'NO';
-                $item->sells_to_international_markets = $item->sells_to_international_markets == 1 ? 'YES' : 'NO';
-                $item->uses_market_information_systems = $item->uses_market_information_systems == 1 ? 'YES' : 'NO';
-                $item->aggregation_centers_response = $aggregation_centers->response == 1 ? 'YES' : 'NO';
+                $item->sells_to_domestic_markets = $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No';
+                $item->sells_to_international_markets = $item->sells_to_international_markets == 1 ? 'Yes' : 'No';
+                $item->uses_market_information_systems = $item->uses_market_information_systems == 1 ? 'Yes' : 'No';
+                $item->aggregation_centers_response = $aggregation_centers->response == 1 ? 'Yes' : 'No';
                 $item->aggregation_centers_specify = $aggregation_centers->specify ?? null;
 
                 // Add employment data

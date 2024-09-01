@@ -59,7 +59,7 @@ class indicator_3_1_1
 
 
             if (!$hasData) {
-                // NO data found, return an empty collection
+                // No data found, return an empty collection
                 return $query->whereIn('id', []);
             }
         }
@@ -107,7 +107,7 @@ class indicator_3_1_1
             });
 
             if (!$hasValidBatchUuids) {
-                // NO valid batch UUIDs found, return an empty collection
+                // No valid batch UUIDs found, return an empty collection
                 return $query->whereIn('uuid', []);
             }
         }
@@ -227,10 +227,10 @@ class indicator_3_1_1
 
         return [
             'Fresh' => $query->filter(function ($segment) {
-                return isset($segment['fresh']) && strtoupper($segment['fresh']) === 'YES';
+                return isset($segment['fresh']) && strtoupper($segment['fresh']) === 'Yes';
             })->count(),
             'Processed' => $query->filter(function ($segment) {
-                return isset($segment['processed']) && strtoupper($segment['processed']) === 'YES';
+                return isset($segment['processed']) && strtoupper($segment['processed']) === 'Yes';
             })->count(),
         ];
     }

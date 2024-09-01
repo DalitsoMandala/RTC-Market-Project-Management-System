@@ -281,9 +281,9 @@ class Add extends Component
         $this->inputOne[] = [
             'conc_date_recorded' => null,
             'conc_partner_name' => null,
-            'conc_country' => null,
+            'conc_country' => 'Malawi',
             'conc_date_of_maximum_sale' => null,
-            'conc_product_type' => null,
+            'conc_product_type' => 'SEED',
             'conc_volume_sold_previous_period' => null,
             'conc_financial_value_of_sales' => null,
         ];
@@ -302,11 +302,11 @@ class Add extends Component
         // Add a new set of empty values
         $this->inputTwo[] = [
             'dom_date_recorded' => null,
-            'dom_crop_type' => null,
+            'dom_crop_type' => 'CASSAVA',
             'dom_market_name' => null,
             'dom_district' => null,
             'dom_date_of_maximum_sale' => null,
-            'dom_product_type' => null,
+            'dom_product_type' => 'SEED',
             'dom_volume_sold_previous_period' => null,
             'dom_financial_value_of_sales' => null,
         ];
@@ -325,11 +325,11 @@ class Add extends Component
         // Add a new set of empty values
         $this->inputThree[] = [
             'inter_date_recorded' => null,
-            'inter_crop_type' => null,
+            'inter_crop_type' => 'CASSAVA',
             'inter_market_name' => null,
-            'inter_country' => null,
+            'inter_country' => 'Malawi',
             'inter_date_of_maximum_sale' => null,
-            'inter_product_type' => null,
+            'inter_product_type' => 'SEED',
             'inter_volume_sold_previous_period' => null,
             'inter_financial_value_of_sales' => null,
         ];
@@ -551,8 +551,8 @@ class Add extends Component
 
             $segment = collect($this->market_segment);
             $market_segment = [
-                'fresh' => $segment->contains('FRESH') ? 'FRESH' : null,
-                'processed' => $segment->contains('PROCESSED') ? 'PROCESSED' : null,
+                'fresh' => $segment->contains('Fresh') ? 'Fresh' : null,
+                'processed' => $segment->contains('Processed') ? 'Processed' : null,
             ];
 
 
@@ -622,28 +622,14 @@ class Add extends Component
             }
 
 
-            $currentUser = Auth::user();
-            $recruit = RtcProductionFarmer::create($firstTable);
-            $otherData = array();
-            $otherData['main'] = $firstTable;
-            $finalData = array_merge($otherData, $this->addMoreData($recruit));
 
-            if (!$this->has_rtc_market_contract) {
-                $finalData['agreement'] = []; //contractual agreement
-            }
-            if (!$this->sells_to_domestic_markets) {
-
-                $finalData['market'] = []; //dom
-            }
-            if (!$this->sells_to_international_markets) {
-                $finalData['intermarket'] = []; // international market
-            }
-
-            $table = ['rtc_production_farmers', 'rpm_farmer_follow_ups', 'rpm_farmer_conc_agreements', 'rpm_farmer_dom_markets', 'rpm_farmer_inter_markets'];
 
 
             try {
 
+                $currentUser = Auth::user();
+                $recruit = RtcProductionFarmer::create($firstTable);
+                $this->addMoreData($recruit);
 
 
 

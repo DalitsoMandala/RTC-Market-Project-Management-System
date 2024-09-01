@@ -53,7 +53,7 @@ class indicator_A1
 
 
             if (!$hasData) {
-                // NO data found, return an empty collection
+                // No data found, return an empty collection
                 return $query->whereIn('id', []);
             }
         }
@@ -89,7 +89,7 @@ class indicator_A1
 
 
             if (!$hasData) {
-                // NO data found, return an empty collection
+                // No data found, return an empty collection
                 return $query->whereIn('id', []);
             }
         }
@@ -133,7 +133,7 @@ class indicator_A1
             });
 
             if (!$hasValidBatchUuids) {
-                // NO valid batch UUIDs found, return an empty collection
+                // No valid batch UUIDs found, return an empty collection
                 return $query->whereIn('uuid', []);
             }
         }

@@ -70,18 +70,18 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))
             ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
             ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'YES' : 'NO')
+            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
             ->add('total_vol_production_previous_season', fn($model) => $model->total_vol_production_previous_season ?? 0)
             ->add('total_production_value_previous_season_total', fn($model) => json_decode($model->total_production_value_previous_season)->total ?? 0)
             ->add('total_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
             ->add('total_vol_irrigation_production_previous_season', fn($model) => $model->total_vol_irrigation_production_previous_season ?? 0)
             ->add('total_irrigation_production_value_previous_season_total', fn($model) => json_decode($model->total_irrigation_production_value_previous_season)->total ?? 0)
             ->add('total_irrigation_production_value_previous_season_date', fn($model) => Carbon::parse(json_decode($model->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y') ?? null)
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'YES' : 'NO')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'YES' : 'NO')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'YES' : 'NO')
+            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
+            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
+            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
             ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
-            ->add('aggregation_centers_response', fn($model) => json_decode($model->aggregation_centers)->response == 1 ? 'YES' : 'NO' ?? null)
+            ->add('aggregation_centers_response', fn($model) => json_decode($model->aggregation_centers)->response == 1 ? 'Yes' : 'No' ?? null)
             ->add('aggregation_centers_specify', fn($model) => json_decode($model->aggregation_centers)->specify ?? null)
             ->add('aggregation_center_sales')
         ;
@@ -152,18 +152,18 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
                     'date_of_follow_up_formatted' => Carbon::parse($item->date_of_follow_up)->format('d/m/Y'),
                     'market_segment_fresh' => $market_segment->fresh ?? null,
                     'market_segment_processed' => $market_segment->processed ?? null,
-                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'YES' : 'NO',
+                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
                     'total_vol_production_previous_season' => $item->total_vol_production_previous_season ?? 0,
                     'total_production_value_previous_season_total' => $total_production_value_previous_season->total ?? 0,
                     'total_production_value_previous_season_date' => $total_production_value_previous_season->date_of_maximum_sales ? Carbon::parse($total_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y') : null,
                     'total_vol_irrigation_production_previous_season' => $item->total_vol_irrigation_production_previous_season ?? 0,
                     'total_irrigation_production_value_previous_season_total' => $total_irrigation_production_value_previous_season->total ?? 0,
                     'total_irrigation_production_value_previous_season_date' => $total_irrigation_production_value_previous_season->date_of_maximum_sales ? Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y') : null,
-                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'YES' : 'NO',
-                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'YES' : 'NO',
-                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'YES' : 'NO',
+                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
+                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
+                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
                     'market_information_systems' => $item->market_information_systems ?? null,
-                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'YES' : 'NO',
+                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
                     'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
                     'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
                 ];

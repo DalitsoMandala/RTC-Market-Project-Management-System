@@ -7,6 +7,10 @@
     </button>
 
 
+    <a href="#" class="btn btn-soft-info waves-effect waves-light my-2" wire:click='$dispatch("export-followup")'>
+        <i class="fas fa-file-excel"></i> Add Follow up +
+    </a>
+
 
 
 </div>

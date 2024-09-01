@@ -48,7 +48,7 @@ class SubmissionNotification extends Notification
             $mailMessage
                 ->greeting('Hello ' . $notifiable->name . ',')
                 ->subject('Submission Accepted')
-                ->line('Congratulations! Your submission has been accepted. Batch NO. ' . $this->batchId);
+                ->line('Congratulations! Your submission has been accepted. Batch No. ' . $this->batchId);
         } else {
             $mailMessage
 

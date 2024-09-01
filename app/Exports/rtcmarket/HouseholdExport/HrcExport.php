@@ -104,9 +104,9 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                     'RTC CONSUMERS/SWEET POTATO' => $faker->numberBetween(1, 100),
                     'RTC CONSUMERS/CASSAVA' => $faker->numberBetween(1, 100),
                     'RTC CONSUMPTION FREQUENCY' => $faker->numberBetween(1, 100),
-                    'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['YES', 'NO']),
-                    'RTC MAIN FOOD/POTATO' => $faker->randomElement(['YES', 'NO']),
-                    'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['YES', 'NO']),
+                    'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['Yes', 'No']),
+                    'RTC MAIN FOOD/POTATO' => $faker->randomElement(['Yes', 'No']),
+                    'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['Yes', 'No']),
 
                 ];
             }

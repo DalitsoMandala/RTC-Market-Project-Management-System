@@ -106,7 +106,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             ->add('group')
             ->add('establishment_status')
             ->add('is_registered', function ($model) {
-                return $model->is_registered == 1 ? 'YES' : 'NO';
+                return $model->is_registered == 1 ? 'Yes' : 'No';
             })
             ->add('registration_details')
             ->add('number_of_employees_formal_female_18_35', function ($model) {
@@ -162,7 +162,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                     ($number_of_employees->informal->female_35_plus ?? 0);
             })
 
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'YES' : 'NO')
+            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
             ->add('total_production_value_previous_season_total', function ($model) {
                 $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
                 return $total_production_value_previous_season->total ?? 0;
@@ -198,12 +198,12 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
                 return $total_irrigation_production_value_previous_season->date_of_maximum_sales == null ? null : Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
             })
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'YES' : 'NO')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'YES' : 'NO')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'YES' : 'NO')
+            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
+            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
+            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
 
             ->add('sells_to_aggregation_centers', function ($model) {
-                return $model->sells_to_aggregation_centers == 1 ? 'YES' : 'NO';
+                return $model->sells_to_aggregation_centers == 1 ? 'Yes' : 'No';
             })
             // ->add('aggregation_centers_specify', function ($model) {
             //     $aggregation_centers = json_decode($model->aggregation_centers);
@@ -317,7 +317,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                     'number_of_members_female_35_plus' => $number_of_members->female_35_plus ?? 0,
                     'group' => $item->group,
                     'establishment_status' => $item->establishment_status,
-                    'is_registered' => $item->is_registered == 1 ? 'YES' : 'NO',
+                    'is_registered' => $item->is_registered == 1 ? 'Yes' : 'No',
 
                     'registration_details_body' => $registration_details->registration_body ?? null,
                     'registration_details_date' => $registration_details->registration_date ?? null,
@@ -334,16 +334,16 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                     'number_of_employees_informal_total' => ($number_of_employees->informal->female_18_35 ?? 0) + ($number_of_employees->informal->male_18_35 ?? 0) + ($number_of_employees->informal->male_35_plus ?? 0) + ($number_of_employees->informal->female_35_plus ?? 0),
                     'market_segment_fresh' => $market_segment->fresh ?? null,
                     'market_segment_processed' => $market_segment->processed ?? null,
-                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'YES' : 'NO',
+                    'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
                     'total_production_value_previous_season_total' => $total_production_value_previous_season->total ?? 0,
                     'total_production_value_previous_season_date' => $total_production_value_previous_season->date_of_maximum_sales ?? null,
                     'total_irrigation_production_value_previous_season_total' => $total_irrigation_production_value_previous_season->total ?? 0,
                     'total_irrigation_production_value_previous_season_date' => $total_irrigation_production_value_previous_season->date_of_maximum_sales ?? null,
-                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'YES' : 'NO',
-                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'YES' : 'NO',
-                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'YES' : 'NO',
+                    'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
+                    'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
+                    'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
                     'market_information_systems' => $item->market_information_systems ?? null,
-                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'YES' : 'NO',
+                    'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
                     'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
                     'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
                 ];
@@ -467,7 +467,9 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-
+            Column::make('Has RTC Contractual Agreement', 'has_rtc_market_contract', 'has_rtc_market_contract')
+                ->sortable()
+                ->searchable(),
 
             Column::make('Total production value previous season/total', 'total_production_value_previous_season_value', 'total_production_value_previous_season->value')
                 ->sortable()
@@ -540,7 +542,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     }
 
 
-    #[\Livewire\Attributes\On('edit')]
+    #[On('edit')]
     public function edit($rowId): void
     {
         $this->js('alert(' . $rowId . ')');

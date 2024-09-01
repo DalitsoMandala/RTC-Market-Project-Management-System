@@ -151,11 +151,11 @@ class RpmProcessorImportSheet5 implements ToCollection, WithHeadingRow, WithVali
         foreach ($data['main'] as $mainSheet) {
 
             $highestId++;
-            $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'YES' ? true : false;
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+            $mainSheet['is_registered'] = $mainSheet['is_registered'] == 'Yes' ? true : false;
+            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'Yes' ? true : false;
+            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'Yes' ? true : false;
+            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'Yes' ? true : false;
+            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'Yes' ? true : false;
 
 
 
@@ -175,10 +175,10 @@ class RpmProcessorImportSheet5 implements ToCollection, WithHeadingRow, WithVali
             $newId = $this->mappings[$mainSheet['rpm_processor_id']];
             $mainSheet['rpm_processor_id'] = $newId;
 
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'YES' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'YES' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'YES' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'YES' ? true : false;
+            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] == 'Yes' ? true : false;
+            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] == 'Yes' ? true : false;
+            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] == 'Yes' ? true : false;
+            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] == 'Yes' ? true : false;
             $mainTable = RpmProcessorFollowUp::create($mainSheet);
 
             // follow up data

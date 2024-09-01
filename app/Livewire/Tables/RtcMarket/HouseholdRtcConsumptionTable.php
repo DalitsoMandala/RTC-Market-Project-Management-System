@@ -111,9 +111,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
                 if ($count) {
 
-                    return 'YES';
+                    return 'Yes';
                 } else {
-                    return 'NO';
+                    return 'No';
                 }
 
             })
@@ -125,9 +125,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
                 if ($count) {
 
-                    return 'YES';
+                    return 'Yes';
                 } else {
-                    return 'NO';
+                    return 'No';
                 }
 
             })
@@ -141,9 +141,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
                 if ($count) {
 
-                    return 'YES';
+                    return 'Yes';
                 } else {
-                    return 'NO';
+                    return 'No';
                 }
 
             })
@@ -227,9 +227,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                     'rtc_consumers_sw_potato' => $item->rtc_consumers_sw_potato,
                     'rtc_consumers_cassava' => $item->rtc_consumers_cassava,
                     'rtc_consumption_frequency' => $item->rtc_consumption_frequency,
-                    'cassava_count' => collect($main_food)->contains('CASSAVA') ? 'YES' : 'NO',
-                    'potato_count' => collect($main_food)->contains('POTATO') ? 'YES' : 'NO',
-                    'sweet_potato_count' => collect($main_food)->contains('SWEET POTATO') ? 'YES' : 'NO',
+                    'cassava_count' => collect($main_food)->contains('CASSAVA') ? 'Yes' : 'No',
+                    'potato_count' => collect($main_food)->contains('POTATO') ? 'Yes' : 'No',
+                    'sweet_potato_count' => collect($main_food)->contains('SWEET POTATO') ? 'Yes' : 'No',
                     'submission_date' => Carbon::parse($item->created_at)->format('d/m/Y'),
                     'submitted_by' => $item->user->organisation->name,
                     'uuid' => $item->uuid,
@@ -376,7 +376,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->operators(['contains'])
                 ->builder(function (Builder $builder, mixed $value) {
                     $getValue = strtolower($value['value']);
-                    if ($getValue == 'YES') {
+                    if ($getValue == 'Yes') {
                         $builder->whereJsonContains('main_food_data', 'POTATO');
                     } else {
                         $builder->whereJsonDoesntContain('main_food_data', 'POTATO');
@@ -388,7 +388,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->operators(['contains'])
                 ->builder(function (Builder $builder, mixed $value) {
                     $getValue = strtolower($value['value']);
-                    if ($getValue == 'YES') {
+                    if ($getValue == 'Yes') {
                         $builder->whereJsonContains('main_food_data', 'CASSAVA');
                     } else {
                         $builder->whereJsonDoesntContain('main_food_data', 'CASSAVA');
@@ -400,7 +400,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->operators(['contains'])
                 ->builder(function (Builder $builder, mixed $value) {
                     $getValue = strtolower($value['value']);
-                    if ($getValue == 'YES') {
+                    if ($getValue == 'Yes') {
                         $builder->whereJsonContains('main_food_data', 'SWEET POTATO');
                     } else {
                         $builder->whereJsonDoesntContain('main_food_data', 'SWEET POTATO');

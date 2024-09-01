@@ -47,7 +47,7 @@
     <label for="type" class="form-label">Type</label>
 
     <select class="form-select form-select-md @error('type') is-invalid @enderror" wire:model='type'>
-        <option selected value="">Select one</option>
+        <option selected value="">Select One</option>
         <option value="PRODUCER ORGANIZATION">PRODUCER ORGANIZATION (PO)</option>
         <option value="LARGE SCALE FARM">LARGE SCALE FARM</option>
         <option value="SMALL MEDIUM ENTERPRISE (SME)">SMALL MEDIUM ENTERPRISE (SME)</option>

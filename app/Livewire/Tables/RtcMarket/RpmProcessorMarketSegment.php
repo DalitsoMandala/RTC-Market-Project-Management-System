@@ -47,8 +47,8 @@ final class RpmProcessorMarketSegment extends PowerGridComponent
             ->add('market_segment_fresh', function ($model) {
                 $arr = json_decode($model->market_segment);
                 $segment = collect($arr);
-                if ($segment->contains('FRESH')) {
-                    return 'FRESH';
+                if ($segment->contains('Fresh')) {
+                    return 'Fresh';
                 }
 
                 return null;
@@ -58,9 +58,9 @@ final class RpmProcessorMarketSegment extends PowerGridComponent
             ->add('market_segment_processed', function ($model) {
                 $arr = json_decode($model->market_segment);
                 $segment = collect($arr);
-                if ($segment->contains('PROCESSED')) {
+                if ($segment->contains('Processed')) {
 
-                    return 'PROCESSED';
+                    return 'Processed';
                 }
 
                 return null;

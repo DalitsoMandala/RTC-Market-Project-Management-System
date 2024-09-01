@@ -1,11 +1,5 @@
 <div>
     <style>
-        input,
-        select,
-        label {
-            text-transform: uppercase;
-        }
-
         .sticky-side {
             position: sticky;
             top: 120px;
@@ -89,34 +83,8 @@
                                         is-invalid
                                     @enderror"
                                     wire:model='location_data.district'>
-                                    <option value="">Choose one</option>
-                                    <option>BALAKA</option>
-                                    <option>BLANTYRE</option>
-                                    <option>CHIKWAWA</option>
-                                    <option>CHIRADZULU</option>
-                                    <option>CHITIPA</option>
-                                    <option>DEDZA</option>
-                                    <option>DOWA</option>
-                                    <option>KARONGA</option>
-                                    <option>KASUNGU</option>
-                                    <option>LILONGWE</option>
-                                    <option>MACHINGA</option>
-                                    <option>MANGOCHI</option>
-                                    <option>MCHINJI</option>
-                                    <option>MULANJE</option>
-                                    <option>MWANZA</option>
-                                    <option>MZIMBA</option>
-                                    <option>NENO</option>
-                                    <option>NKHATA BAY</option>
-                                    <option>NKHOTAKOTA</option>
-                                    <option>NSANJE</option>
-                                    <option>NTCHEU</option>
-                                    <option>NTCHISI</option>
-                                    <option>PHALOMBE</option>
-                                    <option>RUMPHI</option>
-                                    <option>SALIMA</option>
-                                    <option>THYOLO</option>
-                                    <option>ZOMBA</option>
+
+                                    @include('layouts.district-options')
                                 </select>
                                 @error('location_data.district')
                                     <x-error>{{ $message }}</x-error>
@@ -209,26 +177,3 @@
     </div>
 
 </div>
-@script
-    <script>
-        let textInputs = document.querySelectorAll('input[type="text"]');
-
-        // Attach event listener to each input
-        textInputs.forEach(function(input) {
-            input.addEventListener('input', function() {
-                // Convert input value to uppercase
-                this.value = this.value.toUpperCase();
-            });
-
-            input.addEventListener('paste', function() {
-                // Convert input value to uppercase
-                this.value = this.value.toUpperCase();
-            });
-
-        });
-
-        document.querySelectorAll('input[type="number"]').forEach(function(input) {
-            input.setAttribute('step', 'any');
-        });
-    </script>
-@endscript

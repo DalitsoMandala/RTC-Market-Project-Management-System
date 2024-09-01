@@ -150,13 +150,13 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 'main_food_data' => [],
             ];
 
-            if ($row['RTC MAIN FOOD/CASSAVA'] === 'YES') {
+            if ($row['RTC MAIN FOOD/CASSAVA'] === 'Yes') {
                 $entry['main_food_data'][] = 'CASSAVA';
             }
-            if ($row['RTC MAIN FOOD/POTATO'] === 'YES') {
+            if ($row['RTC MAIN FOOD/POTATO'] === 'Yes') {
                 $entry['main_food_data'][] = 'POTATO';
             }
-            if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'YES') {
+            if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'Yes') {
                 $entry['main_food_data'][] = 'SWEET POTATO';
             }
             $entry['main_food_data'] = json_encode($entry['main_food_data']);
@@ -393,9 +393,9 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
             '*.RTC CONSUMERS/SWEET POTATO' => 'integer|min:0|nullable',
             '*.RTC CONSUMERS/CASSAVA' => 'numeric|min:0|nullable',
             '*.RTC CONSUMPTION FREQUENCY' => 'numeric|max:255|nullable',
-            '*.RTC MAIN FOOD/CASSAVA' => 'string|in:YES,NO|nullable',
-            '*.RTC MAIN FOOD/POTATO' => 'string|in:YES,NO|nullable',
-            '*.RTC MAIN FOOD/SWEET POTATO' => 'string|in:YES,NO|nullable',
+            '*.RTC MAIN FOOD/CASSAVA' => 'string|in:Yes,No|nullable',
+            '*.RTC MAIN FOOD/POTATO' => 'string|in:Yes,No|nullable',
+            '*.RTC MAIN FOOD/SWEET POTATO' => 'string|in:Yes,No|nullable',
         ];
     }
 

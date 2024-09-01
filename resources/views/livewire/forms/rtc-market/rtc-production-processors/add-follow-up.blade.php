@@ -52,7 +52,7 @@
 
 
                         <form wire:submit.debounce.1000ms='save'>
-                            {{-- <div class="mb-3" x-data="{}" x-init="() => {
+                            <div wire:ignore class="mb-3" x-data="{}" x-init="() => {
                                 $('#select-recruits').select2({
                                     width: '100%',
                                     theme: 'bootstrap-5',
@@ -61,11 +61,12 @@
                                 });
                                 $('#select-recruits').on('change', function(e) {
                                     data = e.target.value;
+                            
                                     setTimeout(() => {
                                         $wire.set('selectedRecruit', data);
                                     }, 1000)
-
-
+                            
+                            
                                 });
                             }">
                                 <label for="" class="form-label">Select Actor</label>
@@ -73,25 +74,14 @@
                                     <option selected value="">Select one</option>
                                     @foreach ($recruits as $recruit)
                                         <option value="{{ $recruit->id }}">
-                                            ({{ $recruit->id }})
+                                            ({{ str_pad($recruit->id, 5, '0', STR_PAD_LEFT) }})
                                             {{ $recruit->name_of_actor }} </option>
                                     @endforeach
                                 </select>
 
-                            </div> --}}
-
-                            <div class="mb-3">
-                                <label for="" class="form-label">NAME OF ACTOR</label>
-                                <x-text-input style="background: #f8f9fa" disabled wire:model='f_name' />
-
                             </div>
-                            <div class="mb-3">
-                                <label for="" class="form-label">GROUP NAME</label>
-                                <x-text-input wire:model='location_data.group_name' :class="$errors->has('location_data.group_name') ? 'is-invalid' : ''" />
-                                @error('location_data.group_name')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
+
+
                             <div class="mb-3">
                                 <label for="" class="form-label">Date of follow up</label>
                                 <input type="date"
@@ -107,26 +97,7 @@
                                 x-data="{
                                     show: $wire.entangle('show')
                                 }":class="{ 'pe-none opacity-25' : show === false}">
-                                <div class="mb-3" x-data="{ group: $wire.entangle('group') }" x-init="$wire.on('change-group', (e) => {
-                                    setTimeout(() => {
-                                        group = e.data;
-                                    }, 500)
-                                })">
-                                    <label for="group" class="form-label">Group</label>
-                                    <select x-ref="selectGroup"
-                                        class="form-select bg-light @error('group') is-invalid @enderror" model="group"
-                                        disabled>
-                                        <option value="">Select One</option>
-                                        <option value="EARLY GENERATION SEED PRODUCER">EARLY GENERATION SEED PRODUCER
-                                        </option>
-                                        <option value="SEED MULTIPLIER">SEED MULTIPLIER</option>
-                                        <option value="RTC PRODUCER">RTC PRODUCER</option>
-                                    </select>
 
-                                    @error('group')
-                                        <x-error>{{ $message }}</x-error>
-                                    @enderror
-                                </div>
 
                                 <div class="mb-3">
                                     <label for="" class="form-label">ENTERPRISE</label>
@@ -203,16 +174,18 @@
                                     <div class="@error('market_segment') border border-danger @enderror">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="marketSegmentFresh"
-                                                wire:model="market_segment.fresh" value="YES">
+                                                wire:model="market_segment" value="FRESH">
                                             <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="marketSegmentProcessed"
-                                                value="NO" wire:model="market_segment.processed">
+                                                value="PROCESSED" wire:model="market_segment">
                                             <label class="form-check-label"
                                                 for="marketSegmentProcessed">Processed</label>
                                         </div>
                                     </div>
+
+
                                     @error('market_segment')
                                         <x-error>{{ $message }}</x-error>
                                     @enderror
@@ -240,105 +213,13 @@
                                     @enderror
                                 </div>
 
-                                <!-- Are You a Registered Seed Producer -->
-                                <div class="mb-3" x-data="{
-                                    is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
-                                }">
-
-                                    <label class="form-label">Are You a Registered Seed Producer</label>
-                                    <div class="@error('is_registered_seed_producer') border border-danger @enderror">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio"
-                                                id="registeredSeedProducerYes" value="1"
-                                                x-model="is_registered_seed_producer">
-                                            <label class="form-check-label"
-                                                for="registeredSeedProducerYes">Yes</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio"
-                                                id="registeredSeedProducerNo" value="0"
-                                                x-model="is_registered_seed_producer">
-                                            <label class="form-check-label" for="registeredSeedProducerNo">No</label>
-                                        </div>
-                                    </div>
-
-                                    @error('is_registered_seed_producer')
-                                        <x-error>{{ $message }}</x-error>
-                                    @enderror
-                                </div>
-
-
-                                <!-- Registration Details (Seed Services Unit) -->
-                                <div class="mb-3" x-data="{
-                                    is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
-                                    registration_details: $wire.entangle('seed_service_unit_registration_details')
-                                }" x-init="$watch('is_registered_seed_producer', (v) => {
-                                
-                                    if (v != 1) {
-                                        registration_details = {};
-                                        $wire.resetValues('seed_service_unit_registration_details');
-                                    }
-                                });
-                                $watch('registration_details', (v) => {
-                                
-                                    $wire.registration_details = v;
-                                });"
-                                    x-show='is_registered_seed_producer == 1'>
-                                    <label for="seedRegistrationDetails" class="form-label">Registration Details
-                                        (Seed Services Unit)</label>
-                                    <div class="mb-3">
-                                        <label for="registrationNumber" class="form-label">Seed Service Unit
-                                            Registration Number:</label>
-                                        <input type="text"
-                                            class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror"
-                                            id="registrationNumber"
-                                            wire:model="seed_service_unit_registration_details.registration_number">
-                                        @error('seed_service_unit_registration_details.registration_number')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="registrationDate" class="form-label">Seed Service Unit
-                                            Registration Date:</label>
-                                        <input type="date"
-                                            class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror "
-                                            id="registrationDate"
-                                            wire:model="seed_service_unit_registration_details.registration_date">
-                                        @error('seed_service_unit_registration_details.registration_date')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-
-                                </div>
-
-                                <!-- Do You Use Certified Seed -->
-                                <div class="mb-3">
-                                    <label class="form-label">Do You Use Certified Seed</label>
-                                    <div class="@error('uses_certified_seed') border border-danger @enderror">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" id="useCertifiedSeedYes"
-                                                value="1" wire:model="uses_certified_seed">
-                                            <label class="form-check-label" for="useCertifiedSeedYes">Yes</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" id="useCertifiedSeedNo"
-                                                value="0" wire:model="uses_certified_seed">
-                                            <label class="form-check-label" for="useCertifiedSeedNo">No</label>
-                                        </div>
-                                    </div>
-                                    @error('uses_certified_seed')
-                                        <x-error>{{ $message }}</x-error>
-                                    @enderror
-                                </div>
-
 
 
                                 <!-- Total Volume of Production in Previous Season (Metric Tonnes) -->
                                 <div class="mb-3">
                                     <label for="totalVolumeProduction" class="form-label">Total Volume of
                                         Production in Previous Season (Metric Tonnes)</label>
-                                    <input type="number"
+                                    <input type="number" min="0" step="any"
                                         class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
                                         id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
                                     @error('total_vol_production_previous_season')
@@ -346,20 +227,38 @@
                                     @enderror
                                 </div>
 
+
                                 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
-                                <div class="mb-3">
+                                <div class="mb-3 card card-body shadow-none border" x-data="{
+                                    total_production_value_previous_season: $wire.entangle('total_production_value_previous_season'),
+                                    rate: $wire.entangle('rate'),
+                                
+                                
+                                }"
+                                    x-init="() => {
+                                        $watch('total_production_value_previous_season', (v) => {
+                                            value = parseFloat(total_production_value_previous_season.value || 0) / parseFloat(rate);
+                                            total_production_value_previous_season.total = (Math.round(value * 100) / 100).toFixed(2);
+                                    
+                                    
+                                        })
+                                    
+                                    
+                                    }">
                                     <label for="totalValueProduction" class="my-3 form-label fw-bold">Total Value
                                         Production
                                         Previous Season (Financial Value-MWK)</label>
 
+
                                     <div class="mb-3">
-                                        <label for="totalProductionValue" class="form-label">Total Production
-                                            Value Previous Season (Financial Value-MWK):</label>
-                                        <input type="number"
-                                            class="form-control  @error('total_production_value_previous_season.total') is-invalid @enderror"
+                                        <label for="totalProductionValue" class="form-label"> Total Production
+                                            Value Previous Season (Financial Value-MWK):
+                                        </label>
+                                        <input type="number" min="0" step="any"
+                                            class="form-control  @error('total_production_value_previous_season.value') is-invalid @enderror"
                                             id="totalProductionValue"
-                                            wire:model="total_production_value_previous_season.total">
-                                        @error('total_production_value_previous_season.total')
+                                            wire:model="total_production_value_previous_season.value">
+                                        @error('total_production_value_previous_season.value')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
@@ -375,53 +274,21 @@
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
-
-                                </div>
-
-                                <!-- Total Volume of Production in Previous Season from Irrigation Farming (Metric Tonnes) -->
-                                <div class="mb-3">
-                                    <label for="totalVolumeIrrigation" class="form-label">Total Volume of
-                                        Production in Previous Season from Irrigation Farming (Metric
-                                        Tonnes)</label>
-                                    <input type="number"
-                                        class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror"
-                                        id="totalVolumeIrrigation"
-                                        wire:model='total_vol_irrigation_production_previous_season'>
-                                    @error('total_vol_irrigation_production_previous_season')
-                                        <x-error>{{ $message }}</x-error>
-                                    @enderror
-                                </div>
-
-                                <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
-                                <div class="mb-3">
-                                    <label for="totalValueIrrigation" class="my-3 form-label fw-bold">Total Value
-                                        of Irrigation
-                                        Production in Previous Season (Financial Value-MWK)</label>
                                     <div class="mb-3">
-                                        <label for="totalIrrigationProductionValue" class="form-label">Total
-                                            Irrigation Production Value Previous Season:</label>
-                                        <input type="number"
-                                            class="form-control  @error('total_irrigation_production_value_previous_season.tota') is-invalid @enderror"
-                                            id="totalIrrigationProductionValue"
-                                            wire:model="total_irrigation_production_value_previous_season.total">
-                                        @error('total_irrigation_production_value_previous_season.tota')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
+                                        <label for="dateOfMaximumSales" class="form-label">Today's USD Rate:
+                                        </label>
+                                        <x-text-input wire:model='rate' class="bg-light" readonly />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="totalProductionValue" class="form-label">Financial Value
+                                            ($)</label>
+                                        <input type="number" min="0" step="any"
+                                            class="form-control bg-light  @error('total_production_value_previous_season.total') is-invalid @enderror"
+                                            readonly id="totalProductionValue"
+                                            wire:model="total_production_value_previous_season.total">
 
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="dateOfMaximumSalesIrrigation" class="form-label">Date of
-                                            Maximum Sales (Irrigation):</label>
-                                        <input type="date"
-                                            class="form-control  @error('total_irrigation_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
-                                            id="dateOfMaximumSalesIrrigation"
-                                            wire:model="total_irrigation_production_value_previous_season.date_of_maximum_sales">
-
-                                        @error('total_irrigation_production_value_previous_season.date_of_maximum_sales')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
 
                                 </div>
 
@@ -506,75 +373,117 @@
 
                                 <div class="mb-3" x-data="{
                                     uses_market_information_systems: $wire.entangle('uses_market_information_systems'),
-                                    market_information_systems: $wire.entangle('market_information_systems')
+                                
                                 }" x-init="$watch('uses_market_information_systems', (v) => {
                                 
-                                    if (v != 1) {
-                                        market_information_systems = {};
+                                    if (v == 0) {
+                                
                                         $wire.resetValues('market_information_systems');
+                                
+                                    } else if (v == 1) {
+                                        $wire.resetValues('market_information_systems');
+                                        $wire.addMIS();
                                     }
-                                });
-                                
-                                $watch('market_information_systems', (v) => {
-                                
-                                    $wire.market_information_systems = v;
-                                
-                                });"
-                                    x-show='uses_market_information_systems == 1'>
-                                    <label for="" class="form-label">Specify Market Information System</label>
-                                    <input type="text"
-                                        class="form-control  @error('market_information_systems') is-invalid @enderror"
-                                        name="" id="" aria-describedby="helpId" placeholder=""
-                                        x-model='market_information_systems' />
-                                    @error('market_information_systems')
-                                        <x-error>{{ $message }}</x-error>
-                                    @enderror
+                                });">
+
+
+
+                                    <div class="mb-3" x-show='uses_market_information_systems == 1'>
+
+                                        <div class="row">
+
+                                            <div class="card card-body shadow-none border">
+                                                <label for="" class="form-label">Specify Market Information
+                                                    System</label>
+                                                @foreach ($market_information_systems as $index => $value)
+                                                    <div class="row">
+                                                        <label for="variety" class="my-3 form-label fw-bold">Market
+                                                            information System
+                                                            ({{ $index + 1 }})
+                                                        </label>
+                                                        <div class="col">
+
+                                                            <div class="mb-3">
+
+                                                                <x-text-input :class="$errors->has(
+                                                                    'market_information_systems.' . $index . '.name',
+                                                                )
+                                                                    ? 'is-invalid'
+                                                                    : ''"
+                                                                    wire:model='market_information_systems.{{ $index }}.name'
+                                                                    placeholder="Name of market information systems" />
+                                                                @error('market_information_systems.' . $index . '.name')
+                                                                    <x-error>{{ $message }}</x-error>
+                                                                @enderror
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2" x-data>
+                                                            <button type="button" class="btn btn-danger"
+                                                                @click="$wire.removeMIS({{ $index }})"
+                                                                @if ($index == 0) disabled @endif>
+                                                                -
+                                                            </button>
+                                                        </div>
+
+                                                    </div>
+                                                @endforeach
+                                                <div class="row">
+                                                    <div class="col-2" x-data>
+
+                                                        <button type="button" class="btn btn-primary"
+                                                            @click='$wire.addMIS()'>
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+
+
+                                    </div>
+
+
                                 </div>
 
 
                                 <!-- Sell RTC Produce Through Aggregation Centers -->
 
                                 <div x-data="{
-                                    aggregation_centers: $wire.entangle('aggregation_centers'),
-                                    aggregation_center_sales: $wire.entangle('aggregation_center_sales'),
+                                    sells_to_aggregation_centers: $wire.entangle('sells_to_aggregation_centers'),
                                 
                                 
-                                }" x-init="$watch('aggregation_centers', (v) => {
                                 
-                                    if (v.response != 1) {
-                                        aggregation_centers.specify = '';
-                                        aggregation_center_sales = null;
+                                }" x-init="$watch('sells_to_aggregation_centers', (v) => {
+                                
+                                    if (v == 0) {
+                                
                                         $wire.resetValues('aggregation_center_sales');
-                                        $wire.resetValues('aggregation_centers');
+                                    } else {
+                                        $wire.resetValues('aggregation_center_sales');
+                                        $wire.addSales();
+                                
                                     }
-                                });
-                                
-                                $watch('aggregation_center_sales', (v) => {
-                                
-                                
-                                
-                                    $wire.aggregation_center_sales = v;
-                                
-                                
                                 });">
                                     <div class="mb-3">
                                         <label for="sellThroughAggregationCenters" class="my-3 form-label ">Do
                                             You Sell RTC
                                             Produce Through Aggregation Centers</label>
 
-                                        <div class=" @error('aggregation_centers') border border-primary @enderror">
+                                        <div
+                                            class=" @error('sells_to_aggregation_centers') border border-primary @enderror">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio"
                                                     id="aggregationCenterResponseYes" value="1"
-                                                    wire:model='aggregation_centers.response'
-                                                    x-model="aggregation_centers.response">
+                                                    wire:model='sells_to_aggregation_centers'>
                                                 <label class="form-check-label">Yes</label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio"
                                                     id="aggregationCenterResponseNo" value="0"
-                                                    wire:model='aggregation_centers.response'
-                                                    x-model="aggregation_centers.response">
+                                                    wire:model='sells_to_aggregation_centers'>
                                                 <label class="form-check-label">No</label>
                                             </div>
                                         </div>
@@ -584,33 +493,82 @@
                                         @enderror
                                     </div>
 
-                                    <div class="mb-3" x-show='aggregation_centers.response == 1'>
-                                        <label for="aggregationCenterSpecify" class="form-label">Aggregation
-                                            Centers Specify:</label>
-                                        <input type="text"
-                                            class="form-control  @error('aggregation_centers.specify') is-invalid @enderror"
-                                            wire:model="aggregation_centers.specify">
-                                        @error('aggregation_centers.specify')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
+
 
                                     <!-- Total Volume of RTC Sold Through Aggregation Centers in Previous Season (Metric Tonnes) -->
-                                    <div class="mb-3" x-show='aggregation_centers.response == 1'>
-                                        <label for="totalVolumeSoldThroughAggregation" class="form-label">Total Volume
-                                            of RTC Sold Through Aggregation Centers in Previous Season (Metric
-                                            Tonnes)</label>
-                                        <input type="number"
-                                            class="form-control  @error('aggregation_center_sales') is-invalid @enderror"
-                                            id="totalVolumeSoldThroughAggregation" x-model='aggregation_center_sales'>
+                                    <div class="mb-3" x-show='sells_to_aggregation_centers == 1'>
 
-                                        @error('aggregation_center_sales')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
+                                        <div class="row">
+
+                                            <div class="card card-body shadow-none border">
+                                                <label for="totalVolumeSoldThroughAggregation"
+                                                    class="form-label">Specify Aggregation Center</label>
+                                                @foreach ($aggregation_center_sales as $index => $value)
+                                                    <div class="row">
+                                                        <label for="variety"
+                                                            class="my-3 form-label fw-bold">Aggregation Center
+                                                            ({{ $index + 1 }})
+                                                        </label>
+                                                        <div class="col">
+
+                                                            <div class="mb-3">
+
+                                                                <x-text-input :class="$errors->has(
+                                                                    'aggregation_center_sales.' . $index . '.name',
+                                                                )
+                                                                    ? 'is-invalid'
+                                                                    : ''"
+                                                                    wire:model='aggregation_center_sales.{{ $index }}.name'
+                                                                    placeholder="Name of aggregation center" />
+                                                                @error('aggregation_center_sales.' . $index . '.name')
+                                                                    <x-error>{{ $message }}</x-error>
+                                                                @enderror
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-2" x-data>
+                                                            <button type="button" class="btn btn-danger"
+                                                                @click="$wire.removeSales({{ $index }})"
+                                                                @if ($index == 0) disabled @endif>
+                                                                -
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                                <div class="row">
+                                                    <div class="col-2" x-data>
+
+                                                        <button type="button" class="btn btn-primary"
+                                                            @click='$wire.addSales()'>
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+
+
                                     </div>
 
                                 </div>
-                                @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
+
+
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Total Volume
+                                        of RTC Sold Through Aggregation Centers in Previous Season (Metric
+                                        Tonnes)</label>
+                                    <input type="number" min="0" step="any"
+                                        class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror"
+                                        wire:model='total_vol_aggregation_center_sales' id=""
+                                        aria-describedby="helpId" placeholder="" />
+                                    @error('total_vol_aggregation_center_sales')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+                                </div>
+
+                                @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
 
@@ -635,11 +593,5 @@
 
 
     </div>
-    @script
-        <script>
-            document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                input.setAttribute('step', '0.01');
-            });
-        </script>
-    @endscript
+
 </div>

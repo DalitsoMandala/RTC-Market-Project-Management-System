@@ -53,7 +53,7 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
                     'NUMBER OF MEMBERS/MALE 35YRS+' => $faker->numberBetween(1, 10) * 10, // FOR PRODUCER ORGANIZATIONS ONLY
                     'GROUP' => strtoupper($faker->word),
                     'ESTABLISHMENT STATUS' => $faker->randomElement(['NEW', 'OLD']), // UPPERCASE FOR ENUM VALUES
-                    'IS REGISTERED' => $faker->randomElement(['YES', 'NO']),
+                    'IS REGISTERED' => $faker->randomElement(['Yes', 'No']),
                     'REGISTRATION DETAILS/REGISTRATION BODY' => strtoupper($faker->company),
                     'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->uuid,
                     'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date('Y-m-d'),
@@ -67,21 +67,21 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
                     'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
                     'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 10) * 10,
                     'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 10) * 10,
-                    'MARKET SEGMENT/FRESH' => $faker->randomElement(['YES', 'NO']),
-                    'MARKET SEGMENT/PROCESSED' => $faker->randomElement(['YES', 'NO']), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
-                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['YES', 'NO']),
+                    'MARKET SEGMENT/Fresh' => $faker->randomElement(['Yes', 'No']),
+                    'MARKET SEGMENT/Processed' => $faker->randomElement(['Yes', 'No']), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
+                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['Yes', 'No']),
                     'TOTAL VOLUME PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
                     'TOTAL VOLUME IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
-                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['YES', 'NO']),
-                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['YES', 'NO']),
-                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['YES', 'NO']),
+                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['Yes', 'No']),
+                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['Yes', 'No']),
+                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['Yes', 'No']),
                     'MARKET INFORMATION SYSTEMS' => strtoupper($faker->text),
-                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['YES', 'NO']),
-                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['YES', 'NO']),
+                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['Yes', 'No']),
+                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['Yes', 'No']),
                     'AGGREGATION CENTERS/SPECIFY' => strtoupper($faker->sentence),
                     'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->numberBetween(1, 100) * 10,
                 ];
@@ -128,8 +128,8 @@ class RtcProductionProcessorMainSheet implements FromCollection, WithTitle, With
             'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/FEMALE 35YRS+',
             'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS',
             'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+',
-            'MARKET SEGMENT/FRESH',
-            'MARKET SEGMENT/PROCESSED', // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
+            'MARKET SEGMENT/Fresh',
+            'MARKET SEGMENT/Processed', // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
             'HAS RTC MARKET CONTRACT',
             'TOTAL VOLUME PRODUCTION PREVIOUS SEASON',
             'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL',
