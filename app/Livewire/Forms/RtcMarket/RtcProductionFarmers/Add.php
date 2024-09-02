@@ -174,11 +174,13 @@ class Add extends Component
                 // Multiple market segments (array of strings)
                 'group' => 'required',
                 'registration_details.*' => 'required_if_accepted:is_registered',
-                'number_of_members.*' => 'required_if:type,PRODUCER ORGANIZATION',
-                'approach' => 'required_if:type,PRODUCER ORGANIZATION',
+                'number_of_members.*' => 'required_if:type,Producer organization',
+                'approach' => 'required_if:type,Producer organization',
                 'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
                 'total_vol_aggregation_center_sales' => 'required|numeric',
-                'number_of_plantlets_produced.*' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
+                'number_of_plantlets_produced.cassava' => 'required_if:group,Early generation seed producer',
+                'number_of_plantlets_produced.potato' => 'required_if:group,Early generation seed producer',
+                'number_of_plantlets_produced.sweet_potato' => 'required_if:group,Early generation seed producer',
                 'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
                 'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
                 'area_under_cultivation.*.variety' => 'required|distinct',
@@ -200,8 +202,8 @@ class Add extends Component
                 'total_production_value_previous_season.date_of_maximum_sales' => 'required|date',
                 'total_irrigation_production_value_previous_season.value' => 'required|numeric',
                 'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'required|date',
-                'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
-                'area_under_basic_seed_multiplication.*.area' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
+                'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,Early generation seed producer|distinct',
+                'area_under_basic_seed_multiplication.*.area' => 'required_if:group,Early generation seed producer',
                 'establishment_status' => 'required',
             ];
 
@@ -243,7 +245,9 @@ class Add extends Component
             'total_vol_aggregation_center_sales' => 'total aggregation center sales previous season',
             'market_information_systems.*.name' => 'market information systems name',
             'uses_market_information_systems' => 'sell your products through market information systems',
-            'number_of_plantlets_produced' => 'number of plantlets produced',
+            'number_of_plantlets_produced.cassava' => 'number of plantlets produced (cassava)',
+            'number_of_plantlets_produced.potato' => 'number of plantlets produced (potato)',
+            'number_of_plantlets_produced.sweet_potato' => 'number of plantlets produced (sweet potato)',
 
             'area_under_cultivation.*.variety' => 'area under cultivation (variety)',
             'area_under_cultivation.*.area' => 'area under cultivation (area)',
@@ -511,6 +515,7 @@ class Add extends Component
     public function save()
     {
 
+
         try {
 
             $this->validate();
@@ -575,10 +580,10 @@ class Add extends Component
                 'registration_details' => $this->is_registered ? $this->registration_details : null,
                 'number_of_employees' => $this->number_of_employees,
                 'area_under_cultivation' => $this->area_under_cultivation, // Stores area by variety (key-value pairs)
-                'number_of_plantlets_produced' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_plantlets_produced : null,
-                'number_of_screen_house_vines_harvested' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_screen_house_vines_harvested : null, // Sweet potatoes
-                'number_of_screen_house_min_tubers_harvested' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_screen_house_min_tubers_harvested : null, // Potatoes
-                'number_of_sah_plants_produced' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_sah_plants_produced : null, // Cassava
+                'number_of_plantlets_produced' => $this->group == 'Early generation seed producer' ? $this->number_of_plantlets_produced : null,
+                'number_of_screen_house_vines_harvested' => $this->group == 'Early generation seed producer' ? $this->number_of_screen_house_vines_harvested : null, // Sweet potatoes
+                'number_of_screen_house_min_tubers_harvested' => $this->group == 'Early generation seed producer' ? $this->number_of_screen_house_min_tubers_harvested : null, // Potatoes
+                'number_of_sah_plants_produced' => $this->group == 'Early generation seed producer' ? $this->number_of_sah_plants_produced : null, // Cassava
                 'area_under_basic_seed_multiplication' => $this->area_under_basic_seed_multiplication, // Acres
                 'area_under_certified_seed_multiplication' => $this->area_under_certified_seed_multiplication, // Acres
                 'is_registered_seed_producer' => $this->is_registered_seed_producer,
@@ -666,6 +671,7 @@ class Add extends Component
 
 
         } catch (Throwable $th) {
+
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
         }
@@ -674,6 +680,12 @@ class Add extends Component
 
     public function addMoreData($recruit)
     {
+        $dates = [
+            'created_at' => now(),
+            'updated_at' => now(),
+            'status' => 'approved'
+        ];
+
         try {
             $thirdTable = array();
 
@@ -689,7 +701,7 @@ class Add extends Component
                     'product_type' => $input['conc_product_type'],
                     'volume_sold_previous_period' => $input['conc_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['conc_financial_value_of_sales'],
-
+                    ...$dates
                 ];
             }
 
@@ -711,6 +723,7 @@ class Add extends Component
                     'product_type' => $input['dom_product_type'],
                     'volume_sold_previous_period' => $input['dom_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['dom_financial_value_of_sales'],
+                    ...$dates
                 ];
             }
 
@@ -734,6 +747,7 @@ class Add extends Component
                     'product_type' => $input['inter_product_type'],
                     'volume_sold_previous_period' => $input['inter_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['inter_financial_value_of_sales'],
+                    ...$dates
                 ];
             }
 

@@ -7,10 +7,15 @@
     </button>
 
 
-    <a href="#" class="btn btn-soft-info waves-effect waves-light my-2" wire:click='$dispatch("export-followup")'>
-        <i class="fas fa-file-excel"></i> Add Follow up +
-    </a>
+    @php
 
+        $prefix = Route::current()->getPrefix();
+
+        $route = '' . $prefix . '/forms/rtc-market/rtc-production-and-marketing-form-farmers/followup';
+    @endphp
+    <a href="{{ $route }}" class="btn btn-primary waves-effect waves-light my-2">
+        <i class="bx bx-plus"></i> Add Follow up
+    </a>
 
 
 </div>

@@ -471,40 +471,8 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Total production value previous season/total', 'total_production_value_previous_season_value', 'total_production_value_previous_season->value')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date', 'total_production_value_previous_season->date_of_maximum_sales')
-                ->sortable()
-                ->searchable(),
 
 
-            Column::make('Total production value previous season($)', 'total_production_value_previous_season_total', 'total_production_value_previous_season->total')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total production value previous season/rate', 'total_production_value_previous_season_rate', 'total_production_value_previous_season->rate')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_value', 'total_irrigation_production_value_previous_season->value')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date', 'total_irrigation_production_value_previous_season->date_of_maximum_sales')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total irrigation production value previous season($)', 'total_irrigation_production_value_previous_season_total', 'total_irrigation_production_value_previous_season->total')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Total irrigation production value previous season/rate', 'total_irrigation_production_value_previous_season_rate', 'total_irrigation_production_value_previous_season->rate')
-                ->sortable()
-                ->searchable(),
 
 
             Column::make('Sells to domestic markets', 'sells_to_domestic_markets')

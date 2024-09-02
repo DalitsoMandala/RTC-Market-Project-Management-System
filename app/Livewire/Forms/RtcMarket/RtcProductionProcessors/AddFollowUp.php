@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
 use Throwable;
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -550,8 +551,13 @@ class AddFollowUp extends Component
                 'rate' => ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? '',
             ]
         );
-        $this->recruits = RtcProductionProcessor::distinct()->get();
+
+        $organisation = User::find(auth()->user()->id)->organisation;
+        $this->recruits = RtcProductionProcessor::where('organisation_id', $organisation->id)->distinct()->get();
+
         $this->routePrefix = Route::current()->getPrefix();
+        $this->total_production_value_previous_season['rate'] = $this->rate;
+
 
     }
 

@@ -72,11 +72,11 @@
     group: $wire.entangle('group'),
     number_of_plantlets_produced: $wire.entangle('number_of_plantlets_produced')
 }" x-init="$watch('group', (v) => {
-    if (v != 'EARLY GENERATION SEED PRODUCER') {
+    if (v != 'Early generation seed producer') {
 
         $wire.resetValues('number_of_plantlets_produced');
     }
-});" x-show="group=='EARLY GENERATION SEED PRODUCER'">
+});" x-show="group=='Early generation seed producer'">
 
     <label for="numberOfPlantlets" class="my-3 form-label fw-bold">Number of
         Plantlets
@@ -128,13 +128,13 @@
     number_of_screen_house_vines_harvested: $wire.entangle('number_of_screen_house_vines_harvested'),
     init() {
         this.$watch('group', (v) => {
-            if (v != 'EARLY GENERATION SEED PRODUCER') {
+            if (v != 'Early generation seed producer') {
                 $wire.resetValues('number_of_screen_house_vines_harvested');
             }
         });
     }
 
-}" x-show="group=='EARLY GENERATION SEED PRODUCER'">
+}" x-show="group=='Early generation seed producer'">
     <label for="numberOfScreenHouseVines" class="form-label">Number of Screen
         House Vines Harvested (Sweet Potatoes)</label>
     <input type="number" min="0" step="any"
@@ -150,12 +150,12 @@
     number_of_screen_house_min_tubers_harvested: $wire.entangle('number_of_screen_house_min_tubers_harvested'),
     init() {
         this.$watch('group', (v) => {
-            if (v != 'EARLY GENERATION SEED PRODUCER') {
+            if (v != 'Early generation seed producer') {
                 $wire.resetValues('number_of_screen_house_min_tubers_harvested');
             }
         });
     }
-}" x-show="group=='EARLY GENERATION SEED PRODUCER' ">
+}" x-show="group=='Early generation seed producer' ">
     <label for="numberOfMiniTubers" class="form-label">Number of Screen House
         Mini-Tubers Harvested (Potato)</label>
     <input type="number" min="0" step="any"
@@ -171,12 +171,12 @@
     number_of_sah_plants_produced: $wire.entangle('number_of_sah_plants_produced'),
     init() {
         this.$watch('group', (v) => {
-            if (v != 'EARLY GENERATION SEED PRODUCER') {
+            if (v != 'Early generation seed producer') {
                 $wire.resetValues('number_of_sah_plants_produced');
             }
         });
     }
-}" x-show=" group=='EARLY GENERATION SEED PRODUCER'">
+}" x-show=" group=='Early generation seed producer'">
     <label for="numberOfSAHPlants" class="form-label">Number of SAH Plants
         Produced (Cassava)</label>
     <input type="number" min="0" step="any"
@@ -193,15 +193,18 @@
     area_under_basic_seed_multiplication: $wire.entangle('area_under_basic_seed_multiplication'),
     init() {
         this.$watch('group', (v) => {
-            if (v != 'EARLY GENERATION SEED PRODUCER') {
+            if (v == 'Early generation seed producer') {
+                $wire.resetValues('area_under_basic_seed_multiplication');
+                $wire.addBasicSeed();
 
+            } else {
                 $wire.resetValues('area_under_basic_seed_multiplication');
             }
         });
 
 
     }
-}" x-show="group=='EARLY GENERATION SEED PRODUCER'">
+}" x-show="group=='Early generation seed producer'">
     <label for="areaUnderBasicSeed" class="my-3 form-label fw-bold">Area Under
         Basic Seed
         Multiplication (Number of Acres)</label>
@@ -426,11 +429,11 @@
     <div class="@error('market_segment') border border-danger @enderror">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="marketSegmentFresh" wire:model="market_segment"
-                value="FRESH">
+                value="Fresh">
             <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="PROCESSED"
+            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="Processed"
                 wire:model="market_segment">
             <label class="form-check-label" for="marketSegmentProcessed">Processed</label>
         </div>

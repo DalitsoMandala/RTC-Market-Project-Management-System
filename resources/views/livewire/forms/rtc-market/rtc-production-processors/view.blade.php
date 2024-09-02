@@ -37,7 +37,7 @@
                         </h4>
                     </div>
                     <div class="card-body" id="#datatable">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
                                     data-bs-target="#normal" type="button" role="tab" aria-controls="home"

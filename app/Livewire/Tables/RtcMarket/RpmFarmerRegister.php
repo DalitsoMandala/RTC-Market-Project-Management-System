@@ -5,7 +5,7 @@ namespace App\Livewire\tables\RtcMarket;
 use Illuminate\Support\Carbon;
 
 use Illuminate\Support\Collection;
-use App\Models\RtcProductionProcessor;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -15,11 +15,11 @@ use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class RpmProcessorRegister extends PowerGridComponent
+final class RpmFarmerRegister extends PowerGridComponent
 {
     public function datasource(): Builder
     {
-        return RtcProductionProcessor::query()->where('is_registered', 1);
+        return RtcProductionFarmer::query()->where('is_registered', 1);
     }
 
     public function setUp(): array
@@ -39,8 +39,9 @@ final class RpmProcessorRegister extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
-            ->add('rpm_processor_id')
+            ->add('unique_id', function ($model) {
+                return str_pad($model->id, 5, '0', STR_PAD_LEFT);
+            })
             ->add('name_of_actor')
             ->add('unique_id', function ($model) {
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
@@ -53,10 +54,9 @@ final class RpmProcessorRegister extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Processor ID', 'unique_id', 'id')
+            Column::make('Farmer ID', 'unique_id', 'id')
                 ->searchable()
                 ->sortable(),
-
 
             Column::make('Name of actor', 'name_of_actor')
                 ->searchable()

@@ -41,7 +41,7 @@ class Add extends Component
     public $name_of_representative;
     public $phone_number;
     public $type;
-    public $approach; // For producer organizations only
+    public $approach; // For Producer organisations only
     public $sector;
     public $number_of_members = [
         'total' => null,
@@ -50,7 +50,7 @@ class Add extends Component
         'male_18_35' => null,
         'male_35_plus' => null,
 
-    ]; // For producer organizations only
+    ]; // For Producer organisations only
     public $group;
     public $establishment_status;
     public $is_registered = false;
@@ -174,8 +174,8 @@ class Add extends Component
             'market_segment' => 'required', // Multiple market segments (array of strings)
             'group' => 'required',
             'registration_details.*' => 'required_if_accepted:is_registered',
-            'number_of_members.*' => 'required_if:type,PRODUCER ORGANIZATION',
-            'approach' => 'required_if:type,PRODUCER ORGANIZATION',
+            'number_of_members.*' => 'required_if:type,Producer organisation',
+            'approach' => 'required_if:type,Producer organisation',
             'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
             'total_vol_aggregation_center_sales' => 'required|numeric',
             'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
@@ -487,9 +487,9 @@ class Add extends Component
                 'name_of_representative' => $this->name_of_representative,
                 'phone_number' => $this->phone_number,
                 'type' => $this->type,
-                'approach' => $this->approach, // For producer organizations only
+                'approach' => $this->approach, // For Producer organisations only
                 'sector' => $this->sector,
-                'number_of_members' => $this->number_of_members, // For producer organizations only
+                'number_of_members' => $this->number_of_members, // For Producer organisations only
                 'group' => $this->group,
                 'establishment_status' => $this->establishment_status,
                 'is_registered' => $this->is_registered,

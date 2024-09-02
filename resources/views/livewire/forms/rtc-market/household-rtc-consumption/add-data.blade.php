@@ -76,9 +76,9 @@
                                         @enderror"
                                             wire:model='enterprise'>
                                             <option value="">Select one</option>
-                                            <option value="CASSAVA">Cassava</option>
-                                            <option value="POTATO">Potato</option>
-                                            <option value="SWEET POTATO">Sweet potato</option>
+                                            <option value="Cassava">Cassava</option>
+                                            <option value="Potato">Potato</option>
+                                            <option value="Sweet potato">Sweet potato</option>
                                         </select>
                                     </div>
                                     {{-- <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
@@ -93,34 +93,7 @@
                                                 is-invalid
                                             @enderror"
                                         wire:model='district'>
-                                        <option value="">Select One</option>
-                                        <option>BALAKA</option>
-                                        <option>BLANTYRE</option>
-                                        <option>CHIKWAWA</option>
-                                        <option>CHIRADZULU</option>
-                                        <option>CHITIPA</option>
-                                        <option>DEDZA</option>
-                                        <option>DOWA</option>
-                                        <option>KARONGA</option>
-                                        <option>KASUNGU</option>
-                                        <option>LILONGWE</option>
-                                        <option>MACHINGA</option>
-                                        <option>MANGOCHI</option>
-                                        <option>MCHINJI</option>
-                                        <option>MULANJE</option>
-                                        <option>MWANZA</option>
-                                        <option>MZIMBA</option>
-                                        <option>NENO</option>
-                                        <option>NKHATA BAY</option>
-                                        <option>NKHOTAKOTA</option>
-                                        <option>NSANJE</option>
-                                        <option>NTCHEU</option>
-                                        <option>NTCHISI</option>
-                                        <option>PHALOMBE</option>
-                                        <option>RUMPHI</option>
-                                        <option>SALIMA</option>
-                                        <option>THYOLO</option>
-                                        <option>ZOMBA</option>
+                                        @include('layouts.district-options')
                                     </select>
                                     @error('district')
                                         <x-error>{{ $message }}</x-error>
@@ -170,10 +143,10 @@
                                                 class="form-select @error('inputs.' . $key . '.actor_type') is-invalid @enderror"
                                                 wire:model="inputs.{{ $key }}.actor_type">
                                                 <option value="">Select one</option>
-                                                <option value="FARMER">Farmer</option>
-                                                <option value="PROCESSOR">Processor</option>
-                                                <option value="TRADER">Trader</option>
-                                                <option value="INDIVIDUALS FROM NUTRITION INTERVENTION">
+                                                <option value="Farmer">Farmer</option>
+                                                <option value="Processor">Processor</option>
+                                                <option value="Trader">Trader</option>
+                                                <option value="Individuals from nutrition interventions">
                                                     Individuals
                                                     from
                                                     Nutrition
@@ -192,7 +165,7 @@
                                                 wire:model="inputs.{{ $key }}.rtc_group_platform">
 
                                                 <option value="Household">Household</option>
-                                                <option value="Seed">Seed Producer</option>
+                                                <option value="Seed">Seed</option>
                                                 {{-- <option value="Producer Organisation">Producer Organisation</option> --}}
                                             </select>
                                             @error('inputs.' . $key . '.rtc_group_platform')
@@ -228,8 +201,8 @@
 
                                                 <option value="" selected>Select Age Group
                                                 </option>
-                                                <option value="YOUTH">Youth (18-35 yrs)</option>
-                                                <option value="NOT YOUTH">Not Youth (35+ yrs)</option>
+                                                <option value="Youth">Youth (18-35 yrs)</option>
+                                                <option value="Not Youth">Not Youth (35+ yrs)</option>
                                             </select>
                                             @error('inputs.' . $key . '.age_group')
                                                 <x-error>{{ $message }}</x-error>
@@ -241,8 +214,8 @@
                                                 class="form-select @error('inputs.' . $key . '.sex') is-invalid @enderror"
                                                 wire:model="inputs.{{ $key }}.sex">
 
-                                                <option value="MALE">Male</option>
-                                                <option value="FEMALE">Female</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
                                             </select>
                                             @error('inputs.' . $key . '.sex')
                                                 <x-error>{{ $message }}</x-error>

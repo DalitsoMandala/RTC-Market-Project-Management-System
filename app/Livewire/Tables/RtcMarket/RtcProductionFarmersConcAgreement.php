@@ -49,6 +49,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('unique_id', fn($model) => str_pad($model->rpm_farmer_id, 5, '0', STR_PAD_LEFT))
             ->add('rpm_farmer_id')
             ->add('actor_name', function ($model) {
                 $farmer = $model->rpm_farmer_id;
@@ -139,9 +140,9 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Farmer ID', 'unique_id', 'id')->sortable(),
             Column::make('Actor Name', 'actor_name'),
-            Column::make('Farmer id', 'rpm_farmer_id'),
+
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 

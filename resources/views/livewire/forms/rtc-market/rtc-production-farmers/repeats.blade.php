@@ -78,9 +78,9 @@
                 class="form-select form-select-md  @error('inputOne.' . $index . '.conc_product_type') is-invalid @enderror"
                 wire:model="inputOne.{{ $index }}.conc_product_type">
                 <option value="">Select one</option>
-                <option>SEED</option>
-                <option>WARE</option>
-                <option>VALUE ADDED PRODUCTS</option>
+                <option>Seed</option>
+                <option>Ware</option>
+                <option>Value added products</option>
             </select>
 
             @error('inputOne.' . $index . '.conc_product_type')
@@ -178,9 +178,9 @@
                 class="form-select form-select-md  @error('inputTwo.' . $index . '.dom_crop_type') is-invalid @enderror"
                 wire:model="inputTwo.{{ $index }}.dom_crop_type">
                 <option value="">Select one</option>
-                <option>CASSAVA</option>
-                <option>POTATO</option>
-                <option>SWEET POTATO</option>
+                <option>Cassava</option>
+                <option>Potato</option>
+                <option>Sweet potato</option>
             </select>
             @error('inputTwo.' . $index . '.dom_crop_type')
                 <x-error>{{ $message }}</x-error>
@@ -232,9 +232,9 @@
                 class="form-select form-select-md  @error('inputTwo.' . $index . '.dom_product_type') is-invalid @enderror"
                 wire:model="inputTwo.{{ $index }}.dom_product_type">
 
-                <option>SEED</option>
-                <option>WARE</option>
-                <option>VALUE ADDED PRODUCTS</option>
+                <option>Seed</option>
+                <option>Ware</option>
+                <option>Value added products</option>
             </select>
             @error('inputTwo.' . $index . '.dom_product_type')
                 <x-error>{{ $message }}</x-error>
@@ -332,9 +332,9 @@
                 class="form-select form-select-md   @error('inputThree.' . $index . '.inter_crop_type') is-invalid @enderror"
                 wire:model="inputThree.{{ $index }}.inter_crop_type">
 
-                <option>CASSAVA</option>
-                <option>POTATO</option>
-                <option>SWEET POTATO</option>
+                <option>Cassava</option>
+                <option>Potato</option>
+                <option>Sweet potato</option>
             </select>
             @error('inputThree.' . $index . '.inter_crop_type')
                 <x-error>{{ $message }}</x-error>
@@ -385,9 +385,9 @@
                 wire:model="inputThree.{{ $index }}.inter_product_type">
 
 
-                <option>SEED</option>
-                <option>WARE</option>
-                <option>VALUE ADDED PRODUCTS</option>
+                <option>Seed</option>
+                <option>Ware</option>
+                <option>Value added products</option>
             </select>
             @error('inputThree.' . $index . '.inter_product_type')
                 <x-error>{{ $message }}</x-error>

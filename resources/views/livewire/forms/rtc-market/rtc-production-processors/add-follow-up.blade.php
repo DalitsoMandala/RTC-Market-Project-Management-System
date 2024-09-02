@@ -114,34 +114,7 @@
                                                 is-invalid
                                             @enderror"
                                         wire:model='location_data.district'>
-                                        <option value="">Choose one</option>
-                                        <option>BALAKA</option>
-                                        <option>BLANTYRE</option>
-                                        <option>CHIKWAWA</option>
-                                        <option>CHIRADZULU</option>
-                                        <option>CHITIPA</option>
-                                        <option>DEDZA</option>
-                                        <option>DOWA</option>
-                                        <option>KARONGA</option>
-                                        <option>KASUNGU</option>
-                                        <option>LILONGWE</option>
-                                        <option>MACHINGA</option>
-                                        <option>MANGOCHI</option>
-                                        <option>MCHINJI</option>
-                                        <option>MULANJE</option>
-                                        <option>MWANZA</option>
-                                        <option>MZIMBA</option>
-                                        <option>NENO</option>
-                                        <option>NKHATA BAY</option>
-                                        <option>NKHOTAKOTA</option>
-                                        <option>NSANJE</option>
-                                        <option>NTCHEU</option>
-                                        <option>NTCHISI</option>
-                                        <option>PHALOMBE</option>
-                                        <option>RUMPHI</option>
-                                        <option>SALIMA</option>
-                                        <option>THYOLO</option>
-                                        <option>ZOMBA</option>
+                                        @include('layouts.district-options')
                                     </select>
                                     @error('location_data.district')
                                         <x-error>{{ $message }}</x-error>
@@ -174,12 +147,12 @@
                                     <div class="@error('market_segment') border border-danger @enderror">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="marketSegmentFresh"
-                                                wire:model="market_segment" value="FRESH">
+                                                wire:model="market_segment" value="Fresh">
                                             <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="marketSegmentProcessed"
-                                                value="PROCESSED" wire:model="market_segment">
+                                                value="Processed" wire:model="market_segment">
                                             <label class="form-check-label"
                                                 for="marketSegmentProcessed">Processed</label>
                                         </div>

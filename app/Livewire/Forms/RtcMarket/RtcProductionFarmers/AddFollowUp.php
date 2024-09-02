@@ -4,6 +4,7 @@ namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
 use Throwable;
 use App\Models\Form;
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Livewire\Component;
 use App\Models\Indicator;
@@ -42,6 +43,12 @@ class AddFollowUp extends Component
         'potato' => null,
         'sweet_potato' => null,
     ];
+    public $is_registered = false;
+    public $registration_details = [
+        'registration_body' => null,
+        'registration_number' => null,
+        'registration_date' => null,
+    ];
     public $number_of_screen_house_vines_harvested; // Sweet potatoes
     public $number_of_screen_house_min_tubers_harvested; // Potatoes
     public $number_of_sah_plants_produced; // Cassava
@@ -58,8 +65,7 @@ class AddFollowUp extends Component
     ];
     public $uses_certified_seed = false;
     public $market_segment = [
-        'fresh' => null,
-        'processed' => null,
+
     ]; // Multiple market segments (array of strings)
     public $has_rtc_market_contract = false;
     public $total_vol_production_previous_season;
@@ -123,7 +129,7 @@ class AddFollowUp extends Component
 
     public $f_name;
 
-    public $rate;
+    public $rate = 0;
     public function rules()
     {
 
@@ -138,10 +144,12 @@ class AddFollowUp extends Component
                 'group' => 'required',
                 'registration_details.*' => 'required_if_accepted:is_registered',
 
-                'approach' => 'required_if:type,PRODUCER ORGANIZATION',
+
                 'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
                 'total_vol_aggregation_center_sales' => 'required|numeric',
-                'number_of_plantlets_produced.*' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
+                'number_of_plantlets_produced.cassava' => 'required_if:group,Early generation seed producer',
+                'number_of_plantlets_produced.potato' => 'required_if:group,Early generation seed producer',
+                'number_of_plantlets_produced.sweet_potato' => 'required_if:group,Early generation seed producer',
                 'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
                 'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
                 'area_under_cultivation.*.variety' => 'required|distinct',
@@ -156,8 +164,8 @@ class AddFollowUp extends Component
                 'total_production_value_previous_season.date_of_maximum_sales' => 'required|date',
                 'total_irrigation_production_value_previous_season.value' => 'required|numeric',
                 'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'required|date',
-                'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
-                'area_under_basic_seed_multiplication.*.area' => 'required_if:group,EARLY GENERATION SEED PRODUCER',
+                'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,Early generation seed producer|distinct',
+                'area_under_basic_seed_multiplication.*.area' => 'required_if:group,Early generation seed producer',
 
             ];
 
@@ -186,7 +194,10 @@ class AddFollowUp extends Component
             'total_vol_aggregation_center_sales' => 'total aggregation center sales previous season',
             'market_information_systems.*.name' => 'market information systems name',
             'uses_market_information_systems' => 'sell your products through market information systems',
-            'number_of_plantlets_produced' => 'number of plantlets produced',
+
+            'number_of_plantlets_produced.cassava' => 'number of plantlets produced (cassava)',
+            'number_of_plantlets_produced.potato' => 'number of plantlets produced (potato)',
+            'number_of_plantlets_produced.sweet_potato' => 'number of plantlets produced (sweet potato)',
 
             'area_under_cultivation.*.variety' => 'area under cultivation (variety)',
             'area_under_cultivation.*.area' => 'area under cultivation (area)',
@@ -200,6 +211,7 @@ class AddFollowUp extends Component
             'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'date of maximum sales of irrigation production previous season',
             'area_under_basic_seed_multiplication.*.variety' => 'seed multiplication (variety)',
             'area_under_basic_seed_multiplication.*.area' => 'seed multiplication (area)',
+
         ];
     }
 
@@ -451,6 +463,8 @@ class AddFollowUp extends Component
 
     public function save()
     {
+
+
         try {
 
             $this->validate();
@@ -478,11 +492,12 @@ class AddFollowUp extends Component
                 $secondTable = [
                     'rpm_farmer_id' => $this->recruit,
                     'date_of_follow_up' => $this->date_of_follow_up,
+                    'location_data' => $this->location_data,
                     'area_under_cultivation' => $this->area_under_cultivation, // Stores area by variety (key-value pairs)
-                    'number_of_plantlets_produced' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_plantlets_produced : null,
-                    'number_of_screen_house_vines_harvested' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_screen_house_vines_harvested : null, // Sweet potatoes
-                    'number_of_screen_house_min_tubers_harvested' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_screen_house_min_tubers_harvested : null, // Potatoes
-                    'number_of_sah_plants_produced' => $this->group == 'EARLY GENERATION SEED PRODUCER' ? $this->number_of_sah_plants_produced : null, // Cassava
+                    'number_of_plantlets_produced' => $this->group == 'Early generation seed producer' ? $this->number_of_plantlets_produced : null,
+                    'number_of_screen_house_vines_harvested' => $this->group == 'Early generation seed producer' ? $this->number_of_screen_house_vines_harvested : null, // Sweet potatoes
+                    'number_of_screen_house_min_tubers_harvested' => $this->group == 'Early generation seed producer' ? $this->number_of_screen_house_min_tubers_harvested : null, // Potatoes
+                    'number_of_sah_plants_produced' => $this->group == 'Early generation seed producer' ? $this->number_of_sah_plants_produced : null, // Cassava
                     'area_under_basic_seed_multiplication' => $this->area_under_basic_seed_multiplication, // Acres
                     'area_under_certified_seed_multiplication' => $this->area_under_certified_seed_multiplication, // Acres
                     'is_registered_seed_producer' => $this->is_registered_seed_producer,
@@ -497,18 +512,15 @@ class AddFollowUp extends Component
                     'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                     'sells_to_international_markets' => $this->sells_to_international_markets,
                     'uses_market_information_systems' => $this->uses_market_information_systems,
-                    'market_information_systems' => $this->market_information_systems,
-                    'user_id' => auth()->user()->id,
-                    'uuid' => $uuid,
-                    'submission_period_id' => $this->submissionPeriodId,
-                    'organisation_id' => Auth::user()->organisation->id,
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'period_month_id' => $this->selectedMonth,
+                    'market_information_systems' => $this->uses_market_information_systems ? $this->market_information_systems : null,
+
+
+
                     'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                    'aggregation_centers' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
+                    'aggregation_centers' => $this->sells_to_aggregation_centers ? $this->aggregation_center_sales : null, // Stores aggregation center details (array of objects with name and volume sold)
                     'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
                     'status' => 'approved',
-
+                    'user_id' => auth()->user()->id,
                 ];
 
 
@@ -528,11 +540,10 @@ class AddFollowUp extends Component
                 }
 
 
-                $recruit = RtcProductionFarmer::create($secondTable);
-                $this->addMoreData($recruit);
-
 
                 RpmFarmerFollowUp::create($secondTable);
+                $recruit = RtcProductionFarmer::find($this->recruit);
+                $this->addMoreData($recruit);
 
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view#followup">View Submission here</a>');
@@ -549,7 +560,7 @@ class AddFollowUp extends Component
 
 
         } catch (Throwable $th) {
-
+            dd($th);
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
         }
@@ -662,12 +673,21 @@ class AddFollowUp extends Component
 
             ]
         );
-        $this->recruits = RtcProductionFarmer::distinct()->get();
+
+        $organisation = User::find(auth()->user()->id)->organisation;
+        $this->recruits = RtcProductionFarmer::where('organisation_id', $organisation->id)->distinct()->get();
         $this->routePrefix = Route::current()->getPrefix();
+        $this->total_production_value_previous_season['rate'] = $this->rate;
+        $this->total_irrigation_production_value_previous_season['rate'] = $this->rate;
     }
 
     public function addMoreData($recruit)
     {
+        $dates = [
+            'created_at' => now(),
+            'updated_at' => now(),
+            'status' => 'approved'
+        ];
         try {
             $thirdTable = array();
 
@@ -683,6 +703,7 @@ class AddFollowUp extends Component
                     'product_type' => $input['conc_product_type'],
                     'volume_sold_previous_period' => $input['conc_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['conc_financial_value_of_sales'],
+                    ...$dates
 
                 ];
             }
@@ -705,6 +726,7 @@ class AddFollowUp extends Component
                     'product_type' => $input['dom_product_type'],
                     'volume_sold_previous_period' => $input['dom_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['dom_financial_value_of_sales'],
+                    ...$dates
                 ];
             }
 
@@ -728,6 +750,7 @@ class AddFollowUp extends Component
                     'product_type' => $input['inter_product_type'],
                     'volume_sold_previous_period' => $input['inter_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['inter_financial_value_of_sales'],
+                    ...$dates
                 ];
             }
 

@@ -33,6 +33,8 @@ return new class extends Migration {
             $table->boolean('has_rtc_market_contract')->default(false)->nullable();
             $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
             $table->json('total_production_value_previous_season')->nullable(); // MWK
+            $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonne
+            $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
             $table->boolean('sells_to_domestic_markets')->default(false)->nullable();
             $table->boolean('sells_to_international_markets')->default(false)->nullable();
             $table->boolean('uses_market_information_systems')->default(false)->nullable();

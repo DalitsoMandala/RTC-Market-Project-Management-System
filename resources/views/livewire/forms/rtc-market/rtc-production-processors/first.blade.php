@@ -48,9 +48,9 @@
 
     <select class="form-select form-select-md @error('type') is-invalid @enderror" wire:model='type'>
         <option selected value="">Select One</option>
-        <option value="PRODUCER ORGANIZATION">PRODUCER ORGANIZATION (PO)</option>
-        <option value="LARGE SCALE FARM">LARGE SCALE FARM</option>
-        <option value="SMALL MEDIUM ENTERPRISE (SME)">SMALL MEDIUM ENTERPRISE (SME)</option>
+        <option value="Producer organization">Producer organization (PO)</option>
+        <option value="Large scale farm">Large scale farm</option>
+        <option value="Small medium entrprise (SME)">Small medium entrprise (SME)</option>
     </select>
 
     @error('type')
@@ -61,20 +61,20 @@
 
 <!-- Approach (For Producer Organizations Only) -->
 <div class="mb-3" x-data="{ type: $wire.entangle('type'), approach: $wire.entangle('approach') }" x-init="$watch('type', (v) => {
-    if (v != 'PRODUCER ORGANIZATION') {
+    if (v != 'Producer organization') {
 
         $wire.resetValues('approach');
     }
-});" x-show="type=='PRODUCER ORGANIZATION'">
+});" x-show="type=='Producer organization'">
     <label for="approach" class="form-label">What Approach Does Your Group Follow (For Producer Organizations
         Only)</label>
     <select class="form-select @error('approach') is-invalid @enderror" wire:model="approach">
         <option value="">Select One</option>
-        <option value="COLLECTIVE PRODUCTION ONLY">COLLECTIVE PRODUCTION ONLY</option>
-        <option value="COLLECTIVE MARKETING ONLY">COLLECTIVE MARKETING ONLY</option>
-        <option value="KNOWLEDGE SHARING ONLY">KNOWLEDGE SHARING ONLY</option>
-        <option value="COLLECTIVE PRODUCTION, MARKETING AND KNOWLEDGE SHARING">COLLECTIVE PRODUCTION, MARKETING AND
-            KNOWLEDGE SHARING</option>
+        <option value="Collective production only">Collective production only</option>
+        <option value="Collective marketing only">Collective marketing only</option>
+        <option value="Knowledge sharing only">Knowledge sharing only</option>
+        <option value="Collective production, marketing and knowledge sharing">Collective production, marketing and
+            knowledge sharing</option>
         <option value="N/A">N/A</option>
     </select>
 
@@ -89,10 +89,9 @@
     <label for="sector" class="form-label">Sector</label>
     <select class="form-select @error('sector') is-invalid @enderror" wire:model="sector">
         <option value="">Select One</option>
-        <option value="PRIVATE">PRIVATE</option>
-        <option value="PUBLIC">PUBLIC</option>
+        <option value="Private">Private</option>
+        <option value="Public">Public</option>
     </select>
-
     @error('sector')
         <x-error>{{ $message }}</x-error>
     @enderror
@@ -105,7 +104,7 @@
 
 
 }" x-init="$watch('type', (v) => {
-    if (v != 'PRODUCER ORGANIZATION') {
+    if (v != 'Producer organization') {
 
         $wire.resetValues('number_of_members');
     }
@@ -115,7 +114,7 @@
 
 $watch('number_of_members', (v) => {
     v.total = parseInt(v.female_18_35 || 0) + parseInt(v.female_35_plus || 0) + parseInt(v.male_18_35 || 0) + parseInt(v.male_35_plus || 0);
-});" x-show="type=='PRODUCER ORGANIZATION'">
+});" x-show="type=='Producer organization'">
     <label for="numberOfMembers" class="form-label">Number of Members (For Producer Organizations Only)</label>
 
     <div class="mb-3">
@@ -179,7 +178,7 @@ $watch('number_of_members', (v) => {
     <label for="group" class="form-label">Group</label>
     <select class="form-select @error('group') is-invalid @enderror" x-model="group">
         <option value="">Select One</option>
-        <option value="OTHER">OTHER</option>
+        <option value="Other">Other</option>
 
     </select>
 
@@ -194,8 +193,8 @@ $watch('number_of_members', (v) => {
     <select class="form-select @error('establishment_status') is-invalid @enderror" id="establishment"
         wire:model='establishment_status'>
         <option value="">Select One</option>
-        <option value="NEW">NEW (1-5 YEARS)</option>
-        <option value="OLD">OLD (OVER 5 YEARS)</option>
+        <option value="New">New (1-5 Years)</option>
+        <option value="Old">Old (Over 5 Years)</option>
     </select>
     @error('establishment_status')
         <x-error>{{ $message }}</x-error>
@@ -409,11 +408,11 @@ $watch('number_of_members', (v) => {
     <div class="@error('market_segment') border border-danger @enderror">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="marketSegmentFresh" wire:model="market_segment"
-                value="FRESH">
+                value="Fresh">
             <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="PROCESSED"
+            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="Processed"
                 wire:model="market_segment">
             <label class="form-check-label" for="marketSegmentProcessed">Processed</label>
         </div>

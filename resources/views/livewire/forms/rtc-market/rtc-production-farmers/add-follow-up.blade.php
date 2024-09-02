@@ -98,10 +98,10 @@
                                     <select class="form-select @error('group') is-invalid @enderror bg-light"
                                         x-model="group" disabled>
                                         <option value="">Select One</option>
-                                        <option value="EARLY GENERATION SEED PRODUCER">EARLY GENERATION SEED PRODUCER
+                                        <option value="Early generation seed producer">Early generation seed producer
                                         </option>
-                                        <option value="SEED MULTIPLIER">SEED MULTIPLIER</option>
-                                        <option value="RTC PRODUCER">RTC PRODUCER</option>
+                                        <option value="Seed multiplier">Seed multiplier</option>
+                                        <option value="Rtc producer">Rtc producer</option>
                                     </select>
 
                                     @error('group')
@@ -124,34 +124,7 @@
                                                 is-invalid
                                             @enderror"
                                         wire:model='location_data.district'>
-                                        <option value="">Choose one</option>
-                                        <option>BALAKA</option>
-                                        <option>BLANTYRE</option>
-                                        <option>CHIKWAWA</option>
-                                        <option>CHIRADZULU</option>
-                                        <option>CHITIPA</option>
-                                        <option>DEDZA</option>
-                                        <option>DOWA</option>
-                                        <option>KARONGA</option>
-                                        <option>KASUNGU</option>
-                                        <option>LILONGWE</option>
-                                        <option>MACHINGA</option>
-                                        <option>MANGOCHI</option>
-                                        <option>MCHINJI</option>
-                                        <option>MULANJE</option>
-                                        <option>MWANZA</option>
-                                        <option>MZIMBA</option>
-                                        <option>NENO</option>
-                                        <option>NKHATA BAY</option>
-                                        <option>NKHOTAKOTA</option>
-                                        <option>NSANJE</option>
-                                        <option>NTCHEU</option>
-                                        <option>NTCHISI</option>
-                                        <option>PHALOMBE</option>
-                                        <option>RUMPHI</option>
-                                        <option>SALIMA</option>
-                                        <option>THYOLO</option>
-                                        <option>ZOMBA</option>
+                                        @include('layouts.district-options')
                                     </select>
                                     @error('location_data.district')
                                         <x-error>{{ $message }}</x-error>
@@ -182,7 +155,7 @@
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
 
-                                    <button class="px-5 btn btn-primary btn-lg"
+                                    <button class="btn btn-primary btn-lg"
                                         @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'

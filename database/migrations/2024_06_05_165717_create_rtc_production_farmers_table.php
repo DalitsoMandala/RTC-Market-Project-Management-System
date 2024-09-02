@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->string('sector')->nullable();
             $table->json('number_of_members')->nullable(); // For producer organizations only
             $table->string('group')->nullable();
-            $table->enum('establishment_status', ['NEW', 'OLD'])->nullable(); // Uppercase for enum values
+            $table->enum('establishment_status', ['New', 'Old'])->nullable(); // Uppercase for enum values
             $table->boolean('is_registered')->default(false);
             $table->json('registration_details')->nullable();
             $table->json('number_of_employees')->nullable();

@@ -2,9 +2,12 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Carbon;
+
 use Illuminate\Support\Collection;
-use App\Models\RtcProductionProcessor;
+
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
@@ -13,30 +16,28 @@ use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class RpmProcessorAggCenters extends PowerGridComponent
+final class RpmFarmerCultivation extends PowerGridComponent
 {
     public function datasource(): Collection
     {
-        // Initialize the changedArray as an empty collection
         $changedArray = collect();
-
-        // Use the query builder to fetch data lazily and transform it directly
-        RtcProductionProcessor::query()
-            ->where('sells_to_aggregation_centers', 1)
+        $data = RtcProductionFarmer::query()->whereNotNull('area_under_cultivation')
             ->lazy() // Lazy loading for memory efficiency
             ->each(function ($item) use (&$changedArray) {
-                $names = json_decode($item->aggregation_centers) ?? [];
+                $names = json_decode($item->area_under_cultivation) ?? [];
 
                 foreach ($names as $name_data) {
                     $changedArray->push([
                         'id' => $item->id,
                         'name_of_actor' => $item->name_of_actor,
-                        'name' => $name_data->name,
+                        'variety' => $name_data->variety,
+                        'area' => $name_data->area,
                     ]);
                 }
             });
 
         return $changedArray;
+
     }
 
     public function setUp(): array
@@ -56,23 +57,19 @@ final class RpmProcessorAggCenters extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
-            ->add('rpm_processor_id')
-            ->add('name_of_actor')
             ->add('unique_id', function ($model) {
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
             })
+            ->add('name_of_actor')
+            ->add('area')
 
-
-            ->add('name', function ($model) {
-                return $model->name;
-            });
+            ->add('variety');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Processor ID', 'unique_id', 'id')
+            Column::make('Farmer ID', 'unique_id', 'id')
                 ->searchable()
                 ->sortable(),
 
@@ -80,9 +77,12 @@ final class RpmProcessorAggCenters extends PowerGridComponent
                 ->searchable()
                 ->sortable(),
 
-            Column::make('Name of Aggregation centers', 'name')
-                ->searchable()
-                ->sortable(),
+            Column::make('Variety', 'variety'),
+
+            Column::make('Area (Number of acres)', 'area'),
+
+
+
         ];
     }
 }

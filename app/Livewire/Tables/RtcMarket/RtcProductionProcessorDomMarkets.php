@@ -49,6 +49,7 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
             ->add('rpm_processor_id')
             ->add('actor_name', function ($model) {
                 $farmer = $model->rpm_processor_id;
@@ -146,9 +147,11 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Processor ID', 'unique_id', 'id')
+                ->searchable()
+                ->sortable(),
+
             Column::make('Actor Name', 'actor_name'),
-            Column::make('Actor id', 'rpm_processor_id'),
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
