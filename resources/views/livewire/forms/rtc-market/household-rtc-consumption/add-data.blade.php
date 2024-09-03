@@ -1,13 +1,7 @@
 <div>
 
 
-    <style>
-        input,
-        select,
-        label {
-            text-transform: uppercase;
-        }
-    </style>
+
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -359,23 +353,23 @@
 
                                             <div
                                                 class="list-group  @error('inputs.' . $key . '.main_food')border border-danger @enderror">
-                                                <label class="mb-0 list-group-item">
+                                                <label class="mb-0 list-group-item text-capitalize">
                                                     <input class="form-check-input me-1" type="checkbox"
                                                         wire:model='inputs.{{ $key }}.main_food'
-                                                        value="CASSAVA" />
-                                                    CASSAVA
+                                                        value="Cassava" />
+                                                    Cassava
                                                 </label>
-                                                <label class="mb-0 list-group-item">
+                                                <label class="mb-0 list-group-item text-capitalize">
                                                     <input class="form-check-input me-1" type="checkbox"
                                                         wire:model='inputs.{{ $key }}.main_food'
-                                                        value="POTATO" />
-                                                    POTATO
+                                                        value="Potato" />
+                                                    Potato
                                                 </label>
-                                                <label class="mb-0 list-group-item">
+                                                <label class="mb-0 list-group-item text-capitalize">
                                                     <input class="form-check-input me-1"
                                                         wire:model='inputs.{{ $key }}.main_food'
-                                                        type="checkbox" value="SWEET POTATO" />
-                                                    SWEET POTATO
+                                                        type="checkbox" value="Sweet potato" />
+                                                    Sweet potato
                                                 </label>
 
                                             </div>

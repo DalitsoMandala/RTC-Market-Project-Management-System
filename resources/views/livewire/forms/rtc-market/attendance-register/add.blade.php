@@ -33,7 +33,7 @@
                         <div class="col-12 col-md-8 col-md-sm-8" id="form">
 
 
-                            <form wire:submit='save'>
+                            <form wire:submit.debounce.1s='save'>
 
 
 
@@ -227,9 +227,7 @@
 
 
                     </div>
-                    <div class="card-body" id="table">
-                        <livewire:tables.rtc-market.attendance-register-table :count="5" />
-                    </div>
+
                 </div>
             </div>
 

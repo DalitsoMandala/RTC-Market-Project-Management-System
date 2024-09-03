@@ -2,12 +2,16 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use App\Models\AttendanceRegister;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
+use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use PowerComponents\LivewirePowerGrid\Lazy;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\Cursor;
+use Illuminate\Support\LazyCollection;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -22,15 +26,16 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class AttendanceRegisterTable extends PowerGridComponent
 {
     use WithExport;
-
+    public bool $deferLoading = true;
     public function setUp(): array
     {
         // $this->showCheckBox();
 
         return [
-            // Exportable::make('export')
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Exportable::make('export')
+                ->striped()
+                ->queues(100)
+                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->includeViewOnTop('components.export-data-att')->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -40,6 +45,8 @@ final class AttendanceRegisterTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+
         return AttendanceRegister::query();
     }
 
@@ -79,11 +86,8 @@ final class AttendanceRegisterTable extends PowerGridComponent
     }
 
     #[On('export')]
-    public function export()
+    public function qexport()
     {
-        // Get data for export
-        $data = $this->getDataForExport();
-
         // Define the path for the Excel file
         $path = storage_path('app/public/attendance_register.xlsx');
 
@@ -105,39 +109,37 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 'Designation',
                 'Phone Number',
                 'Email',
-
             ]);
 
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
+        // Chunk the data directly from the database
+        AttendanceRegister::query()
+            ->whereNotNull('rtcCrop') // Example condition, modify as needed
+            ->chunk(1000, function ($items) use ($writer) {
+                foreach ($items as $item) {
+                    $crops = json_decode($item->rtcCrop, true);
+                    $rtcCrop = implode(', ', $crops);
 
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $crops = json_decode($item->rtcCrop, true);
-                $rtcCrop = implode(', ', $crops);
+                    $row = [
+                        'id' => $item->id,
+                        'meetingTitle' => $item->meetingTitle,
+                        'meetingCategory' => $item->meetingCategory,
+                        'rtcCrop' => $rtcCrop,
+                        'venue' => $item->venue,
+                        'district' => $item->district,
+                        'startDate_formatted' => Carbon::parse($item->startDate)->format('d/m/Y'),
+                        'endDate_formatted' => Carbon::parse($item->endDate)->format('d/m/Y'),
+                        'totalDays' => $item->totalDays,
+                        'name' => $item->name,
+                        'sex' => $item->sex,
+                        'organization' => $item->organization,
+                        'designation' => $item->designation,
+                        'phone_number' => $item->phone_number,
+                        'email' => $item->email,
+                    ];
 
-                $row = [
-                    'id' => $item->id,
-                    'meetingTitle' => $item->meetingTitle,
-                    'meetingCategory' => $item->meetingCategory,
-                    'rtcCrop' => $rtcCrop,
-                    'venue' => $item->venue,
-                    'district' => $item->district,
-                    'startDate_formatted' => Carbon::parse($item->startDate)->format('d/m/Y'),
-                    'endDate_formatted' => Carbon::parse($item->endDate)->format('d/m/Y'),
-                    'totalDays' => $item->totalDays,
-                    'name' => $item->name,
-                    'sex' => $item->sex,
-                    'organization' => $item->organization,
-                    'designation' => $item->designation,
-                    'phone_number' => $item->phone_number,
-                    'email' => $item->email,
-
-                ];
-
-                $writer->addRow($row);
-            }
-        }
+                    $writer->addRow($row);
+                }
+            });
 
         // Close the writer and get the path of the file
         $writer->close();

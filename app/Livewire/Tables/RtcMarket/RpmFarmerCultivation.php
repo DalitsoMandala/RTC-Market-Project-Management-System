@@ -18,25 +18,11 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmFarmerCultivation extends PowerGridComponent
 {
-    public function datasource(): Collection
+    public function datasource(): Builder
     {
-        $changedArray = collect();
-        $data = RtcProductionFarmer::query()->whereNotNull('area_under_cultivation')
-            ->lazy() // Lazy loading for memory efficiency
-            ->each(function ($item) use (&$changedArray) {
-                $names = json_decode($item->area_under_cultivation) ?? [];
 
-                foreach ($names as $name_data) {
-                    $changedArray->push([
-                        'id' => $item->id,
-                        'name_of_actor' => $item->name_of_actor,
-                        'variety' => $name_data->variety,
-                        'area' => $name_data->area,
-                    ]);
-                }
-            });
 
-        return $changedArray;
+        return RtcProductionFarmer::query()->whereNotNull('area_under_cultivation');
 
     }
 
@@ -61,9 +47,44 @@ final class RpmFarmerCultivation extends PowerGridComponent
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
             })
             ->add('name_of_actor')
-            ->add('area')
+            ->add('area', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation, true);
+                $imploded = [];
+                foreach ($area_under_cultivation as $values) {
 
-            ->add('variety');
+                    foreach ($values as $key => $value) {
+                        if ($key == 'area') {
+
+                            $imploded[] = $value . ' acres';
+                        }
+
+                    }
+
+                }
+
+                return implode(', ', $imploded);
+
+            })
+
+            ->add('variety', function ($model) {
+                $area_under_cultivation = json_decode($model->area_under_cultivation, true);
+                $imploded = [];
+                foreach ($area_under_cultivation as $values) {
+
+                    foreach ($values as $key => $value) {
+                        if ($key == 'variety') {
+
+                            $imploded[] = $value;
+                        }
+
+                    }
+
+                }
+
+                return implode(', ', $imploded);
+
+            });
+
     }
 
     public function columns(): array

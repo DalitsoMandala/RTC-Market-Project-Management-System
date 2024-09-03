@@ -1,12 +1,12 @@
 <div>
 
+    <div wire:loading.class='opacity-50 pe-none'>
+        <button type="button" class="btn btn-primary  my-2" wire:click='$dispatch("export")'>
+            <i class="fas fa-file-excel"></i> Export
+        </button>
 
-    <button type="button" name="" id="" class="btn btn-soft-dark waves-effect waves-light my-2"
-        wire:click='$dispatch("export")'>
-        <i class="fas fa-file-excel"></i> Export
-    </button>
-
-
+        <span wire:loading>Loading please wait...</span>
+    </div>
 
 
 </div>

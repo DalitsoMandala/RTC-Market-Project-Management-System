@@ -15,12 +15,12 @@ return new class extends Migration {
 
             $table->json('location_data')->nullable();
             $table->date('date_of_assessment')->nullable();
-            $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER'])->nullable();
+            $table->string('actor_type')->nullable();
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
             $table->string('producer_organisation')->nullable(); // Allow null for producer organization
             $table->string('actor_name')->nullable();
-            $table->enum('age_group', ['YOUTH', 'NOT YOUTH'])->nullable();
-            $table->enum('sex', ['MALE', 'FEMALE'])->nullable();
+            $table->string('age_group')->nullable();
+            $table->string('sex')->nullable();
             $table->string('phone_number')->nullable(); // Allow null for phone number
             $table->integer('household_size')->nullable();
             $table->integer('under_5_in_household')->nullable();

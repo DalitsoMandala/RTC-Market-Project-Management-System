@@ -12,6 +12,7 @@ use Livewire\Component;
 use App\Helpers\LogError;
 use App\Models\Indicator;
 use App\Models\Submission;
+use App\Models\LocationHrc;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Exceptions\UserErrorException;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\MainFoodHrc;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
 use App\Notifications\AggregateDataAddedNotification;
@@ -194,22 +196,22 @@ class AddData extends Component
             $now = Carbon::now();
             foreach ($this->inputs as $index => $input) {
 
-                $input['location_data'] = json_encode([
-                    'enterprise' => $this->enterprise,
-                    'district' => $this->district,
-                    'epa' => $this->epa,
-                    'section' => $this->section,
-                ]);
+                // $input['location_data'] = json_encode([
+                //     'enterprise' => $this->enterprise,
+                //     'district' => $this->district,
+                //     'epa' => $this->epa,
+                //     'section' => $this->section,
+                // ]);
 
-                // for main food lunch,dinner,breakfast
-                foreach ($input['main_food'] as $mainfood) {
-                    $input['main_food_data'][] = $mainfood;
+                // // for main food lunch,dinner,breakfast
+                // foreach ($input['main_food'] as $mainfood) {
+                //     $input['main_food_data'][] = $mainfood;
 
-                }
+                // }
 
-                unset($input['main_food']);
+                // unset($input['main_food']);
 
-                $input['main_food_data'] = json_encode($input['main_food_data']);
+                // $input['main_food_data'] = json_encode($input['main_food_data']);
                 $input['uuid'] = $uuid;
                 $input['user_id'] = $userId;
                 $input['created_at'] = $now;
@@ -250,8 +252,34 @@ class AddData extends Component
                     $dt['period_month_id'] = $this->selectedMonth;
                     $dt['organisation_id'] = Auth::user()->organisation->id;
                     $dt['financial_year_id'] = $this->selectedFinancialYear;
+
                     $dt['status'] = 'approved';
-                    HouseholdRtcConsumption::create($dt);
+                    $mainFood = $dt['main_food'];
+                    unset($dt['main_food']);
+
+                    $hrc = HouseholdRtcConsumption::create($dt);
+
+                    $hrc->location()->create(
+                        [
+                            'enterprise' => $this->enterprise,
+                            'district' => $this->district,
+                            'epa' => $this->epa,
+                            'section' => $this->section,
+                        ]
+                    );
+
+
+                    foreach ($mainFood as $food) {
+                        $hrc->mainFoods()->create([
+                            'name' => $food
+                        ]);
+                    }
+
+
+
+
+
+
                 }
 
 

@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HrcMainFood extends Model
+class MainFoodHrc extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
-    protected $table = 'hrc_main_food';
+    protected $table = 'hrc_rtc_main_food';
+    protected $guarded = [];
 
-    public function hrc()
+    public function household()
     {
         return $this->belongsTo(HouseholdRtcConsumption::class, 'hrc_id');
     }
