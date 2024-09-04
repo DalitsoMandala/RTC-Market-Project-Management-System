@@ -151,6 +151,7 @@ class AddData extends Component
                 'rtc_consumers_sw_potato' => null,
                 'rtc_consumers_cassava' => null,
                 'rtc_consumption_frequency' => null,
+
                 'main_food' => [],
             ],
         );
@@ -196,30 +197,20 @@ class AddData extends Component
             $now = Carbon::now();
             foreach ($this->inputs as $index => $input) {
 
-                // $input['location_data'] = json_encode([
-                //     'enterprise' => $this->enterprise,
-                //     'district' => $this->district,
-                //     'epa' => $this->epa,
-                //     'section' => $this->section,
-                // ]);
 
-                // // for main food lunch,dinner,breakfast
-                // foreach ($input['main_food'] as $mainfood) {
-                //     $input['main_food_data'][] = $mainfood;
-
-                // }
-
-                // unset($input['main_food']);
-
-                // $input['main_food_data'] = json_encode($input['main_food_data']);
                 $input['uuid'] = $uuid;
                 $input['user_id'] = $userId;
                 $input['created_at'] = $now;
                 $input['updated_at'] = $now;
+                $input['epa'] = $this->epa;
+                $input['section'] = $this->section;
+                $input['district'] = $this->district;
+                $input['enterprise'] = $this->enterprise;
                 $data[] = $input;
-                //   HouseholdRtcConsumption::create($input);
+
 
             }
+
 
             $currentUser = Auth::user();
 
@@ -248,6 +239,7 @@ class AddData extends Component
                 ]);
 
                 foreach ($data as $dt) {
+
                     $dt['submission_period_id'] = $this->submissionPeriodId;
                     $dt['period_month_id'] = $this->selectedMonth;
                     $dt['organisation_id'] = Auth::user()->organisation->id;
@@ -258,15 +250,6 @@ class AddData extends Component
                     unset($dt['main_food']);
 
                     $hrc = HouseholdRtcConsumption::create($dt);
-
-                    $hrc->location()->create(
-                        [
-                            'enterprise' => $this->enterprise,
-                            'district' => $this->district,
-                            'epa' => $this->epa,
-                            'section' => $this->section,
-                        ]
-                    );
 
 
                     foreach ($mainFood as $food) {
@@ -335,6 +318,7 @@ class AddData extends Component
                             'rtc_consumers_sw_potato' => null,
                             'rtc_consumers_cassava' => null,
                             'rtc_consumption_frequency' => null,
+
                             'main_food' => [],
                         ],
 
@@ -504,6 +488,7 @@ class AddData extends Component
                             'rtc_consumers_sw_potato' => null,
                             'rtc_consumers_cassava' => null,
                             'rtc_consumption_frequency' => null,
+
                             'main_food' => [],
                         ],
 

@@ -6,6 +6,7 @@ use App\Helpers\ArrayToUpperCase;
 use App\Helpers\Help;
 use App\Helpers\ToUpper;
 use Faker\Factory as Faker;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -48,13 +49,13 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
             'Zomba Livestock Farmers Group',
         ];
 
-        $epaNames = ArrayToUpperCase::convert($epaNames);
-        $organisationNames = ArrayToUpperCase::convert($organisationNames);
-        $sectionNames = ArrayToUpperCase::convert($sectionNames);
+        // $epaNames = ArrayToUpperCase::convert($epaNames);
+        // $organisationNames = ArrayToUpperCase::convert($organisationNames);
+        // $sectionNames = ArrayToUpperCase::convert($sectionNames);
         $rand = rand(100, 1000);
 
         if ($this->test) {
-            foreach (range(1, 10) as $index) {
+            foreach (range(1, 6000) as $index) {
 
                 $data[] = [
                     'ENTERPRISE' => $faker->randomElement(['Cassava', 'Potato', 'Sweet potato']),

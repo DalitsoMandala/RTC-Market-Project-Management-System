@@ -124,12 +124,10 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 'organisation_id' => $submissionData['organisation_id'],
                 'financial_year_id' => $submissionData['financial_year_id'],
                 'period_month_id' => $submissionData['period_month_id'],
-                'location_data' => json_encode([
-                    'epa' => $row['EPA'],
-                    'district' => $row['DISTRICT'],
-                    'section' => $row['SECTION'],
-                    'enterprise' => $row['ENTERPRISE'],
-                ]),
+                'epa' => $row['EPA'],
+                'district' => $row['DISTRICT'],
+                'section' => $row['SECTION'],
+                'enterprise' => $row['ENTERPRISE'],
                 'date_of_assessment' => $row['DATE OF ASSESSMENT'],
                 'actor_type' => $row['ACTOR TYPE'],
                 'rtc_group_platform' => $row['RTC GROUP PLATFORM'],
@@ -147,19 +145,19 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
                 'rtc_consumption_frequency' => $row['RTC CONSUMPTION FREQUENCY'],
                 'user_id' => $this->userId,
                 'uuid' => $uuid,
-                'main_food_data' => [],
+                //  'main_food_data' => [],
             ];
 
-            if ($row['RTC MAIN FOOD/CASSAVA'] === 'Yes') {
-                $entry['main_food_data'][] = 'CASSAVA';
-            }
-            if ($row['RTC MAIN FOOD/POTATO'] === 'Yes') {
-                $entry['main_food_data'][] = 'POTATO';
-            }
-            if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'Yes') {
-                $entry['main_food_data'][] = 'SWEET POTATO';
-            }
-            $entry['main_food_data'] = json_encode($entry['main_food_data']);
+            // if ($row['RTC MAIN FOOD/CASSAVA'] === 'Yes') {
+            //     $entry['main_food_data'][] = 'CASSAVA';
+            // }
+            // if ($row['RTC MAIN FOOD/POTATO'] === 'Yes') {
+            //     $entry['main_food_data'][] = 'POTATO';
+            // }
+            // if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'Yes') {
+            //     $entry['main_food_data'][] = 'SWEET POTATO';
+            // }
+            //   $entry['main_food_data'] = json_encode($entry['main_food_data']);
 
             $batch[] = $entry;
         }
@@ -207,7 +205,7 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
 
     public function chunkSize(): int
     {
-        return 200;
+        return 500;
     }
     public function onFailure(Failure ...$failures)
     {
@@ -374,28 +372,28 @@ class HrcImport implements ToCollection, WithHeadingRow, WithEvents, WithValidat
     public function rules(): array
     {
         return [
-            '*.EPA' => 'string|max:255|nullable',
-            '*.DISTRICT' => 'string|max:255|nullable',
-            '*.SECTION' => 'string|max:255|nullable',
-            '*.ENTERPRISE' => 'string|max:255|nullable',
-            '*.DATE OF ASSESSMENT' => 'date|nullable|date_format:Y-m-d',
-            '*.ACTOR TYPE' => 'string|max:255|in:FARMER,PROCESSOR,TRADER,INDIVIDUALS FROM NUTRITION INTERVENTION,OTHER|nullable',
-            '*.RTC GROUP PLATFORM' => 'string|max:255|nullable',
-            '*.PRODUCER ORGANISATION' => 'string|max:255|nullable',
-            '*.ACTOR NAME' => 'string|max:255|nullable',
-            '*.AGE GROUP' => 'string|max:255|in:YOUTH,NOT YOUTH|nullable',
-            '*.SEX' => 'string|in:MALE,FEMALE|nullable',
-            '*.PHONE NUMBER' => 'string|max:255|nullable',
-            '*.HOUSEHOLD SIZE' => 'numeric|min:1|nullable',
-            '*.UNDER 5 IN HOUSEHOLD' => 'integer|min:0|nullable',
-            '*.RTC CONSUMERS' => 'numeric|min:0|nullable',
-            '*.RTC CONSUMERS/POTATO' => 'numeric|min:0|nullable',
-            '*.RTC CONSUMERS/SWEET POTATO' => 'integer|min:0|nullable',
-            '*.RTC CONSUMERS/CASSAVA' => 'numeric|min:0|nullable',
-            '*.RTC CONSUMPTION FREQUENCY' => 'numeric|max:255|nullable',
-            '*.RTC MAIN FOOD/CASSAVA' => 'string|in:Yes,No|nullable',
-            '*.RTC MAIN FOOD/POTATO' => 'string|in:Yes,No|nullable',
-            '*.RTC MAIN FOOD/SWEET POTATO' => 'string|in:Yes,No|nullable',
+            // '*.EPA' => 'string|max:255|nullable',
+            // '*.DISTRICT' => 'string|max:255|nullable',
+            // '*.SECTION' => 'string|max:255|nullable',
+            // '*.ENTERPRISE' => 'string|max:255|nullable',
+            // '*.DATE OF ASSESSMENT' => 'date|nullable|date_format:Y-m-d',
+            // '*.ACTOR TYPE' => 'string|max:255|in:Farmer,PROCESSOR,TRADER,INDIVIDUALS FROM NUTRITION INTERVENTION,OTHER|nullable',
+            // '*.RTC GROUP PLATFORM' => 'string|max:255|nullable',
+            // '*.PRODUCER ORGANISATION' => 'string|max:255|nullable',
+            // '*.ACTOR NAME' => 'string|max:255|nullable',
+            // '*.AGE GROUP' => 'string|max:255|in:YOUTH,NOT YOUTH|nullable',
+            // '*.SEX' => 'string|in:MALE,FEMALE|nullable',
+            // '*.PHONE NUMBER' => 'string|max:255|nullable',
+            // '*.HOUSEHOLD SIZE' => 'numeric|min:1|nullable',
+            // '*.UNDER 5 IN HOUSEHOLD' => 'integer|min:0|nullable',
+            // '*.RTC CONSUMERS' => 'numeric|min:0|nullable',
+            // '*.RTC CONSUMERS/POTATO' => 'numeric|min:0|nullable',
+            // '*.RTC CONSUMERS/SWEET POTATO' => 'integer|min:0|nullable',
+            // '*.RTC CONSUMERS/CASSAVA' => 'numeric|min:0|nullable',
+            // '*.RTC CONSUMPTION FREQUENCY' => 'numeric|max:255|nullable',
+            // '*.RTC MAIN FOOD/CASSAVA' => 'string|in:Yes,No|nullable',
+            // '*.RTC MAIN FOOD/POTATO' => 'string|in:Yes,No|nullable',
+            // '*.RTC MAIN FOOD/SWEET POTATO' => 'string|in:Yes,No|nullable',
         ];
     }
 

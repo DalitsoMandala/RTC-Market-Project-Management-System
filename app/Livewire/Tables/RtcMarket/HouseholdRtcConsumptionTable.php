@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
+use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use App\Models\User;
 use App\Models\Submission;
 use App\Jobs\ExportDataJob;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Exports\TableExport;
+use App\Jobs\ExcelExportJob;
 use Illuminate\Support\Carbon;
 
 use Illuminate\Support\Collection;
@@ -66,7 +68,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
 
-        return HouseholdRtcConsumption::query()->with(['mainFoods', 'location']);
+        return HouseholdRtcConsumption::query()->with(['mainFoods']);
 
 
 
@@ -81,16 +83,16 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('count', fn($model) => $this->count++)
             ->add('location_id')
             ->add('enterprise', function ($model) {
-                return $model->location->enterprise ?? null;
+                return $model->enterprise ?? null;
             })
             ->add('district', function ($model) {
-                return $model->location->district ?? null;
+                return $model->district ?? null;
             })
             ->add('epa', function ($model) {
-                return $model->location->epa ?? null;
+                return $model->epa ?? null;
             })
             ->add('section', function ($model) {
-                return $model->location->section ?? null;
+                return $model->section ?? null;
             })
             ->add('date_of_assessment_formatted', fn($model) => Carbon::parse($model->date_of_assessment)->format('d/m/Y'))
             ->add('actor_type')
@@ -136,90 +138,134 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     }
 
+
+    public $batchID;
+    public $exporting = false;
+    public $exportFinished = false;
+
+    public $exportFailed = false;
     #[On('export')]
     public function export()
     {
-        // Get data for export
-        $data = $this->getDataForExport();
+        $this->exporting = true;
+        $this->exportFinished = false;
+        $this->exportFailed = false;
+        $batch = Bus::batch([
+            new ExcelExportJob('hrc'),
+        ])->dispatch();
 
-        // Define the path for the Excel file
-        $path = storage_path('app/public/household_rtc_consumption.xlsx');
+        $this->batchID = $batch->id;
 
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Enterprise',
-                'District',
-                'EPA',
-                'Section',
-                'Date of assessment',
-                'Actor type',
-                'Rtc group platform',
-                'Producer organisation',
-                'Actor name',
-                'Age group',
-                'Sex',
-                'Phone number',
-                'Household size',
-                'Under 5 in household',
-                'Rtc consumers',
-                'Rtc consumers/Potato',
-                'Rtc consumers/Sweet Potato',
-                'Rtc consumers/Cassava',
-                'Rtc consumption frequency',
-                'RTC MAIN FOOD/CASSAVA',
-                'RTC MAIN FOOD/POTATO',
-                'RTC MAIN FOOD/SWEET POTATO',
-                'Submission Date',
-                'Submitted By',
-                'UUID',
-            ]);
+        // // Get data for export
+        // $data = $this->getDataForExport();
 
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
+        // // Define the path for the Excel file
+        // $path = storage_path('app/public/household_rtc_consumption.xlsx');
 
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $location = json_decode($item->location_data);
-                $main_food = json_decode($item->main_food_data);
+        // // Create the writer and add the header
+        // $writer = SimpleExcelWriter::create($path)
+        //     ->addHeader([
+        //         'Enterprise',
+        //         'District',
+        //         'EPA',
+        //         'Section',
+        //         'Date of assessment',
+        //         'Actor type',
+        //         'Rtc group platform',
+        //         'Producer organisation',
+        //         'Actor name',
+        //         'Age group',
+        //         'Sex',
+        //         'Phone number',
+        //         'Household size',
+        //         'Under 5 in household',
+        //         'Rtc consumers',
+        //         'Rtc consumers/Potato',
+        //         'Rtc consumers/Sweet Potato',
+        //         'Rtc consumers/Cassava',
+        //         'Rtc consumption frequency',
+        //         'RTC MAIN FOOD/CASSAVA',
+        //         'RTC MAIN FOOD/POTATO',
+        //         'RTC MAIN FOOD/SWEET POTATO',
+        //         'Submission Date',
+        //         'Submitted By',
+        //         'UUID',
+        //     ]);
 
-                $row = [
-                    'enterprise' => $location->enterprise ?? null,
-                    'district' => $location->district ?? null,
-                    'epa' => $location->epa ?? null,
-                    'section' => $location->section ?? null,
-                    'date_of_assessment' => Carbon::parse($item->date_of_assessment)->format('d/m/Y'),
-                    'actor_type' => $item->actor_type,
-                    'rtc_group_platform' => $item->rtc_group_platform,
-                    'producer_organisation' => $item->producer_organisation,
-                    'actor_name' => $item->actor_name,
-                    'age_group' => $item->age_group,
-                    'sex' => $item->sex,
-                    'phone_number' => $item->phone_number,
-                    'household_size' => $item->household_size,
-                    'under_5_in_household' => $item->under_5_in_household,
-                    'rtc_consumers' => $item->rtc_consumers,
-                    'rtc_consumers_potato' => $item->rtc_consumers_potato,
-                    'rtc_consumers_sw_potato' => $item->rtc_consumers_sw_potato,
-                    'rtc_consumers_cassava' => $item->rtc_consumers_cassava,
-                    'rtc_consumption_frequency' => $item->rtc_consumption_frequency,
-                    'cassava_count' => collect($main_food)->contains('CASSAVA') ? 'Yes' : 'No',
-                    'potato_count' => collect($main_food)->contains('POTATO') ? 'Yes' : 'No',
-                    'sweet_potato_count' => collect($main_food)->contains('SWEET POTATO') ? 'Yes' : 'No',
-                    'submission_date' => Carbon::parse($item->created_at)->format('d/m/Y'),
-                    'submitted_by' => $item->user->organisation->name,
-                    'uuid' => $item->uuid,
-                ];
+        // // Chunk the data and process each chunk
+        // $chunks = array_chunk($data->all(), 1000);
 
-                $writer->addRow($row);
-            }
+        // foreach ($chunks as $chunk) {
+        //     foreach ($chunk as $item) {
+        //         $location = json_decode($item->location_data);
+        //         $main_food = json_decode($item->main_food_data);
+
+        //         $row = [
+        //             'enterprise' => $location->enterprise ?? null,
+        //             'district' => $location->district ?? null,
+        //             'epa' => $location->epa ?? null,
+        //             'section' => $location->section ?? null,
+        //             'date_of_assessment' => Carbon::parse($item->date_of_assessment)->format('d/m/Y'),
+        //             'actor_type' => $item->actor_type,
+        //             'rtc_group_platform' => $item->rtc_group_platform,
+        //             'producer_organisation' => $item->producer_organisation,
+        //             'actor_name' => $item->actor_name,
+        //             'age_group' => $item->age_group,
+        //             'sex' => $item->sex,
+        //             'phone_number' => $item->phone_number,
+        //             'household_size' => $item->household_size,
+        //             'under_5_in_household' => $item->under_5_in_household,
+        //             'rtc_consumers' => $item->rtc_consumers,
+        //             'rtc_consumers_potato' => $item->rtc_consumers_potato,
+        //             'rtc_consumers_sw_potato' => $item->rtc_consumers_sw_potato,
+        //             'rtc_consumers_cassava' => $item->rtc_consumers_cassava,
+        //             'rtc_consumption_frequency' => $item->rtc_consumption_frequency,
+        //             'cassava_count' => collect($main_food)->contains('CASSAVA') ? 'Yes' : 'No',
+        //             'potato_count' => collect($main_food)->contains('POTATO') ? 'Yes' : 'No',
+        //             'sweet_potato_count' => collect($main_food)->contains('SWEET POTATO') ? 'Yes' : 'No',
+        //             'submission_date' => Carbon::parse($item->created_at)->format('d/m/Y'),
+        //             'submitted_by' => $item->user->organisation->name,
+        //             'uuid' => $item->uuid,
+        //         ];
+
+        //         $writer->addRow($row);
+        //     }
+        // }
+
+        // // Close the writer and get the path of the file
+        // $writer->close();
+
+        // // Return the file for download
+        // return response()->download($path)->deleteFileAfterSend(true);
+    }
+
+
+    public function getExportBatchProperty()
+    {
+        if (!$this->batchID) {
+            return null;
         }
 
-        // Close the writer and get the path of the file
-        $writer->close();
+        return Bus::findBatch($this->batchID);
+    }
 
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/household-rtc-consumption.xlsx');
+    }
+
+    public function updateExportProgress()
+    {
+        $this->exportFinished = $this->exportBatch->finished();
+
+        if ($this->exportFinished && $this->exportBatch->failedJobs === 0) {
+            $this->exporting = false;
+            $this->exportFailed = false;
+        } else if ($this->exportFinished && $this->exportBatch->failedJobs > 0) {
+            $this->exporting = false;
+            $this->exportFailed = true;
+        }
+
     }
     protected function getDataForExport()
     {
@@ -231,12 +277,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'location' => [
-                'epa',
-                'section',
-                'district',
-                'enterprise'
-            ],
+
             'mainFoods' => [
                 'name'
             ]

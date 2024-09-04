@@ -14,6 +14,10 @@ return new class extends Migration {
             $table->id();
 
             $table->json('location_data')->nullable();
+            $table->string('epa');
+            $table->string('section');
+            $table->string('district');
+            $table->string('enterprise');
             $table->date('date_of_assessment')->nullable();
             $table->string('actor_type')->nullable();
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
