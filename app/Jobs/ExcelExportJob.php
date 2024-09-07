@@ -18,14 +18,16 @@ class ExcelExportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
     public $name;
+    public $uniqueID;
     /**
      * Create a new job instance.
      */
-    public function __construct($name)
+    public function __construct($name, $uniqueID)
     {
         //
 
         $this->name = $name;
+        $this->uniqueID = $uniqueID;
     }
 
     /**
@@ -34,8 +36,8 @@ class ExcelExportJob implements ShouldQueue
     public function handle(): void
     {
         if ($this->name === 'hrc') {
-            $rand = Str::random(8);
-            Excel::store(new ExportData, 'public/exports/household-rtc-consumption.xlsx');
+
+            Excel::store(new ExportData, 'public/exports/household-rtc-consumption_' . $this->uniqueID . '.xlsx');
 
         }
     }

@@ -35,7 +35,7 @@
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                                <button class="nav-link disabled" id="batch-tab" data-bs-toggle="tab"
                                     data-bs-target="#batch-submission" type="button" role="tab"
                                     aria-controls="home" aria-selected="true">
                                     Batch Submissions
@@ -49,7 +49,7 @@
                                 </button>
                             </li> --}}
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
+                                <button class="nav-link active" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
                                     Aggregate Submission
@@ -68,20 +68,20 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission"
-                                role="tabpanel" aria-labelledby="home-tab">
+                            <div wire:ignore class="mt-2 tab-pane  fade show" id="batch-submission" role="tabpanel"
+                                aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
                             {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
-                                aria-labelledby="profile-tab">
+                            <div wire:ignore class="mt-2 tab-pane active fade show" id="aggregate-submission"
+                                role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
 
-                            <div wire:ignore class="mt-2 tab-pane fade-show" id="job-progress" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="job-progress" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                             </div>

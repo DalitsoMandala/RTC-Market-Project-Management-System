@@ -80,12 +80,12 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane fade-show" id="aggregate-submission" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
 
-                            <div wire:ignore class="mt-2 tab-pane fade-show" id="job-progress" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="job-progress" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                             </div>
