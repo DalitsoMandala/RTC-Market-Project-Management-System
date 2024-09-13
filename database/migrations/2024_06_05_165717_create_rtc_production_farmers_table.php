@@ -12,6 +12,10 @@ return new class extends Migration {
     {
         Schema::create('rtc_production_farmers', function (Blueprint $table) {
             $table->id();
+            $table->string('epa');
+            $table->string('section');
+            $table->string('district');
+            $table->string('enterprise');
             $table->json('location_data')->nullable();
             $table->date('date_of_recruitment')->nullable();
             $table->string('name_of_actor')->nullable();
@@ -24,6 +28,9 @@ return new class extends Migration {
             $table->string('group')->nullable();
             $table->enum('establishment_status', ['New', 'Old'])->nullable(); // Uppercase for enum values
             $table->boolean('is_registered')->default(false);
+            $table->string('body')->nullable();
+            $table->string('registration_number')->nullable();
+            $table->date('registration_date')->nullable();
             $table->json('registration_details')->nullable();
             $table->json('number_of_employees')->nullable();
             $table->json('area_under_cultivation')->nullable(); // Stores area by variety (key-value pairs)
@@ -34,6 +41,8 @@ return new class extends Migration {
             $table->json('area_under_basic_seed_multiplication')->nullable(); // Acres
             $table->json('area_under_certified_seed_multiplication')->nullable(); // Acres
             $table->boolean('is_registered_seed_producer')->default(false);
+            $table->string('registration_number_seed_producer')->nullable();
+            $table->date('registration_date_seed_producer')->nullable();
             $table->json('seed_service_unit_registration_details')->nullable();
             $table->boolean('uses_certified_seed')->default(false);
             $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)

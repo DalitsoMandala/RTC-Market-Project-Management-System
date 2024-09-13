@@ -9,5 +9,5 @@ class SrcLocation extends Model
 {
     use HasFactory;
 
-    protected $table = "school_rtc_location";protected $guarded = [];
+    protected $table = "school_rtc_location";protected $guarded = ['id'];
 }

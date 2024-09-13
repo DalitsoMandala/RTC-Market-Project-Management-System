@@ -9,5 +9,5 @@ class JobProgress extends Model
 {
     use HasFactory;
     protected $table = 'job_progress';
-    protected $guarded = [];
+    protected $guarded = ['id'];
 }

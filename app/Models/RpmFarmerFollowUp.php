@@ -10,7 +10,7 @@ class RpmFarmerFollowUp extends Model
     use HasFactory;
 
     protected $table = "rpm_farmer_follow_ups";
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     public function farmers()
     {

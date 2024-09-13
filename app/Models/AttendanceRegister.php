@@ -10,5 +10,5 @@ class AttendanceRegister extends Model
     use HasFactory;
 
     protected $table = 'attendance_registers';
-    protected $guarded = [];
+    protected $guarded = ['id'];
 }

@@ -14,8 +14,6 @@
     <div class="d-inline" wire:poll.5s="updateExportProgress">Exporting...please wait.</div>
 @endif
 
-
-
 @if ($this->exportFinished && $this->exportFailed === false)
     <x-excelalert wire:click="downloadExport" />
 @endif

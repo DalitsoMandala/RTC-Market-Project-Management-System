@@ -10,7 +10,7 @@ class HouseholdRtcConsumption extends Model
 {
     use HasFactory;
     protected $table = 'household_rtc_consumption';
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     public function location()
     {

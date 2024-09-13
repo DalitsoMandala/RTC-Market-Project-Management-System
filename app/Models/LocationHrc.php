@@ -11,7 +11,7 @@ class LocationHrc extends Model
     use HasFactory;
 
     protected $table = 'hrc_location';
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     /**
      * Get the farmer that owns the LocationHrc

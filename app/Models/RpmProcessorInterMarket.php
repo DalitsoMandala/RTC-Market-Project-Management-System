@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class RpmProcessorInterMarket extends Model
 {
-    use HasFactory;    protected $guarded = ['id'];
+    use HasFactory;
+    protected $guarded = ['id'];
 }

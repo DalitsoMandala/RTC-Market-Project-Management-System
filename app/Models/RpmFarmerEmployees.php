@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TargetDetail extends Model
+class RpmFarmerEmployees extends Model
 {
     use HasFactory;
-    protected $table = 'target_details';
+
     protected $guarded = ['id'];
-    public function indicator_target()
+
+    public function farmers()
     {
-        return $this->belongsTo(IndicatorTarget::class, 'indicator_target_id');
+        return $this->belongsTo(RtcProductionFarmer::class, 'rpmf_id');
     }
 }

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class SchoolRtcConsumption extends Model
 {
     use HasFactory;
-    protected $table="school_rtc_consumption";    protected $guarded = [];
+    protected $table="school_rtc_consumption";    protected $guarded = ['id'];
 }
