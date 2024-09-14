@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RpmFarmerEmployees extends Model
 {
     use HasFactory;
-
+    protected $table = 'rpmf_number_of_employees';
     protected $guarded = ['id'];
 
     public function farmers()

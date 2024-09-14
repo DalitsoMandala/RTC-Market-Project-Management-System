@@ -48,10 +48,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function (Request $request) {
-    $user = User::find(11);
-    $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
-    $link = env('APP_URL');
-
+    User::create();
     // Dispatch the job to the queue
 
 });

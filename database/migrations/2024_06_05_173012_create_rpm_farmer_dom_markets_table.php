@@ -14,11 +14,11 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('rpm_farmer_id')->constrained('rtc_production_farmers', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->date('date_recorded')->nullable();
-            $table->enum('crop_type', ['CASSAVA', 'POTATO', 'SWEET POTATO'])->nullable();
+            $table->string('crop_type', )->nullable();
             $table->string('market_name')->nullable();
             $table->string('district')->nullable();
             $table->date('date_of_maximum_sale')->nullable();
-            $table->enum('product_type', ['SEED', 'WARE', 'VALUE ADDED PRODUCTS'])->nullable();
+            $table->string('product_type')->nullable();
             $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes (optional)
             $table->decimal('financial_value_of_sales', 18, 2)->nullable(); // Financial value
             //    $table->string('uuid');

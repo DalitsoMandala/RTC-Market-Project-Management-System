@@ -31,7 +31,7 @@ class Add extends Component
     public $form_name = 'RTC PRODUCTION AND MARKETING FORM PROCESSORS';
     public $selectedIndicator, $submissionPeriodId;
     public $location_data = [
-        'enterprise' => 'CASSAVA',
+        'enterprise' => 'Cassava',
         'district' => null,
         'epa' => null,
         'section' => null,
@@ -643,7 +643,7 @@ class Add extends Component
             'conc_partner_name' => null,
             'conc_country' => 'Malawi',
             'conc_date_of_maximum_sale' => null,
-            'conc_product_type' => 'SEED',
+            'conc_product_type' => 'Seed',
             'conc_volume_sold_previous_period' => null,
             'conc_financial_value_of_sales' => null,
         ];
@@ -662,11 +662,11 @@ class Add extends Component
         // Add a new set of empty values
         $this->inputTwo[] = [
             'dom_date_recorded' => null,
-            'dom_crop_type' => 'CASSAVA',
+            'dom_crop_type' => 'Cassava',
             'dom_market_name' => null,
             'dom_district' => null,
             'dom_date_of_maximum_sale' => null,
-            'dom_product_type' => 'SEED',
+            'dom_product_type' => 'Seed',
             'dom_volume_sold_previous_period' => null,
             'dom_financial_value_of_sales' => null,
         ];
@@ -685,11 +685,11 @@ class Add extends Component
         // Add a new set of empty values
         $this->inputThree[] = [
             'inter_date_recorded' => null,
-            'inter_crop_type' => 'CASSAVA',
+            'inter_crop_type' => 'Cassava',
             'inter_market_name' => null,
             'inter_country' => 'Malawi',
             'inter_date_of_maximum_sale' => null,
-            'inter_product_type' => 'SEED',
+            'inter_product_type' => 'Seed',
             'inter_volume_sold_previous_period' => null,
             'inter_financial_value_of_sales' => null,
         ];
@@ -793,7 +793,7 @@ class Add extends Component
                             'conc_partner_name' => null,
                             'conc_country' => 'Malawi',
                             'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => 'SEED',
+                            'conc_product_type' => 'Seed',
                             'conc_volume_sold_previous_period' => null,
                             'conc_financial_value_of_sales' => null,
                         ],
@@ -804,11 +804,11 @@ class Add extends Component
                     collect([
                         [
                             'dom_date_recorded' => null,
-                            'dom_crop_type' => 'CASSAVA',
+                            'dom_crop_type' => 'Cassava',
                             'dom_market_name' => null,
                             'dom_district' => null,
                             'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => 'SEED',
+                            'dom_product_type' => 'Seed',
                             'dom_volume_sold_previous_period' => null,
                             'dom_financial_value_of_sales' => null,
                         ],
@@ -818,11 +818,11 @@ class Add extends Component
                     collect([
                         [
                             'inter_date_recorded' => null,
-                            'inter_crop_type' => 'CASSAVA',
+                            'inter_crop_type' => 'Cassava',
                             'inter_market_name' => null,
                             'inter_country' => 'Malawi',
                             'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => 'SEED',
+                            'inter_product_type' => 'Seed',
                             'inter_volume_sold_previous_period' => null,
                             'inter_financial_value_of_sales' => null,
                         ],

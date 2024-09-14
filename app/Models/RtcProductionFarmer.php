@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Livewire\tables\RtcMarket\RpmFarmerCultivation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,21 +42,22 @@ class RtcProductionFarmer extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function members()
-    {
+    // public function members()
+    // {
 
-        return $this->hasMany(RpmFarmerMember::class, 'rpmf_id');
-    }
+    //     return $this->hasOne(RpmFarmerMember::class, 'rpmf_id');
+    // }
 
-    public function employees()
-    {
-        return $this->hasMany(RpmFarmerEmployees::class, 'rpmf_id');
-    }
+
+    // public function employees()
+    // {
+    //     return $this->hasOne(RpmFarmerEmployees::class, 'rpmf_id');
+    // }
 
     public function cultivatedArea()
     {
 
-        return $this->hasMany(RpmFarmerCultivation::class, 'rpmf_id');
+        return $this->hasMany(RpmFarmerAreaCultivation::class, 'rpmf_id');
     }
 
     public function basicSeed()
@@ -76,4 +76,15 @@ class RtcProductionFarmer extends Model
     {
         return $this->hasMany(RpmFarmerMarketSegment::class, 'rpmf_id');
     }
+
+    public function marketInformationSystems()
+    {
+        return $this->hasMany(RpmFarmerMarketInformationSystem::class, 'rpmf_id');
+    }
+
+    public function aggregationCenters()
+    {
+        return $this->hasMany(RpmFarmerAggregationCenter::class, 'rpmf_id');
+    }
+
 }

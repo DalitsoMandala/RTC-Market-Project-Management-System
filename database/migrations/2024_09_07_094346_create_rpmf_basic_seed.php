@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('rpmf_basic_seed', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
             $table->string('variety')->nullable();
+            $table->decimal('area', 16, 2)->default(0.00);
             $table->foreignId('rpmf_id')->constrained('rtc_production_farmers')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
