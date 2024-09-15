@@ -697,20 +697,6 @@ class Add extends Component
                 $farmer = RtcProductionFarmer::find($recruit->id);
                 //$farmer->members()->create($this->number_of_members);
 
-                $emps = Arr::dot($this->number_of_employees);
-                $flattened = Arr::dot($emps);
-
-                // Map the flattened array to match the database column names
-                $formatted = [
-                    'formal_female_18_35' => $flattened['formal.female_18_35'],
-                    'formal_male_18_35' => $flattened['formal.male_18_35'],
-                    'formal_male_35_plus' => $flattened['formal.male_35_plus'],
-                    'formal_female_35_plus' => $flattened['formal.female_35_plus'],
-                    'informal_female_18_35' => $flattened['informal.female_18_35'],
-                    'informal_male_18_35' => $flattened['informal.male_18_35'],
-                    'informal_male_35_plus' => $flattened['informal.male_35_plus'],
-                    'informal_female_35_plus' => $flattened['informal.female_35_plus'],
-                ];
 
                 foreach ($this->area_under_cultivation as $data) {
                     $farmer->cultivatedArea()->create($data);

@@ -59,15 +59,16 @@
                                 <label for="" class="form-label ">ENTERPRISE</label>
                                 <div class="form-group">
 
+
                                     <select
                                         class="form-select @error('location_data.enterprise')
-                                        is-invalid
-                                    @enderror"
+                                    is-invalid
+                                @enderror"
                                         wire:model='location_data.enterprise'>
                                         <option value="">Select one</option>
-                                        <option value="CASSAVA">Cassava</option>
-                                        <option value="POTATO">Potato</option>
-                                        <option value="SWEET POTATO">Sweet potato</option>
+                                        <option value="Cassava">Cassava</option>
+                                        <option value="Potato">Potato</option>
+                                        <option value="Sweet potato">Sweet potato</option>
                                     </select>
                                 </div>
                                 {{-- <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}

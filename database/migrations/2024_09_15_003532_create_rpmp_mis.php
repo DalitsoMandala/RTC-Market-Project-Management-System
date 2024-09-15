@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('rpmp_mis', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->foreignId('rpmf_id')->constrained('rtc_production_farmers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('rpmp_id')->constrained('rtc_production_processors')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

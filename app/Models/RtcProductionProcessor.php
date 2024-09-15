@@ -29,4 +29,19 @@ class RtcProductionProcessor extends Model
     {
         return $this->hasMany(RpmProcessorConcAgreement::class, 'rpm_processor_id');
     }
+
+    public function marketSegment()
+    {
+        return $this->hasMany(RpmProcessorMarketSegment::class, 'rpmp_id');
+    }
+
+    public function marketInformationSystems()
+    {
+        return $this->hasMany(RpmProcessorMarketInformationSystem::class, 'rpmp_id');
+    }
+
+    public function aggregationCenters()
+    {
+        return $this->hasMany(RpmProcessorAggregationCenter::class, 'rpmp_id');
+    }
 }

@@ -461,17 +461,11 @@ $watch('number_of_members', (v) => {
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
 <div class="mb-3 card card-body shadow-none border" x-data="{
-    total_production_value_previous_season: $wire.entangle('total_production_value_previous_season'),
-    rate: $wire.entangle('rate'),
+
 
 
 }" x-init="() => {
-    $watch('total_production_value_previous_season', (v) => {
-        value = parseFloat(total_production_value_previous_season.value || 0) / parseFloat(rate);
-        total_production_value_previous_season.total = (Math.round(value * 100) / 100).toFixed(2);
 
-
-    })
 
 
 }">
@@ -486,7 +480,7 @@ $watch('number_of_members', (v) => {
         </label>
         <input type="number" min="0" step="any"
             class="form-control  @error('total_production_value_previous_season.value') is-invalid @enderror"
-            id="totalProductionValue" wire:model="total_production_value_previous_season.value">
+            id="totalProductionValue" wire:model.live.debounce.600ms="total_production_value_previous_season.value">
         @error('total_production_value_previous_season.value')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -497,15 +491,16 @@ $watch('number_of_members', (v) => {
             Sales:</label>
         <input type="date"
             class="form-control  @error('total_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
-            id="dateOfMaximumSales" wire:model="total_production_value_previous_season.date_of_maximum_sales">
+            id="dateOfMaximumSales"
+            wire:model.live.debounce.600ms="total_production_value_previous_season.date_of_maximum_sales">
         @error('total_production_value_previous_season.date_of_maximum_sales')
             <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
-        <label for="dateOfMaximumSales" class="form-label">Today's USD Rate:
+        <label for="dateOfMaximumSales" class="form-label"> USD Rate:
         </label>
-        <x-text-input wire:model='rate' class="bg-light" readonly />
+        <x-text-input wire:model='total_production_value_previous_season.rate' class="bg-light" readonly />
     </div>
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Financial Value ($)</label>
@@ -517,7 +512,6 @@ $watch('number_of_members', (v) => {
 
 
 </div>
-
 
 <!-- Total Volume of Production in Previous Season from Irrigation Farming (Metric Tonnes) -->
 <div class="mb-3">
@@ -534,17 +528,10 @@ $watch('number_of_members', (v) => {
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
 <div class="mb-3 card card-body shadow-none border" x-data="{
-    total_irrigation_production_value_previous_season: $wire.entangle('total_irrigation_production_value_previous_season'),
-    rate: $wire.entangle('rate'),
+
 
 
 }" x-init="() => {
-    $watch('total_irrigation_production_value_previous_season', (v) => {
-        value = parseFloat(total_irrigation_production_value_previous_season.value || 0) / parseFloat(rate);
-        total_irrigation_production_value_previous_season.total = (Math.round(value * 100) / 100).toFixed(2);
-
-
-    })
 
 
 }">
@@ -562,7 +549,8 @@ $watch('number_of_members', (v) => {
         </label>
         <input type="number" min="0" step="any"
             class="form-control  @error('total_irrigation_production_value_previous_season.value') is-invalid @enderror"
-            id="totalProductionValue" wire:model="total_irrigation_production_value_previous_season.value">
+            id="totalProductionValue"
+            wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.value">
         @error('total_irrigation_production_value_previous_season.value')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -574,15 +562,15 @@ $watch('number_of_members', (v) => {
         <input type="date"
             class="form-control  @error('total_irrigation_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
             id="dateOfMaximumSales"
-            wire:model="total_irrigation_production_value_previous_season.date_of_maximum_sales">
+            wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.date_of_maximum_sales">
         @error('total_irrigation_production_value_previous_season.date_of_maximum_sales')
             <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
-        <label for="dateOfMaximumSales" class="form-label">Today's USD Rate:
+        <label for="dateOfMaximumSales" class="form-label"> USD Rate:
         </label>
-        <x-text-input wire:model='rate' class="bg-light" readonly />
+        <x-text-input wire:model='total_irrigation_production_value_previous_season.rate' class="bg-light" readonly />
     </div>
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Financial Value ($)</label>

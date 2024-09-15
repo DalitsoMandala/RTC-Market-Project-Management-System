@@ -42,17 +42,6 @@ class RtcProductionFarmer extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // public function members()
-    // {
-
-    //     return $this->hasOne(RpmFarmerMember::class, 'rpmf_id');
-    // }
-
-
-    // public function employees()
-    // {
-    //     return $this->hasOne(RpmFarmerEmployees::class, 'rpmf_id');
-    // }
 
     public function cultivatedArea()
     {

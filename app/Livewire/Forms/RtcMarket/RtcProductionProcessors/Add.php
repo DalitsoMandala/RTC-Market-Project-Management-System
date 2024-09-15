@@ -49,7 +49,6 @@ class Add extends Component
         'female_35_plus' => null,
         'male_18_35' => null,
         'male_35_plus' => null,
-
     ]; // For Producer organisations only
     public $group;
     public $establishment_status;
@@ -75,10 +74,7 @@ class Add extends Component
             'male_35_plus' => null,
         ],
     ];
-    public $area_under_cultivation = [
-
-
-    ]; // Stores area by variety (key-value pairs)
+    public $area_under_cultivation = []; // Stores area by variety (key-value pairs)
     public $number_of_plantlets_produced = [
         'cassava' => null,
         'potato' => null,
@@ -88,7 +84,6 @@ class Add extends Component
     public $number_of_screen_house_min_tubers_harvested; // Potatoes
     public $number_of_sah_plants_produced; // Cassava
     public $area_under_basic_seed_multiplication = [
-
         'total' => null,
         'variety_1' => null,
         'variety_2' => null,
@@ -99,7 +94,6 @@ class Add extends Component
         'variety_7' => null,
     ]; // Acres
     public $area_under_certified_seed_multiplication = [
-
         'total' => null,
         'variety_1' => null,
         'variety_2' => null,
@@ -115,9 +109,7 @@ class Add extends Component
         'registration_date' => null,
     ];
     public $uses_certified_seed = false;
-    public $market_segment = [
-
-    ];
+    public $market_segment = [];
     public $has_rtc_market_contract = false;
     public $total_vol_production_previous_season;
     public $total_production_value_previous_season = [
@@ -149,12 +141,8 @@ class Add extends Component
     public $inputThree = [];
     public $uuid;
 
-    public $selectedForm,
+    public $selectedForm, $selectedFinancialYear, $selectedMonth;
 
-    $selectedFinancialYear,
-    $selectedMonth
-
-    ;
     public $routePrefix;
     public $openSubmission = true;
     public $rate = 0;
@@ -179,7 +167,6 @@ class Add extends Component
             'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
             'total_vol_aggregation_center_sales' => 'required|numeric',
             'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
-
 
             'number_of_employees.formal.female_18_35' => 'required|numeric',
             'number_of_employees.formal.female_35_plus' => 'required|numeric',
@@ -240,15 +227,11 @@ class Add extends Component
             'total_production_value_previous_season.date_of_maximum_sales' => 'date of maximum sales of production previous season',
             'total_irrigation_production_value_previous_season.value' => 'total value of irrigation production previous season',
             'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'date of maximum sales of irrigation production previous season',
-
-
         ];
     }
 
     public function validateDynamicForms()
     {
-
-
         $rules = [];
         $attributes = [];
 
@@ -323,44 +306,32 @@ class Add extends Component
         }
         if (!empty($rules)) {
             try {
-
                 $this->validate($rules, [], $attributes);
-
-
             } catch (Throwable $e) {
                 session()->flash('validation_error', 'There are errors in the dynamic forms.');
                 throw $e;
             }
-
-
         }
-
     }
 
-    public function resetValues($name) // be careful dont delete it will destroy alpinejs
+    public function resetValues($name)
     {
-
+        // be careful dont delete it will destroy alpinejs
         $this->reset($name);
-
-
     }
-
 
     public function addMoreData($recruit)
     {
-
         $dates = [
             'created_at' => now(),
             'updated_at' => now(),
-            'status' => 'approved'
+            'status' => 'approved',
         ];
         try {
-            $thirdTable = array();
+            $thirdTable = [];
 
             foreach ($this->inputOne as $index => $input) {
-
                 $thirdTable[] = [
-
                     'rpm_processor_id' => $recruit->id,
                     'date_recorded' => $input['conc_date_recorded'] ?? now(),
                     'partner_name' => $input['conc_partner_name'],
@@ -369,7 +340,7 @@ class Add extends Component
                     'product_type' => $input['conc_product_type'],
                     'volume_sold_previous_period' => $input['conc_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['conc_financial_value_of_sales'],
-                    ...$dates
+                    ...$dates,
                 ];
             }
 
@@ -380,7 +351,6 @@ class Add extends Component
             $fourthTable = [];
 
             foreach ($this->inputTwo as $index => $input) {
-
                 $fourthTable[] = [
                     'rpm_processor_id' => $recruit->id,
                     'date_recorded' => $input['dom_date_recorded'] ?? now(),
@@ -391,17 +361,13 @@ class Add extends Component
                     'product_type' => $input['dom_product_type'],
                     'volume_sold_previous_period' => $input['dom_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['dom_financial_value_of_sales'],
-                    ...$dates
+                    ...$dates,
                 ];
             }
 
-
             if ($this->sells_to_domestic_markets) {
                 RpmProcessorDomMarket::insert($fourthTable);
-
             }
-
-
 
             $fifthTable = [];
             foreach ($this->inputThree as $index => $input) {
@@ -415,7 +381,7 @@ class Add extends Component
                     'product_type' => $input['inter_product_type'],
                     'volume_sold_previous_period' => $input['inter_volume_sold_previous_period'],
                     'financial_value_of_sales' => $input['inter_financial_value_of_sales'],
-                    ...$dates
+                    ...$dates,
                 ];
             }
 
@@ -424,30 +390,48 @@ class Add extends Component
             }
 
             return [
-
-                "agreement" => $thirdTable,
-                "market" => $fourthTable,
-                "intermarket" => $fifthTable,
-
+                'agreement' => $thirdTable,
+                'market' => $fourthTable,
+                'intermarket' => $fifthTable,
             ];
-
         } catch (UserErrorException $e) {
             # code...
 
             session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
         }
-
     }
 
+    public function updated($property, $value)
+    {
+        if ($this->total_production_value_previous_season) {
+            if ($this->total_production_value_previous_season['value'] && $this->total_production_value_previous_season['date_of_maximum_sales']) {
+                $date = $this->total_production_value_previous_season['date_of_maximum_sales'];
+                $value = $this->total_production_value_previous_season['value'];
+                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.0; // change this when you have historical data through exchange rate api
 
+                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
+                $this->total_production_value_previous_season['rate'] = $rate;
+                $this->total_production_value_previous_season['total'] = $totalvalue;
+            }
+        }
+
+        if ($this->total_irrigation_production_value_previous_season) {
+            if ($this->total_irrigation_production_value_previous_season['value'] && $this->total_irrigation_production_value_previous_season['date_of_maximum_sales']) {
+                $date = $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'];
+                $value = $this->total_irrigation_production_value_previous_season['value'];
+                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.0; // change this when you have historical data through exchange rate api
+
+                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
+                $this->total_irrigation_production_value_previous_season['rate'] = $rate;
+                $this->total_irrigation_production_value_previous_season['total'] = $totalvalue;
+            }
+        }
+    }
     public function save()
     {
 
         try {
-
             $this->validate();
-
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -456,12 +440,7 @@ class Add extends Component
         $this->validateDynamicForms();
 
         try {
-
-
-
             $uuid = Uuid::uuid4()->toString();
-
-
 
             foreach ($this->number_of_members as $key => $value) {
                 $this->number_of_members[$key] = $value ? $value : 0;
@@ -476,12 +455,13 @@ class Add extends Component
                 }
             }
 
-
-
-
+            $segment = collect($this->market_segment);
 
             $firstTable = [
-                'location_data' => $this->location_data,
+                'epa' => $this->location_data['epa'],
+                'district' => $this->location_data['district'],
+                'section' => $this->location_data['section'],
+                'enterprise' => $this->location_data['enterprise'],
                 'date_of_recruitment' => $this->date_of_recruitment,
                 'name_of_actor' => $this->name_of_actor,
                 'name_of_representative' => $this->name_of_representative,
@@ -489,22 +469,44 @@ class Add extends Component
                 'type' => $this->type,
                 'approach' => $this->approach, // For Producer organisations only
                 'sector' => $this->sector,
-                'number_of_members' => $this->number_of_members, // For Producer organisations only
+                'mem_female_18_35' => $this->number_of_members['female_18_35'],
+                'mem_male_18_35' => $this->number_of_members['male_18_35'],
+                'mem_male_35_plus' => $this->number_of_members['male_35_plus'],
+                'mem_female_35_plus' => $this->number_of_members['female_35_plus'], // For Producer organisations only
                 'group' => $this->group,
                 'establishment_status' => $this->establishment_status,
                 'is_registered' => $this->is_registered,
-                'registration_details' => $this->is_registered ? $this->registration_details : null,
-                'number_of_employees' => $this->number_of_employees,
-                'market_segment' => $this->market_segment, // Multiple market segments (array of strings)
+                'registration_body' => $this->registration_details['registration_body'],
+                'registration_number' => $this->registration_details['registration_number'],
+                'registration_date' => $this->registration_details['registration_date'],
+                'emp_formal_female_18_35' => $this->number_of_employees['formal']['female_18_35'],
+                'emp_formal_male_18_35' => $this->number_of_employees['formal']['male_18_35'],
+                'emp_formal_male_35_plus' => $this->number_of_employees['formal']['male_35_plus'],
+                'emp_formal_female_35_plus' => $this->number_of_employees['formal']['female_35_plus'],
+                'emp_informal_female_18_35' => $this->number_of_employees['informal']['female_18_35'],
+                'emp_informal_male_18_35' => $this->number_of_employees['informal']['male_18_35'],
+                'emp_informal_male_35_plus' => $this->number_of_employees['informal']['male_35_plus'],
+                'emp_informal_female_35_plus' => $this->number_of_employees['informal']['female_35_plus'],
+                'market_segment_fresh' => $segment->contains('Fresh') ? 1 : 0,
+                'market_segment_processed' => $segment->contains('Processed') ? 1 : 0, // Multiple market segments (array of strings)
                 'has_rtc_market_contract' => $this->has_rtc_market_contract,
+
                 'total_vol_production_previous_season' => $this->total_vol_production_previous_season, // Metric tonnes
-                'total_production_value_previous_season' => $this->total_production_value_previous_season, // MWK
+                'prod_value_previous_season_total' => $this->total_production_value_previous_season['value'],
+                'prod_value_previous_season_date_of_max_sales' => $this->total_production_value_previous_season['date_of_maximum_sales'],
+                'prod_value_previous_season_usd_rate' => $this->total_production_value_previous_season['rate'],
+                'prod_value_previous_season_usd_value' => $this->total_production_value_previous_season['total'],
+
                 'total_vol_irrigation_production_previous_season' => $this->total_vol_irrigation_production_previous_season, // Metric tonnes
-                'total_irrigation_production_value_previous_season' => $this->total_irrigation_production_value_previous_season, // MWK
+                'irr_prod_value_previous_season_total' => $this->total_irrigation_production_value_previous_season['value'],
+                'irr_prod_value_previous_season_date_of_max_sales' => $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'],
+                'irr_prod_value_previous_season_usd_rate' => $this->total_irrigation_production_value_previous_season['rate'],
+                'irr_prod_value_previous_season_usd_value' => $this->total_irrigation_production_value_previous_season['total'],
+
                 'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                 'sells_to_international_markets' => $this->sells_to_international_markets,
                 'uses_market_information_systems' => $this->uses_market_information_systems,
-                'market_information_systems' => $this->uses_market_information_systems ? $this->market_information_systems : null,
+                //     'market_information_systems' => $this->uses_market_information_systems ? $this->market_information_systems : null,
                 'user_id' => auth()->user()->id,
                 'uuid' => $uuid,
                 'submission_period_id' => $this->submissionPeriodId,
@@ -512,52 +514,39 @@ class Add extends Component
                 'financial_year_id' => $this->selectedFinancialYear,
                 'period_month_id' => $this->selectedMonth,
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                'aggregation_centers' => $this->sells_to_aggregation_centers ? $this->aggregation_center_sales : null, // Stores aggregation center details (array of objects with name and volume sold)
-                'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,// Previous season volume in metric tonnes
-                'status' => 'approved'
+                //   'aggregation_centers' => $this->sells_to_aggregation_centers ? $this->aggregation_center_sales : null, // Stores aggregation center details (array of objects with name and volume sold)
+                'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
+                'status' => 'approved',
             ];
 
             //dd($firstTable);
 
             foreach ($firstTable as $key => $value) {
                 if (is_array($value)) {
-
                     if (empty($value)) {
                         $firstTable[$key] = null;
                     } else {
                         $firstTable[$key] = json_encode($value);
-
                     }
-
                 }
             }
 
-
-
-
             $recruit = RtcProductionProcessor::create($firstTable);
-            $otherData = array();
-            $otherData['main'] = $firstTable;
-            $finalData = array_merge($otherData, $this->addMoreData($recruit));
-            if (!$this->has_rtc_market_contract) {
-                $finalData['agreement'] = []; //contractual agreement
-            }
-            if (!$this->sells_to_domestic_markets) {
-
-                $finalData['market'] = []; //dom
-            }
-            if (!$this->sells_to_international_markets) {
-                $finalData['intermarket'] = []; // international market
-            }
+            $processor = RtcProductionProcessor::find($recruit->id);
 
             $currentUser = Auth::user();
 
+            foreach ($this->market_information_systems as $data) {
+                $processor->marketInformationSystems()->create($data);
+            }
 
-            $table = ['rtc_production_processors', 'rpm_processor_follow_ups', 'rpm_processor_conc_agreements', 'rpm_processor_dom_markets', 'rpm_processor_inter_markets'];
+            foreach ($this->aggregation_center_sales as $data) {
+                $processor->aggregationCenters()->create($data);
+            }
 
+            $this->addMoreData($recruit);
 
             try {
-
                 Submission::create([
                     'batch_no' => $uuid,
                     'form_id' => $this->selectedForm,
@@ -568,9 +557,7 @@ class Add extends Component
                     'is_complete' => 1,
                     'period_id' => $this->submissionPeriodId,
                     'table_name' => 'rtc_production_processors',
-
                 ]);
-
 
                 //     $link = 'forms/rtc-market/household-consumption-form/' . $uuid . '/view';
                 //   $currentUser->notify(new ManualDataAddedNotification($uuid, $link));
@@ -579,7 +566,6 @@ class Add extends Component
                 session()->flash('info', 'Your ID is: <b>' . substr($recruit->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
                 return redirect()->to(url()->previous());
-
             } catch (UserErrorException $e) {
                 // Log the actual error for debugging purposes
                 Log::error('Submission error: ' . $e->getMessage());
@@ -587,14 +573,9 @@ class Add extends Component
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
             }
-
-
-
-
-
         } catch (Throwable $th) {
             # code...
-
+            dd($th);
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
         }
@@ -632,7 +613,6 @@ class Add extends Component
             'inter_volume_sold_previous_period' => null,
             'inter_financial_value_of_sales' => null,
         ];
-
     }
 
     public function addInputOne()
@@ -711,7 +691,6 @@ class Add extends Component
     {
         $this->aggregation_center_sales[] = [
             'name' => null,
-
         ];
     }
 
@@ -724,7 +703,6 @@ class Add extends Component
     {
         $this->market_information_systems[] = [
             'name' => null,
-
         ];
     }
     public function removeAreaofCultivation($index)
@@ -736,19 +714,14 @@ class Add extends Component
     {
         $this->area_under_cultivation[] = [
             'variety' => null,
-            'area' => null
+            'area' => null,
         ];
     }
 
-
-
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
-
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
-
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -757,9 +730,7 @@ class Add extends Component
         $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
         $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
-
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -776,86 +747,66 @@ class Add extends Component
                 ->first();
 
             if ($submissionPeriod) {
-
                 $this->openSubmission = true;
-
             } else {
                 $this->openSubmission = false;
             }
         }
 
-        $this->fill(
-            [
-                'inputOne' =>
-                    collect([
-                        [
-                            'conc_date_recorded' => null,
-                            'conc_partner_name' => null,
-                            'conc_country' => 'Malawi',
-                            'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => 'Seed',
-                            'conc_volume_sold_previous_period' => null,
-                            'conc_financial_value_of_sales' => null,
-                        ],
+        $this->fill([
+            'inputOne' => collect([
+                [
+                    'conc_date_recorded' => null,
+                    'conc_partner_name' => null,
+                    'conc_country' => 'Malawi',
+                    'conc_date_of_maximum_sale' => null,
+                    'conc_product_type' => 'Seed',
+                    'conc_volume_sold_previous_period' => null,
+                    'conc_financial_value_of_sales' => null,
+                ],
+            ]),
 
-                    ]),
+            'inputTwo' => collect([
+                [
+                    'dom_date_recorded' => null,
+                    'dom_crop_type' => 'Cassava',
+                    'dom_market_name' => null,
+                    'dom_district' => null,
+                    'dom_date_of_maximum_sale' => null,
+                    'dom_product_type' => 'Seed',
+                    'dom_volume_sold_previous_period' => null,
+                    'dom_financial_value_of_sales' => null,
+                ],
+            ]),
 
-                'inputTwo' =>
-                    collect([
-                        [
-                            'dom_date_recorded' => null,
-                            'dom_crop_type' => 'Cassava',
-                            'dom_market_name' => null,
-                            'dom_district' => null,
-                            'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => 'Seed',
-                            'dom_volume_sold_previous_period' => null,
-                            'dom_financial_value_of_sales' => null,
-                        ],
-                    ]),
+            'inputThree' => collect([
+                [
+                    'inter_date_recorded' => null,
+                    'inter_crop_type' => 'Cassava',
+                    'inter_market_name' => null,
+                    'inter_country' => 'Malawi',
+                    'inter_date_of_maximum_sale' => null,
+                    'inter_product_type' => 'Seed',
+                    'inter_volume_sold_previous_period' => null,
+                    'inter_financial_value_of_sales' => null,
+                ],
+            ]),
 
-                'inputThree' =>
-                    collect([
-                        [
-                            'inter_date_recorded' => null,
-                            'inter_crop_type' => 'Cassava',
-                            'inter_market_name' => null,
-                            'inter_country' => 'Malawi',
-                            'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => 'Seed',
-                            'inter_volume_sold_previous_period' => null,
-                            'inter_financial_value_of_sales' => null,
-                        ],
-                    ]),
+            'area_under_cultivation' => collect([
+                [
+                    'variety' => null,
+                    'area' => null,
+                ],
+            ]),
 
-                'area_under_cultivation' => collect([
-                    [
-                        'variety' => null,
-                        'area' => null
-                    ]
-                ]),
-
-
-                'aggregation_center_sales' => collect([
-                    [
-                        'name' => null,
-
-                    ]
-                ]),
-                'market_information_systems' => collect([
-                    [
-                        'name' => null,
-
-                    ]
-                ]),
-                'rate' => ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? '',
-            ]
-        );
+            'aggregation_center_sales' => collect([[]]),
+            'market_information_systems' => collect([[]]),
+            'rate' => ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? '',
+        ]);
         $this->routePrefix = Route::current()->getPrefix();
         $this->total_production_value_previous_season['rate'] = $this->rate;
         $this->total_irrigation_production_value_previous_season['rate'] = $this->rate;
     }
-
 
     public function render()
     {
