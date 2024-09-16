@@ -13,41 +13,37 @@
     <div class="row">
         <div class="card card-body shadow-none border">
             @foreach ($area_under_cultivation as $index => $value)
-                <div class="row">
-                    <label for="variety" class="my-3 form-label fw-bold">VARIETY
-                        ({{ $index + 1 }})
-                    </label>
-                    <div class="col">
+            <div class="row">
+                <label for="variety" class="my-3 form-label fw-bold">VARIETY
+                    ({{ $index + 1 }})
+                </label>
+                <div class="col">
 
-                        <div class="mb-3">
+                    <div class="mb-3">
 
-                            <x-text-input :class="$errors->has('area_under_cultivation.' . $index . '.variety')
+                        <x-text-input :class="$errors->has('area_under_cultivation.' . $index . '.variety')
                                 ? 'is-invalid'
-                                : ''"
-                                wire:model='area_under_cultivation.{{ $index }}.variety' placeholder="variety" />
-                            @error('area_under_cultivation.' . $index . '.variety')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="mb-3">
-                            <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_cultivation.' . $index . '.area') ? 'is-invalid' : ''"
-                                wire:model='area_under_cultivation.{{ $index }}.area' placeholder="area" />
-                            @error('area_under_cultivation.' . $index . '.area')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                    <div class="col-2" x-data> <button type="button" class="btn btn-danger"
-                            @click="$wire.removeAreaofCultivation({{ $index }})"
-                            @if ($index == 0) disabled @endif>
-                            -
-                        </button>
+                                : ''" wire:model='area_under_cultivation.{{ $index }}.variety' placeholder="variety" />
+                        @error('area_under_cultivation.' . $index . '.variety')
+                        <x-error>{{ $message }}</x-error>
+                        @enderror
                     </div>
                 </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_cultivation.' . $index . '.area') ? 'is-invalid' : ''" wire:model='area_under_cultivation.{{ $index }}.area' placeholder="area" />
+                        @error('area_under_cultivation.' . $index . '.area')
+                        <x-error>{{ $message }}</x-error>
+                        @enderror
+                    </div>
+                </div>
+
+
+                <div class="col-2" x-data> <button type="button" class="btn btn-danger" @click="$wire.removeAreaofCultivation({{ $index }})" @if ($index==0) disabled @endif>
+                        -
+                    </button>
+                </div>
+            </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
@@ -86,11 +82,9 @@
             <div class="mb-3">
                 <label for="cassavaPlantlets" class="form-label">Number of
                     Plantlets Produced (Cassava):</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_plantlets_produced.cassava') is-invalid @enderror"
-                    id="cassavaPlantlets" x-model="number_of_plantlets_produced.cassava">
+                <input type="number" min="0" step="any" class="form-control @error('number_of_plantlets_produced.cassava') is-invalid @enderror" id="cassavaPlantlets" x-model="number_of_plantlets_produced.cassava">
                 @error('number_of_plantlets_produced.cassava')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -98,11 +92,9 @@
             <div class="mb-3">
                 <label for="potatoPlantlets" class="form-label">Number of
                     Plantlets Produced (Potato):</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_plantlets_produced.potato') is-invalid @enderror"
-                    id="potatoPlantlets" x-model="number_of_plantlets_produced.potato">
+                <input type="number" min="0" step="any" class="form-control @error('number_of_plantlets_produced.potato') is-invalid @enderror" id="potatoPlantlets" x-model="number_of_plantlets_produced.potato">
                 @error('number_of_plantlets_produced.potato')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -110,11 +102,9 @@
             <div class="mb-3">
                 <label for="sweetPotatoPlantlets" class="form-label">Number of
                     Plantlets Produced (Sweet Potato):</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_plantlets_produced.sweet_potato') is-invalid @enderror"
-                    id="sweetPotatoPlantlets" x-model="number_of_plantlets_produced.sweet_potato">
+                <input type="number" min="0" step="any" class="form-control @error('number_of_plantlets_produced.sweet_potato') is-invalid @enderror" id="sweetPotatoPlantlets" x-model="number_of_plantlets_produced.sweet_potato">
                 @error('number_of_plantlets_produced.sweet_potato')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -137,11 +127,9 @@
 }" x-show="group=='Early generation seed producer'">
     <label for="numberOfScreenHouseVines" class="form-label">Number of Screen
         House Vines Harvested (Sweet Potatoes)</label>
-    <input type="number" min="0" step="any"
-        class="form-control @error('number_of_screen_house_vines_harvested') is-invalid @enderror"
-        id="numberOfScreenHouseVines" x-model='number_of_screen_house_vines_harvested'>
+    <input type="number" min="0" step="any" class="form-control @error('number_of_screen_house_vines_harvested') is-invalid @enderror" id="numberOfScreenHouseVines" x-model='number_of_screen_house_vines_harvested'>
     @error('number_of_screen_house_vines_harvested')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 <!-- Number of Screen House Mini-Tubers Harvested (Potato) -->
@@ -158,11 +146,9 @@
 }" x-show="group=='Early generation seed producer' ">
     <label for="numberOfMiniTubers" class="form-label">Number of Screen House
         Mini-Tubers Harvested (Potato)</label>
-    <input type="number" min="0" step="any"
-        class="form-control @error('number_of_screen_house_min_tubers_harvested') is-invalid @enderror"
-        id="numberOfMiniTubers" x-model='number_of_screen_house_min_tubers_harvested'>
+    <input type="number" min="0" step="any" class="form-control @error('number_of_screen_house_min_tubers_harvested') is-invalid @enderror" id="numberOfMiniTubers" x-model='number_of_screen_house_min_tubers_harvested'>
     @error('number_of_screen_house_min_tubers_harvested')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 <!-- Number of SAH Plants Produced (Cassava) -->
@@ -179,11 +165,9 @@
 }" x-show=" group=='Early generation seed producer'">
     <label for="numberOfSAHPlants" class="form-label">Number of SAH Plants
         Produced (Cassava)</label>
-    <input type="number" min="0" step="any"
-        class="form-control @error('number_of_sah_plants_produced') is-invalid @enderror" id="numberOfSAHPlants"
-        x-model='number_of_sah_plants_produced'>
+    <input type="number" min="0" step="any" class="form-control @error('number_of_sah_plants_produced') is-invalid @enderror" id="numberOfSAHPlants" x-model='number_of_sah_plants_produced'>
     @error('number_of_sah_plants_produced')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -214,44 +198,38 @@
     <div class="row">
         <div class="card card-body shadow-none border">
             @foreach ($area_under_basic_seed_multiplication as $index => $value)
-                <div class="row">
-                    <label for="variety" class="my-3 form-label fw-bold">vARIETY
-                        ({{ $index + 1 }})
-                    </label>
-                    <div class="col">
+            <div class="row">
+                <label for="variety" class="my-3 form-label fw-bold">vARIETY
+                    ({{ $index + 1 }})
+                </label>
+                <div class="col">
 
-                        <div class="mb-3">
+                    <div class="mb-3">
 
-                            <x-text-input :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.variety')
+                        <x-text-input :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.variety')
                                 ? 'is-invalid'
-                                : ''"
-                                wire:model='area_under_basic_seed_multiplication.{{ $index }}.variety'
-                                placeholder="variety" />
-                            @error('area_under_basic_seed_multiplication.' . $index . '.variety')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="mb-3">
-                            <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.area')
-                                ? 'is-invalid'
-                                : ''"
-                                wire:model='area_under_basic_seed_multiplication.{{ $index }}.area'
-                                placeholder="area" />
-                            @error('area_under_basic_seed_multiplication.' . $index . '.area')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-2" x-data>
-                        <button type="button" class="btn btn-danger"
-                            @click="$wire.removeBasicSeed({{ $index }})"
-                            @if ($index == 0) disabled @endif>
-                            -
-                        </button>
+                                : ''" wire:model='area_under_basic_seed_multiplication.{{ $index }}.variety' placeholder="variety" />
+                        @error('area_under_basic_seed_multiplication.' . $index . '.variety')
+                        <x-error>{{ $message }}</x-error>
+                        @enderror
                     </div>
                 </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.area')
+                                ? 'is-invalid'
+                                : ''" wire:model='area_under_basic_seed_multiplication.{{ $index }}.area' placeholder="area" />
+                        @error('area_under_basic_seed_multiplication.' . $index . '.area')
+                        <x-error>{{ $message }}</x-error>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-2" x-data>
+                    <button type="button" class="btn btn-danger" @click="$wire.removeBasicSeed({{ $index }})" @if ($index==0) disabled @endif>
+                        -
+                    </button>
+                </div>
+            </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
@@ -278,45 +256,39 @@
     <div class="row">
         <div class="card card-body shadow-none border">
             @foreach ($area_under_certified_seed_multiplication as $index => $value)
-                <div class="row">
-                    <label for="variety" class="my-3 form-label fw-bold">vARIETY
-                        ({{ $index + 1 }})
-                    </label>
-                    <div class="col">
+            <div class="row">
+                <label for="variety" class="my-3 form-label fw-bold">vARIETY
+                    ({{ $index + 1 }})
+                </label>
+                <div class="col">
 
-                        <div class="mb-3">
+                    <div class="mb-3">
 
-                            <x-text-input :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.variety')
+                        <x-text-input :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.variety')
                                 ? 'is-invalid'
-                                : ''"
-                                wire:model='area_under_certified_seed_multiplication.{{ $index }}.variety'
-                                placeholder="variety" />
-                            @error('area_under_certified_seed_multiplication.' . $index . '.variety')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
+                                : ''" wire:model='area_under_certified_seed_multiplication.{{ $index }}.variety' placeholder="variety" />
+                        @error('area_under_certified_seed_multiplication.' . $index . '.variety')
+                        <x-error>{{ $message }}</x-error>
+                        @enderror
                     </div>
-                    <div class="col">
-                        <div class="mb-3">
-                            <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.area')
-                                ? 'is-invalid'
-                                : ''"
-                                wire:model='area_under_certified_seed_multiplication.{{ $index }}.area'
-                                placeholder="area" />
-                            @error('area_under_certified_seed_multiplication.' . $index . '.area')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-2" x-data>
-                        <button type="button" class="btn btn-danger"
-                            @click="$wire.removeCertifiedSeed({{ $index }})"
-                            @if ($index == 0) disabled @endif>
-                            -
-                        </button>
-                    </div>
-
                 </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.area')
+                                ? 'is-invalid'
+                                : ''" wire:model='area_under_certified_seed_multiplication.{{ $index }}.area' placeholder="area" />
+                        @error('area_under_certified_seed_multiplication.' . $index . '.area')
+                        <x-error>{{ $message }}</x-error>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-2" x-data>
+                    <button type="button" class="btn btn-danger" @click="$wire.removeCertifiedSeed({{ $index }})" @if ($index==0) disabled @endif>
+                        -
+                    </button>
+                </div>
+
+            </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
@@ -344,19 +316,17 @@
     <label class="form-label">Are You a Registered Seed Producer</label>
     <div class="@error('is_registered_seed_producer') border border-danger @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="registeredSeedProducerYes" value="1"
-                x-model="is_registered_seed_producer">
+            <input class="form-check-input" type="radio" id="registeredSeedProducerYes" value="1" x-model="is_registered_seed_producer">
             <label class="form-check-label" for="registeredSeedProducerYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="registeredSeedProducerNo" value="0"
-                x-model="is_registered_seed_producer">
+            <input class="form-check-input" type="radio" id="registeredSeedProducerNo" value="0" x-model="is_registered_seed_producer">
             <label class="form-check-label" for="registeredSeedProducerNo">No</label>
         </div>
     </div>
 
     @error('is_registered_seed_producer')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -377,22 +347,18 @@
     <div class="mb-3">
         <label for="registrationNumber" class="form-label">Seed Service Unit
             Registration Number:</label>
-        <input type="text"
-            class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror"
-            id="registrationNumber" wire:model="seed_service_unit_registration_details.registration_number">
+        <input type="text" class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror" id="registrationNumber" wire:model="seed_service_unit_registration_details.registration_number">
         @error('seed_service_unit_registration_details.registration_number')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
     <div class="mb-3">
         <label for="registrationDate" class="form-label">Seed Service Unit
             Registration Date:</label>
-        <input type="date"
-            class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror "
-            id="registrationDate" wire:model="seed_service_unit_registration_details.registration_date">
+        <input type="date" class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror " id="registrationDate" wire:model="seed_service_unit_registration_details.registration_date">
         @error('seed_service_unit_registration_details.registration_date')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
@@ -403,18 +369,16 @@
     <label class="form-label">Do You Use Certified Seed</label>
     <div class="@error('uses_certified_seed') border border-danger @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="useCertifiedSeedYes" value="1"
-                wire:model="uses_certified_seed">
+            <input class="form-check-input" type="radio" id="useCertifiedSeedYes" value="1" wire:model="uses_certified_seed">
             <label class="form-check-label" for="useCertifiedSeedYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="useCertifiedSeedNo" value="0"
-                wire:model="uses_certified_seed">
+            <input class="form-check-input" type="radio" id="useCertifiedSeedNo" value="0" wire:model="uses_certified_seed">
             <label class="form-check-label" for="useCertifiedSeedNo">No</label>
         </div>
     </div>
     @error('uses_certified_seed')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -428,20 +392,18 @@
         Responses)</label>
     <div class="@error('market_segment') border border-danger @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="marketSegmentFresh" wire:model="market_segment"
-                value="Fresh">
+            <input class="form-check-input" type="checkbox" id="marketSegmentFresh" wire:model="market_segment" value="Fresh">
             <label class="form-check-label" for="marketSegmentFresh">Fresh</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="Processed"
-                wire:model="market_segment">
+            <input class="form-check-input" type="checkbox" id="marketSegmentProcessed" value="Processed" wire:model="market_segment">
             <label class="form-check-label" for="marketSegmentProcessed">Processed</label>
         </div>
     </div>
 
 
     @error('market_segment')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -452,18 +414,16 @@
     <label class="form-label">Do You Have Any RTC Market Contractual Agreement</label>
     <div class="@error('has_rtc_market_contract') border border-primary @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="rtcMarketContractYes" value="1"
-                x-model="has_rtc_market_contract">
+            <input class="form-check-input" type="radio" id="rtcMarketContractYes" value="1" x-model="has_rtc_market_contract">
             <label class="form-check-label" for="rtcMarketContractYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="rtcMarketContractNo" value="0"
-                x-model="has_rtc_market_contract">
+            <input class="form-check-input" type="radio" id="rtcMarketContractNo" value="0" x-model="has_rtc_market_contract">
             <label class="form-check-label" for="rtcMarketContractNo">No</label>
         </div>
     </div>
     @error('has_rtc_market_contract')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -471,27 +431,19 @@
 <div class="mb-3">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production in Previous Season (Metric Tonnes)</label>
-    <input type="number" min="0" step="any"
-        class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
-        id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
+    <input type="number" min="0" step="any" class="form-control @error('total_vol_production_previous_season') is-invalid @enderror" id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
     @error('total_vol_production_previous_season')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
 <div class="mb-3 card card-body shadow-none border" x-data="{
-    total_production_value_previous_season: $wire.entangle('total_production_value_previous_season'),
-    rate: $wire.entangle('rate'),
+
 
 
 }" x-init="() => {
-    $watch('total_production_value_previous_season', (v) => {
-        value = parseFloat(total_production_value_previous_season.value || 0) / parseFloat(rate);
-        total_production_value_previous_season.total = (Math.round(value * 100) / 100).toFixed(2);
 
-
-    })
 
 
 }">
@@ -504,34 +456,28 @@
         <label for="totalProductionValue" class="form-label"> Total Production
             Value Previous Season (Financial Value-MWK):
         </label>
-        <input type="number" min="0" step="any"
-            class="form-control  @error('total_production_value_previous_season.value') is-invalid @enderror"
-            id="totalProductionValue" wire:model="total_production_value_previous_season.value">
+        <input type="number" min="0" step="any" class="form-control  @error('total_production_value_previous_season.value') is-invalid @enderror" id="totalProductionValue" wire:model.live.debounce.600ms="total_production_value_previous_season.value">
         @error('total_production_value_previous_season.value')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
     <div class="mb-3">
         <label for="dateOfMaximumSales" class="form-label">Date of Maximum
             Sales:</label>
-        <input type="date"
-            class="form-control  @error('total_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
-            id="dateOfMaximumSales" wire:model="total_production_value_previous_season.date_of_maximum_sales">
+        <input type="date" class="form-control  @error('total_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror" id="dateOfMaximumSales" wire:model.live.debounce.600ms="total_production_value_previous_season.date_of_maximum_sales">
         @error('total_production_value_previous_season.date_of_maximum_sales')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
-        <label for="dateOfMaximumSales" class="form-label">Today's USD Rate:
+        <label for="dateOfMaximumSales" class="form-label"> USD Rate:
         </label>
-        <x-text-input wire:model='rate' class="bg-light" readonly />
+        <x-text-input wire:model='total_production_value_previous_season.rate' class="bg-light" readonly />
     </div>
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Financial Value ($)</label>
-        <input type="number" min="0" step="any"
-            class="form-control bg-light  @error('total_production_value_previous_season.total') is-invalid @enderror"
-            readonly id="totalProductionValue" wire:model="total_production_value_previous_season.total">
+        <input type="number" min="0" step="any" class="form-control bg-light  @error('total_production_value_previous_season.total') is-invalid @enderror" readonly id="totalProductionValue" wire:model="total_production_value_previous_season.total">
 
     </div>
 
@@ -543,27 +489,18 @@
     <label for="totalVolumeIrrigation" class="form-label">Total Volume of
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
-    <input type="number" min="0" step="any"
-        class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror"
-        id="totalVolumeIrrigation" wire:model='total_vol_irrigation_production_previous_season'>
+    <input type="number" min="0" step="any" class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror" id="totalVolumeIrrigation" wire:model='total_vol_irrigation_production_previous_season'>
     @error('total_vol_irrigation_production_previous_season')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
 <div class="mb-3 card card-body shadow-none border" x-data="{
-    total_irrigation_production_value_previous_season: $wire.entangle('total_irrigation_production_value_previous_season'),
-    rate: $wire.entangle('rate'),
+
 
 
 }" x-init="() => {
-    $watch('total_irrigation_production_value_previous_season', (v) => {
-        value = parseFloat(total_irrigation_production_value_previous_season.value || 0) / parseFloat(rate);
-        total_irrigation_production_value_previous_season.total = (Math.round(value * 100) / 100).toFixed(2);
-
-
-    })
 
 
 }">
@@ -579,35 +516,28 @@
         <label for="totalProductionValue" class="form-label"> Total Irrigation Production
             Value Previous Season (Financial Value-MWK):
         </label>
-        <input type="number" min="0" step="any"
-            class="form-control  @error('total_irrigation_production_value_previous_season.value') is-invalid @enderror"
-            id="totalProductionValue" wire:model="total_irrigation_production_value_previous_season.value">
+        <input type="number" min="0" step="any" class="form-control  @error('total_irrigation_production_value_previous_season.value') is-invalid @enderror" id="totalProductionValue" wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.value">
         @error('total_irrigation_production_value_previous_season.value')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
     <div class="mb-3">
         <label for="dateOfMaximumSales" class="form-label">Date of Maximum
             Sales:</label>
-        <input type="date"
-            class="form-control  @error('total_irrigation_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
-            id="dateOfMaximumSales"
-            wire:model="total_irrigation_production_value_previous_season.date_of_maximum_sales">
+        <input type="date" class="form-control  @error('total_irrigation_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror" id="dateOfMaximumSales" wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.date_of_maximum_sales">
         @error('total_irrigation_production_value_previous_season.date_of_maximum_sales')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
-        <label for="dateOfMaximumSales" class="form-label">Today's USD Rate:
+        <label for="dateOfMaximumSales" class="form-label"> USD Rate:
         </label>
-        <x-text-input wire:model='rate' class="bg-light" readonly />
+        <x-text-input wire:model='total_irrigation_production_value_previous_season.rate' class="bg-light" readonly />
     </div>
     <div class="mb-3">
         <label for="totalProductionValue" class="form-label">Financial Value ($)</label>
-        <input type="number" min="0" step="any"
-            class="form-control bg-light  @error('total_irrigation_production_value_previous_season.total') is-invalid @enderror"
-            readonly id="totalProductionValue" wire:model="total_irrigation_production_value_previous_season.total">
+        <input type="number" min="0" step="any" class="form-control bg-light  @error('total_irrigation_production_value_previous_season.total') is-invalid @enderror" readonly id="totalProductionValue" wire:model="total_irrigation_production_value_previous_season.total">
 
     </div>
 
@@ -623,19 +553,17 @@
     <label class="form-label">Do You Sell Your RTC Products to Domestic Markets</label>
     <div class=" @error('sells_to_domestic_markets') is-invalid @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellToDomesticMarketsYes" value="1"
-                x-model="sells_to_domestic_markets">
+            <input class="form-check-input" type="radio" id="sellToDomesticMarketsYes" value="1" x-model="sells_to_domestic_markets">
             <label class="form-check-label" for="sellToDomesticMarketsYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellToDomesticMarketsNo" value="0"
-                x-model="sells_to_domestic_markets">
+            <input class="form-check-input" type="radio" id="sellToDomesticMarketsNo" value="0" x-model="sells_to_domestic_markets">
             <label class="form-check-label" for="sellToDomesticMarketsNo">No</label>
         </div>
     </div>
 
     @error('sells_to_domestic_markets')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -646,18 +574,16 @@
     <label class="form-label">Do You Sell Your Products to International Markets</label>
     <div class=" @error('sells_to_international_markets') border border-primary @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1"
-                x-model="sells_to_international_markets">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1" x-model="sells_to_international_markets">
             <label class="form-check-label" for="sellToInternationalMarketsYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellToInternationalMarketsNo" value="0"
-                x-model="sells_to_international_markets">
+            <input class="form-check-input" type="radio" id="sellToInternationalMarketsNo" value="0" x-model="sells_to_international_markets">
             <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
         </div>
     </div>
     @error('sells_to_international_markets')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -668,18 +594,16 @@
     <label class="form-label">Do You Sell Your Products Through Market Information Systems</label>
     <div class=" @error('uses_market_information_systems') border border-danger @enderror">
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellThroughMarketInfoYes" value="1"
-                x-model="uses_market_information_systems">
+            <input class="form-check-input" type="radio" id="sellThroughMarketInfoYes" value="1" x-model="uses_market_information_systems">
             <label class="form-check-label" for="sellThroughMarketInfoYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellThroughMarketInfoNo" value="0"
-                x-model="uses_market_information_systems">
+            <input class="form-check-input" type="radio" id="sellThroughMarketInfoNo" value="0" x-model="uses_market_information_systems">
             <label class="form-check-label" for="sellThroughMarketInfoNo">No</label>
         </div>
     </div>
     @error('uses_market_information_systems')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -707,34 +631,30 @@
             <div class="card card-body shadow-none border">
                 <label for="" class="form-label">Specify Market Information System</label>
                 @foreach ($market_information_systems as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">Market information System
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">Market information System
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('market_information_systems.' . $index . '.name')
+                            <x-text-input :class="$errors->has('market_information_systems.' . $index . '.name')
                                     ? 'is-invalid'
-                                    : ''"
-                                    wire:model='market_information_systems.{{ $index }}.name'
-                                    placeholder="Name of market information systems" />
-                                @error('market_information_systems.' . $index . '.name')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
+                                    : ''" wire:model='market_information_systems.{{ $index }}.name' placeholder="Name of market information systems" />
+                            @error('market_information_systems.' . $index . '.name')
+                            <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
-                        <div class="col-2" x-data>
-                            <button type="button" class="btn btn-danger"
-                                @click="$wire.removeMIS({{ $index }})"
-                                @if ($index == 0) disabled @endif>
-                                -
-                            </button>
-                        </div>
-
-
                     </div>
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-danger" @click="$wire.removeMIS({{ $index }})" @if ($index==0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+
+
+                </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
@@ -782,19 +702,17 @@
 
         <div class=" @error('sells_to_aggregation_centers') border border-primary @enderror">
             <div class="form-check">
-                <input class="form-check-input" type="radio" id="aggregationCenterResponseYes" value="1"
-                    wire:model='sells_to_aggregation_centers'>
+                <input class="form-check-input" type="radio" id="aggregationCenterResponseYes" value="1" wire:model='sells_to_aggregation_centers'>
                 <label class="form-check-label">Yes</label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" id="aggregationCenterResponseNo" value="0"
-                    wire:model='sells_to_aggregation_centers'>
+                <input class="form-check-input" type="radio" id="aggregationCenterResponseNo" value="0" wire:model='sells_to_aggregation_centers'>
                 <label class="form-check-label">No</label>
             </div>
         </div>
 
         @error('aggregation_centers')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
@@ -808,33 +726,29 @@
             <div class="card card-body shadow-none border">
                 <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
                 @foreach ($aggregation_center_sales as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">Aggregation Center
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">Aggregation Center
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('aggregation_center_sales.' . $index . '.name')
+                            <x-text-input :class="$errors->has('aggregation_center_sales.' . $index . '.name')
                                     ? 'is-invalid'
-                                    : ''"
-                                    wire:model='aggregation_center_sales.{{ $index }}.name'
-                                    placeholder="Name of aggregation center" />
-                                @error('aggregation_center_sales.' . $index . '.name')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-
-
-                        <div class="col-2" x-data> <button type="button" class="btn btn-danger"
-                                @click="$wire.removeSales({{ $index }})"
-                                @if ($index == 0) disabled @endif>
-                                -
-                            </button>
+                                    : ''" wire:model='aggregation_center_sales.{{ $index }}.name' placeholder="Name of aggregation center" />
+                            @error('aggregation_center_sales.' . $index . '.name')
+                            <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
                     </div>
+
+
+                    <div class="col-2" x-data> <button type="button" class="btn btn-danger" @click="$wire.removeSales({{ $index }})" @if ($index==0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+                </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
@@ -860,10 +774,8 @@
     <label for="" class="form-label">Total Volume
         of RTC Sold Through Aggregation Centers in Previous Season (Metric
         Tonnes)</label>
-    <input type="number" min="0" step="any"
-        class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror"
-        wire:model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
+    <input type="number" min="0" step="any" class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror" wire:model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
     @error('total_vol_aggregation_center_sales')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>

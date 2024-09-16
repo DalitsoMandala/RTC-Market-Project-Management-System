@@ -17,20 +17,22 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                    <h4 class="mb-0">Add New Record</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Page Name</li>
+                            <li class="breadcrumb-item">
+                                <a href="/">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item active">Add Data</li>
                         </ol>
                     </div>
-
                 </div>
             </div>
         </div>
+        <!-- en
         <!-- end page title -->
-        <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
+        <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING (PROCESSORS)</h3>
 
 
 
@@ -60,18 +62,17 @@
                                 <div class="form-group">
 
 
-                                    <select
-                                        class="form-select @error('location_data.enterprise')
-                                    is-invalid
-                                @enderror"
-                                        wire:model='location_data.enterprise'>
+                                    <select class="form-select @error('location_data.enterprise')
+                                        is-invalid
+                                    @enderror" wire:model='location_data.enterprise'>
                                         <option value="">Select one</option>
                                         <option value="Cassava">Cassava</option>
                                         <option value="Potato">Potato</option>
                                         <option value="Sweet potato">Sweet potato</option>
                                     </select>
                                 </div>
-                                {{-- <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
+                                {{-- <x-text-input wire:model='enterprise'
+                                    :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
                                 @error('location_data.enterprise')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -79,11 +80,9 @@
 
                             <div class=<div class="mb-3">
                                 <label for="" class="form-label">DISTRICT</label>
-                                <select
-                                    class="form-select @error('location_data.district')
-                                        is-invalid
-                                    @enderror"
-                                    wire:model='location_data.district'>
+                                <select class="form-select @error('location_data.district')
+                                    is-invalid
+                                @enderror" wire:model='location_data.district'>
 
                                     @include('layouts.district-options')
                                 </select>
@@ -102,7 +101,8 @@
 
                             <div class="mb-3">
                                 <label for="" class="form-label">SECTION</label>
-                                <x-text-input wire:model='location_data.section' :class="$errors->has('location_data.section') ? 'is-invalid' : ''" />
+                                <x-text-input wire:model='location_data.section'
+                                    :class="$errors->has('location_data.section') ? 'is-invalid' : ''" />
                                 @error('location_data.section')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -119,12 +119,10 @@
 
                             <div class="d-grid col-12 justify-content-center" x-data>
 
-                                <button class="btn btn-primary btn-lg"
-                                    @click="window.scrollTo({
+                                <button class="btn btn-primary btn-lg" @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
-                                })"
-                                    type="submit">Submit</button>
+                                })" type="submit">Submit</button>
                             </div>
                         </div>
                     </div>
@@ -144,23 +142,24 @@
                             <a class="nav-link" href="#section-a" href="#">SECTION A: RTC
                                 ACTOR PROFILE</a>
 
-                            <a class="nav-link" href="#section-b"href="#">SECTION B: RTC
+                            <a class="nav-link" href="#section-b" href="#">SECTION B: RTC
                                 MARKETING</a>
 
 
-                            <a x-show="has_rtc_market_contract==1" x-data="{ has_rtc_market_contract: $wire.entangle('has_rtc_market_contract') }" class="nav-link"
-                                href="#section-f" href="#">CONTRACTUAL
+                            <a x-show="has_rtc_market_contract==1"
+                                x-data="{ has_rtc_market_contract: $wire.entangle('has_rtc_market_contract') }"
+                                class="nav-link" href="#section-f" href="#">CONTRACTUAL
                                 AGREEMENT</a>
 
 
-                            <a x-show="sells_to_domestic_markets == 1" x-data="{ sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets'), }" class="nav-link"
-                                href="#section-g" href="#">DOMESTIC
+                            <a x-show="sells_to_domestic_markets == 1"
+                                x-data="{ sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets'), }"
+                                class="nav-link" href="#section-g" href="#">DOMESTIC
                                 MARKETS</a>
                             <a x-show="sells_to_international_markets == 1" x-data="{
-                            
+
                                 sells_to_international_markets: $wire.entangle('sells_to_international_markets'),
-                            }" class="nav-link"
-                                href="#section-h" href="#">INTERNATIONAL
+                            }" class="nav-link" href="#section-h" href="#">INTERNATIONAL
                                 MARKETS</a>
                         </nav>
 

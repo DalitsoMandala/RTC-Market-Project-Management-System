@@ -206,6 +206,11 @@ class Add extends Component
                 'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,Early generation seed producer|distinct',
                 'area_under_basic_seed_multiplication.*.area' => 'required_if:group,Early generation seed producer',
                 'establishment_status' => 'required',
+
+                'number_of_screen_house_vines_harvested' => 'required_if:group,Early generation seed producer',
+                'number_of_screen_house_min_tubers_harvested' => 'required_if:group,Early generation seed producer',
+                'number_of_sah_plants_produced' => 'required_if:group,Early generation seed producer',
+
             ];
 
 

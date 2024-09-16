@@ -124,20 +124,26 @@ class AddFollowUp extends Component
                 $uuid = Uuid::uuid4()->toString();
 
 
+                $segment = collect($this->market_segment);
                 $secondTable = [
                     'rpm_processor_id' => $this->recruit,
-                    'location_data' => $this->location_data,
+
                     'date_of_follow_up' => $this->date_of_follow_up,
-                    'market_segment' => $this->market_segment,
+                    'market_segment_fresh' => $segment->contains('Fresh') ? 1 : 0,
+                    'market_segment_processed' => $segment->contains('Processed') ? 1 : 0, // Multiple market segments (array of strings)
                     'has_rtc_market_contract' => $this->has_rtc_market_contract,
-                    'total_vol_production_previous_season' => $this->total_vol_production_previous_season,
-                    'total_production_value_previous_season' => $this->total_production_value_previous_season,
+                    'total_vol_production_previous_season' => $this->total_vol_production_previous_season, // Metric tonnes
+                    'prod_value_previous_season_total' => $this->total_production_value_previous_season['value'],
+                    'prod_value_previous_season_date_of_max_sales' => $this->total_production_value_previous_season['date_of_maximum_sales'],
+                    'prod_value_previous_season_usd_rate' => $this->total_production_value_previous_season['rate'],
+                    'prod_value_previous_season_usd_value' => $this->total_production_value_previous_season['total'],
+
                     'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                     'sells_to_international_markets' => $this->sells_to_international_markets,
                     'uses_market_information_systems' => $this->uses_market_information_systems,
-                    'market_information_systems' => $this->uses_market_information_systems ? $this->market_information_systems : null,
+
                     'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                    'aggregation_centers' => $this->sells_to_aggregation_centers ? $this->aggregation_center_sales : null, // Stores aggregation center details (array of objects with name and volume sold)
+
                     'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,// Previous season volume in metric tonnes
                     'user_id' => auth()->user()->id,
                     'status' => 'approved'
@@ -158,8 +164,19 @@ class AddFollowUp extends Component
                 }
 
                 RpmProcessorFollowUp::create($secondTable);
-                $recruit = RtcProductionProcessor::find($this->recruit);
-                $this->addMoreData($recruit);
+                $processor = RtcProductionProcessor::find($this->recruit);
+
+
+                foreach ($this->market_information_systems as $data) {
+                    $processor->marketInformationSystems()->create($data);
+                }
+
+
+                foreach ($this->aggregation_center_sales as $data) {
+                    $processor->aggregationCenters()->create($data);
+                }
+
+                $this->addMoreData($processor);
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-processors/view#followup">View Submission here</a>');
                 return redirect()->to(url()->previous());
@@ -470,11 +487,10 @@ class AddFollowUp extends Component
     {
         $recruit = RtcProductionProcessor::find($id);
         if ($recruit) {
-
-            $this->location_data['epa'] = json_decode($recruit->location_data)->epa;
-            $this->location_data['district'] = json_decode($recruit->location_data)->district;
-            $this->location_data['enterprise'] = json_decode($recruit->location_data)->enterprise;
-            $this->location_data['section'] = json_decode($recruit->location_data)->section;
+            $this->location_data['epa'] = $recruit->epa;
+            $this->location_data['district'] = $recruit->district;
+            $this->location_data['enterprise'] = $recruit->enterprise;
+            $this->location_data['section'] = $recruit->section;
             $this->recruit = $recruit->id;
 
             //   $this->group = $recruit->group;
@@ -488,7 +504,31 @@ class AddFollowUp extends Component
             $this->reset();
         }
     }
+    public function updated($property, $value)
+    {
 
+
+        if ($this->total_production_value_previous_season) {
+            if ($this->total_production_value_previous_season['value'] && $this->total_production_value_previous_season['date_of_maximum_sales']) {
+                $date = $this->total_production_value_previous_season['date_of_maximum_sales'];
+                $value = $this->total_production_value_previous_season['value'];
+                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.00;  // change this when you have historical data through exchange rate api
+
+                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
+                $this->total_production_value_previous_season['rate'] = $rate;
+                $this->total_production_value_previous_season['total'] = $totalvalue;
+
+            }
+
+
+
+
+
+        }
+
+
+
+    }
     public function mount()
     {
 
@@ -538,17 +578,17 @@ class AddFollowUp extends Component
                     ]),
                 'aggregation_center_sales' => collect([
                     [
-                        'name' => null,
+
 
                     ]
                 ]),
                 'market_information_systems' => collect([
                     [
-                        'name' => null,
+
 
                     ]
                 ]),
-                'rate' => ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? '',
+
             ]
         );
 
