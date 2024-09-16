@@ -5,6 +5,7 @@
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">Add Follow Up</h4>
+                    <h4 class="mb-0">Add Follow Up</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
@@ -20,7 +21,7 @@
         <!-- end page title -->
 
         <div class="row">
-            <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING (FARMERS) [FOLLOW UP]</h3>
+            <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (FARMERS) [FOLLOW UP]</h3>
             <div class="col">
                 <x-alerts />
             </div>
