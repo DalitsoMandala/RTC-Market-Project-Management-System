@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Tables\RtcMarket;
 
-use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use App\Models\User;
+use Ramsey\Uuid\Uuid;
 use App\Models\Submission;
 use App\Jobs\ExportDataJob;
 use Illuminate\Support\Str;
@@ -24,13 +24,14 @@ use PowerComponents\LivewirePowerGrid\Cache;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
+use Illuminate\Support\Facades\Cache as DbCache;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-use Ramsey\Uuid\Uuid;
 
 final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
@@ -114,17 +115,17 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
 
-                return $model->mainFoods->pluck('name')->contains('Potato') ? 'Potato' : '';
+                return $model->mainFoods->pluck('name')->contains('Potato') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
 
             })
             ->add('rtc_main_food_sw_potato', function ($model) {
-                return $model->mainFoods->pluck('name')->contains('Sweet potato') ? 'Sweet potato' : '';
+                return $model->mainFoods->pluck('name')->contains('Sweet potato') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
 
             })
 
 
             ->add('rtc_main_food_cassava', function ($model) {
-                return $model->mainFoods->pluck('name')->contains('Cassava') ? 'Cassava' : '';
+                return $model->mainFoods->pluck('name')->contains('Cassava') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
             })
             ->add('rtc_consumption_frequency')
             ->add('submitted_by', fn($model) => User::find($model->user_id)->organisation->name)
@@ -147,15 +148,20 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public $exportFailed = false;
 
     public $exportUniqueId = '';
+
+    public $progress = 0;
     #[On('export')]
     public function export()
     {
+
+
         $this->exporting = true;
         $this->exportFinished = false;
         $this->exportFailed = false;
-        $this->exportUniqueId = Uuid::uuid4()->toString();
+        $id = Str::random();
+        $this->exportUniqueId = $id;
         $batch = Bus::batch([
-            new ExcelExportJob('hrc', $this->exportUniqueId),
+            new ExcelExportJob('hrc', $id),
         ])->dispatch();
 
         $this->batchID = $batch->id;
@@ -179,19 +185,24 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     public function updateExportProgress()
     {
-        $this->exportFinished = $this->exportBatch->finished();
+        $batch = $this->getExportBatchProperty();
 
-        if ($this->exportFinished && $this->exportBatch->failedJobs === 0) {
-            $this->exporting = false;
-            $this->exportFailed = false;
-        } else if ($this->exportFinished && $this->exportBatch->failedJobs > 0) {
-            $this->exporting = false;
-            $this->exportFailed = true;
+        // If batch is found, check for progress and update status
+        if ($batch) {
+            $this->progress = $batch->progress();  // Update progress
+
+            if ($batch->finished()) {
+                $this->exporting = false;
+                $this->exportFinished = true;
+                $this->exportFailed = $batch->failedJobs > 0;
+            }
         }
 
     }
     protected function getDataForExport()
     {
+
+
         // Get the data as a collection
         return $this->datasource()->get();
     }
@@ -274,15 +285,15 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()
             ,
-            Column::make('Rtc consumers/Potato', 'rtc_consumers_potato', 'rtc_consumers')
+            Column::make('Rtc consumers(Potato)', 'rtc_consumers_potato', 'rtc_consumers_potato')
                 ->sortable()
                 ->searchable()
             ,
-            Column::make('Rtc consumers/Sweet Potato', 'rtc_consumers_sw_potato', 'rtc_consumers')
+            Column::make('Rtc consumers(Sweet Potato)', 'rtc_consumers_sw_potato', 'rtc_consumers_sw_potato')
                 ->sortable()
                 ->searchable()
             ,
-            Column::make('Rtc consumers/Cassava', 'rtc_consumers_cassava', 'rtc_consumers')
+            Column::make('Rtc consumers(Cassava)', 'rtc_consumers_cassava', 'rtc_consumers_cassava')
                 ->sortable()
                 ->searchable()
             ,
@@ -291,11 +302,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()
             ,
-            Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food_cassava')
+            Column::make('RTC MAIN FOOD(CASSAVA)', 'rtc_main_food_cassava')
             ,
-            Column::make('RTC MAIN FOOD/POTATO', 'rtc_main_food_potato')
+            Column::make('RTC MAIN FOOD(POTATO)', 'rtc_main_food_potato')
             ,
-            Column::make('RTC MAIN FOOD/SWEET POTATO', 'rtc_main_food_sw_potato')
+            Column::make('RTC MAIN FOOD(SWEET POTATO)', 'rtc_main_food_sw_potato')
             ,
 
             Column::make('Submission Date', 'created_at_formatted', 'created_at')
@@ -321,46 +332,38 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     }
     public function filters(): array
     {
-        //  dd($this->crops());
+
         return [
-            // Filter::inputText('enterprise', 'location_data->enterprise'),
-            // Filter::inputText('section', 'location_data->section'),
-            // Filter::inputText('epa', 'location_data->epa'),
-            // Filter::inputText('district', 'location_data->district'),
-            // Filter::inputText('rtc_main_food_potato')
-            //     ->operators(['contains'])
-            //     ->builder(function (Builder $builder, mixed $value) {
-            //         $getValue = strtolower($value['value']);
-            //         if ($getValue == 'Yes') {
-            //             $builder->whereJsonContains('main_food_data', 'POTATO');
-            //         } else {
-            //             $builder->whereJsonDoesntContain('main_food_data', 'POTATO');
-            //         }
+            // Filter::boolean('rtc_main_food_cassava')
+            //     ->label('Yes', 'No')
+            //     ->builder(function (Builder $query, string $value) {
 
             //     }),
+            // Filter::boolean('rtc_main_food_sw_potato')
+            //     ->label('Yes', 'No')
+            //     ->builder(function (Builder $query, string $value) {
+            //         $query->with('mainFoods');
 
-            // Filter::inputText('rtc_main_food_cassava')
-            //     ->operators(['contains'])
-            //     ->builder(function (Builder $builder, mixed $value) {
-            //         $getValue = strtolower($value['value']);
-            //         if ($getValue == 'Yes') {
-            //             $builder->whereJsonContains('main_food_data', 'CASSAVA');
-            //         } else {
-            //             $builder->whereJsonDoesntContain('main_food_data', 'CASSAVA');
-            //         }
-
+            //         return $query->orWhereHas('mainFoods', function ($query) use ($value) {
+            //             if ($value === 'true') {
+            //                 $query->where('name', 'Sweet potato');
+            //             } else {
+            //                 $query->whereNot('name', 'Sweet potato');
+            //             }
+            //         });
             //     }),
+            // Filter::boolean('rtc_main_food_potato')
+            //     ->label('Yes', 'No')
+            //     ->builder(function (Builder $query, string $value) {
+            //         $query->with('mainFoods');
 
-            // Filter::inputText('rtc_main_food_sw_potato')
-            //     ->operators(['contains'])
-            //     ->builder(function (Builder $builder, mixed $value) {
-            //         $getValue = strtolower($value['value']);
-            //         if ($getValue == 'Yes') {
-            //             $builder->whereJsonContains('main_food_data', 'SWEET POTATO');
-            //         } else {
-            //             $builder->whereJsonDoesntContain('main_food_data', 'SWEET POTATO');
-            //         }
-
+            //         return $query->orWhereHas('mainFoods', function ($query) use ($value) {
+            //             if ($value === 'true') {
+            //                 $query->where('name', 'Potato');
+            //             } else {
+            //                 $query->whereNot('name', 'Potato');
+            //             }
+            //         });
             //     }),
         ];
     }

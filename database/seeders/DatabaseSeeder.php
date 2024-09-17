@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SubmissionSeeder::class);
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
+        $this->call(DataGenerationSeeder::class);
         Artisan::call('exchange-rates:fetch');
     }
 }

@@ -11,7 +11,16 @@
 </div>
 
 @if ($this->exporting && !$this->exportFinished)
+
     <div class="d-inline" wire:poll.5s="updateExportProgress">Exporting...please wait.</div>
+
+    <div class="progress my-2">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;"
+            aria-valuenow="{{$this->progress}}" aria-valuemin="0" aria-valuemax="100">
+
+        </div>
+    </div>
+
 @endif
 
 @if ($this->exportFinished && $this->exportFailed === false)

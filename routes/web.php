@@ -42,16 +42,12 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-
+use App\Traits\ExportTrait;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
 
-Route::get('/test', function (Request $request) {
-    User::create();
-    // Dispatch the job to the queue
-
-});
+Route::get('/test-exports', \App\Livewire\TestExports::class);
 
 // TestingController route
 Route::get('/export/{name}', [TestingController::class, 'index']);

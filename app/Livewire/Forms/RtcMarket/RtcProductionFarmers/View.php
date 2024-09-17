@@ -58,29 +58,7 @@ class View extends Component
     }
 
 
-    public function load()
-    {
-        $this->loadingData = true;
-        $batch = Bus::batch([
-            new ProcessRpmFarmers($this->batch_no)
-        ])->before(function (Batch $batch) {
 
-
-        })->progress(function (Batch $batch) {
-            // A single job has completed successfully...
-        })->then(function (Batch $batch) {
-            // All jobs completed successfully...
-        })->catch(function (Batch $batch, \Throwable $e) {
-
-        })->finally(function (Batch $batch) {
-            // The batch has finished executing...
-
-        })
-
-            ->dispatch();
-
-
-    }
 
 
     public function readCache()

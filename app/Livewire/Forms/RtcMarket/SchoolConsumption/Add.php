@@ -132,7 +132,10 @@ class Add extends Component
 
                 $data = [
                     'date' => $this->date,
-                    'location_data' => json_encode($this->location_data),
+                    'epa' => $this->location_data['epa'],
+                    'district' => $this->location_data['district'],
+                    'section' => $this->location_data['section'],
+                    'enterprise' => $this->location_data['enterprise'],
                     'male_count' => $this->male_count,
                     'female_count' => $this->female_count,
                     'total' => $this->total,
@@ -161,7 +164,10 @@ class Add extends Component
             } else {
                 $data = [
                     'date' => $this->date,
-                    'location_data' => json_encode($this->location_data),
+                    'epa' => $this->location_data['epa'],
+                    'district' => $this->location_data['district'],
+                    'section' => $this->location_data['section'],
+                    'enterprise' => $this->location_data['enterprise'],
                     'male_count' => $this->male_count,
                     'female_count' => $this->female_count,
                     'total' => $this->total,

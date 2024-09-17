@@ -1,0 +1,89 @@
+<div>
+    <div class="container-fluid">
+
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="mb-0">Dashboard</h4>
+
+                    <div class="page-title-right">
+                        <ol class="m-0 breadcrumb">
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Manage Page Name</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <h5 class="card-title"></h5>
+                    </div>
+                    <div class="card-body">
+                        <form wire:submit.prevent="save" wire:loading.class='pe-none opacity-25'>
+
+                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('HRC')">HRC</button>
+                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('RPMF')">RPMF</button>
+                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('RPMP')">RPMP</button>
+                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('ATT')">Att</button>
+                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('SC')">SC</button>
+
+                            <input type="text" wire:model="selectedOption" name="selectedOption">
+                            <br />
+                            <button type="submit" class="btn btn-primary my-2">Submit</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        {{-- <div x-data x-init="$wire.on('showModal', (e) => {
+
+            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+            myModal.show();
+        })
+        $wire.on('hideModal', (e) => {
+            const modals = document.querySelectorAll('.modal.show');
+
+            // Iterate over each modal and hide it using Bootstrap's modal hide method
+            modals.forEach(modal => {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        })
+        ">
+
+
+            <x-modal id="view-indicator-modal" title="edit">
+                <form>
+                    <div class="mb-3">
+
+                        <x-text-input placeholder="Name of indicator..." />
+                    </div>
+
+                    <div class="modal-footer border-top-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+
+                    </div>
+                </form>
+            </x-modal>
+
+        </div> --}}
+
+
+
+
+    </div>
+
+</div>
