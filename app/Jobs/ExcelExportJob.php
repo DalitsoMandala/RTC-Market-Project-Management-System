@@ -1079,7 +1079,7 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
                 // Define the headers
                 $headers = [
-                    "Meeting ID",
+                    "Person ID",
                     "Meeting Title",
                     "Meeting Category",
                     "RTC Crop (Cassava)",

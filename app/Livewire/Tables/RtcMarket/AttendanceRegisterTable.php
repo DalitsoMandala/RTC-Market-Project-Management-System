@@ -126,7 +126,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id')->sortable()->searchable(),
-            Column::make('Meeting ID', 'att_id')->sortable()->searchable(),
+            Column::make('Person ID', 'att_id')->sortable()->searchable(),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),
