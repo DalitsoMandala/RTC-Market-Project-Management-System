@@ -51,8 +51,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
         // $this->showCheckBox();
 
         return [
-            Lazy::make()
-                ->rowsPerChildren(25),
+
 
             Header::make()->includeViewOnTop('components.export-data')
 
@@ -64,7 +63,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
             ,
-            Footer::make()->showPerPage()->showRecordCount(),
+            Footer::make()->showPerPage(5)->showRecordCount(),
         ];
     }
 

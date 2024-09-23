@@ -11,6 +11,11 @@ class SchoolRtcConsumption extends Model
     protected $table = "school_rtc_consumption";
     protected $guarded = ['id'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

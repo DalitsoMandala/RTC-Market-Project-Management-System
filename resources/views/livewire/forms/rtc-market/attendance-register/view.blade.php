@@ -21,8 +21,10 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+
                     <div class="card-header">
-                        <h3 class="card-title">Attendance Register</h3>
+                        <h4 class="text-center text-primary text-uppercase">Attendance Register
+                        </h4>
                     </div>
                     <div class="card-body">
                         <livewire:tables.rtcmarket.attendance-register-table />

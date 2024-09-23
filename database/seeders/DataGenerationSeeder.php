@@ -12,6 +12,8 @@ use App\Models\RtcProductionProcessor;
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerFollowUp;
+use App\Models\AttendanceRegister;
+use App\Models\SchoolRtcConsumption;
 
 class DataGenerationSeeder extends Seeder
 {
@@ -717,6 +719,105 @@ class DataGenerationSeeder extends Seeder
             $farmer->agreements()->create($data['conc_aggrement']);
             $faker = Faker::create();
 
+        }
+
+
+        function src()
+        {
+
+
+            $faker = Faker::create();
+            $dates = [
+                'created_at' => now()->toDateTimeString(),
+                'updated_at' => now()->toDateTimeString()
+            ];
+
+            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            return [
+                'main' => [
+
+                    'epa' => $faker->word, // Random word for epa
+                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
+                    'section' => $faker->word, // Random word for section
+                    "school_name" => $faker->word,
+                    "date" => $faker->date,
+                    "crop" => $faker->randomElement($crops),
+                    "male_count" => $faker->numberBetween(1, 100),
+                    "female_count" => $faker->numberBetween(1, 100),
+                    "total" => $faker->numberBetween(1, 100),
+                    'user_id' => 3, // Random user ID
+                    'uuid' => $faker->uuid, // Random UUID
+                    'submission_period_id' => 2, // Random submission period ID
+                    'organisation_id' => 1, // Random organisation ID
+                    'financial_year_id' => 1, // Random financial year ID
+                    'period_month_id' => 1, // Random period month ID
+                    'status' => 'approved', // Fixed value
+                    ...$dates
+                ],
+
+
+
+            ];
+
+        }
+
+        foreach (range(1, 10) as $index) {
+            $data = src();
+            SchoolRtcConsumption::create(src()['main']);
+        }
+
+
+        function att()
+        {
+
+
+            $faker = Faker::create();
+            $dates = [
+                'created_at' => now()->toDateTimeString(),
+                'updated_at' => now()->toDateTimeString()
+            ];
+
+            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            return [
+                'main' => [
+
+                    'meetingTitle' => $faker->sentence(3), // Random sentence with 3 words
+                    'meetingCategory' => $faker->word, // Random word
+                    'rtcCrop_cassava' => $faker->boolean, // True/False (assuming it's a boolean)
+                    'rtcCrop_potato' => $faker->boolean, // True/False
+                    'rtcCrop_sweet_potato' => $faker->boolean, // True/False
+                    'venue' => $faker->city, // Random city name
+                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
+                    'startDate' => $faker->date, // Random date
+                    'endDate' => $faker->date, // Random date
+                    'totalDays' => $faker->numberBetween(1, 14), // Random number between 1 and 14
+                    'name' => $faker->name, // Random full name
+                    'sex' => $faker->randomElement(['Male', 'Female']), // Random gender
+                    'organization' => $faker->company, // Random company/organization name
+                    'designation' => $faker->jobTitle, // Random job title
+                    'phone_number' => $faker->phoneNumber, // Random phone number
+                    'email' => $faker->unique()->safeEmail, // Random unique email
+                    'user_id' => 3, // Random user ID
+                    'uuid' => $faker->uuid, // Random UUID
+                    'submission_period_id' => 2, // Random submission period ID
+                    'organisation_id' => 1, // Random organisation ID
+                    'financial_year_id' => 1, // Random financial year ID
+                    'period_month_id' => 1, // Random period month ID
+                    'status' => 'approved', // Fixed value
+                    ...$dates
+
+
+                ],
+
+
+
+            ];
+
+        }
+
+        foreach (range(1, 10) as $index) {
+            $data = att();
+            AttendanceRegister::create(attributes: att()['main']);
         }
 
     }

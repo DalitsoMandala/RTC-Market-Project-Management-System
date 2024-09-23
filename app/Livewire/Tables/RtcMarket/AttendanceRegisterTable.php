@@ -2,16 +2,19 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
+use Illuminate\Pagination\Cursor;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Lazy;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\Cursor;
-use Illuminate\Support\LazyCollection;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -26,19 +29,18 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class AttendanceRegisterTable extends PowerGridComponent
 {
     use WithExport;
-    public bool $deferLoading = true;
+
+    use ExportTrait;
+    public bool $deferLoading = false;
     public function setUp(): array
     {
         // $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->queues(100)
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-att')->showSearchInput(),
+
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->showRecordCount(),
         ];
     }
@@ -50,17 +52,34 @@ final class AttendanceRegisterTable extends PowerGridComponent
         return AttendanceRegister::query();
     }
 
+
+    public $namedExport = 'att';
+    #[On('export-att')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('att_id')
             ->add('meetingTitle')
             ->add('meetingCategory')
-            ->add('rtcCrop', function ($model) {
-                $crops = json_decode($model->rtcCrop, true);
-                return implode(', ', $crops);
-
-            })
+            ->add('rtcCrop_cassava', fn($model) => $model->rtcCrop_cassava ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('rtcCrop_potato', fn($model) => $model->rtcCrop_potato ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('rtcCrop_sweet_potato', fn($model) => $model->rtcCrop_sweet_potato ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
             ->add('venue')
             ->add('district')
             ->add('startDate_formatted', fn($model) => Carbon::parse($model->startDate)->format('d/m/Y'))
@@ -69,7 +88,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('name', function ($model) {
                 return '
                 <div class="d-flex">
-                <img src="' . asset('assets/images/users/usr.png') . '" alt="" class="shadow avatar-sm rounded-circle me-2">
+                <img src="' . asset('assets/images/users/usr.png') . '" alt="" class="shadow avatar-sm rounded-1 me-2">
                     <span class="text-capitalize">' . strtolower($model->name) . '</span>
                     </div>';
 
@@ -82,71 +101,21 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('created_at_formatted', function ($model) {
                 return Carbon::parse($model->created_at)->format('d/m/Y');
             })
+
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('updated_at');
     }
 
-    #[On('export')]
-    public function qexport()
-    {
-        // Define the path for the Excel file
-        $path = storage_path('app/public/attendance_register.xlsx');
 
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Id',
-                'Meeting Title',
-                'Meeting Category',
-                'RTC Crop',
-                'Venue',
-                'District',
-                'Start Date (Formatted)',
-                'End Date (Formatted)',
-                'Total Days',
-                'Name',
-                'Sex',
-                'Organization',
-                'Designation',
-                'Phone Number',
-                'Email',
-            ]);
-
-        // Chunk the data directly from the database
-        AttendanceRegister::query()
-            ->whereNotNull('rtcCrop') // Example condition, modify as needed
-            ->chunk(1000, function ($items) use ($writer) {
-                foreach ($items as $item) {
-                    $crops = json_decode($item->rtcCrop, true);
-                    $rtcCrop = implode(', ', $crops);
-
-                    $row = [
-                        'id' => $item->id,
-                        'meetingTitle' => $item->meetingTitle,
-                        'meetingCategory' => $item->meetingCategory,
-                        'rtcCrop' => $rtcCrop,
-                        'venue' => $item->venue,
-                        'district' => $item->district,
-                        'startDate_formatted' => Carbon::parse($item->startDate)->format('d/m/Y'),
-                        'endDate_formatted' => Carbon::parse($item->endDate)->format('d/m/Y'),
-                        'totalDays' => $item->totalDays,
-                        'name' => $item->name,
-                        'sex' => $item->sex,
-                        'organization' => $item->organization,
-                        'designation' => $item->designation,
-                        'phone_number' => $item->phone_number,
-                        'email' => $item->email,
-                    ];
-
-                    $writer->addRow($row);
-                }
-            });
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
-    }
     protected function getDataForExport()
     {
         // Get the data as a collection
@@ -156,7 +125,8 @@ final class AttendanceRegisterTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Id', 'id')->sortable()->searchable(),
+            Column::make('Meeting ID', 'att_id')->sortable()->searchable(),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),
@@ -191,7 +161,14 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Crops', 'rtcCrop')
+            Column::make('Rtc Crop (Cassava)', 'rtcCrop_cassava')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Rtc Crop (Potato)', 'rtcCrop_potato')
+                ->sortable()
+                ->searchable(),
+            Column::make('Rtc Crop (Sweet potato)', 'rtcCrop_sweet_potato')
                 ->sortable()
                 ->searchable(),
 
@@ -214,6 +191,9 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 ->searchable(),
 
 
+            Column::make('Submitted By', 'submitted_by')
+                ->sortable()
+                ->searchable(),
 
 
 
