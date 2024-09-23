@@ -38,7 +38,7 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->pageName('processors-followup')
                 ->showRecordCount(),
         ];
@@ -90,10 +90,10 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
             ->add('market_segment_fresh', function ($model) {
 
-                return $model->market_segment_fresh ? 'Fresh' : null;
+                return $model->market_segment_fresh ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
             })
             ->add('market_segment_processed', function ($model) {
-                return $model->market_segment_fresh ? 'Processed' : null;
+                return $model->market_segment_processed ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
             })
             ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
 
@@ -259,7 +259,14 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
             Column::make('Actor Name', 'actor_name'),
 
+            Column::make('Market segment (Fresh)', 'market_segment_fresh')
+                ->sortable()
+                ->searchable(),
 
+
+            Column::make('Market segment (Processed)', 'market_segment_processed')
+                ->sortable()
+                ->searchable(),
 
 
             Column::make('Date of follow up', 'date_of_follow_up_formatted', 'date_of_follow_up')

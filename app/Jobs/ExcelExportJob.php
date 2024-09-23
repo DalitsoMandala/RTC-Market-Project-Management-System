@@ -2,27 +2,34 @@
 
 namespace App\Jobs;
 
-use App\Models\HouseholdRtcConsumption;
-use App\Models\RpmFarmerAreaCultivation;
-use App\Models\RpmFarmerCertifiedSeed;
-use App\Models\RpmFarmerDomMarket;
-use App\Models\RpmFarmerInterMarket;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\RpmFarmerBasicSeed;
+use App\Models\RpmFarmerDomMarket;
+use App\Models\RtcProductionFarmer;
 use App\Exports\rtcmarket\HrcExport;
+use App\Models\RpmFarmerInterMarket;
+use App\Models\RpmProcessorFollowUp;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmFarmerCertifiedSeed;
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\RtcProductionProcessor;
 use Illuminate\Queue\SerializesModels;
+use App\Models\HouseholdRtcConsumption;
+use App\Models\RpmProcessorInterMarket;
+use App\Models\RpmFarmerAreaCultivation;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Models\RpmProcessorConcAgreement;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use App\Models\RpmFarmerAggregationCenter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\RpmProcessorAggregationCenter;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
-use App\Models\RpmFarmerAggregationCenter;
-use App\Models\RpmFarmerBasicSeed;
-use App\Models\RpmFarmerConcAgreement;
-use App\Models\RpmFarmerFollowUp;
-use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Cache; // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
@@ -41,8 +48,6 @@ class ExcelExportJob implements ShouldQueue
     {
         $this->name = $name;
         $this->uniqueID = $uniqueID;
-
-
     }
 
     /**
@@ -80,6 +85,7 @@ class ExcelExportJob implements ShouldQueue
                     'Cassava Main Food',
                     'Potato Main Food',
                     'Sweet Potato Main Food',
+                    'Submitted by'
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -88,6 +94,14 @@ class ExcelExportJob implements ShouldQueue
                 // Process data in chunks
                 HouseholdRtcConsumption::chunk(1000, function ($households) use ($writer) {
                     foreach ($households as $household) {
+
+                        $submittedBy = '';
+                        $user = User::find($household->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . " (" . $organisation . ")";
+                        }
                         $writer->addRow([
                             $household->enterprise ?? null,
                             $household->district ?? null,
@@ -111,6 +125,7 @@ class ExcelExportJob implements ShouldQueue
                             $household->mainFoods->pluck('name')->contains('Cassava') ? 1 : 0,
                             $household->mainFoods->pluck('name')->contains('Potato') ? 1 : 0,
                             $household->mainFoods->pluck('name')->contains('Sweet potato') ? 1 : 0,
+                            $submittedBy
                         ]);
                     }
                 });
@@ -181,7 +196,7 @@ class ExcelExportJob implements ShouldQueue
                     'Uses Market Information Systems',
                     'Sells to Aggregation Centers',
                     'Total Volume Aggregation Center Sales',
-
+                    'Submitted by'
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -190,6 +205,13 @@ class ExcelExportJob implements ShouldQueue
                 // Process data in chunks
                 RtcProductionFarmer::chunk(1000, function ($households) use ($writer) {
                     foreach ($households as $household) {
+                        $submittedBy = '';
+                        $user = User::find($household->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . " (" . $organisation . ")";
+                        }
                         $writer->addRow([
 
                             $household->pf_id,
@@ -250,11 +272,132 @@ class ExcelExportJob implements ShouldQueue
                             $household->uses_market_information_systems,
                             $household->sells_to_aggregation_centers,
                             $household->total_vol_aggregation_center_sales,
-
+                            $submittedBy
 
                         ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
 
+                break;
 
+            case 'rpmp':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+
+                    'Actor ID',
+                    'EPA',
+                    'Section',
+                    'District',
+                    'Enterprise',
+                    'Date of Recruitment',
+                    'Name of Actor',
+                    'Name of Representative',
+                    'Phone Number',
+                    'Type',
+                    'Approach',
+                    'Sector',
+                    'Members (Female 18-35)',
+                    'Members (Male 18-35)',
+                    'Members (Male 35+)',
+                    'Members (Female 35+)',
+                    'Group',
+                    'Establishment Status',
+                    'Is Registered',
+                    'Registration Body',
+                    'Registration Number',
+                    'Registration Date',
+                    'Employees (Formal Female 18-35)',
+                    'Employees (Formal Male 18-35)',
+                    'Employees (Formal Male 35+)',
+                    'Employees (Formal Female 35+)',
+                    'Employees (Informal Female 18-35)',
+                    'Employees (Informal Male 18-35)',
+                    'Employees (Informal Male 35+)',
+                    'Employees (Informal Female 35+)',
+
+                    'Market Segment (Fresh)',
+                    'Market Segment (Processed)',
+                    'Has RTC Market Contract',
+                    'Total Volume Production (Previous Season)',
+                    'Production Value (Previous Season Total)',
+                    'Production Value (Date of Max Sales)',
+                    'Production Value (USD Rate)',
+                    'Production Value (USD Value)',
+
+                    'Sells to Domestic Markets',
+                    'Sells to International Markets',
+                    'Uses Market Information Systems',
+                    'Sells to Aggregation Centers',
+                    'Total Volume Aggregation Center Sales',
+                    'Submitted by',
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RtcProductionProcessor::chunk(1000, function ($households) use ($writer) {
+                    foreach ($households as $household) {
+                        $submittedBy = '';
+                        $user = User::find($household->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . " (" . $organisation . ")";
+                        }
+
+                        $writer->addRow([
+
+                            $household->pp_id,
+                            $household->epa,
+                            $household->section,
+                            $household->district,
+                            $household->enterprise,
+                            $household->date_of_recruitment,
+                            $household->name_of_actor,
+                            $household->name_of_representative,
+                            $household->phone_number,
+                            $household->type,
+                            $household->approach,
+                            $household->sector,
+                            $household->mem_female_18_35,
+                            $household->mem_male_18_35,
+                            $household->mem_male_35_plus,
+                            $household->mem_female_35_plus,
+                            $household->group,
+                            $household->establishment_status,
+                            $household->is_registered,
+                            $household->registration_body,
+                            $household->registration_number,
+                            $household->registration_date,
+                            $household->emp_formal_female_18_35,
+                            $household->emp_formal_male_18_35,
+                            $household->emp_formal_male_35_plus,
+                            $household->emp_formal_female_35_plus,
+                            $household->emp_informal_female_18_35,
+                            $household->emp_informal_male_18_35,
+                            $household->emp_informal_male_35_plus,
+                            $household->emp_informal_female_35_plus,
+                            $household->market_segment_fresh,
+                            $household->market_segment_processed,
+                            $household->has_rtc_market_contract,
+                            $household->total_vol_production_previous_season,
+                            $household->prod_value_previous_season_total,
+                            $household->prod_value_previous_season_date_of_max_sales,
+                            $household->prod_value_previous_season_usd_rate,
+                            $household->prod_value_previous_season_usd_value,
+
+                            $household->sells_to_domestic_markets,
+                            $household->sells_to_international_markets,
+                            $household->uses_market_information_systems,
+                            $household->sells_to_aggregation_centers,
+                            $household->total_vol_aggregation_center_sales,
+                            $submittedBy
+
+                        ]);
                     }
                 });
                 $writer->close(); // Finalize the file
@@ -295,7 +438,7 @@ class ExcelExportJob implements ShouldQueue
                     'Uses Market Information Systems',
                     'Sells to Aggregation Centers',
                     'Total Volume of Aggregation Center Sales',
-
+                    'Submitted by',
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -304,6 +447,14 @@ class ExcelExportJob implements ShouldQueue
                 // Process data in chunks
                 RpmFarmerFollowUp::with('farmers')->chunk(1000, function ($followUps) use ($writer) {
                     foreach ($followUps as $followUp) {
+                        $submittedBy = '';
+                        $user = User::find($followUp->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . " (" . $organisation . ")";
+                        }
+
                         $writer->addRow([
 
                             $followUp->farmers->pf_id,
@@ -336,10 +487,73 @@ class ExcelExportJob implements ShouldQueue
                             $followUp->uses_market_information_systems,
                             $followUp->sells_to_aggregation_centers,
                             $followUp->total_vol_aggregation_center_sales,
-
+                            $submittedBy
                         ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
 
+                break;
 
+            case 'rpmpFU':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'ACTOR ID',
+                    'Date of Follow-up',
+
+                    'Market Segment (Fresh)',
+                    'Market Segment (Processed)',
+                    'Has RTC Market Contract',
+                    'Total Volume of Production (Previous Season)',
+                    'Production Value (Previous Season - Total)',
+                    'Date of Maximum Sales (Previous Season)',
+                    'USD Rate (Previous Season)',
+                    'USD Value (Previous Season)',
+
+                    'Sells to Domestic Markets',
+                    'Sells to International Markets',
+                    'Uses Market Information Systems',
+                    'Sells to Aggregation Centers',
+                    'Total Volume of Aggregation Center Sales',
+                    'Submitted by'
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RpmProcessorFollowUp::with('processors')->chunk(1000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $followUp) {
+                        $submittedBy = '';
+                        $user = User::find($followUp->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . " (" . $organisation . ")";
+                        }
+                        $writer->addRow([
+
+                            $followUp->processors->pp_id,
+                            $followUp->date_of_follow_up,
+
+                            $followUp->market_segment_fresh,
+                            $followUp->market_segment_processed,
+                            $followUp->has_rtc_market_contract,
+                            $followUp->total_vol_production_previous_season,
+                            $followUp->prod_value_previous_season_total,
+                            $followUp->prod_value_previous_season_date_of_max_sales,
+                            $followUp->prod_value_previous_season_usd_rate,
+                            $followUp->prod_value_previous_season_usd_value,
+
+                            $followUp->sells_to_domestic_markets,
+                            $followUp->sells_to_international_markets,
+                            $followUp->uses_market_information_systems,
+                            $followUp->sells_to_aggregation_centers,
+                            $followUp->total_vol_aggregation_center_sales,
+                            $submittedBy
+                        ]);
                     }
                 });
                 $writer->close(); // Finalize the file
@@ -381,8 +595,48 @@ class ExcelExportJob implements ShouldQueue
                             $household->financial_value_of_sales,
 
                         ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
 
+                break;
 
+            case 'rpmpCA':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Actor ID',
+
+                    'Date Recorded',
+                    'Partner Name',
+                    'Country',
+                    'Date of Maximum Sale',
+                    'Product Type',
+                    'Volume Sold Previous Period',
+                    'Financial Value of Sales'
+
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RpmProcessorConcAgreement::with('processors')->chunk(1000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $household) {
+                        $writer->addRow([
+
+                            $household->processors->pp_id,
+
+                            $household->date_recorded,
+                            $household->partner_name,
+                            $household->country,
+                            $household->date_of_maximum_sale,
+                            $household->product_type,
+                            $household->volume_sold_previous_period,
+                            $household->financial_value_of_sales,
+
+                        ]);
                     }
                 });
                 $writer->close(); // Finalize the file
@@ -424,13 +678,54 @@ class ExcelExportJob implements ShouldQueue
                             $farmer->financial_value_of_sales,
 
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
 
                 break;
+
+            case 'rpmpDM':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Actor ID',
+                    "Date Recorded",
+                    "Crop Type",
+                    "Market Name",
+                    "District",
+                    "Date of Maximum Sale",
+                    "Product Type",
+                    "Volume Sold Previous Period",
+                    "Financial Value of Sales",
+
+
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RpmProcessorDomMarket::with('processors')->chunk(1000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $farmer) {
+                        $writer->addRow([
+                            $farmer->processors->pp_id,
+                            $farmer->date_recorded,
+                            $farmer->crop_type,
+                            $farmer->market_name,
+                            $farmer->district,
+                            $farmer->date_of_maximum_sale,
+                            $farmer->product_type,
+                            $farmer->volume_sold_previous_period,
+                            $farmer->financial_value_of_sales,
+
+                        ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
+
+                break;
+
 
             case 'rpmfIM':
 
@@ -467,14 +762,53 @@ class ExcelExportJob implements ShouldQueue
                             $farmer->volume_sold_previous_period,
                             $farmer->financial_value_of_sales,
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
 
                 break;
 
+
+            case 'rpmpIM':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Actor ID',
+                    "Date Recorded",
+                    "Crop Type",
+                    "Market Name",
+                    "Country",
+                    "Date of Maximum Sale",
+                    "Product Type",
+                    "Volume Sold Previous Period",
+                    "Financial Value of Sales",
+
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RpmProcessorInterMarket::with('processors')->chunk(1000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $farmer) {
+                        $writer->addRow([
+
+                            $farmer->processors->pp_id,
+                            $farmer->date_recorded,
+                            $farmer->crop_type,
+                            $farmer->market_name,
+                            $farmer->country,  // Assuming 'country' exists on the model
+                            $farmer->date_of_maximum_sale,
+                            $farmer->product_type,
+                            $farmer->volume_sold_previous_period,
+                            $farmer->financial_value_of_sales,
+                        ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
+
+                break;
 
             case 'rpmfAC':
 
@@ -499,14 +833,41 @@ class ExcelExportJob implements ShouldQueue
 
 
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
 
                 break;
 
+
+            case 'rpmpAC':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Actor ID',
+                    "Name of Aggregation Center",
+
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RpmProcessorAggregationCenter::with('processors')->chunk(1000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $farmer) {
+                        $writer->addRow([
+
+                            $farmer->processors->pp_id,
+                            $farmer->name,
+
+
+                        ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
+
+                break;
 
             case 'rpmfMIS':
 
@@ -531,15 +892,40 @@ class ExcelExportJob implements ShouldQueue
 
 
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
 
                 break;
 
+            case 'rpmpMIS':
 
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Actor ID',
+                    "Name of Market Information Systems",
+
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                RpmProcessorAggregationCenter::with('processors')->chunk(1000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $farmer) {
+                        $writer->addRow([
+
+                            $farmer->processors->pp_id,
+                            $farmer->name,
+
+
+                        ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
+
+                break;
             case 'rpmfBS':
 
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
@@ -565,8 +951,6 @@ class ExcelExportJob implements ShouldQueue
 
 
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
@@ -598,8 +982,6 @@ class ExcelExportJob implements ShouldQueue
 
 
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
@@ -630,8 +1012,6 @@ class ExcelExportJob implements ShouldQueue
 
 
                         ]);
-
-
                     }
                 });
                 $writer->close(); // Finalize the file
@@ -642,7 +1022,5 @@ class ExcelExportJob implements ShouldQueue
                 return;
                 break;
         }
-
-
     }
 }

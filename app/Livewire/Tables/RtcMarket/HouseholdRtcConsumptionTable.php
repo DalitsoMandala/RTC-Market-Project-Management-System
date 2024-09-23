@@ -73,7 +73,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
 
-        return HouseholdRtcConsumption::query()->with(['mainFoods']);
+        return HouseholdRtcConsumption::query()->with(['mainFoods', 'user']);
 
 
 
@@ -131,7 +131,16 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 return $model->mainFoods->pluck('name')->contains('Cassava') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
             })
             ->add('rtc_consumption_frequency')
-            ->add('submitted_by', fn($model) => User::find($model->user_id)->organisation->name)
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('created_at')
             ->add('created_at_formatted', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y'))
             ->add('updated_at');
@@ -166,7 +175,17 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             'mainFoods' => [
                 'name'
+            ],
+            'user' => [
+                'name',
+
+            ],
+
+            'user.organisation' => [
+                'name'
             ]
+
+
         ];
     }
 
@@ -261,15 +280,15 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('RTC MAIN FOOD(SWEET POTATO)', 'rtc_main_food_sw_potato')->searchable()
             ,
 
-            Column::make('Submission Date', 'created_at_formatted', 'created_at')
-                ->sortable()
-                ->searchable()
-            ,
+            // Column::make('Submission Date', 'created_at_formatted', 'created_at')
+            //     ->sortable()
+            //     ->searchable()
+            // ,
 
             Column::make('Submitted By', 'submitted_by')->searchable()
             ,
 
-            Column::make('UUID', 'uuid')->searchable(),
+
 
         ];
     }
