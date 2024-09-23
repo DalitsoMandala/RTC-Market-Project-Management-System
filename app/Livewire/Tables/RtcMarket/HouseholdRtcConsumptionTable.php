@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
+use App\Traits\ExportTrait;
 use Ramsey\Uuid\Uuid;
 use App\Models\Submission;
 use App\Jobs\ExportDataJob;
@@ -37,12 +38,14 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
 
     use WithExport;
-
+    use ExportTrait;
     public $userId;
     public bool $deferLoading = false;
     public $uuid;
     public string $sortField = 'id';
     public $count = 1;
+
+
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -140,71 +143,20 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     }
 
-
-    public $batchID;
-    public $exporting = false;
-    public $exportFinished = false;
-
-    public $exportFailed = false;
-
-    public $exportUniqueId = '';
-
-    public $progress = 0;
-    #[On('export')]
-    public function export()
+    public $namedExport = 'hrc';
+    #[On('export-hrc')]
+    public function startExport()
     {
-
-
-        $this->exporting = true;
-        $this->exportFinished = false;
-        $this->exportFailed = false;
-        $id = Str::random();
-        $this->exportUniqueId = $id;
-        $batch = Bus::batch([
-            new ExcelExportJob('hrc', $id),
-        ])->dispatch();
-
-        $this->batchID = $batch->id;
+        $this->execute($this->namedExport);
+        $this->performExport();
 
     }
 
 
-    public function getExportBatchProperty()
-    {
-        if (!$this->batchID) {
-            return null;
-        }
-
-        return Bus::findBatch($this->batchID);
-    }
 
     public function downloadExport()
     {
-        return Storage::download('public/exports/household-rtc-consumption_' . $this->exportUniqueId . '.xlsx');
-    }
-
-    public function updateExportProgress()
-    {
-        $batch = $this->getExportBatchProperty();
-
-        // If batch is found, check for progress and update status
-        if ($batch) {
-            $this->progress = $batch->progress();  // Update progress
-
-            if ($batch->finished()) {
-                $this->exporting = false;
-                $this->exportFinished = true;
-                $this->exportFailed = $batch->failedJobs > 0;
-            }
-        }
-
-    }
-    protected function getDataForExport()
-    {
-
-
-        // Get the data as a collection
-        return $this->datasource()->get();
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
 
 
@@ -302,11 +254,11 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()
             ,
-            Column::make('RTC MAIN FOOD(CASSAVA)', 'rtc_main_food_cassava')
+            Column::make('RTC MAIN FOOD(CASSAVA)', 'rtc_main_food_cassava')->searchable()
             ,
-            Column::make('RTC MAIN FOOD(POTATO)', 'rtc_main_food_potato')
+            Column::make('RTC MAIN FOOD(POTATO)', 'rtc_main_food_potato')->searchable()
             ,
-            Column::make('RTC MAIN FOOD(SWEET POTATO)', 'rtc_main_food_sw_potato')
+            Column::make('RTC MAIN FOOD(SWEET POTATO)', 'rtc_main_food_sw_potato')->searchable()
             ,
 
             Column::make('Submission Date', 'created_at_formatted', 'created_at')
@@ -334,37 +286,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     {
 
         return [
-            // Filter::boolean('rtc_main_food_cassava')
-            //     ->label('Yes', 'No')
-            //     ->builder(function (Builder $query, string $value) {
 
-            //     }),
-            // Filter::boolean('rtc_main_food_sw_potato')
-            //     ->label('Yes', 'No')
-            //     ->builder(function (Builder $query, string $value) {
-            //         $query->with('mainFoods');
-
-            //         return $query->orWhereHas('mainFoods', function ($query) use ($value) {
-            //             if ($value === 'true') {
-            //                 $query->where('name', 'Sweet potato');
-            //             } else {
-            //                 $query->whereNot('name', 'Sweet potato');
-            //             }
-            //         });
-            //     }),
-            // Filter::boolean('rtc_main_food_potato')
-            //     ->label('Yes', 'No')
-            //     ->builder(function (Builder $query, string $value) {
-            //         $query->with('mainFoods');
-
-            //         return $query->orWhereHas('mainFoods', function ($query) use ($value) {
-            //             if ($value === 'true') {
-            //                 $query->where('name', 'Potato');
-            //             } else {
-            //                 $query->whereNot('name', 'Potato');
-            //             }
-            //         });
-            //     }),
         ];
     }
 

@@ -7,5 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class RpmProcessorDomMarket extends Model
 {
-    use HasFactory;    protected $guarded = ['id'];
+    use HasFactory;
+    protected $guarded = ['id'];
+
+    public function processors()
+    {
+        return $this->belongsTo(RtcProductionProcessor::class, 'rpm_processor_id');
+    }
 }

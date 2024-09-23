@@ -2,11 +2,14 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use App\Models\RpmFarmerConcAgreement;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -23,6 +26,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionFarmersConcAgreement extends PowerGridComponent
 {
     use WithExport;
+    use ExportTrait;
     public bool $deferLoading = false;
     public function setUp(): array
     {
@@ -32,9 +36,9 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-farmers-conc'),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->pageName('contractual-agreement')
                 ->showRecordCount(),
         ];
@@ -42,14 +46,14 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return RpmFarmerConcAgreement::query();
+        return RpmFarmerConcAgreement::query()->with('farmers');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', fn($model) => str_pad($model->rpm_farmer_id, 5, '0', STR_PAD_LEFT))
+            ->add('unique_id', fn($model) => $model->farmers->pf_id)
             ->add('rpm_farmer_id')
             ->add('actor_name', function ($model) {
                 $farmer = $model->rpm_farmer_id;
@@ -71,6 +75,16 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
             ->add('created_at')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->farmers->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('updated_at');
     }
     protected function getDataForExport()
@@ -78,69 +92,50 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
         // Get the data as a collection
         return $this->datasource()->get();
     }
-    #[On('export-conc')]
-
-
-    public function export()
+    public $namedExport = 'rpmfCA';
+    #[On('export-rpmfCA')]
+    public function startExport()
     {
-        // Get data for export
-        $data = $this->getDataForExport();
+        $this->execute($this->namedExport);
+        $this->performExport();
 
-        // Define the path for the Excel file
-        $path = storage_path('app/public/rtc_production_and_marketing_farmers_contractual_agreement.xlsx');
-
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Id',
-                'Farmer ID',
-                'Actor Name',
-                'Date Recorded (Formatted)',
-                'Partner Name',
-                'Country',
-                'Date of Maximum Sale (Formatted)',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales',
-
-            ]);
-
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $row = [
-                    'id' => $item->id,
-                    'rpm_farmer_id' => $item->rpm_farmer_id,
-                    'actor_name' => RtcProductionFarmer::find($item->rpm_farmer_id)->name_of_actor ?? null,
-                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
-                    'partner_name' => $item->partner_name,
-                    'country' => $item->country,
-                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
-                    'product_type' => $item->product_type,
-                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
-                    'financial_value_of_sales' => $item->financial_value_of_sales,
-
-                ];
-
-                $writer->addRow($row);
-            }
-        }
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
     }
 
 
 
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
+
+    public function relationSearch(): array
+    {
+
+        return [
+            'farmers' => [ // relationship on dishes model
+
+
+                'name_of_actor',
+                'pf_id'
+
+            ],
+            // 'user' => [
+            //     'name',
+
+            // ],
+
+            // 'user.organisation' => [
+            //     'name'
+            // ]
+        ];
+    }
+
     public function columns(): array
     {
         return [
-            Column::make('Farmer ID', 'unique_id', 'id')->sortable(),
+            Column::make('id', 'id')->sortable(),
+            Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
@@ -169,7 +164,9 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
+            // Column::make('Submitted by', 'submitted_by')
 
+            //     ->searchable(),
 
         ];
     }
@@ -182,11 +179,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert(' . $rowId . ')');
-    }
+
 
     // public function actions($row): array
     // {

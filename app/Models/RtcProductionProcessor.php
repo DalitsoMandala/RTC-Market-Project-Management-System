@@ -44,4 +44,14 @@ class RtcProductionProcessor extends Model
     {
         return $this->hasMany(RpmProcessorAggregationCenter::class, 'rpmp_id');
     }
+
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            // Sequential numeric ID format
+            $latestFarmer = RtcProductionProcessor::latest('id')->first();
+            $number = $latestFarmer ? $latestFarmer->id + 1 : 1; // Increment based on the latest ID
+            $model->pp_id = 'PP-' . str_pad($number, 5, '0', STR_PAD_LEFT); // Example: FARM-00001
+        });
+    }
 }

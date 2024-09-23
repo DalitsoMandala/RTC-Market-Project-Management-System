@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('school_rtc_consumption', function (Blueprint $table) {
             $table->id();
+            $table->string('sc_id')->unique();
             $table->string('epa');
             $table->string('section');
             $table->string('district');

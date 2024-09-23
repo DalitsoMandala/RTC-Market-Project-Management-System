@@ -12,11 +12,13 @@ return new class extends Migration {
     {
         Schema::create('household_rtc_consumption', function (Blueprint $table) {
             $table->id();
+            $table->string('hh_id')->unique();
             $table->string('epa');
             $table->string('section');
             $table->string('district');
             $table->string('enterprise');
             $table->date('date_of_assessment')->nullable();
+
             $table->string('actor_type')->nullable();
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
             $table->string('producer_organisation')->nullable(); // Allow null for producer organization

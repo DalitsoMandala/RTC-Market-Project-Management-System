@@ -15,4 +15,6 @@ class RpmProcessorAggregationCenter extends Model
     {
         return $this->belongsTo(RtcProductionProcessor::class, 'rpmp_id');
     }
+
+
 }

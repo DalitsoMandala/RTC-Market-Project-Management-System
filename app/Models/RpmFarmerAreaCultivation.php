@@ -14,4 +14,5 @@ class RpmFarmerAreaCultivation extends Model
     {
         return $this->belongsTo(RtcProductionFarmer::class, 'rpmf_id');
     }
+
 }

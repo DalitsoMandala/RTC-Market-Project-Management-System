@@ -49,10 +49,10 @@
                         @endif --}}
 
 
-                        <ul class="nav nav-tabs  nav-fill" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
+                        <ul class="nav nav-tabs  " id="myTab" role="tablist">
+                            <li class="nav-item  border-right" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal" type="button" role="tab" aria-controls="home" aria-selected="true">
-                                    Normal Data
+                                    Farmers' Data
                                 </button>
                             </li>
 
@@ -82,15 +82,8 @@
 
 
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#reg_details" type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Registration Details
-                                </button>
-                            </li>
-
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#market_segment" type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Market Segment
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#agg" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Aggregation Centers
                                 </button>
                             </li>
 
@@ -100,11 +93,6 @@
                                 </button>
                             </li>
 
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#agg" type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Aggregation Centers
-                                </button>
-                            </li>
 
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab" aria-controls="profile" aria-selected="false">
@@ -131,58 +119,54 @@
                             <div class="mt-2 tab-pane active fade show" id="normal" role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.rtc-market.rtc-production-farmers-table :key="'rpm1'" :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
+                            <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel" aria-labelledby="profile-tab">
 
-                            {{-- <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
-                                aria-labelledby="profile-tab">
-
-                                <livewire:tables.rtc-market.rtc-production-farmers-follow-u :key="'rpm2'"
-                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
+                                <livewire:tables.rtc-market.rtc-production-farmers-follow-u :key="'rpm2'" :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
-                                aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-farmers-conc-agreement />
                             </div>
-                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
-                                aria-labelledby="profile-tab">
+
+                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-farmers-dom-markets />
                             </div>
-                            <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
-                                aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-farmers-inter-markets />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="reg_details" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-register />
-                            </div>
-                            <div class="mt-2 tab-pane fade show" id="market_segment" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-market-segment />
-                            </div>
-                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-m-i-s />
-                            </div>
-                            <div class="mt-2 tab-pane fade show" id="basic" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-basic />
+                            <div class="mt-2 tab-pane fade show" id="agg" role="tabpanel" aria-labelledby="profile-tab">
+                                <livewire:tables.rtc-market.rpm-farmer-agg-centers />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="certified" role="tabpanel"
-                                aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel" aria-labelledby="profile-tab">
+                                <livewire:tables.rtc-market.rpm-farmer-m-i-s />
+                            </div>
+
+
+                            <div class="mt-2 tab-pane fade show" id="basic" role="tabpanel" aria-labelledby="profile-tab">
+                                <livewire:tables.rtc-market.rpm-farmer-basic />
+                            </div>
+
+                            <div class="mt-2 tab-pane fade show" id="certified" role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.rtcmarket.rpm-farmer-certified />
                             </div>
+
+
+                            <div class="mt-2 tab-pane fade show" id="cultiv" role="tabpanel" aria-labelledby="profile-tab">
+                                <livewire:tables.rtcmarket.rpm-farmer-cultivation />
+                            </div>
+                            {{--
+
+
+
+
 
                             <div class="mt-2 tab-pane fade show" id="agg" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.rtcmarket.rpm-farmer-agg-centers />
                             </div>
-
-                            <div class="mt-2 tab-pane fade show" id="cultiv" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-cultivation />
-                            </div> --}}
+ --}}
 
                         </div>
 

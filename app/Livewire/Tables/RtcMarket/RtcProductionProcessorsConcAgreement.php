@@ -2,10 +2,13 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionProcessor;
+use Illuminate\Support\Facades\Storage;
 use App\Models\RpmProcessorConcAgreement;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
@@ -23,7 +26,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 {
     use WithExport;
-
+    use ExportTrait;
     public function setUp(): array
     {
 
@@ -32,29 +35,28 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-processors-conc'),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage()
-                ->pageName('processors-contractual-agreement')
+                ->showPerPage(5)
+                ->pageName('contractual-agreement')
                 ->showRecordCount(),
         ];
     }
 
     public function datasource(): Builder
     {
-        return RpmProcessorConcAgreement::query();
+        return RpmProcessorConcAgreement::query()->with('processors');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
-            ->add('rpm_processor_id')
-
+            ->add('unique_id', fn($model) => $model->processors->pp_id)
+            ->add('rpm_farmer_id')
             ->add('actor_name', function ($model) {
-                $farmer = $model->rpm_processor_id;
-                $row = RtcProductionProcessor::find($farmer);
+                $processor = $model->rpm_processor_id;
+                $row = RtcProductionProcessor::find($processor);
 
                 if ($row) {
                     return $row->name_of_actor;
@@ -72,6 +74,16 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
             ->add('created_at')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->processors->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('updated_at');
     }
     protected function getDataForExport()
@@ -79,6 +91,46 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
         // Get the data as a collection
         return $this->datasource()->get();
     }
+
+
+    public $namedExport = 'rpmpCA';
+    #[On('export-rpmpCA')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
+    public function relationSearch(): array
+    {
+
+        return [
+            'farmers' => [ // relationship on dishes model
+
+
+                'name_of_actor',
+                'pp_id'
+
+            ],
+            // 'user' => [
+            //     'name',
+
+            // ],
+
+            // 'user.organisation' => [
+            //     'name'
+            // ]
+        ];
+    }
+
     #[On('export-conc')]
     public function export()
     {
@@ -142,10 +194,8 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Processor ID', 'unique_id', 'id')
-                ->searchable()
-                ->sortable(),
-
+            Column::make('id', 'id')->sortable(),
+            Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')

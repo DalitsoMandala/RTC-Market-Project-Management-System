@@ -2,12 +2,15 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use App\Models\RpmFarmerFollowUp;
 use Illuminate\Support\Facades\DB;
 use App\Models\RpmProcessorFollowUp;
 use App\Models\RtcProductionProcessor;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -24,7 +27,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionProcessorsFollowU extends PowerGridComponent
 {
     use WithExport;
-
+    use ExportTrait;
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -33,7 +36,7 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-processors-follow-up'),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
                 ->showPerPage()
                 ->pageName('processors-followup')
@@ -43,14 +46,32 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return RpmProcessorFollowUp::query();
+        return RpmProcessorFollowUp::query()->with('processors');
     }
+
+    public $namedExport = 'rpmpFU';
+    #[On('export-rpmpFU')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
+
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
+            ->add('unique_id', fn($model) => $model->processors->pp_id)
             ->add('rpm_processor_id')
             ->add('actor_name', function ($model) {
                 $farmer = $model->rpm_processor_id;
@@ -65,45 +86,78 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
             })
 
-            ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))
-            ->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
-            ->add('market_segment_processed', fn($model) => json_decode($model->market_segment)->processed ?? null)
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
+            ->add('date_of_follow_up')
+            ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))->add('market_segment_fresh', fn($model) => json_decode($model->market_segment)->fresh ?? null)
+            ->add('market_segment_fresh', function ($model) {
+
+                return $model->market_segment_fresh ? 'Fresh' : null;
+            })
+            ->add('market_segment_processed', function ($model) {
+                return $model->market_segment_fresh ? 'Processed' : null;
+            })
+            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+
             ->add('total_vol_production_previous_season', function ($model) {
-                $total_production_volume_previous_season = json_decode($model->total_vol_production_previous_season);
-                return $total_production_volume_previous_season ?? 0;
+
+                return $model->total_vol_production_previous_season ?? 0;
             })
             ->add('total_production_value_previous_season_total', function ($model) {
-                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
-                return $total_production_value_previous_season->value ?? 0;
+
+                return $model->prod_value_previous_season_total ?? 0;
             })
 
             ->add('total_production_value_previous_season_usd', function ($model) {
-                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
-                return $total_production_value_previous_season->total ?? 0;
+
+                return $model->prod_value_previous_season_usd_value ?? 0;
             })
 
             ->add('total_production_value_previous_season_date', function ($model) {
-                $total_production_value_previous_season_date = json_decode($model->total_production_value_previous_season);
-                return $total_production_value_previous_season_date->date_of_maximum_sales === null ? null : Carbon::parse($total_production_value_previous_season_date->date_of_maximum_sales)->format('d/m/Y');
+
+                return $model->prod_value_previous_season_date_of_max_sales === null ? null : Carbon::parse($model->prod_value_previous_season_date_of_max_sales)->format('d/m/Y');
             })
             ->add('usd_rate', function ($model) {
-                $usd_rate = json_decode($model->total_production_value_previous_season);
-                return $usd_rate->rate ?? 0;
+
+                return $model->prod_value_previous_season_usd_rate ?? 0;
             })
 
 
-
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
+            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
             ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
             ->add('sells_to_aggregation_centers', function ($model) {
-                return $model->sells_to_aggregation_centers == 1 ? 'Yes' : 'No';
+                return $model->sells_to_aggregation_centers == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
+            })
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
             })
         ;
     }
+    public function relationSearch(): array
+    {
+        return [
+            'processors' => [
+                'pp_id',
+                'name_of_actor'
+            ],
+            'user' => [
+                'name',
 
+            ],
+
+            'user.organisation' => [
+                'name'
+            ]
+
+        ];
+    }
     protected function getDataForExport()
     {
         // Get the data as a collection
@@ -214,7 +268,6 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             Column::make('Has rtc market contract', 'has_rtc_market_contract')
                 ->sortable()
                 ->searchable(),
-
             Column::make('Total production volume previous season', 'total_vol_production_previous_season', 'total_vol_production_previous_season')
                 ->sortable()
                 ->searchable(),
@@ -235,7 +288,6 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
                 ->searchable(),
 
 
-
             Column::make('Sells to domestic markets', 'sells_to_domestic_markets')
                 ->sortable()
                 ->searchable(),
@@ -251,6 +303,10 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
             Column::make('Sells to aggregation centers', 'sells_to_aggregation_centers')
                 ->sortable()
+                ->searchable(),
+
+            Column::make('Submitted by', 'submitted_by')
+
                 ->searchable(),
 
 

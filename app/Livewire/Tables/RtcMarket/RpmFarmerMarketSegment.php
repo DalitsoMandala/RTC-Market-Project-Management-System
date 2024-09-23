@@ -2,9 +2,13 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use App\Models\RtcProductionFarmer;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -12,21 +16,42 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmFarmerMarketSegment extends PowerGridComponent
 {
+    use WithExport;
+    use ExportTrait;
+    public bool $withSortStringNumber = true;
     public function datasource(): Builder
     {
-        return RtcProductionFarmer::query()->whereNotNull('market_segment');
+        return RtcProductionFarmer::query()->select('name_of_actor', 'pf_id', 'market_segment_fresh', 'market_segment_processed');
     }
+
+    public $namedExport = 'rpmfMS';
+    #[On('export-rpmfMS')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
     public function setUp(): array
     {
 
 
         return [
 
-            Header::make(),
+            Header::make()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -36,10 +61,8 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
-            ->add('unique_id', function ($model) {
-                return str_pad($model->id, 5, '0', STR_PAD_LEFT);
-            })
+            ->add('pf_id')
+
             ->add('name_of_actor')
             ->add('unique_id', function ($model) {
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
@@ -52,6 +75,17 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
                 }
 
                 return null;
+
+            })
+
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
 
             })
 
@@ -75,7 +109,7 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Farmer ID', 'unique_id', 'id')
+            Column::make('Actor ID', 'pf_id')
                 ->searchable()
                 ->sortable(),
 

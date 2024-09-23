@@ -2,11 +2,16 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use App\Models\RtcProductionFarmer;
+use App\Models\User;
+use App\Traits\ExportTrait;
+use Livewire\Attributes\On;
+
 use Illuminate\Support\Carbon;
 
+use App\Models\RpmFarmerBasicSeed;
 use Illuminate\Support\Collection;
-
+use App\Models\RtcProductionFarmer;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -14,30 +19,48 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RpmFarmerBasic extends PowerGridComponent
 {
-    public function datasource(): Collection
+
+    use WithExport;
+    use ExportTrait;
+    public function datasource(): Builder
     {
-        $changedArray = collect();
-        $data = RtcProductionFarmer::query()->whereNotNull('area_under_basic_seed_multiplication')
-            ->lazy() // Lazy loading for memory efficiency
-            ->each(function ($item) use (&$changedArray) {
-                $names = json_decode($item->area_under_basic_seed_multiplication) ?? [];
+        return RpmFarmerBasicSeed::query()->with('farmers');
 
-                foreach ($names as $name_data) {
-                    $changedArray->push([
-                        'id' => $item->id,
-                        'name_of_actor' => $item->name_of_actor,
-                        'variety' => $name_data->variety,
-                        'area' => $name_data->area,
-                    ]);
-                }
-            });
+    }
+    public $namedExport = 'rpmfBS';
+    #[On('export-rpmfBS')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
 
-        return $changedArray;
+    }
+    public function relationSearch(): array
+    {
+        return [
 
+            'farmers' => [
+                'pf_id',
+                'name_of_actor'
+
+            ],
+
+            // 'user.organisation' => [
+            //     'name'
+            // ]
+
+        ];
+    }
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
 
     public function setUp(): array
@@ -46,9 +69,10 @@ final class RpmFarmerBasic extends PowerGridComponent
 
         return [
 
-            Header::make(),
+            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
+                ->pageName('basic-seed')
                 ->showRecordCount(),
         ];
     }
@@ -57,29 +81,49 @@ final class RpmFarmerBasic extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', function ($model) {
-                return str_pad($model->id, 5, '0', STR_PAD_LEFT);
-            })
-            ->add('name_of_actor')
-            ->add('area')
+            ->add('unique_id', fn($model) => $model->farmers->pf_id)
+            ->add('id')
 
+            ->add('name_of_actor', function ($model) {
+                if (!$model->farmers) {
+
+                    return null;
+                }
+                return $model->farmers->name_of_actor;
+            })
+            ->add('area')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('variety');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Farmer ID', 'unique_id', 'id')
+
+            Column::make('ID', 'id')
                 ->searchable()
                 ->sortable(),
+
+            Column::make('Actor ID', 'unique_id', 'pf_id')
+                ->searchable()
+            ,
 
             Column::make('Name of actor', 'name_of_actor')
                 ->searchable()
-                ->sortable(),
+            ,
 
-            Column::make('Variety', 'variety'),
+            Column::make('Variety', 'variety')->sortable()->searchable(),
 
-            Column::make('Area (Number of acres)', 'area'),
+            Column::make('Area (Number of acres)', 'area')->sortable()->searchable(),
 
 
 

@@ -3,7 +3,7 @@
 
     <button type="button" name="" id=""
         class="btn btn-soft-primary waves-effect waves-light my-2 @if ($this->exporting && !$this->exportFinished) pe-none opacity-50 @endif"
-        wire:click='$dispatch("export")'>
+        wire:click='$dispatch("export-{{$this->namedExport}}")'>
         <i class="fas fa-file-excel"></i> Export
 
 
@@ -12,7 +12,7 @@
 
 @if ($this->exporting && !$this->exportFinished)
 
-    <div class="d-inline" wire:poll.5s="updateExportProgress">Exporting...please wait.</div>
+    <div class="d-inline" wire:poll.5s="exportProgress">Exporting...please wait.</div>
 
     <div class="progress my-2">
         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;"

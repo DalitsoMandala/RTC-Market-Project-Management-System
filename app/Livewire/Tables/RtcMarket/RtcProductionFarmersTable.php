@@ -3,6 +3,8 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use App\Models\RpmFarmerFollowUp;
@@ -11,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -28,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 final class RtcProductionFarmersTable extends PowerGridComponent
 {
     use WithExport;
+    use ExportTrait;
     public $routePrefix;
     public bool $deferLoading = false;
     public function setUp(): array
@@ -35,18 +39,13 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         //  $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS)
-                ->queues($this->datasource()->count() / 2)
 
-                ->onConnection('database'),
-            Header::make()
-            // ->showSearchInput()
+            Header::make()->includeViewOnTop('components.export-data')
+                ->showSearchInput()
             //     ->includeViewOnTop('components.export-data-farmers')
             ,
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->pageName('farmers')
                 ->showRecordCount(),
         ];
@@ -55,16 +54,33 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function datasource(): EloquentBuilder
     {
 
-        return RtcProductionFarmer::query();
+        return RtcProductionFarmer::query()->with('cultivatedArea', 'user', 'user.organisation');
 
 
+    }
+
+
+    public $namedExport = 'rpmf';
+    #[On('export-rpmf')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('unique_id', fn($model) => str_pad($model->id, 5, '0', STR_PAD_LEFT))
+            ->add('unique_id', fn($model) => $model->pf_id)
             ->add('date_of_recruitment_formatted', fn($model) => Carbon::parse($model->date_of_recruitment)->format('d/m/Y'))
             ->add('name_of_actor')
             ->add('name_of_representative')
@@ -73,19 +89,19 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('approach')
             ->add('enterprise', function ($model) {
 
-                return $model->enterprise ?? null;
+                return $model->enterprise;
             })
             ->add('district', function ($model) {
 
-                return $model->district ?? null;
+                return $model->district;
             })
             ->add('epa', function ($model) {
 
-                return $model->epa ?? null;
+                return $model->epa;
             })
             ->add('section', function ($model) {
 
-                return $model->section ?? null;
+                return $model->section;
             })
             ->add('sector')
             ->add('number_of_members_total', function ($model) {
@@ -180,143 +196,117 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                     ($model->emp_informal_female_35_plus ?? 0);
             })
             ->add('area_under_cultivation_total', function ($model) {
-                $area_under_cultivation = json_decode($model->area_under_cultivation);
-                return $area_under_cultivation->total ?? null;
+
+                return $model->cultivatedArea()->sum('area') ?? 0;
             })
 
             ->add('number_of_plantlets_produced_potato', function ($model) {
-                $number_of_plantlets_produced = json_decode($model->number_of_plantlets_produced);
-                return $number_of_plantlets_produced->potato ?? 0;
+
+                return $model->number_of_plantlets_produced_potato ?? 0;
             })
             ->add('number_of_plantlets_produced_cassava', function ($model) {
-                $number_of_plantlets_produced = json_decode($model->number_of_plantlets_produced);
-                return $number_of_plantlets_produced->cassava ?? 0;
+
+                return $model->number_of_plantlets_produced_cassava;
             })
             ->add('number_of_plantlets_produced_sw_potato', function ($model) {
-                $number_of_plantlets_produced = json_decode($model->number_of_plantlets_produced);
-                return $number_of_plantlets_produced->sweet_potato ?? 0;
+
+                return $model->number_of_plantlets_produced_sweet_potato;
             })
             ->add('number_of_screen_house_vines_harvested', fn($model) => $model->number_of_screen_house_vines_harvested ?? 0)
             ->add('number_of_screen_house_min_tubers_harvested', fn($model) => $model->number_of_screen_house_min_tubers_harvested ?? 0)
             ->add('number_of_sah_plants_produced', fn($model) => $model->number_of_sah_plants_produced ?? 0)
-            ->add('basic_seed_multiplication_total', function ($model) {
-                $basic_seed_multiplication = json_decode($model->area_under_basic_seed_multiplication, true);
 
-                if ($basic_seed_multiplication) {
-                    return collect($basic_seed_multiplication)->sum(function ($item) {
-                        return (float) $item['area']; // Cast to integer to ensure proper summation
-                    });
-                }
 
-                return 0; // or return 0 if you prefer a zero total instead of null
-            })
-
-            ->add('area_under_certified_seed_multiplication_total', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->total ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_1', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_1 ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_2', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_2 ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_3', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_3 ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_4', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_4 ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_5', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_5 ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_6', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_6 ?? null;
-            })
-            ->add('area_under_certified_seed_multiplication_variety_7', function ($model) {
-                $certified_seed_multiplication = json_decode($model->area_under_certified_seed_multiplication);
-                return $certified_seed_multiplication->variety_7 ?? null;
-            })
-            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? 'Yes' : 'No')
+            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
             ->add('seed_service_unit_registration_details_date', function ($model) {
 
-                $seed_service_unit_registration_details = json_decode($model->seed_service_unit_registration_details);
 
-                if (is_null($seed_service_unit_registration_details)) {
+                if (is_null($model->registration_date_seed_producer)) {
                     return null;
                 }
 
-                return Carbon::parse(json_decode($model->seed_service_unit_registration_details)->registration_date)->format('d/m/Y');
+                return Carbon::parse($model->registration_date_seed_producer)->format('d/m/Y');
+
             })
-            ->add('seed_service_unit_registration_details_number', fn($model) => json_decode($model->seed_service_unit_registration_details)->registration_number ?? null)
-            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? 'Yes' : 'No')
+            ->add('seed_service_unit_registration_details_number', fn($model) => $model->registration_number_seed_producer ?? null)
+            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
             ->add('market_segment_fresh', function ($model) {
 
-                return $model->market_segment_fresh ? 'Fresh' : null;
+                return $model->market_segment_fresh ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
             })
             ->add('market_segment_processed', function ($model) {
-                return $model->market_segment_fresh ? 'Processed' : null;
+                return $model->market_segment_processed ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
             })
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? 'Yes' : 'No')
+            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
 
             ->add('total_vol_production_previous_season', function ($model) {
-                $total_production_volume_previous_season = json_decode($model->total_vol_production_previous_season);
-                return $total_production_volume_previous_season ?? 0;
+
+                return $model->total_vol_production_previous_season ?? 0;
             })
             ->add('total_production_value_previous_season_total', function ($model) {
-                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
-                return $total_production_value_previous_season->value ?? 0;
+
+                return $model->prod_value_previous_season_total ?? 0;
             })
 
             ->add('total_production_value_previous_season_usd', function ($model) {
-                $total_production_value_previous_season = json_decode($model->total_production_value_previous_season);
-                return $total_production_value_previous_season->total ?? 0;
+
+                return $model->prod_value_previous_season_usd_value ?? 0;
             })
 
             ->add('total_production_value_previous_season_date', function ($model) {
-                $total_production_value_previous_season_date = json_decode($model->total_production_value_previous_season);
-                return $total_production_value_previous_season_date->date_of_maximum_sales === null ? null : Carbon::parse($total_production_value_previous_season_date->date_of_maximum_sales)->format('d/m/Y');
+
+                return $model->prod_value_previous_season_date_of_max_sales === null ? null : Carbon::parse($model->prod_value_previous_season_date_of_max_sales)->format('d/m/Y');
             })
             ->add('usd_rate', function ($model) {
-                $usd_rate = json_decode($model->total_production_value_previous_season);
-                return $usd_rate->rate ?? 0;
+
+                return $model->prod_value_previous_season_usd_rate ?? 0;
             })
 
             ->add('total_vol_irrigation_production_previous_season', function ($model) {
-                $total_vol_irrigation_production_previous_season = json_decode($model->total_vol_irrigation_production_previous_season);
-                return $total_vol_irrigation_production_previous_season ?? 0;
+
+                return $model->total_vol_irrigation_production_previous_season ?? 0;
             })
             ->add('total_irrigation_production_value_previous_season_total', function ($model) {
-                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
-                return $total_irrigation_production_value_previous_season->value ?? 0;
+                return $model->irr_prod_value_previous_season_total ?? 0;
             })
             ->add('total_irrigation_production_value_previous_season_usd', function ($model) {
-                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
-                return $total_irrigation_production_value_previous_season->total ?? 0;
+                return $model->irr_prod_value_previous_season_usd_value ?? 0;
             })
             ->add('total_irrigation_production_value_previous_season_date', function ($model) {
-                $total_irrigation_production_value_previous_season = json_decode($model->total_irrigation_production_value_previous_season);
-                return $total_irrigation_production_value_previous_season->date_of_maximum_sales === null ? null : Carbon::parse($total_irrigation_production_value_previous_season->date_of_maximum_sales)->format('d/m/Y');
+                return $model->irr_prod_value_previous_season_date_of_max_sales === null ? null : Carbon::parse($model->irr_prod_value_previous_season_date_of_max_sales)->format('d/m/Y');
             })
 
             ->add('usd_rate_irrigation', function ($model) {
-                $usd_rate = json_decode($model->total_irrigation_production_value_previous_season);
-                return $usd_rate->rate ?? 0;
+
+                return $model->irr_prod_value_previous_season_usd_rate ?? 0;
             })
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? 'Yes' : 'No')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? 'Yes' : 'No')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? 'Yes' : 'No')
+            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
             ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
             ->add('sells_to_aggregation_centers', function ($model) {
-                return $model->sells_to_aggregation_centers == 1 ? 'Yes' : 'No';
+                return $model->sells_to_aggregation_centers == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
+            })
+            ->add('area_basic_seed', function ($model) {
+
+                return $model->basicSeed()->sum('area') ?? 0;
             })
 
+            ->add('area_certified_seed', function ($model) {
+
+                return $model->certifiedSeed()->sum('area') ?? 0;
+            })
+
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
         ;
     }
 
@@ -324,19 +314,19 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-
-            Column::make('Id', 'unique_id', 'id')->sortable(),
+            Column::make('#', 'id'),
+            Column::make('Actor ID', 'unique_id', 'pf_id')->sortable()->searchable(),
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
-                ->sortable(),
+                ->sortable()->searchable(),
 
             Column::make('Name of actor', 'name_of_actor')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Enterprise', 'enterprise', 'location_data->enterprise')->sortable(),
-            Column::make('District', 'district', 'location_data->district')->sortable(),
-            Column::make('EPA', 'epa', 'location_data->epa')->sortable(),
-            Column::make('Section', 'section', 'location_data->section')->sortable(),
+            Column::make('Enterprise', 'enterprise')->sortable()->searchable(),
+            Column::make('District', 'district')->sortable()->searchable(),
+            Column::make('EPA', 'epa')->sortable()->searchable(),
+            Column::make('Section', 'section')->sortable()->searchable(),
 
 
             Column::make('Name of representative', 'name_of_representative')
@@ -386,6 +376,17 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             Column::make('Is registered', 'is_registered')
                 ->sortable()
                 ->searchable(),
+
+            Column::make('Registration body', 'registration_body')
+                ->sortable()
+                ->searchable(),
+            Column::make('Registration date', 'registration_date')
+                ->sortable()
+                ->searchable(),
+            Column::make('Registration number', 'registration_number')
+                ->sortable()
+                ->searchable(),
+
 
 
             Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35', 'number_of_employees->emp_formal_female_18_35')
@@ -457,12 +458,14 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Area under basic seed multiplication/total', 'basic_seed_multiplication_total', 'basic_seed_multiplication->total')
+            Column::make('Area under basic seed multiplication/total', 'area_basic_seed')
                 ->sortable()
                 ->searchable(),
 
 
-
+            Column::make('Area under certified seed multiplication/total', 'area_certified_seed')
+                ->sortable()
+                ->searchable(),
 
             Column::make('Is registered seed producer', 'is_registered_seed_producer')
                 ->sortable()
@@ -470,6 +473,16 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
 
             Column::make('Uses certified seed', 'uses_certified_seed')
+                ->sortable()
+                ->searchable(),
+
+
+            Column::make('Market segment (Fresh)', 'market_segment_fresh')
+                ->sortable()
+                ->searchable(),
+
+
+            Column::make('Market segment (Processed)', 'market_segment_processed')
                 ->sortable()
                 ->searchable(),
 
@@ -533,13 +546,31 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 ->searchable(),
 
 
+            Column::make('Submitted by', 'submitted_by')
+
+                ->searchable(),
+
 
 
 
         ];
     }
 
+    public function relationSearch(): array
+    {
+        return [
 
+            'user' => [
+                'name',
+
+            ],
+
+            'user.organisation' => [
+                'name'
+            ]
+
+        ];
+    }
 
 
     protected function getDataForExport()
@@ -548,225 +579,12 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         return $this->datasource()->get();
     }
 
-    // #[On('export-farmers')]
-    // public function zexport()
-    // {
-    //     // Get data for export
-    //     $data = $this->getDataForExport();
 
-    //     // Define the path for the Excel file
-    //     $path = storage_path('app/public/rtc_production_and_marketing_farmers.xlsx');
-
-    //     // Create the writer and add the header
-    //     $writer = SimpleExcelWriter::create($path)
-    //         ->addHeader([
-    //             'Id',
-    //             'Date of recruitment',
-    //             'Name of actor',
-    //             'Name of representative',
-    //             'Phone number',
-    //             'Type',
-    //             'Approach',
-    //             'Enterprise',
-    //             'District',
-    //             'EPA',
-    //             'Section',
-    //             'Sector',
-    //             'Number of members/Male 18-35',
-    //             'Number of members/Female 18-35',
-    //             'Number of members/Male 35+',
-    //             'Number of members/Female 35+',
-    //             'Number of members/Total',
-    //             'Group',
-    //             'Establishment status',
-    //             'Is registered',
-    //             'Registration details/Body',
-    //             'Registration details/Date',
-    //             'Registration details/Number',
-    //             'Number of Employees Formal Female 18-35',
-    //             'Number of Employees Formal Male 18-35',
-    //             'Number of Employees Formal Male 35 Plus',
-    //             'Number of Employees Formal Female 35 Plus',
-    //             'Total Number of Employees Formal',
-    //             'Number of Employees Informal Female 18-35',
-    //             'Number of Employees Informal Male 18-35',
-    //             'Number of Employees Informal Male 35 Plus',
-    //             'Number of Employees Informal Female 35 Plus',
-    //             'Total Number of Employees Informal',
-    //             'Area under cultivation/total',
-    //             'Area under cultivation/variety 1',
-    //             'Area under cultivation/variety 2',
-    //             'Area under cultivation/variety 3',
-    //             'Area under cultivation/variety 4',
-    //             'Area under cultivation/variety 5',
-    //             'Number of plantlets produced/cassava',
-    //             'Number of plantlets produced/potato',
-    //             'Number of plantlets produced/sweet potato',
-    //             'Number of screen house vines harvested',
-    //             'Number of screen house min tubers harvested',
-    //             'Number of sah plants produced',
-    //             'Area under basic seed multiplication/total',
-    //             'Area under basic seed multiplication/variety 1',
-    //             'Area under basic seed multiplication/variety 2',
-    //             'Area under basic seed multiplication/variety 3',
-    //             'Area under basic seed multiplication/variety 4',
-    //             'Area under basic seed multiplication/variety 5',
-    //             'Area under basic seed multiplication/variety 6',
-    //             'Area under basic seed multiplication/variety 7',
-    //             'Area under certified seed multiplication/total',
-    //             'Area under certified seed multiplication/variety 1',
-    //             'Area under certified seed multiplication/variety 2',
-    //             'Area under certified seed multiplication/variety 3',
-    //             'Area under certified seed multiplication/variety 4',
-    //             'Area under certified seed multiplication/variety 5',
-    //             'Area under certified seed multiplication/variety 6',
-    //             'Area under certified seed multiplication/variety 7',
-    //             'Is registered seed producer',
-    //             'Seed service unit registration details/reg. date',
-    //             'Seed service unit registration details/ reg. number',
-    //             'Uses certified seed',
-    //             'Market segment/fresh',
-    //             'Market segment/processed',
-    //             'Has rtc market contract',
-    //             'Total production value previous season/total',
-    //             'Total production value previous season/date of max. sales',
-    //             'Total irrigation production value previous season/total',
-    //             'Total irrigation production value previous season/date of max. sales',
-    //             'Sells to domestic markets',
-    //             'Sells to international markets',
-    //             'Uses market information systems',
-    //             'Market information systems',
-    //             'Aggregation centers/Response',
-    //             'Aggregation centers/Specify',
-    //             'Aggregation center sales',
-    //         ]);
-
-    //     // Chunk the data and process each chunk
-    //     $chunks = array_chunk($data->all(), 1000);
-
-    //     foreach ($chunks as $chunk) {
-    //         foreach ($chunk as $item) {
-    //             $location = json_decode($item->location_data);
-    //             $main_food = json_decode($item->main_food_data);
-    //             $employees = json_decode($item->number_of_employees);
-    //             $area_under_cultivation = json_decode($item->area_under_cultivation);
-    //             $members = json_decode($item->number_of_members);
-    //             $registration_details = json_decode($item->registration_details);
-    //             $basic_seed_multiplication = json_decode($item->area_under_basic_seed_multiplication);
-    //             $certified_seed_multiplication = json_decode($item->area_under_certified_seed_multiplication);
-    //             $market_segment = json_decode($item->market_segment);
-    //             $aggregation_centers = json_decode($item->aggregation_centers);
-    //             $seed_service_unit_registration_details = json_decode($item->seed_service_unit_registration_details);
-
-    //             $row = [
-    //                 'id' => $item->id,
-    //                 'date_of_recruitment_formatted' => Carbon::parse($item->date_of_recruitment)->format('d/m/Y'),
-    //                 'name_of_actor' => $item->name_of_actor,
-    //                 'name_of_representative' => $item->name_of_representative,
-    //                 'phone_number' => $item->phone_number,
-    //                 'type' => $item->type,
-    //                 'approach' => $item->approach,
-    //                 'enterprise' => $location->enterprise ?? null,
-    //                 'district' => $location->district ?? null,
-    //                 'epa' => $location->epa ?? null,
-    //                 'section' => $location->section ?? null,
-    //                 'sector' => $item->sector,
-    //                 'number_of_members_male_18_35' => $members->male_18_35 ?? 0,
-    //                 'number_of_members_female_18_35' => $members->female_18_35 ?? 0,
-    //                 'number_of_members_male_35_plus' => $members->male_35_plus ?? 0,
-    //                 'number_of_members_female_35_plus' => $members->female_35_plus ?? 0,
-    //                 'number_of_members_total' => ($members->male_18_35 ?? 0) +
-    //                     ($members->female_18_35 ?? 0) +
-    //                     ($members->male_35_plus ?? 0) +
-    //                     ($members->female_35_plus ?? 0),
-    //                 'group' => $item->group,
-    //                 'establishment_status' => $item->establishment_status,
-    //                 'is_registered' => $item->is_registered == 1 ? 'Yes' : 'No',
-    //                 'registration_details_body' => $registration_details->registration_body ?? null,
-    //                 'registration_details_date' => $registration_details == null ? null : Carbon::parse($registration_details->registration_date)->format('d/m/Y'),
-    //                 'registration_details_number' => $registration_details->registration_number ?? null,
-    //                 'number_of_employees_formal_female_18_35' => $employees->emp_formal_female_18_35 ?? 0,
-    //                 'number_of_employees_formal_male_18_35' => $employees->emp_formal_male_18_35 ?? 0,
-    //                 'number_of_employees_formal_male_35_plus' => $employees->emp_formal_male_35_plus ?? 0,
-    //                 'number_of_employees_formal_female_35_plus' => $employees->emp_formal_female_35_plus ?? 0,
-    //                 'number_of_employees_formal_total' => ($employees->emp_formal_female_18_35 ?? 0) +
-    //                     ($employees->emp_formal_male_18_35 ?? 0) +
-    //                     ($employees->emp_formal_male_35_plus ?? 0) +
-    //                     ($employees->emp_formal_female_35_plus ?? 0),
-    //                 'number_of_employees_informal_female_18_35' => $employees->emp_informal_female_18_35 ?? 0,
-    //                 'number_of_employees_informal_male_18_35' => $employees->emp_informal_male_18_35 ?? 0,
-    //                 'number_of_employees_informal_male_35_plus' => $employees->emp_informal_male_35_plus ?? 0,
-    //                 'number_of_employees_informal_female_35_plus' => $employees->emp_informal_female_35_plus ?? 0,
-    //                 'number_of_employees_informal_total' => ($employees->emp_informal_female_18_35 ?? 0) +
-    //                     ($employees->emp_informal_male_18_35 ?? 0) +
-    //                     ($employees->emp_informal_male_35_plus ?? 0) +
-    //                     ($employees->emp_informal_female_35_plus ?? 0),
-    //                 'area_under_cultivation_total' => $area_under_cultivation->total ?? null,
-    //                 'area_under_cultivation_variety_1' => $area_under_cultivation->variety_1 ?? null,
-    //                 'area_under_cultivation_variety_2' => $area_under_cultivation->variety_2 ?? null,
-    //                 'area_under_cultivation_variety_3' => $area_under_cultivation->variety_3 ?? null,
-    //                 'area_under_cultivation_variety_4' => $area_under_cultivation->variety_4 ?? null,
-    //                 'area_under_cultivation_variety_5' => $area_under_cultivation->variety_5 ?? null,
-    //                 'number_of_plantlets_produced_cassava' => json_decode($item->number_of_plantlets_produced)->cassava ?? null,
-    //                 'number_of_plantlets_produced_potato' => json_decode($item->number_of_plantlets_produced)->potato ?? null,
-    //                 'number_of_plantlets_produced_sw_potato' => json_decode($item->number_of_plantlets_produced)->sweet_potato ?? null,
-    //                 'number_of_screen_house_vines_harvested' => $item->number_of_screen_house_vines_harvested ?? null,
-    //                 'number_of_screen_house_min_tubers_harvested' => $item->number_of_screen_house_min_tubers_harvested ?? null,
-    //                 'number_of_sah_plants_produced' => $item->number_of_sah_plants_produced ?? null,
-    //                 'basic_seed_multiplication_total' => $basic_seed_multiplication->total ?? null,
-    //                 'basic_seed_multiplication_variety_1' => $basic_seed_multiplication->variety_1 ?? null,
-    //                 'basic_seed_multiplication_variety_2' => $basic_seed_multiplication->variety_2 ?? null,
-    //                 'basic_seed_multiplication_variety_3' => $basic_seed_multiplication->variety_3 ?? null,
-    //                 'basic_seed_multiplication_variety_4' => $basic_seed_multiplication->variety_4 ?? null,
-    //                 'basic_seed_multiplication_variety_5' => $basic_seed_multiplication->variety_5 ?? null,
-    //                 'basic_seed_multiplication_variety_6' => $basic_seed_multiplication->variety_6 ?? null,
-    //                 'basic_seed_multiplication_variety_7' => $basic_seed_multiplication->variety_7 ?? null,
-    //                 'area_under_certified_seed_multiplication_total' => $certified_seed_multiplication->total ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_1' => $certified_seed_multiplication->variety_1 ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_2' => $certified_seed_multiplication->variety_2 ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_3' => $certified_seed_multiplication->variety_3 ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_4' => $certified_seed_multiplication->variety_4 ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_5' => $certified_seed_multiplication->variety_5 ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_6' => $certified_seed_multiplication->variety_6 ?? null,
-    //                 'area_under_certified_seed_multiplication_variety_7' => $certified_seed_multiplication->variety_7 ?? null,
-    //                 'is_registered_seed_producer' => $item->is_registered_seed_producer == 1 ? 'Yes' : 'No',
-    //                 'seed_service_unit_registration_details_date' => $seed_service_unit_registration_details == null ? null : Carbon::parse($seed_service_unit_registration_details->registration_date)->format('d/m/Y'),
-    //                 'seed_service_unit_registration_details_number' => $seed_service_unit_registration_details->registration_number ?? null,
-    //                 'uses_certified_seed' => $item->uses_certified_seed == 1 ? 'Yes' : 'No',
-    //                 'market_segment_fresh' => $market_segment->fresh ?? null,
-    //                 'market_segment_processed' => $market_segment->processed ?? null,
-    //                 'has_rtc_market_contract' => $item->has_rtc_market_contract == 1 ? 'Yes' : 'No',
-    //                 'total_production_value_previous_season_total' => json_decode($item->total_production_value_previous_season)->total ?? 0,
-    //                 'total_production_value_previous_season_date' => json_decode($item->total_production_value_previous_season) == null ? null : Carbon::parse(json_decode($item->total_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y'),
-    //                 'total_irrigation_production_value_previous_season_total' => json_decode($item->total_irrigation_production_value_previous_season)->total ?? 0,
-    //                 'total_irrigation_production_value_previous_season_date' => json_decode($item->total_irrigation_production_value_previous_season) == null ? null : Carbon::parse(json_decode($item->total_irrigation_production_value_previous_season)->date_of_maximum_sales)->format('d/m/Y'),
-    //                 'sells_to_domestic_markets' => $item->sells_to_domestic_markets == 1 ? 'Yes' : 'No',
-    //                 'sells_to_international_markets' => $item->sells_to_international_markets == 1 ? 'Yes' : 'No',
-    //                 'uses_market_information_systems' => $item->uses_market_information_systems == 1 ? 'Yes' : 'No',
-    //                 'market_information_systems' => $item->market_information_systems ?? null,
-    //                 'aggregation_centers_response' => $aggregation_centers->response == 1 ? 'Yes' : 'No',
-    //                 'aggregation_centers_specify' => $aggregation_centers->specify ?? null,
-    //                 'aggregation_center_sales' => $item->aggregation_center_sales ?? null,
-    //             ];
-
-    //             $writer->addRow($row);
-    //         }
-    //     }
-
-    //     // Close the writer and get the path of the file
-    //     $writer->close();
-
-    //     // Return the file for download
-    //     return response()->download($path)->deleteFileAfterSend(true);
-    // }
 
     public function filters(): array
     {
         return [
-            Filter::inputText('enterprise', 'location_data->enterprise'),
-            Filter::inputText('section', 'location_data->section'),
-            Filter::inputText('epa', 'location_data->epa'),
-            Filter::inputText('district', 'location_data->district'),
+
         ];
     }
 
@@ -788,30 +606,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     }
 
 
-    // public function actions($row): array
-    // {
-    //     $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM FARMERS')->first();
 
-    //     $form_name = str_replace(' ', '-', strtolower($form->name));
-    //     $project = str_replace(' ', '-', strtolower($form->project->name));
-
-    //     $route = '' . $this->routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $row->id . '';
-
-    //     return [
-    //         Button::add('add-follow-up')
-
-    //             ->render(function ($model) use ($route) {
-    //                 return Blade::render(<<<HTML
-    //         <a href="$route"  data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" >Add <i class="bx bx-plus"></i></a>
-    //         HTML);
-    //             })
-
-    //         ,
-
-
-    //     ];
-
-    // }
 
     #[\Livewire\Attributes\On('refresh')]
     public function refreshData(): void

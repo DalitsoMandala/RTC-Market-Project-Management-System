@@ -16,4 +16,9 @@ class RpmFarmerFollowUp extends Model
     {
         return $this->belongsTo(RtcProductionFarmer::class, 'rpm_farmer_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

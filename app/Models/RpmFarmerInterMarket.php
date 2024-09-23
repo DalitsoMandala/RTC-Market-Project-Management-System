@@ -14,4 +14,5 @@ class RpmFarmerInterMarket extends Model
     {
         return $this->belongsTo(RtcProductionFarmer::class, 'rpm_farmer_id');
     }
+
 }

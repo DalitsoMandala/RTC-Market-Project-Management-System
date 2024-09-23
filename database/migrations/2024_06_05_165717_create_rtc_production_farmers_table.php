@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('rtc_production_farmers', function (Blueprint $table) {
             $table->id();
+            $table->string('pf_id')->unique();
             $table->string('epa');
             $table->string('section');
             $table->string('district');

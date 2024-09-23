@@ -16,4 +16,5 @@ class RpmProcessorMarketInformationSystem extends Model
     {
         return $this->belongsTo(RtcProductionProcessor::class, 'rpmp_id');
     }
+
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Traits;
+namespace App\Helpers;
 
 use App\Jobs\ExcelExportJob;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 
-trait ExportTrait
+class ExportDataJob
 {
+
+
     public $batchID;
     public $exporting = false;
     public $exportFinished = false;
@@ -27,7 +27,7 @@ trait ExportTrait
     {
         $this->Modelname = $Modelname;
     }
-    public function performExport()
+    public function export()
     {
 
 
@@ -45,7 +45,7 @@ trait ExportTrait
     }
 
 
-    public function BatchProperty()
+    public function getExportBatchProperty()
     {
         if (!$this->batchID) {
             return null;
@@ -54,9 +54,9 @@ trait ExportTrait
         return Bus::findBatch($this->batchID);
     }
 
-    public function exportProgress()
+    public function updateExportProgress()
     {
-        $batch = $this->BatchProperty();
+        $batch = $this->getExportBatchProperty();
 
         // If batch is found, check for progress and update status
         if ($batch) {

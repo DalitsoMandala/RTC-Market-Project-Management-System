@@ -10,8 +10,9 @@ class RpmProcessorMarketSegment extends Model
     use HasFactory;
     protected $guarded = ['id'];
     protected $table = 'rpmp_market_segment';
-    public function farmers()
+    public function processors()
     {
         return $this->belongsTo(RtcProductionProcessor::class, 'rpmp_id');
     }
+
 }
