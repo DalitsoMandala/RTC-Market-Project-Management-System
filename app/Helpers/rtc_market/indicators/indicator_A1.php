@@ -48,27 +48,31 @@ class indicator_A1
             if ($data->get()->isNotEmpty()) {
 
                 $hasData = true;
-                return $data;
+                $query = $data;
             }
 
 
             if (!$hasData) {
                 // No data found, return an empty collection
-                return $query->whereIn('id', []);
+                $query = $query->whereIn('id', []);
             }
         }
 
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
 
-        if ($this->organisation_id && $this->target_year_id) {
-            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-            $query = $data;
+        }
 
-        } else
-            if ($this->organisation_id && $this->target_year_id == null) {
-                $data = $query->where('organisation_id', $this->organisation_id);
-                $query = $data;
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
 
-            }
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
 
 
         return $query;
@@ -76,35 +80,38 @@ class indicator_A1
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query()->where('status', 'approved');
+        $query = RtcProductionFarmer::query()->with('followups')->where('status', 'approved');
 
+        // Check if both reporting period and financial year are set
         if ($this->reporting_period && $this->financial_year) {
-            $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
-            if ($data->get()->isNotEmpty()) {
+            // Filter by period and year
+            $data = $query->where('period_month_id', $this->reporting_period)
+                ->where('financial_year_id', $this->financial_year);
 
-                $hasData = true;
-                return $data;
-            }
-
-
-            if (!$hasData) {
-                // No data found, return an empty collection
-                return $query->whereIn('id', []);
+            // If no data is found, force an empty result but don't exit early
+            if (!$data->exists()) {
+                $query->whereIn('id', []); // Empty result filter
+            } else {
+                $query = $data; // If data exists, use the filtered query
             }
         }
 
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
 
-        if ($this->organisation_id && $this->target_year_id) {
-            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-            $query = $data;
 
-        } else
-            if ($this->organisation_id && $this->target_year_id == null) {
-                $data = $query->where('organisation_id', $this->organisation_id);
-                $query = $data;
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
 
-            }
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
 
         return $query;
     }
@@ -112,7 +119,7 @@ class indicator_A1
 
     public function builderProcessor(): Builder
     {
-        $query = RtcProductionProcessor::query()->where('status', 'approved');
+        $query = RtcProductionProcessor::query()->with('followups')->where('status', 'approved');
 
         if ($this->reporting_period && $this->financial_year) {
             $hasValidBatchUuids = false;
@@ -138,49 +145,45 @@ class indicator_A1
             }
         }
 
-        if ($this->organisation_id && $this->target_year_id) {
-            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-            $query = $data;
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
 
-        } else
-            if ($this->organisation_id && $this->target_year_id == null) {
-                $data = $query->where('organisation_id', $this->organisation_id);
-                $query = $data;
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
 
-            }
+        //     }
 
         return $query;
     }
 
+
     public function findTotalFarmerEmployees()
     {
+        // Retrieve all farmer records
         $data = $this->builderFarmer()->get();
+
+        // Map over the data and calculate totals for each record
         $employees = $data->map(function ($model) {
 
-            $json = collect(json_decode($model->number_of_employees, true));
+            // Calculate the formal employment total
+            $model->empFormalTotal = $model->emp_formal_female_18_35
+                + $model->emp_formal_male_18_35
+                + $model->emp_formal_male_35_plus
+                + $model->emp_formal_female_35_plus;
 
-            if ($json->has('formal')) {
-                $formal = $json->get('formal');
-                $sum = collect($formal)->except('total')->sum();
-                $model->empFormalTotal = $sum;
-            } else {
-                $model->empFormalTotal = 0;
-            }
-
-
-
-            if ($json->has('informal')) {
-                $formal = $json->get('informal');
-                $sum = collect($formal)->except('total')->sum();
-                $model->empInFormalTotal = $sum;
-            } else {
-                $model->empInFormalTotal = 0;
-            }
+            // Calculate the informal employment total
+            $model->empInFormalTotal = $model->emp_informal_female_18_35
+                + $model->emp_informal_male_18_35
+                + $model->emp_informal_male_35_plus
+                + $model->emp_informal_female_35_plus;
 
             return $model;
         });
 
-
+        // Sum the totals for all records
         $totalEmpFormal = $employees->sum('empFormalTotal');
         $totalEmpInFormal = $employees->sum('empInFormalTotal');
 
@@ -189,40 +192,31 @@ class indicator_A1
             'totalEmpInFormal' => $totalEmpInFormal,
             'Total' => $totalEmpFormal + $totalEmpInFormal
         ];
-
     }
+
 
     public function findTotalProcessorEmployees()
     {
         $data = $this->builderProcessor()->get();
+        // Map over the data and calculate totals for each record
         $employees = $data->map(function ($model) {
 
-            $json = collect(json_decode($model->number_of_employees, true));
+            // Calculate the formal employment total
+            $model->empFormalTotal = $model->emp_formal_female_18_35
+                + $model->emp_formal_male_18_35
+                + $model->emp_formal_male_35_plus
+                + $model->emp_formal_female_35_plus;
 
-
-
-            if ($json->has('formal')) {
-                $formal = $json->get('formal');
-                $sum = collect($formal)->except('total')->sum();
-                $model->empFormalTotal = $sum;
-            } else {
-                $model->empFormalTotal = 0;
-            }
-
-
-
-            if ($json->has('informal')) {
-                $formal = $json->get('informal');
-                $sum = collect($formal)->except('total')->sum();
-                $model->empInFormalTotal = $sum;
-            } else {
-                $model->empInFormalTotal = 0;
-            }
+            // Calculate the informal employment total
+            $model->empInFormalTotal = $model->emp_informal_female_18_35
+                + $model->emp_informal_male_18_35
+                + $model->emp_informal_male_35_plus
+                + $model->emp_informal_female_35_plus;
 
             return $model;
         });
 
-
+        // Sum the totals for all records
         $totalEmpFormal = $employees->sum('empFormalTotal');
         $totalEmpInFormal = $employees->sum('empInFormalTotal');
 
@@ -236,7 +230,12 @@ class indicator_A1
 
     public function findTotal()
     {
-        return $this->builder()->where('actor_name', '!=', null)->count();
+
+        $totalFarmerEmployees = $this->findTotalFarmerEmployees();
+
+        $totalProcessorEmployees = $this->findTotalProcessorEmployees();
+        $totalEmployees = $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
+        return $this->builder()->count() + $totalEmployees;
     }
 
     public function findGender()
@@ -244,8 +243,8 @@ class indicator_A1
         return $this->builder()
             ->select([
                 DB::raw('COUNT(*) AS Total'),
-                DB::raw('SUM(CASE WHEN sex = \'MALE\' THEN 1 ELSE 0 END) AS MaleCount'),
-                DB::raw('SUM(CASE WHEN sex = \'FEMALE\' THEN 1 ELSE 0 END) AS FemaleCount'),
+                DB::raw('SUM(CASE WHEN sex = \'Male\' THEN 1 ELSE 0 END) AS MaleCount'),
+                DB::raw('SUM(CASE WHEN sex = \'Female\' THEN 1 ELSE 0 END) AS FemaleCount'),
             ])
 
             ->first()->toArray();
@@ -255,8 +254,8 @@ class indicator_A1
         return $this->builder()
             ->select([
                 DB::raw('COUNT(*) AS Total'),
-                DB::raw('SUM(CASE WHEN age_group = \'YOUTH\' THEN 1 ELSE 0 END) AS youth'),
-                DB::raw('SUM(CASE WHEN age_group = \'NOT YOUTH\' THEN 1 ELSE 0 END) AS not_youth'),
+                DB::raw('SUM(CASE WHEN age_group = \'Youth\' THEN 1 ELSE 0 END) AS youth'),
+                DB::raw('SUM(CASE WHEN age_group = \'Not youth\' THEN 1 ELSE 0 END) AS not_youth'),
             ])
 
             ->first()->toArray();
@@ -317,8 +316,8 @@ class indicator_A1
     {
         return $this->builderFarmer()->select([
             DB::raw('COUNT(*) AS Total'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'NEW\' THEN 1 ELSE 0 END) AS NEW'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'OLD\' THEN 1 ELSE 0 END) AS OLD'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS NEW'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS OLD'),
 
         ])->first()->toArray();
 
@@ -328,8 +327,8 @@ class indicator_A1
     {
         return $this->builderProcessor()->select([
             DB::raw('COUNT(*) AS Total'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'NEW\' THEN 1 ELSE 0 END) AS NEW'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'OLD\' THEN 1 ELSE 0 END) AS OLD'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS NEW'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS OLD'),
 
         ])->first()->toArray();
     }
@@ -371,7 +370,7 @@ class indicator_A1
         $totalNewEstablishment = $this->getEstablishmentFarmers()['NEW'] + $this->getEstablishmentProcessors()['NEW'];
 
         return [
-            'Total' => $this->findTotal() + $totalEmployees,
+            'Total' => $this->findTotal(),
             'Female' => (float) $gender['FemaleCount'],
             'Male' => (float) $gender['MaleCount'],
             'Youth (18-35 yrs)' => (float) $age['youth'],

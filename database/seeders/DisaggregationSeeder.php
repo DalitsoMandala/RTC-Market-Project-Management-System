@@ -21,7 +21,14 @@ class DisaggregationSeeder extends Seeder
 
         $newDisaggregations = [
             "A1" => ["Number of actors profitability engaged in commercialization of RTC" => ['Total', 'Female', 'Male', 'Youth (18-35 yrs)', 'Not youth (35yrs+)', 'Farmers', 'Processors', 'Traders', 'Employees on RTC establishment', 'Cassava', 'Potato', 'Sweet potato', 'New establishment', 'Old establishment']],
-            "B1" => ["Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities" => ['Total', 'Cassava', 'Sweet potato', 'Potato']],
+            "B1" => [
+                "Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities" => [
+                    'Total(% Percentage)',
+                    'Cassava',
+                    'Sweet potato',
+                    'Potato'
+                ]
+            ],
             "B2" => [
                 "Percentage increase in value of formal RTC exports" => [
                     'Total',

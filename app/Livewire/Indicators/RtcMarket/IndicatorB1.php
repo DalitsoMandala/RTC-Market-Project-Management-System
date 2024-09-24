@@ -41,14 +41,13 @@ class IndicatorB1 extends Component
 
 
 
-        try {
-            $this->data = $newClass->getDisaggregations();//
-            $this->total = $this->data['Total'];
+
+        $this->data = $newClass->getDisaggregations();//
 
 
-        } catch (\Throwable $th) {
+        $this->total = $this->data['Total(% Percentage)'];
 
-        }
+
 
     }
     public function mount()

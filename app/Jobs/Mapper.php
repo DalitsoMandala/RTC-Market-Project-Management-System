@@ -60,34 +60,6 @@ class Mapper implements ShouldQueue
     {
 
 
-        // $project = null; // Get project ID from request
-        // $indicators = null; // Get indicators array from request
-
-        // $builder = IndicatorDisaggregation::with(['indicator.project:id,name', 'indicator.class:indicator_id,class', 'indicator:id,indicator_no,indicator_name,project_id']);
-
-        // // Apply conditions only if the variables are not null
-        // if ($project) {
-        //     $builder->whereHas('indicator.project', fn($query) => $query->where('id', $project));
-        // }
-
-        // if ($indicators) {
-        //     $builder->whereHas('indicator', fn($query) => $query->whereIn('id', $indicators));
-        // }
-
-
-
-        // $builder->get()->transform(function ($query) {
-        //     if ($query->indicator && $query->indicator->class) {
-        //         $classModel = $query->indicator->class->class;
-        //         if ($classModel) {
-        //             $indicatorClass = new $classModel();
-        //             $query->indicator['data'] = $indicatorClass->getDisaggregations();
-        //         }
-        //     }
-        //     return $query;
-        // });
-
-
 
         $builder = IndicatorDisaggregation::with(['indicator', 'indicator.project']);
 

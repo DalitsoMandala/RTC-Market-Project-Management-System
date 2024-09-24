@@ -46,7 +46,7 @@
 
 
                     <div class="card-body ">
-                        <div class="table-responsive text-uppercase">
+                        <div class="table-responsive ">
                             <table class="table mb-0 table-hover table-striped table-bordered" id="table1">
                                 <thead class="table-primary">
                                     <tr>
@@ -92,6 +92,7 @@
                             chart: {
                                 type: 'bar'
                             },
+                
                             series: [{
                                 name: 'Count',
                                 data: seriesData

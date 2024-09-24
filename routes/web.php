@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Jobs\RandomNames;
@@ -46,11 +47,18 @@ use App\Traits\ExportTrait;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
+Route::get('/test', function () {
+    // $indicatorContent = new IndicatorsContent(id: 1);
+    // $content = $indicatorContent->content();
+    // $a1 = new $content['class']();
+    // dd($a1->getDisaggregations());
+    $data = new \App\Helpers\rtc_market\indicators\indicator_B1();
+    dd($data->getDisaggregations());
 
-Route::get('/test-exports', \App\Livewire\TestExports::class);
+});
 
-// TestingController route
-Route::get('/export/{name}', [TestingController::class, 'index']);
+
+
 
 // Profile route
 Route::get('/profile', \App\Livewire\Profile\Details::class)

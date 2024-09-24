@@ -20,12 +20,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
+                <x-alerts />
 
                 <div class="card">
                     <div class="card-header">
@@ -40,7 +35,7 @@
                             checkValidation() {
                                 let forms = document.querySelectorAll('.needs-validation');
                                 let isValid = true;
-                        
+
                                 // Loop over them and prevent submission
                                 Array.from(forms).forEach(form => {
                                     if (!form.checkValidity()) {
@@ -48,7 +43,7 @@
                                         isValid = false;
                                     }
                                 });
-                        
+
                                 if (isValid) {
                                     // Trigger Livewire form submission if the form is valid
                                     let values = this.inputed;
@@ -57,16 +52,16 @@
                                         this.disabledButton = false;
                                         $wire.save(values);
                                     }, 2000)
-                        
+
                                     this.inputed = {};
-                        
+
                                     Array.from(forms).forEach(form => {
-                        
+
                                         form.classList.remove('was-validated');
-                        
-                        
+
+
                                     });
-                        
+
                                 }
                             }
                         }">
@@ -108,11 +103,11 @@
     <x-scroll-up />
 
     @script
-        <script>
-            Alpine.store('disagg', {
-                dataArray: @js($inputs)
-            })
-        </script>
+    <script>
+        Alpine.store('disagg', {
+            dataArray: @js($inputs)
+        })
+    </script>
     @endscript
 
 

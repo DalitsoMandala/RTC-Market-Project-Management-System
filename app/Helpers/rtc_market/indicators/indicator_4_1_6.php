@@ -32,31 +32,34 @@ class indicator_4_1_6
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
 
+        // Check if both reporting period and financial year are set
         if ($this->reporting_period && $this->financial_year) {
-            $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
-            if ($data->get()->isNotEmpty()) {
+            // Filter by period and year
+            $data = $query->where('period_month_id', $this->reporting_period)
+                ->where('financial_year_id', $this->financial_year);
 
-                $hasData = true;
-                return $data;
-            }
-
-
-            if (!$hasData) {
-                // No data found, return an empty collection
-                return $query->whereIn('id', []);
+            // If no data is found, force an empty result but don't exit early
+            if (!$data->exists()) {
+                $query->whereIn('id', []); // Empty result filter
+            } else {
+                $query = $data; // If data exists, use the filtered query
             }
         }
-        if ($this->organisation_id && $this->target_year_id) {
-            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-            $query = $data;
 
-        } else
-            if ($this->organisation_id && $this->target_year_id == null) {
-                $data = $query->where('organisation_id', $this->organisation_id);
-                $query = $data;
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
 
-            }
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
 
 
 

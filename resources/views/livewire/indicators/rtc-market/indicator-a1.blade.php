@@ -1,14 +1,14 @@
 <div>
 
     <div x-data="{
-    
+
         downloadForm() {
             // Create a new workbook
             var wb = XLSX.utils.book_new();
-    
+
             // List of table IDs
             var tableIds = ['table1', 'table2', 'table3', 'table4', 'table5', 'table6']; // Add more table IDs as needed
-    
+
             // Loop through each table ID
             tableIds.forEach(function(id, index) {
                 // Get the table element
@@ -20,7 +20,7 @@
                     XLSX.utils.book_append_sheet(wb, ws, 'Sheet' + (index + 1));
                 }
             });
-    
+
             // Write the workbook to a file
             XLSX.writeFile(wb, '{{ $indicator_name }}_{{ $indicator_no }}.xlsx');
         }
@@ -29,7 +29,8 @@
 
         <div class="row d-none">
             <div class="col">
-                <livewire:indicator-targets.view :indicator_id="$indicator_id" :project_id="$project_id" :total="$total" />
+                <livewire:indicator-targets.view :indicator_id="$indicator_id" :project_id="$project_id"
+                    :total="$total" />
             </div>
         </div>
         <div class="row">
@@ -46,7 +47,7 @@
 
 
                     <div class="card-body ">
-                        <div class="table-responsive text-uppercase">
+                        <div class="table-responsive ">
                             <table class="table mb-0 table-hover table-striped table-bordered" id="table1">
                                 <thead class="table-primary">
                                     <tr>
@@ -76,7 +77,7 @@
                 <div class="border shadow-none card">
                     <div class="card-header">
                         <div class="card-body">
-                            <div class="table-responsive text-uppercase">
+                            <div class="table-responsive ">
                                 <table class="table table-hover table-striped table-bordered" id="table2">
                                     <thead class="table-primary">
                                         <tr>
@@ -116,7 +117,7 @@
                 <div class="border shadow-none card">
                     <div class="card-header">
                         <div class="card-body">
-                            <div class="table-responsive text-uppercase">
+                            <div class="table-responsive ">
                                 <table class="table table-hover table-striped table-bordered" id="table3">
                                     <thead class="table-primary">
                                         <tr>
@@ -154,7 +155,7 @@
                 <div class="border shadow-none card">
                     <div class="card-header">
                         <div class="card-body">
-                            <table class="table table-hover table-striped table-bordered text-uppercase" id="table4">
+                            <table class="table table-hover table-striped table-bordered " id="table4">
                                 <thead class="table-primary">
                                     <tr>
 
@@ -189,7 +190,7 @@
                 <div class="border shadow-none card">
                     <div class="card-header">
                         <div class="card-body">
-                            <div class="table-responsive text-uppercase">
+                            <div class="table-responsive ">
                                 <table class="table table-hover table-striped table-bordered" id="table5">
                                     <thead class="table-primary">
                                         <tr>
@@ -227,7 +228,7 @@
                 <div class="border shadow-none card">
                     <div class="card-header">
                         <div class="card-body">
-                            <div class="table-responsive text-uppercase">
+                            <div class="table-responsive ">
                                 <table class="table table-hover table-striped table-bordered" id="table6">
                                     <thead class="table-primary">
                                         <tr>
@@ -277,7 +278,7 @@
                             chart: {
                                 type: 'pie',
                                 width: 400,
-                
+
                             },
                             labels: this.categories,
                             series: this.values,
@@ -286,7 +287,7 @@
                                 position: 'top'
                             }
                         }
-                
+
                         let chart = new ApexCharts($refs.chart, options);
                         chart.render();
                     }
@@ -313,7 +314,7 @@
                                 position: 'right'
                             }
                         }
-                
+
                         let chart = new ApexCharts($refs.chart, options);
                         chart.render();
                     }
@@ -340,7 +341,7 @@
                                         type: 'bar', // Choose bar chart for this data
                                         stacked: false, // Stack bars to show male and female side-by-side
                                     },
-                        
+
                                     xaxis: {
                                         categories: chartData.map(item => item.name), // Use category labels from data
                                         title: {
@@ -369,7 +370,7 @@
                                     },
                                     colors: ['#006989', '#E88D67', '#FA7070']
                                 };
-                        
+
                                 let chart = new ApexCharts($refs.chart, options);
                                 chart.render();
                             }
@@ -387,7 +388,7 @@
                             values: [],
                             init() {
                                 let data = @js($dataByAge);
-                        
+
                                 const chartData = [
                                     { name: 'Farmers', male: data.youth.Farmers, female: data.not_youth.Farmers },
                                     { name: 'Processors', male: data.youth.Processors, female: data.not_youth.Processors },
@@ -398,7 +399,7 @@
                                         type: 'bar', // Choose bar chart for this data
                                         stacked: false, // Stack bars to show male and female side-by-side
                                     },
-                        
+
                                     xaxis: {
                                         categories: chartData.map(item => item.name), // Use category labels from data
                                         title: {
@@ -427,7 +428,7 @@
                                     },
                                     colors: ['#006989', '#E88D67', '#FA7070']
                                 };
-                        
+
                                 let chart = new ApexCharts($refs.chart, options);
                                 chart.render();
                             }
@@ -441,11 +442,11 @@
 
     </div>
     @assets
-        <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
-        <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     @endassets
 
     @script
-        <script></script>
+    <script></script>
     @endscript
 </div>
