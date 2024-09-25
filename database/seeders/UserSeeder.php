@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Organisation;
 use App\Models\User;
+use App\Models\Organisation;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Artisan;
 
 class UserSeeder extends Seeder
 {
@@ -16,7 +17,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //
-
+        Artisan::call('exchange-rates:fetch');
         function getOrganisationId($name)
         {
             $org = Organisation::where('name', $name)->first();

@@ -12,9 +12,9 @@ return new class extends Migration {
     {
         Schema::create('baseline_data', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained('projects', 'id')->onDelete('cascade')->onUpdate('cascade');
+
             $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
-            $table->decimal('basline_value', 16, 2);
+            $table->decimal('baseline_value', 16, 2);
             $table->timestamps();
         });
     }

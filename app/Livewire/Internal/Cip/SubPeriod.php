@@ -191,30 +191,29 @@ class SubPeriod extends Component
         $indicatorFound = Indicator::find($Indicator);
         foreach ($users as $user) {
 
-            if ($user->hasAnyRole('external')) {
-                $organisationId = $user->organisation->id;
+
+            $organisationId = $user->organisation->id;
 
 
-                $responsiblePeople = ResponsiblePerson::where('indicator_id', $indicatorFound->id)
-                    ->where('organisation_id', $organisationId)
-                    ->first();
+            $responsiblePeople = ResponsiblePerson::where('indicator_id', $indicatorFound->id)
+                ->where('organisation_id', $organisationId)
+                ->first();
 
 
-                // Check if the organisation has responsible people
-                $hasResponsiblePeople = $responsiblePeople !== null;
+            // Check if the organisation has responsible people
+            $hasResponsiblePeople = $responsiblePeople !== null;
 
-                // Check if the responsible person has the required form
-                $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
+            // Check if the responsible person has the required form
+            $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
 
-                if ($hasFormAccess) {
+            if ($hasFormAccess) {
 
-                    $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
-                    $link = env('APP_URL');
+                $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
+                $link = env('APP_URL');
 
-                    SendNotificationJob::dispatch($user, $messageContent, $link);
-                }
-
+                SendNotificationJob::dispatch($user, $messageContent, $link);
             }
+
 
         }
     }

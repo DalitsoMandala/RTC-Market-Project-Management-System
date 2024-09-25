@@ -1,49 +1,53 @@
 <?php
 
-use App\Helpers\rtc_market\indicators\indicator_A1;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Jobs\RandomNames;
-use App\Models\Indicator;
-use Illuminate\Http\Request;
-use App\Models\FinancialYear;
-use App\Models\AssignedTarget;
 use App\Helpers\AmountSplitter;
-use App\Models\IndicatorTarget;
-use App\Jobs\SendNotificationJob;
-use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
-use App\Livewire\Internal\Cip\Forms;
-use Illuminate\Support\Facades\Route;
-use App\Livewire\Internal\Cip\Reports;
-use App\Livewire\Internal\Cip\Targets;
-use App\Notifications\JobNotification;
-use App\Models\IndicatorDisaggregation;
-use App\Livewire\External\ViewIndicator;
-use App\Livewire\Internal\Cip\Dashboard;
-use App\Livewire\Internal\Cip\SubPeriod;
-use App\Livewire\Internal\Cip\Indicators;
-use App\Livewire\Internal\Cip\Assignments;
-use App\Livewire\Internal\Cip\Submissions;
-use App\Http\Controllers\TestingController;
-use App\Livewire\Internal\Cip\SubPeriodStaff;
-use App\Livewire\Internal\Cip\ViewIndicators;
-use App\Livewire\Internal\Cip\ViewSubmissions;
-use App\Helpers\rtc_market\indicators\indicator_B2;
-use App\Helpers\rtc_market\indicators\indicator_B4;
-use App\Helpers\rtc_market\indicators\indicator_B5;
-use App\Helpers\rtc_market\indicators\indicator_B6;
-use App\Notifications\EmployeeBroadcastNotification;
 use App\Helpers\rtc_market\indicators\indicator_1_1_1;
 use App\Helpers\rtc_market\indicators\indicator_2_2_2;
 use App\Helpers\rtc_market\indicators\indicator_3_1_1;
 use App\Helpers\rtc_market\indicators\indicator_3_5_4;
+use App\Helpers\rtc_market\indicators\indicator_A1;
+use App\Helpers\rtc_market\indicators\indicator_B2;
+use App\Helpers\rtc_market\indicators\indicator_B4;
+use App\Helpers\rtc_market\indicators\indicator_B5;
+use App\Helpers\rtc_market\indicators\indicator_B6;
+use App\Http\Controllers\TestingController;
+use App\Jobs\RandomNames;
+use App\Jobs\SendNotificationJob;
 use App\Livewire\External\Dashboard as ExternalDashboard;
-use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
-use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
+use App\Livewire\External\ViewIndicator;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
+use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
+use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
+use App\Livewire\Internal\Cip\Assignments;
+use App\Livewire\Internal\Cip\Dashboard;
+use App\Livewire\Internal\Cip\Forms;
+use App\Livewire\Internal\Cip\Indicators;
+use App\Livewire\Internal\Cip\Reports;
+use App\Livewire\Internal\Cip\Submissions;
+use App\Livewire\Internal\Cip\SubPeriod;
+use App\Livewire\Internal\Cip\SubPeriodStaff;
+use App\Livewire\Internal\Cip\Targets;
+use App\Livewire\Internal\Cip\ViewIndicators;
+use App\Livewire\Internal\Cip\ViewSubmissions;
+use App\Mail\SampleMail;
+use App\Models\AssignedTarget;
+use App\Models\FinancialYear;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\IndicatorTarget;
+use App\Models\ResponsiblePerson;
+use App\Models\User;
+use App\Notifications\EmployeeBroadcastNotification;
+use App\Notifications\JobNotification;
 use App\Traits\ExportTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
+use Ramsey\Uuid\Uuid;
+
+
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -51,10 +55,10 @@ Route::get('/test', function () {
     // $indicatorContent = new IndicatorsContent(id: 1);
     // $content = $indicatorContent->content();
     // $a1 = new $content['class']();
-    // dd($a1->getDisaggregations());
-    $data = new \App\Helpers\rtc_market\indicators\indicator_B1(financial_year: 4);
-    dd($data->findTotal());
 
+
+    Mail::to('daliprinc10@gmail.com')->send(new SampleMail());
+    return response()->json('Success');
 });
 
 
