@@ -10,11 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('indicators', function (Blueprint $table) {
+        Schema::create('baseline_data', function (Blueprint $table) {
             $table->id();
-            $table->string('indicator_no');
-            $table->text('indicator_name');
             $table->foreignId('project_id')->constrained('projects', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->decimal('basline_value', 16, 2);
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('indicators');
+        Schema::dropIfExists('baseline_data');
     }
 };

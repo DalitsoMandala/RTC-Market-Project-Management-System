@@ -94,20 +94,34 @@ class indicator_B2
         if ($builder->isNotEmpty()) {
 
 
-            $builder->each(function ($model) use ($data) {
-                $json = collect(json_decode($model->data, true));
+            // $builder->each(function ($model) use ($data) {
+            //     $json = collect(json_decode($model->data, true));
 
 
 
-                foreach ($data as $key => $dt) {
+            //     foreach ($data as $key => $dt) {
 
-                    if ($json->has($key)) {
+            //         if ($json->has($key)) {
 
-                        $data->put($key, $data->get($key) + $json[$key]);
-                    }
-                }
+            //             $data->put($key, $data->get($key) + $json[$key]);
+            //         }
+            //     }
 
-            });
+            // });
+            if ($builder->isNotEmpty()) {
+                // Process the builder in chunks of 100 (you can adjust this number as needed)
+                $this->builder()->chunk(1000, function ($models) use (&$data) {
+                    $models->each(function ($model) use (&$data) {
+                        $json = collect(json_decode($model->data, true));
+
+                        foreach ($data as $key => $dt) {
+                            if ($json->has($key)) {
+                                $data->put($key, $data->get($key) + $json[$key]);
+                            }
+                        }
+                    });
+                });
+            }
 
 
         }
@@ -122,8 +136,8 @@ class indicator_B2
         $totals = $this->getTotals();
 
         return [
+            "Total(% Percentage)" => $totals['Total'],
             "Raw" => $totals['Raw'],
-            "Total" => $totals['Total'],
             "Potato" => $totals['Potato'],
             "Cassava" => $totals['Cassava'],
             "Processed" => $totals['Processed'],

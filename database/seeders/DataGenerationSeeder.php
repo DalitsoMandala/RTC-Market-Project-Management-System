@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\IndicatorDisaggregation;
+use App\Models\SubmissionReport;
 use Faker\Factory as Faker;
 use App\Helpers\DistrictObject;
 use Illuminate\Database\Seeder;
@@ -819,6 +821,37 @@ class DataGenerationSeeder extends Seeder
             $data = att();
             AttendanceRegister::create(attributes: att()['main']);
         }
+
+
+
+
+
+        foreach (range(1, 10) as $index) {
+            $faker = Faker::create();
+            SubmissionReport::create([
+                'user_id' => $faker->numberBetween(4, 7), // Random user ID
+                'uuid' => $faker->uuid, // Random UUID
+                'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                'organisation_id' => 1, // Random organisation ID
+                'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
+                'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
+                'status' => 'approved', // Fixed value
+                // 'submission_id' => 1,
+                'indicator_id' => 3,
+                'data' => json_encode([
+                    "Raw" => $faker->numberBetween(1, 10) * 10,
+                    "Potato" => $faker->numberBetween(1, 10) * 10,
+                    "Cassava" => $faker->numberBetween(1, 10) * 10,
+                    "Processed" => $faker->numberBetween(1, 10) * 10,
+                    "Sweet potato" => $faker->numberBetween(1, 10) * 10,
+                    "Formal exports" => $faker->numberBetween(1, 10) * 10,
+                    "Informal exports" => $faker->numberBetween(1, 10) * 10,
+                    "Financial value ($)" => $faker->numberBetween(1, 10) * 10,
+                    "Volume (Metric Tonnes)" => $faker->numberBetween(1, 10) * 10,
+                ])
+            ]);
+        }
+
 
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('submission_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('indicator_id')->constrained('indicators');
-            $table->foreignId('submission_id')->constrained('submissions');
+            // $table->foreignId('submission_id')->constrained('submissions');
             $table->foreignId('user_id')->constrained('users');
             $table->json('data');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes
