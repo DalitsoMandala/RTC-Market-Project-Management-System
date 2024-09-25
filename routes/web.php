@@ -52,8 +52,8 @@ Route::get('/test', function () {
     // $content = $indicatorContent->content();
     // $a1 = new $content['class']();
     // dd($a1->getDisaggregations());
-    $data = new \App\Helpers\rtc_market\indicators\indicator_B1();
-    dd($data->getDisaggregations());
+    $data = new \App\Helpers\rtc_market\indicators\indicator_B1(financial_year: 4);
+    dd($data->findTotal());
 
 });
 

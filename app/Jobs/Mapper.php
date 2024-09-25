@@ -101,9 +101,15 @@ class Mapper implements ShouldQueue
 
         $year = null;
         $period = null;
-        if ($this->reporting_period != null && $this->financial_year != null) {
+        if ($this->financial_year != null) {
 
             $year = FinancialYear::find($this->financial_year)->number;
+
+
+        }
+        if ($this->reporting_period != null) {
+
+
             $period = ReportingPeriodMonth::find($this->reporting_period)->start_month . ' - ' . ReportingPeriodMonth::find($this->reporting_period)->end_month;
 
 

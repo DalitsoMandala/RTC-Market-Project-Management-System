@@ -56,4 +56,10 @@ class Indicator extends Model
     {
         return $this->hasMany(AssignedTarget::class, 'indicator_id');
     }
+
+    public function indicatorTargets()
+    {
+        return $this->hasMany(IndicatorTarget::class, 'indicator_id');
+    }
+
 }

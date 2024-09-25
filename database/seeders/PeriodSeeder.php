@@ -14,17 +14,7 @@ class PeriodSeeder extends Seeder
      */
     public function run(): void
     {
-        //
 
-        // SubmissionPeriod::create([
-        //     'form_id' => 1,
-        //     'date_established' => now(),
-        //     'date_ending' => Carbon::tomorrow(),
-        //     'financial_year_id' => 1,
-        //     'month_range_period_id' => 1,
-        //     'indicator_id' => 1,
-        //     'is_open' => true,
-        // ]);
 
         $dateEstablished = Carbon::now()->format('Y-m-d H:i:s');  // Today's date
         $dateEnding = Carbon::now()->addMonth()->format('Y-m-d H:i:s');  // Date one month from today

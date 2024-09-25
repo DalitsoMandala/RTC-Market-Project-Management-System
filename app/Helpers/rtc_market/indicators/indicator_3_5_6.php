@@ -33,16 +33,20 @@ class indicator_3_5_6
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
 
         // Check if both reporting period and financial year are set
-        if ($this->reporting_period && $this->financial_year) {
-            // Filter by period and year
-            $data = $query->where('period_month_id', $this->reporting_period)
-                ->where('financial_year_id', $this->financial_year);
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
+            }
 
-            // If no data is found, force an empty result but don't exit early
-            if (!$data->exists()) {
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
+
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
                 $query->whereIn('id', []); // Empty result filter
-            } else {
-                $query = $data; // If data exists, use the filtered query
             }
         }
 

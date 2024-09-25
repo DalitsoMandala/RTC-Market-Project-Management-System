@@ -28,52 +28,37 @@ class indicator_A1
     protected $target_year_id;
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
+
     public function builder(): Builder
     {
         $query = HouseholdRtcConsumption::query()->where('status', 'approved');
 
-        if ($this->reporting_period && $this->financial_year) {
-            $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
-            if ($data->get()->isNotEmpty()) {
-
-                $hasData = true;
-                $query = $data;
+        // Check if both reporting period and financial year are set
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
             }
 
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
 
-            if (!$hasData) {
-                // No data found, return an empty collection
-                $query = $query->whereIn('id', []);
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
+                $query->whereIn('id', []); // Empty result filter
             }
         }
 
         if ($this->organisation_id) {
             $query->where('organisation_id', $this->organisation_id);
-
         }
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
 
         return $query;
     }
@@ -83,109 +68,72 @@ class indicator_A1
         $query = RtcProductionFarmer::query()->with('followups')->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
-        if ($this->reporting_period && $this->financial_year) {
-            // Filter by period and year
-            $data = $query->where('period_month_id', $this->reporting_period)
-                ->where('financial_year_id', $this->financial_year);
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
+            }
 
-            // If no data is found, force an empty result but don't exit early
-            if (!$data->exists()) {
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
+
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
                 $query->whereIn('id', []); // Empty result filter
-            } else {
-                $query = $data; // If data exists, use the filtered query
             }
         }
 
-        // Filter by organization if set
         if ($this->organisation_id) {
             $query->where('organisation_id', $this->organisation_id);
         }
 
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
         return $query;
     }
-
 
     public function builderProcessor(): Builder
     {
         $query = RtcProductionProcessor::query()->with('followups')->where('status', 'approved');
 
         if ($this->reporting_period && $this->financial_year) {
-            $hasValidBatchUuids = false;
-
-            $query->where(function ($query) use (&$hasValidBatchUuids) {
-
-                $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
-                if (!empty($submissionPeriod)) {
-                    $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
-                    if (!empty($batchUuids)) {
-                        $query->orWhereIn('uuid', $batchUuids);
-                        $hasValidBatchUuids = true;
-                    }
+            $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)
+                ->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
+            if (!empty($submissionPeriod)) {
+                $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
+                if (!empty($batchUuids)) {
+                    $query->orWhereIn('uuid', $batchUuids);
+                } else {
+                    return $query->whereIn('uuid', []); // Empty result if no valid batch UUIDs
                 }
-
-
-
-            });
-
-            if (!$hasValidBatchUuids) {
-                // No valid batch UUIDs found, return an empty collection
-                return $query->whereIn('uuid', []);
             }
         }
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
         return $query;
     }
 
-
+    // Example of chunking data in `findTotalFarmerEmployees` method
     public function findTotalFarmerEmployees()
     {
-        // Retrieve all farmer records
-        $data = $this->builderFarmer()->get();
+        $totalEmpFormal = 0;
+        $totalEmpInFormal = 0;
 
-        // Map over the data and calculate totals for each record
-        $employees = $data->map(function ($model) {
+        $this->builderFarmer()->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
+            foreach ($data as $model) {
+                $model->empFormalTotal = $model->emp_formal_female_18_35
+                    + $model->emp_formal_male_18_35
+                    + $model->emp_formal_male_35_plus
+                    + $model->emp_formal_female_35_plus;
 
-            // Calculate the formal employment total
-            $model->empFormalTotal = $model->emp_formal_female_18_35
-                + $model->emp_formal_male_18_35
-                + $model->emp_formal_male_35_plus
-                + $model->emp_formal_female_35_plus;
+                $model->empInFormalTotal = $model->emp_informal_female_18_35
+                    + $model->emp_informal_male_18_35
+                    + $model->emp_informal_male_35_plus
+                    + $model->emp_informal_female_35_plus;
 
-            // Calculate the informal employment total
-            $model->empInFormalTotal = $model->emp_informal_female_18_35
-                + $model->emp_informal_male_18_35
-                + $model->emp_informal_male_35_plus
-                + $model->emp_informal_female_35_plus;
-
-            return $model;
+                $totalEmpFormal += $model->empFormalTotal;
+                $totalEmpInFormal += $model->empInFormalTotal;
+            }
         });
-
-        // Sum the totals for all records
-        $totalEmpFormal = $employees->sum('empFormalTotal');
-        $totalEmpInFormal = $employees->sum('empInFormalTotal');
 
         return [
             'totalEmpFormal' => $totalEmpFormal,
@@ -194,48 +142,43 @@ class indicator_A1
         ];
     }
 
-
+    // Similarly, you can chunk data in `findTotalProcessorEmployees`
     public function findTotalProcessorEmployees()
     {
-        $data = $this->builderProcessor()->get();
-        // Map over the data and calculate totals for each record
-        $employees = $data->map(function ($model) {
+        $totalEmpFormal = 0;
+        $totalEmpInFormal = 0;
 
-            // Calculate the formal employment total
-            $model->empFormalTotal = $model->emp_formal_female_18_35
-                + $model->emp_formal_male_18_35
-                + $model->emp_formal_male_35_plus
-                + $model->emp_formal_female_35_plus;
+        $this->builderProcessor()->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
+            foreach ($data as $model) {
+                $model->empFormalTotal = $model->emp_formal_female_18_35
+                    + $model->emp_formal_male_18_35
+                    + $model->emp_formal_male_35_plus
+                    + $model->emp_formal_female_35_plus;
 
-            // Calculate the informal employment total
-            $model->empInFormalTotal = $model->emp_informal_female_18_35
-                + $model->emp_informal_male_18_35
-                + $model->emp_informal_male_35_plus
-                + $model->emp_informal_female_35_plus;
+                $model->empInFormalTotal = $model->emp_informal_female_18_35
+                    + $model->emp_informal_male_18_35
+                    + $model->emp_informal_male_35_plus
+                    + $model->emp_informal_female_35_plus;
 
-            return $model;
+                $totalEmpFormal += $model->empFormalTotal;
+                $totalEmpInFormal += $model->empInFormalTotal;
+            }
         });
-
-        // Sum the totals for all records
-        $totalEmpFormal = $employees->sum('empFormalTotal');
-        $totalEmpInFormal = $employees->sum('empInFormalTotal');
 
         return [
             'totalEmpFormal' => $totalEmpFormal,
             'totalEmpInFormal' => $totalEmpInFormal,
             'Total' => $totalEmpFormal + $totalEmpInFormal
         ];
-
     }
+
+    // Continue using chunking for other large data-fetching functions as needed
 
     public function findTotal()
     {
-
         $totalFarmerEmployees = $this->findTotalFarmerEmployees();
-
         $totalProcessorEmployees = $this->findTotalProcessorEmployees();
-        $totalEmployees = $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
-        return $this->builder()->count() + $totalEmployees;
+        return $this->builder()->count() + $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
     }
 
     public function findGender()

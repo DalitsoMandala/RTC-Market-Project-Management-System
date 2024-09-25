@@ -52,6 +52,7 @@ class Add extends Component
 
     public $formData = [];
 
+
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
 
@@ -91,7 +92,7 @@ class Add extends Component
 
                 $user = Auth::user();
 
-                $this->inputs = IndicatorDisaggregation::where('indicator_id', $indicator_id)
+                $this->inputs = IndicatorDisaggregation::with('indicator.indicatorTargets')->where('indicator_id', $indicator_id)
                     ->get();
 
 

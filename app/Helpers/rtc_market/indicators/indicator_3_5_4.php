@@ -32,19 +32,23 @@ class indicator_3_5_4
     }
     public function builder(): Builder
     {
-        $query = HouseholdRtcConsumption::query()->where('status', 'approved');
+        $query = HouseholdRtcConsumption::query()->with('mainFoods')->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
-        if ($this->reporting_period && $this->financial_year) {
-            // Filter by period and year
-            $data = $query->where('period_month_id', $this->reporting_period)
-                ->where('financial_year_id', $this->financial_year);
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
+            }
 
-            // If no data is found, force an empty result but don't exit early
-            if (!$data->exists()) {
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
+
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
                 $query->whereIn('id', []); // Empty result filter
-            } else {
-                $query = $data; // If data exists, use the filtered query
             }
         }
 
@@ -70,15 +74,14 @@ class indicator_3_5_4
     }
     public function getDisaggregations()
     {
-        $query = $this->builder()->get()->map(function ($item) {
-            return json_decode($item->main_food_data, true);
-        });
-        $Dishescount = $query->filter(function ($item) {
-            return count($item) == 3;
-        });
+        $Dishescount = $query = $this->builder()
+            ->whereHas('mainFoods', function ($q) {
+                $q->whereIn('name', ['Cassava', 'Potato', 'Sweet potato']);
+            }, '=', 3) // Ensures all three crops are present
+            ->count();
 
         return [
-            'Total' => $Dishescount->count()
+            'Total' => $Dishescount
         ];
     }
 }

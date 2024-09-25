@@ -45,7 +45,7 @@ class AddData extends Component
     public $district;
 
 
-    public $enterprise = 'CASSAVA';
+    public $enterprise = 'Cassava';
 
     public $period;
 
@@ -479,7 +479,7 @@ class AddData extends Component
                             'producer_organisation' => null,
                             'actor_name' => null,
                             'age_group' => null,
-                            'sex' => 'MALE',
+                            'sex' => 'Male',
                             'phone_number' => null,
                             'household_size' => null,
                             'under_5_in_household' => null,
