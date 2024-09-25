@@ -2,11 +2,14 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use App\Models\RpmFarmerInterMarket;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -23,6 +26,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 {
     use WithExport;
+    use ExportTrait;
     public bool $deferLoading = false;
     public function setUp(): array
     {
@@ -32,9 +36,9 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-farmers-inter'),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->pageName('international-markets')
                 ->showRecordCount(),
         ];
@@ -42,14 +46,32 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return RpmFarmerInterMarket::query();
+        return RpmFarmerInterMarket::query()->with('farmers');
+    }
+
+
+    public $namedExport = 'rpmfIM';
+    #[On('export-rpmfIM')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('rpm_farmer_id')
+            ->add('unique_id', fn($model) => $model->farmers->pf_id)->add('rpm_farmer_id')
+
             ->add('actor_name', function ($model) {
                 $farmer = $model->rpm_farmer_id;
                 $row = RtcProductionFarmer::find($farmer);
@@ -71,6 +93,16 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
             ->add('created_at')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->farmers->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('updated_at');
     }
     protected function getDataForExport()
@@ -78,74 +110,15 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
         // Get the data as a collection
         return $this->datasource()->get();
     }
-    #[On('export-inter')]
-    public function export()
-    {
-        // Get data for export
-        $data = $this->getDataForExport();
 
-        // Define the path for the Excel file
-        $path = storage_path('app/public/rtc_production_and_marketing_farmers_international_markets.xlsx');
-
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Id',
-                'Farmer ID',
-                'Actor Name',
-                'Date Recorded (Formatted)',
-                'Crop Type',
-                'Market Name',
-                'Country',
-                'Date of Maximum Sale (Formatted)',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales',
-
-            ]);
-
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $farmer = $item->rpm_farmer_id;
-                $row = RtcProductionFarmer::find($farmer);
-
-                $actor_name = $row ? $row->name_of_actor : null;
-
-                $row = [
-                    'id' => $item->id,
-                    'rpm_farmer_id' => $item->rpm_farmer_id,
-                    'actor_name' => $actor_name,
-                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
-                    'crop_type' => $item->crop_type,
-                    'market_name' => $item->market_name,
-                    'country' => $item->country,
-                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
-                    'product_type' => $item->product_type,
-                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
-                    'financial_value_of_sales' => $item->financial_value_of_sales,
-
-                ];
-
-                $writer->addRow($row);
-            }
-        }
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
-    }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('id', 'id')->sortable(),
+            Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
-            Column::make('FARMER id', 'rpm_farmer_id'),
+
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
@@ -177,22 +150,27 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
                 ->searchable(),
 
 
+            // Column::make('Submitted by', 'submitted_by')
+            //     ->searchable(),
+
 
         ];
     }
 
-    public function filters(): array
+    public function relationSearch(): array
     {
         return [
-            // Filter::datepicker('date_recorded'),
-            // Filter::datepicker('date_of_maximum_sale'),
-        ];
-    }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert(' . $rowId . ')');
+            'user' => [
+                'name',
+
+            ],
+
+            'user.organisation' => [
+                'name'
+            ]
+
+        ];
     }
 
     // public function actions($row): array

@@ -10,21 +10,31 @@ class HouseholdRtcConsumption extends Model
 {
     use HasFactory;
     protected $table = 'household_rtc_consumption';
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     public function location()
     {
-        return $this->belongsTo(HrcLocation::class, 'location_id');
+        return $this->hasOne(LocationHrc::class, 'hrc_id');
     }
 
     public function mainFoods()
     {
-        return $this->hasMany(HrcMainFood::class, 'hrc_id');
+        return $this->hasMany(MainFoodHrc::class, 'hrc_id');
     }
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            // Sequential numeric ID format
+            $latestFarmer = HouseholdRtcConsumption::latest('id')->first();
+            $number = $latestFarmer ? $latestFarmer->id + 1 : 1; // Increment based on the latest ID
+            $model->hh_id = 'HH-' . str_pad($number, 5, '0', STR_PAD_LEFT); // Example: FARM-00001
+        });
     }
 
 }

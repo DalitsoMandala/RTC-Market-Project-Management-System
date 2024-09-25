@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,5 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SubmissionSeeder::class);
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
+        $this->call(DataGenerationSeeder::class);
+        Artisan::call('exchange-rates:fetch');
     }
 }

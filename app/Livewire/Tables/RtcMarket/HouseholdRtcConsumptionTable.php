@@ -3,11 +3,14 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\User;
+use App\Traits\ExportTrait;
+use Ramsey\Uuid\Uuid;
 use App\Models\Submission;
 use App\Jobs\ExportDataJob;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Exports\TableExport;
+use App\Jobs\ExcelExportJob;
 use Illuminate\Support\Carbon;
 
 use Illuminate\Support\Collection;
@@ -17,11 +20,15 @@ use App\Models\HouseholdRtcConsumption;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use PowerComponents\LivewirePowerGrid\Lazy;
+use PowerComponents\LivewirePowerGrid\Cache;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
+use Illuminate\Support\Facades\Cache as DbCache;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -31,25 +38,32 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 {
 
     use WithExport;
-
+    use ExportTrait;
     public $userId;
     public bool $deferLoading = false;
     public $uuid;
     public string $sortField = 'id';
     public $count = 1;
+
+
     public function setUp(): array
     {
         // $this->showCheckBox();
 
         return [
 
+
             Header::make()->includeViewOnTop('components.export-data')
 
-            //->showSearchInput(),
+                ->showSearchInput()
+
+
+
+
+
+
             ,
-            Footer::make()
-                ->showPerPage()
-                ->showRecordCount(),
+            Footer::make()->showPerPage(5)->showRecordCount(),
         ];
     }
 
@@ -58,7 +72,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
 
-        return HouseholdRtcConsumption::query();
+        return HouseholdRtcConsumption::query()->with(['mainFoods', 'user']);
 
 
 
@@ -73,21 +87,16 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('count', fn($model) => $this->count++)
             ->add('location_id')
             ->add('enterprise', function ($model) {
-                $data = json_decode($model->location_data);
-                return $data->enterprise;
+                return $model->enterprise ?? null;
             })
             ->add('district', function ($model) {
-                $data = json_decode($model->location_data);
-                return $data->district;
+                return $model->district ?? null;
             })
             ->add('epa', function ($model) {
-                $data = json_decode($model->location_data);
-
-                return $data->epa;
+                return $model->epa ?? null;
             })
             ->add('section', function ($model) {
-                $data = json_decode($model->location_data);
-                return $data->section;
+                return $model->section ?? null;
             })
             ->add('date_of_assessment_formatted', fn($model) => Carbon::parse($model->date_of_assessment)->format('d/m/Y'))
             ->add('actor_type')
@@ -105,50 +114,32 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             ->add('rtc_consumers_sw_potato')
             ->add('rtc_consumers_cassava')
             ->add('rtc_main_food_potato', function ($model) {
-                $data = json_decode($model->main_food_data, true);
-                $data = collect($data);
-                $count = $data->contains('POTATO');
 
-                if ($count) {
 
-                    return 'Yes';
-                } else {
-                    return 'No';
-                }
+
+                return $model->mainFoods->pluck('name')->contains('Potato') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
 
             })
             ->add('rtc_main_food_sw_potato', function ($model) {
-                $data = json_decode($model->main_food_data, true);
-                $data = collect($data);
-
-                $count = $data->contains('SWEET POTATO');
-
-                if ($count) {
-
-                    return 'Yes';
-                } else {
-                    return 'No';
-                }
+                return $model->mainFoods->pluck('name')->contains('Sweet potato') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
 
             })
 
 
             ->add('rtc_main_food_cassava', function ($model) {
-                $data = json_decode($model->main_food_data, true);
-                $data = collect($data);
+                return $model->mainFoods->pluck('name')->contains('Cassava') ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
+            })
+            ->add('rtc_consumption_frequency')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
 
-                $count = $data->contains('CASSAVA');
-
-                if ($count) {
-
-                    return 'Yes';
-                } else {
-                    return 'No';
+                    return $name . " (" . $organisation . ")";
                 }
 
             })
-            ->add('rtc_consumption_frequency')
-            ->add('submitted_by', fn($model) => User::find($model->user_id)->organisation->name)
             ->add('created_at')
             ->add('created_at_formatted', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y'))
             ->add('updated_at');
@@ -160,97 +151,42 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
     }
 
-    #[On('export')]
-    public function export()
+    public $namedExport = 'hrc';
+    #[On('export-hrc')]
+    public function startExport()
     {
-        // Get data for export
-        $data = $this->getDataForExport();
+        $this->execute($this->namedExport);
+        $this->performExport();
 
-        // Define the path for the Excel file
-        $path = storage_path('app/public/household_rtc_consumption.xlsx');
-
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Enterprise',
-                'District',
-                'EPA',
-                'Section',
-                'Date of assessment',
-                'Actor type',
-                'Rtc group platform',
-                'Producer organisation',
-                'Actor name',
-                'Age group',
-                'Sex',
-                'Phone number',
-                'Household size',
-                'Under 5 in household',
-                'Rtc consumers',
-                'Rtc consumers/Potato',
-                'Rtc consumers/Sweet Potato',
-                'Rtc consumers/Cassava',
-                'Rtc consumption frequency',
-                'RTC MAIN FOOD/CASSAVA',
-                'RTC MAIN FOOD/POTATO',
-                'RTC MAIN FOOD/SWEET POTATO',
-                'Submission Date',
-                'Submitted By',
-                'UUID',
-            ]);
-
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $location = json_decode($item->location_data);
-                $main_food = json_decode($item->main_food_data);
-
-                $row = [
-                    'enterprise' => $location->enterprise ?? null,
-                    'district' => $location->district ?? null,
-                    'epa' => $location->epa ?? null,
-                    'section' => $location->section ?? null,
-                    'date_of_assessment' => Carbon::parse($item->date_of_assessment)->format('d/m/Y'),
-                    'actor_type' => $item->actor_type,
-                    'rtc_group_platform' => $item->rtc_group_platform,
-                    'producer_organisation' => $item->producer_organisation,
-                    'actor_name' => $item->actor_name,
-                    'age_group' => $item->age_group,
-                    'sex' => $item->sex,
-                    'phone_number' => $item->phone_number,
-                    'household_size' => $item->household_size,
-                    'under_5_in_household' => $item->under_5_in_household,
-                    'rtc_consumers' => $item->rtc_consumers,
-                    'rtc_consumers_potato' => $item->rtc_consumers_potato,
-                    'rtc_consumers_sw_potato' => $item->rtc_consumers_sw_potato,
-                    'rtc_consumers_cassava' => $item->rtc_consumers_cassava,
-                    'rtc_consumption_frequency' => $item->rtc_consumption_frequency,
-                    'cassava_count' => collect($main_food)->contains('CASSAVA') ? 'Yes' : 'No',
-                    'potato_count' => collect($main_food)->contains('POTATO') ? 'Yes' : 'No',
-                    'sweet_potato_count' => collect($main_food)->contains('SWEET POTATO') ? 'Yes' : 'No',
-                    'submission_date' => Carbon::parse($item->created_at)->format('d/m/Y'),
-                    'submitted_by' => $item->user->organisation->name,
-                    'uuid' => $item->uuid,
-                ];
-
-                $writer->addRow($row);
-            }
-        }
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
-    }
-    protected function getDataForExport()
-    {
-        // Get the data as a collection
-        return $this->datasource()->get();
     }
 
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
+
+    public function relationSearch(): array
+    {
+        return [
+
+            'mainFoods' => [
+                'name'
+            ],
+            'user' => [
+                'name',
+
+            ],
+
+            'user.organisation' => [
+                'name'
+            ]
+
+
+        ];
+    }
 
     public function columns(): array
     {
@@ -258,34 +194,34 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             Column::make('Id', 'id'),
 
             //  Column::make('Location id', 'location_id'),
-            Column::make('Enterprise', 'enterprise', 'location_data->enterprise')
+            Column::make('Enterprise', 'enterprise')
                 ->searchable()
                 ->sortable(),
 
-            Column::make('District', 'district', 'location_data->district')->searchable(),
-            Column::make('EPA', 'epa', 'location_data->epa')->sortable()->searchable(),
-            Column::make('Section', 'section', 'location_data->section')->sortable()->searchable()
+            Column::make('District', 'district')->searchable(),
+            Column::make('EPA', 'epa')->sortable()->searchable(),
+            Column::make('Section', 'section')->sortable()->searchable()
             // ->searchable()
             ,
             Column::make('Date of assessment', 'date_of_assessment_formatted', 'date_of_assessment')
                 ->sortable(),
 
-            Column::make('Actor type', 'actor_type')
+            Column::make('Actor type', 'actor_type', 'actor_type')
                 ->sortable()
                 ->searchable()
             ,
 
-            Column::make('Rtc group platform', 'rtc_group_platform')
+            Column::make('Rtc group platform', 'rtc_group_platform', 'rtc_group_platform')
                 ->sortable()
                 ->searchable()
             ,
 
-            Column::make('Producer organisation', 'producer_organisation')
+            Column::make('Producer organisation', 'producer_organisation', 'producer_organisation')
                 ->sortable()
                 ->searchable()
             ,
 
-            Column::make('Actor name', 'actor_name')
+            Column::make('Actor name', 'actor_name', 'actor_name')
                 ->sortable()
                 ->searchable()
             ,
@@ -302,56 +238,56 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
             Column::make('Phone number', 'phone_number')
                 ->sortable()
-            // ->searchable()
+                ->searchable()
             ,
 
             Column::make('Household size', 'household_size')
                 ->sortable()
-            //    ->searchable()
+                ->searchable()
             ,
 
             Column::make('Under 5 in household', 'under_5_in_household')
                 ->sortable()
-            //    ->searchable()
+                ->searchable()
             ,
 
             Column::make('Rtc consumers', 'rtc_consumers')
                 ->sortable()
-            //   ->searchable()
+                ->searchable()
             ,
-            Column::make('Rtc consumers/Potato', 'rtc_consumers_potato', 'rtc_consumers')
+            Column::make('Rtc consumers(Potato)', 'rtc_consumers_potato', 'rtc_consumers_potato')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
-            Column::make('Rtc consumers/Sweet Potato', 'rtc_consumers_sw_potato', 'rtc_consumers')
+            Column::make('Rtc consumers(Sweet Potato)', 'rtc_consumers_sw_potato', 'rtc_consumers_sw_potato')
                 ->sortable()
-            //  ->searchable()
+                ->searchable()
             ,
-            Column::make('Rtc consumers/Cassava', 'rtc_consumers_cassava', 'rtc_consumers')
-                ->sortable()
-            //  ->searchable()
-            ,
-
-            Column::make('Rtc consumption frequency', 'rtc_consumption_frequency')
-                ->sortable()
-            //->searchable()
-            ,
-            Column::make('RTC MAIN FOOD/CASSAVA', 'rtc_main_food_cassava')
-            ,
-            Column::make('RTC MAIN FOOD/POTATO', 'rtc_main_food_potato')
-            ,
-            Column::make('RTC MAIN FOOD/SWEET POTATO', 'rtc_main_food_sw_potato')
-            ,
-
-            Column::make('Submission Date', 'created_at_formatted', 'created_at')
+            Column::make('Rtc consumers(Cassava)', 'rtc_consumers_cassava', 'rtc_consumers_cassava')
                 ->sortable()
                 ->searchable()
             ,
 
+            Column::make('Rtc consumption frequency', 'rtc_consumption_frequency')
+                ->sortable()
+                ->searchable()
+            ,
+            Column::make('RTC MAIN FOOD(CASSAVA)', 'rtc_main_food_cassava')->searchable()
+            ,
+            Column::make('RTC MAIN FOOD(POTATO)', 'rtc_main_food_potato')->searchable()
+            ,
+            Column::make('RTC MAIN FOOD(SWEET POTATO)', 'rtc_main_food_sw_potato')->searchable()
+            ,
+
+            // Column::make('Submission Date', 'created_at_formatted', 'created_at')
+            //     ->sortable()
+            //     ->searchable()
+            // ,
+
             Column::make('Submitted By', 'submitted_by')->searchable()
             ,
 
-            Column::make('UUID', 'uuid')->searchable(),
+
 
         ];
     }
@@ -366,47 +302,9 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     }
     public function filters(): array
     {
-        //  dd($this->crops());
+
         return [
-            Filter::inputText('enterprise', 'location_data->enterprise'),
-            Filter::inputText('section', 'location_data->section'),
-            Filter::inputText('epa', 'location_data->epa'),
-            Filter::inputText('district', 'location_data->district'),
-            Filter::inputText('rtc_main_food_potato')
-                ->operators(['contains'])
-                ->builder(function (Builder $builder, mixed $value) {
-                    $getValue = strtolower($value['value']);
-                    if ($getValue == 'yes') {
-                        $builder->whereJsonContains('main_food_data', 'POTATO');
-                    } else {
-                        $builder->whereJsonDoesntContain('main_food_data', 'POTATO');
-                    }
 
-                }),
-
-            Filter::inputText('rtc_main_food_cassava')
-                ->operators(['contains'])
-                ->builder(function (Builder $builder, mixed $value) {
-                    $getValue = strtolower($value['value']);
-                    if ($getValue == 'yes') {
-                        $builder->whereJsonContains('main_food_data', 'CASSAVA');
-                    } else {
-                        $builder->whereJsonDoesntContain('main_food_data', 'CASSAVA');
-                    }
-
-                }),
-
-            Filter::inputText('rtc_main_food_sw_potato')
-                ->operators(['contains'])
-                ->builder(function (Builder $builder, mixed $value) {
-                    $getValue = strtolower($value['value']);
-                    if ($getValue == 'yes') {
-                        $builder->whereJsonContains('main_food_data', 'SWEET POTATO');
-                    } else {
-                        $builder->whereJsonDoesntContain('main_food_data', 'SWEET POTATO');
-                    }
-
-                }),
         ];
     }
 

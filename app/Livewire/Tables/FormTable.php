@@ -85,17 +85,9 @@ final class FormTable extends PowerGridComponent
                 if ($model->name == 'REPORT FORM') {
                     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 } else
-                    if ($model->name == 'ATTENDANCE REGISTER') {
 
-                        $user = User::find(auth()->user()->id);
+                    return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
 
-                        if ($user->hasAnyRole('external')) {
-                            return '<a class="text-decoration-underline pe-none opacity-25"  href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
-                        }
-                        return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '" >' . $model->name . '</a>';
-                    } else {
-                        return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
-                    }
 
 
             })

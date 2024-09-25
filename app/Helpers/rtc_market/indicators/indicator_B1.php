@@ -2,7 +2,14 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Helpers\IncreasePercentage;
+use App\Models\FinancialYear;
+use Log;
+use App\Models\Indicator;
 use App\Models\Submission;
+use App\Models\IndicatorClass;
+use App\Models\IndicatorTarget;
+use App\Models\Project;
 use App\Models\SubmissionPeriod;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RtcProductionFarmer;
@@ -20,6 +27,10 @@ class indicator_B1
     protected $organisation_id;
 
     protected $target_year_id;
+
+    protected $projectName = 'RTC MARKET';
+
+    protected $lop = 30;
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
     {
 
@@ -30,44 +41,49 @@ class indicator_B1
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function Farmerbuilder(): Builder
     {
 
-        $query = RtcProductionFarmer::query()->where('name_of_actor', '!=', null)->where('status', 'approved');
+        $query = RtcProductionFarmer::query()->with('followups')->where('status', 'approved');
 
 
 
-        if ($this->reporting_period && $this->financial_year) {
-            $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
-            if ($data->get()->isNotEmpty()) {
-
-                $hasData = true;
-                return $data;
+        // Check if both reporting period and financial year are set
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
             }
 
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
 
-            if (!$hasData) {
-                // No data found, return an empty collection
-                return $query->whereIn('id', []);
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
+                $query->whereIn('id', []); // Empty result filter
             }
         }
 
-        if ($this->organisation_id && $this->target_year_id) {
-            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-            $query = $data;
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
 
-        } else
-            if ($this->organisation_id && $this->target_year_id == null) {
-                $data = $query->where('organisation_id', $this->organisation_id);
-                $query = $data;
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
 
-            }
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
 
         return $query;
-
     }
 
     public function FarmerFollowupbuilder(): Builder
@@ -99,42 +115,47 @@ class indicator_B1
         }
 
         return $query;
-
     }
 
     public function Processorbuilder(): Builder
     {
 
-        $query = RtcProductionProcessor::query()->where('status', 'approved');
+        $query = RtcProductionProcessor::query()->with('followups')->where('status', 'approved');
 
-        if ($this->reporting_period && $this->financial_year) {
-            $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
-            if ($data->get()->isNotEmpty()) {
-
-                $hasData = true;
-                return $data;
+        // Check if both reporting period and financial year are set
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
             }
 
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
 
-            if (!$hasData) {
-                // No data found, return an empty collection
-                return $query->whereIn('id', []);
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
+                $query->whereIn('id', []); // Empty result filter
             }
         }
 
-        if ($this->organisation_id && $this->target_year_id) {
-            $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-            $query = $data;
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
 
-        } else
-            if ($this->organisation_id && $this->target_year_id == null) {
-                $data = $query->where('organisation_id', $this->organisation_id);
-                $query = $data;
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
 
-            }
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
         return $query;
-
     }
 
     public function ProcessorFollowupbuilder(): Builder
@@ -143,94 +164,161 @@ class indicator_B1
         $query = RpmProcessorFollowUp::query()->where('status', 'approved');
 
 
-        if ($this->reporting_period && $this->financial_year) {
-            $hasData = false;
-            $data = $query->where('period_month_id', $this->reporting_period)->where('financial_year_id', $this->financial_year);
-            if ($data->get()->isNotEmpty()) {
-
-                $hasData = true;
-                return $data;
+        // Check if both reporting period and financial year are set
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
             }
 
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
 
-            if (!$hasData) {
-                // No data found, return an empty collection
-                return $query->whereIn('id', []);
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
+                $query->whereIn('id', []); // Empty result filter
             }
         }
 
-        return $query;
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
 
+        return $query;
     }
+
 
     public function findCropCount()
     {
-        $farmer = $this->Farmerbuilder()->get();
-        $followupFarmer = $this->FarmerFollowupbuilder()->get();
-        $data = collect([
-            'potato' => 0,
-            'cassava' => 0,
-            'sweet_potato' => 0,
-        ]);
+        $data = collect($this->calculations());
 
-        $farmer->each(function ($model) use ($data) {
-            $json = collect(json_decode($model->number_of_plantlets_produced, true));
+        if ($this->financial_year) {
+            $yearData = $data[$this->financial_year];
 
-            if ($json->has('potato')) {
+            return [
+                'cassava' => $yearData['cassava'],
+                'potato' => $yearData['potato'],
+                'sweet_potato' => $yearData['sweet_potato'],
+            ];
+        }
 
-                $data->put('potato', $data->get('potato') + $json['potato']);
-            }
-
-            if ($json->has('cassava')) {
-                $data->put('cassava', $data->get('cassava') + $json['cassava']);
-            }
-
-            if ($json->has('sweet_potato')) {
-                $data->put('sweet_potato', $data->get('sweet_potato') + $json['sweet_potato']);
-            }
-        });
-
-
-        $followupFarmer->each(function ($model) use ($data) {
-            $json = collect(json_decode($model->number_of_plantlets_produced, true));
-
-            if ($json->has('potato')) {
-
-                $data->put('potato', $data->get('potato') + $json['potato']);
-            }
-
-            if ($json->has('cassava')) {
-                $data->put('cassava', $data->get('cassava') + $json['cassava']);
-            }
-
-            if ($json->has('sweet_potato')) {
-                $data->put('sweet_potato', $data->get('sweet_potato') + $json['sweet_potato']);
-            }
-        });
-
-
-        return $data;
+        return [
+            'cassava' => $data->pluck('cassava')->sum(),
+            'potato' => $data->pluck('potato')->sum(),
+            'sweet_potato' => $data->pluck('sweet_potato')->sum(),
+        ];
     }
+
+    public function calculations()
+    {
+        $project = Project::where('name', $this->projectName)->first();
+        $financialYears = $project->financialYears()->pluck('id');
+        $cropData = [
+            'Cassava' => ['farmerValue' => 0, 'processorValue' => 0],
+            'Potato' => ['farmerValue' => 0, 'processorValue' => 0],
+            'Sweet potato' => ['farmerValue' => 0, 'processorValue' => 0],
+        ];
+
+        $countData = [];
+
+        foreach ($financialYears as $year_id) {
+            // Chunking farmers
+            $this->Farmerbuilder()->chunk(1000, function ($farmers) use (&$cropData, $year_id) {
+                foreach (['Cassava', 'Potato', 'Sweet potato'] as $crop) {
+                    $cropData[$crop]['farmerValue'] += $this->calculateCropValue($farmers, $crop, $year_id);
+                }
+            });
+
+            // Chunking processors
+            $this->Processorbuilder()->chunk(1000, function ($processors) use (&$cropData, $year_id) {
+                foreach (['Cassava', 'Potato', 'Sweet potato'] as $crop) {
+                    $cropData[$crop]['processorValue'] += $this->calculateCropValue($processors, $crop, $year_id);
+                }
+            });
+
+            // Calculate totals for each crop
+            $cassava = $cropData['Cassava']['farmerValue'] + $cropData['Cassava']['processorValue'];
+            $potato = $cropData['Potato']['farmerValue'] + $cropData['Potato']['processorValue'];
+            $sweetPotato = $cropData['Sweet potato']['farmerValue'] + $cropData['Sweet potato']['processorValue'];
+            $total = $cassava + $potato + $sweetPotato;
+
+            $countData[$year_id] = [
+                'cassava' => $cassava,
+                'potato' => $potato,
+                'sweet_potato' => $sweetPotato,
+                'total' => $total,
+            ];
+
+            $this->calculateIndicatorData($countData[$year_id], $year_id, $total);
+        }
+
+        return $countData;
+    }
+
+
+    private function calculateCropValue($data, $crop, $year_id)
+    {
+        return $data->where('enterprise', $crop)
+            ->where('financial_year_id', $year_id)
+            ->sum(function ($item) {
+                return $item->prod_value_previous_season_usd_value + optional($item->followups)->sum('prod_value_previous_season_usd_value') ?? 0;
+            });
+    }
+
+    private function calculateIndicatorData(&$countDataYear, $year_id, $total)
+    {
+        $indicator = $this->findIndicator();
+        if ($indicator) {
+            $baseline = IndicatorTarget::where('indicator_id', $indicator->id)->where('financial_year_id', $year_id)->first();
+            if ($baseline) {
+                $baselineValue = $baseline->baseline_value;
+                $percentage = ($total > 0) ? (new IncreasePercentage($total, $baselineValue))->percentage() : 0;
+
+                $countDataYear['percentage'] = $percentage;
+                $countDataYear['target_value'] = $baseline->target_value;
+                $countDataYear['calculated_percentage'] = ($baseline->target_value / 100) * $percentage;
+            }
+        }
+    }
+
     public function findTotal()
     {
-        return [
-            'farmer' => $this->Farmerbuilder()->count(),
-            'farmer_followup' => $this->FarmerFollowupbuilder()->count(),
-        ];
-    }
+        $calculations = $this->calculations();
+        $arrayData = [];
+        $data = 0;
+        if ($this->financial_year) {
+            $temp = collect($calculations[$this->financial_year]);
+            $data = $temp['calculated_percentage'];
+            $total = $data;
+            return $this->lop ? ($this->lop / 100) * $total : 0;
+        }
+        $arrayData = collect($calculations);
 
+        $total = $arrayData->sum('calculated_percentage');
+
+        return $this->lop ? ($this->lop / 100) * $total : 0;
+    }
+    public function findIndicator()
+    {
+        $indicatorId = IndicatorClass::where('class', __CLASS__)->first();
+        return $indicatorId ? Indicator::find($indicatorId->indicator_id) : null;
+    }
     public function getDisaggregations()
     {
-
-        $total = $this->findTotal()['farmer'] + $this->findTotal()['farmer_followup'];
+        $total = $this->findTotal();
         $crop = $this->findCropCount();
-        return [
-            'Total' => $total,
-            'Cassava' => $crop['cassava'],
-            'Sweet potato' => $crop['sweet_potato'],
-            'Potato' => $crop['potato'],
-        ];
 
+        return [
+            'Total(% Percentage)' => round($total, 2),
+            'Cassava' => round($crop['cassava'], 2),
+            'Sweet potato' => round($crop['sweet_potato'], 2),
+            'Potato' => round($crop['potato'], 2),
+        ];
     }
+
+
 
 }

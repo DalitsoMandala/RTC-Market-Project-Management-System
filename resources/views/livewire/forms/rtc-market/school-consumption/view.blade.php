@@ -27,18 +27,13 @@
             <div class="col-12">
 
 
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
+                <x-alerts />
 
                 <div class="card">
                     <div class="card-header">
                         <h4 class="text-center text-primary text-uppercase">School consumption data @if ($batch_no)
-                                [Batch : {{ $batch_no }}]
-                            @endif
+                            [Batch : {{ $batch_no }}]
+                        @endif
                         </h4>
                     </div>
 

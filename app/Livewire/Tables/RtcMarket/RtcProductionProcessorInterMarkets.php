@@ -2,11 +2,13 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionProcessor;
 use App\Models\RpmProcessorInterMarket;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -23,7 +25,8 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 {
     use WithExport;
-
+    use \App\Traits\ExportTrait;
+    public bool $deferLoading = false;
     public function setUp(): array
     {
 
@@ -32,27 +35,45 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-processors-inter'),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage()
-                ->pageName('processors-international-markets')
+                ->showPerPage(5)
+                ->pageName('international-markets')
                 ->showRecordCount(),
         ];
     }
 
     public function datasource(): Builder
     {
-        return RpmProcessorInterMarket::query();
+        return RpmProcessorInterMarket::query()->with('processors');
+    }
+
+
+    public $namedExport = 'rpmpIM';
+    #[On('export-rpmpIM')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('rpm_processor_id')
+            ->add('unique_id', fn($model) => $model->processors->pp_id)->add('rpm_processor_id')
+
             ->add('actor_name', function ($model) {
-                $farmer = $model->rpm_processor_id;
-                $row = RtcProductionProcessor::find($farmer);
+                $processor = $model->rpm_processor_id;
+                $row = RtcProductionProcessor::find($processor);
 
                 if ($row) {
                     return $row->name_of_actor;
@@ -71,84 +92,32 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
             ->add('created_at')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->processors->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('updated_at');
     }
-
     protected function getDataForExport()
     {
         // Get the data as a collection
         return $this->datasource()->get();
     }
-    #[On('export-inter')]
 
-    public function export()
-    {
-        // Get data for export
-        $data = $this->getDataForExport();
-
-        // Define the path for the Excel file
-        $path = storage_path('app/public/rtc_production_and_marketing_processors_international_markets.xlsx');
-
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Id',
-                'Processor ID',
-                'Actor Name',
-                'Date Recorded (Formatted)',
-                'Crop Type',
-                'Market Name',
-                'Country',
-                'Date of Maximum Sale (Formatted)',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales',
-                'Created At',
-                'Updated At',
-            ]);
-
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $processor = $item->rpm_processor_id;
-                $row = RtcProductionProcessor::find($processor);
-                $actor_name = $row ? $row->name_of_actor : null;
-
-                $row = [
-                    'id' => $item->id,
-                    'rpm_processor_id' => $item->rpm_processor_id,
-                    'actor_name' => $actor_name,
-                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
-                    'crop_type' => $item->crop_type,
-                    'market_name' => $item->market_name,
-                    'country' => $item->country,
-                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
-                    'product_type' => $item->product_type,
-                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
-                    'financial_value_of_sales' => $item->financial_value_of_sales,
-                    'created_at' => $item->created_at,
-                    'updated_at' => $item->updated_at,
-                ];
-
-                $writer->addRow($row);
-            }
-        }
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
-    }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('id', 'id')->sortable(),
+            Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
-            Column::make('Actor id', 'rpm_processor_id'),
+
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
@@ -180,21 +149,27 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
                 ->searchable(),
 
 
+            // Column::make('Submitted by', 'submitted_by')
+            //     ->searchable(),
+
+
         ];
     }
 
-    public function filters(): array
+    public function relationSearch(): array
     {
         return [
-            // Filter::datepicker('date_recorded'),
-            // Filter::datepicker('date_of_maximum_sale'),
-        ];
-    }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
-    {
-        $this->js('alert(' . $rowId . ')');
+            'user' => [
+                'name',
+
+            ],
+
+            'user.organisation' => [
+                'name'
+            ]
+
+        ];
     }
 
     // public function actions($row): array

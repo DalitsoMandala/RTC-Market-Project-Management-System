@@ -7,6 +7,14 @@
                <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
            @endif
 
+           @if (session()->has('info'))
+               <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+                   {!! session()->get('info') !!}
+               </div>
+           @endif
+
            @if (session()->has('validation_error'))
                <x-error-alert>{!! session()->get('validation_error') !!}</x-error-alert>
            @endif
@@ -16,8 +24,9 @@
                    is_open: false
                }" role="alert">
                    <div class="d-flex justify-content-between align-items-center">
-                       There were errors on your uploaded file! <a @click="is_open = !is_open" href="javascript: void(0);"
-                           class="btn btn-danger btn-sm">View errors <i class="bx bx-caret-down"></i></a>
+                       There were errors on your uploaded file! <a @click="is_open = !is_open"
+                           href="javascript: void(0);" class="btn btn-danger btn-sm">View errors <i
+                               class="bx bx-caret-down"></i></a>
                    </div>
                    <div x-show="is_open">
                        <hr>

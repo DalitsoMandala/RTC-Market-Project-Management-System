@@ -62,13 +62,13 @@ class chuckReader implements ShouldQueue
                 'main_food_data' => [],
             ];
 
-            if ($row['RTC MAIN FOOD/CASSAVA'] === 'YES') {
+            if ($row['RTC MAIN FOOD/CASSAVA'] === 'Yes') {
                 $entry['main_food_data'][] = ['name' => 'CASSAVA'];
             }
-            if ($row['RTC MAIN FOOD/POTATO'] === 'YES') {
+            if ($row['RTC MAIN FOOD/POTATO'] === 'Yes') {
                 $entry['main_food_data'][] = ['name' => 'POTATO'];
             }
-            if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'YES') {
+            if ($row['RTC MAIN FOOD/SWEET POTATO'] === 'Yes') {
                 $entry['main_food_data'][] = ['name' => 'SWEET POTATO'];
             }
             $entry['main_food_data'] = json_encode($entry['main_food_data']);

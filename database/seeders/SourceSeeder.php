@@ -25,6 +25,7 @@ class SourceSeeder extends Seeder
             ['person_id' => 3, 'form_id' => 1],
             ['person_id' => 3, 'form_id' => 2],
             ['person_id' => 3, 'form_id' => 3],
+            ['person_id' => 3, 'form_id' => 5],//added some attendance
             ['person_id' => 4, 'form_id' => 1],
             ['person_id' => 4, 'form_id' => 2],
             ['person_id' => 4, 'form_id' => 3],

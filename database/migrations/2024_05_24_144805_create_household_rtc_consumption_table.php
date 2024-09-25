@@ -12,15 +12,19 @@ return new class extends Migration {
     {
         Schema::create('household_rtc_consumption', function (Blueprint $table) {
             $table->id();
-
-            $table->json('location_data')->nullable();
+            $table->string('hh_id')->unique();
+            $table->string('epa');
+            $table->string('section');
+            $table->string('district');
+            $table->string('enterprise');
             $table->date('date_of_assessment')->nullable();
-            $table->enum('actor_type', ['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER'])->nullable();
+
+            $table->string('actor_type')->nullable();
             $table->string('rtc_group_platform')->nullable(); // Allow null for RTC group/platform
             $table->string('producer_organisation')->nullable(); // Allow null for producer organization
             $table->string('actor_name')->nullable();
-            $table->enum('age_group', ['YOUTH', 'NOT YOUTH'])->nullable();
-            $table->enum('sex', ['MALE', 'FEMALE'])->nullable();
+            $table->string('age_group')->nullable();
+            $table->string('sex')->nullable();
             $table->string('phone_number')->nullable(); // Allow null for phone number
             $table->integer('household_size')->nullable();
             $table->integer('under_5_in_household')->nullable();
@@ -29,9 +33,7 @@ return new class extends Migration {
             $table->integer('rtc_consumers_sw_potato')->nullable();
             $table->integer('rtc_consumers_cassava')->nullable();
             $table->integer('rtc_consumption_frequency')->nullable(); // Limit to positive values
-            $table->json('main_food_data')->nullable();
             $table->string('uuid');
-
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes
             $table->foreignId('organisation_id')->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
@@ -40,8 +42,7 @@ return new class extends Migration {
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
 
             $table->timestamps();
-            $table->charset = 'utf8mb4';
-            $table->collation = 'utf8mb4_unicode_ci';
+
         });
     }
 

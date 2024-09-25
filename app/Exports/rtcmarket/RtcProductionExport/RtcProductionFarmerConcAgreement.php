@@ -29,7 +29,7 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
             foreach (range(1, 5) as $index) {
 
                 $data[] = [
-                    'RECRUIT ID' => $faker->numberBetween(1, 20),
+                    'RECRUIT ID' => $faker->numberBetween(1, 10),
                     'DATE RECORDED' => $faker->date('Y-m-d'),
                     'PARTNER NAME' => strtoupper($faker->name),
                     'COUNTRY' => strtoupper($faker->country),

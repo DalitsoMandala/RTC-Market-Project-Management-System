@@ -127,12 +127,16 @@ class Add extends Component
 
             $uuid = Uuid::uuid4()->toString();
             $user = User::find($userId);
-
+            $latest = '';
             if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
 
                 $data = [
                     'date' => $this->date,
-                    'location_data' => json_encode($this->location_data),
+                    'epa' => $this->location_data['epa'],
+                    'district' => $this->location_data['district'],
+                    'section' => $this->location_data['section'],
+                    // 'enterprise' => $this->location_data['enterprise'],
+                    'school_name' => $this->location_data['school_name'],
                     'male_count' => $this->male_count,
                     'female_count' => $this->female_count,
                     'total' => $this->total,
@@ -157,11 +161,15 @@ class Add extends Component
                     'table_name' => 'school_rtc_consumption',
 
                 ]);
-                SchoolRtcConsumption::create($data);
+                $latest = SchoolRtcConsumption::create($data);
             } else {
                 $data = [
                     'date' => $this->date,
-                    'location_data' => json_encode($this->location_data),
+                    'epa' => $this->location_data['epa'],
+                    'district' => $this->location_data['district'],
+                    'section' => $this->location_data['section'],
+                    //  'enterprise' => $this->location_data['enterprise'],
+                    'school_name' => $this->location_data['school_name'],
                     'male_count' => $this->male_count,
                     'female_count' => $this->female_count,
                     'total' => $this->total,
@@ -186,11 +194,13 @@ class Add extends Component
                     'table_name' => 'school_rtc_consumption',
 
                 ]);
-                SchoolRtcConsumption::create($data);
+                $latest = SchoolRtcConsumption::create($data);
             }
 
 
             session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/school-rtc-consumption-form/view">View Submission here</a>');
+            session()->flash('info', 'Your ID is: <b>' . substr($latest->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+
             return redirect()->to(url()->previous());
         } catch (\Exception $e) {
             # code...

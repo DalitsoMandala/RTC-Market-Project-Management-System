@@ -12,9 +12,14 @@ return new class extends Migration {
     {
         Schema::create('school_rtc_consumption', function (Blueprint $table) {
             $table->id();
-            $table->json('location_data')->nullable();
+            $table->string('sc_id')->unique();
+            $table->string('epa');
+            $table->string('section');
+            $table->string('district');
+            //    $table->string('enterprise');
+            $table->string('school_name');
             $table->date('date')->nullable();
-            $table->enum('crop', ['CASSAVA', 'POTATO', 'SWEET POTATO'])->nullable();
+            $table->string('crop')->nullable();
             $table->integer('male_count')->nullable();
             $table->integer('female_count')->nullable();
             $table->integer('total')->nullable();

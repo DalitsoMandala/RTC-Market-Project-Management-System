@@ -128,6 +128,16 @@
 
             border: 0;
         }
+
+        label {
+            text-transform: lowercase;
+            /* Ensure all text is lowercase */
+        }
+
+        label::first-letter {
+            text-transform: uppercase;
+            /* Capitalize only the first letter */
+        }
     </style>
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
@@ -251,6 +261,13 @@
 
 
                 }, 10000); // 10 seconds
+
+
+                document.querySelectorAll('input[type="number"]').forEach(function(input) {
+                    input.setAttribute('step', 'any');
+                });
+
+
 
 
             });

@@ -9,9 +9,10 @@ class RpmFarmerDomMarket extends Model
 {
     use HasFactory;
     protected $table = "rpm_farmer_dom_markets";
-    protected $guarded = [];
+    protected $guarded = ['id'];
     public function farmers()
     {
         return $this->belongsTo(RtcProductionFarmer::class, 'rpm_farmer_id');
     }
+
 }

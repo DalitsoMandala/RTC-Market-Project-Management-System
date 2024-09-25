@@ -24,7 +24,7 @@ class FormSeeder extends Seeder
             // 'EXPORT AND IMPORT MATRIX FORM',
             'ATTENDANCE REGISTER',
             'REPORT FORM',
-            'SEED DISTRIBUTION REGISTER',
+            //  'SEED DISTRIBUTION REGISTER',
         ];
 
         // Create forms
@@ -38,7 +38,7 @@ class FormSeeder extends Seeder
 
         $indicatorMappings = [
             'A1' => ['HOUSEHOLD CONSUMPTION FORM', 'RTC PRODUCTION AND MARKETING FORM FARMERS', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS'],
-            'B1' => ['RTC PRODUCTION AND MARKETING FORM FARMERS', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS'],
+            'B1' => ['RTC PRODUCTION AND MARKETING FORM FARMERS', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS', 'ATTENDANCE REGISTER'],
             'B2' => ['REPORT FORM'],
             'B3' => ['REPORT FORM'],
             'B4' => ['HOUSEHOLD CONSUMPTION FORM', 'SCHOOL RTC CONSUMPTION FORM'],

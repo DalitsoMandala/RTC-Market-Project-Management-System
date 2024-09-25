@@ -33,7 +33,7 @@
                         <div class="col-12 col-md-8 col-md-sm-8" id="form">
 
 
-                            <form wire:submit='save'>
+                            <form wire:submit.debounce.1s='save'>
 
 
 
@@ -51,17 +51,17 @@
                                     <label for="meetingCategory" class="form-label">Meeting Category</label>
                                     <div class="form-check">
                                         <input class="form-check-input @error('meetingCategory') is-invalid @enderror"
-                                            type="radio" wire:model="meetingCategory" id="training" value="TRAINING">
+                                            type="radio" wire:model="meetingCategory" id="training" value="Training">
                                         <label class="form-check-label" for="training">Training</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input @error('meetingCategory') is-invalid @enderror"
-                                            type="radio" wire:model="meetingCategory" id="meeting" value="MEETING">
+                                            type="radio" wire:model="meetingCategory" id="meeting" value="Meeting">
                                         <label class="form-check-label" for="meeting">Meeting</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input @error('meetingCategory') is-invalid @enderror"
-                                            type="radio" wire:model="meetingCategory" id="workshop" value="WORKSHOP">
+                                            type="radio" wire:model="meetingCategory" id="workshop" value="Workshop">
                                         <label class="form-check-label" for="workshop">Workshop</label>
                                     </div>
                                     @error('meetingCategory')
@@ -73,17 +73,17 @@
                                     <label class="form-label">RTC Crop</label>
                                     <div class="form-check">
                                         <input class="form-check-input @error('rtcCrop') is-invalid @enderror"
-                                            type="checkbox" wire:model="rtcCrop" value="CASSAVA" id="cassava">
+                                            type="checkbox" wire:model="rtcCrop" value="Cassava" id="cassava">
                                         <label class="form-check-label" for="cassava">Cassava</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input @error('rtcCrop') is-invalid @enderror"
-                                            type="checkbox" wire:model="rtcCrop" value="POTATO" id="potato">
+                                            type="checkbox" wire:model="rtcCrop" value="Potato" id="potato">
                                         <label class="form-check-label" for="potato">Potato</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input @error('rtcCrop') is-invalid @enderror"
-                                            type="checkbox" wire:model="rtcCrop" value="SWEET POTATO" id="sweetPotato">
+                                            type="checkbox" wire:model="rtcCrop" value="Sweet potato" id="sweetPotato">
                                         <label class="form-check-label" for="sweetPotato">Sweet Potato</label>
                                     </div>
                                     @error('rtcCrop')
@@ -102,39 +102,10 @@
 
                                 <div class="mb-3">
                                     <label for="district" class="form-label">District</label>
-                                    <select
-                                        class="form-select @error('district')
+                                    <select class="form-select @error('district')
                                         is-invalid
-                                    @enderror"
-                                        wire:model='district'>
-                                        <option disabled value="">Choose one</option>
-                                        <option>BALAKA</option>
-                                        <option>BLANTYRE</option>
-                                        <option>CHIKWAWA</option>
-                                        <option>CHIRADZULU</option>
-                                        <option>CHITIPA</option>
-                                        <option>DEDZA</option>
-                                        <option>DOWA</option>
-                                        <option>KARONGA</option>
-                                        <option>KASUNGU</option>
-                                        <option>LILONGWE</option>
-                                        <option>MACHINGA</option>
-                                        <option>MANGOCHI</option>
-                                        <option>MCHINJI</option>
-                                        <option>MULANJE</option>
-                                        <option>MWANZA</option>
-                                        <option>MZIMBA</option>
-                                        <option>NENO</option>
-                                        <option>NKHATA BAY</option>
-                                        <option>NKHOTAKOTA</option>
-                                        <option>NSANJE</option>
-                                        <option>NTCHEU</option>
-                                        <option>NTCHISI</option>
-                                        <option>PHALOMBE</option>
-                                        <option>RUMPHI</option>
-                                        <option>SALIMA</option>
-                                        <option>THYOLO</option>
-                                        <option>ZOMBA</option>
+                                    @enderror" wire:model='district'>
+                                        @include('layouts.district-options')
                                     </select>
                                     @error('district')
                                         <x-error>{{ $message }}</x-error>
@@ -154,8 +125,7 @@
                                     <div class="col">
                                         <label for="endDate" class="form-label">End Date</label>
                                         <input type="date" wire:model="endDate"
-                                            class="form-control @error('endDate') is-invalid @enderror"
-                                            id="endDate">
+                                            class="form-control @error('endDate') is-invalid @enderror" id="endDate">
                                         @error('endDate')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -163,8 +133,8 @@
                                     <div class="col">
                                         <label for="totalDays" class="form-label">Total Number of Days</label>
                                         <input type="number" wire:model="totalDays"
-                                            class="form-control @error('totalDays') is-invalid @enderror"
-                                            id="totalDays" min="0">
+                                            class="form-control @error('totalDays') is-invalid @enderror" id="totalDays"
+                                            min="0">
                                         @error('totalDays')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -185,11 +155,11 @@
 
                                     <div class="mb-3 col">
                                         <label for="sex" class="form-label">Sex</label>
-                                        <select class="form-select @error('sex') is-invalid @enderror"
-                                            wire:model="sex" id="sex">
+                                        <select class="form-select @error('sex') is-invalid @enderror" wire:model="sex"
+                                            id="sex">
                                             <option disabled value="">Choose...</option>
-                                            <option value="MALE">MALE</option>
-                                            <option value="FEMALE">FEMALE</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
                                         </select>
                                         @error('sex')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -238,8 +208,7 @@
                                 </div>
 
 
-                                <button type="submit" class="px-5 btn btn-primary btn-lg"
-                                    @click="window.scrollTo({
+                                <button type="submit" class="px-5 btn btn-primary btn-lg" @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
                                 })">Submit</button>
@@ -254,9 +223,7 @@
 
 
                     </div>
-                    <div class="card-body" id="table">
-                        <livewire:tables.rtc-market.attendance-register-table :count="5" />
-                    </div>
+
                 </div>
             </div>
 
@@ -269,21 +236,21 @@
 
         </div>
         @script
-            <script>
-                let textInputs = document.querySelectorAll('input[type="text"]');
+        <script>
+            let textInputs = document.querySelectorAll('input[type="text"]');
 
-                // Attach event listener to each input
-                textInputs.forEach(function(input) {
-                    input.addEventListener('input', function() {
-                        // Convert input value to uppercase
-                        this.value = this.value.toUpperCase();
-                    });
-
+            // Attach event listener to each input
+            textInputs.forEach(function (input) {
+                input.addEventListener('input', function () {
+                    // Convert input value to uppercase
+                    this.value = this.value.toUpperCase();
                 });
 
-                document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                    input.setAttribute('step', '0.01');
-                });
-            </script>
+            });
+
+            document.querySelectorAll('input[type="number"]').forEach(function (input) {
+                input.setAttribute('step', '0.01');
+            });
+        </script>
         @endscript
     </div>

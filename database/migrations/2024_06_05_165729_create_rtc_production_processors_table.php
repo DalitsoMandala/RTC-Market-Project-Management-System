@@ -12,7 +12,12 @@ return new class extends Migration {
     {
         Schema::create('rtc_production_processors', function (Blueprint $table) {
             $table->id();
-            $table->json('location_data');
+            $table->string('pp_id')->unique();
+            $table->string('epa');
+            $table->string('section');
+            $table->string('district');
+            $table->string('enterprise');
+
             $table->date('date_of_recruitment')->nullable();
             $table->string('name_of_actor')->nullable();
             $table->string('name_of_representative')->nullable();
@@ -20,26 +25,53 @@ return new class extends Migration {
             $table->string('type')->nullable();
             $table->string('approach')->nullable(); // For producer organizations only
             $table->string('sector')->nullable();
-            $table->json('number_of_members')->nullable(); // For producer organizations only
+            //    $table->json('number_of_members')->nullable(); // For producer organizations only
+            $table->integer('mem_female_18_35')->default(0);
+            $table->integer('mem_male_18_35')->default(0);
+            $table->integer('mem_male_35_plus')->default(0);
+            $table->integer('mem_female_35_plus')->default(0);
             $table->string('group')->nullable();
-            $table->enum('establishment_status', ['NEW', 'OLD']); // Uppercase for enum values
+            $table->enum('establishment_status', ['New', 'Old']); // Uppercase for enum values
             $table->boolean('is_registered')->default(false);
-            $table->json('registration_details')->nullable();
-            $table->json('number_of_employees')->nullable();
+            $table->string('registration_body')->nullable();
+            $table->string('registration_number')->nullable();
+            $table->date('registration_date')->nullable();
+            //  $table->json('number_of_employees')->nullable();
+            $table->integer('emp_formal_female_18_35')->default(0);
+            $table->integer('emp_formal_male_18_35')->default(0);
+            $table->integer('emp_formal_male_35_plus')->default(0);
+            $table->integer('emp_formal_female_35_plus')->default(0);
+            $table->integer('emp_informal_female_18_35')->default(0);
+            $table->integer('emp_informal_male_18_35')->default(0);
+            $table->integer('emp_informal_male_35_plus')->default(0);
+            $table->integer('emp_informal_female_35_plus')->default(0);
+            //  $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
+            $table->boolean('market_segment_fresh')->default(false);
+            $table->boolean('market_segment_processed')->default(false);
 
-            $table->json('market_segment')->nullable(); // Multiple market segments (array of strings)
             $table->boolean('has_rtc_market_contract')->default(false);
             $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
-            $table->json('total_production_value_previous_season')->nullable(); // MWK
-            $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
-            $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
+            //    $table->json('total_production_value_previous_season')->nullable();
+            $table->decimal('prod_value_previous_season_total', 16, 2)->nullable();
+            $table->date('prod_value_previous_season_date_of_max_sales')->nullable();
+            $table->decimal('prod_value_previous_season_usd_rate', 16, 2)->nullable();
+            $table->decimal('prod_value_previous_season_usd_value', 16, 2)->nullable();
+            // MWK
+            // $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            // //    $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
+            // $table->decimal('irr_prod_value_previous_season_total', 16, 2)->nullable();
+            // $table->date('irr_prod_value_previous_season_date_of_max_sales')->nullable();
+            // $table->decimal('irr_prod_value_previous_season_usd_rate', 16, 2)->nullable();
+            // $table->decimal('irr_prod_value_previous_season_usd_value', 16, 2)->nullable();
+
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);
             $table->boolean('uses_market_information_systems')->default(false);
-            $table->text('market_information_systems')->nullable();
-            $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('aggregation_center_sales', 8, 2)->nullable();
-            // Previous season volume in metric tonnes
+            //    $table->json('market_information_systems')->nullable();
+            $table->boolean('sells_to_aggregation_centers')->default(false);
+            //    $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
+            $table->decimal('total_vol_aggregation_center_sales', 8, 2)->nullable(); // Previous season volume in metric tonnes
+
             $table->string('uuid');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes

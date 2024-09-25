@@ -262,7 +262,7 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-                $baseline_value = 20000;
+                $baseline_value = 400;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
@@ -300,7 +300,7 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-                $baseline_value = 20000;
+                $baseline_value = 400;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
@@ -338,7 +338,7 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-                $baseline_value = 20000;
+                $baseline_value = 400;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,
@@ -372,7 +372,7 @@ class IndicatorTargetSeeder extends Seeder
             $getIndicatorId = Indicator::where('indicator_name', $indicator)->first();
 
             if ($getIndicatorId) {
-                $baseline_value = 20000;
+                $baseline_value = 400;
                 $target = IndicatorTarget::create([
                     'indicator_id' => $getIndicatorId->id,
                     'target_value' => isset($values['Total']) ? $values['Total'] : null,

@@ -9,4 +9,11 @@ class RpmProcessorConcAgreement extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+
+
+    public function processors()
+    {
+        return $this->belongsTo(RtcProductionProcessor::class, 'rpm_processor_id');
+    }
 }

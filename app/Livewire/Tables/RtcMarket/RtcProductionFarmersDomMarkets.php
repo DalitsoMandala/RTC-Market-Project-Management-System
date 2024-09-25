@@ -2,11 +2,14 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use App\Models\RpmFarmerDomMarket;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -23,6 +26,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 {
     use WithExport;
+    use ExportTrait;
     public bool $deferLoading = false;
     public function setUp(): array
     {
@@ -32,9 +36,11 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data-farmers-dom'),
+            Header::make()->includeViewOnTop('components.export-data')
+                ->showSearchInput()
+            ,
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->pageName('farmers-domestic-markets')
                 ->showRecordCount(),
         ];
@@ -42,14 +48,31 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return RpmFarmerDomMarket::query();
+        return RpmFarmerDomMarket::query()->with('farmers');
     }
+
+    public $namedExport = 'rpmfDM';
+    #[On('export-rpmfDM')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
+
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
+
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('rpm_farmer_id')
+            ->add('unique_id', fn($model) => $model->farmers->pf_id)->add('rpm_farmer_id')
             ->add('actor_name', function ($model) {
                 $farmer = $model->rpm_farmer_id;
                 $row = RtcProductionFarmer::find($farmer);
@@ -71,6 +94,16 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
             ->add('volume_sold_previous_period')
             ->add('financial_value_of_sales')
             ->add('created_at')
+            ->add('submitted_by', function ($model) {
+                $user = User::find($model->farmers->user_id);
+                if ($user) {
+                    $organisation = $user->organisation->name;
+                    $name = $user->name;
+
+                    return $name . " (" . $organisation . ")";
+                }
+
+            })
             ->add('updated_at');
     }
     protected function getDataForExport()
@@ -91,7 +124,7 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
         $writer = SimpleExcelWriter::create($path)
             ->addHeader([
                 'Id',
-                'Farmer ID',
+                'Actor ID',
                 'Actor Name',
                 'Date Recorded (Formatted)',
                 'Crop Type',
@@ -144,9 +177,10 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('id', 'id')->sortable(),
+            Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
-            Column::make('Farmer id', 'rpm_farmer_id'),
+
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 
@@ -176,6 +210,11 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
             Column::make('Financial value of sales', 'financial_value_of_sales')
                 ->sortable()
                 ->searchable(),
+
+            // Column::make('Submitted by', 'submitted_by')
+
+            //     ->searchable(),
+
 
 
 

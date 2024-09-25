@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HrcMainFood extends Model
+class RpmFarmerBasicSeed extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
-    protected $table = 'hrc_main_food';
 
-    public function hrc()
+
+    protected $table = 'rpmf_basic_seed';
+
+    public function farmers()
     {
-        return $this->belongsTo(HouseholdRtcConsumption::class, 'hrc_id');
+        return $this->belongsTo(RtcProductionFarmer::class, 'rpmf_id');
     }
+
 }

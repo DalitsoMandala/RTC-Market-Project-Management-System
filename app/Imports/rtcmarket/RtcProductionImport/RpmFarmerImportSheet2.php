@@ -84,7 +84,7 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
             throw new SheetImportException('RTC_FARM_FLUP', $this->failures);
         }
 
-       
+
 
         if (empty($this->failures)) {
 
@@ -170,8 +170,8 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
                 ]),
                 'uses_certified_seed' => $row['USES CERTIFIED SEED'],
                 // 'market_segment' => json_encode([
-                //     'fresh' => $row['MARKET SEGMENT/FRESH'],
-                //     'processed' => $row['MARKET SEGMENT/PROCESSED'],
+                //     'fresh' => $row['MARKET SEGMENT/Fresh'],
+                //     'processed' => $row['MARKET SEGMENT/Processed'],
                 // ]),
                 // 'has_rtc_market_contract' => $row['HAS RTC MARKET CONTRACT'],
                 // 'total_vol_production_previous_season' => $row['TOTAL VOLUME PRODUCTION PREVIOUS SEASON'],
@@ -266,10 +266,10 @@ class RpmFarmerImportSheet2 implements ToCollection, WithHeadingRow, WithValidat
             'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 5 (SPECIFY)' => ['nullable', 'string'],
             'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 6 (SPECIFY)' => ['nullable', 'string'],
             'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 7 (SPECIFY)' => ['nullable', 'string'],
-            'IS REGISTERED SEED PRODUCER' => ['nullable', 'in:YES,NO'],
+            'IS REGISTERED SEED PRODUCER' => ['nullable', 'in:Yes,No'],
             'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION NUMBER' => ['nullable', 'string'],
             'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION DATE' => ['nullable', 'date'],
-            'USES CERTIFIED SEED' => ['nullable', 'in:YES,NO'],
+            'USES CERTIFIED SEED' => ['nullable', 'in:Yes,No'],
         ];
     }
 

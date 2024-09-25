@@ -6,6 +6,7 @@ use App\Helpers\ArrayToUpperCase;
 use App\Helpers\Help;
 use App\Helpers\ToUpper;
 use Faker\Factory as Faker;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -48,54 +49,56 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
             'Zomba Livestock Farmers Group',
         ];
 
-        $epaNames = ArrayToUpperCase::convert($epaNames);
-        $organisationNames = ArrayToUpperCase::convert($organisationNames);
-        $sectionNames = ArrayToUpperCase::convert($sectionNames);
+        // $epaNames = ArrayToUpperCase::convert($epaNames);
+        // $organisationNames = ArrayToUpperCase::convert($organisationNames);
+        // $sectionNames = ArrayToUpperCase::convert($sectionNames);
         $rand = rand(100, 1000);
 
         if ($this->test) {
-            foreach (range(1, 1000) as $index) {
+            foreach (range(1, 6000) as $index) {
 
                 $data[] = [
-                    'ENTERPRISE' => $faker->randomElement(Help::getFakerNames()['enterpriseNames']),
-                    'DISTRICT' => $faker->randomElement([
-                        'BALAKA',
-                        'BLANTYRE',
-                        'CHIKWAWA',
-                        'CHIRADZULU',
-                        'CHITIPA',
-                        'DEDZA',
-                        'DOWA',
-                        'KARONGA',
-                        'KASUNGU',
-                        'LILONGWE',
-                        'MACHINGA',
-                        'MANGOCHI',
-                        'MCHINJI',
-                        'MULANJE',
-                        'MWANZA',
-                        'MZIMBA',
-                        'NENO',
-                        'NKHATA BAY',
-                        'NKHOTAKOTA',
-                        'NSANJE',
-                        'NTCHEU',
-                        'NTCHISI',
-                        'PHALOMBE',
-                        'RUMPHI',
-                        'SALIMA',
-                        'THYOLO',
-                        'ZOMBA',
-                    ]),
+                    'ENTERPRISE' => $faker->randomElement(['Cassava', 'Potato', 'Sweet potato']),
+                    'DISTRICT' => $faker->randomElement(
+                        [
+                            'Balaka',
+                            'Blantyre',
+                            'Chikwawa',
+                            'Chiradzulu',
+                            'Chitipa',
+                            'Dedza',
+                            'Dowa',
+                            'Karonga',
+                            'Kasungu',
+                            'Lilongwe',
+                            'Machinga',
+                            'Mangochi',
+                            'Mchinji',
+                            'Mulanje',
+                            'Mwanza',
+                            'Mzimba',
+                            'Neno',
+                            'Nkhata Bay',
+                            'Nkhotakota',
+                            'Nsanje',
+                            'Ntcheu',
+                            'Ntchisi',
+                            'Phalombe',
+                            'Rumphi',
+                            'Salima',
+                            'Thyolo',
+                            'Zomba',
+                        ]
+                    ),
                     'EPA' => $faker->randomElement($epaNames),
                     'SECTION' => $faker->randomElement($sectionNames),
                     'DATE OF ASSESSMENT' => $faker->date('Y-m-d'),
-                    'ACTOR TYPE' => $faker->randomElement(['FARMER', 'PROCESSOR', 'TRADER', 'INDIVIDUALS FROM NUTRITION INTERVENTION', 'OTHER']),
-                    'RTC GROUP PLATFORM' => $faker->randomElement(['HOUSEHOLD', 'SEED']),
+                    'ACTOR TYPE' => $faker->randomElement(['Farmer', 'Processor', 'Trader', 'Individuals from nutrition intervention', 'Other']),
+                    'RTC GROUP PLATFORM' => $faker->randomElement(['Household', 'Seed']),
                     'PRODUCER ORGANISATION' => $faker->randomElement($organisationNames),
                     'ACTOR NAME' => strtoupper($faker->name),
-                    'AGE GROUP' => $faker->randomElement(['YOUTH', 'NOT YOUTH']),
-                    'SEX' => $faker->randomElement(['MALE', 'FEMALE']),
+                    'AGE GROUP' => $faker->randomElement(['Youth', 'Not youth']),
+                    'SEX' => $faker->randomElement(['Male', 'Female']),
                     'PHONE NUMBER' => $faker->numerify('###-###-####'),
                     'HOUSEHOLD SIZE' => $faker->numberBetween(1, 100),
                     'UNDER 5 IN HOUSEHOLD' => $faker->numberBetween(1, 100),
@@ -104,9 +107,9 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                     'RTC CONSUMERS/SWEET POTATO' => $faker->numberBetween(1, 100),
                     'RTC CONSUMERS/CASSAVA' => $faker->numberBetween(1, 100),
                     'RTC CONSUMPTION FREQUENCY' => $faker->numberBetween(1, 100),
-                    'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['YES', 'NO']),
-                    'RTC MAIN FOOD/POTATO' => $faker->randomElement(['YES', 'NO']),
-                    'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['YES', 'NO']),
+                    'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['Cassava', '']),
+                    'RTC MAIN FOOD/POTATO' => $faker->randomElement(['Potato', '']),
+                    'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['Sweet potato', '']),
 
                 ];
             }

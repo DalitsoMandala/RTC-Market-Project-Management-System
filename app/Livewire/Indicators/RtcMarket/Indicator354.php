@@ -33,7 +33,7 @@ class Indicator354 extends Component
         $organisation = auth()->user()->organisation;
         $class = Indicator::find($this->indicator_id)->class()->first();
         $newClass = null;
-        if (auth()->user()->hasAnyRole('admin')) {
+        if (auth()->user()->hasAnyRole('admin') || (auth()->user()->hasAnyRole('cip') && auth()->user()->hasAnyRole('organiser'))) {
             $newClass = new $class->class();
         } else {
             $newClass = new $class->class(organisation_id: $organisation->id);

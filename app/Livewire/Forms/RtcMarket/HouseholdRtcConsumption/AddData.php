@@ -12,6 +12,7 @@ use Livewire\Component;
 use App\Helpers\LogError;
 use App\Models\Indicator;
 use App\Models\Submission;
+use App\Models\LocationHrc;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Exceptions\UserErrorException;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\MainFoodHrc;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
 use App\Notifications\AggregateDataAddedNotification;
@@ -43,7 +45,7 @@ class AddData extends Component
     public $district;
 
 
-    public $enterprise;
+    public $enterprise = 'Cassava';
 
     public $period;
 
@@ -93,11 +95,11 @@ class AddData extends Component
             'inputs.*.sex' => 'required',
             'inputs.*.phone_number' => 'required',
             'inputs.*.household_size' => 'required|numeric|min:0',
-            'inputs.*.under_5_in_household' => 'required|numeric|min:0',
+            'inputs.*.under_5_in_household' => 'required|numeric|min:0|lte:inputs.*.household_size',
             'inputs.*.rtc_consumers' => 'required|numeric|min:0|lte:inputs.*.household_size',
-            'inputs.*.rtc_consumers_potato' => 'required|numeric|min:0',
-            'inputs.*.rtc_consumers_sw_potato' => 'required|numeric|min:0',
-            'inputs.*.rtc_consumers_cassava' => 'required|numeric|min:0',
+            'inputs.*.rtc_consumers_potato' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'inputs.*.rtc_consumers_sw_potato' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
+            'inputs.*.rtc_consumers_cassava' => 'required|numeric|min:0|lte:inputs.*.rtc_consumers',
             'inputs.*.rtc_consumption_frequency' => 'required|numeric|min:0',
             'inputs.*.main_food' => 'required',
         ];
@@ -149,6 +151,7 @@ class AddData extends Component
                 'rtc_consumers_sw_potato' => null,
                 'rtc_consumers_cassava' => null,
                 'rtc_consumption_frequency' => null,
+
                 'main_food' => [],
             ],
         );
@@ -194,30 +197,20 @@ class AddData extends Component
             $now = Carbon::now();
             foreach ($this->inputs as $index => $input) {
 
-                $input['location_data'] = json_encode([
-                    'enterprise' => $this->enterprise,
-                    'district' => $this->district,
-                    'epa' => $this->epa,
-                    'section' => $this->section,
-                ]);
 
-                // for main food lunch,dinner,breakfast
-                foreach ($input['main_food'] as $mainfood) {
-                    $input['main_food_data'][] = $mainfood;
-
-                }
-
-                unset($input['main_food']);
-
-                $input['main_food_data'] = json_encode($input['main_food_data']);
                 $input['uuid'] = $uuid;
                 $input['user_id'] = $userId;
                 $input['created_at'] = $now;
                 $input['updated_at'] = $now;
+                $input['epa'] = $this->epa;
+                $input['section'] = $this->section;
+                $input['district'] = $this->district;
+                $input['enterprise'] = $this->enterprise;
                 $data[] = $input;
-                //   HouseholdRtcConsumption::create($input);
+
 
             }
+
 
             $currentUser = Auth::user();
 
@@ -246,12 +239,30 @@ class AddData extends Component
                 ]);
 
                 foreach ($data as $dt) {
+
                     $dt['submission_period_id'] = $this->submissionPeriodId;
                     $dt['period_month_id'] = $this->selectedMonth;
                     $dt['organisation_id'] = Auth::user()->organisation->id;
                     $dt['financial_year_id'] = $this->selectedFinancialYear;
+
                     $dt['status'] = 'approved';
-                    HouseholdRtcConsumption::create($dt);
+                    $mainFood = $dt['main_food'];
+                    unset($dt['main_food']);
+
+                    $hrc = HouseholdRtcConsumption::create($dt);
+
+
+                    foreach ($mainFood as $food) {
+                        $hrc->mainFoods()->create([
+                            'name' => $food
+                        ]);
+                    }
+
+
+
+
+
+
                 }
 
 
@@ -307,6 +318,7 @@ class AddData extends Component
                             'rtc_consumers_sw_potato' => null,
                             'rtc_consumers_cassava' => null,
                             'rtc_consumption_frequency' => null,
+
                             'main_food' => [],
                         ],
 
@@ -467,7 +479,7 @@ class AddData extends Component
                             'producer_organisation' => null,
                             'actor_name' => null,
                             'age_group' => null,
-                            'sex' => 'MALE',
+                            'sex' => 'Male',
                             'phone_number' => null,
                             'household_size' => null,
                             'under_5_in_household' => null,
@@ -476,6 +488,7 @@ class AddData extends Component
                             'rtc_consumers_sw_potato' => null,
                             'rtc_consumers_cassava' => null,
                             'rtc_consumption_frequency' => null,
+
                             'main_food' => [],
                         ],
 
