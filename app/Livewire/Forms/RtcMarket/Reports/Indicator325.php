@@ -20,8 +20,7 @@ use App\Exceptions\UserErrorException;
 use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
-
-class Add extends Component
+class Indicator325 extends Component
 {
     use LivewireAlert;
     public $openSubmission = false;
@@ -90,6 +89,12 @@ class Add extends Component
 
                 $this->openSubmission = true;
 
+                $user = Auth::user();
+
+                $this->inputs = IndicatorDisaggregation::with('indicator.indicatorTargets')->where('indicator_id', $indicator_id)
+                    ->get();
+
+
 
 
             } else {
@@ -101,10 +106,8 @@ class Add extends Component
     }
 
 
-
-
     public function render()
     {
-        return view('livewire.forms.rtc-market.reports.add');
+        return view('livewire.forms.rtc-market.reports.indicator325');
     }
 }

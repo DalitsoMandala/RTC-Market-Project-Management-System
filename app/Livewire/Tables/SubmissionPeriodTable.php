@@ -74,6 +74,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 return $indicator->indicator_name;
             })
 
+            ->add('indicator_no', function ($model) {
+                $indicator = Indicator::find($model->indicator_id);
+                return $indicator->indicator_no;
+            })
+
             ->add('assigned', function ($model) {
                 $indicator = Indicator::find($model->indicator_id);
 
@@ -148,6 +153,8 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
+            Column::make('indicator #', 'indicator_no')->headerAttribute(classAttr: 'table-sticky-col')
+                ->bodyAttribute(classAttr: 'table-sticky-col'),
             Column::make('Form', 'form_name')
                 ->headerAttribute(classAttr: 'table-sticky-col')
                 ->bodyAttribute(classAttr: 'table-sticky-col')

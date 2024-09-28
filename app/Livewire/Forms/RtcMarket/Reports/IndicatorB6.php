@@ -14,6 +14,7 @@ use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\SubmitAggregateData;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\UserErrorException;
@@ -21,7 +22,7 @@ use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
 
-class Add extends Component
+class IndicatorB6 extends Component
 {
     use LivewireAlert;
     public $openSubmission = false;
@@ -52,7 +53,31 @@ class Add extends Component
 
     public $formData = [];
 
+    public $annual_value = 0; // Predefined or calculated value
+    public $baseline = 0; // Predefined or calculated baseline
+    public $yearNumber = 1;
+    // Form data
+    public $total_percentage = 0; // Calculated in the frontend
+    public $cassava = 0; // User input
+    public $potato = 0; // User input
+    public $sweet_potato = 0; // User input   public $baseline = 0; // Read-only, predefined or calculated value
 
+    // Validation rules
+    protected $rules = [
+
+        'cassava' => 'required|numeric|min:0',
+        'potato' => 'required|numeric|min:0',
+        'sweet_potato' => 'required|numeric|min:0',
+
+    ];
+
+    protected $validationAttributes = [
+        'total_percentage' => 'Total (% Percentage)',
+        'cassava' => 'Cassava',
+        'potato' => 'Potato',
+        'sweet_potato' => 'Sweet Potato',
+        'annual_value' => 'Annual Value',
+    ];
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
 
@@ -89,6 +114,9 @@ class Add extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
+                $this->baseline = $findIndicator->baseline->baseline_value;
+                $this->yearNumber = $findFinancialYear->number;
+
 
 
 
@@ -100,11 +128,53 @@ class Add extends Component
 
     }
 
+    public function save()
+    {
+        $this->validate();
 
+        $user = User::find(Auth::user()->id);
+        $submit = new SubmitAggregateData;
 
+        $data = [
+            'Total(% Percentage)' => $this->total_percentage,
+            'Cassava' => $this->cassava,
+            'Potato' => $this->potato,
+            'Sweet potato' => $this->sweet_potato,
+            'Annual value' => $this->annual_value,
+            'Baseline' => $this->baseline,
+        ];
 
+        // Roles for internal users
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-internal-submissions'),
+                'internal'
+            );
+        }
+        // Roles for external users
+        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+
+        }
+
+    }
     public function render()
     {
-        return view('livewire.forms.rtc-market.reports.add');
+        return view('livewire.forms.rtc-market.reports.indicator-b6');
     }
 }

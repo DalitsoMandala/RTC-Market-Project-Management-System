@@ -2,9 +2,12 @@
 
 namespace App\Livewire\External;
 
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
+use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Models\SubmissionReport;
+use Livewire\Attributes\Validate;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Submissions extends Component
 {
@@ -13,10 +16,28 @@ class Submissions extends Component
     public $variable;
     public $rowId;
 
+    public $status;
+
+    public $comment;
+    public $inputs = [];
+
+    #[On('set')]
     public function setData($id)
     {
-        $this->resetErrorBag();
 
+        $this->resetErrorBag();
+        $submission = Submission::find($id);
+        $this->rowId = $id;
+        $this->status = $submission->status === 'pending' ? null : $submission->status;
+        $this->comment = $submission->comments;
+
+        if ($submission->table_name == 'reports') {
+            $uuid = $submission->batch_no;
+            $reports = SubmissionReport::where('uuid', $uuid)->first();
+            $json_data = json_decode($reports->data, true);
+            $this->inputs = $json_data;
+
+        }
     }
 
     public function save()

@@ -13,6 +13,7 @@ use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
 
-class Add extends Component
+class IndicatorB1 extends Component
 {
     use LivewireAlert;
     public $openSubmission = false;
@@ -51,7 +52,6 @@ class Add extends Component
     public $inputs = [];
 
     public $formData = [];
-
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -92,6 +92,8 @@ class Add extends Component
 
 
 
+
+
             } else {
                 $this->openSubmission = false;
 
@@ -101,10 +103,31 @@ class Add extends Component
     }
 
 
+    public function save()
+    {
+        $this->validate();
 
+        // Prepare data to save as JSON
+        $data = [
+            'total_percentage' => $this->total_percentage,
+            'volume' => $this->volume,
+            'financial_value' => $this->financial_value,
+            'formal_exports' => $this->formal_exports,
+            'informal_exports' => $this->informal_exports,
+            'annual_value' => $this->annual_value,
+            'baseline' => $this->baseline,
+        ];
+
+        SubmissionReport::create([
+
+
+        ]);
+
+        session()->flash('message', 'Targets saved successfully.');
+    }
 
     public function render()
     {
-        return view('livewire.forms.rtc-market.reports.add');
+        return view('livewire.forms.rtc-market.reports.indicator-b1');
     }
 }
