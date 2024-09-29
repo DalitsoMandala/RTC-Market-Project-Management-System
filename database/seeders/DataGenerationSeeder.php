@@ -34,22 +34,62 @@ class DataGenerationSeeder extends Seeder
                 'epa' => $faker->city(),
                 'section' => $faker->word(),
                 'district' => $faker->randomElement(DistrictObject::districts()),
-                'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),
+                'enterprise' => $faker->randomElement([
+                    'Cassava',
+                    'Sweet potato',
+                    'Potato'
+                ]),
                 'date_of_assessment' => $faker->date(),
-                'actor_type' => $faker->randomElement(['Farmer', 'Trader', 'Processor', 'Individuals from nutrition interventions', 'Other']),
-                'rtc_group_platform' => $faker->randomElement(['Household', 'Seed']),
+                'actor_type' => $faker->randomElement([
+                    'Farmer',
+                    'Trader',
+                    'Processor',
+                    'Individuals from nutrition interventions',
+                    'Other'
+                ]),
+                'rtc_group_platform' => $faker->randomElement([
+                    'Household',
+                    'Seed'
+                ]),
                 'producer_organisation' => $faker->company(),
                 'actor_name' => $faker->name(),
-                'age_group' => $faker->randomElement(['Youth', 'Not youth']),
-                'sex' => $faker->randomElement(['Male', 'Female']),
+                'age_group' => $faker->randomElement([
+                    'Youth',
+                    'Not youth'
+                ]),
+                'sex' => $faker->randomElement([
+                    'Male',
+                    'Female'
+                ]),
                 'phone_number' => $faker->optional()->phoneNumber(),
-                'household_size' => $faker->randomElement([10, 20]) * 10,
-                'under_5_in_household' => $faker->randomElement([10, 20]) * 10,
-                'rtc_consumers' => $faker->randomElement([10, 20]) * 10,
-                'rtc_consumers_potato' => $faker->randomElement([10, 20]) * 10,
-                'rtc_consumers_sw_potato' => $faker->randomElement([10, 20]) * 10,
-                'rtc_consumers_cassava' => $faker->randomElement([10, 20]) * 10,
-                'rtc_consumption_frequency' => $faker->randomElement([10, 20]) * 10,
+                'household_size' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
+                'under_5_in_household' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
+                'rtc_consumers' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
+                'rtc_consumers_potato' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
+                'rtc_consumers_sw_potato' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
+                'rtc_consumers_cassava' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
+                'rtc_consumption_frequency' => $faker->randomElement([
+                    10,
+                    20
+                ]) * 10,
                 'uuid' => $faker->uuid(),
                 'user_id' => 3,
                 'submission_period_id' => $faker->numberBetween(1, 3),
@@ -72,7 +112,11 @@ class DataGenerationSeeder extends Seeder
 
             $faker = Faker::create();
             $data->mainFoods()->create([
-                'name' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato'])
+                'name' => $faker->randomElement([
+                    'Cassava',
+                    'Sweet potato',
+                    'Potato'
+                ])
             ]);
         }
 
@@ -87,18 +131,29 @@ class DataGenerationSeeder extends Seeder
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            $crops = [
+                'Cassava',
+                'Sweet potato',
+                'Potato'
+            ];
             return [
                 'main' => [
                     'epa' => $faker->word, // Random word for epa
                     'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
                     'section' => $faker->word, // Random word for section
-                    'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),
+                    'enterprise' => $faker->randomElement([
+                        'Cassava',
+                        'Sweet potato',
+                        'Potato'
+                    ]),
                     'date_of_recruitment' => $faker->date, // Random date
                     'name_of_actor' => $faker->name, // Random name
                     'name_of_representative' => $faker->name, // Random name
                     'phone_number' => $faker->phoneNumber, // Random phone number
-                    'type' => $faker->randomElement(['Producer organization (PO)', 'Large scale farm']),
+                    'type' => $faker->randomElement([
+                        'Producer organization (PO)',
+                        'Large scale farm'
+                    ]),
 
                     'approach' => $faker->optional()->randomElement([
                         'Collective production only',
@@ -108,7 +163,10 @@ class DataGenerationSeeder extends Seeder
                         'N/A'
                     ]),
 
-                    'sector' => $faker->randomElement(['Public', 'Private']), // Random sector
+                    'sector' => $faker->randomElement([
+                        'Public',
+                        'Private'
+                    ]), // Random sector
                     'group' => $faker->randomElement([
                         'Early generation seed producer',
                         'Seed multiplier',
@@ -124,12 +182,30 @@ class DataGenerationSeeder extends Seeder
                     'registration_body' => $faker->company, // Random company for registration body
                     'registration_number' => $faker->unique()->numerify('REG-####'), // Random unique registration number
                     'registration_date' => $faker->date, // Random registration date
-                    'number_of_plantlets_produced_cassava' => $faker->randomElement([10, 20]) * 10, // Random number for plantlets produced (cassava)
-                    'number_of_plantlets_produced_potato' => $faker->randomElement([10, 20]) * 10, // Random number for plantlets produced (potato)
-                    'number_of_plantlets_produced_sweet_potato' => $faker->randomElement([10, 20]) * 10, // Random number for plantlets produced (sweet potato)
-                    'number_of_screen_house_vines_harvested' => $faker->randomElement([10, 20]) * 10, // Random number for vines harvested
-                    'number_of_screen_house_min_tubers_harvested' => $faker->randomElement([10, 20]) * 10, // Random number for tubers harvested
-                    'number_of_sah_plants_produced' => $faker->randomElement([10, 20]) * 10, // Random number for SAH plants produced
+                    'number_of_plantlets_produced_cassava' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for plantlets produced (cassava)
+                    'number_of_plantlets_produced_potato' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for plantlets produced (potato)
+                    'number_of_plantlets_produced_sweet_potato' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for plantlets produced (sweet potato)
+                    'number_of_screen_house_vines_harvested' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for vines harvested
+                    'number_of_screen_house_min_tubers_harvested' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for tubers harvested
+                    'number_of_sah_plants_produced' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for SAH plants produced
                     'is_registered_seed_producer' => $faker->boolean, // Random boolean for registered seed producer
                     'registration_number_seed_producer' => $faker->unique()->numerify('SEED-####'), // Random seed registration number
                     'registration_date_seed_producer' => $faker->date, // Random date for seed producer registration
@@ -137,12 +213,18 @@ class DataGenerationSeeder extends Seeder
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
                     'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
-                    'total_vol_production_previous_season' => $faker->randomElement([10, 20]) * 10, // Random volume for production (metric tonnes)
+                    'total_vol_production_previous_season' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for production (metric tonnes)
                     'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
                     'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
                     'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
                     'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value
-                    'total_vol_irrigation_production_previous_season' => $faker->randomElement([10, 20]) * 10, // Random volume for irrigation production
+                    'total_vol_irrigation_production_previous_season' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for irrigation production
                     'irr_prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random total value for irrigation production
                     'irr_prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales (irrigation)
                     'irr_prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate for irrigation
@@ -158,33 +240,81 @@ class DataGenerationSeeder extends Seeder
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
                     'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
-                    'total_vol_aggregation_center_sales' => $faker->randomElement([10, 20]) * 10, // Random volume for aggregation center sales
-                    'emp_formal_female_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for formal female employees 18-35
-                    'emp_formal_male_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for formal male employees 18-35
-                    'emp_formal_male_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for formal male employees 35+
-                    'emp_formal_female_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for formal female employees 35+
-                    'emp_informal_female_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for informal female employees 18-35
-                    'emp_informal_male_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for informal male employees 18-35
-                    'emp_informal_male_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for informal male employees 35+
-                    'emp_informal_female_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for informal female employees 35+
-                    'mem_female_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for female members 18-35
-                    'mem_male_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for male members 18-35
-                    'mem_male_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for male members 35+
-                    'mem_female_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for female members 35+
+                    'total_vol_aggregation_center_sales' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for aggregation center sales
+                    'emp_formal_female_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal female employees 18-35
+                    'emp_formal_male_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal male employees 18-35
+                    'emp_formal_male_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal male employees 35+
+                    'emp_formal_female_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal female employees 35+
+                    'emp_informal_female_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal female employees 18-35
+                    'emp_informal_male_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal male employees 18-35
+                    'emp_informal_male_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal male employees 35+
+                    'emp_informal_female_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal female employees 35+
+                    'mem_female_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for female members 18-35
+                    'mem_male_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for male members 18-35
+                    'mem_male_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for male members 35+
+                    'mem_female_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for female members 35+
                 ],
 
                 'cultivation' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
                 'area_under_basic_seed_multiplication' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
 
                 'area_under_certified_seed_multiplication' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
 
                 'aggregation_center_sales' => [
@@ -208,7 +338,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -226,7 +359,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -244,14 +380,16 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
 
 
             ];
-
         }
 
 
@@ -271,7 +409,6 @@ class DataGenerationSeeder extends Seeder
             $farmer->intermarkets()->create($data['inter']);
             $farmer->agreements()->create($data['conc_aggrement']);
             $faker = Faker::create();
-
         }
 
 
@@ -285,7 +422,11 @@ class DataGenerationSeeder extends Seeder
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            $crops = [
+                'Cassava',
+                'Sweet potato',
+                'Potato'
+            ];
             return [
                 'main' => [
                     // 'epa' => $faker->word, // Random word for epa
@@ -294,12 +435,30 @@ class DataGenerationSeeder extends Seeder
                     // 'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),
                     'date_of_follow_up' => $faker->date, // Random date
 
-                    'number_of_plantlets_produced_cassava' => $faker->randomElement([10, 20]) * 10, // Random number for plantlets produced (cassava)
-                    'number_of_plantlets_produced_potato' => $faker->randomElement([10, 20]) * 10, // Random number for plantlets produced (potato)
-                    'number_of_plantlets_produced_sweet_potato' => $faker->randomElement([10, 20]) * 10, // Random number for plantlets produced (sweet potato)
-                    'number_of_screen_house_vines_harvested' => $faker->randomElement([10, 20]) * 10, // Random number for vines harvested
-                    'number_of_screen_house_min_tubers_harvested' => $faker->randomElement([10, 20]) * 10, // Random number for tubers harvested
-                    'number_of_sah_plants_produced' => $faker->randomElement([10, 20]) * 10, // Random number for SAH plants produced
+                    'number_of_plantlets_produced_cassava' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for plantlets produced (cassava)
+                    'number_of_plantlets_produced_potato' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for plantlets produced (potato)
+                    'number_of_plantlets_produced_sweet_potato' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for plantlets produced (sweet potato)
+                    'number_of_screen_house_vines_harvested' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for vines harvested
+                    'number_of_screen_house_min_tubers_harvested' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for tubers harvested
+                    'number_of_sah_plants_produced' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for SAH plants produced
                     'is_registered_seed_producer' => $faker->boolean, // Random boolean for registered seed producer
                     'registration_number_seed_producer' => $faker->unique()->numerify('SEED-####'), // Random seed registration number
                     'registration_date_seed_producer' => $faker->date, // Random date for seed producer registration
@@ -307,12 +466,18 @@ class DataGenerationSeeder extends Seeder
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
                     'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
-                    'total_vol_production_previous_season' => $faker->randomElement([10, 20]) * 10, // Random volume for production (metric tonnes)
+                    'total_vol_production_previous_season' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for production (metric tonnes)
                     'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
                     'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
                     'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
                     'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value
-                    'total_vol_irrigation_production_previous_season' => $faker->randomElement([10, 20]) * 10, // Random volume for irrigation production
+                    'total_vol_irrigation_production_previous_season' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for irrigation production
                     'irr_prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random total value for irrigation production
                     'irr_prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales (irrigation)
                     'irr_prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate for irrigation
@@ -323,21 +488,33 @@ class DataGenerationSeeder extends Seeder
                     'user_id' => 3, // Random user ID
                     'status' => 'approved', // Fixed value
                     'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
-                    'total_vol_aggregation_center_sales' => $faker->randomElement([10, 20]) * 10, // Random volume for aggregation center sales
+                    'total_vol_aggregation_center_sales' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for aggregation center sales
                 ],
 
                 'cultivation' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
                 'area_under_basic_seed_multiplication' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
 
                 'area_under_certified_seed_multiplication' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
 
                 'aggregation_center_sales' => [
@@ -361,7 +538,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -379,7 +559,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -397,14 +580,16 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
 
 
             ];
-
         }
 
         foreach (range(1, 10) as $index) {
@@ -420,7 +605,6 @@ class DataGenerationSeeder extends Seeder
             $farmer->intermarkets()->create($data['inter']);
             $farmer->agreements()->create($data['conc_aggrement']);
             $faker = Faker::create();
-
         }
 
 
@@ -435,18 +619,29 @@ class DataGenerationSeeder extends Seeder
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            $crops = [
+                'Cassava',
+                'Sweet potato',
+                'Potato'
+            ];
             return [
                 'main' => [
                     'epa' => $faker->word, // Random word for epa
                     'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
                     'section' => $faker->word, // Random word for section
-                    'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),
+                    'enterprise' => $faker->randomElement([
+                        'Cassava',
+                        'Sweet potato',
+                        'Potato'
+                    ]),
                     'date_of_recruitment' => $faker->date, // Random date
                     'name_of_actor' => $faker->name, // Random name
                     'name_of_representative' => $faker->name, // Random name
                     'phone_number' => $faker->phoneNumber, // Random phone number
-                    'type' => $faker->randomElement(['Producer organization (PO)', 'Large scale farm']),
+                    'type' => $faker->randomElement([
+                        'Producer organization (PO)',
+                        'Large scale farm'
+                    ]),
 
                     'approach' => $faker->optional()->randomElement([
                         'Collective production only',
@@ -456,7 +651,10 @@ class DataGenerationSeeder extends Seeder
                         'N/A'
                     ]),
 
-                    'sector' => $faker->randomElement(['Public', 'Private']), // Random sector
+                    'sector' => $faker->randomElement([
+                        'Public',
+                        'Private'
+                    ]), // Random sector
                     'group' => $faker->randomElement([
 
                         'Other'
@@ -474,7 +672,10 @@ class DataGenerationSeeder extends Seeder
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
                     'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
-                    'total_vol_production_previous_season' => $faker->randomElement([10, 20]) * 10, // Random volume for production (metric tonnes)
+                    'total_vol_production_previous_season' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for production (metric tonnes)
                     'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
                     'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
                     'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
@@ -491,19 +692,58 @@ class DataGenerationSeeder extends Seeder
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
                     'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
-                    'total_vol_aggregation_center_sales' => $faker->randomElement([10, 20]) * 10, // Random volume for aggregation center sales
-                    'emp_formal_female_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for formal female employees 18-35
-                    'emp_formal_male_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for formal male employees 18-35
-                    'emp_formal_male_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for formal male employees 35+
-                    'emp_formal_female_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for formal female employees 35+
-                    'emp_informal_female_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for informal female employees 18-35
-                    'emp_informal_male_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for informal male employees 18-35
-                    'emp_informal_male_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for informal male employees 35+
-                    'emp_informal_female_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for informal female employees 35+
-                    'mem_female_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for female members 18-35
-                    'mem_male_18_35' => $faker->randomElement([10, 20]) * 10, // Random number for male members 18-35
-                    'mem_male_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for male members 35+
-                    'mem_female_35_plus' => $faker->randomElement([10, 20]) * 10, // Random number for female members 35+
+                    'total_vol_aggregation_center_sales' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for aggregation center sales
+                    'emp_formal_female_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal female employees 18-35
+                    'emp_formal_male_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal male employees 18-35
+                    'emp_formal_male_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal male employees 35+
+                    'emp_formal_female_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for formal female employees 35+
+                    'emp_informal_female_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal female employees 18-35
+                    'emp_informal_male_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal male employees 18-35
+                    'emp_informal_male_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal male employees 35+
+                    'emp_informal_female_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for informal female employees 35+
+                    'mem_female_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for female members 18-35
+                    'mem_male_18_35' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for male members 18-35
+                    'mem_male_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for male members 35+
+                    'mem_female_35_plus' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random number for female members 35+
                 ],
 
 
@@ -531,7 +771,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -549,7 +792,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -567,14 +813,16 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
 
 
             ];
-
         }
         foreach (range(1, 10) as $index) {
             $data = rpmp();
@@ -586,8 +834,6 @@ class DataGenerationSeeder extends Seeder
             $farmer->doms()->create($data['domestic']);
             $farmer->intermarkets()->create($data['inter']);
             $farmer->agreements()->create($data['conc_aggrement']);
-
-
         }
 
 
@@ -601,7 +847,11 @@ class DataGenerationSeeder extends Seeder
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            $crops = [
+                'Cassava',
+                'Sweet potato',
+                'Potato'
+            ];
             return [
                 'main' => [
                     // 'epa' => $faker->word, // Random word for epa
@@ -614,7 +864,10 @@ class DataGenerationSeeder extends Seeder
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
                     'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
-                    'total_vol_production_previous_season' => $faker->randomElement([10, 20]) * 10, // Random volume for production (metric tonnes)
+                    'total_vol_production_previous_season' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for production (metric tonnes)
                     'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
                     'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
                     'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
@@ -625,21 +878,33 @@ class DataGenerationSeeder extends Seeder
                     'user_id' => 3, // Random user ID
                     'status' => 'approved', // Fixed value
                     'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
-                    'total_vol_aggregation_center_sales' => $faker->randomElement([10, 20]) * 10, // Random volume for aggregation center sales
+                    'total_vol_aggregation_center_sales' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume for aggregation center sales
                 ],
 
                 'cultivation' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
                 'area_under_basic_seed_multiplication' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
 
                 'area_under_certified_seed_multiplication' => [
                     'variety' => $faker->word(),
-                    'area' => $faker->randomElement([10, 20]) * 10
+                    'area' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10
                 ],
 
                 'aggregation_center_sales' => [
@@ -663,7 +928,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -681,7 +949,10 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
@@ -699,14 +970,16 @@ class DataGenerationSeeder extends Seeder
                         'Value added products'
                     ]),
 
-                    'volume_sold_previous_period' => $faker->randomElement([10, 20]) * 10, // Random volume sold
+                    'volume_sold_previous_period' => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10, // Random volume sold
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
 
 
             ];
-
         }
 
         foreach (range(1, 10) as $index) {
@@ -720,7 +993,6 @@ class DataGenerationSeeder extends Seeder
             $farmer->intermarkets()->create($data['inter']);
             $farmer->agreements()->create($data['conc_aggrement']);
             $faker = Faker::create();
-
         }
 
 
@@ -734,7 +1006,11 @@ class DataGenerationSeeder extends Seeder
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            $crops = [
+                'Cassava',
+                'Sweet potato',
+                'Potato'
+            ];
             return [
                 'main' => [
 
@@ -744,9 +1020,18 @@ class DataGenerationSeeder extends Seeder
                     "school_name" => $faker->word,
                     "date" => $faker->date,
                     "crop" => $faker->randomElement($crops),
-                    "male_count" => $faker->randomElement([10, 20]) * 10,
-                    "female_count" => $faker->randomElement([10, 20]) * 10,
-                    "total" => $faker->randomElement([10, 20]) * 10,
+                    "male_count" => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10,
+                    "female_count" => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10,
+                    "total" => $faker->randomElement([
+                        10,
+                        20
+                    ]) * 10,
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
                     'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
@@ -760,7 +1045,6 @@ class DataGenerationSeeder extends Seeder
 
 
             ];
-
         }
 
         foreach (range(1, 10) as $index) {
@@ -779,7 +1063,11 @@ class DataGenerationSeeder extends Seeder
                 'updated_at' => now()->toDateTimeString()
             ];
 
-            $crops = ['Cassava', 'Sweet potato', 'Potato'];
+            $crops = [
+                'Cassava',
+                'Sweet potato',
+                'Potato'
+            ];
             return [
                 'main' => [
 
@@ -794,7 +1082,10 @@ class DataGenerationSeeder extends Seeder
                     'endDate' => $faker->date, // Random date
                     'totalDays' => $faker->numberBetween(1, 14), // Random number between 1 and 14
                     'name' => $faker->name, // Random full name
-                    'sex' => $faker->randomElement(['Male', 'Female']), // Random gender
+                    'sex' => $faker->randomElement([
+                        'Male',
+                        'Female'
+                    ]), // Random gender
                     'organization' => $faker->company, // Random company/organization name
                     'designation' => $faker->jobTitle, // Random job title
                     'phone_number' => $faker->phoneNumber, // Random phone number
@@ -814,7 +1105,6 @@ class DataGenerationSeeder extends Seeder
 
 
             ];
-
         }
 
         foreach (range(1, 10) as $index) {
@@ -851,7 +1141,5 @@ class DataGenerationSeeder extends Seeder
                 ])
             ]);
         }
-
-
     }
 }

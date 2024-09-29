@@ -14,12 +14,14 @@ use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\SubmitAggregateData;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\UserErrorException;
 use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
+
 class Indicator231 extends Component
 {
     use LivewireAlert;
@@ -51,6 +53,43 @@ class Indicator231 extends Component
 
     public $formData = [];
 
+    // Form data
+    public $total_percentage = 0; // Calculated in the frontend
+    public $cassava;
+    public $potato;
+    public $sweet_potato;
+    public $pos; // POs (Producer Organizations)
+    public $smes; // SMEs
+    public $large_scale_commercial_farmers;
+    public $basic; // Basic
+    public $certified; // Certified
+    public $annual_value = 0; // Predefined or calculated value
+    public $baseline = 0; // Predefined or calculated baseline
+    public $yearNumber = 1;
+    // Validation rules
+    protected $rules = [
+        //  'total_percentage' => 'required|numeric|min:0|max:100',
+        'cassava' => 'required|numeric|min:0',
+        'potato' => 'required|numeric|min:0',
+        'sweet_potato' => 'required|numeric|min:0',
+        'pos' => 'required|numeric|min:0',
+        'smes' => 'required|numeric|min:0',
+        'large_scale_commercial_farmers' => 'required|numeric|min:0',
+        'basic' => 'required|numeric|min:0',
+        'certified' => 'required|numeric|min:0',
+        //   'annual_value' => 'required|numeric|min:0', // Not directly input but needs validation
+    ];
+
+    protected $validationAttributes = [
+        //'total_percentage' => 'Total (% Percentage)',
+        'cassava' => 'Cassava',
+        'potato' => 'Potato',
+        'sweet_potato' => 'Sweet Potato',
+        'pos' => 'POs (Producer Organizations)',
+        'smes' => 'SMEs',
+        'large_scale_commercial_farmers' => 'Large Scale Commercial Farmers',
+        //   'annual_value' => 'Annual Value',
+    ];
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -58,7 +97,6 @@ class Indicator231 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -69,7 +107,6 @@ class Indicator231 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -89,23 +126,64 @@ class Indicator231 extends Component
 
                 $this->openSubmission = true;
 
-                $user = Auth::user();
-
-                $this->inputs = IndicatorDisaggregation::with('indicator.indicatorTargets')->where('indicator_id', $indicator_id)
-                    ->get();
-
-
-
-
+                $this->openSubmission = true;
+                $this->baseline = $findIndicator->baseline->baseline_value;
+                $this->yearNumber = $findFinancialYear->number;
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
+    public function save()
+    {
+        $this->validate();
 
+        $user = User::find(Auth::user()->id);
+        $submit = new SubmitAggregateData;
+
+        // Prepare data array for submission
+        $data = [
+            'Total (% Percentage)' => $this->total_percentage,
+            'Cassava' => $this->cassava,
+            'Potato' => $this->potato,
+            'Sweet potato' => $this->sweet_potato,
+            'POs (Producer Organizations)' => $this->pos,
+            'SMEs' => $this->smes,
+            'Large scale commercial farmers' => $this->large_scale_commercial_farmers,
+            'Basic' => $this->basic,
+            'Certified' => $this->certified,
+            'Annual value' => $this->annual_value,
+            'Baseline' => $this->baseline,
+        ];
+
+        // Roles for internal users
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-internal-submissions'),
+                'internal'
+            );
+        }
+        // Roles for external users
+        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+        }
+    }
     public function render()
     {
         return view('livewire.forms.rtc-market.reports.indicator231');

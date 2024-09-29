@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //
-        Artisan::call('exchange-rates:fetch');
+
         function getOrganisationId($name)
         {
             $org = Organisation::where('name', $name)->first();
@@ -45,13 +45,13 @@ class UserSeeder extends Seeder
             'organisation_id' => 1,
         ])->assignRole(['admin']);
 
-        User::create([
-            'name' => 'Jamila',
-            'email' => 'donor@example.com',
-            'password' => Hash::make('password'),
-            'phone_number' => '+9999999999',
-            'organisation_id' => 11,
-        ])->assignRole(['external', 'donor']);
+        // User::create([
+        //     'name' => 'Jamila',
+        //     'email' => 'donor@example.com',
+        //     'password' => Hash::make('password'),
+        //     'phone_number' => '+9999999999',
+        //     'organisation_id' => 11,
+        // ])->assignRole(['external', 'donor']);
 
         User::create([
             'name' => 'Eliya Kapalasa',
@@ -89,12 +89,12 @@ class UserSeeder extends Seeder
         ])->assignRole(['external', 'organiser']);
 
         User::create([
-            'name' => 'John Smith 2',
-            'email' => 'iita2@example.com',
+            'name' => 'John Mateck',
+            'email' => 'tradeline@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 3,
-        ])->assignRole(['external', 'staff']);
+            'organisation_id' => 7,
+        ])->assignRole(['external', 'organiser']);
 
         User::create([
             'name' => 'Jack Smith',

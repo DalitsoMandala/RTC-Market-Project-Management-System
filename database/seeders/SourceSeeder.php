@@ -15,6 +15,16 @@ class SourceSeeder extends Seeder
     public function run(): void
     {
 
+        $forms = [
+            'HOUSEHOLD CONSUMPTION FORM',
+            'RTC PRODUCTION AND MARKETING FORM FARMERS',
+            'RTC PRODUCTION AND MARKETING FORM PROCESSORS',
+            'SCHOOL RTC CONSUMPTION FORM',
+            'ATTENDANCE REGISTER',
+            'REPORT FORM',
+
+        ];
+
         $entries = [
             ['person_id' => 2, 'form_id' => 1],
             ['person_id' => 2, 'form_id' => 2],
@@ -25,7 +35,7 @@ class SourceSeeder extends Seeder
             ['person_id' => 3, 'form_id' => 1],
             ['person_id' => 3, 'form_id' => 2],
             ['person_id' => 3, 'form_id' => 3],
-            ['person_id' => 3, 'form_id' => 5],//added some attendance
+            ['person_id' => 3, 'form_id' => 5], //added some attendance
             ['person_id' => 4, 'form_id' => 1],
             ['person_id' => 4, 'form_id' => 2],
             ['person_id' => 4, 'form_id' => 3],
@@ -129,9 +139,9 @@ class SourceSeeder extends Seeder
             ['person_id' => 82, 'form_id' => 6],
             ['person_id' => 83, 'form_id' => 6],
             ['person_id' => 84, 'form_id' => 6],
-            ['person_id' => 85, 'form_id' => 6],
-            ['person_id' => 86, 'form_id' => 6],
-            ['person_id' => 87, 'form_id' => 6],
+            ['person_id' => 85, 'form_id' => 1],
+            ['person_id' => 86, 'form_id' => 1],
+            ['person_id' => 87, 'form_id' => 1],
             ['person_id' => 88, 'form_id' => 1],
             ['person_id' => 89, 'form_id' => 1],
             ['person_id' => 90, 'form_id' => 1],
@@ -155,7 +165,5 @@ class SourceSeeder extends Seeder
         foreach ($entries as $entry) {
             Source::create($entry);
         }
-
-
     }
 }
