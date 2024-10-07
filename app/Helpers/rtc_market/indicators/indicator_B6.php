@@ -4,6 +4,7 @@ namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Helpers\IncreasePercentage;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -24,8 +25,19 @@ class indicator_B6
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
+
+    public function findIndicator()
+    {
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->where('indicator_no', 'B6')->first();
+        if (!$indicator) {
+            Log::error('Indicator not found');
+            return null; // Or throw an exception if needed
+        }
+
+        return $indicator;
+    }
+
     public function builder(): Builder
     {
 
@@ -70,46 +82,60 @@ class indicator_B6
 
 
         return $query;
-
     }
 
     public function getTotals()
     {
-
-        $builder = $this->builder()->get();
+        // Initialize the totals for the relevant fields
         $data = collect([
-            "Total" => 0,
-            "Cassava" => 0,
-            "Potato" => 0,
-            "Sweet potato" => 0,
-
+            'Total (% Percentage)' => 0,
+            'Cassava' => 0,
+            'Potato' => 0,
+            'Sweet potato' => 0,
         ]);
 
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
+        // Process the builder in chunks to prevent memory overload
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
                 $json = collect(json_decode($model->data, true));
 
-
-
+                // Add the values for each key to the totals
                 foreach ($data as $key => $dt) {
-
                     if ($json->has($key)) {
-
                         $data->put($key, $data->get($key) + $json[$key]);
                     }
                 }
-
             });
-
-
-        }
+        });
 
         return $data;
     }
+
     public function getDisaggregations()
     {
-        return $this->getTotals()->toArray();
+        // Get the totals from getTotals() method
+        $totals = $this->getTotals();
+
+        // Subtotal based on Cassava, Potato, and Sweet potato
+        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
+
+        // Retrieve the indicator to get the baseline
+        $indicator = $this->findIndicator();
+
+        // Get the baseline value, defaulting to 0 if the indicator or baseline doesn't exist
+        $baseline = $indicator->baseline->baseline_value ?? 0;
+
+        // Calculate the percentage increase based on the subtotal and baseline
+        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
+        $finalTotalPercentage = $percentageIncrease->percentage();
+
+        // Return the disaggregated data
+        return [
+            "Total (% Percentage)" => $finalTotalPercentage, // Calculated percentage increase
+            'Cassava' => $totals['Cassava'],
+            'Potato' => $totals['Potato'],
+            'Sweet potato' => $totals['Sweet potato'],
+        ];
     }
 }

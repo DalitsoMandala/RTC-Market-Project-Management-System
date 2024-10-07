@@ -2,20 +2,21 @@
 
 namespace Database\Seeders;
 
-use App\Models\IndicatorDisaggregation;
-use App\Models\SubmissionReport;
+use App\Models\Indicator;
 use Faker\Factory as Faker;
 use App\Helpers\DistrictObject;
 use Illuminate\Database\Seeder;
+use App\Models\SubmissionReport;
 use App\Models\RpmFarmerFollowUp;
+use App\Models\AttendanceRegister;
 use Illuminate\Support\Collection;
 use App\Models\RtcProductionFarmer;
+use App\Models\SchoolRtcConsumption;
 use App\Models\RtcProductionProcessor;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerFollowUp;
-use App\Models\AttendanceRegister;
-use App\Models\SchoolRtcConsumption;
 
 class DataGenerationSeeder extends Seeder
 {
@@ -1118,28 +1119,32 @@ class DataGenerationSeeder extends Seeder
 
         foreach (range(1, 10) as $index) {
             $faker = Faker::create();
-            SubmissionReport::create([
-                'user_id' => $faker->numberBetween(4, 7), // Random user ID
-                'uuid' => $faker->uuid, // Random UUID
-                'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
-                'organisation_id' => 1, // Random organisation ID
-                'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                'status' => 'approved', // Fixed value
-                // 'submission_id' => 1,
-                'indicator_id' => 3,
-                'data' => json_encode([
-                    "Raw" => $faker->numberBetween(1, 10) * 10,
-                    "Potato" => $faker->numberBetween(1, 10) * 10,
-                    "Cassava" => $faker->numberBetween(1, 10) * 10,
-                    "Processed" => $faker->numberBetween(1, 10) * 10,
-                    "Sweet potato" => $faker->numberBetween(1, 10) * 10,
-                    "Formal exports" => $faker->numberBetween(1, 10) * 10,
-                    "Informal exports" => $faker->numberBetween(1, 10) * 10,
-                    "Financial value ($)" => $faker->numberBetween(1, 10) * 10,
-                    "Volume (Metric Tonnes)" => $faker->numberBetween(1, 10) * 10,
-                ])
-            ]);
+
+            foreach (Indicator::with(['disaggregations', 'forms'])->get() as $indicator) {
+                $disagg = $indicator->disaggregations;
+                $dataAndDisagg = [];
+                $reports = $indicator->forms->where('name', 'REPORT FORM')->count();
+                if ($reports > 0) {
+                    foreach ($disagg as $dsg) {
+                        $name = strtolower($dsg->name);
+
+                        $dataAndDisagg[$dsg->name] = $faker->numberBetween(1, 10) * 10;
+                    }
+
+                    SubmissionReport::create([
+                        'user_id' => $faker->numberBetween(4, 7), // Random user ID
+                        'uuid' => $faker->uuid, // Random UUID
+                        'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                        'organisation_id' => 1, // Random organisation ID
+                        'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
+                        'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
+                        'status' => 'approved', // Fixed value
+                        // 'submission_id' => 1,
+                        'indicator_id' => $indicator->id,
+                        'data' => json_encode($dataAndDisagg)
+                    ]);
+                }
+            }
         }
     }
 }

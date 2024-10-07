@@ -18,6 +18,7 @@ use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
 use App\Models\ReportingPeriodMonth;
+use App\Models\SubmissionTarget;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
 
@@ -54,11 +55,42 @@ class SubPeriod extends Component
     public $selectedIndicator;
 
     public $all;
+
+    public $targets = []; // This will hold the dynamically added targets
+    public $disableTarget = true;
+    protected $rules = [
+        'targets' => 'required|array|min:1',
+        'targets.*.name' => 'required|string',
+        'targets.*.value' => 'required|numeric',
+    ];
+
+
+    protected $messages = [
+        'targets.*.name.required' => 'Target name required',
+        'targets.*.value.required' => 'Target value required',
+
+    ];
     public function mount()
     {
         $this->loadData();
+        $this->targets = [['name' => 'Total', 'value' => '']];
+    }
+    /**
+     * Add a new target to the array
+     */
+    public function addTarget()
+    {
+        $this->targets[] = ['name' => '', 'value' => ''];
     }
 
+    /**
+     * Remove a target from the array
+     */
+    public function removeTarget($index)
+    {
+        unset($this->targets[$index]);
+        $this->targets = array_values($this->targets); // Reindex the array
+    }
     public function loadData()
     {
         $this->projects = Project::all();
@@ -169,6 +201,25 @@ class SubPeriod extends Component
                     foreach ($this->selectedForm as $formId) {
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }
+
+
+                    $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                        ->where('financial_year_id', $this->selectedFinancialYear)
+                        ->where('month_range_period_id', $this->selectedMonth)->first();
+
+                    if ($checkTargets) {
+                        $checkTargets->delete();
+                    }
+
+                    foreach ($this->targets as $target) {
+                        SubmissionTarget::create([
+                            'month_range_period_id' => $this->selectedMonth,
+                            'financial_year_id' => $this->selectedFinancialYear,
+                            'indicator_id' => $this->selectedIndicator,
+                            'target_name' => $target['name'],
+                            'target_value' => $target['value'],
+                        ]);
+                    }
                     session()->flash('success', 'Created Successfully');
 
 
@@ -213,8 +264,6 @@ class SubPeriod extends Component
 
                 SendNotificationJob::dispatch($user, $messageContent, $link);
             }
-
-
         }
     }
 
@@ -240,6 +289,28 @@ class SubPeriod extends Component
                 $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }
+
+
+        if ($this->selectedIndicator && $this->selectedMonth && $this->selectedFinancialYear) {
+
+            $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->get();
+
+            if ($targets->isNotEmpty()) {
+                foreach ($targets as $target) {
+                    $this->targets = [
+                        ['name' => $target->target_name, 'value' => $target->target_value]
+                    ];
+                }
+
+                $this->disableTarget = false;
+            } else {
+                $this->targets = [['name' => '', 'value' => '']];
+                $this->disableTarget = true;
+            }
+        }
     }
 
     public function updatedSelectedIndicator()
@@ -259,8 +330,6 @@ class SubPeriod extends Component
     public function render()
     {
 
-        return view('livewire.internal.cip.sub-period', [
-
-        ]);
+        return view('livewire.internal.cip.sub-period', []);
     }
 }

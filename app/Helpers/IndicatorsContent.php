@@ -405,10 +405,11 @@ class IndicatorsContent
                 '(Formal) Cassava',
                 '(Formal) Potato',
                 '(Formal) Sweet potato',
-
+                // 'Formal exports',
                 '(Informal) Cassava',
                 '(Informal) Potato',
                 '(Informal) Sweet potato',
+                // 'Informal exports',
                 'Raw',
                 'Processed',
             ],
@@ -419,7 +420,7 @@ class IndicatorsContent
                 '(Formal) Cassava',
                 '(Formal) Potato',
                 '(Formal) Sweet potato',
-
+                //'Formal imports'
             ],
             "Number of people consuming RTC and processed products" => [
                 'Total',
@@ -432,8 +433,8 @@ class IndicatorsContent
                 'Cassava',
                 'Potato',
                 'Sweet potato',
-                'Certified seed produce',
-                'Value added RTC products'
+                //  'Certified seed produce',
+                //  'Value added RTC products'
             ],
             "Percentage increase in RTC investment" => [
                 'Total (% Percentage)',

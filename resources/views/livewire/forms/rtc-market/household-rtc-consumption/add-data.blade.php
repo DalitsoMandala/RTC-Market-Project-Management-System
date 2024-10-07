@@ -34,12 +34,13 @@
 
 
                 @if ($openSubmission === false)
-                <div class="alert alert-warning" role="alert">
-                    You can not submit a form right now
-                    because submissions are closed for the moment!
-                </div>
+                    <div class="alert alert-warning" role="alert">
+                        You can not submit a form right now
+                        because submissions are closed for the moment!
+                    </div>
                 @endif
-                <div class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif" x-data="{
+                <div class="mb-1 row justify-content-center @if ($openSubmission === false) opacity-25  pe-none @endif"
+                    x-data="{
                         selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
                         selectedMonth: $wire.entangle('selectedMonth'),
                         selectedIndicator: $wire.entangle('selectedIndicator'),
@@ -56,9 +57,11 @@
                                     <label for="" class="form-label ">ENTERPRISE</label>
                                     <div class="form-group">
 
-                                        <select class="form-select @error('enterprise')
+                                        <select
+                                            class="form-select @error('enterprise')
                                             is-invalid
-                                        @enderror" wire:model='enterprise'>
+                                        @enderror"
+                                            wire:model='enterprise'>
                                             <option value="">Select one</option>
                                             <option value="Cassava">Cassava</option>
                                             <option value="Potato">Potato</option>
@@ -69,18 +72,20 @@
                                     <x-text-input wire:model='enterprise'
                                         :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
                                     @error('enterprise')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
                                 <div class="mb-3">
                                     <label for="" class="form-label">DISTRICT</label>
-                                    <select class="form-select @error('district')
+                                    <select
+                                        class="form-select @error('district')
                                         is-invalid
-                                    @enderror" wire:model='district'>
+                                    @enderror"
+                                        wire:model='district'>
                                         @include('layouts.district-options')
                                     </select>
                                     @error('district')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
@@ -88,7 +93,7 @@
                                     <label for="" class="form-label">EPA</label>
                                     <x-text-input wire:model='epa' :class="$errors->has('epa') ? 'is-invalid' : ''" />
                                     @error('epa')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
@@ -96,7 +101,7 @@
                                     <label for="" class="form-label">SECTION</label>
                                     <x-text-input wire:model='section' :class="$errors->has('section') ? 'is-invalid' : ''" />
                                     @error('section')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
@@ -105,240 +110,282 @@
                                 <div class="col-12 ">
 
                                     @php
-                                    $form_count = 0;
+                                        $form_count = 0;
                                     @endphp
                                     @foreach ($inputs as $key => $value)
-                                    <div class="mb-3">
-                                        <label for="assessmentDate" class="form-label">Date of
-                                            Assessment
-                                            (YY/MM/DD)
-                                        </label>
-                                        <input type="date" class="form-control @error('inputs.' . $key . '.date_of_assessment') is-invalid @enderror" wire:model="inputs.{{ $key }}.date_of_assessment">
+                                        <div class="mb-3">
+                                            <label for="assessmentDate" class="form-label">Date of
+                                                Assessment
+                                                (YY/MM/DD)
+                                            </label>
+                                            <input type="date"
+                                                class="form-control @error('inputs.' . $key . '.date_of_assessment') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.date_of_assessment">
 
-                                        @error('inputs.' . $key . '.date_of_assessment')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="actorType" class="form-label">Actor Type</label>
-                                        <select class="form-select @error('inputs.' . $key . '.actor_type') is-invalid @enderror" wire:model="inputs.{{ $key }}.actor_type">
-                                            <option value="">Select one</option>
-                                            <option value="Farmer">Farmer</option>
-                                            <option value="Processor">Processor</option>
-                                            <option value="Trader">Trader</option>
-                                            <option value="Individuals from nutrition interventions">
-                                                Individuals
-                                                from
-                                                Nutrition
-                                                Interventions</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                        @error('inputs.' . $key . '.actor_type')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="rtcGroup" class="form-label">RTC
-                                            Group/Platform</label>
-                                        <select class="form-select @error('inputs.' . $key . '.rtc_group_platform') is-invalid @enderror" wire:model="inputs.{{ $key }}.rtc_group_platform">
+                                            @error('inputs.' . $key . '.date_of_assessment')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="actorType" class="form-label">Actor Type</label>
+                                            <select
+                                                class="form-select @error('inputs.' . $key . '.actor_type') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.actor_type">
+                                                <option value="">Select one</option>
+                                                <option value="Farmer">Farmer</option>
+                                                <option value="Processor">Processor</option>
+                                                <option value="Trader">Trader</option>
+                                                <option value="Individuals from nutrition interventions">
+                                                    Individuals
+                                                    from
+                                                    Nutrition
+                                                    Interventions</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            @error('inputs.' . $key . '.actor_type')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="rtcGroup" class="form-label">RTC
+                                                Group/Platform</label>
+                                            <select
+                                                class="form-select @error('inputs.' . $key . '.rtc_group_platform') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.rtc_group_platform">
 
-                                            <option value="Household">Household</option>
-                                            <option value="Seed">Seed</option>
-                                            {{-- <option value="Producer Organisation">Producer Organisation</option>
+                                                <option value="Household">Household</option>
+                                                <option value="Seed">Seed</option>
+                                                {{-- <option value="Producer Organisation">Producer Organisation</option>
                                             --}}
-                                        </select>
-                                        @error('inputs.' . $key . '.rtc_group_platform')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="producerOrganisation" class="form-label">Name of
-                                            Producer
-                                            Organisation</label>
-                                        <input type="text" class="form-control @error('inputs.' . $key . '.producer_organisation') is-invalid @enderror" wire:model="inputs.{{ $key }}.producer_organisation">
-                                        @error('inputs.' . $key . '.producer_organisation')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="actorName" class="form-label">Name of
-                                            Actor</label>
-                                        <input type="text" class="form-control @error('inputs.' . $key . '.actor_name') is-invalid @enderror" wire:model="inputs.{{ $key }}.actor_name">
-                                        @error('inputs.' . $key . '.actor_name')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="ageGroup" class="form-label">Age Group</label>
-                                        <select class="form-select @error('inputs.' . $key . '.age_group') is-invalid @enderror" wire:model="inputs.{{ $key }}.age_group">
+                                            </select>
+                                            @error('inputs.' . $key . '.rtc_group_platform')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="producerOrganisation" class="form-label">Name of
+                                                Producer
+                                                Organisation</label>
+                                            <input type="text"
+                                                class="form-control @error('inputs.' . $key . '.producer_organisation') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.producer_organisation">
+                                            @error('inputs.' . $key . '.producer_organisation')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="actorName" class="form-label">Name of
+                                                Actor</label>
+                                            <input type="text"
+                                                class="form-control @error('inputs.' . $key . '.actor_name') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.actor_name">
+                                            @error('inputs.' . $key . '.actor_name')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ageGroup" class="form-label">Age Group</label>
+                                            <select
+                                                class="form-select @error('inputs.' . $key . '.age_group') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.age_group">
 
-                                            <option value="" selected>Select Age Group
-                                            </option>
-                                            <option value="Youth">Youth (18-35 yrs)</option>
-                                            <option value="Not youth">Not Youth (35+ yrs)</option>
-                                        </select>
-                                        @error('inputs.' . $key . '.age_group')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="sex" class="form-label">Sex</label>
-                                        <select class="form-select @error('inputs.' . $key . '.sex') is-invalid @enderror" wire:model="inputs.{{ $key }}.sex">
+                                                <option value="" selected>Select Age Group
+                                                </option>
+                                                <option value="Youth">Youth (18-35 yrs)</option>
+                                                <option value="Not youth">Not Youth (35+ yrs)</option>
+                                            </select>
+                                            @error('inputs.' . $key . '.age_group')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="sex" class="form-label">Sex</label>
+                                            <select
+                                                class="form-select @error('inputs.' . $key . '.sex') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.sex">
 
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                        </select>
-                                        @error('inputs.' . $key . '.sex')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="phoneNumber" class="form-label">Phone
-                                            Number</label>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                            </select>
+                                            @error('inputs.' . $key . '.sex')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="phoneNumber" class="form-label">Phone
+                                                Number</label>
 
-                                        <x-phone type="tel" class="form-control " :class="$errors->has('inputs.' . $key . '.phone_number')
+                                            <x-phone type="tel" class="form-control " :class="$errors->has('inputs.' . $key . '.phone_number')
                                                 ? 'is-invalid'
-                                                : ''" wire:model="inputs.{{ $key }}.phone_number" />
-                                        @error('inputs.' . $key . '.phone_number')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="householdSize" class="form-label">Household
-                                            Size</label>
-                                        <input type="number" class="form-control @error('inputs.' . $key . '.household_size') is-invalid @enderror" wire:model="inputs.{{ $key }}.household_size">
-                                        @error('inputs.' . $key . '.household_size')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="under5" class="form-label">Number of Under 5
-                                            in
-                                            Household</label>
-                                        <input type="number" class="form-control @error('inputs.' . $key . '.under_5_in_household') is-invalid @enderror" wire:model="inputs.{{ $key }}.under_5_in_household">
-                                        @error('inputs.' . $key . '.under_5_in_household')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="consumingRTC" class="form-label">Number of
-                                            People in
-                                            Household
-                                            Who
-                                            Consume
-                                            RTC and Their
-                                            Derived Products</label>
-                                        <div class="gap-2 border shadow-none card card-body">
-                                            <div class=" row">
-                                                <div class="col-12 col-md-2 col-form-label"> <label for="">Total</label>
-                                                </div>
-                                                <div class="col"> <input type="number" placeholder="" class="form-control @error('inputs.' . $key . '.rtc_consumers') is-invalid @enderror" wire:model="inputs.{{ $key }}.rtc_consumers">
-                                                    @error('inputs.' . $key . '.rtc_consumers')
-                                                    <x-error>{{ $message }}</x-error>
-                                                    @enderror
-                                                </div>
-                                            </div>
-                                            <div class=" row">
-                                                <div class="col-12 col-md-2 col-form-label"> <label for="">CASSAVA</label></div>
-                                                <div class="col">
-                                                    <input type="number" placeholder="" class="form-control @error('inputs.' . $key . '.rtc_consumers_cassava') is-invalid @enderror" wire:model="inputs.{{ $key }}.rtc_consumers_cassava">
-
-                                                    @error('inputs.' . $key . '.rtc_consumers_cassava')
-                                                    <x-error>{{ $message }}</x-error>
-                                                    @enderror
-                                                </div>
-
-
-                                            </div>
-
-                                            <div class="row ">
-                                                <div class="col-12 col-md-2 col-form-label"> <label for="">SWEET
-                                                        POTATO</label></div>
-                                                <div class="col"> <input type="number" placeholder="" class="form-control @error('inputs.' . $key . '.rtc_consumers_sw_potato') is-invalid @enderror" wire:model="inputs.{{ $key }}.rtc_consumers_sw_potato">
-                                                    @error('inputs.' . $key . '.rtc_consumers_sw_potato')
-                                                    <x-error>{{ $message }}</x-error>
-                                                    @enderror
-                                                </div>
-
-
-
-                                            </div>
-
-                                            <div class=" row">
-                                                <div class="col-12 col-md-2 col-form-label"> <label for="">POTATO</label></div>
-                                                <div class="col"> <input type="number" placeholder="" class="form-control @error('inputs.' . $key . '.rtc_consumers_potato') is-invalid @enderror" wire:model="inputs.{{ $key }}.rtc_consumers_potato">
-
-                                                    @error('inputs.' . $key . '.rtc_consumers_potato')
-                                                    <x-error>{{ $message }}</x-error>
-                                                    @enderror
-                                                </div>
-
-
-
-                                            </div>
-
-
+                                                : ''"
+                                                wire:model="inputs.{{ $key }}.phone_number" />
+                                            @error('inputs.' . $key . '.phone_number')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="householdSize" class="form-label">Household
+                                                Size</label>
+                                            <input type="number"
+                                                class="form-control @error('inputs.' . $key . '.household_size') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.household_size">
+                                            @error('inputs.' . $key . '.household_size')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="under5" class="form-label">Number of Under 5
+                                                in
+                                                Household</label>
+                                            <input type="number"
+                                                class="form-control @error('inputs.' . $key . '.under_5_in_household') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.under_5_in_household">
+                                            @error('inputs.' . $key . '.under_5_in_household')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
 
                                         </div>
 
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="rtcConsumptionFrequency" class="form-label">Frequency
-                                            of
-                                            RTC
-                                            and
-                                            Derived
-                                            Products
-                                            Consumption per Week (Number)</label>
-                                        <input type="number" class="form-control @error('inputs.' . $key . '.rtc_consumption_frequency') is-invalid @enderror" wire:model="inputs.{{ $key }}.rtc_consumption_frequency">
+                                        <div class="mb-3">
+                                            <label for="consumingRTC" class="form-label">Number of
+                                                People in
+                                                Household
+                                                Who
+                                                Consume
+                                                RTC and Their
+                                                Derived Products</label>
+                                            <div class="gap-2 border shadow-none card card-body">
+                                                <div class=" row">
+                                                    <div class="col-12 col-md-2 col-form-label"> <label
+                                                            for="">Total</label>
+                                                    </div>
+                                                    <div class="col"> <input type="number" placeholder=""
+                                                            class="form-control @error('inputs.' . $key . '.rtc_consumers') is-invalid @enderror"
+                                                            wire:model="inputs.{{ $key }}.rtc_consumers">
+                                                        @error('inputs.' . $key . '.rtc_consumers')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class=" row">
+                                                    <div class="col-12 col-md-2 col-form-label"> <label
+                                                            for="">CASSAVA</label></div>
+                                                    <div class="col">
+                                                        <input type="number" placeholder=""
+                                                            class="form-control @error('inputs.' . $key . '.rtc_consumers_cassava') is-invalid @enderror"
+                                                            wire:model="inputs.{{ $key }}.rtc_consumers_cassava">
 
-                                        @error('inputs.' . $key . '.rtc_consumption_frequency')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
+                                                        @error('inputs.' . $key . '.rtc_consumers_cassava')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </div>
 
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="mainFood" class="form-label">Which of These
-                                            RTC and
-                                            Their
-                                            Derived
-                                            Products
-                                            Do You Use
-                                            as the Main Food (Breakfast, Lunch and Dinner)?
-                                            (Multiple
-                                            Options)</label>
 
-                                        <div class="list-group  @error('inputs.' . $key . '.main_food')border border-danger @enderror">
-                                            <label class="mb-0 list-group-item text-capitalize">
-                                                <input class="form-check-input me-1" type="checkbox" wire:model='inputs.{{ $key }}.main_food' value="Cassava" />
-                                                Cassava
-                                            </label>
-                                            <label class="mb-0 list-group-item text-capitalize">
-                                                <input class="form-check-input me-1" type="checkbox" wire:model='inputs.{{ $key }}.main_food' value="Potato" />
-                                                Potato
-                                            </label>
-                                            <label class="mb-0 list-group-item text-capitalize">
-                                                <input class="form-check-input me-1" wire:model='inputs.{{ $key }}.main_food' type="checkbox" value="Sweet potato" />
-                                                Sweet potato
-                                            </label>
+                                                </div>
+
+                                                <div class="row ">
+                                                    <div class="col-12 col-md-2 col-form-label"> <label
+                                                            for="">SWEET
+                                                            POTATO</label></div>
+                                                    <div class="col"> <input type="number" placeholder=""
+                                                            class="form-control @error('inputs.' . $key . '.rtc_consumers_sw_potato') is-invalid @enderror"
+                                                            wire:model="inputs.{{ $key }}.rtc_consumers_sw_potato">
+                                                        @error('inputs.' . $key . '.rtc_consumers_sw_potato')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </div>
+
+
+
+                                                </div>
+
+                                                <div class=" row">
+                                                    <div class="col-12 col-md-2 col-form-label"> <label
+                                                            for="">POTATO</label></div>
+                                                    <div class="col"> <input type="number" placeholder=""
+                                                            class="form-control @error('inputs.' . $key . '.rtc_consumers_potato') is-invalid @enderror"
+                                                            wire:model="inputs.{{ $key }}.rtc_consumers_potato">
+
+                                                        @error('inputs.' . $key . '.rtc_consumers_potato')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </div>
+
+
+
+                                                </div>
+
+
+
+                                            </div>
 
                                         </div>
+                                        <div class="mb-3">
+                                            <label for="rtcConsumptionFrequency" class="form-label">Frequency
+                                                of
+                                                RTC
+                                                and
+                                                Derived
+                                                Products
+                                                Consumption per Week (Number)</label>
+                                            <input type="number"
+                                                class="form-control @error('inputs.' . $key . '.rtc_consumption_frequency') is-invalid @enderror"
+                                                wire:model="inputs.{{ $key }}.rtc_consumption_frequency">
 
-                                        @error('inputs.' . $key . '.main_food')
-                                        <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
+                                            @error('inputs.' . $key . '.rtc_consumption_frequency')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="mainFood" class="form-label">Which of These
+                                                RTC and
+                                                Their
+                                                Derived
+                                                Products
+                                                Do You Use
+                                                as the Main Food (Breakfast, Lunch and Dinner)?
+                                                (Multiple
+                                                Options)</label>
+
+                                            <div
+                                                class="list-group  @error('inputs.' . $key . '.main_food')border border-danger @enderror">
+                                                <label class="mb-0 list-group-item text-capitalize">
+                                                    <input class="form-check-input me-1" type="checkbox"
+                                                        wire:model='inputs.{{ $key }}.main_food'
+                                                        value="Cassava" />
+                                                    Cassava
+                                                </label>
+                                                <label class="mb-0 list-group-item text-capitalize">
+                                                    <input class="form-check-input me-1" type="checkbox"
+                                                        wire:model='inputs.{{ $key }}.main_food'
+                                                        value="Potato" />
+                                                    Potato
+                                                </label>
+                                                <label class="mb-0 list-group-item text-capitalize">
+                                                    <input class="form-check-input me-1"
+                                                        wire:model='inputs.{{ $key }}.main_food'
+                                                        type="checkbox" value="Sweet potato" />
+                                                    Sweet potato
+                                                </label>
+
+                                            </div>
+
+                                            @error('inputs.' . $key . '.main_food')
+                                                <x-error>{{ $message }}</x-error>
+                                            @enderror
+                                        </div>
 
 
-                                    <div class="d-grid justify-content-center">
+                                        <div class="d-grid justify-content-center">
 
-                                        <button class="px-5 btn btn-primary btn-lg" @click=" window.scrollTo({
+                                            <button class="px-5 btn btn-primary btn-lg"
+                                                @click=" window.scrollTo({
                                                                                                                         top: 0,
                                                                                                                         behavior: 'smooth'
-                                                                                                                    })" type="submit">Submit</button>
-                                    </div>
+                                                                                                                    })"
+                                                type="submit">Submit</button>
+                                        </div>
                                     @endforeach
 
 
@@ -377,26 +424,24 @@
 
 </div>
 @assets
-<style>
-    input[type="text"] {
-        text-transform: uppercase;
-    }
-
-</style>
+    <style>
+        input[type="text"] {
+            text-transform: uppercase;
+        }
+    </style>
 @endassets
 @script
-<script>
-    // Function to transform input text to uppercase
-    function enforceUppercase(element) {
-        element.value = element.value.toUpperCase();
-    }
-
-    // Attach event listener to all current and future text inputs
-    document.addEventListener('input', function(event) {
-        if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
-            enforceUppercase(event.target);
+    <script>
+        // Function to transform input text to uppercase
+        function enforceUppercase(element) {
+            element.value = element.value.toUpperCase();
         }
-    });
 
-</script>
+        // Attach event listener to all current and future text inputs
+        document.addEventListener('input', function(event) {
+            if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
+                enforceUppercase(event.target);
+            }
+        });
+    </script>
 @endscript

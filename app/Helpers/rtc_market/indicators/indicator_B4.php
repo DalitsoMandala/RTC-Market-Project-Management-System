@@ -25,7 +25,6 @@ class indicator_B4
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
 
     public function builder(): Builder
@@ -57,20 +56,8 @@ class indicator_B4
         }
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
 
         return $query;
-
     }
 
     public function builderSchool(): Builder
@@ -102,20 +89,9 @@ class indicator_B4
         }
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
         return $query;
-
     }
 
     public function getDisaggregations()
@@ -133,7 +109,4 @@ class indicator_B4
             "Individuals from households reached with nutrition interventions" => $interventions,
         ];
     }
-
-
-
 }

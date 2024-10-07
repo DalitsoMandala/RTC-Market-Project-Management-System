@@ -18,7 +18,13 @@ class IncreasePercentage
     public function percentage(): float
     {
 
+        if ($this->annualValue == 0) {
+            return 0;
+        }
+        return round(
 
-        return (($this->annualValue - $this->baselineValue) / $this->annualValue) * 100;
+            (($this->annualValue - $this->baselineValue) / $this->annualValue) * 100,
+            2
+        );
     }
 }

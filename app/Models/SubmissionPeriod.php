@@ -36,4 +36,8 @@ class SubmissionPeriod extends Model
     }
 
 
+    public function submissionTargets()
+    {
+        return $this->hasMany(SubmissionTarget::class, 'submission_period_id');
+    }
 }

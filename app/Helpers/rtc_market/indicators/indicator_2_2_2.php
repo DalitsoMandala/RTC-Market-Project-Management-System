@@ -23,7 +23,6 @@ class indicator_2_2_2
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builderFarmer(): Builder
     {
@@ -72,7 +71,7 @@ class indicator_2_2_2
 
         $farmer = $this->builderFarmer()->pluck('id');
 
-        return RpmFarmerFollowUp::query()->whereIn('rpm_farmer_id', $farmer);
+        return RpmFarmerFollowUp::query();
     }
 
     public function getBasicSeed()
@@ -128,7 +127,6 @@ class indicator_2_2_2
             'potato' => $queryPotato->sum(),
             'sweet_potato' => $querySwPotato->sum(),
         ];
-
     }
 
 
