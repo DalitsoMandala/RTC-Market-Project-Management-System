@@ -24,9 +24,12 @@ class indicator_2_2_2
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
     }
-    public function builderFarmer(): Builder
+    public function builderFarmer($crop = null): Builder
     {
-        $query = RtcProductionFarmer::query()->where('status', 'approved');
+
+
+        $query = RtcProductionFarmer::query()->where('status', 'approved')
+            ->with(['basicSeed', 'certifiedSeed']);
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -52,93 +55,80 @@ class indicator_2_2_2
         }
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
+        if ($crop) {
 
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
+            $query->where('enterprise', $crop);
+            return $query;
+        }
 
         return $query;
     }
 
-    public function followUpBuilder()
+
+    public function getBasicSeed($cropQuery = null)
     {
+        $totalArea = 0;
 
-        $farmer = $this->builderFarmer()->pluck('id');
+        // Use the provided crop query or the default builderFarmer query
+        $query = $cropQuery ?? $this->builderFarmer()->where('group', 'Early generation seed producer');
 
-        return RpmFarmerFollowUp::query();
+        // Process the query in chunks
+        $query->chunk(100, function ($farmers) use (&$totalArea) {
+            // Pluck, flatten, and sum the area from the basicSeed relationship
+            $basicSeedArea = $farmers->pluck('basicSeed')->flatten()->sum('area');
+            $totalArea += $basicSeedArea;
+        });
+
+        return $totalArea;
     }
 
-    public function getBasicSeed()
+
+
+
+    public function getCertifiedSeed($cropQuery = null)
     {
-        $query = $this->builderFarmer()->get()->map(function ($item) {
-            $data = json_decode($item->area_under_basic_seed_multiplication);
-            return $data && isset($data->total) ? $data->total : null;
+        $totalArea = 0;
+
+        // Use the provided crop query or the default builderFarmer query
+        $query = $cropQuery ?? $this->builderFarmer()->where('group', 'Seed multiplier');
+
+        $query->chunk(100, function ($farmers) use (&$totalArea) {
+            $certifiedSeedArea = $farmers->pluck('certifiedSeed')->flatten()->sum('area');
+            $totalArea += $certifiedSeedArea;
         });
 
-        $queryFollowup = $this->followUpBuilder()->get()->map(function ($item) {
-            $data = json_decode($item->area_under_basic_seed_multiplication);
-            return $data && isset($data->total) ? $data->total : null;
-        });
-
-        return $query->sum() + $queryFollowup->sum();
+        return $totalArea;
     }
 
-    public function getCertifiedSeed()
-    {
-        $query = $this->builderFarmer()->get()->map(function ($item) {
-            $data = json_decode($item->area_under_certified_seed_multiplication);
-            return $data && isset($data->total) ? $data->total : null;
-        });
-
-        $queryFollowup = $this->followUpBuilder()->get()->map(function ($item) {
-            $data = json_decode($item->area_under_certified_seed_multiplication);
-            return $data && isset($data->total) ? $data->total : null;
-        });
-
-
-
-        return $query->sum() + $queryFollowup->sum();
-    }
 
     public function getCrop()
     {
-        $queryCassava = $this->builderFarmer()->get()->map(function ($item) {
-            $data = json_decode($item->number_of_plantlets_produced);
-            return $data && isset($data->cassava) ? $data->cassava : null;
-        });
-        $queryPotato = $this->builderFarmer()->get()->map(function ($item) {
-            $data = json_decode($item->number_of_plantlets_produced);
-            return $data && isset($data->potato) ? $data->potato : null;
-        });
-        $querySwPotato = $this->builderFarmer()->get()->map(function ($item) {
-            $data = json_decode($item->number_of_plantlets_produced);
-            return $data && isset($data->sweet_potato) ? $data->sweet_potato : null;
-        });
+        $queryCassava = $this->builderFarmer('Cassava')->where('group', 'Seed multiplier');
+        $queryPotato = $this->builderFarmer('Potato')->where('group', 'Seed multiplier');
+        $querySwPotato = $this->builderFarmer('Sweet potato')->where('group', 'Seed multiplier');
+
+
+
 
         return [
 
-            'cassava' => $queryCassava->sum(),
-            'potato' => $queryPotato->sum(),
-            'sweet_potato' => $querySwPotato->sum(),
+            'cassava' => $queryCassava->count(),
+            'potato' => $queryPotato->count(),
+            'sweet_potato' => $querySwPotato->count(),
         ];
     }
 
 
     public function getDisaggregations()
     {
-
+        $cropData = $this->getCrop(); // Store crop data to avoid redundant calls
+        $total = $this->getBasicSeed() + $this->getCertifiedSeed();
 
         return [
-            'Total' => $this->getBasicSeed() + $this->getCertifiedSeed(),
-            'Cassava' => $this->getCrop()['cassava'],
-            'Potato' => $this->getCrop()['potato'],
-            'Sweet potato' => $this->getCrop()['sweet_potato'],
+            'Total' => $total,
+            'Cassava' => $cropData['cassava'],
+            'Potato' => $cropData['potato'],
+            'Sweet potato' => $cropData['sweet_potato'],
             'Basic' => $this->getBasicSeed(),
             'Certified' => $this->getCertifiedSeed(),
         ];

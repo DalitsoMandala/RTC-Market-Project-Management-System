@@ -1,48 +1,83 @@
-<div>
-    <div class="container-fluid">
+<div x-data="{
+    total: $wire.entangle('total'),
+    baselineValue: $wire.entangle('baseline'),
+    totalPercentage: $wire.entangle('total_percentage'),
+    annualValue: $wire.entangle('annual_value'),
+    updateTotalPercentage() {
+        let totalValue =
+            (isNaN(parseFloat(this.total)) ? 0 : parseFloat(this.total));
 
-        <!-- start page title -->
+        this.annualValue = totalValue; // Set annual value as sum of inputs
+
+        if (this.annualValue === 0) {
+            this.totalPercentage = 0;
+            return;
+        }
+
+        // Calculate total percentage based on annual and baseline values
+        let sub = (this.annualValue - this.baselineValue) / this.annualValue;
+        let percentage = sub * 100;
+
+        this.totalPercentage = Number(percentage.toFixed(2)); // Rounded to 2 decimal places
+    }
+}" x-init="() => {
+    $watch('total', () => updateTotalPercentage());
+
+}">
+
+    <x-alerts />
+    <x-required-notice />
+
+    <form wire:submit.prevent="save">
         <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Reports</h4>
+            <!-- Total Percentage -->
 
-                    <div class="page-title-right">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Add Report</li>
-                        </ol>
-                    </div>
-
+            <div class="col">
+                <label for="projectYear" class="form-label">Project year</label>
+                <input type="number" readonly id="project_year" wire:model="yearNumber"
+                    class="form-control @error('project_year') is-invalid @enderror" min="0">
+            </div>
+            <div class="col">
+                <label for="total_percentage" class="form-label">Total (% Percentage)</label>
+                <input type="number" readonly id="total_percentage" wire:model="total_percentage"
+                    class="form-control @error('total_percentage') is-invalid @enderror" min="0">
+                @error('total_percentage')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
+            </div>
+            <!-- Annual Value -->
+            <div class="col">
+                <div class="mb-3">
+                    <label for="annual_value" class="form-label">Annual Value</label>
+                    <input type="number" readonly id="annual_value" x-model="annualValue" class="form-control">
+                </div>
+            </div>
+            <!-- Baseline Value -->
+            <div class="col">
+                <div class="mb-3">
+                    <label for="baseline" class="form-label">Baseline</label>
+                    <input type="number" readonly id="baseline" x-model="baselineValue" class="form-control">
                 </div>
             </div>
         </div>
-        <!-- end page title -->
-        <div class="row">
-            <div class="col-12">
-                <x-alerts />
-
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Enter your data for : <span
-                                class="text-primary">{{ $indicatorName }}</span> </h4>
-                    </div>
-                    <div class="card-body">
-                        <form>
-
-                        </form>
-                    </div>
-                </div>
-            </div>
+        <h5>Total Value</h5>
+        <!-- Cassava -->
+        <div class="mb-3">
+            <label for="total" class="form-label">Total</label>
+            <input type="number" id="cassava" x-model="total"
+                class="form-control @error('total') is-invalid @enderror">
+            @error('total')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
         </div>
-    </div>
-</div>
 
 
-
-
-
-
-</div>
-
+        <!-- Submit Button -->
+        <div class="d-grid col-12 justify-content-center">
+            <button class="btn btn-primary btn-lg" @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+                type="submit">
+                Submit
+            </button>
+        </div>
+    </form>
 </div>

@@ -2,24 +2,26 @@
 
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
+use App\Exceptions\UserErrorException;
+use App\Helpers\SubmitAggregateData;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use App\Exceptions\UserErrorException;
-use App\Models\IndicatorDisaggregation;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Models\User;
 use App\Notifications\ManualDataAddedNotification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Ramsey\Uuid\Uuid;
+
 class Indicator325 extends Component
 {
     use LivewireAlert;
@@ -50,6 +52,17 @@ class Indicator325 extends Component
     public $inputs = [];
 
     public $formData = [];
+    public $annual_value = 0; // Predefined or calculated value
+    public $baseline = 0; // Predefined or calculated baseline
+    public $yearNumber = 1;
+    public $total_percentage = 0; // Calculated in the frontend
+    public $total;
+    // Validation rules
+    protected $rules = [
+
+        'total' => 'required|numeric|min:0',
+        //   'annual_value' => 'required|numeric|min:0', // Not directly input but needs validation
+    ];
 
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
@@ -58,7 +71,6 @@ class Indicator325 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -69,7 +81,6 @@ class Indicator325 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -89,22 +100,57 @@ class Indicator325 extends Component
 
                 $this->openSubmission = true;
 
-                $user = Auth::user();
-
-                $this->inputs = IndicatorDisaggregation::with('indicator.indicatorTargets')->where('indicator_id', $indicator_id)
-                    ->get();
-
-
-
-
+                $this->openSubmission = true;
+                $this->baseline = $findIndicator->baseline->baseline_value;
+                $this->yearNumber = $findFinancialYear->number;
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
+    public function save()
+    {
+        $this->validate();
+
+        $user = User::find(Auth::user()->id);
+        $submit = new SubmitAggregateData;
+
+        // Prepare data array for submission
+        $data = [
+            'Total (% Percentage)' => $this->total_percentage,
+            'Total' => $this->total,
+            'Annual value' => $this->annual_value,
+            'Baseline' => $this->baseline,
+        ];
+
+        // Roles for internal users
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-internal-submissions'),
+                'internal'
+            );
+        }
+        // Roles for external users
+        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+        }
+    }
 
     public function render()
     {

@@ -3,6 +3,7 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
+use App\Models\RtcProductionProcessor;
 use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,14 +24,11 @@ class indicator_4_1_2
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->where('indicator_no', '4.1.2')->first();
-
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = RtcProductionProcessor::query()->where('status', 'approved')->where('is_registered', true);
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -69,7 +67,6 @@ class indicator_4_1_2
 
 
         return $query;
-
     }
 
     public function getTotals()
@@ -87,32 +84,39 @@ class indicator_4_1_2
 
 
 
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
                 $json = collect(json_decode($model->data, true));
 
-
-
+                // Add the values for each key to the totals
                 foreach ($data as $key => $dt) {
-
                     if ($json->has($key)) {
-
                         $data->put($key, $data->get($key) + $json[$key]);
                     }
                 }
-
             });
-
-
-        }
+        });
 
         return $data;
     }
     public function getDisaggregations()
     {
 
-        return $this->getTotals()->toArray();
+        $cassava = $this->builder()->where('enterprise', 'Cassava')->count();
+        $sweet_potato = $this->builder()->where('enterprise', 'Sweet potato')->count();
+        $potato = $this->builder()->where('enterprise', 'Potato')->count();
+        $Smes = $this->builder()->where('type', 'Small medium enterprise (SME)')->count();
+        $large_scale_commercial_farms = $this->builder()->where('type', 'Large scale Processor')->count();
+        $po = $this->builder()->where('type', 'Producer organization (PO)')->count();
+        return [
+            'Total' => $this->builder()->count(),
+            'Cassava' => $cassava,
+            'Potato' => $potato,
+            'Sweet potato' => $sweet_potato,
+            'SMEs' => $Smes,
+            'Large scale commercial farms' => $large_scale_commercial_farms,
+            'POs' => $po
+        ];
     }
 }

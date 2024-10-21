@@ -35,16 +35,15 @@ class indicator_3_1_1
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
 
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query()->where('status', 'approved')->where(function ($query) {
-
-            $query->where('type', 'PRODUCER ORGANIZATION (PO)')->orWhere('type', 'LARGE SCALE FARM');
-        })->where('sector', 'PRIVATE');
+        $query = RtcProductionFarmer::query()->where('status', 'approved')
+            ->where('type', 'Producer organization (PO)')
+            ->where('type', 'Large scale farm')
+            ->where('sector', 'Private');
 
 
 
@@ -92,8 +91,7 @@ class indicator_3_1_1
         $query = RtcProductionProcessor::query()->where('status', 'approved')->where(function ($query) {
 
             $query->where('type', 'PRODUCER ORGANIZATION (PO)')->orWhere('type', 'LARGE SCALE FARM');
-        })->where('sector', 'PRIVATE');
-        ;
+        })->where('sector', 'PRIVATE');;
 
         if ($this->reporting_period && $this->financial_year) {
             $hasValidBatchUuids = false;
@@ -108,9 +106,6 @@ class indicator_3_1_1
                         $hasValidBatchUuids = true;
                     }
                 }
-
-
-
             });
 
             if (!$hasValidBatchUuids) {
@@ -136,28 +131,21 @@ class indicator_3_1_1
     public function getFarmerContractual()
     {
         return $this->builderFarmer()->with('agreements')->whereHas('agreements');
-
     }
 
     public function getFarmerDom()
     {
         return $this->builderFarmer()->with('doms')->whereHas('doms');
-
-
     }
 
     public function getFarmerInter()
     {
         return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
-
-
     }
 
     public function getProcessorContractual()
     {
         return $this->builderProcessor()->with('agreements')->whereHas('agreements');
-
-
     }
 
     public function getProcessorDom()
@@ -169,39 +157,21 @@ class indicator_3_1_1
     public function getProcessorInter()
     {
         return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
-
     }
 
 
 
     public function getCropTotal()
     {
-        // Use getFarmerDom() to get the builder and then retrieve the flattened collection of doms
-        $farmerDom = $this->getFarmerDom()->get()->pluck('doms')->flatten();
+        // Build the base query for farmers with type 'Large scale farm' and sector 'Private'
+        $builder = $this->builderFarmer();
 
-        // Aggregate crop types within the doms collection
-        $totalPotato = $farmerDom->where('crop_type', 'POTATO')->count();
-        $totalCassava = $farmerDom->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato = $farmerDom->where('crop_type', 'SWEET POTATO')->count();
+        // Clone the query builder for each crop type to avoid overwriting the base query
+        $totalPotato = (clone $builder)->where('enterprise', 'Potato')->count();
+        $totalCassava = (clone $builder)->where('enterprise', 'Cassava')->count();
+        $totalSweetPotato = (clone $builder)->where('enterprise', 'Sweet potato')->count();
 
-        // Repeat similar logic for other related methods
-        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten();
-        $processorDom = $this->getProcessorDom()->get()->pluck('doms')->flatten();
-        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten();
-
-        // Aggregate for other relationships
-        $totalPotato += $farmerInter->where('crop_type', 'POTATO')->count();
-        $totalCassava += $farmerInter->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato += $farmerInter->where('crop_type', 'SWEET POTATO')->count();
-
-        $totalPotato += $processorDom->where('crop_type', 'POTATO')->count();
-        $totalCassava += $processorDom->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato += $processorDom->where('crop_type', 'SWEET POTATO')->count();
-
-        $totalPotato += $processorInter->where('crop_type', 'POTATO')->count();
-        $totalCassava += $processorInter->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato += $processorInter->where('crop_type', 'SWEET POTATO')->count();
-
+        // Return the totals as an array
         return [
             'Potato' => $totalPotato,
             'Cassava' => $totalCassava,
@@ -211,44 +181,35 @@ class indicator_3_1_1
 
 
 
+
     public function followUpBuilder()
     {
 
 
         return $this->builderFarmer()->with('followups')->whereHas('followups');
-
-
     }
 
     public function followUpBuilderProcessor()
     {
 
         return $this->builderProcessor()->with('followups')->whereHas('followups');
-
     }
     public function getMarketSegment()
     {
-        $query = $this->builderFarmer()->get()->map(function ($farmer) {
-            return json_decode($farmer->market_segment, true); // Decode as an associative array
-        });
-
+        $builder = $this->builderFarmer();
         return [
-            'Fresh' => $query->filter(function ($segment) {
-                return isset($segment['fresh']) && strtoupper($segment['fresh']) === 'Yes';
-            })->count(),
-            'Processed' => $query->filter(function ($segment) {
-                return isset($segment['processed']) && strtoupper($segment['processed']) === 'Yes';
-            })->count(),
+            'Fresh' => $builder->where('market_segment_fresh', true)->count(),
+            'Processed' => $builder->where('market_segment_processed', true)->count(),
         ];
     }
 
 
     public function getDisaggregations()
     {
-
+        $builder = $this->builderFarmer();
 
         return [
-            'Total' => $this->builderFarmer()->count(),
+            'Total' => $builder->count(),
             'Cassava' => $this->getCropTotal()['Cassava'],
             'Potato' => $this->getCropTotal()['Potato'],
             'Sweet potato' => $this->getCropTotal()['Sweet potato'],
@@ -256,5 +217,4 @@ class indicator_3_1_1
             'Processed' => $this->getMarketSegment()['Processed'],
         ];
     }
-
 }

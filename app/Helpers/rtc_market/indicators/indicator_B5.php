@@ -98,9 +98,8 @@ class indicator_B5
 
     public function getTotal()
     {
-        $farmer = $this->builderFarmer()->get()->sum('total_vol_production_previous_season');
-        $farmerFollowup = $this->FarmerFollowupbuilder()->get()->sum('total_vol_production_previous_season');
-        $subTotal = $farmer + $farmerFollowup;
+        $crop = $this->findCropCount();
+        $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
         $indicator = $this->findIndicator();
         $baseline = $indicator->baseline->baseline_value ?? 0;
         $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
@@ -180,9 +179,9 @@ class indicator_B5
 
         return [
             'Total' => $this->getTotal(),
-            'Cassava' => $this->findCropCount()['cassava'],
-            'Potato' => $this->findCropCount()['potato'],
-            'Sweet potato' => $this->findCropCount()['sweet_potato'],
+            'Cassava' => round($this->findCropCount()['cassava'], 2),
+            'Potato' => round($this->findCropCount()['potato'], 2),
+            'Sweet potato' => round($this->findCropCount()['sweet_potato'], 2),
             //  'Certified seed produce' => $this->getCertifiedSeed(),
             //  'Value added RTC products' => $this->getValueAddedProducts()
         ];

@@ -101,7 +101,13 @@ class indicator_1_1_3
     }
     public function getDisaggregations()
     {
+        $totals = $this->getTotals()->toArray();
 
-        return $this->getTotals()->toArray();
+
+        // Subtotal based on Cassava, Potato, and Sweet potato
+        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
+        return [
+            'Total' => $subTotal
+        ];
     }
 }

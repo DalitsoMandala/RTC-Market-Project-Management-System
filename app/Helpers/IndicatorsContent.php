@@ -518,8 +518,8 @@ class IndicatorsContent
                 'Certified',
                 'POs',
                 'Individual farmers not in POs',
-                'Large scale farmers',
-                'Medium scale farmers'
+                // 'Large scale farmers',
+                //  'Medium scale farmers'
             ],
             "Volume of seed distributed within communities to enhance POs productivity" => [
                 'Total',
@@ -607,8 +607,9 @@ class IndicatorsContent
             ],
             "Number of off-season irrigation demonstration sites established" => ['Total'],
             "Number of demonstration sites for end-user preferred RTC varieties established" => ['Total'],
-            "Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)" => ['Total (% Percentage)'],
+            "Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)" => ['Total (% Percentage)', 'Total'],
             "Number of market opportunities identified for RTC actors" => [
+                'Total',
                 'Domestic markets',
                 'International markets',
                 'Imports',
@@ -660,7 +661,7 @@ class IndicatorsContent
             ],
             "Number of households reached with RTC nutrition interventions" => ['Total'],
             "Frequency of RTC consumption by households per week (OC)" => ['Total'],
-            "Percentage increase in households consuming RTCs as the main foodstuff (OC)" => ['Total'],
+            "Percentage increase in households consuming RTCs as the main foodstuff (OC)" => ['Total (% Percentage)', 'Total'],
             "Number of RTC utilization options (dishes) adopted by households (OC)" => ['Total'],
             "Number of urban market promotions conducted" => ['Total'],
             "Number of mass nutrition education campaigns conducted" => ['Total'],

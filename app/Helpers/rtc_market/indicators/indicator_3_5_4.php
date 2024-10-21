@@ -2,6 +2,8 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Models\Indicator;
+use App\Models\SchoolRtcConsumption;
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -20,19 +22,15 @@ class indicator_3_5_4
     protected $target_year_id;
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
-        $query = HouseholdRtcConsumption::query()->with('mainFoods')->where('status', 'approved');
+        $query = SchoolRtcConsumption::query()->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -72,16 +70,45 @@ class indicator_3_5_4
 
         return $query;
     }
+
+    public function getTotals()
+    {
+
+        $builder = $this->builder()->get();
+
+        $indicator = Indicator::where('indicator_name', 'Number of RTC utilization options (dishes) adopted by households (OC)')
+            ->where('indicator_no', '3.5.4')->first();
+        $disaggregations = $indicator->disaggregations;
+        $data = collect([]);
+        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
+            $data->put($item, 0);
+        });
+
+
+
+
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
+                $json = collect(json_decode($model->data, true));
+
+                // Add the values for each key to the totals
+                foreach ($data as $key => $dt) {
+                    if ($json->has($key)) {
+                        $data->put($key, $data->get($key) + $json[$key]);
+                    }
+                }
+            });
+        });
+
+        return $data;
+    }
     public function getDisaggregations()
     {
-        $Dishescount = $query = $this->builder()
-            ->whereHas('mainFoods', function ($q) {
-                $q->whereIn('name', ['Cassava', 'Potato', 'Sweet potato']);
-            }, '=', 3) // Ensures all three crops are present
-            ->count();
+        $totals = $this->getTotals()->toArray();
 
         return [
-            'Total' => $Dishescount
+            'Total' => $totals['Total']
         ];
     }
 }

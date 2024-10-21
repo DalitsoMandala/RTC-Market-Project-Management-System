@@ -641,7 +641,8 @@ class DataGenerationSeeder extends Seeder
                     'phone_number' => $faker->phoneNumber, // Random phone number
                     'type' => $faker->randomElement([
                         'Producer organization (PO)',
-                        'Large scale farm'
+                        'Large scale processor',
+                        'Small medium enterprise (SME)'
                     ]),
 
                     'approach' => $faker->optional()->randomElement([
@@ -1020,7 +1021,10 @@ class DataGenerationSeeder extends Seeder
                     'section' => $faker->word, // Random word for section
                     "school_name" => $faker->word,
                     "date" => $faker->date,
-                    "crop" => $faker->randomElement($crops),
+                    //     "crop" => $faker->randomElement($crops),
+                    'crop_cassava' => $faker->randomElement([1, 0]),
+                    'crop_potato' =>  $faker->randomElement([1, 0]),
+                    'crop_sweet_potato' =>  $faker->randomElement([1, 0]),
                     "male_count" => $faker->randomElement([
                         10,
                         20

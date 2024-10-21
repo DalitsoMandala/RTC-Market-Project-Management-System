@@ -3,6 +3,7 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
+use App\Models\RtcProductionFarmer;
 use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,14 +24,13 @@ class indicator_3_4_2
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of POs that have formal contracts with buyers')->where('indicator_no', '3.4.2')->first();
+        $query = RtcProductionFarmer::query()->where('status', 'approved')->where('type', 'Producer organization (PO)');
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -54,65 +54,25 @@ class indicator_3_4_2
         if ($this->organisation_id) {
             $query->where('organisation_id', $this->organisation_id);
         }
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
 
 
         return $query;
-
     }
 
-    public function getTotals()
+    public function getMarketSegment()
     {
-
-        $builder = $this->builder()->get();
-
-        $indicator = Indicator::where('indicator_name', 'Number of POs that have formal contracts with buyers')->where('indicator_no', '3.4.2')->first();
-        $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
-        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-            $data->put($item, 0);
-        });
-
-
-
-
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
-                $json = collect(json_decode($model->data, true));
-
-
-
-                foreach ($data as $key => $dt) {
-
-                    if ($json->has($key)) {
-
-                        $data->put($key, $data->get($key) + $json[$key]);
-                    }
-                }
-
-            });
-
-
-        }
-
-        return $data;
+        return $this->builder()->selectRaw('SUM(IF(market_segment_fresh = 1, 1, 0)) as Fresh, SUM(IF(market_segment_processed = 1, 1, 0)) as Processed')->first()->toArray();
     }
+
     public function getDisaggregations()
     {
 
-        return $this->getTotals()->toArray();
+        return [
+            'Total' => $this->builder()->count(),
+            'Fresh' => $this->getMarketSegment()['Fresh'],
+            'Processed' => $this->getMarketSegment()['Processed'],
+        ];
     }
 }

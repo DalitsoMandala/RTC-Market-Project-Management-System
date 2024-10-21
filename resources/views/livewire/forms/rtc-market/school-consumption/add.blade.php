@@ -34,10 +34,10 @@
 
 
                 @if ($openSubmission === false)
-                    <div class="alert alert-warning" role="alert">
-                        You can not submit a form right now
-                        because submissions are closed for the moment!
-                    </div>
+                <div class="alert alert-warning" role="alert">
+                    You can not submit a form right now
+                    because submissions are closed for the moment!
+                </div>
                 @endif
 
 
@@ -66,7 +66,7 @@
                                         @enderror" id="location_data_school_name"
                                             wire:model="location_data.school_name">
                                         @error('location_data.school_name')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -79,7 +79,7 @@
                                             @include('layouts.district-options')
                                         </select>
                                         @error('location_data.district')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -89,7 +89,7 @@
                                             is-invalid
                                         @enderror" id="location_data_epa" wire:model="location_data.epa">
                                         @error('location_data.epa')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -99,7 +99,7 @@
                                             is-invalid
                                         @enderror" id="location_data_section" wire:model="location_data.section">
                                         @error('location_data.section')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -109,22 +109,45 @@
                                             is-invalid
                                         @enderror" id="date" wire:model="date">
                                         @error('date')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="crop" class="form-label">CROP</label>
 
-                                        <select class="form-select form-select-md" wire:model="crop">
+                                        <div
+                                            class="list-group  @error('crop')border border-danger @enderror">
+                                            <label class="mb-0 list-group-item text-capitalize">
+                                                <input class="form-check-input me-1" type="checkbox"
+                                                    wire:model='crop'
+                                                    value="cassava" />
+                                                Cassava
+                                            </label>
+                                            <label class="mb-0 list-group-item text-capitalize">
+                                                <input class="form-check-input me-1" type="checkbox"
+                                                    wire:model='crop'
+                                                    value="potato" />
+                                                Potato
+                                            </label>
+                                            <label class="mb-0 list-group-item text-capitalize">
+                                                <input class="form-check-input me-1"
+                                                    wire:model='crop'
+                                                    type="checkbox" value="sweet_potato" />
+                                                Sweet potato
+                                            </label>
+
+                                        </div>
+
+                                        <!-- <select class="form-select form-select-md" wire:model="crop">
 
                                             <option>CASSAVA</option>
                                             <option>POTATO</option>
                                             <option>SWEET POTATO</option>
-                                        </select>
+                                        </select> -->
 
                                         @error('crop')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -134,7 +157,7 @@
                                             is-invalid
                                         @enderror" id="male_count" wire:model.live.debounce.600ms="male_count">
                                         @error('male_count')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -144,7 +167,7 @@
                                             is-invalid
                                         @enderror" id="female_count" wire:model.live.debounce.600ms="female_count">
                                         @error('female_count')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -154,7 +177,7 @@
                                             is-invalid
                                         @enderror" id="total" wire:model="total">
                                         @error('total')
-                                            <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                         @enderror
                                     </div>
 
@@ -203,7 +226,7 @@
     }
 
     // Attach event listener to all current and future text inputs
-    document.addEventListener('input', function (event) {
+    document.addEventListener('input', function(event) {
         if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
             enforceUppercase(event.target);
         }

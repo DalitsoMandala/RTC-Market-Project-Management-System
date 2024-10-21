@@ -1033,7 +1033,10 @@ class ExcelExportJob implements ShouldQueue
                     'District',
                     'EPA',
                     'Section',
-                    'Crop',
+                    // 'Crop',
+                    'Crop (Cassava)',
+                    'Crop (Potato)',
+                    'Crop (Sweet potato)',
                     'Male Count',
                     'Female Count',
                     'Total',
@@ -1061,7 +1064,10 @@ class ExcelExportJob implements ShouldQueue
                             $item->district ?? null,
                             $item->epa ?? null,
                             $item->section ?? null,
-                            $item->crop,
+                            //  $item->crop,
+                            $item->crop_cassava,
+                            $item->crop_potato,
+                            $item->crop_sweet_potato,
                             $item->male_count,
                             $item->female_count,
                             $item->total,
@@ -1161,7 +1167,6 @@ class ExcelExportJob implements ShouldQueue
             }
 
             return $chunkSize;
-
         }
     }
 }

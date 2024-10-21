@@ -47,7 +47,8 @@ class indicator_B1
     public function Farmerbuilder(): Builder
     {
 
-        $query = RtcProductionFarmer::query()->with('followups')->where('rtc_production_farmers.status', 'approved');
+        $query = RtcProductionFarmer::query()->with('followups')
+            ->where('rtc_production_farmers.status', 'approved');
 
 
 
@@ -93,7 +94,8 @@ class indicator_B1
     public function Processorbuilder(): Builder
     {
 
-        $query = RtcProductionProcessor::query()->with('followups');
+        $query = RtcProductionProcessor::query()->with('followups')
+            ->where('rtc_production_processors.status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -157,7 +159,7 @@ class indicator_B1
                 // Sum from related table (related_table) for Potato
                 DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Potato' THEN rpm_farmer_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Potato_total"),
             ])
-            ->where('rtc_production_farmers.status', '=', 'approved')
+            //  ->where('rtc_production_farmers.status', '=', 'approved')
 
             ->first()
             ->toArray();
@@ -187,7 +189,7 @@ class indicator_B1
                 DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Potato' THEN rpm_processor_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Potato_total"),
             ])
 
-            ->where('rtc_production_processors.status', '=', 'approved')
+            //   ->where('rtc_production_processors.status', '=', 'approved')
             ->first()
             ->toArray();
 
@@ -228,13 +230,15 @@ class indicator_B1
     public function findTotal()
     {
 
-        $farmer = $this->Farmerbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
-        $farmer_followup =  $this->FarmerFollowupbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
+        // $farmer = $this->Farmerbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
+        // $farmer_followup =  $this->FarmerFollowupbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
 
-        $processor = $this->Processorbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
-        $processor_followup =  $this->ProcessorFollowupbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
+        // $processor = $this->Processorbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
+        // $processor_followup =  $this->ProcessorFollowupbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
 
-        $subTotal = $farmer + $farmer_followup + $processor + $processor_followup;
+        // $subTotal = $farmer + $farmer_followup + $processor + $processor_followup;
+        $crop = $this->findCropCount();
+        $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
         $indicator = $this->findIndicator();
         $baseline = $indicator->baseline->baseline_value ?? 0;
         $percentageIncrease = new IncreasePercentage($subTotal, $baseline);

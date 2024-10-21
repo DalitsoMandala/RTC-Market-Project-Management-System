@@ -222,14 +222,19 @@ class indicator_A1
 
         $this->builder()->chunk(100, function ($data) use (&$totalCrop) {
             foreach ($data as $model) {
-                $totalCrop['potato'] += $model->rtc_consumers_potato;
-                $totalCrop['cassava'] += $model->rtc_consumers_cassava;
-                $totalCrop['sweet_potato'] += $model->rtc_consumers_sw_potato;
+                if ($model->enterprise == 'Potato') {
+                    $totalCrop['potato'] += 1;
+                } elseif ($model->enterprise == 'Cassava') {
+                    $totalCrop['cassava'] += 1;
+                } elseif ($model->enterprise == 'Sweet potato') {
+                    $totalCrop['sweet_potato'] += 1;
+                }
             }
         });
 
         return $totalCrop;
     }
+
 
     public function countActor(): Collection
     {

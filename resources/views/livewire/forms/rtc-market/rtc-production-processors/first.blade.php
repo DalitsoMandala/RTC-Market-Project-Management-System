@@ -9,7 +9,7 @@
         wire:model='date_of_recruitment' />
 
     @error('date_of_recruitment')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -19,7 +19,7 @@
     <input type="text" class="form-control @error('name_of_actor') is-invalid @enderror" id="nameOfActor"
         wire:model='name_of_actor'>
     @error('name_of_actor')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -29,7 +29,7 @@
     <input type="text" class="form-control @error('name_of_representative') is-invalid @enderror"
         id="nameOfRepresentative" wire:model='name_of_representative'>
     @error('name_of_representative')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -38,7 +38,7 @@
     <label for="phoneNumber" class="form-label">Phone Number</label>
     <x-phone type="tel" class="form-control " :class="$errors->has('phone_number') ? 'is-invalid' : ''" wire:model="phone_number" />
     @error('phone_number')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -49,12 +49,12 @@
     <select class="form-select form-select-md @error('type') is-invalid @enderror" wire:model='type'>
         <option selected value="">Select One</option>
         <option value="Producer organization">Producer organization (PO)</option>
-        <option value="Large scale farm">Large scale farm</option>
+        <option value="Large scale processor">Large scale processor</option>
         <option value="Small medium entrprise (SME)">Small medium entrprise (SME)</option>
     </select>
 
     @error('type')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 
 </div>
@@ -79,7 +79,7 @@
     </select>
 
     @error('approach')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -93,7 +93,7 @@
         <option value="Public">Public</option>
     </select>
     @error('sector')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -127,7 +127,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_members.female_18_35') is-invalid @enderror" id="female1835"
                     x-model="number_of_members.female_18_35">
                 @error('number_of_members.female_18_35')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="col">
@@ -136,7 +136,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_members.female_35_plus') is-invalid @enderror"
                     id="female35plus" x-model="number_of_members.female_35_plus">
                 @error('number_of_members.female_35_plus')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -147,7 +147,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_members.male_18_35') is-invalid @enderror" id="male1835"
                     x-model="number_of_members.male_18_35">
                 @error('number_of_members.male_18_35')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="col">
@@ -156,7 +156,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror" id="male35plus"
                     x-model="number_of_members.male_35_plus">
                 @error('number_of_members.male_35_plus')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
 
@@ -166,7 +166,7 @@ $watch('number_of_members', (v) => {
                     class="form-control bg-light @error('number_of_members.total') is-invalid @enderror"
                     id="female1835" readonly x-model="number_of_members.total">
                 @error('number_of_members.total')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -183,7 +183,7 @@ $watch('number_of_members', (v) => {
     </select>
 
     @error('group')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -197,7 +197,7 @@ $watch('number_of_members', (v) => {
         <option value="Old">Old (Over 5 Years)</option>
     </select>
     @error('establishment_status')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 <!-- Formally Registered Entity -->
@@ -218,7 +218,7 @@ $watch('number_of_members', (v) => {
         </div>
     </div>
     @error('is_registered')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 <!-- Registration Details -->
@@ -241,7 +241,7 @@ $watch('number_of_members', (v) => {
             class="form-control @error('registration_details.registration_body') is-invalid @enderror"
             id="registrationBody" x-model="registration_details.registration_body">
         @error('registration_details.registration_body')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
@@ -250,7 +250,7 @@ $watch('number_of_members', (v) => {
             class="form-control @error('registration_details.registration_number') is-invalid @enderror"
             id="registrationNumber" x-model="registration_details.registration_number">
         @error('registration_details.registration_number')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
@@ -259,7 +259,7 @@ $watch('number_of_members', (v) => {
             class="form-control @error('registration_details.registration_date') is-invalid @enderror"
             id="registrationDate" x-model="registration_details.registration_date">
         @error('registration_details.registration_date')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
@@ -288,7 +288,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.formal.female_18_35') is-invalid @enderror"
                     id="formalFemale1835" x-model="number_of_employees.formal.female_18_35">
                 @error('number_of_employees.formal.female_18_35')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="mb-3">
@@ -297,7 +297,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.formal.female_35_plus') is-invalid @enderror"
                     id="formalFemale35" x-model="number_of_employees.formal.female_35_plus">
                 @error('number_of_employees.formal.female_35_plus')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -310,7 +310,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.formal.male_18_35') is-invalid @enderror"
                     id="formalMale1835" x-model="number_of_employees.formal.male_18_35">
                 @error('number_of_employees.formal.male_18_35')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="mb-3">
@@ -319,7 +319,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.formal.male_35_plus') is-invalid @enderror"
                     id="formalMale35" x-model="number_of_employees.formal.male_35_plus">
                 @error('number_of_employees.formal.male_35_plus')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -347,7 +347,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.informal.female_18_35') is-invalid @enderror"
                     id="informalFemale1835" x-model="number_of_employees.informal.female_18_35">
                 @error('number_of_employees.informal.female_18_35')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="mb-3">
@@ -356,7 +356,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.informal.female_35_plus') is-invalid @enderror"
                     id="informalFemale35" x-model="number_of_employees.informal.female_35_plus">
                 @error('number_of_employees.informal.female_35_plus')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -367,7 +367,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.informal.male_18_35') is-invalid @enderror"
                     id="informalMale1835" x-model="number_of_employees.informal.male_18_35">
                 @error('number_of_employees.informal.male_18_35')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
             <div class="mb-3">
@@ -376,7 +376,7 @@ $watch('number_of_members', (v) => {
                     class="form-control @error('number_of_employees.informal.male_35_plus') is-invalid @enderror"
                     id="informalMale35" x-model="number_of_employees.informal.male_35_plus">
                 @error('number_of_employees.informal.male_35_plus')
-                    <x-error>{{ $message }}</x-error>
+                <x-error>{{ $message }}</x-error>
                 @enderror
             </div>
         </div>
@@ -420,7 +420,7 @@ $watch('number_of_members', (v) => {
 
 
     @error('market_segment')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -442,7 +442,7 @@ $watch('number_of_members', (v) => {
         </div>
     </div>
     @error('has_rtc_market_contract')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -454,7 +454,7 @@ $watch('number_of_members', (v) => {
         class="form-control @error('total_vol_production_previous_season') is-invalid @enderror"
         id="totalVolumeProductions" wire:model='total_vol_production_previous_season'>
     @error('total_vol_production_previous_season')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -482,7 +482,7 @@ $watch('number_of_members', (v) => {
             class="form-control  @error('total_production_value_previous_season.value') is-invalid @enderror"
             id="totalProductionValue" wire:model.live.debounce.600ms="total_production_value_previous_season.value">
         @error('total_production_value_previous_season.value')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
@@ -494,7 +494,7 @@ $watch('number_of_members', (v) => {
             id="dateOfMaximumSales"
             wire:model.live.debounce.600ms="total_production_value_previous_season.date_of_maximum_sales">
         @error('total_production_value_previous_season.date_of_maximum_sales')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
@@ -522,7 +522,7 @@ $watch('number_of_members', (v) => {
         class="form-control  @error('total_vol_irrigation_production_previous_season') is-invalid @enderror"
         id="totalVolumeIrrigation" wire:model='total_vol_irrigation_production_previous_season'>
     @error('total_vol_irrigation_production_previous_season')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -552,7 +552,7 @@ $watch('number_of_members', (v) => {
             id="totalProductionValue"
             wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.value">
         @error('total_irrigation_production_value_previous_season.value')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
@@ -564,7 +564,7 @@ $watch('number_of_members', (v) => {
             id="dateOfMaximumSales"
             wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.date_of_maximum_sales">
         @error('total_irrigation_production_value_previous_season.date_of_maximum_sales')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
     <div class="mb-3">
@@ -605,7 +605,7 @@ $watch('number_of_members', (v) => {
     </div>
 
     @error('sells_to_domestic_markets')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -627,7 +627,7 @@ $watch('number_of_members', (v) => {
         </div>
     </div>
     @error('sells_to_international_markets')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -649,7 +649,7 @@ $watch('number_of_members', (v) => {
         </div>
     </div>
     @error('uses_market_information_systems')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>
 
@@ -677,33 +677,33 @@ $watch('number_of_members', (v) => {
             <div class="card card-body shadow-none border">
                 <label for="" class="form-label">Specify Market Information System</label>
                 @foreach ($market_information_systems as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">Market information System
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">Market information System
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('market_information_systems.' . $index . '.name')
+                            <x-text-input :class="$errors->has('market_information_systems.' . $index . '.name')
                                     ? 'is-invalid'
                                     : ''"
-                                    wire:model='market_information_systems.{{ $index }}.name'
-                                    placeholder="Name of market information systems" />
-                                @error('market_information_systems.' . $index . '.name')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
+                                wire:model='market_information_systems.{{ $index }}.name'
+                                placeholder="Name of market information systems" />
+                            @error('market_information_systems.' . $index . '.name')
+                            <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
-                        <div class="col-2" x-data>
-                            <button type="button" class="btn btn-danger"
-                                @click="$wire.removeMIS({{ $index }})"
-                                @if ($index == 0) disabled @endif>
-                                -
-                            </button>
-                        </div>
-
                     </div>
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-danger"
+                            @click="$wire.removeMIS({{ $index }})"
+                            @if ($index==0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+
+                </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
@@ -763,7 +763,7 @@ $watch('number_of_members', (v) => {
         </div>
 
         @error('aggregation_centers')
-            <x-error>{{ $message }}</x-error>
+        <x-error>{{ $message }}</x-error>
         @enderror
     </div>
 
@@ -777,32 +777,32 @@ $watch('number_of_members', (v) => {
             <div class="card card-body shadow-none border">
                 <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
                 @foreach ($aggregation_center_sales as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">Aggregation Center
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">Aggregation Center
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('aggregation_center_sales.' . $index . '.name')
+                            <x-text-input :class="$errors->has('aggregation_center_sales.' . $index . '.name')
                                     ? 'is-invalid'
                                     : ''"
-                                    wire:model='aggregation_center_sales.{{ $index }}.name'
-                                    placeholder="Name of aggregation center" />
-                                @error('aggregation_center_sales.' . $index . '.name')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-2" x-data>
-                            <button type="button" class="btn btn-danger"
-                                @click="$wire.removeSales({{ $index }})"
-                                @if ($index == 0) disabled @endif>
-                                -
-                            </button>
+                                wire:model='aggregation_center_sales.{{ $index }}.name'
+                                placeholder="Name of aggregation center" />
+                            @error('aggregation_center_sales.' . $index . '.name')
+                            <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
                     </div>
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-danger"
+                            @click="$wire.removeSales({{ $index }})"
+                            @if ($index==0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+                </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
@@ -832,6 +832,6 @@ $watch('number_of_members', (v) => {
         class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror"
         wire:model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
     @error('total_vol_aggregation_center_sales')
-        <x-error>{{ $message }}</x-error>
+    <x-error>{{ $message }}</x-error>
     @enderror
 </div>

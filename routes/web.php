@@ -48,6 +48,7 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
+use App\Models\IndicatorClass;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -58,8 +59,20 @@ Route::get('/test', function () {
     // $a1 = new $content['class']();
 
 
-    $a1 = new App\Helpers\rtc_market\indicators\indicator_1_1_4(financial_year: 3);
-    dd($a1->getDisaggregations());
+    $a1 = new App\Helpers\rtc_market\indicators\indicator_4_1_2();
+    $classes = IndicatorClass::all();
+    $data = collect([]);
+    foreach ($classes as $class) {
+        $cls = $class->class;
+        $obj = new $cls();
+        $name = Indicator::find($class->indicator_id);
+        $data->push([
+            $name->indicator_no => $obj->getDisaggregations()
+        ]);
+    }
+
+
+    return response()->json($data);
     // Mail::to('daliprinc10@gmail.com')->send(new SampleMail());
     // return response()->json('Success');
 });

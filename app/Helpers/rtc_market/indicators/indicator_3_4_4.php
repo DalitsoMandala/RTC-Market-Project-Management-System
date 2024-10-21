@@ -4,6 +4,7 @@ namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -23,14 +24,13 @@ class indicator_3_4_4
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->where('indicator_no', '3.4.4')->first();
+        $query = RtcProductionFarmer::query()->where('status', 'approved')->where('type', 'Producer organization (PO)');
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -54,65 +54,34 @@ class indicator_3_4_4
         if ($this->organisation_id) {
             $query->where('organisation_id', $this->organisation_id);
         }
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
 
 
         return $query;
-
     }
-
-    public function getTotals()
+    public function getCropTotal()
     {
 
-        $builder = $this->builder()->get();
-
-        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->where('indicator_no', '3.4.4')->first();
-        $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
-        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-            $data->put($item, 0);
-        });
+        $totalPotato = $this->builder()->where('enterprise', 'Potato')->count();
+        $totalCassava = $this->builder()->where('enterprise', 'Cassava')->count();
+        $totalSweetPotato = $this->builder()->where('enterprise', 'Sweet potato')->count();
 
 
-
-
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
-                $json = collect(json_decode($model->data, true));
-
-
-
-                foreach ($data as $key => $dt) {
-
-                    if ($json->has($key)) {
-
-                        $data->put($key, $data->get($key) + $json[$key]);
-                    }
-                }
-
-            });
-
-
-        }
-
-        return $data;
+        return [
+            'Potato' => $totalPotato,
+            'Cassava' => $totalCassava,
+            'Sweet potato' => $totalSweetPotato,
+        ];
     }
     public function getDisaggregations()
     {
 
-        return $this->getTotals()->toArray();
+        return [
+            'Total' => $this->builder()->count(),
+            'Cassava' => $this->getCropTotal()['Cassava'],
+            'Potato' => $this->getCropTotal()['Potato'],
+            'Sweet potato' => $this->getCropTotal()['Sweet potato'],
+        ];
     }
 }

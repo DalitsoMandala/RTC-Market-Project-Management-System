@@ -22,7 +22,6 @@ class indicator_2_2_4
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
@@ -68,7 +67,6 @@ class indicator_2_2_4
 
 
         return $query;
-
     }
 
     public function getTotals()
@@ -86,33 +84,28 @@ class indicator_2_2_4
 
 
 
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
                 $json = collect(json_decode($model->data, true));
 
-
-
+                // Add the values for each key to the totals
                 foreach ($data as $key => $dt) {
-
                     if ($json->has($key)) {
-
                         $data->put($key, $data->get($key) + $json[$key]);
                     }
                 }
-
             });
-
-
-        }
+        });
 
         return $data;
     }
     public function getDisaggregations()
     {
 
-        return $this->getTotals()->toArray();
+        $totals = $this->getTotals()->toArray();
+        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
+        $totals['Total']  = $subTotal;
+        return $totals;
     }
-
 }

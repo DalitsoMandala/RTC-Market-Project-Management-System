@@ -73,7 +73,7 @@ class SubPeriod extends Component
     public function mount()
     {
         $this->loadData();
-        $this->targets = [['name' => 'Total', 'value' => '']];
+        //  $this->targets = [['name' => 'Total', 'value' => '']];
     }
     /**
      * Add a new target to the array
@@ -306,9 +306,6 @@ class SubPeriod extends Component
                 }
 
                 $this->disableTarget = false;
-            } else {
-                $this->targets = [['name' => '', 'value' => '']];
-                $this->disableTarget = true;
             }
         }
     }
