@@ -88,8 +88,8 @@ class indicator_3_4_5
             'Cassava' => $this->getCropTotal()['Cassava'],
             'Potato' => $this->getCropTotal()['Potato'],
             'Sweet potato' => $this->getCropTotal()['Sweet potato'],
-            'Fresh' => $this->getMarketSegment()['Fresh'],
-            'Processed' => $this->getMarketSegment()['Processed'],
+            'Fresh' => $this->getMarketSegment()['Fresh'] ?? 0,
+            'Processed' => $this->getMarketSegment()['Processed'] ?? 0,
         ];
     }
 }

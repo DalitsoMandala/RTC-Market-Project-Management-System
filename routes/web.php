@@ -2,14 +2,17 @@
 
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
+use App\Models\Project;
 use App\Mail\SampleMail;
 use App\Jobs\RandomNames;
 use App\Models\Indicator;
 use App\Traits\ExportTrait;
 use Faker\Factory as Faker;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\FinancialYear;
 use App\Models\AssignedTarget;
+use App\Models\IndicatorClass;
 use App\Helpers\AmountSplitter;
 use App\Models\IndicatorTarget;
 use App\Models\SubmissionReport;
@@ -17,6 +20,7 @@ use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
 use App\Livewire\Internal\Cip\Forms;
+use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
@@ -48,7 +52,7 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-use App\Models\IndicatorClass;
+use App\Models\SystemReport;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -72,7 +76,51 @@ Route::get('/test', function () {
     }
 
 
-    return response()->json($data);
+    $Indicator_classes = IndicatorClass::all();
+    foreach ($Indicator_classes as $Indicator_class) {
+
+        $reportingPeriods = ReportingPeriodMonth::pluck('id');
+
+        $reportingPeriods->push(null);
+
+        $financialYears = FinancialYear::pluck('id');
+        $financialYears->push(null);
+
+        $organisations = Organisation::pluck('id');
+        $organisations->pluck(null);
+
+        foreach ($reportingPeriods as $period) {
+            foreach ($financialYears as $financialYear) {
+
+                foreach ($organisations as $organisation) {
+                    //working with ids only
+
+                    $class = new $Indicator_class->class(reporting_period: $period, financial_year: $financialYear, organisation_id: $organisation);
+                    $project = Indicator::find($Indicator_class->indicator_id)->project;
+                    $report =   SystemReport::create([
+                        'reporting_period_id' => $period,
+                        'financial_year_id' => $financialYear,
+                        'organisation_id' => $organisation,
+                        'project_id' => $project->id,
+                        'indicator_id' => $Indicator_class->indicator_id,
+                        //  'data' => json_encode($class->getDisaggregations())
+                    ]);
+
+                    foreach ($class->getDisaggregations() as $key => $value) {
+
+                        $report->data()->create([
+                            'name' => $key,
+                            'value' => $value
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    //  return response()->json($data);
     // Mail::to('daliprinc10@gmail.com')->send(new SampleMail());
     // return response()->json('Success');
 });

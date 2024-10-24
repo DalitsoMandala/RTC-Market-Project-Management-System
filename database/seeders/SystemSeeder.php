@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ReportStatus;
 use App\Models\SystemDetail;
 use App\Models\System_Detail;
 use Illuminate\Database\Seeder;
@@ -26,5 +27,9 @@ class SystemSeeder extends Seeder
             'maintenance_message' => null, // Initial value for maintenance message
         ]);
 
+        ReportStatus::updateOrCreate([
+            'status' => 'pending',
+            'progress' => 0
+        ]);
     }
 }
