@@ -290,6 +290,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $this->redirect($route);
     }
+    #[On('timeout')]
+    public function timeout()
+    {
+        SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
+            'is_expired' => 1,
+            'is_open' => 0
+        ]);
+    }
 
     public function actions($row): array
     {
@@ -342,6 +350,19 @@ final class SubmissionPeriodTable extends PowerGridComponent
         // Check if the organisation is responsible for the indicator
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
 
+
+        $currentDate  = Carbon::now();
+        $establishedDate = $row->date_established;
+        $endDate = $row->end_date;
+
+        $startDate  = Carbon::parse($establishedDate);
+        $endDate  = Carbon::parse($endDate);
+
+        $withinDateRange = $currentDate->between($startDate, $endDate);
+
+
+
+
         return [
             // Hide button edit for ID 1
             Rule::button('edit')
@@ -350,13 +371,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
-                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM', 'SCHOOL RTC CONSUMPTION FORM'])))
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
                 ->disable(),
         ];
     }

@@ -16,8 +16,8 @@ class PeriodSeeder extends Seeder
     {
 
 
-        $dateEstablished = Carbon::now()->format('Y-m-d H:i:s');  // Today's date
-        $dateEnding = Carbon::now()->addMonth()->format('Y-m-d H:i:s');  // Date one month from today
+        $dateEstablished = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');  // Today's date
+        $dateEnding = Carbon::now()->addMonth()->startOfDay()->format('Y-m-d H:i:s');  // Date one month from today
 
         DB::statement("
     INSERT INTO cdms.submission_periods(id, form_id, date_established, date_ending, month_range_period_id, financial_year_id, indicator_id, is_open, is_expired, created_at, updated_at) VALUES
