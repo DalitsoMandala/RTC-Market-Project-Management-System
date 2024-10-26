@@ -38,9 +38,9 @@
                     </div>
                     <div class="card-header" x-data="{
                         is_open: true,
-
-
-
+                    
+                    
+                    
                     }">
 
 
@@ -59,11 +59,11 @@
                                     wire:model.live.debounce.700ms="selectedProject">
                                     <option selected value="">Select one</option>
                                     @foreach ($projects as $project)
-                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                                        <option value="{{ $project->id }}">{{ $project->name }}</option>
                                     @endforeach
                                 </select>
                                 @error('selectedProject')
-                                <x-error>{{ $message }}</x-error>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
@@ -74,76 +74,76 @@
 
 
                                     <div class="mb-3 " wire:ignore x-init="() => {
-
+                                    
                                         $('#select-indicators').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-
-
+                                    
+                                    
                                         $('#select-indicators').on('select2:select', function(e) {
                                             let data = e.params.data;
-
+                                    
                                             setTimeout(() => {
                                                 $wire.set('selectedIndicator', data.id);
                                             }, 500)
-
-
+                                    
+                                    
                                         });
-
-
+                                    
+                                    
                                         $wire.on('update-indicator', (e) => {
-
-
-
-
+                                    
+                                    
+                                    
+                                    
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-
+                                    
                                             selectElement.empty();
-
-
+                                    
+                                    
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-
+                                    
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption);
                                             });
                                             // Refresh Select2 to reflect changes
                                             selectElement.trigger('change');
-
-
+                                    
+                                    
                                             if (e.selected) {
                                                 selectElement.val([e.selected]).trigger('change');
                                             }
-
-
-
+                                    
+                                    
+                                    
                                             // setTimeout(() => {
                                             //     $wire.set('selectedIndicator', null);
                                             // }, 500)
-
-
+                                    
+                                    
                                         });
-
+                                    
                                         $wire.on('select-indicator', (e) => {
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-
+                                    
                                             selectElement.empty();
-
-
+                                    
+                                    
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-
+                                    
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption).trigger('change');
                                             });
-
-
-
+                                    
+                                    
+                                    
                                         })
                                     }">
                                         <label for="" class="form-label">Select Indicator</label>
@@ -151,10 +151,10 @@
                                             wire:model.debounce='selectedIndicator' id="select-indicators">
                                             <option selected value="">Select one</option>
                                             @foreach ($indicators as $indicator)
-                                            <option value="{{ $indicator->id }}">
-                                                ({{ $indicator->indicator_no }})
-                                                {{ $indicator->indicator_name }}
-                                            </option>
+                                                <option value="{{ $indicator->id }}">
+                                                    ({{ $indicator->indicator_no }})
+                                                    {{ $indicator->indicator_name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -162,7 +162,7 @@
 
 
                                 @error('selectedIndicator')
-                                <x-error>{{ $message }}</x-error>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
@@ -174,25 +174,25 @@
                                     selectedForm: [],
                                     forms: [],
                                     setForms(forms) {
-
+                                
                                         this.forms = forms;
                                         selected = $wire.selectedForm;
-
+                                
                                         if (selected.length > 0 && selected != null) {
-
+                                
                                             this.selectedForm = selected;
-
+                                
                                         }
-
-
+                                
+                                
                                     },
-
+                                
                                     selectForm() {
                                         $wire.selectedForm = this.selectedForm;
-
-
+                                
+                                
                                     }
-
+                                
                                 }" @change="selectForm()"
                                 @changed-form.window="setForms($event.detail.forms)" x-init="">
                                 <div class="@if (!$selectedIndicator) pe-none opacity-25 @endif">
@@ -214,7 +214,7 @@
 
 
                                 @error('selectedForm')
-                                <x-error>{{ $message }}</x-error>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
@@ -227,13 +227,13 @@
                                         wire:model.live.debounce.700ms='selectedMonth'>
                                         <option value="">Select one</option>
                                         @foreach ($months as $month)
-                                        <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
-                                            {{ $month->start_month . '-' . $month->end_month }}
-                                        </option>
+                                            <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
+                                                {{ $month->start_month . '-' . $month->end_month }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     @error('selectedMonth')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
                             </div>
@@ -247,55 +247,83 @@
                                         wire:model.live.debounce.700ms='selectedFinancialYear'>
                                         <option value="">Select one</option>
                                         @foreach ($financialYears as $year)
-                                        <option value="{{ $year->id }}">{{ $year->number }}</option>
+                                            <option value="{{ $year->id }}">{{ $year->number }}</option>
                                         @endforeach
                                     </select>
                                     @error('selectedFinancialYear')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
                             </div>
 
 
                             <!-- Dynamic Target Section -->
-                            <div x-data wire:loading.class='opacity-25'
-                                wire:target="selectedProject, selectedIndicator, selectedForm, selectedMonth, selectedFinancialYear"
-                                wire:loading.attr='disabled' class="card card-body shadow-none border   @error('targets') border-danger @enderror">
+                            <div x-data="{
+                                selectedProject: $wire.entangle('selectedProject'),
+                                selectedIndicator: $wire.entangle('selectedIndicator'),
+                                selectedForm: $wire.entangle('selectedForm'),
+                                selectedMonth: $wire.entangle('selectedMonth'),
+                                selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
+                            
+                            
+                            }"
+                                x-bind:class="{
+                                    'opacity-25 pe-none': !(selectedProject && selectedIndicator && selectedForm
+                                        .length > 0 && selectedMonth && selectedFinancialYear)
+                                }"
+                                wire:loading.attr='disabled'
+                                class="card card-body shadow-none border
+  @error('targets')
+border-danger
+@enderror
+  ">
+
+                                <span
+                                    x-text="console.log(selectedProject, selectedIndicator, selectedForm.length, selectedMonth, selectedFinancialYear)"></span>
+
                                 <!-- Dynamically Adding Targets -->
                                 <div class="mb-3">
                                     <label for="targets" class="form-label d-flex d-block text-capitalize">Define
                                         Targets</label>
 
                                     @foreach ($targets as $index => $target)
-                                    <div class="row mb-3">
-                                        <!-- Target Name Input -->
-                                        <div class="col">
-                                            <input type="text"
-                                                class="form-control me-2 @error('targets.' . $index . '.name') is-invalid @enderror"
-                                                placeholder="Target Name (e.g., Cassava)"
-                                                wire:model="targets.{{ $index }}.name" />
-                                            @error('targets.' . $index . '.name')
-                                            <x-error>{{ $message }}</x-error>
-                                            @enderror
-                                        </div>
+                                        <div class="row mb-3">
+                                            <!-- Target Name Input -->
+                                            <div class="col">
 
-                                        <!-- Target Value Input -->
-                                        <div class="col">
-                                            <input type="number"
-                                                class="form-control me-2  @error('targets.' . $index . '.value') is-invalid @enderror"
-                                                placeholder="Target Value"
-                                                wire:model="targets.{{ $index }}.value" />
-                                            @error('targets.' . $index . '.value')
-                                            <x-error>{{ $message }}</x-error>
-                                            @enderror
-                                        </div>
+                                                <select
+                                                    class="form-select @error('targets.' . $index . '.name') is-invalid @enderror"
+                                                    wire:model="targets.{{ $index }}.name"
+                                                    wire:loading.attr='disabled' wire:loading.class='opacity-25'>
+                                                    <option value="">Select one</option>
+                                                    @foreach ($disaggregations->unique('name') as $dsg)
+                                                        <option value="{{ $dsg->name }}">{{ $dsg->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
 
-                                        <!-- Remove Button -->
-                                        <div class="col-1">
-                                            <button class="btn btn-danger"
-                                                wire:click.prevent="removeTarget({{ $index }})">Remove</button>
+                                                @error('targets.' . $index . '.name')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Target Value Input -->
+                                            <div class="col">
+                                                <input type="number"
+                                                    class="form-control me-2  @error('targets.' . $index . '.value') is-invalid @enderror"
+                                                    placeholder="Target Value"
+                                                    wire:model="targets.{{ $index }}.value" />
+                                                @error('targets.' . $index . '.value')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Remove Button -->
+                                            <div class="col-1">
+                                                <button class="btn btn-danger"
+                                                    wire:click.prevent="removeTarget({{ $index }})">Remove</button>
+                                            </div>
                                         </div>
-                                    </div>
                                     @endforeach
 
                                     <!-- Button to add new target -->
@@ -305,26 +333,26 @@
 
                                     <!-- General error for the targets array -->
                                     @error('targets')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="start-period" class="form-label">Start of submissions</label>
-                                <x-text-input id="start-period" wire:model.debounce.700ms='start_period'
-                                    type="date" />
+                                <x-text-input :class="$errors->has('start_period') ? 'is-invalid' : ''" id="start-period"
+                                    wire:model.debounce.700ms='start_period' type="date" />
                                 @error('start_period')
-                                <x-error>{{ $message }}</x-error>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label for="end-period" class="form-label">End of submissions</label>
-                                <x-text-input id="end-period" wire:model.debounce.700ms='end_period'
+                                <x-text-input :class="$errors->has('end_period') ? 'is-invalid' : ''" id="end-period" wire:model.debounce.700ms='end_period'
                                     type="date" />
                                 @error('end_period')
-                                <x-error>{{ $message }}</x-error>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
@@ -371,7 +399,7 @@
                     <div class="card-body">
                         @php
 
-                        $route = Route::current()->getPrefix();
+                            $route = Route::current()->getPrefix();
                         @endphp
                         <livewire:tables.submission-period-table :currentRoutePrefix="$route">
                     </div>
@@ -393,35 +421,33 @@
 </div>
 
 @script
-<script>
-    const tooltipTriggerList = document.querySelectorAll('button[title]');
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('button[title]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-    $wire.on('reload-tooltips', () => {
+        $wire.on('reload-tooltips', () => {
+
+            setTimeout(() => {
+                const tooltipTriggerList = document.querySelectorAll('button[title]');
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                    tooltipTriggerEl))
+
+            }, 1000);
+
+
+        })
+
+
+        $('.goUp').on('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        });
 
         setTimeout(() => {
-            const tooltipTriggerList = document.querySelectorAll('button[title]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                tooltipTriggerEl))
+            $wire.dispatch('timeout');
 
         }, 1000);
-
-
-    })
-
-
-    $('.goUp').on('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        })
-    });
-
-    setTimeout(() => {
-        $wire.dispatch('timeout');
-
-    }, 1000);
-</script>
-
-
+    </script>
 @endscript

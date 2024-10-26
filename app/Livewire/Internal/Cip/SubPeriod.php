@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use App\Models\IndicatorDisaggregation;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Form;
@@ -48,7 +49,7 @@ class SubPeriod extends Component
     #[Validate('required')]
     public $selectedProject;
     public $expired;
-
+    public $disaggregations = [];
     public $indicators = [];
 
     #[Validate('required')]
@@ -60,7 +61,7 @@ class SubPeriod extends Component
     public $disableTarget = true;
     protected $rules = [
         'targets' => 'required|array|min:1',
-        'targets.*.name' => 'required|string',
+        'targets.*.name' => 'required|string|distinct',
         'targets.*.value' => 'required|numeric',
     ];
 
@@ -68,6 +69,8 @@ class SubPeriod extends Component
     protected $messages = [
         'targets.*.name.required' => 'Target name required',
         'targets.*.value.required' => 'Target value required',
+        'targets.*.value.numeric' => 'Target value must be numeric',
+        'targets.*.name.distinct' => 'Target name must be unique',
 
     ];
     public function mount()
@@ -98,6 +101,7 @@ class SubPeriod extends Component
         $this->months = ReportingPeriodMonth::all();
         $this->indicators = Indicator::all();
         $this->forms = Form::all();
+        $this->disaggregations = IndicatorDisaggregation::all();
     }
 
     #[On('editData')]
@@ -291,7 +295,7 @@ class SubPeriod extends Component
         }
 
 
-        if ($this->selectedIndicator && $this->selectedMonth && $this->selectedFinancialYear) {
+        if ($this->selectedIndicator && $this->selectedFinancialYear && $this->selectedProject && !empty($this->selectedForm) && $this->selectedMonth) {
 
             $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
@@ -304,16 +308,22 @@ class SubPeriod extends Component
                         ['name' => $target->target_name, 'value' => $target->target_value]
                     ];
                 }
-
-                $this->disableTarget = false;
             }
         }
     }
 
-    public function updatedSelectedIndicator()
+    public function updatedSelectedIndicator($value)
     {
         if (!$this->rowId) {
             $this->selectedForm = null;
+        }
+
+
+        $indicator = Indicator::find($value);
+
+        if ($indicator) {
+            $disaggregations = $indicator->disaggregations;
+            $this->disaggregations = $disaggregations;
         }
     }
 
