@@ -264,12 +264,17 @@
                                 selectedForm: $wire.entangle('selectedForm'),
                                 selectedMonth: $wire.entangle('selectedMonth'),
                                 selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
+                                targets: $wire.entangle('targets'),
+                            
                             
                             
                             }"
+                                x-effect="() => {
+                                if (selectedProject && selectedIndicator && selectedForm && selectedMonth && selectedFinancialYear) {
+                                    $wire.call('getTargets');
+                                }}"
                                 x-bind:class="{
-                                    'opacity-25 pe-none': !(selectedProject && selectedIndicator && selectedForm
-                                        .length > 0 && selectedMonth && selectedFinancialYear)
+                                    'opacity-25 pe-none': !(selectedIndicator && selectedMonth && selectedFinancialYear)
                                 }"
                                 wire:loading.attr='disabled'
                                 class="card card-body shadow-none border
@@ -277,9 +282,9 @@
 border-danger
 @enderror
   ">
-
                                 <span
-                                    x-text="console.log(selectedProject, selectedIndicator, selectedForm.length, selectedMonth, selectedFinancialYear)"></span>
+                                    x-text="console.log(selectedMonth, selectedFinancialYear, selectedIndicator)"></span>
+
 
                                 <!-- Dynamically Adding Targets -->
                                 <div class="mb-3">

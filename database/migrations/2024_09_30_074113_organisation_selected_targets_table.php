@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organisation_id')->constrained('organisations')->onDelete('cascade');
             $table->foreignId('submission_target_id')->constrained('submission_targets')->onDelete('cascade'); // Reference to the selected target
+            $table->decimal('value', 10, 2);
             $table->timestamps();
         });
     }

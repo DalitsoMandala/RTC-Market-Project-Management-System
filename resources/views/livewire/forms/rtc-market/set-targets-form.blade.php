@@ -1,0 +1,81 @@
+<div>
+    <div class="card">
+        <div class="card-body">
+            <form wire:submit.prevent="saveTargets" id="targetForm">
+                <table class="table table-bordered table-hover table-checkable table-highlight-head mb-2">
+                    <thead>
+                        <tr>
+                            <th colspan="3">
+                                <div class="alert alert-warning text-center" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Before any submission within a given period, partners are expected to set their targets. Please fill your details, and the form will be open for submission!
+                                </div>
+                                <p>Indicator: <span class="text-primary">{{ $targets->first()->Indicator->indicator_name }}</span></p>
+                                <p>Reporting period: <span class="text-primary text-capitalize">{{ $targets->first()->reportPeriodMonth->start_month.' - '. $targets->first()->reportPeriodMonth->end_month }}</span></p>
+                                <p>Project Year: <span class="text-primary text-capitalize">{{ $targets->first()->financialYear->number }}</span></p>
+                                <p>Organisation/Partner: <span class="text-primary">{{$organisation->name}}</span></p>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <thead class="table-primary">
+                        <tr class="text-uppercase" style="font-size: 12px;">
+                            <th scope="col" class="text-secondary">Target Name</th>
+                            <th scope="col" class="text-secondary">Target Value</th>
+                            <th scope="col" class="text-secondary">Your Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($targets as $index => $target)
+                        <tr>
+                            <td>{{ $target['target_name'] }}</td>
+                            <td>{{ $target['target_value'] }}</td>
+                            <td>
+                                <input type="number" class="form-control @error('targets.' . $index . '.value')
+is-invalid
+                                @enderror" placeholder="Enter your value"
+                                    wire:model="targets.{{ $index }}.value">
+
+                                @error( 'targets.' . $index . '.value')
+                                <x-error> {{ $message }}</x-error>
+                                @enderror
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <!-- Form submit button in card footer -->
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmationModal">
+                            Submit
+                        </button>
+
+                    </div>
+                </div>
+            </form>
+
+            <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmationModalLabel">Confirm Submission</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to submit these targets?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" wire:click="saveTargets()" data-bs-dismiss="modal">
+                                Yes, Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,4 +17,11 @@ class OrganisationTarget extends Model
     {
         return $this->belongsTo(SubmissionTarget::class, 'submission_target_id');
     }
+
+
+    public function organisation()
+    {
+
+        return $this->belongsTo(Organisation::class, 'organisation_id');
+    }
 }

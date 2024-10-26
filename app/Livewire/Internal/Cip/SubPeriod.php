@@ -60,7 +60,7 @@ class SubPeriod extends Component
     public $targets = []; // This will hold the dynamically added targets
     public $disableTarget = true;
     protected $rules = [
-        'targets' => 'required|array|min:1',
+        'targets.*' => 'required',
         'targets.*.name' => 'required|string|distinct',
         'targets.*.value' => 'required|numeric',
     ];
@@ -107,7 +107,7 @@ class SubPeriod extends Component
     #[On('editData')]
     public function fillData($rowId)
     {
-        $this->resetErrorBag();
+
         $this->rowId = $rowId;
 
         $submissionPeriod = SubmissionPeriod::findOrFail($rowId);
@@ -118,7 +118,7 @@ class SubPeriod extends Component
         $this->selectedForm[] = $submissionPeriod->form_id;
         $this->selectedMonth = $submissionPeriod->month_range_period_id;
         $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
-
+        $this->getTargets();
 
 
 
@@ -134,9 +134,17 @@ class SubPeriod extends Component
             $formIds = $indicator->forms->pluck('id');
             $this->all = $formIds;
             $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
+
+            $disaggregations = $indicator->disaggregations;
+            $this->disaggregations = $disaggregations;
+
+
             $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
         }
     }
+
+
+
 
     public function updateProjectRelatedData($project)
     {
@@ -159,22 +167,43 @@ class SubPeriod extends Component
             throw $e;
         }
 
-        $data = [
-            'date_established' => $this->start_period,
-            'date_ending' => $this->end_period,
-            'is_open' => !$this->expired && $this->status,
-            'form_id' => $this->selectedForm[0],
-            'is_expired' => $this->expired ?? false,
-            'month_range_period_id' => $this->selectedMonth,
-            'financial_year_id' => $this->selectedFinancialYear,
-            'indicator_id' => $this->selectedIndicator,
-        ];
 
         try {
+            $data = [
+                'date_established' => $this->start_period,
+                'date_ending' => $this->end_period,
+                'is_open' => !$this->expired && $this->status,
+                'form_id' => $this->selectedForm[0],
+                'is_expired' => $this->expired ?? false,
+                'month_range_period_id' => $this->selectedMonth,
+                'financial_year_id' => $this->selectedFinancialYear,
+                'indicator_id' => $this->selectedIndicator,
+            ];
             if ($this->rowId) {
                 $submissions = Submission::where('period_id', $this->rowId)->count();
                 if ($submissions === 0) {
+
+
                     SubmissionPeriod::find($this->rowId)->update($data);
+                    $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                        ->where('financial_year_id', $this->selectedFinancialYear)
+                        ->where('month_range_period_id', $this->selectedMonth)->get();
+                    if ($checkTargets->isNotEmpty()) {
+                        foreach ($checkTargets as $target) {
+                            $target->delete();
+                        }
+                    }
+
+                    foreach ($this->targets as $target) {
+                        SubmissionTarget::create([
+                            'month_range_period_id' => $this->selectedMonth,
+                            'financial_year_id' => $this->selectedFinancialYear,
+                            'indicator_id' => $this->selectedIndicator,
+                            'target_name' => $target['name'],
+                            'target_value' => $target['value'],
+                        ]);
+                    }
+
                     session()->flash('success', 'Updated Successfully');
                 } else {
                     session()->flash('error', 'Cannot update this record because it has submissions.');
@@ -209,10 +238,11 @@ class SubPeriod extends Component
 
                     $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                         ->where('financial_year_id', $this->selectedFinancialYear)
-                        ->where('month_range_period_id', $this->selectedMonth)->first();
-
-                    if ($checkTargets) {
-                        $checkTargets->delete();
+                        ->where('month_range_period_id', $this->selectedMonth)->get();
+                    if ($checkTargets->isNotEmpty()) {
+                        foreach ($checkTargets as $target) {
+                            $target->delete();
+                        }
                     }
 
                     foreach ($this->targets as $target) {
@@ -293,37 +323,40 @@ class SubPeriod extends Component
                 $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }
-
-
-        if ($this->selectedIndicator && $this->selectedFinancialYear && $this->selectedProject && !empty($this->selectedForm) && $this->selectedMonth) {
-
-            $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
-                ->get();
-
-            if ($targets->isNotEmpty()) {
-                foreach ($targets as $target) {
-                    $this->targets = [
-                        ['name' => $target->target_name, 'value' => $target->target_value]
-                    ];
-                }
-            }
-        }
     }
 
-    public function updatedSelectedIndicator($value)
+    public function getTargets()
     {
-        if (!$this->rowId) {
-            $this->selectedForm = null;
-        }
 
-
-        $indicator = Indicator::find($value);
+        $indicator = Indicator::find($this->selectedIndicator);
 
         if ($indicator) {
             $disaggregations = $indicator->disaggregations;
             $this->disaggregations = $disaggregations;
+        }
+        $this->targets = [];
+        $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+            ->where('financial_year_id', $this->selectedFinancialYear)
+            ->where('month_range_period_id', $this->selectedMonth)
+            ->get();
+
+        if ($targets->isNotEmpty()) {
+            // Populate targets from the database without overwriting
+            $this->targets = $targets->map(function ($target) {
+                return [
+                    'name' => $target->target_name,
+                    'value' => $target->target_value,
+                ];
+            })->toArray();
+        } else {
+            // Set default value if no targets are found and targets are empty
+            $this->targets = [['name' => 'Total', 'value' => '']];
+        }
+    }
+    public function updatedSelectedIndicator($value)
+    {
+        if (!$this->rowId) {
+            $this->selectedForm = null;
         }
     }
 
