@@ -63,62 +63,9 @@ Route::get('/test', function () {
     // $a1 = new $content['class']();
 
 
-    $a1 = new App\Helpers\rtc_market\indicators\indicator_4_1_2();
-    $classes = IndicatorClass::all();
-    $data = collect([]);
-    foreach ($classes as $class) {
-        $cls = $class->class;
-        $obj = new $cls();
-        $name = Indicator::find($class->indicator_id);
-        $data->push([
-            $name->indicator_no => $obj->getDisaggregations()
-        ]);
-    }
+    $a1 = new App\Helpers\rtc_market\indicators\indicator_2_2_1(organisation_id: 1, financial_year: 1, reporting_period: 1);
 
-
-    $Indicator_classes = IndicatorClass::all();
-    foreach ($Indicator_classes as $Indicator_class) {
-
-        $reportingPeriods = ReportingPeriodMonth::pluck('id');
-
-        $reportingPeriods->push(null);
-
-        $financialYears = FinancialYear::pluck('id');
-        $financialYears->push(null);
-
-        $organisations = Organisation::pluck('id');
-        $organisations->pluck(null);
-
-        foreach ($reportingPeriods as $period) {
-            foreach ($financialYears as $financialYear) {
-
-                foreach ($organisations as $organisation) {
-                    //working with ids only
-
-                    $class = new $Indicator_class->class(reporting_period: $period, financial_year: $financialYear, organisation_id: $organisation);
-                    $project = Indicator::find($Indicator_class->indicator_id)->project;
-                    $report =   SystemReport::create([
-                        'reporting_period_id' => $period,
-                        'financial_year_id' => $financialYear,
-                        'organisation_id' => $organisation,
-                        'project_id' => $project->id,
-                        'indicator_id' => $Indicator_class->indicator_id,
-                        //  'data' => json_encode($class->getDisaggregations())
-                    ]);
-
-                    foreach ($class->getDisaggregations() as $key => $value) {
-
-                        $report->data()->create([
-                            'name' => $key,
-                            'value' => $value
-                        ]);
-                    }
-                }
-            }
-        }
-    }
-
-
+    dd($a1->getDisaggregations());
 
     //  return response()->json($data);
     // Mail::to('daliprinc10@gmail.com')->send(new SampleMail());

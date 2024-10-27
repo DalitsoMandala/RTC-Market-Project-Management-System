@@ -29,12 +29,14 @@ final class ReportTable extends PowerGridComponent
 
     public $project;
     public $reporting_period;
-    public  $financial_year;
+    public $financial_year;
     public $organisation_id;
 
     public $indicator;
 
     public $disaggregation;
+
+    public bool $withSortStringNumber = true;
 
     public function setUp(): array
     {
@@ -88,7 +90,22 @@ final class ReportTable extends PowerGridComponent
     public function datasource(): Builder
     {
         // Start building the query for SystemReportData and eager load systemReport
-        $query = SystemReportData::query()->with('systemReport');
+        $query = SystemReportData::query()->with('systemReport')
+            ->join('system_reports', function ($join) {
+                $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
+            })
+            ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
+            ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
+            ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
+            ->select([
+                'system_report_data.*',
+                'indicators.indicator_name as indicator_name',
+                'indicators.indicator_no as indicator_no',
+                'organisations.name as organisation_name',
+                'financial_years.number as financial_year',
+            ]);
+
+
 
         // If any of the filters are provided, apply them
         if (
@@ -96,19 +113,35 @@ final class ReportTable extends PowerGridComponent
             !is_null($this->disaggregation) || !is_null($this->indicator)
         ) {
 
-            // Get the indicators associated with the organisation if organisation_id is set
-            $indicators = null;
-            if (!is_null($this->organisation_id)) {
-                $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)->pluck('indicator_id');
+            if (!is_null($this->disaggregation)) {
+                // Assuming disaggregations is a column you want to filter by
+                $query->where('name', $this->disaggregation);
             }
+
+            // Get the indicators associated with the organisation if organisation_id is set
+            $indicators = [];
+            if (!is_null($this->organisation_id)) {
+                $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)->pluck('indicator_id')->toArray();
+            }
+
 
             // Apply the filters to the query based on the available conditions
             $query->whereHas('systemReport', function ($query) use ($indicators) {
                 if (!is_null($this->organisation_id)) {
                     $query->where('organisation_id', $this->organisation_id);
                 }
-                if ($indicators) {
-                    $query->whereIn('indicator_id', $indicators);
+                if (!is_null($indicators)) {
+                    if (!is_null($this->indicator)) {
+
+                        $valueToKeep = intval($this->indicator);
+
+                        // Filter the array to keep only the element(s) with the specified value
+                        $result = array_filter($indicators, fn($value) => $value === $valueToKeep);
+
+                        $query->whereIn('indicator_id', $result);
+                    } else {
+                        $query->whereIn('indicator_id', $indicators);
+                    }
                 }
                 if (!is_null($this->financial_year)) {
                     $query->where('financial_year_id', $this->financial_year);
@@ -116,19 +149,22 @@ final class ReportTable extends PowerGridComponent
                 if (!is_null($this->reporting_period)) {
                     $query->where('reporting_period_id', $this->reporting_period);
                 }
-                if (!is_null($this->disaggregation)) {
-                    // Assuming disaggregations is a column you want to filter by
-                    $query->where('name', $this->disaggregation);
-                }
-                if (!is_null($this->indicator)) {
-                    $query->where('indicator_id', $this->indicator);
-                }
             });
         }
 
         return $query;
     }
+    public function relationSearch(): array
+    {
+        return [
+            'systemReport' => [ // relationship on dishes model
 
+                'indicators' => ['indicator_name'],
+                'indicators' => ['indicator_no'],
+                'organisations' => ['name'],
+            ],
+        ];
+    }
 
     public function fields(): PowerGridFields
     {
@@ -183,24 +219,24 @@ final class ReportTable extends PowerGridComponent
             Column::make('Id', 'id')->hidden()->visibleInExport(false),
 
             Column::make('Disaggregation', 'name')
-                ->sortable(),
+                ->sortable()->searchable(),
             Column::make('Value', 'value')
                 ->sortable(),
 
             Column::make('Indicator Name', 'indicator_name')
-
+                ->searchable()
                 ->sortable(),
 
-            Column::make('Indicator #', 'number')
+            Column::make('Indicator #', 'number', 'indicator_no')
                 ->searchable()
                 ->sortable(),
 
             Column::make('Project', 'project'),
 
 
-            Column::make('Reporting period', 'report_period'),
-            Column::make('Organisation', 'organisations'),
-            Column::make('Project year', 'financial_year'),
+            Column::make('Reporting period', 'report_period')->searchable(),
+            Column::make('Organisation', 'organisations', 'organisation_name')->sortable()->searchable(),
+            Column::make('Project year', 'financial_year')->sortable(),
 
         ];
     }
@@ -248,7 +284,7 @@ final class ReportTable extends PowerGridComponent
     #[On('reset-filters')]
     public function resetData()
     {
-        $this->reset('organisation_id', 'reporting_period', 'financial_year');
+        $this->reset('organisation_id', 'reporting_period', 'financial_year', 'indicator', 'disaggregation', 'project');
         $this->resetPage();
         $this->refresh();
     }

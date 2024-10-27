@@ -206,7 +206,9 @@
                                             @if (!$selectedOrganisation) disabled @endif>
                                             <option value="">Select one</option>
                                             @foreach ($indicators as $indicator)
-                                                <option value="{{ $indicator->id }}">{{ $indicator->indicator_name }}
+                                                <option value="{{ $indicator->id }}">
+                                                    ({{ $indicator->indicator_no }})
+                                                    {{ $indicator->indicator_name }}
                                                 </option>
                                             @endforeach
                                         </select>

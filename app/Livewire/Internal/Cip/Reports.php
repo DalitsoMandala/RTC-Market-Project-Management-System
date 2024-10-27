@@ -130,9 +130,9 @@ class Reports extends Component
 
 
 
-        if ($completed) {
+        if ($pending || $completed) {
 
-            $batch = Bus::batch([
+            Bus::batch([
                 new ReportJob([])
             ])->before(function (Batch $batch) {
                 // The batch has been created but no jobs have been added...
@@ -151,8 +151,6 @@ class Reports extends Component
                 ->dispatch();
         } else if ($processing) {
             $this->readCache();
-        } else {
-            $this->loadingData = false;
         }
     }
     public function updated($property, $value)
@@ -179,6 +177,7 @@ class Reports extends Component
         if ($check) {
             $this->loadingData = false;
             $this->dispatch('reset-filters');
+            cache()->clear();
         }
 
         $this->progress = ReportStatus::find(1)->progress;

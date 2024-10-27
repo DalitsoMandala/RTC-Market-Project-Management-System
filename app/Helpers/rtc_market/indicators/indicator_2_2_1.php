@@ -164,10 +164,12 @@ class indicator_2_2_1
             ->first()
             ->toArray();
 
+
+
         return [
-            'cassava' => $farmer['Cassava_total'],
-            'potato' => $farmer['Potato_total'],
-            'sweet_potato' => $farmer['Sweet_potato_total'],
+            'cassava' => $farmer['Cassava_total'] ?? 0,
+            'potato' => $farmer['Potato_total'] ?? 0,
+            'sweet_potato' => $farmer['Sweet_potato_total'] ?? 0,
         ];
     }
 

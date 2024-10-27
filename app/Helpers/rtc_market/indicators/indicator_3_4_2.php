@@ -71,8 +71,8 @@ class indicator_3_4_2
 
         return [
             'Total' => $this->builder()->count(),
-            'Fresh' => $this->getMarketSegment()['Fresh'],
-            'Processed' => $this->getMarketSegment()['Processed'],
+            'Fresh' => $this->getMarketSegment()['Fresh'] ?? 0,
+            'Processed' => $this->getMarketSegment()['Processed'] ?? 0,
         ];
     }
 }
