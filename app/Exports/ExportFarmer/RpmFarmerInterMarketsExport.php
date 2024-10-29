@@ -6,8 +6,9 @@ use App\Models\RpmFarmerInterMarket;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RpmFarmerInterMarketsExport implements FromCollection, WithHeadings, WithTitle
+class RpmFarmerInterMarketsExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
     public function collection()
     {

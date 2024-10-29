@@ -6,8 +6,9 @@ use App\Models\RpmFarmerCertifiedSeed;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RpmfCertifiedSeedExport implements FromCollection, WithHeadings, WithTitle
+class RpmfCertifiedSeedExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
     public function collection()
     {
