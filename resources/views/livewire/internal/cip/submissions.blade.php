@@ -23,10 +23,10 @@
 
                 <div>
                     @if (session()->has('success'))
-                        <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                     @endif
                     @if (session()->has('error'))
-                        <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
                     @endif
 
                 </div>
@@ -39,7 +39,7 @@
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link disabled" id="batch-tab" data-bs-toggle="tab"
+                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
                                     data-bs-target="#batch-submission" type="button" role="tab"
                                     aria-controls="home" aria-selected="true">
                                     Batch Submissions
@@ -53,7 +53,7 @@
                                 </button>
                             </li> --}}
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="people-tab" data-bs-toggle="tab"
+                                <button class="nav-link " id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
                                     Aggregate Submission
@@ -72,7 +72,7 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane  fade show" id="batch-submission" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
                                 aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
@@ -80,7 +80,7 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="aggregate-submission"
+                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission"
                                 role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
@@ -105,12 +105,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -119,7 +119,7 @@
                 }
             });
         })
-        
+
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -127,10 +127,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('showDataAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -138,24 +138,24 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })">
 
 
 
 
             <x-modal id="view-aggregate-modal" title="Approve Submission">
-                <form wire:submit.debounce.1000ms='save'>
+                <form>
                     <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
                         record?
                     </h3>
 
                     <div x-data="{
                         data: $wire.entangle('inputs'),
-                    
-                    
-                    
+
+
+
                     }">
 
 
@@ -183,22 +183,16 @@
                         <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
                         <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
                         @error('comment')
-                            <x-error>{{ $message }}</x-error>
+                        <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 
-                    <div class="modal-footer border-top-0 justify-content-center" x-data="{
-                        statusGet(status) {
-                            $wire.status = status;
-                            $wire.save();
-                        }
-                    
-                    }">
+                    <div class="modal-footer border-top-0 justify-content-center">
                         <hr>
 
 
-                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
-                        <button type="button" @click="statusGet('approved')"
+                        <button type="button" @if($disable) disabled @endif wire:click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
+                        <button type="button" @if($disable) disabled @endif wire:click="statusGet('approved')"
                             class="pr-4 btn btn-primary">Approve</button>
 
                     </div>
@@ -208,9 +202,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-                
-                
-                
+
+
+
                 }">
 
 
@@ -238,35 +232,29 @@
             </x-modal>
 
             <x-modal id="view-submission-modal" title="Approve Submission">
-                <form wire:submit.debounce.1000ms='save'>
-                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
-                        record?
-                    </h3>
+                <x-alerts />
+                <h3 class="text-center h4">Please confirm whether you would like to approve/disapprove this record?</h3>
 
+                <form wire:submit.debounce.1000ms="submit">
                     <div class="mt-4 mb-3">
                         <label for="">Comment</label>
-                        <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
-                        <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
+                        <input wire:model="comment" class="form-control @error('comment') is-invalid @enderror" />
+                        <small class="text-muted">Type <b>N/A</b> if no comment is available</small> <br>
                         @error('comment')
-                            <x-error>{{ $message }}</x-error>
+                        <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 
-                    <div class="modal-footer border-top-0 justify-content-center" x-data="{
-                        statusGet(status) {
-                            $wire.status = status;
-                            $wire.save();
-                        }
-                    
-                    }">
-                        <button type="button" @click="statusGet('denied')"
-                            class="btn btn-danger">Disapprove</button>
-                        <button type="button" @click="statusGet('approved')"
-                            class="pr-4 btn btn-primary">Approve</button>
+                    <!-- Hidden input to store the status -->
+                    <input type="hidden" wire:model="status">
 
+                    <div class="d-flex border-top-0 justify-content-center">
+                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
+                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-primary" wire:click="setStatus('approved')">Approve</button>
                     </div>
                 </form>
             </x-modal>
+
 
         </div>
 
@@ -275,15 +263,15 @@
     </div>
 
     @script
-        <script>
-            if (window.location.hash !== '') {
-                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-                if (button) {
-                    button.click();
+    <script>
+        if (window.location.hash !== '') {
+            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+            if (button) {
+                button.click();
 
-                }
             }
-        </script>
+        }
+    </script>
     @endscript
 
 </div>

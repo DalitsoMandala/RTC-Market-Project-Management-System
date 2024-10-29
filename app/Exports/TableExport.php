@@ -67,8 +67,6 @@ class TableExport implements FromCollection, WithMapping, WithHeadings, ShouldQu
             $item->submitted_by = $item->user->organisation->name;
             return $item;
         });
-
-
     }
 
     public function map($row): array
@@ -108,6 +106,4 @@ class TableExport implements FromCollection, WithMapping, WithHeadings, ShouldQu
     {
         return $this->data;
     }
-
-
 }

@@ -316,12 +316,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->tooltip('Add Data')
                 ->dispatch('sendData', ['model' => $row]),
 
-            // Button::add('upload')
-            //     ->slot('<i class="bx bx-upload"></i>')
-            //     ->id()
-            //     ->tooltip('Upload Your Data')
-            //     ->class('btn btn-primary my-1 btn-sm')
-            //     ->dispatch('sendUploadData', ['model' => $row]),
+            Button::add('upload')
+                ->slot('<i class="bx bx-upload"></i>')
+                ->id()
+                ->tooltip('Upload Your Data')
+                ->class('btn btn-primary my-1 btn-sm')
+                ->dispatch('sendUploadData', ['model' => $row]),
 
 
         ];

@@ -113,7 +113,6 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
 
                 ];
             }
-
         }
         return collect([
             $data,
@@ -148,7 +147,6 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
             'RTC MAIN FOOD/SWEET POTATO',
 
         ];
-
     }
 
     public function title(): string

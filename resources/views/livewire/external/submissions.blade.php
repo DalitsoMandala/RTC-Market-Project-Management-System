@@ -22,10 +22,10 @@
             <div class="col-12">
 
                 @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                 @endif
                 @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
                 @endif
                 <div class="card " wire:ignore>
                     <div class="card-header fw-bold ">
@@ -35,7 +35,7 @@
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link disabled" id="batch-tab" data-bs-toggle="tab"
+                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
                                     data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
                                     aria-selected="true">
                                     Batch Submissions
@@ -49,7 +49,7 @@
                                 </button>
                             </li> --}}
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="people-tab" data-bs-toggle="tab"
+                                <button class="nav-link " id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
                                     Aggregate Submission
@@ -68,7 +68,7 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane  fade show" id="batch-submission" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane  active fade show" id="batch-submission" role="tabpanel"
                                 aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
@@ -76,7 +76,7 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="aggregate-submission"
+                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission"
                                 role="tabpanel" aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
@@ -178,7 +178,7 @@
                         </select>
                         <small class="text-muted">You can approve/disapprove submissions here</small><br>
                         @error('status')
-                            <span class="my-1 text-danger">{{ $message }}</span>
+                        <span class="my-1 text-danger">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -186,7 +186,7 @@
                         <label for="">Comments</label>
                         <textarea wire:model='comment' id="" class="form-control"></textarea>
                         @error('comment')
-                            <x-error>{{ $message }}</x-error>
+                        <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 
