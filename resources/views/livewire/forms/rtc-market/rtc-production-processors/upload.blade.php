@@ -26,10 +26,10 @@
 
 
                     @if ($openSubmission === false)
-                        <div class="alert alert-warning" role="alert">
-                            You can not submit a form right now
-                            because submissions are closed for the moment!
-                        </div>
+                    <div class="alert alert-warning" role="alert">
+                        You can not submit a form right now
+                        because submissions are closed for the moment!
+                    </div>
                     @endif
                 </div>
 
@@ -55,69 +55,69 @@
                             <div class="row">
                                 <div class="col">
 
-                                    @if ($importing && !$importingFinished)
-                                        <div class="alert alert-warning" wire:poll.5s='checkErrors()'>Importing your
-                                            file
-                                            Please wait....</div>
-
-
-
-                                        <div x-data="{
-                                            progress: 0,
-                                        
-                                        
-                                        }"
-                                            @progress-update.window="progress = $event.detail.progress; ">
-
-                                            <div x-show="progress > 0">
-                                                <div class="d-flex justify-content-end">
-
-
-                                                    <p class="fw-bolder text-primary"> <span
-                                                            x-text="progress + '%'"></span></p>
-
-                                                </div>
-
-                                                <div x-data class="my-2 progress progress-sm">
-                                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                                        role="progressbar" :style="{ width: progress + '%' }"
-                                                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    @endif
 
                                 </div>
-                            </div>
-                            <div class="row justify-content-center">
+                                @if ($importing && !$importingFinished)
+                                <div class="alert alert-warning d-flex justify-content-between" wire:poll.5s='checkProgress()'>Importing your
+                                    file
+                                    Please wait....
 
-                                <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
-                                    <x-filepond-single instantUpload="true" wire:model='upload' />
-                                    @error('upload')
-                                        <div class="d-flex justify-content-center">
-                                            <x-error class="text-center ">{{ $message }}</x-error>
+                                    <div class=" d-flex align-content-center ">
+                                        <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
+
+
+                                        <div class="spinner-border text-primary spinner-border-sm"
+                                            role="status">
+                                            <span class="visually-hidden">Loading...</span>
                                         </div>
-                                    @enderror
-                                    <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
-                                        <button type="submit" @uploading-files.window="disableButton = true"
-                                            @finished-uploading.window="disableButton = false"
-                                            :disabled="disableButton === true || openSubmission === false"
-                                            class="btn btn-primary ">
-                                            Submit data
-                                        </button>
-
 
                                     </div>
+                                </div>
+
+
+
+
+
+                                <div x-data class="my-2 progress progress-sm">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                        role="progressbar" style="width: {{ $progress . '%' }}"
+                                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+
+                                    </div>
+                                </div>
+
+
+
+                                @endif
+
+
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+
+                            <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
+                                <x-filepond-single instantUpload="true" wire:model='upload' />
+                                @error('upload')
+                                <div class="d-flex justify-content-center">
+                                    <x-error class="text-center ">{{ $message }}</x-error>
+                                </div>
+                                @enderror
+                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                    <button type="submit" @uploading-files.window="disableButton = true"
+                                        @finished-uploading.window="disableButton = false"
+                                        :disabled="disableButton === true || openSubmission === false"
+                                        class="btn btn-primary ">
+                                        Submit data
+                                    </button>
 
 
                                 </div>
-                            </div>
 
+
+                            </div>
                         </div>
+
+
                     </form>
 
                     <small></small>

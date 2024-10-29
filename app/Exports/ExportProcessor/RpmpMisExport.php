@@ -30,6 +30,6 @@ class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
 
     public function title(): string
     {
-        return 'MIS';
+        return 'Market Information Systems';
     }
 }

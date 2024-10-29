@@ -38,6 +38,7 @@ use App\Notifications\BatchDataAddedNotification;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
 use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
+use App\Imports\ImportProcessor\RtcProductionProcessorsMultiSheetImport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
 
@@ -106,7 +107,7 @@ class Upload extends Component
 
                     cache()->clear();
 
-                    Excel::import(new RtcProductionFarmersMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
+                    Excel::import(new RtcProductionProcessorsMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
                         'submission_period_id' => $this->submissionPeriodId,
                         'organisation_id' => Auth::user()->organisation->id,
@@ -225,6 +226,52 @@ class Upload extends Component
     // }
 
 
+
+    public function checkProgress()
+    {
+        $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
+
+        $this->progress = $jobProgress ? $jobProgress->progress : 0;
+        $this->importing = true;
+        $this->importingFinished  = false;
+
+
+        if ($this->progress == 100) {
+            $this->importing = false;
+            $this->importingFinished = true;
+
+
+            $this->importId = Uuid::uuid4()->toString(); // change key
+
+            if ($jobProgress->status == 'failed') {
+
+                session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+                $this->reset('upload');
+            } else if ($jobProgress->status == 'completed') {
+
+                $this->dispatch('complete-submission');
+            }
+
+            $this->reset('upload');
+        }
+    }
+
+    #[On('complete-submission')]
+    public function send()
+    {
+        $user = User::find(auth()->user()->id);
+        cache()->clear();
+        if ($user->hasAnyRole('external')) {
+            session()->flash('success', 'Successfully submitted!');
+            $this->redirect(route('external-submissions') . '#batch-submission');
+        } else if ($user->hasAnyRole('staff')) {
+            session()->flash('success', 'Successfully submitted!');
+            $this->redirect(route('cip-staff-submissions') . '#batch-submission');
+        } else {
+            session()->flash('success', 'Successfully submitted!');
+            $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+        }
+    }
 
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
