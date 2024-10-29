@@ -20,13 +20,13 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
             'district',
             'school_name',
             'date',
-            'crop',
+            //   'crop',
             'crop_cassava',
             'crop_potato',
             'crop_sweet_potato',
             'male_count',
             'female_count',
-            'total'
+            //  'total'
         )->get();
     }
 
@@ -39,13 +39,13 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
             'District',
             'School Name',
             'Date',
-            'Crop',
+            // 'Crop',
             'Cassava Crop',
             'Potato Crop',
             'Sweet Potato Crop',
             'Male Count',
             'Female Count',
-            'Total',
+            //   'Total',
         ];
     }
 
