@@ -2,45 +2,47 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
-use Throwable;
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\ImportError;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
-use App\Models\SubmissionPeriod;
-use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\ReportingPeriodMonth;
-use App\Models\RpmProcessorFollowUp;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\RpmProcessorDomMarket;
-use App\Exceptions\UserErrorException;
-use App\Models\RtcProductionProcessor;
-use App\Notifications\JobNotification;
-use App\Models\RpmProcessorInterMarket;
-use App\Exceptions\SheetImportException;
-use App\Models\RpmProcessorConcAgreement;
 use App\Exceptions\ExcelValidationException;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\BatchDataAddedNotification;
-use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
-use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
+use App\Exceptions\SheetImportException;
+use App\Exceptions\UserErrorException;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
-use App\Imports\ImportProcessor\RtcProductionProcessorsMultiSheetImport;
+
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
+use App\Helpers\SheetNamesValidator;
+use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
+use App\Imports\ImportProcessor\RtcProductionProcessorsMultiSheetImport;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
+use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\ImportError;
+use App\Models\Indicator;
+use App\Models\JobProgress;
+use App\Models\OrganisationTarget;
+use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
+use App\Models\RpmProcessorConcAgreement;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RpmProcessorInterMarket;
+use App\Models\RtcProductionProcessor;
+use App\Models\Submission;
+use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
+use App\Models\User;
+use App\Notifications\BatchDataAddedNotification;
+use App\Notifications\JobNotification;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Upload extends Component
 {
@@ -73,7 +75,12 @@ class Upload extends Component
 
     public $queue = false;
 
-    public function save() {}
+    public $targetSet = false;
+    public $targetIds = [];
+
+    public function save()
+    {
+    }
 
     public function submitUpload()
     {
@@ -233,7 +240,7 @@ class Upload extends Component
 
         $this->progress = $jobProgress ? $jobProgress->progress : 0;
         $this->importing = true;
-        $this->importingFinished  = false;
+        $this->importingFinished = false;
 
 
         if ($this->progress == 100) {
@@ -305,18 +312,23 @@ class Upload extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->get();
+            $user = User::find(auth()->user()->id);
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-                $user = Auth::user();
-                $organisation = $user->organisation;
-
-                $getSubmissionType = ResponsiblePerson::where('indicator_id', $this->selectedIndicator)->where('organisation_id', $organisation->id)->first();
-                if ($getSubmissionType) {
-                    $this->showReport = $getSubmissionType->type_of_submission == 'normal' ? false : true;
-                }
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
         }
 

@@ -20,20 +20,26 @@
         <!-- end page title -->
         <div class="row justify-content-center">
             <div class="col-12 col-md-8">
-                <div>
-
-                    <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
 
 
-                    @if ($openSubmission === false)
+                <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
+
+
+                @if (!$targetSet)
+                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                @endif
+
+                @if ($openSubmission === false)
                     <div class="alert alert-warning" role="alert">
                         You can not submit a form right now
                         because submissions are closed for the moment!
                     </div>
-                    @endif
-                </div>
+                @endif
 
-                <div class="my-2 border shadow-none card card-body">
+
+
+                <div
+                    class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif">
                     <h5> Instructions</h5>
                     <p class="alert bg-info-subtle text-uppercase">Download the Rtc production Processors template &
                         uploading your
@@ -58,33 +64,33 @@
 
                                 </div>
                                 @if ($importing && !$importingFinished)
-                                <div class="alert alert-warning d-flex justify-content-between" wire:poll.5s='checkProgress()'>Importing your
-                                    file
-                                    Please wait....
+                                    <div class="alert alert-warning d-flex justify-content-between"
+                                        wire:poll.5s='checkProgress()'>Importing your
+                                        file
+                                        Please wait....
 
-                                    <div class=" d-flex align-content-center ">
-                                        <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
+                                        <div class=" d-flex align-content-center ">
+                                            <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
 
 
-                                        <div class="spinner-border text-primary spinner-border-sm"
-                                            role="status">
-                                            <span class="visually-hidden">Loading...</span>
+                                            <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+
                                         </div>
-
                                     </div>
-                                </div>
 
 
 
 
 
-                                <div x-data class="my-2 progress progress-sm">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                        role="progressbar" style="width: {{ $progress . '%' }}"
-                                        aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    <div x-data class="my-2 progress progress-sm">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                            role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
+                                            aria-valuemin="0" aria-valuemax="100">
 
+                                        </div>
                                     </div>
-                                </div>
 
 
 
@@ -98,11 +104,12 @@
                             <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
                                 <x-filepond-single instantUpload="true" wire:model='upload' />
                                 @error('upload')
-                                <div class="d-flex justify-content-center">
-                                    <x-error class="text-center ">{{ $message }}</x-error>
-                                </div>
+                                    <div class="d-flex justify-content-center">
+                                        <x-error class="text-center ">{{ $message }}</x-error>
+                                    </div>
                                 @enderror
-                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                <div class="mt-5 d-flex justify-content-center"
+                                    x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"

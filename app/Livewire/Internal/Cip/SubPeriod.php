@@ -83,7 +83,10 @@ class SubPeriod extends Component
      */
     public function addTarget()
     {
-        $this->targets[] = ['name' => '', 'value' => ''];
+        $this->targets[] = [
+            'name' => '',
+            'value' => ''
+        ];
     }
 
     /**
@@ -350,7 +353,7 @@ class SubPeriod extends Component
             })->toArray();
         } else {
             // Set default value if no targets are found and targets are empty
-            $this->targets = [['name' => 'Total', 'value' => '']];
+            $this->targets = [];
         }
     }
     public function updatedSelectedIndicator($value)

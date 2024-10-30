@@ -2,28 +2,31 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
-use Throwable;
-use App\Models\Form;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
+use App\Exceptions\UserErrorException;
 use App\Models\ExchangeRate;
 use App\Models\FinancialYear;
-use App\Models\SubmissionPeriod;
-use App\Models\RtcProductionFarmer;
-use Illuminate\Support\Facades\Log;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\OrganisationTarget;
 use App\Models\ReportingPeriodMonth;
-use App\Models\RpmProcessorFollowUp;
-use Illuminate\Support\Facades\Auth;
-use App\Models\RpmProcessorDomMarket;
-use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
-use App\Models\RtcProductionProcessor;
-use App\Models\RpmProcessorInterMarket;
 use App\Models\RpmProcessorConcAgreement;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\RpmProcessorInterMarket;
+use App\Models\RtcProductionFarmer;
+use App\Models\RtcProductionProcessor;
+use App\Models\Submission;
+use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
+use App\Models\User;
 use App\Notifications\ManualDataAddedNotification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Add extends Component
 {
@@ -145,6 +148,8 @@ class Add extends Component
 
     public $routePrefix;
     public $openSubmission = true;
+    public $targetSet = false;
+    public $targetIds = [];
     public $rate = 0;
     public function rules()
     {
@@ -746,10 +751,23 @@ class Add extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->get();
+            $user = User::find(auth()->user()->id);
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
+
                 $this->openSubmission = true;
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
         }
 

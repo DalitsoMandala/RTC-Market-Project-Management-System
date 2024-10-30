@@ -13,17 +13,19 @@ use App\Helpers\LogError;
 use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\LocationHrc;
+use App\Models\MainFoodHrc;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
 use Livewire\Attributes\Validate;
+use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Exceptions\UserErrorException;
 use App\Models\HouseholdRtcConsumption;
-use App\Models\MainFoodHrc;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
 use App\Notifications\AggregateDataAddedNotification;
@@ -79,6 +81,8 @@ class AddData extends Component
 
     public $showReport = false;
     public $routePrefix;
+    public $targetSet = false;
+    public $targetIds = [];
     protected function rules()
     {
         return [
@@ -458,12 +462,23 @@ class AddData extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->get();
+            $user = User::find(auth()->user()->id);
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
         }
 

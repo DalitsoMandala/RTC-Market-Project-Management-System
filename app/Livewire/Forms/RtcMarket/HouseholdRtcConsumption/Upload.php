@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption;
 
-use App\Exceptions\ExcelValidationException;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Form;
@@ -20,8 +19,10 @@ use App\Models\FinancialYear;
 use Livewire\WithFileUploads;
 use App\Models\JobProgressCheck;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
+use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
@@ -37,6 +38,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Exceptions\SheetImportException;
+use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\BatchDataAddedNotification;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
@@ -77,6 +79,8 @@ class Upload extends Component
 
     public $queue = false;
     public $showReport = false;
+    public $targetSet = false;
+    public $targetIds = [];
     public function submitUpload()
     {
 
@@ -154,7 +158,7 @@ class Upload extends Component
 
         $this->progress = $jobProgress ? $jobProgress->progress : 0;
         $this->importing = true;
-        $this->importingFinished  = false;
+        $this->importingFinished = false;
 
 
         if ($this->progress == 100) {
@@ -229,18 +233,23 @@ class Upload extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+                ->where('month_range_period_id', $this->selectedMonth)
+                ->get();
+            $user = User::find(auth()->user()->id);
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-                $user = Auth::user();
-                $organisation = $user->organisation;
-
-                $getSubmissionType = ResponsiblePerson::where('indicator_id', $this->selectedIndicator)->where('organisation_id', $organisation->id)->first();
-                if ($getSubmissionType) {
-                    $this->showReport = $getSubmissionType->type_of_submission == 'normal' ? false : true;
-                }
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
         }
 

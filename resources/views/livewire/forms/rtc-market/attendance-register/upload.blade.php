@@ -10,7 +10,7 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Page Name</li>
+                            <li class="breadcrumb-item active">Upload</li>
                         </ol>
                     </div>
 
@@ -18,60 +18,128 @@
             </div>
         </div>
         <!-- end page title -->
-        <div class="row">
-            <div class="col-12">
-<div class="card ">
-<div class="card-header">
-        <h5 class="card-title"></h5>
-</div>
-  <div class="card-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8">
 
-  </div>
-</div>
+
+                <h3 class="mb-5 text-center text-primary">ATTENDANCE REGISTER FORM</h3>
+
+                <x-alerts />
+
+
+                @if (!$targetSet)
+                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                @endif
+
+                @if ($openSubmission === false)
+                    <div class="alert alert-warning" role="alert">
+                        You can not submit a form right now
+                        because submissions are closed for the moment!
+                    </div>
+                @endif
+
+                <div
+                    class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif">
+                    <h5> Instructions</h5>
+                    <p class="alert bg-info-subtle text-uppercase">Download the Attendance Register template & uploading
+                        your
+                        data.</p>
+
+                    <form wire:submit='submitUpload'>
+                        <div x-data>
+                            <a class="btn btn-soft-primary" href="#" data-toggle="modal" role="button"
+                                @click="$wire.downloadTemplate()">
+                                Download template <i class="bx bx-download"></i> </a>
+                            <hr>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+
+                                <x-alerts />
+                            </div>
+                        </div>
+                        <div id="table-form">
+                            <div class="row">
+                                <div class="col">
+
+
+                                </div>
+                                @if ($importing && !$importingFinished)
+                                    <div class="alert alert-warning d-flex justify-content-between"
+                                        wire:poll.5s='checkProgress()'>Importing your
+                                        file
+                                        Please wait....
+
+                                        <div class=" d-flex align-content-center ">
+                                            <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
+
+
+                                            <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+
+
+                                    <div x-data class="my-2 progress progress-sm">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                            role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
+                                            aria-valuemin="0" aria-valuemax="100">
+
+                                        </div>
+                                    </div>
+
+
+
+                                @endif
+
+
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+
+                            <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
+                                <x-filepond-single instantUpload="true" wire:model='upload' />
+                                @error('upload')
+                                    <div class="d-flex justify-content-center">
+                                        <x-error class="text-center ">{{ $message }}</x-error>
+                                    </div>
+                                @enderror
+                                <div class="mt-5 d-flex justify-content-center"
+                                    x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                    <button type="submit" @uploading-files.window="disableButton = true"
+                                        @finished-uploading.window="disableButton = false"
+                                        :disabled="disableButton === true || openSubmission === false"
+                                        class="btn btn-primary ">
+                                        Submit data
+                                    </button>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                </div>
+                </form>
+
+
+
+
             </div>
         </div>
-
-
-
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })
-        $wire.on('hideModal', (e) => {
-            const modals = document.querySelectorAll('.modal.show');
-
-            // Iterate over each modal and hide it using Bootstrap's modal hide method
-            modals.forEach(modal => {
-                const modalInstance = bootstrap.Modal.getInstance(modal);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-            });
-        })
-        ">
-
-
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
-
-
-
-
     </div>
+
+
+
+
+</div>
+
+
 
 </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports;
+namespace App\Exports\AttendanceImport;
 
 use App\Models\AttendanceRegister;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -14,7 +14,7 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
     {
         // Select only the necessary columns to be included in the export
         return AttendanceRegister::select(
-            'att_id',
+
             'meetingTitle',
             'meetingCategory',
             'rtcCrop_cassava',
@@ -31,20 +31,16 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
             'designation',
             'phone_number',
             'email',
-            'user_id',
-            'submission_period_id',
-            'organisation_id',
-            'financial_year_id',
-            'period_month_id',
-            'uuid',
-            'status'
+
+
+
         )->get();
     }
 
     public function headings(): array
     {
         return [
-            'Attendance ID',
+
             'Meeting Title',
             'Meeting Category',
             'RTC Crop Cassava',
@@ -61,13 +57,7 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
             'Designation',
             'Phone Number',
             'Email',
-            'User ID',
-            'Submission Period ID',
-            'Organisation ID',
-            'Financial Year ID',
-            'Period Month ID',
-            'UUID',
-            'Status'
+
         ];
     }
 
