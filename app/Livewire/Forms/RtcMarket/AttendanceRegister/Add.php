@@ -268,7 +268,13 @@ class Add extends Component
 
         }
     }
-
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
     public function clearSessionData()
     {
         session()->forget([

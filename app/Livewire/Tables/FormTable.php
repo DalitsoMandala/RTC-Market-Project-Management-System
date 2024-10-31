@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -96,7 +97,23 @@ final class FormTable extends PowerGridComponent
             ->add('project', function ($model) {
                 return $model->project->name;
             })
+            ->add('followup', function ($model) {
 
+
+                $form = Form::find($model->id);
+                $user = Auth::user();
+                $organisation = $user->organisation;
+                $routePrefix = Route::current()->getPrefix();
+                $form_name = str_replace(' ', '-', strtolower($form->name));
+                $project = str_replace(' ', '-', strtolower($form->project->name));
+
+                $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
+
+                if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
+                    return '<a class="btn btn-primary"  href="' . $route . '" ><i class="bx bx-pen"></i></a>';
+                }
+                return null;
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -115,6 +132,10 @@ final class FormTable extends PowerGridComponent
                 ->sortable()
                 ->hidden()
                 ->searchable(),
+
+
+            Column::make('Follow up', 'followup')
+            ,
 
             // Column::make('Project id', 'project_id'),
             // Column::make('Created at', 'created_at_formatted', 'created_at')

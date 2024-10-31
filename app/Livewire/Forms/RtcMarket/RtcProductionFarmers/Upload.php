@@ -135,7 +135,13 @@ class Upload extends Component
 
 
 
-
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
 
 
     public function checkErrors()
@@ -217,11 +223,11 @@ class Upload extends Component
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
                 $this->reset('upload');
             } else if ($jobProgress->status == 'completed') {
-
+                $this->reset('upload');
                 $this->dispatch('complete-submission');
             }
 
-            $this->reset('upload');
+
         }
     }
 

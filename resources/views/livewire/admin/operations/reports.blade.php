@@ -16,18 +16,55 @@
 
                 </div>
             </div>
+
         </div>
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
                 <div class="card ">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="nav nav-tabs">
+                                    <li class="nav-item">
+                                        <a href="{{ $routePrefix }}/reports" class="nav-link active"
+                                            aria-current="page">Reporting</a>
+                                    </li>
+
+                                    <li class="nav-item">
+                                        <a href="{{ $routePrefix }}/targets" class="nav-link">Targets</a>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    @role('admin')
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="col">
+                                <button type="button" class="btn btn-success btn-sm" wire:click='load'
+                                    @if ($loadingData) disabled @endif>
+                                    <i class="bx bx-recycle"></i> Update
+                                </button> <br>
+                                <span class=" text-muted" style="font-size: 10px">Please note that this might take a
+                                    while depending on the
+                                    number of
+                                    records to be calculated.</span>
+                            </div>
+
+
+
+                        </div>
+                    @endrole
                     <div class="card-body">
 
                         <form wire:submit.debounce.500ms='filter'>
                             <div class="row">
 
 
-                                <div class="col-3">
+                                {{-- <div class="col-3">
                                     <div class="mb-1" wire:ignore x-data="{
                                         selected: null,
                                         myInput(data) {
@@ -40,29 +77,29 @@
                                      const selectInput = new Choices($refs.selectElement, {
                                          shouldSort: false,
                                          placeholder: true,
-                                    
+
                                          choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
                                      });
-                                    
-                                    
-                                    
+
+
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
+
                                              myInput(event.detail.value);
-                                    
-                                    
-                                    
+
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
                                          selectInput.setChoiceByValue('');
-                                    
+
                                      })">
                                         <label for="" class="form-label">Project</label>
                                         <select class="form-select form-select-sm " x-ref="selectElement">
@@ -72,18 +109,18 @@
 
                                     </div>
                                     @error('selectedProject')
-                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
                                 </div>
                                 <div class="col-9">
 
 
                                     <div class="mb-1" wire:ignore x-data="{
-                                        selected: $wire.entangle('selectedIndicators'),
+                                        selected: $wire.entangle('selectedIndicator'),
                                         myInput(data) {
                                             this.selected = data;
                                         },
-                                    
+
                                     }" x-init=" const input = $refs.selectElementIndicator;
                                      const selectInput = new Choices($refs.selectElementIndicator, {
                                          shouldSort: false,
@@ -92,27 +129,27 @@
                                          placeholderValue: 'Select indicators here...',
                                          choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
                                      });
-                                    
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
-                                    
+
+
                                              let selectedValues = selectInput.getValue(true);
-                                    
-                                    
+
+
                                              myInput(selectedValues);
-                                    
-                                    
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
-                                    
-                                    
+
+
                                      })">
 
 
@@ -124,12 +161,85 @@
 
 
                                     </div>
-                                    @error('selectedIndicators')
-                                        <x-error>{{ $message }}</x-error>
+                                    @error('selectedIndicator')
+                                    <x-error>{{ $message }}</x-error>
+                                    @enderror
+
+                                </div> --}}
+                                <div class="col">
+
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">Organisation</label>
+                                        <select
+                                            class="form-select @error('selectedOrganisation')
+                                            is-invalid
+                                        @enderror"
+                                            name="" id=""
+                                            wire:model.live.debounce.600ms="selectedOrganisation">
+                                            <option value="">Select one</option>
+                                            @foreach ($organisations as $organisation)
+                                                <option value="{{ $organisation->id }}">{{ $organisation->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('selectedOrganisation')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
 
                                 </div>
-                                <div class="col-3" x-data="{ reportingPeriod: $wire.entangle('selectedReportingPeriod') }">
+                                <div class="col">
+
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">Disaggregations</label>
+                                        <select
+                                            class="form-select @error('selectedDisaggregation')
+                                            is-invalid
+                                        @enderror"
+                                            wire:model.live.debounce.600ms="selectedDisaggregation"
+                                            wire:loading.attr='disabled' wire:loading.class='opacity-25'
+                                            wire:target='selectedOrganisation'
+                                            @if (!$selectedOrganisation) disabled @endif>
+                                            <option value="">Select one</option>
+                                            @foreach ($disaggregations->unique('name') as $dsg)
+                                                <option value="{{ $dsg->name }}">{{ $dsg->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('selectedDisaggregation')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
+
+                                </div>
+
+                                <div class="col">
+
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">Indicators</label>
+                                        <select
+                                            class="form-select @error('selectedIndicator')
+                                            is-invalid
+                                        @enderror"
+                                            wire:model.live.debounce.600ms="selectedIndicator"
+                                            wire:loading.attr='disabled' wire:loading.class='opacity-25'
+                                            wire:target='selectedOrganisation'
+                                            @if (!$selectedOrganisation) disabled @endif>
+                                            <option value="">Select one</option>
+                                            @foreach ($indicators as $indicator)
+                                                <option value="{{ $indicator->id }}">
+                                                    ({{ $indicator->indicator_no }})
+                                                    {{ $indicator->indicator_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('selectedIndicator')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
+
+                                </div>
+                                <div class="col" x-data="{ reportingPeriod: $wire.entangle('selectedReportingPeriod') }">
                                     <div class="mb-1">
                                         <label for="" class="form-label">Reporting Period</label>
                                         {{-- <x-flatpickr x-model="starting_period" /> --}}
@@ -144,7 +254,8 @@
                                             <option value="">Select one</option>
                                             @foreach ($reportingPeriod as $month)
                                                 <option value="{{ $month->id }}">{{ $month->start_month }} -
-                                                    {{ $month->end_month }}</option>
+                                                    {{ $month->end_month }}
+                                                </option>
                                             @endforeach
                                         </select>
 
@@ -154,17 +265,17 @@
                                         <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
                                 </div>
-                                <div class="col-3" x-data="{ financial_year: $wire.entangle('selectedFinancialYear') }">
+                                <div class="col" x-data="{ financial_year: $wire.entangle('selectedFinancialYear') }">
                                     <div class="mb-1">
-                                        <label for="" class="form-label">Financial year</label>
+                                        <label for="" class="form-label">Project year</label>
                                         {{-- <x-flatpickr x-model="ending_period" /> --}}
 
                                         <select
                                             class="form-select @error('selectedFinancialYear')
                                             is-invalid
                                         @enderror"
-                                            name="" id="" x-model="financial_year"
-                                            wire:loading.attr='disabled' wire:target='selectedProject'>
+                                            x-model="financial_year" wire:loading.attr='disabled'
+                                            wire:target='selectedProject'>
                                             <option value="">Select one</option>
                                             @foreach ($financialYears as $year)
                                                 <option value="{{ $year->id }}">{{ $year->number }}</option>
@@ -176,10 +287,14 @@
                                         <x-error class="mb-1">{{ $message }}</x-error>
                                     @enderror
                                 </div>
-                                <div class="col-3 align-self-end">
-                                    <div class="mb-1" x-data>
+
+
+
+                                <div class="row mt-3">
+
+                                    <div class="mb-1 d-flex  justify-content-center" x-data>
                                         <button type="submit"
-                                            class="btn btn-primary @if ($loadingData) disabled @endif">
+                                            class="btn btn-primary @if ($loadingData) disabled @endif me-2">
                                             <i class="bx bx-filter"></i> Filter Data
                                         </button>
                                         <button
@@ -187,7 +302,9 @@
                                             @click="$wire.dispatch('reset-filters')">Reset</button>
                                     </div>
 
+
                                 </div>
+
                             </div>
 
                         </form>
@@ -198,14 +315,35 @@
 
 
                                 @if ($loadingData)
-                                    <div x-data wire:poll.5s='readCache()'
-                                        class="d-flex justify-content-center align-items-center">
-                                        <div class="spinner-border text-primary spinner-border-lg" role="status">
-                                            <span class="visually-hidden">Loading...</span>
+                                    <div class="row border  rounded-2 p-2 my-2">
+                                        <div class="col-9">
+                                            <div class="progress my-2">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" style="width: {{ $progress }}%;"
+                                                    aria-valuenow="{{ $progress }}" aria-valuemin="0"
+                                                    aria-valuemax="100">
+
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                        <div class="col-3 d-flex ">
+                                            <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
+
+                                            <div x-data wire:poll.5000ms='readCache()'
+                                                class="d-flex justify-content-center align-items-center">
+                                                <div class="spinner-border text-primary spinner-border-sm"
+                                                    role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
-                                <div class="table-responsive" wire:ignore x-data="{ show: $wire.entangle('loadingData') }"
+
+
+                                <!-- <div class="table-responsive" wire:ignore x-data="{ show: $wire.entangle('loadingData') }"
                                     :class="{ 'pe-none opacity-25': show === true }">
                                     <table class="table table-striped table-bordered " id="reports">
                                         <thead class="text-uppercase table-primary">
@@ -225,6 +363,23 @@
                                         </tbody>
                                     </table>
                                 </div>
+ -->
+
+
+
+
+
+
+
+                                <div x-data="{ show: $wire.entangle('loadingData') }" :class="{ 'pe-none opacity-25': show === true }">
+                                    <livewire:tables.rtcmarket.report-table />
+                                </div>
+
+
+
+
+
+
 
                             </div>
 
@@ -253,10 +408,10 @@
 
         $(document).ready(function() {
 
-            $wire.load();
+            //  $wire.load();
 
 
-            $('#reports').DataTable();
+            // $('#reports').DataTable();
         });
         $wire.on('loaded-data', (e) => {
 

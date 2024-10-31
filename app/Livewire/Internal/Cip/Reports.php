@@ -11,6 +11,7 @@ use App\Models\Indicator;
 use Illuminate\Bus\Batch;
 use Livewire\Attributes\On;
 use App\Models\Organisation;
+use App\Models\ReportStatus;
 use App\Models\FinancialYear;
 use Livewire\Attributes\Lazy;
 use App\Models\ResponsiblePerson;
@@ -18,9 +19,9 @@ use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Bus;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use App\Livewire\Tables\ReportingTable;
 use App\Models\IndicatorDisaggregation;
-use App\Models\ReportStatus;
 
 class Reports extends Component
 {
@@ -60,6 +61,8 @@ class Reports extends Component
 
     public $organisations = [];
     public $disaggregations = [];
+
+    public $routePrefix;
     public function mount()
     {
         $this->projects = Project::get();
@@ -68,6 +71,7 @@ class Reports extends Component
         $this->reportingPeriod = ReportingPeriodMonth::get();
         $this->organisations = Organisation::get();
         $this->disaggregations = IndicatorDisaggregation::get();
+        $this->routePrefix = Route::current()->getPrefix();
     }
 
     public function filter()
@@ -77,8 +81,8 @@ class Reports extends Component
             //   'project_id' => $this->selectedProject,
             'indicator' => $this->selectedIndicator === '' ? null : $this->selectedIndicator,
             'reporting_period' => $this->selectedReportingPeriod === '' ? null : $this->selectedReportingPeriod,
-            'financial_year' => $this->selectedFinancialYear  === '' ? null : $this->selectedFinancialYear,
-            'organisation_id' =>  $this->selectedOrganisation === '' ? null : $this->selectedOrganisation,
+            'financial_year' => $this->selectedFinancialYear === '' ? null : $this->selectedFinancialYear,
+            'organisation_id' => $this->selectedOrganisation === '' ? null : $this->selectedOrganisation,
             'disaggregation' => $this->selectedDisaggregation === '' ? null : $this->selectedDisaggregation,
             // 'start_date' => $this->starting_period == "" ? null : $this->starting_period,
             //'end_date' => $this->ending_period  == "" ? null : $this->ending_period,

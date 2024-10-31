@@ -73,11 +73,11 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
 
                 // $spreadsheet = IOFactory::load($this->filePath); // Load the spreadsheet once
                 // $sheetNames = $spreadsheet->getSheetNames();
-
+    
                 // foreach ($sheetNames as $sheetName) {
                 //     $sheet = $spreadsheet->getSheetByName($sheetName);
                 //     $headings = $sheet->toArray()[0] ?? []; // Fetch the first row for headers
-
+    
                 //     // Ensure all expected headings are present
                 //     $missingHeadings = array_diff($this->expectedHeadings, $headings);
                 //     if (!empty($missingHeadings)) {
@@ -86,10 +86,10 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                 //             "Missing headings in sheet '{$sheetName}': " . implode(', ', $missingHeadings)
                 //         );
                 //     }
-
+    
                 //     Log::info("Headings for sheet '{$sheetName}' validated successfully.");
                 // }
-
+    
                 // Initialize total rows and JobProgress
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
@@ -114,26 +114,32 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
 
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing.', []));
-
-                $status = $user->hasAnyRole([
-                    'internal',
-                    'organiser',
-                    'admin'
-                ]) ? 'approved' : 'pending';
-
-                Submission::create([
-                    'batch_no' => $this->submissionDetails['batch_no'],
-                    'form_id' => $this->submissionDetails['form_id'],
-                    'period_id' => $this->submissionDetails['period_month_id'],
-                    'user_id' => $this->submissionDetails['user_id'],
-                    'status' => $status,
-                    'batch_type' => 'batch',
-                    'is_complete' => 1,
-                    'table_name' => 'attendance_registers',
-                    'file_link' => $this->submissionDetails['file_link']
-                ]);
-
+                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                } else {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'pending',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                }
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [

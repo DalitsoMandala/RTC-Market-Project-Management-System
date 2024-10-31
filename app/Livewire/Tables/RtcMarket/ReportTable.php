@@ -115,7 +115,7 @@ final class ReportTable extends PowerGridComponent
 
             if (!is_null($this->disaggregation)) {
                 // Assuming disaggregations is a column you want to filter by
-                $query->where('name', $this->disaggregation);
+                $query->where('system_report_data.name', $this->disaggregation);
             }
 
             // Get the indicators associated with the organisation if organisation_id is set

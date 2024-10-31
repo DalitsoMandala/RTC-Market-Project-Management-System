@@ -2,31 +2,32 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
-use App\Exceptions\UserErrorException;
+use Throwable;
+use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
+use App\Models\Indicator;
+use App\Models\Submission;
+use Livewire\Attributes\On;
 use App\Models\ExchangeRate;
 use App\Models\FinancialYear;
-use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\OrganisationTarget;
-use App\Models\ReportingPeriodMonth;
-use App\Models\RpmProcessorConcAgreement;
-use App\Models\RpmProcessorDomMarket;
-use App\Models\RpmProcessorFollowUp;
-use App\Models\RpmProcessorInterMarket;
-use App\Models\RtcProductionFarmer;
-use App\Models\RtcProductionProcessor;
-use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\User;
-use App\Notifications\ManualDataAddedNotification;
-use Illuminate\Support\Facades\Auth;
+use App\Models\OrganisationTarget;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
+use App\Models\RpmProcessorFollowUp;
+use Illuminate\Support\Facades\Auth;
+use App\Models\RpmProcessorDomMarket;
 use Illuminate\Support\Facades\Route;
+use App\Exceptions\UserErrorException;
+use App\Models\RtcProductionProcessor;
+use App\Models\RpmProcessorInterMarket;
+use App\Models\RpmProcessorConcAgreement;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
-use Throwable;
+use App\Notifications\ManualDataAddedNotification;
 
 class Add extends Component
 {
@@ -824,6 +825,14 @@ class Add extends Component
         $this->routePrefix = Route::current()->getPrefix();
         $this->total_production_value_previous_season['rate'] = $this->rate;
         $this->total_irrigation_production_value_previous_season['rate'] = $this->rate;
+    }
+
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
     public function render()

@@ -107,26 +107,32 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
 
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing.', []));
-
-                $status = ($user->hasRole(['internal', 'organiser', 'admin'])) ? 'approved' : 'pending';
-
-                Submission::create([
-                    'batch_no' => $this->submissionDetails['batch_no'],
-                    'form_id' => $this->submissionDetails['form_id'],
-                    'period_id' => $this->submissionDetails['period_month_id'],
-                    'user_id' => $this->submissionDetails['user_id'],
-                    'status' => $status,
-                    'batch_type' => 'batch',
-                    'is_complete' => 1,
-                    'table_name' => 'rtc_production_processors',
-                    'file_link' => $this->submissionDetails['file_link']
-                ]);
-
-                JobProgress::updateOrCreate(
-                    ['cache_key' => $this->cacheKey],
-                    ['status' => 'completed', 'progress' => 100]
-                );
+                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                } else {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'pending',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                }
             },
 
             ImportFailed::class => function (ImportFailed $event) {
@@ -135,7 +141,11 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
-                    ['status' => 'failed', 'progress' => 100, 'error' => $errorMessage]
+                    [
+                        'status' => 'failed',
+                        'progress' => 100,
+                        'error' => $errorMessage
+                    ]
                 );
 
                 Log::error($exception->getMessage());

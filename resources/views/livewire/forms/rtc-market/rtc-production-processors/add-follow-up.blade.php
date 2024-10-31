@@ -65,7 +65,7 @@
                                     <option selected value="">Select one</option>
                                     @foreach ($recruits as $recruit)
                                     <option value="{{ $recruit->id }}">
-                                        ({{ str_pad($recruit->id, 5, '0', STR_PAD_LEFT) }})
+                                        ({{ $recruit->id }})
                                         {{ $recruit->name_of_actor }} </option>
                                     @endforeach
                                 </select>

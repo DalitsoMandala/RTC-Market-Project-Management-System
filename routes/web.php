@@ -81,7 +81,10 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
     ->name('profile');
 
 // Admin routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware([
+    'auth',
+    'role:admin'
+])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
@@ -134,7 +137,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 });
 
 // CIP Internal routes
-Route::middleware(['auth', 'role:organiser'])->prefix('cip')->group(function () {
+Route::middleware([
+    'auth',
+    'role:organiser'
+])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-internal-dashboard');
     Route::get('/indicators', Indicators::class)->name('cip-internal-indicators');
     Route::get('/indicators/view/{id}', ViewIndicators::class)->name('cip-internal-indicator-view');
@@ -143,7 +149,7 @@ Route::middleware(['auth', 'role:organiser'])->prefix('cip')->group(function () 
     Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
     Route::get('/reports', Reports::class)->name('cip-internal-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
-
+    Route::get('/targets', App\Livewire\Targets\View::class);
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
 
@@ -180,13 +186,16 @@ Route::middleware(['auth', 'role:organiser'])->prefix('cip')->group(function () 
 
     Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
-;    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
 
 
 });
 
 // CIP Internal routes
-Route::middleware(['auth', 'role:staff'])->prefix('staff')->group(function () {
+Route::middleware([
+    'auth',
+    'role:staff'
+])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
     Route::get('/indicators', \App\Livewire\Internal\Staff\Indicators::class)->name('cip-staff-indicators');
     Route::get('/indicators/view/{id}', \App\Livewire\Internal\Staff\ViewIndicators::class)->name('cip-staff-indicator-view');
@@ -224,14 +233,21 @@ Route::middleware(['auth', 'role:staff'])->prefix('staff')->group(function () {
     Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    Route::get($formPrefix . '/school-rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Upload::class);
 
 
     Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+
+
 });
 
 // External routes
-Route::middleware(['auth', 'role:external'])->prefix('external')->group(function () {
+Route::middleware([
+    'auth',
+    'role:external'
+])->prefix('external')->group(function () {
     Route::get('/dashboard', ExternalDashboard::class)->name('external-dashboard');
     Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');
     Route::get('/indicators/view/{id}', ViewIndicator::class)->name('external-indicator-view');
@@ -240,6 +256,7 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     // Form routes
     $formPrefix = '/forms/{project}';
+    $randId = Uuid::uuid4()->toString();
     Route::get($formPrefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
     Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
     Route::get($formPrefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
@@ -265,17 +282,24 @@ Route::middleware(['auth', 'role:external'])->prefix('external')->group(function
     Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    Route::get($formPrefix . '/school-rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Upload::class);
 
 
     Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+
+
 });
 
 
-Route::middleware(['auth', 'role:donor'])->prefix('executive')->group(function () {
-    Route::get('/dashboard', \App\Livewire\Donor\Dashboard::class)->name('donor-dashboard');
-    Route::get('/indicators', \App\Livewire\Donor\Indicators::class)->name('donor-indicators');
-    Route::get('/indicators/view/{id}', \App\Livewire\Donor\ViewIndicator::class)->name('donor-indicator-view');
-});
+// Route::middleware([
+//     'auth',
+//     'role:donor'
+// ])->prefix('executive')->group(function () {
+//     Route::get('/dashboard', \App\Livewire\Donor\Dashboard::class)->name('donor-dashboard');
+//     Route::get('/indicators', \App\Livewire\Donor\Indicators::class)->name('donor-indicators');
+//     Route::get('/indicators/view/{id}', \App\Livewire\Donor\ViewIndicator::class)->name('donor-indicator-view');
+//});
 // Authentication routes
 require __DIR__ . '/auth.php';

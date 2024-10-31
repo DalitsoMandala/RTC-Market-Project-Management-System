@@ -52,11 +52,7 @@
                                 Download template <i class="bx bx-download"></i> </a>
                             <hr>
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                <x-alerts />
-                            </div>
-                        </div>
+                        >
                         <div id="table-form">
                             <div class="row">
                                 <div class="col">

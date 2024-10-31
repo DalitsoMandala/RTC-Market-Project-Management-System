@@ -16,27 +16,48 @@
 
                 </div>
             </div>
+
         </div>
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
                 <div class="card ">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="nav nav-tabs">
+                                    <li class="nav-item">
+                                        <a href="{{ $routePrefix }}/reports" class="nav-link active"
+                                            aria-current="page">Reporting</a>
+                                    </li>
 
-                    <div class="card-header d-flex justify-content-between">
-                        <div class="col">
-                            <button type="button" class="btn btn-success btn-sm" wire:click='load'
-                                @if ($loadingData) disabled @endif>
-                                <i class="bx bx-recycle"></i> Update
-                            </button> <br>
-                            <span class=" text-muted" style="font-size: 10px">Please note that this might take a
-                                while depending on the
-                                number of
-                                records to be calculated.</span>
+                                    <li class="nav-item">
+                                        <a href="{{ $routePrefix }}/targets" class="nav-link">Targets</a>
+                                    </li>
+
+                                </ul>
+
+                            </div>
                         </div>
-
-
-
                     </div>
+
+                    @role('admin')
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="col">
+                                <button type="button" class="btn btn-success btn-sm" wire:click='load'
+                                    @if ($loadingData) disabled @endif>
+                                    <i class="bx bx-recycle"></i> Update
+                                </button> <br>
+                                <span class=" text-muted" style="font-size: 10px">Please note that this might take a
+                                    while depending on the
+                                    number of
+                                    records to be calculated.</span>
+                            </div>
+
+
+
+                        </div>
+                    @endrole
                     <div class="card-body">
 
                         <form wire:submit.debounce.500ms='filter'>
@@ -310,7 +331,7 @@
                                         <div class="col-3 d-flex ">
                                             <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
 
-                                            <div x-data wire:poll.5s='readCache()'
+                                            <div x-data wire:poll.5000ms='readCache()'
                                                 class="d-flex justify-content-center align-items-center">
                                                 <div class="spinner-border text-primary spinner-border-sm"
                                                     role="status">

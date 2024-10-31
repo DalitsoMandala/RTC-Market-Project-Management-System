@@ -242,11 +242,11 @@ class Upload extends Component
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
                 $this->reset('upload');
             } else if ($jobProgress->status == 'completed') {
-
+                $this->reset('upload');
                 $this->dispatch('complete-submission');
             }
 
-            $this->reset('upload');
+
         }
     }
 
@@ -266,7 +266,13 @@ class Upload extends Component
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
     }
-
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
     {

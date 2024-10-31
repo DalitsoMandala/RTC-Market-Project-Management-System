@@ -89,12 +89,6 @@ class Upload extends Component
 
                 // Use storage_path to get the absolute path
                 $path = storage_path('app/public/imports/' . $name);
-
-
-
-
-
-
                 try {
 
                     cache()->clear();
@@ -132,93 +126,15 @@ class Upload extends Component
 
         $this->removeTemporaryFile();
     }
-    // public function submitUpload()
-    // {
-
-    //     try {
-    //         $this->validate();
-    //     } catch (Throwable $e) {
-    //         $this->dispatch('errorRemove');
-    //         session()->flash('validation_error', 'There are errors in the form.');
-    //         throw $e;
-    //     }
-    //     try {
-    //         //code...
-
-    //         $userId = auth()->user()->id;
-
-    //         if ($this->upload) {
-
-    //             $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
-    //             $this->upload->storeAs('public/imports', $name);
-
-    //             $path = storage_path('app/public/imports/' . $name);
-    //             $sheets = SheetNamesValidator::getSheetNames($path);
-
-    //             $this->updateJobStatus();
-
-    //             try {
 
 
-
-    //                 $table = ['rtc_production_farmers', 'rpm_farmer_follow_ups', 'rpm_farmer_conc_agreements', 'rpm_farmer_dom_markets', 'rpm_farmer_inter_markets'];
-    //                 $this->importing = true;
-    //                 $this->importingFinished = false;
-
-
-    //                 $this->dispatch('notify');
-
-    //                 Excel::import(new RpmProcessorImport($userId, $sheets, $path, $this->importId, [
-    //                     'submission_period_id' => $this->submissionPeriodId,
-    //                     'organisation_id' => Auth::user()->organisation->id,
-    //                     'financial_year_id' => $this->selectedFinancialYear,
-    //                     'period_month_id' => $this->selectedMonth,
-    //                     'form_id' => $this->selectedForm,
-    //                     'user_id' => Auth::user()->id,
-
-    //                     //  'data' => [],
-    //                     'batch_type' => 'batch',
-    //                     'period_id' => $this->submissionPeriodId,
-    //                     'table_name' => json_encode($table),
-    //                     'is_complete' => 1,
-    //                     'file_link' => $name,
-
-    //                 ]), $path);
-
-
-
-
-
-
-
-
-
-    //             } catch (UserErrorException $e) {
-
-
-
-    //                 $this->reset('upload');
-    //                 $this->importing = false;
-    //                 $this->importingFinished = true;
-
-    //                 session()->flash('error', $e->getMessage());
-    //             }
-
-    //         }
-
-    //     } catch (\Exception $th) {
-
-    //         session()->flash('error', 'Something went wrong!');
-    //         Log::channel('system_log')->error($th);
-
-    //     }
-
-    //     $this->removeTemporaryFile();
-
-    // }
-
-
-
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
     public function checkProgress()
     {
         $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
@@ -240,11 +156,11 @@ class Upload extends Component
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
                 $this->reset('upload');
             } else if ($jobProgress->status == 'completed') {
-
+                $this->reset('upload');
                 $this->dispatch('complete-submission');
             }
 
-            $this->reset('upload');
+
         }
     }
 
