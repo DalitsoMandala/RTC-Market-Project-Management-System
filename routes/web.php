@@ -9,6 +9,7 @@ use App\Models\Indicator;
 use App\Traits\ExportTrait;
 use Faker\Factory as Faker;
 use App\Models\Organisation;
+use App\Models\SystemReport;
 use Illuminate\Http\Request;
 use App\Models\FinancialYear;
 use App\Models\AssignedTarget;
@@ -19,6 +20,7 @@ use App\Models\SubmissionReport;
 use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
+use App\Helpers\ExchangeRateHelper;
 use App\Livewire\Internal\Cip\Forms;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Mail;
@@ -52,7 +54,6 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-use App\Models\SystemReport;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -63,9 +64,6 @@ Route::get('/test', function () {
     // $a1 = new $content['class']();
 
 
-    $a1 = new App\Helpers\rtc_market\indicators\indicator_2_2_1(organisation_id: 1, financial_year: 1, reporting_period: 1);
-
-    dd($a1->getDisaggregations());
 
     //  return response()->json($data);
     // Mail::to('daliprinc10@gmail.com')->send(new SampleMail());

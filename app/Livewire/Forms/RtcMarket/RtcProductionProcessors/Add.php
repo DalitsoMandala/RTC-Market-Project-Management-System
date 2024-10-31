@@ -15,6 +15,7 @@ use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\OrganisationTarget;
+use App\Helpers\ExchangeRateHelper;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
@@ -407,29 +408,47 @@ class Add extends Component
         }
     }
 
+
+    public function getExchangeRate($value, $date)
+    {
+        $exchangeRate = new ExchangeRateHelper();
+        return $exchangeRate->getRate($value, $date);
+    }
+
     public function updated($property, $value)
     {
-        if ($this->total_production_value_previous_season) {
-            if ($this->total_production_value_previous_season['value'] && $this->total_production_value_previous_season['date_of_maximum_sales']) {
-                $date = $this->total_production_value_previous_season['date_of_maximum_sales'];
-                $value = $this->total_production_value_previous_season['value'];
-                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.0; // change this when you have historical data through exchange rate api
+        // Process the first set of data
+        $this->processExchangeRate(
+            'total_production_value_previous_season',
+            $this->total_production_value_previous_season['value'] ?? null,
+            $this->total_production_value_previous_season['date_of_maximum_sales'] ?? null
+        );
 
-                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
-                $this->total_production_value_previous_season['rate'] = $rate;
-                $this->total_production_value_previous_season['total'] = $totalvalue;
-            }
-        }
+        // Process the second set of data
+        $this->processExchangeRate(
+            'total_irrigation_production_value_previous_season',
+            $this->total_irrigation_production_value_previous_season['value'] ?? null,
+            $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'] ?? null
+        );
+    }
 
-        if ($this->total_irrigation_production_value_previous_season) {
-            if ($this->total_irrigation_production_value_previous_season['value'] && $this->total_irrigation_production_value_previous_season['date_of_maximum_sales']) {
-                $date = $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'];
-                $value = $this->total_irrigation_production_value_previous_season['value'];
-                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.0; // change this when you have historical data through exchange rate api
+    /**
+     * Helper function to process exchange rates and update the given dataset.
+     */
+    protected function processExchangeRate($key, $value, $date)
+    {
+        if ($value && $date) {
+            $rate = $this->getExchangeRate($value, $date);
 
-                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
-                $this->total_irrigation_production_value_previous_season['rate'] = $rate;
-                $this->total_irrigation_production_value_previous_season['total'] = $totalvalue;
+            if ($rate === null) {
+                $this->{$key}['date_of_maximum_sales'] = null;
+                $this->{$key}['value'] = null;
+                $this->{$key}['rate'] = null;
+                $this->{$key}['total'] = null;
+            } else {
+                $totalValue = round(((float) ($value ?? 0)) / (float) $rate, 2);
+                $this->{$key}['rate'] = $rate;
+                $this->{$key}['total'] = $totalValue;
             }
         }
     }
