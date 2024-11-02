@@ -29,7 +29,7 @@ class indicator_1_2_2
 
         $indicator = Indicator::where('indicator_name', 'Number of RTC and derived products recorded in official trade statistics')->where('indicator_no', '1.2.2')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -105,7 +105,7 @@ class indicator_1_2_2
     {
         $totals = $this->getTotals()->toArray();
         $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
-        $totals['Total']  = $subTotal;
+        $totals['Total'] = $subTotal;
         return $totals;
     }
 }

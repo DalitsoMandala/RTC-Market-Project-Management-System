@@ -1022,9 +1022,18 @@ class DataGenerationSeeder extends Seeder
                     "school_name" => $faker->word,
                     "date" => $faker->date,
                     //     "crop" => $faker->randomElement($crops),
-                    'crop_cassava' => $faker->randomElement([1, 0]),
-                    'crop_potato' =>  $faker->randomElement([1, 0]),
-                    'crop_sweet_potato' =>  $faker->randomElement([1, 0]),
+                    'crop_cassava' => $faker->randomElement([
+                        1,
+                        0
+                    ]),
+                    'crop_potato' => $faker->randomElement([
+                        1,
+                        0
+                    ]),
+                    'crop_sweet_potato' => $faker->randomElement([
+                        1,
+                        0
+                    ]),
                     "male_count" => $faker->randomElement([
                         10,
                         20
@@ -1077,7 +1086,12 @@ class DataGenerationSeeder extends Seeder
                 'main' => [
 
                     'meetingTitle' => $faker->sentence(3), // Random sentence with 3 words
-                    'meetingCategory' => $faker->word, // Random word
+                    'meetingCategory' => $faker->randomElement([
+                        'Training',
+                        'Meeting',
+                        'Workshop'
+
+                    ]), // Random word
                     'rtcCrop_cassava' => $faker->boolean, // True/False (assuming it's a boolean)
                     'rtcCrop_potato' => $faker->boolean, // True/False
                     'rtcCrop_sweet_potato' => $faker->boolean, // True/False
@@ -1092,7 +1106,13 @@ class DataGenerationSeeder extends Seeder
                         'Female'
                     ]), // Random gender
                     'organization' => $faker->company, // Random company/organization name
-                    'designation' => $faker->jobTitle, // Random job title
+                    'designation' => $faker->randomElement([
+                        'Farmer',
+                        'Processor',
+                        'Trader',
+                        'Partner',
+                        'Staff'
+                    ]), // Random job title
                     'phone_number' => $faker->phoneNumber, // Random phone number
                     'email' => $faker->unique()->safeEmail, // Random unique email
                     'user_id' => 3, // Random user ID

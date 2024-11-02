@@ -25,12 +25,48 @@ class indicator_3_4_4
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
     }
+    // public function builder(): Builder
+    // {
+
+    //     $query = RtcProductionFarmer::query()->where('status', 'approved')->where('type', 'Producer organization (PO)');
+
+
+
+    //     // Check if both reporting period and financial year are set
+    //     if ($this->reporting_period || $this->financial_year) {
+    //         // Apply filter for reporting period if it's set
+    //         if ($this->reporting_period) {
+    //             $query->where('period_month_id', $this->reporting_period);
+    //         }
+
+    //         // Apply filter for financial year if it's set
+    //         if ($this->financial_year) {
+    //             $query->where('financial_year_id', $this->financial_year);
+    //         }
+
+    //         // If no data is found, return an empty result
+    //         if (!$query->exists()) {
+    //             $query->whereIn('id', []); // Empty result filter
+    //         }
+    //     }
+
+    //     // Filter by organization if set
+    //     if ($this->organisation_id) {
+    //         $query->where('organisation_id', $this->organisation_id);
+    //     }
+
+
+
+
+    //     return $query;
+    // }
+
     public function builder(): Builder
     {
 
-        $query = RtcProductionFarmer::query()->where('status', 'approved')->where('type', 'Producer organization (PO)');
+        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->where('indicator_no', '3.4.4')->first();
 
-
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -54,34 +90,65 @@ class indicator_3_4_4
         if ($this->organisation_id) {
             $query->where('organisation_id', $this->organisation_id);
         }
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
+
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
 
 
 
 
         return $query;
     }
-    public function getCropTotal()
+
+    public function getTotals()
     {
 
-        $totalPotato = $this->builder()->where('enterprise', 'Potato')->count();
-        $totalCassava = $this->builder()->where('enterprise', 'Cassava')->count();
-        $totalSweetPotato = $this->builder()->where('enterprise', 'Sweet potato')->count();
+        $builder = $this->builder()->get();
+
+        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->where('indicator_no', '3.4.4')->first();
+        $disaggregations = $indicator->disaggregations;
+        $data = collect([]);
+        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
+            $data->put($item, 0);
+        });
 
 
-        return [
-            'Potato' => $totalPotato,
-            'Cassava' => $totalCassava,
-            'Sweet potato' => $totalSweetPotato,
-        ];
+
+
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
+                $json = collect(json_decode($model->data, true));
+
+                // Add the values for each key to the totals
+                foreach ($data as $key => $dt) {
+                    if ($json->has($key)) {
+                        $data->put($key, $data->get($key) + $json[$key]);
+                    }
+                }
+            });
+        });
+
+        return $data;
     }
+
     public function getDisaggregations()
     {
 
+        $total = $this->getTotals()['Cassava'] + $this->getTotals()['Potato'] + $this->getTotals()['Sweet potato'];
+
         return [
-            'Total' => $this->builder()->count(),
-            'Cassava' => $this->getCropTotal()['Cassava'],
-            'Potato' => $this->getCropTotal()['Potato'],
-            'Sweet potato' => $this->getCropTotal()['Sweet potato'],
+            'Total' => $total,
+            'Cassava' => $this->getTotals()['Cassava'],
+            'Potato' => $this->getTotals()['Potato'],
+            'Sweet potato' => $this->getTotals()['Sweet potato'],
         ];
     }
 }

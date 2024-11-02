@@ -29,7 +29,7 @@ class indicator_1_1_4
 
         $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->where('indicator_no', '1.1.4')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -83,7 +83,7 @@ class indicator_1_1_4
     {
         // Initialize the totals for the relevant fields
         $data = collect([
-            'Total (% Percentage)'  => 0,
+            'Total (% Percentage)' => 0,
             'Improved RTC variety' => 0,
             'Seed production' => 0,
             'Storage' => 0,
@@ -113,7 +113,7 @@ class indicator_1_1_4
     }
     public function getDisaggregations()
     {
-        $totals =  $this->getTotals()->toArray();
+        $totals = $this->getTotals()->toArray();
 
         $percentages = $totals['Total (% Percentage)'];
         $count = $this->builder()->count();

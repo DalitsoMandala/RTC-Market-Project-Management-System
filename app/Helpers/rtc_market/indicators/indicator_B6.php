@@ -43,7 +43,7 @@ class indicator_B6
 
         $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->where('indicator_no', 'B6')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

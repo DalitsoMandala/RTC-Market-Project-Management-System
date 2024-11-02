@@ -29,7 +29,7 @@ class indicator_4_1_6
 
         $indicator = Indicator::where('indicator_name', 'Number of international market opportunities identified for value-added products')->where('indicator_no', '4.1.6')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

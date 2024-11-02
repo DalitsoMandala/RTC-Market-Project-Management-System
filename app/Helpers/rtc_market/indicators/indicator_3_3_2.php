@@ -29,7 +29,7 @@ class indicator_3_3_2
 
         $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->where('indicator_no', '3.3.2')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

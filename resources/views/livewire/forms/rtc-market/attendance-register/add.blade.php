@@ -247,7 +247,7 @@
                                             <option value="Trader">Trader</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Staff">Staff</option>
-                                            <option value="Other">Other</option>
+                                            {{-- <option value="Other">Other</option> --}}
                                         </select>
                                         @error('designation')
                                             <div class="invalid-feedback">{{ $message }}</div>

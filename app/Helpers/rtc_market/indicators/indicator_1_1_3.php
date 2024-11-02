@@ -29,7 +29,7 @@ class indicator_1_1_3
 
         $indicator = Indicator::where('indicator_name', 'Number of new RTC technologies developed')->where('indicator_no', '1.1.3')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

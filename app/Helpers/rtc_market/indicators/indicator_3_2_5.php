@@ -31,7 +31,7 @@ class indicator_3_2_5
 
         $indicator = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->where('indicator_no', '3.2.5')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -117,7 +117,7 @@ class indicator_3_2_5
     }
     public function getDisaggregations()
     {
-        $totals =  $this->getTotals()->toArray();
+        $totals = $this->getTotals()->toArray();
 
         $percentages = $totals['Total (% Percentage)'];
         $count = $this->builder()->count();

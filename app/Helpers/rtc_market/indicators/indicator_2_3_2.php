@@ -29,7 +29,7 @@ class indicator_2_3_2
 
         $indicator = Indicator::where('indicator_name', 'Number of stakeholder engagement events that focus on RTC development')->where('indicator_no', '2.3.2')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

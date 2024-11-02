@@ -29,7 +29,7 @@ class indicator_2_1_1
 
         $indicator = Indicator::where('indicator_name', 'Number of market linkages between EGS and other seed class producers facilitated')->where('indicator_no', '2.1.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -106,7 +106,7 @@ class indicator_2_1_1
 
         $totals = $this->getTotals()->toArray();
         $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
-        $totals['Total']  = $subTotal;
+        $totals['Total'] = $subTotal;
         return $totals;
     }
 }

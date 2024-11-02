@@ -59,10 +59,8 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    // $indicatorContent = new IndicatorsContent(id: 1);
-    // $content = $indicatorContent->content();
-    // $a1 = new $content['class']();
-
+    $indicator = new App\Helpers\rtc_market\indicators\indicator_3_2_2(financial_year: 1);
+    return dd($indicator->getDisaggregations());
 
 
     //  return response()->json($data);

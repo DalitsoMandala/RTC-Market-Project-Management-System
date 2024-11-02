@@ -34,7 +34,7 @@ class indicator_2_2_1
 
         $indicator = Indicator::where('indicator_name', 'Number of private sector actors involved in production of RTC certified seed')->where('indicator_no', '2.2.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -178,7 +178,7 @@ class indicator_2_2_1
     {
 
         $crop = $this->findCropCount();
-        $total =  $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
+        $total = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
         return [
             'Total' => $total,
             'Cassava' => $crop['cassava'],

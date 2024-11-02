@@ -30,7 +30,7 @@ class indicator_2_3_1_2
 
         $indicator = Indicator::where('indicator_name', 'Percentage business plans for the production of different classes of RTC seeds that are executed')->where('indicator_no', '2.3.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

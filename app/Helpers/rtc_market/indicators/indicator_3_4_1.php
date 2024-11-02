@@ -29,7 +29,7 @@ class indicator_3_4_1
 
         $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->where('indicator_no', '3.4.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

@@ -29,7 +29,7 @@ class indicator_1_3_1_2
 
         $indicator = Indicator::where('indicator_name', 'Number of policy briefs developed and shared on RTC topics')->where('indicator_no', '1.3.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

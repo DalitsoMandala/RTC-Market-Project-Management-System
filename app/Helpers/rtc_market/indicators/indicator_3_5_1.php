@@ -29,7 +29,7 @@ class indicator_3_5_1
 
         $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->where('indicator_no', '3.5.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

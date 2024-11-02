@@ -29,7 +29,7 @@ class indicator_4_1_1
 
         $indicator = Indicator::where('indicator_name', 'Number of RTC value-added products promoted')->where('indicator_no', '4.1.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

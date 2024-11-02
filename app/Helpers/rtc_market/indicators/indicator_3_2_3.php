@@ -29,7 +29,7 @@ class indicator_3_2_3
 
         $indicator = Indicator::where('indicator_name', 'Number of off-season irrigation demonstration sites established')->where('indicator_no', '3.2.3')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

@@ -35,7 +35,7 @@ class indicator_B3
 
         $indicator = Indicator::where('indicator_name', 'Percentage of value ($) of formal RTC imports substituted through local production')->where('indicator_no', 'B3')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

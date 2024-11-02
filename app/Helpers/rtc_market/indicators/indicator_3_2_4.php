@@ -29,7 +29,7 @@ class indicator_3_2_4
 
         $indicator = Indicator::where('indicator_name', 'Number of demonstration sites for end-user preferred RTC varieties established')->where('indicator_no', '3.2.4')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

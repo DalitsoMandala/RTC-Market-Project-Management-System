@@ -29,7 +29,7 @@ class indicator_1_1_2
 
         $indicator = Indicator::where('indicator_name', 'Number of potential market preferred RTC genotypes in the pipeline identified')->where('indicator_no', '1.1.2')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -115,7 +115,7 @@ class indicator_1_1_2
             'Cassava' => $totals['Cassava'],
             'Potato' => $totals['Potato'],
             'Sweet potato' => $totals['Sweet potato'],
-            'Fresh' =>  $totals['Fresh'],
+            'Fresh' => $totals['Fresh'],
             'Processed' => $totals['Processed'],
         ];
     }
