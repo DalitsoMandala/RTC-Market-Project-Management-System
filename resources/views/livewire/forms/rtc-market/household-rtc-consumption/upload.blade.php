@@ -117,7 +117,7 @@
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"
-                                        class="btn btn-primary ">
+                                        class="btn btn-primary  ">
                                         Submit data
                                     </button>
 
@@ -138,29 +138,6 @@
 
 
 
-        {{-- <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })">
-
-
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
-
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
-
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
 
 
 
@@ -168,3 +145,10 @@
     </div>
 
 </div>
+@script
+<script>
+    $wire.on('complete-submission', () => {
+        $wire.send();
+    });
+</script>
+@endscript

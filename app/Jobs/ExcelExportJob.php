@@ -7,7 +7,9 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\SystemReportData;
 use App\Models\RpmFarmerFollowUp;
+use App\Models\AttendanceRegister;
 use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerDomMarket;
 use App\Models\RtcProductionFarmer;
@@ -32,7 +34,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\RpmProcessorAggregationCenter;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
-use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\Cache; // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
@@ -1143,6 +1144,66 @@ class ExcelExportJob implements ShouldQueue
                         ]);
                     }
                 });
+                $writer->close(); // Finalize the file
+
+                break;
+
+            case 'report':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Disaggregation',
+                    'Value',
+                    'Indicator Name',
+                    'Indicator #',
+                    'Project',
+                    'Reporting period',
+                    'Organisation',
+                    'Project year',
+                ];
+
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                SystemReportData::query()->with('systemReport')
+                    ->join('system_reports', function ($join) {
+                        $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
+                    })
+                    ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
+                    ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
+                    ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
+                    ->select([
+                        'system_report_data.*',
+                        'indicators.indicator_name as indicator_name',
+                        'indicators.indicator_no as indicator_no',
+                        'organisations.name as organisation_name',
+                        'financial_years.number as financial_year',
+                    ])->chunk(2000, function ($reports) use ($writer) {
+                        foreach ($reports as $record) {
+
+                            // Check if systemReport and reportingPeriod are available
+                            $report_period = null;
+                            if ($record->systemReport && $record->systemReport->reportingPeriod) {
+                                $start_month = $record->systemReport->reportingPeriod->start_month;
+                                $end_month = $record->systemReport->reportingPeriod->end_month;
+                                $report_period = $start_month . ' - ' . $end_month;
+                            }
+
+                            $writer->addRow([
+                                $record->name, // Disaggregation (from `name` field)
+                                (float) $record->value, // Value
+                                $record->indicator_name ?? null, // Indicator Name
+                                $record->indicator_no ?? null, // Indicator #
+                                $record->systemReport->project->name ?? null, // Project
+                                $report_period, // Reporting period (null if no systemReport or reportingPeriod)
+                                $record->organisation_name ?? null, // Organisation
+                                $record->financial_year ?? null, // Project year
+                            ]);
+                        }
+                    });
                 $writer->close(); // Finalize the file
 
                 break;

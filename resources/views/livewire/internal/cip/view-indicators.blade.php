@@ -22,18 +22,120 @@
         <div class="row">
             <div class="col-12">
                 <div class="card ">
-                    <div class="card-header">
-                        <h4>{{ $indicator_no }} - {{ $indicator_name }}</h4>
+                    <div class="card-header d-flex justify-content-between">
+                        <h5>{{ $indicator_no }} - {{ $indicator_name }}</h5>
+
+                        <div class="row">
+                            <div class="col">
+
+                                <div class="dropdown" x-data="{
+                                    reportingPeriod: $wire.entangle('selectedReportingPeriod'),
+                                    reportingPeriods: $wire.entangle('reportingPeriod'),
+                                    setData(value) {
+                                        this.disable = true;
+                                        setTimeout(() => {
+                                            this.reportingPeriod = value;
+                                            $wire.dispatch('refreshData');
+                                            this.disable = false;
+                                        }, 1000);
+                                
+                                    },
+                                
+                                
+                                }">
+
+
+                                    <a class="dropdown-toggle text-reset" href="#" id="dropdownMenuButton1"
+                                        :class="{
+                                            'opacity-25 pe-none': disable
+                                        }"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="text-muted font-size-12 text-uppercase">Period of:</span> <span
+                                            class="fw-medium">
+                                            <span
+                                                x-text="reportingPeriod.start_month + ' - ' + reportingPeriod.end_month"></span>
+
+                                            <i class="mdi mdi-chevron-down ms-1"></i></span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                                        <template x-for="(value, index) in reportingPeriods" :key="value.id">
+                                            <a class="dropdown-item" @click="setData(value)" href="#"> <span
+                                                    x-text="value.start_month + ' - '+ value.end_month"></span></a>
+
+                                        </template>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col">
+
+                                <div class="dropdown" x-data="{
+                                    financialYear: $wire.entangle('selectedFinancialYear'),
+                                    financialYears: $wire.entangle('financialYears'),
+                                    setData(value) {
+                                        this.disable = true;
+                                        setTimeout(() => {
+                                            this.financialYear = value;
+                                            $wire.dispatch('refreshData');
+                                            this.disable = false;
+                                        }, 1000);
+                                
+                                
+                                
+                                
+                                
+                                
+                                    },
+                                
+                                    disable: false
+                                
+                                }">
+
+
+                                    <a class="dropdown-toggle text-reset" href="#" id="dropdownMenuButton1"
+                                        :class="{
+                                            'opacity-25 pe-none': disable
+                                        }"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="text-muted font-size-12 text-uppercase">Project Year:</span> <span
+                                            class="fw-medium">
+                                            <span x-text="'Year '+financialYear.number"></span>
+
+                                            <i class="mdi mdi-chevron-down ms-1"></i></span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                                        <template x-for="(value, index) in financialYears" :key="value.id">
+                                            <a class="dropdown-item" @click="setData(value)" href="#"> <span
+                                                    x-text="'Year '+ value.number"></span></a>
+
+                                        </template>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
+
                     <div class="card-body">
 
 
-                        @php
-                            $component = $indicatorService->getComponent($indicator_name, $project_name);
-                        @endphp
-
                         @if ($component)
-                            @livewire($component, ['indicator_no' => $indicator_no, 'indicator_name' => $indicator_name, 'indicator_id' => $indicator_id, 'project_id' => $project_id])
+                            @livewire($component, [
+                                'indicator_no' => $indicator_no,
+                                'indicator_name' => $indicator_name,
+                                'indicator_id' => $indicator_id,
+                                'project_id' => $project_id,
+                                'reporting_period' => $selectedReportingPeriod,
+                                'financial_year' => $selectedFinancialYear,
+                            ])
+                        @else
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="spinner-border text-primary spinner-border-lg" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                         @endif
                     </div>
                 </div>

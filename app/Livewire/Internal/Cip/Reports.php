@@ -160,12 +160,21 @@ class Reports extends Component
     public function updated($property, $value)
     {
 
-        if ($property === 'selectedOrganisation') {
+        if ($this->selectedOrganisation) {
 
             $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
-            $this->disaggregations = IndicatorDisaggregation::whereIn('indicator_id', $indicators)->get();
+            $this->disaggregations = IndicatorDisaggregation::whereIn('indicator_id', $indicators)->get()->unique('name');
             $this->indicators = Indicator::whereIn('id', $indicators)->get();
         }
+
+
+        if ($this->selectedOrganisation !== null && $this->selectedIndicator) {
+            $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
+            $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get()->unique('name');
+
+        }
+
+
     }
 
 

@@ -22,55 +22,83 @@
         <div class="row">
             <div class="col-12">
                 @php
-                $indicator = \App\Models\Indicator::find($selectedIndicator);
-                $array = Route::current()->parameters;
+
 
                 @endphp
 
 
                 <div class="col-12">
 
+                    <x-alerts />
 
-                    <div class="card">
+                    @if (!$targetSet)
+                        <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                    @endif
+
+                    @if ($openSubmission === false)
+                        <div class="alert alert-warning" role="alert">
+                            You can not submit a form right now
+                            because submissions are closed for the moment!
+                        </div>
+                    @endif
+                    <div class="card @if ($openSubmission === false) opacity-25  pe-none @endif">
                         <div class="card-header">
                             <h4 class="card-title">Enter your data for : <span
-                                    class="text-primary">{{ $indicatorName }}</span> </h4>
+                                    class="text-primary">{{ $indicator->indicator_name }}</span> </h4>
                         </div>
                         <div class="card-body">
                             @if ($indicator->indicator_name == 'Percentage increase in value of formal RTC exports')
-                            <livewire:forms.rtc-market.reports.indicator-b2 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                <livewire:forms.rtc-market.reports.indicator-b2 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
                             @elseif ($indicator->indicator_name == 'Percentage of value ($) of formal RTC imports substituted through local production')
-                            <livewire:forms.rtc-market.reports.indicator-b3 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                <livewire:forms.rtc-market.reports.indicator-b3 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
                             @elseif ($indicator->indicator_name == 'Percentage increase in RTC investment')
-                            <livewire:forms.rtc-market.reports.indicator-b6 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                <livewire:forms.rtc-market.reports.indicator-b6 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
                             @elseif ($indicator->indicator_name == 'Percentage increase in adoption of new RTC technologies')
-                            <livewire:forms.rtc-market.reports.indicator-114 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                <livewire:forms.rtc-market.reports.indicator-114 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
                             @elseif ($indicator->indicator_name == 'Percentage seed multipliers with formal registration')
-                            <livewire:forms.rtc-market.reports.indicator-223 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                <livewire:forms.rtc-market.reports.indicator-223 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
                             @elseif (
-                            $indicator->indicator_name ==
-                            'Percentage business plans for the production of different classes of RTC seeds that are executed')
-                            <livewire:forms.rtc-market.reports.indicator-231 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                    $indicator->indicator_name ==
+                                    'Percentage business plans for the production of different classes of RTC seeds that are executed'
+                                )
+                                                            <livewire:forms.rtc-market.reports.indicator-231 :form_id="$array['form_id']"
+                                                                :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                                                :month_period_id="$array['month_period_id']"
+                                                                :submission_period_id="$array['submission_period_id']" />
 
 
                             @elseif (
-                            $indicator->indicator_name ==
-                            'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')
-                            <livewire:forms.rtc-market.reports.indicator-325 :form_id="$array['form_id']" :indicator_id="$array['indicator_id']"
-                                :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                    $indicator->indicator_name ==
+                                    'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)'
+                                )
+                                                            <livewire:forms.rtc-market.reports.indicator-325 :form_id="$array['form_id']"
+                                                                :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                                                :month_period_id="$array['month_period_id']"
+                                                                :submission_period_id="$array['submission_period_id']" />
 
 
 
 
                             @else
-                            <livewire:forms.rtc-market.reports.number-indicators :form_id="$array['form_id']"
-                                :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']" :month_period_id="$array['month_period_id']" :submission_period_id="$array['submission_period_id']" />
+                                <livewire:forms.rtc-market.reports.number-indicators :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
                             @endif
 
 

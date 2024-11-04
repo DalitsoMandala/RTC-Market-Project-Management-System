@@ -2,26 +2,27 @@
 
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
-use App\Exceptions\UserErrorException;
-use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
 use App\Models\Indicator;
-use App\Models\IndicatorDisaggregation;
-use App\Models\OrganisationTarget;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
 use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\SubmissionTarget;
-use App\Models\User;
-use App\Notifications\ManualDataAddedNotification;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ResponsiblePerson;
+use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Exceptions\UserErrorException;
+use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
+use App\Notifications\ManualDataAddedNotification;
 
 class Add extends Component
 {
@@ -55,6 +56,8 @@ class Add extends Component
     public $formData = [];
     public $targetSet = false;
     public $targetIds = [];
+
+    public $indicator, $array;
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -96,6 +99,9 @@ class Add extends Component
 
             $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
             $this->targetIds = $target->pluck('id')->toArray();
+            $this->indicator = $findIndicator;
+            $this->array = Route::current()->parameters;
+
 
 
             if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {

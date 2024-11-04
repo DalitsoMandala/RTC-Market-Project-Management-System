@@ -20,6 +20,7 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -46,7 +47,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        return SubmissionPeriod::query()->with(['form', 'financialYears', 'reportingMonths']);
+        return SubmissionPeriod::query()->with([
+            'form',
+            'financialYears',
+            'reportingMonths'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -207,6 +212,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return [
             // Filter::datetimepicker('date_established'),
             // Filter::datetimepicker('date_ending'),
+            Filter::select('form_name', 'form_id')
+                ->dataSource(Form::all())
+                ->optionLabel('name')
+                ->optionValue('id'),
         ];
     }
     #[On('refresh')]
@@ -351,12 +360,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
 
 
-        $currentDate  = Carbon::now();
+        $currentDate = Carbon::now();
         $establishedDate = $row->date_established;
         $endDate = $row->end_date;
 
-        $startDate  = Carbon::parse($establishedDate);
-        $endDate  = Carbon::parse($endDate);
+        $startDate = Carbon::parse($establishedDate);
+        $endDate = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
 

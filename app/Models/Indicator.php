@@ -27,6 +27,7 @@ class Indicator extends Model
     }
 
 
+
     public function forms()
     {
         return $this->belongsToMany(Form::class, 'indicator_form');

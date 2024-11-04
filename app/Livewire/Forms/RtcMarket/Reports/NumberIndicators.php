@@ -78,6 +78,8 @@ class NumberIndicators extends Component
                 route('cip-internal-submissions'),
                 'internal'
             );
+
+
         }
         // Roles for external users
         else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
@@ -118,41 +120,30 @@ class NumberIndicators extends Component
             $this->submissionPeriodId = $findSubmissionPeriod->id;
             //check submission period
 
-            $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
-                ->where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
-                ->where('is_open', true)
-                ->first();
-            $this->indicatorName = $findIndicator->indicator_name;
-            if ($submissionPeriod) {
-
-                $this->openSubmission = true;
-
-                $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get();
-
-                // Initialize input fields dynamically based on disaggregations
-                foreach ($this->disaggregations as $disaggregation) {
-
-                    $name = strtolower($disaggregation->name);
-                    if ($name != 'total') {
 
 
-                        $this->inputs[$disaggregation->id] = null;
+            $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get();
 
-                        $this->validationRules["inputs.{$disaggregation->id}"] = 'required|numeric|min:0';
+            // Initialize input fields dynamically based on disaggregations
+            foreach ($this->disaggregations as $disaggregation) {
 
-                        // Dynamically set custom validation attribute names
-                        $this->validationAttributes["inputs.{$disaggregation->id}"] = $disaggregation->name;
-                    }
+                $name = strtolower($disaggregation->name);
+                if ($name != 'total') {
 
 
-                    // You can set initial values to 0 or fetch them if available
+                    $this->inputs[$disaggregation->id] = null;
+
+                    $this->validationRules["inputs.{$disaggregation->id}"] = 'required|numeric|min:0';
+
+                    // Dynamically set custom validation attribute names
+                    $this->validationAttributes["inputs.{$disaggregation->id}"] = $disaggregation->name;
                 }
-                $this->disaggregations = $this->disaggregations->whereIn('id', array_keys($this->inputs));
-            } else {
-                $this->openSubmission = false;
+
+
+                // You can set initial values to 0 or fetch them if available
             }
+            $this->disaggregations = $this->disaggregations->whereIn('id', array_keys($this->inputs));
+
         }
     }
 

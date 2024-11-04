@@ -377,10 +377,11 @@
 
                                                                     <div class="d-grid justify-content-center">
 
-                                                                        <button class="px-5 btn btn-primary btn-lg" @click=" window.scrollTo({
-                                                                                                                                                        top: 0,
-                                                                                                                                                        behavior: 'smooth'
-                                                                                                                                                    })"
+                                                                        <button class="px-5 btn btn-primary "
+                                                                            @click=" window.scrollTo({
+                                                                                                                                                                                                                        top: 0,
+                                                                                                                                                                                                                        behavior: 'smooth'
+                                                                                                                                                                                                                    })"
                                                                             type="submit">Submit</button>
                                                                     </div>
                                     @endforeach
@@ -420,25 +421,3 @@
 
 
 </div>
-@assets
-<style>
-    input[type="text"] {
-        text-transform: uppercase;
-    }
-</style>
-@endassets
-@script
-<script>
-    // Function to transform input text to uppercase
-    function enforceUppercase(element) {
-        element.value = element.value.toUpperCase();
-    }
-
-    // Attach event listener to all current and future text inputs
-    document.addEventListener('input', function (event) {
-        if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
-            enforceUppercase(event.target);
-        }
-    });
-</script>
-@endscript

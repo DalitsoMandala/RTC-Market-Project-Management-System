@@ -23,10 +23,10 @@
 
                 <div>
                     @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                        <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                     @endif
                     @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                        <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
                     @endif
 
                 </div>
@@ -72,16 +72,16 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
-                                aria-labelledby="home-tab">
+                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission"
+                                role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
                             {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission"
-                                role="tabpanel" aria-labelledby="profile-tab">
+                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
 
@@ -105,12 +105,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -119,7 +119,7 @@
                 }
             });
         })
-
+        
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -127,35 +127,56 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
-
+        
         $wire.on('showDataAggregate', (e) => {
+                setTimeout(() => {
+                    $wire.dispatch('set', { id: e.id });
+                    //  $wire.setData(e.rowId);
+                    const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                    myModal.show();
+                }, 500);
+        
+        
+            }),
+        
+            $wire.on('deleteAggregate', (e) => {
+                setTimeout(() => {
+                    $wire.dispatch('set', { id: e.id });
+                    //  $wire.setData(e.rowId);
+                    const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                    myModal.show();
+                }, 500);
+        
+        
+            })
+        
+        
+        $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
                 //  $wire.setData(e.rowId);
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })">
 
 
 
 
-            <x-modal id="view-aggregate-modal" title="Approve Submission">
-                <form>
-                    <h3 class="text-center h4">Please confirm wether you would like to approve/disapprove this
-                        record?
-                    </h3>
+            <x-modal id="view-aggregate-modal" title="Update Submission">
+                <form wire:submit='saveData'>
+
 
                     <div x-data="{
                         data: $wire.entangle('inputs'),
-
-
-
+                    
+                    
+                    
                     }">
 
 
@@ -164,8 +185,8 @@
 
                             <div class="mb-3">
                                 <label for="" class="form-label" x-text="name"></label>
-                                <input readonly type="text" required class="form-control bg-light "
-                                    placeholder="Enter value" aria-describedby="helpId" :value="value" />
+                                <input type="text" required class="form-control  " placeholder="Enter value"
+                                    aria-describedby="helpId" :value="value" />
                                 <div class="invalid-feedback">
                                     This field requires a value.
                                 </div>
@@ -178,22 +199,15 @@
 
 
                     </div>
-                    <div class="mt-4 mb-3">
-                        <label for="">Comment</label>
-                        <input wire:model='comment' class="form-control @error('comment')is-invalid @enderror" />
-                        <small class="text-muted">type <b>N/A</b> if no comment is available</small> <br>
-                        @error('comment')
-                        <x-error>{{ $message }}</x-error>
-                        @enderror
-                    </div>
+
 
                     <div class="modal-footer border-top-0 justify-content-center">
                         <hr>
 
 
-                        <button type="button" @if($disable) disabled @endif wire:click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
-                        <button type="button" @if($disable) disabled @endif wire:click="statusGet('approved')"
-                            class="pr-4 btn btn-primary">Approve</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No,
+                            cancel</button>
+                        <button type="submit" class="pr-4 btn btn-primary">Update Data</button>
 
                     </div>
                 </form>
@@ -202,9 +216,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-
-
-
+                
+                
+                
                 }">
 
 
@@ -233,7 +247,8 @@
 
             <x-modal id="view-submission-modal" title="Approve Submission">
                 <x-alerts />
-                <h3 class="text-center h4">Please confirm whether you would like to approve/disapprove this record?</h3>
+                <h4 class="text-center h4">Please confirm whether you would like to approve/disapprove this record?
+                </h4>
 
                 <form wire:submit.debounce.1000ms="submit">
                     <div class="mt-4 mb-3">
@@ -241,7 +256,7 @@
                         <input wire:model="comment" class="form-control @error('comment') is-invalid @enderror" />
                         <small class="text-muted">Type <b>N/A</b> if no comment is available</small> <br>
                         @error('comment')
-                        <x-error>{{ $message }}</x-error>
+                            <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 
@@ -249,11 +264,55 @@
                     <input type="hidden" wire:model="status">
 
                     <div class="d-flex border-top-0 justify-content-center">
-                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
-                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-primary" wire:click="setStatus('approved')">Approve</button>
+                        <button type="button" wire:loading.attr="disabled" wire:target="save"
+                            class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
+                        <button type="button" wire:loading.attr="disabled" wire:target="save"
+                            class="btn btn-primary" wire:click="setStatus('approved')">Approve</button>
                     </div>
                 </form>
             </x-modal>
+
+
+            <x-modal id="delete-aggregate-modal" title="Delete Submission">
+                <x-alerts />
+                <h4 class="text-center h4">Please confirm whether you would like to delete this record?
+
+                </h4>
+
+
+                <form wire:submit='deleteAGG'>
+
+
+
+                    <div class="d-flex border-top-0 justify-content-center mt-5">
+                        <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
+                            data-bs-dismiss="modal">No, cancel</button>
+                        <button type="submit" wire:loading.attr="disabled" wire:target="deleteAGG"
+                            class="btn btn-danger">Yes, I'm sure</button>
+                    </div>
+                </form>
+            </x-modal>
+
+            <x-modal id="delete-batch-modal" title="Delete Submission">
+                <x-alerts />
+                <h4 class="text-center h4">Please confirm whether you would like to delete this record?
+
+                </h4>
+
+
+                <form wire:submit='deleteBatch'>
+
+
+
+                    <div class="d-flex border-top-0 justify-content-center mt-5">
+                        <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
+                            data-bs-dismiss="modal">No, cancel</button>
+                        <button type="submit" wire:loading.attr="disabled" wire:target="deleteBatch"
+                            class="btn btn-danger">Yes, I'm sure</button>
+                    </div>
+                </form>
+            </x-modal>
+
 
 
         </div>
@@ -263,15 +322,15 @@
     </div>
 
     @script
-    <script>
-        if (window.location.hash !== '') {
-            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-            if (button) {
-                button.click();
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
 
+                }
             }
-        }
-    </script>
+        </script>
     @endscript
 
 </div>

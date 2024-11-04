@@ -14,7 +14,17 @@ class OrganisationSeeder extends Seeder
     {
         //
 
-        $organisations = ['CIP', 'DESIRA', 'IITA', 'DAES', 'DCD', 'MINISTRY OF TRADE', 'TRADELINE', 'DARS', 'RTCDT', 'ACE'];
+        $organisations = [
+            'CIP',
+            'IITA',
+            'DAES',
+            'DCD',
+            'MINISTRY OF TRADE',
+            'TRADELINE',
+            'DARS',
+            'RTCDT',
+            'ACE'
+        ];
 
         foreach ($organisations as $partner) {
 

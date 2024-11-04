@@ -119,8 +119,7 @@
         <!-- SMEs -->
         <div class="mb-3">
             <label for="smes" class="form-label">SMEs</label>
-            <input type="number" id="smes" x-model="smes"
-                class="form-control @error('smes') is-invalid @enderror">
+            <input type="number" id="smes" x-model="smes" class="form-control @error('smes') is-invalid @enderror">
             @error('smes')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -140,8 +139,7 @@
         <!-- Basic -->
         <div class="mb-3">
             <label for="basic" class="form-label">Basic</label>
-            <input type="number" id="basic" x-model="basic"
-                class="form-control @error('basic') is-invalid @enderror">
+            <input type="number" id="basic" x-model="basic" class="form-control @error('basic') is-invalid @enderror">
             @error('basic')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -159,8 +157,7 @@
 
         <!-- Submit Button -->
         <div class="d-grid col-12 justify-content-center">
-            <button class="btn btn-primary btn-lg" @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
-                type="submit">
+            <button class="btn btn-primary " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
                 Submit
             </button>
         </div>

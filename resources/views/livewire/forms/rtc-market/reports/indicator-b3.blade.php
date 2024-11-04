@@ -124,13 +124,12 @@
             <input type="number" id="formal_imports" x-model="formalImports"
                 class="form-control @error('formal_imports') is-invalid @enderror">
             @error('formal_imports')
-                <span class="text-danger">{{ $message }}</span>
+            <span class="text-danger">{{ $message }}</span>
             @enderror
-        </div>  --}}
+        </div> --}}
 
         <div class="d-grid col-12 justify-content-center">
-            <button class="btn btn-primary btn-lg" @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
-                type="submit">
+            <button class="btn btn-primary " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
                 Submit
             </button>
         </div>

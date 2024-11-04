@@ -166,3 +166,11 @@
     </div>
 
 </div>
+
+@script
+<script>
+    $wire.on('complete-submission', () => {
+        $wire.send();
+    });
+</script>
+@endscript

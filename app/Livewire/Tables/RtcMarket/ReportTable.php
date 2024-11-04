@@ -3,7 +3,7 @@
 namespace App\Livewire\tables\rtcMarket;
 
 use App\Models\Indicator;
-use App\Models\IndicatorDisaggregation;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use App\Models\SystemReport;
 use Illuminate\Support\Carbon;
@@ -11,6 +11,8 @@ use App\Models\SystemReportData;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\DB;
 use App\Models\ReportingPeriodMonth;
+use App\Models\IndicatorDisaggregation;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -27,6 +29,8 @@ final class ReportTable extends PowerGridComponent
 {
     use WithExport;
 
+
+    use ExportTrait;
     public $project;
     public $reporting_period;
     public $financial_year;
@@ -43,7 +47,7 @@ final class ReportTable extends PowerGridComponent
         //  $this->showCheckBox();
         $timestamp = Carbon::now();
         return [
-            Exportable::make('CDMS Report_'),
+
             Header::make()->showSearchInput()->includeViewOnTop('components.export-component'),
             Footer::make()
                 ->showPerPage(5)
@@ -51,40 +55,22 @@ final class ReportTable extends PowerGridComponent
         ];
     }
 
-    // public function datasource(): Builder
-    // {
-    //     // Start building the query for SystemReportData and eager load systemReport
-    //     $query = SystemReportData::query()->with('systemReport');
+
+    public $namedExport = 'report';
+    #[On('export-report')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
 
 
 
-    //     // Check if all three are provided, or if some are null
-    //     if (!is_null($this->organisation_id) && !is_null($this->reporting_period) && !is_null($this->financial_year) && !is_null($this->disaggregations)) {
-    //         // Get the indicators associated with the organisation from ResponsiblePerson
-    //         $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)->pluck('indicator_id');
-
-    //         // Apply the filters to the query
-    //         $query->whereHas('systemReport', function ($query) use ($indicators) {
-    //             $query->where('organisation_id', $this->organisation_id)
-    //                 ->whereIn('indicator_id', $indicators)
-    //                 ->where('financial_year_id', $this->financial_year)
-    //                 ->where('reporting_period_id', $this->reporting_period);
-    //         });
-    //     }
-    //     // If only some of the filters are provided (one or two), return an empty result
-
-    //     // Handle the case where none of the filters are applied (all are null)
-    //     else {
-
-    //         $indicators = ResponsiblePerson::where('organisation_id', 1)->pluck('indicator_id');
-    //         $query->whereHas('systemReport', function ($query) use ($indicators) {
-    //             $query->whereIn('indicator_id', $indicators)
-    //                 ->where('organisation_id', 1);
-    //         });
-    //     }
-
-    //     return $query;
-    // }
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
 
 
     public function datasource(): Builder
@@ -229,7 +215,7 @@ final class ReportTable extends PowerGridComponent
 
             Column::make('Indicator #', 'number', 'indicator_no')
                 ->searchable()
-                ->sortable(),
+            ,
 
             Column::make('Project', 'project'),
 
@@ -241,31 +227,6 @@ final class ReportTable extends PowerGridComponent
         ];
     }
 
-    // public function filters(): array
-    // {
-    //     // dd(Indicator::select('indicator_name')->distinct()->get());
-    //     return [
-
-    //         Filter::select('name', 'name')
-    //             ->dataSource(IndicatorDisaggregation::select('name')->distinct()->get())
-    //             ->optionLabel('name')
-    //             ->optionValue('name'),
-
-    //         Filter::select('indicator_name')
-    //             ->builder(function ($model) {
-    //                 dd($model);
-    //             })
-
-    //             // ->dataSource(Indicator::select('indicator_name')->distinct()->get())
-    //             // ->optionLabel('indicator_name')
-    //             // ->optionValue('indicator_name')
-
-    //             ->filterRelation('systemReport.indicator', 'indicator_name')
-
-
-
-    //     ];
-    // }
 
     #[On('filtered-data')]
     public function getData($data)

@@ -64,108 +64,6 @@
                             <div class="row">
 
 
-                                {{-- <div class="col-3">
-                                    <div class="mb-1" wire:ignore x-data="{
-                                        selected: null,
-                                        myInput(data) {
-                                            this.selected = data;
-                                            setTimeout(() => {
-                                                $wire.set('selectedProject', this.selected)
-                                            }, 600)
-                                        },
-                                    }" x-init=" const input = $refs.selectElement;
-                                     const selectInput = new Choices($refs.selectElement, {
-                                         shouldSort: false,
-                                         placeholder: true,
-
-                                         choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
-                                     });
-
-
-
-                                     input.addEventListener(
-                                         'change',
-                                         function(event) {
-
-                                             myInput(event.detail.value);
-
-
-
-                                         },
-                                         false,
-                                     );
-                                     $wire.on('reset-filters', () => {
-
-
-                                         selectInput.removeActiveItems(); // Clear the selected item
-                                         selectInput.setChoiceByValue('');
-
-                                     })">
-                                        <label for="" class="form-label">Project</label>
-                                        <select class="form-select form-select-sm " x-ref="selectElement">
-                                            <option value="" disabled selected>Choose an option</option>
-                                        </select>
-
-
-                                    </div>
-                                    @error('selectedProject')
-                                    <x-error class="mb-1">{{ $message }}</x-error>
-                                    @enderror
-                                </div>
-                                <div class="col-9">
-
-
-                                    <div class="mb-1" wire:ignore x-data="{
-                                        selected: $wire.entangle('selectedIndicator'),
-                                        myInput(data) {
-                                            this.selected = data;
-                                        },
-
-                                    }" x-init=" const input = $refs.selectElementIndicator;
-                                     const selectInput = new Choices($refs.selectElementIndicator, {
-                                         shouldSort: false,
-                                         removeItemButton: true,
-                                         placeholder: true,
-                                         placeholderValue: 'Select indicators here...',
-                                         choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
-                                     });
-
-                                     input.addEventListener(
-                                         'change',
-                                         function(event) {
-
-
-                                             let selectedValues = selectInput.getValue(true);
-
-
-                                             myInput(selectedValues);
-
-
-                                         },
-                                         false,
-                                     );
-                                     $wire.on('reset-filters', () => {
-
-
-                                         selectInput.removeActiveItems(); // Clear the selected item
-
-
-                                     })">
-
-
-                                        <label for="" class="form-label">Indicator</label>
-                                        <select class="form-select form-select-md" multiple
-                                            x-ref="selectElementIndicator" id="selectElementIndicator">
-
-                                        </select>
-
-
-                                    </div>
-                                    @error('selectedIndicator')
-                                    <x-error>{{ $message }}</x-error>
-                                    @enderror
-
-                                </div> --}}
                                 <div class="col">
 
                                     <div class="mb-3">
@@ -198,10 +96,10 @@
                                         @enderror"
                                             wire:model.live.debounce.600ms="selectedDisaggregation"
                                             wire:loading.attr='disabled' wire:loading.class='opacity-25'
-                                            wire:target='selectedOrganisation'
+                                            wire:target='selectedOrganisation, selectedIndicator'
                                             @if (!$selectedOrganisation) disabled @endif>
                                             <option value="">Select one</option>
-                                            @foreach ($disaggregations->unique('name') as $dsg)
+                                            @foreach ($disaggregations as $dsg)
                                                 <option value="{{ $dsg->name }}">{{ $dsg->name }}
                                                 </option>
                                             @endforeach

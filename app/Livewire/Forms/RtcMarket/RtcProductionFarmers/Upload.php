@@ -224,18 +224,18 @@ class Upload extends Component
                 $this->reset('upload');
             } else if ($jobProgress->status == 'completed') {
                 $this->reset('upload');
-                $this->dispatch('complete-submission');
-            }
 
+            }
+            $this->dispatch('complete-submission');
 
         }
     }
 
-    #[On('complete-submission')]
+
     public function send()
     {
         $user = User::find(auth()->user()->id);
-        cache()->clear();
+
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('external-submissions') . '#batch-submission');
@@ -246,6 +246,8 @@ class Upload extends Component
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
+
+        cache()->clear();
     }
 
 

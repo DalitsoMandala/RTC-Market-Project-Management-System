@@ -126,7 +126,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Date of Recruitment' => 'nullable|date_format:Y-m-d',
             'Name of Actor' => 'nullable|string|max:255',
             'Name of Representative' => 'nullable|string|max:255',
-            'Phone Number' => 'nullable|string|max:15',
+            'Phone Number' => 'nullable|string|max:255',
             'Type' => 'nullable|string|max:255',
             'Approach' => 'nullable|string|max:255',
             'Sector' => 'nullable|string|max:255',

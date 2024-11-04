@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use App\Models\SystemReport;
+use App\Models\SystemReportData;
 
 class IndicatorB2 extends Component
 {
     use LivewireAlert;
     #[Validate('required')]
-
     public $rowId;
     public $data = [];
     public $indicator_no;
@@ -24,31 +25,43 @@ class IndicatorB2 extends Component
 
     public $total;
 
+    public $selectedProjectYear = [];
+
+    public $projectYears = [];
+
+    public $selectedOrganisation = 1;
+
+    public $reportingPeriods = [];
+
+    public $reporting_period;
+    public $financial_year;
+
+
 
 
 
     public function calculations()
     {
 
-        $organisation = auth()->user()->organisation;
-        $class = Indicator::find($this->indicator_id)->class()->first();
-        $newClass = null;
-        if (auth()->user()->hasAnyRole('admin') || (auth()->user()->hasAnyRole('cip') && auth()->user()->hasAnyRole('organiser'))) {
-            $newClass = new $class->class();
-        } else {
-            $newClass = new $class->class(organisation_id: $organisation->id);
+
+
+        $reportId = SystemReport::where('indicator_id', $this->indicator_id)
+            ->where('reporting_period_id', $this->reporting_period['id'])
+            ->where('project_id', $this->project_id)
+            ->where('organisation_id', auth()->user()->organisation->id)
+            ->where('financial_year_id', $this->financial_year['id'])
+            ->first();
+
+
+        if ($reportId) {
+            $data = SystemReportData::where('system_report_id', $reportId->id)->pluck('value', 'name')->toArray();
+            $this->data = $data;
+            $this->total = $this->data['Total (% Percentage)'];
         }
 
 
 
-        try {
-            $this->data = $newClass->getDisaggregations();//
-            $this->total = $this->data['Total'];
 
-
-        } catch (\Throwable $th) {
-
-        }
 
     }
     public function mount()

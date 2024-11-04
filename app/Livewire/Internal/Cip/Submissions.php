@@ -66,7 +66,12 @@ class Submissions extends Component
 
         try {
             $submission = Submission::findOrFail($this->rowId);
-            $tables = ['household_rtc_consumption', 'rtc_production_farmers', 'rtc_production_processors', 'attendance_registers'];
+            $tables = [
+                'household_rtc_consumption',
+                'rtc_production_farmers',
+                'rtc_production_processors',
+                'attendance_registers'
+            ];
 
             // Perform actions based on status
             if ($this->status === 'approved') {
@@ -82,9 +87,10 @@ class Submissions extends Component
             ])->dispatch();
 
             $this->disable = false;
+            session()->flash('success', 'Successfully updated');
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
-            session()->flash('success', 'Successfully updated');
+
         } catch (\Throwable $th) {
             Log::channel('system_log')->error($th->getMessage());
             $this->dispatch('hideModal');
@@ -130,6 +136,37 @@ class Submissions extends Component
             'is_complete' => true,
         ]);
     }
+    public function deleteBatch()
+    {
+
+        try {
+            $submission = Submission::findOrFail($this->rowId);
+            $tables = [
+                'household_rtc_consumption',
+                'rtc_production_farmers',
+                'rtc_production_processors',
+                'attendance_registers',
+
+            ];
+            if ($submission->batch_type == 'batch') {
+                foreach ($tables as $table) {
+                    if ($this->checkbatch($table, $submission->batch_no)) {
+                        DB::table($table)->where('uuid', $submission->batch_no)->delete();
+                    }
+                }
+            }
+
+            $submission->delete();
+            session()->flash('success', 'Successfully deleted batch');
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
+        } catch (\Throwable $th) {
+            session()->flash('error', 'Something went wrong');
+
+            Log::error($th);
+        }
+
+    }
 
 
     public function setStatus($value)
@@ -145,129 +182,45 @@ class Submissions extends Component
     {
         return DB::table($table)->where('uuid', $uuid)->exists();
     }
-    public function populateRtcFarmers($data)
+
+    public function saveData()
     {
-        $idMappings = [];
-        $highestId = RtcProductionFarmer::max('id');
-        foreach ($data['main'] as $mainSheet) {
-            $highestId++;
+        $this->validate();
 
-            $mainSheet['is_registered'] = $mainSheet['is_registered'] === 'Yes' ? true : false;
-            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'Yes' ? true : false;
-            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'Yes' ? true : false;
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'Yes' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'Yes' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'Yes' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'Yes' ? true : false;
+        try {
+            $submission = Submission::find($this->rowId);
+            $submission->update([
+                'data' => json_encode($this->inputs),
+            ]);
+            session()->flash('success', 'Successfully update data');
+            $this->dispatch('hideModal');
+        } catch (\Throwable $th) {
+            session()->flash('error', 'Something went wrong');
 
-            $idMappings[$mainSheet['#']] = $highestId;
-            unset($mainSheet['#']);
-            RtcProductionFarmer::create($mainSheet);
-        }
-
-        foreach ($data['followup'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_farmer_id']];
-            $mainSheet['rpm_farmer_id'] = $newId;
-            $mainSheet['is_registered_seed_producer'] = $mainSheet['is_registered_seed_producer'] === 'Yes' ? true : false;
-            $mainSheet['uses_certified_seed'] = $mainSheet['uses_certified_seed'] === 'Yes' ? true : false;
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'Yes' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'Yes' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'Yes' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'Yes' ? true : false;
-            $mainTable = RpmFarmerFollowUp::create($mainSheet);
-
-            // follow up data
-
-        }
-
-        foreach ($data['agreement'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_farmer_id']];
-            $mainSheet['rpm_farmer_id'] = $newId;
-            $mainTable = RpmFarmerConcAgreement::create($mainSheet);
-
-            // conc agreement
-
-        }
-
-        foreach ($data['market'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_farmer_id']];
-            $mainSheet['rpm_farmer_id'] = $newId;
-            $mainTable = RpmFarmerDomMarket::create($mainSheet);
-
-            // dom market
-
-        }
-
-        foreach ($data['intermarket'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_farmer_id']];
-            $mainSheet['rpm_farmer_id'] = $newId;
-            $mainTable = RpmFarmerInterMarket::create($mainSheet);
-
-            // inter market
-
+            Log::error($th);
         }
     }
 
-    public function populateRtcProducers($data)
+    public function deleteAGG()
     {
-        $idMappings = [];
-        $highestId = RtcProductionProcessor::max('id');
-        foreach ($data['main'] as $mainSheet) {
-            $highestId++;
 
-            $mainSheet['is_registered'] = $mainSheet['is_registered'] === 'Yes' ? true : false;
+        try {
+            $submission = Submission::findOrFail($this->rowId);
+            $submission->delete();
+            $reports = SubmissionReport::where('uuid', $submission->batch_no)->first();
+            $reports->delete();
+            session()->flash('success', 'Successfully deleted');
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
+        } catch (\Throwable $th) {
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
+            session()->flash('error', 'Something went wrong');
 
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'Yes' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'Yes' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'Yes' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'Yes' ? true : false;
-
-            $idMappings[$mainSheet['#']] = $highestId;
-            unset($mainSheet['#']);
-            RtcProductionProcessor::create($mainSheet);
-        }
-
-        foreach ($data['followup'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_processor_id']];
-            $mainSheet['rpm_processor_id'] = $newId;
-
-            $mainSheet['sells_to_domestic_markets'] = $mainSheet['sells_to_domestic_markets'] === 'Yes' ? true : false;
-            $mainSheet['has_rtc_market_contract'] = $mainSheet['has_rtc_market_contract'] === 'Yes' ? true : false;
-            $mainSheet['sells_to_international_markets'] = $mainSheet['sells_to_international_markets'] === 'Yes' ? true : false;
-            $mainSheet['uses_market_information_systems'] = $mainSheet['uses_market_information_systems'] === 'Yes' ? true : false;
-            $mainTable = RpmProcessorFollowUp::create($mainSheet);
-
-            // follow up data
-
-        }
-
-        foreach ($data['agreement'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_processor_id']];
-            $mainSheet['rpm_processor_id'] = $newId;
-            $mainTable = RpmProcessorConcAgreement::create($mainSheet);
-
-            // conc agreement
-
-        }
-
-        foreach ($data['market'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_processor_id']];
-            $mainSheet['rpm_processor_id'] = $newId;
-            $mainTable = RpmProcessorDomMarket::create($mainSheet);
-
-            // dom market
-
-        }
-
-        foreach ($data['intermarket'] as $mainSheet) {
-            $newId = $idMappings[$mainSheet['rpm_processor_id']];
-            $mainSheet['rpm_processor_id'] = $newId;
-            $mainTable = RpmProcessorInterMarket::create($mainSheet);
-
-            // inter market
-
+            Log::error($th);
         }
     }
+
     public function saveAGG()
     {
         $this->validate();
@@ -297,18 +250,19 @@ class Submissions extends Component
                     'status' => $this->status,
                 ]);
             }
-
-            session()->flash('success', 'Successfully updated');
+            $this->dispatch('hideModal');
             $this->dispatch('refresh');
+            session()->flash('success', 'Successfully updated');
+
         } catch (\Throwable $th) {
-            dd($th);
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
             session()->flash('error', 'Something went wrong');
 
             Log::error($th);
         }
 
-        $this->dispatch('hideModal');
-        $this->reset();
+
     }
 
 
