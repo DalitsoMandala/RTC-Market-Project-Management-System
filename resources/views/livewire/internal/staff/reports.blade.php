@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Reports</li>
                         </ol>
                     </div>
@@ -40,29 +40,29 @@
                                      const selectInput = new Choices($refs.selectElement, {
                                          shouldSort: false,
                                          placeholder: true,
-                                    
+
                                          choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
                                      });
-                                    
-                                    
-                                    
+
+
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
+
                                              myInput(event.detail.value);
-                                    
-                                    
-                                    
+
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
                                          selectInput.setChoiceByValue('');
-                                    
+
                                      })">
                                         <label for="" class="form-label">Project</label>
                                         <select class="form-select form-select-sm " x-ref="selectElement">
@@ -83,7 +83,7 @@
                                         myInput(data) {
                                             this.selected = data;
                                         },
-                                    
+
                                     }" x-init=" const input = $refs.selectElementIndicator;
                                      const selectInput = new Choices($refs.selectElementIndicator, {
                                          shouldSort: false,
@@ -92,27 +92,27 @@
                                          placeholderValue: 'Select indicators here...',
                                          choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
                                      });
-                                    
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
-                                    
+
+
                                              let selectedValues = selectInput.getValue(true);
-                                    
-                                    
+
+
                                              myInput(selectedValues);
-                                    
-                                    
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
-                                    
-                                    
+
+
                                      })">
 
 

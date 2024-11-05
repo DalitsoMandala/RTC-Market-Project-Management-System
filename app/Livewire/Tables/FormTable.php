@@ -134,7 +134,7 @@ final class FormTable extends PowerGridComponent
                 ->searchable(),
 
 
-            Column::make('Follow up', 'followup')
+            Column::make('Action', 'followup')
             ,
 
             // Column::make('Project id', 'project_id'),

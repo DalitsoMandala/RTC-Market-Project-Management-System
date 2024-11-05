@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Submissions</li>
                         </ol>
                     </div>
@@ -22,10 +22,10 @@
             <div class="col-12">
 
                 @if (session()->has('success'))
-                <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
+                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
                 @endif
                 @if (session()->has('error'))
-                <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
+                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
                 @endif
                 <div class="card " wire:ignore>
                     <div class="card-header fw-bold ">
@@ -68,16 +68,16 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane  active fade show" id="batch-submission" role="tabpanel"
-                                aria-labelledby="home-tab">
+                            <div wire:ignore class="mt-2 tab-pane  active fade show" id="batch-submission"
+                                role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
                             {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission"
-                                role="tabpanel" aria-labelledby="profile-tab">
+                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
 
@@ -178,7 +178,7 @@
                         </select>
                         <small class="text-muted">You can approve/disapprove submissions here</small><br>
                         @error('status')
-                        <span class="my-1 text-danger">{{ $message }}</span>
+                            <span class="my-1 text-danger">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -186,7 +186,7 @@
                         <label for="">Comments</label>
                         <textarea wire:model='comment' id="" class="form-control"></textarea>
                         @error('comment')
-                        <x-error>{{ $message }}</x-error>
+                            <x-error>{{ $message }}</x-error>
                         @enderror
                     </div>
 

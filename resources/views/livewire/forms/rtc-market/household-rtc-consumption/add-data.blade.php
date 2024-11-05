@@ -12,7 +12,7 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Manage Data</a></li>
+                            <li class="breadcrumb-item"><a href="/">Manage Data</a></li>
                             <li class="breadcrumb-item"><a href="../../">Forms</a></li>
                             <li class="breadcrumb-item active">Add</li>
                         </ol>
@@ -379,9 +379,9 @@
 
                                                                         <button class="px-5 btn btn-primary "
                                                                             @click=" window.scrollTo({
-                                                                                                                                                                                                                        top: 0,
-                                                                                                                                                                                                                        behavior: 'smooth'
-                                                                                                                                                                                                                    })"
+                                                                                                                                                                                                                                                        top: 0,
+                                                                                                                                                                                                                                                        behavior: 'smooth'
+                                                                                                                                                                                                                                                    })"
                                                                             type="submit">Submit</button>
                                                                     </div>
                                     @endforeach

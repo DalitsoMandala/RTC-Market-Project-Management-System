@@ -80,7 +80,7 @@
                     init() {
                         let data = this.chartData;
                         categories = Object.keys(data); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        seriesData = Object.values(data); // [0, 0, 0, 0]
+                        seriesData =  Object.values(data).map(value => Number(value)) // [0, 0, 0, 0]
 
 
 

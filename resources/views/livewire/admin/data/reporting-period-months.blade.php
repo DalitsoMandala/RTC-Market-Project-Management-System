@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Page Name</li>
                         </ol>
                     </div>
@@ -20,20 +20,20 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-<div class="card ">
-<div class="card-header">
-        <h5 class="card-title"></h5>
-</div>
-  <div class="card-body">
+                <div class="card ">
+                    <div class="card-header">
+                        <h5 class="card-title"></h5>
+                    </div>
+                    <div class="card-body">
 
-  </div>
-</div>
+                    </div>
+                </div>
             </div>
         </div>
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+        {{-- <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();

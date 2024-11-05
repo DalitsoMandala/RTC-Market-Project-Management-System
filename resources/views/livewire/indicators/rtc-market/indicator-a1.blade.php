@@ -81,7 +81,7 @@
                     init() {
                         let data = this.chartData;
                         categories = Object.keys(data); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        seriesData = Object.values(data); // [0, 0, 0, 0]
+                        seriesData = Object.values(data).map(value => Number(value)); // [0, 0, 0, 0]
                 
                 
                 
@@ -124,15 +124,20 @@
                 
                 
                         let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        let seriesData = Object.values(filteredData); // [0, 0, 0, 0]
+                        let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
                 
                         let options = {
                             chart: {
                                 type: 'donut'
                             },
+                
+                
+                
                             series: seriesData,
                             labels: categories,
-                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181']
+                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181'],
+                
+                
                         };
                 
                         let chart = new ApexCharts($refs.genderChart, options);
@@ -157,7 +162,7 @@
                 
                 
                         let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        let seriesData = Object.values(filteredData); // [0, 0, 0, 0]
+                        let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
                 
                         let options = {
                             chart: {
@@ -165,7 +170,35 @@
                             },
                             series: seriesData,
                             labels: categories,
-                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181']
+                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181'],
+                
+                            plotOptions: {
+                                radialBar: {
+                                    dataLabels: {
+                                        name: {
+                                            fontSize: '22px',
+                                        },
+                                        value: {
+                                            fontSize: '16px',
+                                            formatter: function(val) {
+                                                return val
+                                            }
+                                        },
+                                        total: {
+                                            show: true,
+                                            label: 'Total',
+                                            formatter: function(w) {
+                                                return w.globals.seriesTotals.reduce((a, b) => {
+                                                    return a + b
+                                                }, 0)
+                                            }
+                                        }
+                                    },
+                
+                
+                                }
+                            }
+                
                         };
                 
                         let chart = new ApexCharts($refs.cropChart, options);
@@ -190,7 +223,7 @@
                 
                 
                         let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        let seriesData = Object.values(filteredData); // [0, 0, 0, 0]
+                        let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
                 
                         let options = {
                             chart: {

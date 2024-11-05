@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Manage Page Name</li>
                         </ol>
                     </div>
@@ -30,7 +30,7 @@
                     </div>
 
                     <div class="card-header" x-data="{ showForm: false }" x-init="() => {
-                    
+
                         $wire.on('show-form', (e) => {
                             showForm = true;
                             window.scrollTo({
@@ -38,7 +38,7 @@
                                 behavior: 'smooth'
                             })
                         })
-                    
+
                         $wire.on('add-form', (e) => {
                             showForm = true;
                             window.scrollTo({
@@ -60,18 +60,18 @@
                                     containerCssClass: 'select2--small',
                                     dropdownCssClass: 'select2--small',
                                 });
-                                
+
                                 $('#select-indicators').on('change', function() {
                                     data = $(this).val();
-                                
+
                                     $wire.indicator_id = data;
-                                
+
                                 })
                                 $wire.on('add-form', (e) => {
                                     $('#select-indicators').val(['']);
                                     $('#select-indicators').change();
                                 })
-                                
+
                                 $wire.on('show-form', (e) => {
                                     $('#select-indicators').val([e.indicator_id]);
                                     $('#select-indicators').change();
@@ -274,13 +274,13 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })
         $wire.on('refresh', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

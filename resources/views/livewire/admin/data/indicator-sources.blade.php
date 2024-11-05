@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Manage Organisation forms</li>
                         </ol>
                     </div>
@@ -34,7 +34,7 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })">
@@ -100,10 +100,8 @@
 
                     <div class="mb-3">
                         <label for="" class="form-label">Select forms</label>
-                        <select
-                            class="form-select form-select @if (!$selectedLeadPartner) pe-none opacity-25 @endif"
-                            name="" id="mySelect" wire:model='selectedForms' wire:loading.class='opacity-25'
-                            multiple>
+                        <select class="form-select form-select @if (!$selectedLeadPartner) pe-none opacity-25 @endif"
+                            name="" id="mySelect" wire:model='selectedForms' wire:loading.class='opacity-25' multiple>
                             <option value="" disabled>Select one</option>
                             @foreach ($forms as $form)
                                 <option value="{{ $form->id }}">{{ $form->name }}</option>
@@ -134,17 +132,17 @@
 
 </div>
 @script
-    <script>
-        $('#mySelect').on('change', function() {
-            let selectedValues = $(this).val(); // Get selected values
+<script>
+    $('#mySelect').on('change', function () {
+        let selectedValues = $(this).val(); // Get selected values
 
-            if (selectedValues.includes('6')) { // If "All" (value 1) is selected
-                // Deselect all other options
-                $(this).find('option').not('[value="6"]').prop('disabled', true).prop('selected', false);
-            } else {
-                // Enable all options
-                $(this).find('option').prop('disabled', false);
-            }
-        });
-    </script>
+        if (selectedValues.includes('6')) { // If "All" (value 1) is selected
+            // Deselect all other options
+            $(this).find('option').not('[value="6"]').prop('disabled', true).prop('selected', false);
+        } else {
+            // Enable all options
+            $(this).find('option').prop('disabled', false);
+        }
+    });
+</script>
 @endscript

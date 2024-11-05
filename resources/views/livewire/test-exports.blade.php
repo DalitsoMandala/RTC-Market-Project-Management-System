@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Manage Page Name</li>
                         </ol>
                     </div>
@@ -27,11 +27,16 @@
                     <div class="card-body">
                         <form wire:submit.prevent="save" wire:loading.class='pe-none opacity-25'>
 
-                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('HRC')">HRC</button>
-                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('RPMF')">RPMF</button>
-                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('RPMP')">RPMP</button>
-                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('ATT')">Att</button>
-                            <button type="button" class="btn btn-outline-primary" wire:click="selectOption('SC')">SC</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                wire:click="selectOption('HRC')">HRC</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                wire:click="selectOption('RPMF')">RPMF</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                wire:click="selectOption('RPMP')">RPMP</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                wire:click="selectOption('ATT')">Att</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                wire:click="selectOption('SC')">SC</button>
 
                             <input type="text" wire:model="selectedOption" name="selectedOption">
                             <br />

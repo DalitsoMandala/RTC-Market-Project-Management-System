@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active text-capitalize">Manage Indicators and lead partners</li>
                         </ol>
                     </div>
@@ -34,14 +34,14 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })
-        
+
         $wire.on('refresh', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -73,22 +73,22 @@
 
                         <div x-data="{
                             selected: {},
-                        
+
                         }" x-init="() => {
-                        
+
                             $('#selectInput').select2({
                                 width: '100%',
                                 theme: 'bootstrap-5',
                                 containerCssClass: 'select2--small',
                                 dropdownCssClass: 'select2--small',
                             });
-                        
+
                             $wire.on('updateSelect', (e) => {
                                 $('#selectInput').val(e.data);
                                 $('#selectInput').trigger('change');
-                        
+
                             })
-                        
+
                             $('#selectInput').on('change', function(e) {
                                 var selectedValue = $(this).val();
                                 $wire.selectedLeadPartners = selectedValue;
@@ -118,22 +118,22 @@
 
                         <div x-data="{
                             selected: {},
-                        
+
                         }" x-init="() => {
-                        
+
                             $('#selectInput2').select2({
                                 width: '100%',
                                 theme: 'bootstrap-5',
                                 containerCssClass: 'select2--small',
                                 dropdownCssClass: 'select2--small',
                             });
-                        
+
                             $wire.on('updateSelect', (e) => {
                                 $('#selectInput2').val(e.formData);
                                 $('#selectInput2').trigger('change');
-                        
+
                             })
-                        
+
                             $('#selectInput2').on('change', function(e) {
                                 var selectedValue = $(this).val();
                                 $wire.selectedForms = selectedValue;
