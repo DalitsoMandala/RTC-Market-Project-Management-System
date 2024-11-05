@@ -1,5 +1,5 @@
 <div>
-    @inject('indicatorService', 'App\Services\IndicatorService')
+
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -22,10 +22,52 @@
         <div class="row">
             <div class="col-12">
                 <div class="card ">
-                    <div class="card-header d-flex justify-content-between">
+                    <div class="card-header d-flex flex-column flex-md-row  justify-content-between">
                         <h5>{{ $indicator_no }} - {{ $indicator_name }}</h5>
 
                         <div class="row">
+
+                            <div class="col">
+
+                                <div class="dropdown" x-data="{
+                                    Organisation: $wire.entangle('selectedOrganisation'),
+                                    Organisations: $wire.entangle('organisations'),
+                                    setData(value) {
+                                        this.disable = true;
+                                        setTimeout(() => {
+                                            this.Organisation = value;
+                                            $wire.dispatch('refreshData');
+                                            this.disable = false;
+                                        }, 1000);
+                                
+                                    },
+                                
+                                
+                                }">
+
+
+                                    <a class="dropdown-toggle text-reset" href="#" id="dropdownMenuButton1"
+                                        :class="{
+                                            'opacity-25 pe-none': disable
+                                        }"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="text-muted font-size-12 text-uppercase">Organisation:</span> <span
+                                            class="fw-medium">
+                                            <span x-text="Organisation.name"></span>
+
+                                            <i class="mdi mdi-chevron-down ms-1"></i></span>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                                        <template x-for="(value, index) in Organisations" :key="value.id">
+                                            <a class="dropdown-item" @click="setData(value)" href="#"> <span
+                                                    x-text="value.name"></span></a>
+
+                                        </template>
+
+                                    </div>
+                                </div>
+
+                            </div>
                             <div class="col">
 
                                 <div class="dropdown" x-data="{
@@ -129,6 +171,7 @@
                                 'project_id' => $project_id,
                                 'reporting_period' => $selectedReportingPeriod,
                                 'financial_year' => $selectedFinancialYear,
+                                'organisation' => $selectedOrganisation,
                             ])
                         @else
                             <div class="d-flex justify-content-center align-items-center">

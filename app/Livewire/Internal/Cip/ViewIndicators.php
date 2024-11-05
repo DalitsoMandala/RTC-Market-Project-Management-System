@@ -64,6 +64,12 @@ class ViewIndicators extends Component
         $this->selectedFinancialYear = FinancialYear::first()->toArray();
         $this->reportingPeriod = ReportingPeriodMonth::get()->toArray();
         $this->selectedReportingPeriod = ReportingPeriodMonth::first()->toArray();
+        $indicatorOrganisations = Indicator::with('organisation')->where('id', $this->indicator_id)->get()->pluck('organisation');
+        $organisationIds = $indicatorOrganisations->first()->pluck('id');
+        $this->organisations = Organisation::whereIn('id', $organisationIds)->get()->toArray();
+
+        $this->selectedOrganisation = Organisation::where('id', $this->organisations[0]['id'])->first()->toArray();
+
         $this->reRender();
 
     }

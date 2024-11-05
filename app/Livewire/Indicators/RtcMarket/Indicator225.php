@@ -35,6 +35,7 @@ class Indicator225 extends Component
 
     public $reporting_period;
     public $financial_year;
+    public $organisation;
 
 
 
@@ -45,7 +46,7 @@ class Indicator225 extends Component
         $reportId = SystemReport::where('indicator_id', $this->indicator_id)
             ->where('reporting_period_id', $this->reporting_period['id'])
             ->where('project_id', $this->project_id)
-            ->where('organisation_id', auth()->user()->organisation->id)
+            ->where('organisation_id', $this->organisation['id'])
             ->where('financial_year_id', $this->financial_year['id'])
             ->first();
 

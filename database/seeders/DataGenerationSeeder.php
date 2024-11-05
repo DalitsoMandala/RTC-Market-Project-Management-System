@@ -1144,8 +1144,11 @@ class DataGenerationSeeder extends Seeder
         foreach (range(1, 10) as $index) {
             $faker = Faker::create();
 
-            foreach (Indicator::with(['disaggregations', 'forms'])->get() as $indicator) {
+            foreach (Indicator::with(['disaggregations', 'forms', 'organisation'])->get() as $indicator) {
                 $disagg = $indicator->disaggregations;
+
+
+                $organizations = $indicator->organisation->pluck('id')->toArray();
                 $dataAndDisagg = [];
                 $reports = $indicator->forms->where('name', 'REPORT FORM')->count();
                 if ($reports > 0) {
@@ -1159,11 +1162,10 @@ class DataGenerationSeeder extends Seeder
                         'user_id' => $faker->numberBetween(4, 7), // Random user ID
                         'uuid' => $faker->uuid, // Random UUID
                         'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
-                        'organisation_id' => 1, // Random organisation ID
+                        'organisation_id' => $faker->randomElement($organizations), // Random organisation ID
                         'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                         'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                         'status' => 'approved', // Fixed value
-                        // 'submission_id' => 1,
                         'indicator_id' => $indicator->id,
                         'data' => json_encode($dataAndDisagg)
                     ]);

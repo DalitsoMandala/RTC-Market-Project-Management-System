@@ -43,14 +43,24 @@ final class IndicatorTable extends PowerGridComponent
     {
         $user = User::find($this->userId);
         if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin') || $user->hasAnyRole('donor') || $user->hasAnyRole('staff')) {
-            return Indicator::query()->with(['project', 'disaggregations', 'responsiblePeopleforIndicators.organisation', 'forms']);
+            return Indicator::query()->with([
+                'project',
+                'disaggregations',
+                'responsiblePeopleforIndicators.organisation',
+                'forms'
+            ]);
 
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
             $user = User::find($this->userId);
             $organisation_id = $user->organisation->id;
 
-            $data = Indicator::query()->with(['project', 'responsiblePeopleforIndicators', 'disaggregations', 'forms'])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
+            $data = Indicator::query()->with([
+                'project',
+                'responsiblePeopleforIndicators',
+                'disaggregations',
+                'forms'
+            ])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
             });
             return $data;
@@ -132,7 +142,7 @@ final class IndicatorTable extends PowerGridComponent
             ->add('sources', function ($model) {
                 $forms = $model->forms->pluck('name')->toArray();
 
-                $formNames = implode(', ', $forms);
+                $formNames = ucfirst(strtolower(implode(', ', $forms)));
                 return $formNames;
             })
 
@@ -141,7 +151,7 @@ final class IndicatorTable extends PowerGridComponent
 
                 if ($disaggregations) {
                     $implode = $disaggregations->pluck('name')->toArray();
-                    return strtoupper(implode(', ', $implode));
+                    return (implode(', ', $implode));
 
                 }
             })

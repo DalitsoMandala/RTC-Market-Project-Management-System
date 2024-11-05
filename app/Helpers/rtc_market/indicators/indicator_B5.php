@@ -178,7 +178,7 @@ class indicator_B5
     {
 
         return [
-            'Total (% Percentage)s' => $this->getTotal(),
+            'Total (% Percentage)' => $this->getTotal(),
             'Cassava' => round($this->findCropCount()['cassava'], 2),
             'Potato' => round($this->findCropCount()['potato'], 2),
             'Sweet potato' => round($this->findCropCount()['sweet_potato'], 2),

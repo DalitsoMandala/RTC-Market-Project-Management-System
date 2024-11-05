@@ -102,6 +102,8 @@ class indicator_B3
     }
     public function getDisaggregations()
     {
+
+
         // Get the totals
         $totals = $this->getTotals();
 
