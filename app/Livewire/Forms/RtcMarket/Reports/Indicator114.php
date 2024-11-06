@@ -167,7 +167,7 @@ class Indicator114 extends Component
             'Annual value' => $this->annual_value,
             'Baseline' => $this->baseline,
         ];
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,
                 $user,

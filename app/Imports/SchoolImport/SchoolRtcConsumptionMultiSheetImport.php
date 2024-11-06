@@ -28,7 +28,6 @@ use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
 use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
 
 class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
-
 {
     protected $expectedSheetNames = ['School RTC Consumption'];
     protected $cacheKey;
@@ -94,7 +93,11 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                 $user = User::find($this->submissionDetails['user_id']);
                 $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing.', []));
 
-                $status = ($user->hasRole(['internal', 'organiser', 'admin'])) ? 'approved' : 'pending';
+                $status = ($user->hasRole([
+                    'internal',
+                    'manager',
+                    'admin'
+                ])) ? 'approved' : 'pending';
 
                 Submission::create([
                     'batch_no' => $this->submissionDetails['batch_no'],
@@ -110,7 +113,10 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
-                    ['status' => 'completed', 'progress' => 100]
+                    [
+                        'status' => 'completed',
+                        'progress' => 100
+                    ]
                 );
             },
 
@@ -120,7 +126,11 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
-                    ['status' => 'failed', 'progress' => 100, 'error' => $errorMessage]
+                    [
+                        'status' => 'failed',
+                        'progress' => 100,
+                        'error' => $errorMessage
+                    ]
                 );
 
                 Log::error($exception->getMessage());

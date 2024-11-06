@@ -145,7 +145,7 @@ class IndicatorB6 extends Component
         ];
 
         // Roles for internal users
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,
                 $user,

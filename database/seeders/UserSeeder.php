@@ -25,17 +25,14 @@ class UserSeeder extends Seeder
             return $org->id;
         }
 
-        Role::create(['name' => 'internal']);
-        Role::create(['name' => 'external']);
-        //
-        Role::create(['name' => 'organiser']);
-        Role::create(['name' => 'staff']);
-        //  Role::create(['name' => 'assistant']);
-        Role::create(['name' => 'admin']);
-        // Role::create(['name' => 'donor']);
-        //
-        Role::create(['name' => 'cip']);
-        //  Role::create(['name' => 'desira']);
+        Role::create(['name' => 'internal']); //CIP or DESIRA
+        Role::create(['name' => 'external']); // ANY OTHER
+        Role::create(['name' => 'manager']); // ANY ONE WHO CAN DO MOST MANIPULATION
+        Role::create(['name' => 'staff']); // LIMITED FUNCTIONALITY
+        Role::create(['name' => 'admin']); // FULL FUNCTIONALITY
+        Role::create(['name' => 'project_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS
+        Role::create(['name' => 'cip']); // PROJECT
+        Role::create(['name' => 'desira']); // PROJECT
 
         User::create([
             'name' => 'admin',
@@ -44,14 +41,6 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => 1,
         ])->assignRole(['admin']);
-
-        // User::create([
-        //     'name' => 'Jamila',
-        //     'email' => 'donor@example.com',
-        //     'password' => Hash::make('password'),
-        //     'phone_number' => '+9999999999',
-        //     'organisation_id' => 11,
-        // ])->assignRole(['external', 'donor']);
 
         User::create([
             'name' => 'Eliya Kapalasa',
@@ -63,7 +52,7 @@ class UserSeeder extends Seeder
         ])->assignRole([
                     'internal',
                     'cip',
-                    'organiser'
+                    'manager'
                 ]);
 
         User::create([
@@ -75,7 +64,7 @@ class UserSeeder extends Seeder
         ])->assignRole([
                     'internal',
                     'cip',
-                    'organiser'
+                    'manager'
                 ]);
 
         User::create([
@@ -100,7 +89,7 @@ class UserSeeder extends Seeder
             'organisation_id' => 3,
         ])->assignRole([
                     'external',
-                    'organiser'
+
                 ]);
 
         User::create([
@@ -111,7 +100,7 @@ class UserSeeder extends Seeder
             'organisation_id' => 7,
         ])->assignRole([
                     'external',
-                    'organiser'
+
                 ]);
 
         User::create([
@@ -122,7 +111,7 @@ class UserSeeder extends Seeder
             'organisation_id' => 5,
         ])->assignRole([
                     'external',
-                    'organiser'
+
                 ]);
 
         User::create([
@@ -133,7 +122,7 @@ class UserSeeder extends Seeder
             'organisation_id' => 4,
         ])->assignRole([
                     'external',
-                    'organiser'
+
                 ]);
 
         User::create([
@@ -144,7 +133,7 @@ class UserSeeder extends Seeder
             'organisation_id' => getOrganisationId('MINISTRY OF TRADE'),
         ])->assignRole([
                     'external',
-                    'organiser'
+
                 ]);
 
 

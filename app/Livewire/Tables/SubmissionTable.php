@@ -268,7 +268,7 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-trash"></i>')
                 ->id()
                 ->class('btn btn-danger my-1')
-                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('organiser')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('deleteBatch', [
                     'id' => $row->id,
                     'name' => 'delete-batch-modal'
@@ -283,7 +283,7 @@ final class SubmissionTable extends PowerGridComponent
         return [
             //  Hide button edit for ID 1
             Rule::button('edit')
-                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
+                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('manager')) || User::find($row->user_id)->hasAnyRole('admin'))
                 ->disable(),
 
             Rule::button('edit')

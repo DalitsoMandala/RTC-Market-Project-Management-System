@@ -42,7 +42,7 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin') || $user->hasAnyRole('donor') || $user->hasAnyRole('staff')) {
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin') || $user->hasAnyRole('donor') || $user->hasAnyRole('staff')) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
@@ -107,7 +107,7 @@ final class IndicatorTable extends PowerGridComponent
             ->add('indicator_name')
             ->add('name_link', function ($model) {
                 $user = User::find($this->userId);
-                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser'))) {
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager'))) {
 
                     return '<a class="text-decoration-underline"  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
 

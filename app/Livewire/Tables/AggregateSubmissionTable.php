@@ -254,7 +254,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             //     ->slot('<i class="bx bx-pen"></i>')
             //     ->id()
             //     ->class('btn btn-primary my-1')
-            //     ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('organiser')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+            //     ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
             //     ->dispatch('showAggregate', [
             //         'id' => $row->id,
             //         'name' => 'view-aggregate-modal'
@@ -274,7 +274,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-trash"></i>')
                 ->id()
                 ->class('btn btn-danger my-1')
-                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('organiser')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('deleteAggregate', [
                     'id' => $row->id,
                     'name' => 'delete-aggregate-modal'
@@ -290,7 +290,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
         return [
             // Hide button edit for ID 1
             // Rule::button('edit')
-            //     ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
+            //     ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('manager')) || User::find($row->user_id)->hasAnyRole('admin'))
             //     ->disable(),
 
 

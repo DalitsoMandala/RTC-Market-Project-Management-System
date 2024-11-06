@@ -348,7 +348,7 @@ class AddData extends Component
 
             $currentUser = Auth::user();
             $user = User::find($userId);
-            if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+            if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
 
                 try {
                     $checkSubmissions = Submission::where('period_id', $this->submissionPeriodId)

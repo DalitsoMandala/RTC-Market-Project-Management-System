@@ -139,7 +139,7 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'role:organiser'
+    'all_roles:internal,cip,manager'
 ])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-internal-dashboard');
     Route::get('/indicators', Indicators::class)->name('cip-internal-indicators');
@@ -194,7 +194,7 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'role:staff'
+    'all_roles:internal,cip,staff'
 ])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
     Route::get('/indicators', \App\Livewire\Internal\Staff\Indicators::class)->name('cip-staff-indicators');

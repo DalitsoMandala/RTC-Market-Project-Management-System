@@ -124,7 +124,10 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
                 $exception = $event->getException();
                 $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->where('is_finished', false)->first();
                 if ($importJob) {
-                    $importJob->update(['status' => 'failed', 'is_finished' => true]);
+                    $importJob->update([
+                        'status' => 'failed',
+                        'is_finished' => true
+                    ]);
                 }
 
 
@@ -196,7 +199,7 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
                     $user = User::find($this->userId);
                     $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
 
-                }else if ($exception instanceof Exception) {
+                } else if ($exception instanceof Exception) {
 
                     $user = User::find($this->userId);
                     $user->notify(new JobNotification($this->uuid, 'Unexpected error occured during import!', []));
@@ -211,14 +214,17 @@ class RpmFarmerImport implements WithMultipleSheets, WithEvents, ShouldQueue, Wi
             AfterImport::class => function (AfterImport $event) {
                 $importJob = JobProgress::where('user_id', $this->userId)->where('job_id', $this->uuid)->first();
                 if ($importJob) {
-                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                    $importJob->update([
+                        'status' => 'completed',
+                        'is_finished' => true
+                    ]);
                 }
 
                 $user = User::find($this->userId);
                 $user->notify(new JobNotification($this->uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
 
 
-                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
 
 
                     Submission::where('batch_no', $this->uuid)->update([

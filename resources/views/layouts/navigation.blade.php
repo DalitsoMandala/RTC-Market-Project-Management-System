@@ -173,7 +173,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('internal|cip|organiser')
+                @hasallroles('internal|cip|manager')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -249,7 +249,7 @@
                         </div>
                     </nav>
                 @endhasallroles
-                @hasallroles('external|organiser')
+                @hasallroles('external')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -318,7 +318,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('internal|staff')
+                @hasallroles('internal|cip|staff')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -388,35 +388,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('external|donor')
-                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
-                        <div class="collapse navbar-collapse" id="topnav-menu-content">
-                            <ul class="navbar-nav">
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('donor-dashboard') }}"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('donor-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
-                                    </a>
-                                </li>
-
-
-
-                            </ul>
-                        </div>
-                    </nav>
-                @endhasallroles
             </div>
         </div>
 

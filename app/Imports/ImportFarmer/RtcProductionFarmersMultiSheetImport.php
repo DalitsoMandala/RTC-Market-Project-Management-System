@@ -129,7 +129,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
     
                 $user = User::find($this->submissionDetails['user_id']);
                 $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
-                if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
                     Submission::create([
                         'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
