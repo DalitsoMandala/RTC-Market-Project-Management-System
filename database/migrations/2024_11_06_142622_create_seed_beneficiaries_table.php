@@ -30,6 +30,7 @@ return new class extends Migration {
             $table->integer('bundles_received');
             $table->string('phone_or_national_id');
             $table->string('crop'); // Can be "OFSP" or "Potato" or "Cassava"
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -87,17 +87,7 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
             $errorMessage = "Validation Error on sheet 'School RTC Consumption' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
 

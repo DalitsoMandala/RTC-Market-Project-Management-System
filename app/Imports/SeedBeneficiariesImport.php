@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Imports\SchoolImport;
+namespace App\Imports;
 
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
-use Illuminate\Support\Collection;
+use App\Models\SeedBeneficiary;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
@@ -16,24 +16,22 @@ use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use App\Imports\ImportProcessor\RpmpMisImport;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
-use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
-use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
-use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
-use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
-use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
 
-class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
+class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
-    protected $expectedSheetNames = ['School RTC Consumption'];
+    protected $expectedSheetNames = [
+        'Potato',
+        'OFSP',
+        'Cassava'
+    ];
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails = [];
     protected $totalRows = 0;
+
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
         $this->cacheKey = $cacheKey;
@@ -44,7 +42,9 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
     public function sheets(): array
     {
         return [
-            'School RTC Consumption' => new SchoolRtcConsumptionImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Potato' => new CropSheetImport('Potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'OFSP' => new CropSheetImport('OFSP', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Cassava' => new CropSheetImport('Cassava', $this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
 
@@ -82,7 +82,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                         'processed_rows' => 0,
                         'progress' => 0,
                         'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'Production Processors Import',
+                        'form_name' => 'Seed Beneficiaries Import',
                     ]
                 );
 
@@ -99,17 +99,6 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     'admin'
                 ])) ? 'approved' : 'pending';
 
-                Submission::create([
-                    'batch_no' => $this->submissionDetails['batch_no'],
-                    'form_id' => $this->submissionDetails['form_id'],
-                    'period_id' => $this->submissionDetails['period_month_id'],
-                    'user_id' => $this->submissionDetails['user_id'],
-                    'status' => $status,
-                    'batch_type' => 'batch',
-                    'is_complete' => 1,
-                    'table_name' => 'rtc_production_processors',
-                    'file_link' => $this->submissionDetails['file_link']
-                ]);
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],

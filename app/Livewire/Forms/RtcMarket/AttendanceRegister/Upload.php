@@ -163,7 +163,7 @@ class Upload extends Component
         }
     }
 
-    #[On('complete-submission')]
+
     public function send()
     {
         $user = User::find(auth()->user()->id);

@@ -27,17 +27,18 @@
         
         }" @close-form="showCard = false">
 
-            <div class="col-12" x-show="showCard">
-                <livewire:other-forms.seed-beneficiaries.add />
-            </div>
+
             <div class="col-12">
                 <div class="card ">
                     <div class="card-header align-items-center d-flex justify-content-between">
                         <h5 class="card-title">Seed Beneficiaries</h5>
 
+                        @php
+                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                        @endphp
 
-
-                        <button class="btn btn-primary btn-sm" href="#" @click="toggleShow">Add Data +</button>
+                        <a class="btn btn-primary btn-sm" href="{{ $routePrefix }}/seed-beneficiaries/add">Add
+                            Data +</a>
 
                     </div>
                     <div class="card-body">
