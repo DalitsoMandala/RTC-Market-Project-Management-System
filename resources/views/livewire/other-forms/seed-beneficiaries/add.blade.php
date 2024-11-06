@@ -43,6 +43,8 @@
                     </ul>
 
                 </div>
+
+
                 <div class="card-body">
 
                     <!-- Tab Content -->
@@ -50,6 +52,7 @@
                         <!-- Manual Entry Form -->
                         <div class="tab-pane fade show active" id="manual" wire:ignore.self role="tabpanel"
                             aria-labelledby="manual-tab" wire:ignore.self>
+
                             <form wire:submit.prevent="save">
                                 <!-- Crop Radio Buttons -->
                                 <div class="mb-3">

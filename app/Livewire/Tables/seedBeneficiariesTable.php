@@ -2,26 +2,29 @@
 
 namespace App\Livewire\tables;
 
-use App\Models\SeedBeneficiary;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
+use App\Models\SeedBeneficiary;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class seedBeneficiariesTable extends PowerGridComponent
 {
     use WithExport;
 
     public $crop;
+
+    public string $tableName = 'seed_beneficiaries';
 
     public function setUp(): array
     {
@@ -38,11 +41,18 @@ final class seedBeneficiariesTable extends PowerGridComponent
         ];
     }
 
+
+
     public function datasource(): Builder
     {
-        return SeedBeneficiary::query()->where('crop', $this->crop);
+        return SeedBeneficiary::query()->with('user')->where('crop', $this->crop)->join('users', function ($user) {
+            $user->on('users.id', '=', 'seed_beneficiaries.user_id');
+        })->select('seed_beneficiaries.*', 'users.name as user_name');
     }
-
+    public function onUpdatedEditable(string|int $id, string $field, string $value): void
+    {
+        dd($id);
+    }
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -66,6 +76,7 @@ final class seedBeneficiariesTable extends PowerGridComponent
             ->add('phone_or_national_id')
             ->add('crop')
             ->add('user_id')
+            ->add('user', fn($model) => $model->user->name)
             ->add('created_at')
             ->add('updated_at');
     }
@@ -74,8 +85,10 @@ final class seedBeneficiariesTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('District', 'district')
+            Column::make('District', 'district', 'district')
                 ->sortable()
+                ->editOnClick(hasPermission: true)
+
                 ->searchable(),
 
             Column::make('Epa', 'epa')
@@ -145,7 +158,7 @@ final class seedBeneficiariesTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('User id', 'user_id'),
+            Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
             Column::action('Action')
 
         ];
@@ -154,7 +167,7 @@ final class seedBeneficiariesTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::datepicker('date'),
+
         ];
     }
 

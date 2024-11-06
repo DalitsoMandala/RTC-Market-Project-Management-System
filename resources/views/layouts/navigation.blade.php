@@ -260,12 +260,12 @@
                                             <span data-key="t-utility">Seed Beneficiaries</span>
 
                                         </a>
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                        <!-- <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ $routePrefixMain}}/seed-distribution" id="topnav-utility"
                                             role="button">
                                             <span data-key="t-utility">Seeed Disribution</span>
 
-                                        </a>
+                                        </a> -->
 
 
 

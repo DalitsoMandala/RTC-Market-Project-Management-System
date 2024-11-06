@@ -37,6 +37,16 @@
                         <a class="btn btn-primary btn-sm" href="{{ $routePrefix }}/seed-beneficiaries/add">Add Data
                             +</a>
                     </div>
+                    <div class="card-header text-muted">
+                        <strong>Column Information:</strong>
+                        <ul class="mb-0">
+                            <li><strong>Sex:</strong> 1 = Male, 2 = Female</li>
+                            <li><strong>Marital Status:</strong> 1 = Married, 2 = Single, 3 = Divorced, 4 = Widow/er
+                            </li>
+                            <li><strong>HH Head:</strong> 1 = MHH, 2 = FHH, 3 = CHH</li>
+
+                        </ul>
+                    </div>
                     <div class="card-header">
                         <!-- Tabs for each crop type -->
                         <ul class="nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
@@ -57,6 +67,8 @@
                             </li>
                         </ul>
                     </div>
+
+
 
                     <div class="card-body">
                         <!-- Tab Content for Livewire tables -->
