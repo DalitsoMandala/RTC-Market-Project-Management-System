@@ -42,7 +42,7 @@ class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
         // Create the RpmProcessorAggregationCenter record
         $aggregationCenterRecord = RpmProcessorAggregationCenter::create([
             'rpmp_id' => $processorId,
-            'name' => $row['Name'], // assuming "Name" is a column in the import sheet
+            'name' => $row['Aggregation Center Name'], // assuming "Name" is a column in the import sheet
         ]);
 
         // Update JobProgress tracking
@@ -61,24 +61,14 @@ class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
             $errorMessage = "Validation Error on sheet 'Aggregation Centers' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Processor ID' => 'required|exists:rtc_production_processors,id', // Ensure valid processor ID
-            'Name' => 'required|string|max:255', // Name of the Aggregation Center entry
+            'Processor ID' => 'exists:rtc_production_processors,id', // Ensure valid processor ID
+            'Aggregation Center Name' => 'string|max:255', // Name of the Aggregation Center entry
         ];
     }
 

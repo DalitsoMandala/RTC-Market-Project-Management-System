@@ -59,13 +59,17 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $indicator = new App\Helpers\rtc_market\indicators\indicator_B3(financial_year: 2, organisation_id: 1, reporting_period: 3);
-    return dd($indicator->getDisaggregations());
+
+    $users = User::with('roles')->get();
+    $indicatorFound = Indicator::find(1);
+    foreach ($users as $user) {
 
 
-    //  return response()->json($data);
-    // Mail::to('daliprinc10@gmail.com')->send(new SampleMail());
-    // return response()->json('Success');
+
+
+
+
+    }
 });
 
 

@@ -156,22 +156,7 @@ class Add extends Component
 
                 session()->flash('success', 'Successfully submitted!  <a href="' . $this->routePrefix . '/forms/rtc_market/attendance-register/view">View Submission here</a>');
                 session()->flash('info', 'Your ID is: <b>' . $insert->att_id . '</b>' . '<br><br> Please keep this ID for future reference.');
-                $this->dispatch('refresh-data');
-                $this->resetExcept(
-                    'meetingTitle',
-                    'meetingCategory',
-                    'rtcCrop',
-                    'venue',
-                    'district',
-                    'startDate',
-                    'endDate',
-                    'totalDays',
-                    'added',
-                    'submissionPeriodId',
-                    'selectedFinancialYear',
-                    'selectedMonth',
-                    'routePrefix'
-                );
+                return redirect()->to(url()->previous());
 
 
             } catch (UserErrorException $e) {

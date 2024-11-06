@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOnFailure, WithChunkReading
+class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
 {
     use Importable;
     protected $data;
@@ -61,25 +61,14 @@ class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'Area Cultivation' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'required|exists:rpmf_aggregation_centers,rpmf_id', // Validate Farmer ID
-            'Name' => 'required|string|max:255',
+            'Farmer ID' => 'exists:rpmf_aggregation_centers,rpmf_id', // Validate Farmer ID
+            'Name' => 'string|max:255',
         ];
     }
 

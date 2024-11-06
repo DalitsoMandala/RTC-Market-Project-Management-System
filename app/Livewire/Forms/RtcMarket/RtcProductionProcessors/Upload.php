@@ -99,7 +99,7 @@ class Upload extends Component
 
             if ($this->upload) {
 
-                $name = 'rpmf' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $this->upload->storeAs('public/imports', $name);
 
                 // Use storage_path to get the absolute path
@@ -112,7 +112,7 @@ class Upload extends Component
 
                 try {
 
-                    cache()->clear();
+
 
                     Excel::import(new RtcProductionProcessorsMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
@@ -255,10 +255,12 @@ class Upload extends Component
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
                 $this->reset('upload');
             } else if ($jobProgress->status == 'completed') {
-                $this->reset('upload');
 
+
+                $this->reset('upload');
+                $this->dispatch('complete-submission');
             }
-            $this->dispatch('complete-submission');
+
 
         }
     }
@@ -279,7 +281,7 @@ class Upload extends Component
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
 
-        cache()->clear();
+
     }
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)

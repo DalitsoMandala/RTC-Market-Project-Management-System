@@ -27,10 +27,13 @@ use App\Imports\HouseholdImport\HouseholdSheetImport;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 
-class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets,  WithChunkReading, WithEvents, ShouldQueue
+class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable, RegistersEventListeners;
-    protected $expectedSheetNames = ['Household Data', 'Main Food Data'];
+    protected $expectedSheetNames = [
+        'Household Data',
+        'Main Food Data'
+    ];
 
     protected $cacheKey;
     protected $filePath;
@@ -55,7 +58,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets,  Wi
     public function registerEvents(): array
     {
         return [
-            // Handle by a closure.
+                // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
                 $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
 
@@ -83,7 +86,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets,  Wi
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = (($rowCounts['Household Data'] - 1) ?? 0) + (($rowCounts['Main Food Data'] - 1) ?? 0); // others are header rows
                 // Initialize JobProgress record
-
+    
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -139,29 +142,20 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets,  Wi
 
             ImportFailed::class => function (ImportFailed $event) {
 
-
-
                 $exception = $event->getException();
-                $message = null;
-                // Check if exception is a ValidationException and extract the first error
-                if ($exception instanceof ValidationException) {
-                    $firstFailure = $exception->failures()[0]; // Get the first failure
 
-                    $errorMessage = "Validation Error on row {$firstFailure->row()} for attribute '{$firstFailure->attribute()}': " .
-                        implode(', ', $firstFailure->errors());
-                    $message = $errorMessage;
-                    // Throw the exception with a readable message
+                $errorMessage = $exception->getMessage();
 
-                }
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
                         'progress' => 100,
-                        'error' => $exception->getMessage()
+                        'error' => $errorMessage,
                     ]
                 );
-                throw new ExcelValidationException($message);
+
+                Log::error($exception->getMessage());
             }
 
 

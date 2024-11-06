@@ -131,17 +131,8 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             $errorMessage = "Validation Error on sheet 'Production Farmers' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
 
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
 
@@ -156,7 +147,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Date of Recruitment' => 'nullable|date_format:Y-m-d',
             'Name of Actor' => 'nullable|string|max:255',
             'Name of Representative' => 'nullable|string|max:255',
-            'Phone Number' => 'nullable|string|max:255',
+            'Phone Number' => 'nullable|max:255',
             'Type' => 'nullable|string|max:255',
             'Approach' => 'nullable|string|max:255',
             'Sector' => 'nullable|string|max:255',

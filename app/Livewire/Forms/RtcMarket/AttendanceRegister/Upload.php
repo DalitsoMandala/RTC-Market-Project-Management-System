@@ -91,7 +91,6 @@ class Upload extends Component
                 $path = storage_path('app/public/imports/' . $name);
                 try {
 
-                    cache()->clear();
 
                     Excel::import(new AttendanceRegistersMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
@@ -168,7 +167,7 @@ class Upload extends Component
     public function send()
     {
         $user = User::find(auth()->user()->id);
-        cache()->clear();
+
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('external-submissions') . '#batch-submission');

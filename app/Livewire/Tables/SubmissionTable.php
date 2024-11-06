@@ -281,18 +281,18 @@ final class SubmissionTable extends PowerGridComponent
 
 
         return [
-            // Hide button edit for ID 1
-            // Rule::button('edit')
-            //     ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
-            //     ->disable(),
+            //  Hide button edit for ID 1
+            Rule::button('edit')
+                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
+                ->disable(),
 
-            // Rule::button('edit')
-            //     ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
-            //     ->disable(),
+            Rule::button('edit')
+                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
+                ->disable(),
 
-            // Rule::button('edit')
-            //     ->when(fn($row) => $row->status !== 'pending')
-            //     ->disable(),
+            Rule::button('edit')
+                ->when(fn($row) => $row->status !== 'pending')
+                ->disable(),
         ];
     }
 

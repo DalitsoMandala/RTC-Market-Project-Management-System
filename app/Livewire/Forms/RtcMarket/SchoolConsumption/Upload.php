@@ -99,7 +99,7 @@ class Upload extends Component
 
                 try {
 
-                    cache()->clear();
+
 
                     Excel::import(new SchoolRtcConsumptionMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
@@ -127,7 +127,7 @@ class Upload extends Component
             }
         } catch (\Exception $th) {
             //throw $th;
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
             Log::channel('system_log')->error($th);
         }
@@ -241,9 +241,9 @@ class Upload extends Component
                 $this->reset('upload');
             } else if ($jobProgress->status == 'completed') {
                 $this->reset('upload');
-
+                $this->dispatch('complete-submission');
             }
-            $this->dispatch('complete-submission');
+
 
         }
     }
@@ -264,7 +264,7 @@ class Upload extends Component
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
 
-        cache()->clear();
+
     }
     #[On('open-submission')]
     public function clearTable()

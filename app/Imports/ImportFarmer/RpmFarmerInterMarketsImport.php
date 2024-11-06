@@ -20,7 +20,7 @@ use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOnFailure, WithChunkReading
+class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
 {
     protected $data;
     protected $cacheKey;
@@ -70,23 +70,13 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
             $errorMessage = "Validation Error on sheet 'International Markets' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'required|exists:rpm_farmer_inter_markets,rpm_farmer_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rpm_farmer_inter_markets,rpm_farmer_id', // Validate Farmer ID
             'Date Recorded' => 'nullable|date_format:Y-m-d',
             'Crop Type' => 'required|string|max:255',
             'Market Name' => 'required|string|max:255',

@@ -17,7 +17,7 @@ use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOnFailure, WithChunkReading
+class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
 {
     protected $data;
     protected $cacheKey;
@@ -60,25 +60,14 @@ class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOn
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'Contractual Agreements' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'required|exists:rpmf_mis,id', // Validate Farmer ID
-            'Name' => 'required|string|max:255',
+            'Farmer ID' => 'exists:rpmf_mis,id', // Validate Farmer ID
+            'Name' => 'string|max:255',
         ];
     }
 

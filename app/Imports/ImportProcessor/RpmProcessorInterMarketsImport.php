@@ -67,30 +67,19 @@ class RpmProcessorInterMarketsImport implements ToModel, WithHeadingRow, WithVal
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'International Markets' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Processor ID' => 'required|exists:rtc_production_processors,id', // Ensure valid processor ID
+            'Processor ID' => 'exists:rtc_production_processors,id', // Ensure valid processor ID
             'Date Recorded' => 'nullable|date_format:Y-m-d',
-            'Crop Type' => 'required|string|max:255',
+            'Crop Type' => 'string|max:255',
             'Market Name' => 'nullable|string|max:255',
             'Country' => 'nullable|string|max:255',
             'Date of Maximum Sale' => 'nullable|date_format:Y-m-d',
-            'Product Type' => 'required|string|max:255',
+            'Product Type' => 'string|max:255',
             'Volume Sold Previous Period' => 'nullable|numeric|min:0',
             'Financial Value of Sales' => 'nullable|numeric|min:0',
         ];

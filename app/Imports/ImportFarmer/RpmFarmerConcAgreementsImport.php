@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOnFailure, WithChunkReading
+class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
 {
     use Importable;
     protected $data;
@@ -66,7 +66,7 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'required|exists:rpm_farmer_conc_agreements,rpm_farmer_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rpm_farmer_conc_agreements,rpm_farmer_id', // Validate Farmer ID
             'Date Recorded' => 'nullable|date_format:Y-m-d',
             'Partner Name' => 'required|string|max:255',
             'Country' => 'nullable|string|max:255',
@@ -82,17 +82,7 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
             $errorMessage = "Validation Error on sheet 'Contractual Agreements' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function chunkSize(): int

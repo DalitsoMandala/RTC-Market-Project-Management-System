@@ -42,18 +42,20 @@ class PeriodSeeder extends Seeder
                         'is_expired' => false,
                     ]);
 
-                    $indicatorDis = $indicator->disaggregations->first();
 
-
-
-                    SubmissionTarget::create([
-                        'month_range_period_id' => 1,
-                        'financial_year_id' => 1,
-                        'indicator_id' => $indicator->id,
-                        'target_name' => $indicatorDis->name,
-                        'target_value' => 100,
-                    ]);
                 }
+
+                $indicatorDis = $indicator->disaggregations->first();
+
+
+
+                SubmissionTarget::create([
+                    'month_range_period_id' => 1,
+                    'financial_year_id' => 1,
+                    'indicator_id' => $indicator->id,
+                    'target_name' => $indicatorDis->name,
+                    'target_value' => 100,
+                ]);
             }
 
         }

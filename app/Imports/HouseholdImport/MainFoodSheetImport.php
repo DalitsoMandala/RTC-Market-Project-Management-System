@@ -60,8 +60,8 @@ class MainFoodSheetImport implements ToModel, WithHeadingRow, WithValidation, Sk
     public function rules(): array
     {
         return [
-            'Household ID' => 'required|exists:household_rtc_consumption,id', // Ensure valid household ID
-            'Main Food Name' => 'required|string',
+            'Household ID' => 'exists:household_rtc_consumption,id', // Ensure valid household ID
+            'Main Food Name' => 'string',
         ];
     }
     public function onFailure(Failure ...$failures)
@@ -69,18 +69,7 @@ class MainFoodSheetImport implements ToModel, WithHeadingRow, WithValidation, Sk
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'Main Food Data' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
 

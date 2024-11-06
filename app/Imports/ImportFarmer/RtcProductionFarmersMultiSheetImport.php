@@ -126,7 +126,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
 
             AfterImport::class => function (AfterImport $event) {
                 // Finalize Submission record after import completes
-
+    
                 $user = User::find($this->submissionDetails['user_id']);
                 $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
@@ -170,7 +170,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
 
                 $exception = $event->getException();
 
-                $errorMessage = 'Internal server problem';
+                $errorMessage = $exception->getMessage();
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -183,7 +183,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
 
                 Log::error($exception->getMessage());
 
-                throw new ExcelValidationException($exception->getMessage());
+                // throw new ExcelValidationException($exception->getMessage());
             }
         ];
     }

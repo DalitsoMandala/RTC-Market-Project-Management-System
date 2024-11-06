@@ -97,7 +97,6 @@ class Upload extends Component
 
                 try {
 
-                    cache()->clear();
 
                     Excel::import(new RtcProductionFarmersMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
@@ -225,8 +224,10 @@ class Upload extends Component
             } else if ($jobProgress->status == 'completed') {
                 $this->reset('upload');
 
+                $this->dispatch('complete-submission');
+
             }
-            $this->dispatch('complete-submission');
+
 
         }
     }
@@ -247,7 +248,7 @@ class Upload extends Component
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
 
-        cache()->clear();
+
     }
 
 

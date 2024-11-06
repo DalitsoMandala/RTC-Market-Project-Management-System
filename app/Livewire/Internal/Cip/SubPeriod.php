@@ -95,7 +95,7 @@ class SubPeriod extends Component
     public function removeTarget($index)
     {
         unset($this->targets[$index]);
-        $this->targets = array_values($this->targets); // Reindex the array
+        // $this->targets = array_values($this->targets); // Reindex the array
     }
     public function loadData()
     {
@@ -137,9 +137,6 @@ class SubPeriod extends Component
             $formIds = $indicator->forms->pluck('id');
             $this->all = $formIds;
             $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
-
-            $disaggregations = $indicator->disaggregations;
-            $this->disaggregations = $disaggregations;
 
 
             $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
@@ -206,8 +203,10 @@ class SubPeriod extends Component
                             'target_value' => $target['value'],
                         ]);
                     }
-
+                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
                     session()->flash('success', 'Updated Successfully');
+
+
                 } else {
                     session()->flash('error', 'Cannot update this record because it has submissions.');
                 }
@@ -275,7 +274,7 @@ class SubPeriod extends Component
 
 
 
-        $users = User::all();
+        $users = User::with('roles')->get();
         $indicatorFound = Indicator::find($Indicator);
         foreach ($users as $user) {
 
@@ -298,11 +297,20 @@ class SubPeriod extends Component
 
                 $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
                 $link = env('APP_URL');
+                // $roles = $user->roles;
+                // $roleNames = $roles->pluck('name');
+
+                // if ($roleNames->contains('staff') || $roleNames->contains('external')) {
+
+                // }
 
                 SendNotificationJob::dispatch($user, $messageContent, $link);
+
+
             }
         }
     }
+
 
 
     public function updatedSelectedProject($value)
@@ -334,7 +342,8 @@ class SubPeriod extends Component
         $indicator = Indicator::find($this->selectedIndicator);
 
         if ($indicator) {
-            $disaggregations = $indicator->disaggregations;
+            $disaggregations = $indicator->disaggregations()->pluck('name')->toArray();
+
             $this->disaggregations = $disaggregations;
         }
         $this->targets = [];
@@ -343,18 +352,17 @@ class SubPeriod extends Component
             ->where('month_range_period_id', $this->selectedMonth)
             ->get();
 
-        if ($targets->isNotEmpty()) {
-            // Populate targets from the database without overwriting
-            $this->targets = $targets->map(function ($target) {
-                return [
+        foreach ($targets as $target) {
+            $this->targets = [
+                [
                     'name' => $target->target_name,
                     'value' => $target->target_value,
-                ];
-            })->toArray();
-        } else {
-            // Set default value if no targets are found and targets are empty
-            $this->targets = [];
+                ]
+            ];
+
         }
+
+
     }
     public function updatedSelectedIndicator($value)
     {

@@ -66,13 +66,13 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
     public function rules(): array
     {
         return [
-            'Processor ID' => 'required|exists:rtc_production_processors,id', // Ensure valid processor ID
+            'Processor ID' => 'exists:rtc_production_processors,id', // Ensure valid processor ID
             'Date Recorded' => 'nullable|date_format:Y-m-d',
-            'Crop Type' => 'required|string|max:255',
+            'Crop Type' => 'string|max:255',
             'Market Name' => 'nullable|string|max:255',
             'District' => 'nullable|string|max:255',
             'Date of Maximum Sale' => 'nullable|date_format:Y-m-d',
-            'Product Type' => 'required|string|max:255',
+            'Product Type' => 'string|max:255',
             'Volume Sold Previous Period' => 'nullable|numeric|min:0',
             'Financial Value of Sales' => 'nullable|numeric|min:0',
         ];
@@ -89,16 +89,7 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
                 implode(', ', $failure->errors());
 
             Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
 }

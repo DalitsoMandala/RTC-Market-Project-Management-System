@@ -56,6 +56,7 @@ class SetTargetsForm extends Component
         $this->targets = SubmissionTarget::with('Indicator', 'financialYear', 'reportPeriodMonth')->whereIn('id', $this->submissionTargetIds)->get();
         $user = User::find(auth()->user()->id);
 
+
         $organisation_id = $user->organisation;
         $this->organisation = $organisation_id;
     }

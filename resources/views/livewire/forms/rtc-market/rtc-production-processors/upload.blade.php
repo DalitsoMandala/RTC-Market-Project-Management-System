@@ -24,7 +24,7 @@
 
                 <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
 
-
+                <x-alerts />
                 @if (!$targetSet)
                     <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
                 @endif
@@ -52,7 +52,7 @@
                                 Download template <i class="bx bx-download"></i> </a>
                             <hr>
                         </div>
-                        >
+
                         <div id="table-form">
                             <div class="row">
                                 <div class="col">

@@ -133,23 +133,32 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
                 }
+
+                JobProgress::updateOrCreate(
+                    ['cache_key' => $this->cacheKey],
+                    [
+                        'status' => 'completed',
+                        'progress' => 100,
+                    ]
+                );
             },
 
             ImportFailed::class => function (ImportFailed $event) {
+
                 $exception = $event->getException();
-                $errorMessage = $exception instanceof ValidationException ? $exception->getMessage() : 'Internal server problem';
+
+                $errorMessage = $exception->getMessage();
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
                         'progress' => 100,
-                        'error' => $errorMessage
+                        'error' => $errorMessage,
                     ]
                 );
 
                 Log::error($exception->getMessage());
-                throw new ExcelValidationException($errorMessage);
             }
         ];
     }

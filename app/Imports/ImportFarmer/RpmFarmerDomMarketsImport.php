@@ -19,7 +19,7 @@ use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOnFailure, WithChunkReading
+class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
 {
 
     protected $data;
@@ -69,7 +69,7 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'required|exists:rpm_farmer_dom_markets,rpm_farmer_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rpm_farmer_dom_markets,rpm_farmer_id', // Validate Farmer ID
             'Date Recorded' => 'nullable|date_format:Y-m-d',
             'Crop Type' => 'required|string|max:255',
             'Market Name' => 'required|string|max:255',
@@ -88,15 +88,7 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
 
             Log::error($errorMessage);
 
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function chunkSize(): int

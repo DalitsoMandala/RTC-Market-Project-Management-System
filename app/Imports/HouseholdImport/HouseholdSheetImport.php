@@ -93,17 +93,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             $errorMessage = "Validation Error on sheet 'Household Data' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
 
@@ -122,7 +112,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Actor Name' => 'nullable|string|max:255',
             'Age Group' => 'nullable|string|max:50', // Customize as needed based on expected age group values
             'Sex' => 'nullable|string|in:Male,Female,Other', // Limit to specific options
-            'Phone Number' => 'nullable', // Phone number format with optional +, numbers, spaces, or dashes
+            'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
             'Household Size' => 'nullable|integer|min:1', // Minimum 1 household member
             'Under 5 in Household' => 'nullable|integer|min:0', // Minimum 0
             'RTC Consumers (Total)' => 'nullable|integer|min:0', // Minimum 0 consumers

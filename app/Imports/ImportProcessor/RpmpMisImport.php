@@ -62,24 +62,14 @@ class RpmpMisImport implements ToModel, WithHeadingRow, WithValidation, WithChun
             $errorMessage = "Validation Error on sheet 'Market Information Systems' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Processor ID' => 'required|exists:rtc_production_processors,id', // Ensure valid processor ID
-            'MIS Name' => 'required|string|max:255', // MIS Name of the MIS entry
+            'Processor ID' => 'exists:rtc_production_processors,id', // Ensure valid processor ID
+            'MIS Name' => 'string|max:255', // MIS Name of the MIS entry
         ];
     }
 

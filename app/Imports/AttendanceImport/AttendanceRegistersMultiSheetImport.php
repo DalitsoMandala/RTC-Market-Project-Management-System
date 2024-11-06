@@ -150,20 +150,21 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
             },
 
             ImportFailed::class => function (ImportFailed $event) {
+
                 $exception = $event->getException();
-                $errorMessage = $exception instanceof ValidationException ? $exception->getMessage() : 'Internal server problem';
+
+                $errorMessage = $exception->getMessage();
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
                         'progress' => 100,
-                        'error' => $errorMessage
+                        'error' => $errorMessage,
                     ]
                 );
 
                 Log::error($exception->getMessage());
-                throw new ExcelValidationException($errorMessage);
             }
         ];
     }

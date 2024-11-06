@@ -86,7 +86,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'Sex' => 'required|string|in:Male,Female,Other',
             'Organization' => 'nullable|string|max:255',
             'Designation' => 'nullable|string|max:255',
-            'Phone Number' => 'nullable|string|max:20',
+            'Phone Number' => 'nullable|max:255',
             'Email' => 'nullable|email|max:255',
         ];
     }
@@ -102,16 +102,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
                 implode(', ', $failure->errors());
 
             Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
 }

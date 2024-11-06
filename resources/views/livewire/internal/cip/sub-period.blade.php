@@ -265,14 +265,12 @@
                                 selectedMonth: $wire.entangle('selectedMonth'),
                                 selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
                                 targets: $wire.entangle('targets'),
+                                disaggregations: $wire.entangle('disaggregations'),
+                                errors: @js($errors->toArray()),
                             
                             
                             
                             }"
-                                x-effect="() => {
-                                if (selectedProject && selectedIndicator && selectedForm && selectedMonth && selectedFinancialYear) {
-                                    $wire.call('getTargets');
-                                }}"
                                 x-bind:class="{
                                     'opacity-25 pe-none': !(selectedIndicator && selectedMonth && selectedFinancialYear)
                                 }"
@@ -282,14 +280,48 @@
 border-danger
 @enderror
   ">
-                                <span
-                                    x-text="console.log(selectedMonth, selectedFinancialYear, selectedIndicator)"></span>
+
 
 
                                 <!-- Dynamically Adding Targets -->
                                 <div class="mb-3">
                                     <label for="targets" class="form-label d-flex d-block text-capitalize">Define
                                         Targets</label>
+
+                                    {{-- <div class="targets">
+                                        <template x-for="(target,index) in targets">
+                                            <div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col">
+
+                                                        <select class="form-select" wire:loading.attr='disabled'
+                                                            wire:loading.class='opacity-25'
+                                                            x-model="targets[index].name">
+                                                            <option value="">Select one</option>
+                                                            <template x-for="dis in disaggregations">
+                                                                <option :selected="dis === target.name" x-text="dis">
+                                                                </option>
+
+                                                            </template>
+
+                                                        </select>
+                                                        <span x-text="console.log(ee)"></span>
+
+                                                    </div>
+
+                                                    <div class="col">
+                                                        <input type="number" class="form-control me-2  "
+                                                            placeholder="Target Value"
+                                                            x-model="targets[index].value" />
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                        </template>
+                                    </div> --}}
 
                                     @foreach ($targets as $index => $target)
                                         <div class="row mb-3">
@@ -301,8 +333,9 @@ border-danger
                                                     wire:model="targets.{{ $index }}.name"
                                                     wire:loading.attr='disabled' wire:loading.class='opacity-25'>
                                                     <option value="">Select one</option>
-                                                    @foreach ($disaggregations->unique('name') as $dsg)
-                                                        <option value="{{ $dsg->name }}">{{ $dsg->name }}
+                                                    @foreach ($disaggregations as $dsg)
+                                                        <option @if ($dsg == $targets[$index]['name']) selected @endif
+                                                            value="{{ $dsg }}">{{ $dsg }}
                                                         </option>
                                                     @endforeach
                                                 </select>

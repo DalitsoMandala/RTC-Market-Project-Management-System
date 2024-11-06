@@ -19,7 +19,7 @@ use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation,  SkipsOnFailure, WithChunkReading
+class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
 {
     protected $data;
     protected $cacheKey;
@@ -63,25 +63,15 @@ class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation
             $errorMessage = "Validation Error on sheet 'Certified Seed' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            Log::error($errorMessage);
-
-            // Store the error message in JobProgress
-            JobProgress::updateOrCreate(
-                ['cache_key' => $this->cacheKey],
-                [
-                    'status' => 'failed',
-                    'progress' => 100,
-                    'error' => $errorMessage,
-                ]
-            );
+            throw new \Exception($errorMessage);
         }
     }
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'required|exists:rpmf_certified_seed,rpmf_id', // Validate Farmer ID
-            'Variety' => 'required|string|max:255',
-            'Area' => 'required|numeric|min:0',
+            'Farmer ID' => 'exists:rpmf_certified_seed,rpmf_id', // Validate Farmer ID
+            'Variety' => 'string|max:255',
+            'Area' => 'numeric|min:0',
         ];
     }
 

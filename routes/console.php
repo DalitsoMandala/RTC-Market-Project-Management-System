@@ -8,6 +8,4 @@ use App\Console\Commands\FetchExchangeRates;
 
 
 
-Schedule::command('exchange-rates:fetch')->daily()->at('06:00')->onFailure(function (Stringable $output) {
-    // dd($output);
-});
+Schedule::command('update:information')->dailyAt('05:00');
