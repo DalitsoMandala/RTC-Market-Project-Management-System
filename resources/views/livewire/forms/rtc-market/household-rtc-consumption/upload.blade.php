@@ -50,7 +50,7 @@
                     }">
                     <h5> Instructions</h5>
                     <p class="alert bg-info-subtle text-uppercase">Download the Household Rtc consumption template &
-                        uploading your
+                        upload your
                         data.</p>
 
                     <form wire:submit='submitUpload'>

@@ -152,6 +152,10 @@ Route::middleware([
     Route::get('/targets', App\Livewire\Targets\View::class);
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
+    Route::get('/seed-beneficiaries/add', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
+    Route::get('/seed-beneficiaries', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
+    Route::get('/seed-distribution/add', App\Livewire\OtherForms\SeedDistribution\Add::class);
+    Route::get('/seed-distribution', App\Livewire\OtherForms\SeedDistribution\View::class);
 
     // Form routes
     $formPrefix = '/forms/{project}';
