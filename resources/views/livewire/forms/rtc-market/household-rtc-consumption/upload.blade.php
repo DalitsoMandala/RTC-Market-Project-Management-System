@@ -117,7 +117,7 @@
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"
-                                        class="btn btn-primary  ">
+                                        class="btn btn-primary px-5 ">
                                         Submit data
                                     </button>
 

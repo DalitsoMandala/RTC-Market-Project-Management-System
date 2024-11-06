@@ -275,7 +275,7 @@
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
 
-                                    <button class=" btn btn-primary "
+                                    <button class="px-5 btn btn-primary "
                                         @click="window.scrollTo({
 top: 0,
 behavior: 'smooth'

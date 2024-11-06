@@ -20,7 +20,7 @@
         </div>
 
         <div class="d-grid col-12 justify-content-center">
-            <button class="btn btn-primary " type="submit">
+            <button class="btn btn-primary px-5" type="submit">
                 Submit
             </button>
         </div>
