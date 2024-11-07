@@ -46,7 +46,7 @@ final class TargetTable extends PowerGridComponent
         return OrganisationTarget::query()->with(
             'submissionTarget',
             'organisation',
-            'submissionTarget.reportPeriodMonth',
+
             'submissionTarget.financialYear',
             'submissionTarget.Indicator',
             'submissionTarget.Indicator.project',
@@ -63,12 +63,10 @@ final class TargetTable extends PowerGridComponent
                 return $model->organisation->name;
             })
             ->add('indicator', function ($model) {
+
                 return $model->submissionTarget->indicator->indicator_name;
             })
-            ->add('report_period_month', function ($model) {
 
-                return $model->submissionTarget->reportPeriodMonth->start_month . '-' . $model->submissionTarget->reportPeriodMonth->end_month;
-            })
             ->add('financial_year', function ($model) {
                 return $model->submissionTarget->financialYear->number;
             })
@@ -81,24 +79,25 @@ final class TargetTable extends PowerGridComponent
             })
             ->add('current_value', function ($model) {
 
-                $reportingPeriod = $model->submissionTarget->reportPeriodMonth->id;
+
                 $financialYear = $model->submissionTarget->financialYear->id;
                 $organisation = $model->organisation->id;
                 $indicatorId = $model->submissionTarget->indicator->id;
                 $project = $model->submissionTarget->indicator->project->id;
 
-                $reportId = SystemReport::where('financial_year_id', $financialYear)
+                $reportIds = SystemReport::where('financial_year_id', $financialYear)
                     ->where('project_id', $project)
-                    ->where('organisation_id', $organisation)->where('reporting_period_id', $reportingPeriod)->where('indicator_id', $indicatorId)->first();
+                    ->where('organisation_id', $organisation)->where('indicator_id', $indicatorId)->pluck('id');
 
 
-                if (!$reportId) {
+                if (count($reportIds) == 0) {
                     return 'N/A';
                 }
 
-                $data = SystemReportData::where('system_report_id', $reportId->id)->where('name', $model->submissionTarget->target_name)->first();
+                $data = SystemReportData::whereIn('system_report_id', $reportIds)->where('name', $model->submissionTarget->target_name)->sum('value');
+
                 if ($data) {
-                    return $data->value;
+                    return $data;
                 }
 
                 return 0;
@@ -120,9 +119,8 @@ final class TargetTable extends PowerGridComponent
             Column::make('Organisation', 'organisation'),
             Column::make('Indicator', 'indicator'),
 
-            Column::make('Reporting period', 'report_period_month')
-            ,
-            Column::make('Financial year', 'financial_year'),
+
+            Column::make('Project year', 'financial_year'),
 
 
             Column::make('Submission Target Name', 'submission_target_name')->bodyAttribute('fw-bold'),

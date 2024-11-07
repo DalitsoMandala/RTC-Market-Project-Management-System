@@ -54,7 +54,7 @@ class Indicator223 extends Component
     public $formData = [];
     // Readonly fields
     public $annual_value = 0; // Example predefined or calculated value
-    public $baseline = 0; //  Example predefined or calculated value
+    public $baseline = null; //  Example predefined or calculated value
     public $yearNumber = 1;
     public $total_percentage = 0; // Calculated in the frontend
     public $cassava;
@@ -130,7 +130,7 @@ class Indicator223 extends Component
 
                 $this->openSubmission = true;
 
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
 
 

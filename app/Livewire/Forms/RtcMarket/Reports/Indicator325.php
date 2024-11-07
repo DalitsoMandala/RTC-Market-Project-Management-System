@@ -53,7 +53,7 @@ class Indicator325 extends Component
 
     public $formData = [];
     public $annual_value = 0; // Predefined or calculated value
-    public $baseline = 0; // Predefined or calculated baseline
+    public $baseline = null; // Predefined or calculated baseline
     public $yearNumber = 1;
     public $total_percentage = 0; // Calculated in the frontend
     public $total;
@@ -101,7 +101,7 @@ class Indicator325 extends Component
                 $this->openSubmission = true;
 
                 $this->openSubmission = true;
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
             } else {
                 $this->openSubmission = false;

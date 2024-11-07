@@ -217,9 +217,10 @@
                                     <select id="month-select" class="form-select form-select-md"
                                         wire:model.live.debounce.700ms='selectedMonth'>
                                         <option value="">Select one</option>
-                                        @foreach ($months as $month)
+                                        @foreach ($months as $index => $month)
                                             <option wire:key='{{ $month->id }}' value="{{ $month->id }}">
-                                                {{ $month->start_month . '-' . $month->end_month }}
+                                                {{ $month->start_month . '-' . $month->end_month }} (Quater
+                                                {{ $index + 1 }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -259,11 +260,31 @@
                                 disaggregations: $wire.entangle('disaggregations'),
                                 errors: @js($errors->toArray()),
                             
+                                checkValues() {
+                                    if ((this.selectedIndicator && this.selectedFinancialYear)) {
+                                        $wire.getTargets();
+                                    }
+                                },
+                            
+                                addTarget() {
+                            
+                                    setTimeout(function() {
+                                        $wire.addTarget();
+                                    }, 1000);
                             
                             
-                            }"
+                            
+                                },
+                            
+                                updateTargets() {
+                                    $wire.getTargets();
+                                }
+                            
+                            }" x-effect="
+checkValues();
+" @set-targets="updateTargets()"
                                 x-bind:class="{
-                                    'opacity-25 pe-none': !(selectedIndicator && selectedMonth && selectedFinancialYear)
+                                    'opacity-25 pe-none': !(selectedIndicator && selectedFinancialYear)
                                 }"
                                 wire:loading.attr='disabled'
                                 class="card card-body shadow-none border
@@ -276,49 +297,19 @@ border-danger
 
                                 <!-- Dynamically Adding Targets -->
                                 <div class="mb-3">
-                                    <label for="targets" class="form-label d-flex d-block text-capitalize">Define
-                                        Targets</label>
+                                    <h5>Define
+                                        Targets</h5>
 
-                                    {{-- <div class="targets">
-                                        <template x-for="(target,index) in targets">
-                                            <div>
 
-                                                <div class="row mb-3">
-                                                    <div class="col">
-
-                                                        <select class="form-select" wire:loading.attr='disabled'
-                                                            wire:loading.class='opacity-25'
-                                                            x-model="targets[index].name">
-                                                            <option value="">Select one</option>
-                                                            <template x-for="dis in disaggregations">
-                                                                <option :selected="dis === target.name" x-text="dis">
-                                                                </option>
-
-                                                            </template>
-
-                                                        </select>
-                                                        <span x-text="console.log(ee)"></span>
-
-                                                    </div>
-
-                                                    <div class="col">
-                                                        <input type="number" class="form-control me-2  "
-                                                            placeholder="Target Value"
-                                                            x-model="targets[index].value" />
-
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-                                        </template>
-                                    </div> --}}
 
                                     @foreach ($targets as $index => $target)
-                                        <div class="row mb-3">
+                                        <div class="row mb-3 align-items-end" x-init="() => {
+                                        
+                                        
+                                        }">
                                             <!-- Target Name Input -->
                                             <div class="col">
-
+                                                <label for="targets" class="form-label">Target Name</label>
                                                 <select
                                                     class="form-select @error('targets.' . $index . '.name') is-invalid @enderror"
                                                     wire:model="targets.{{ $index }}.name"
@@ -338,6 +329,7 @@ border-danger
 
                                             <!-- Target Value Input -->
                                             <div class="col">
+                                                <label for="targets" class="form-label">Target Value</label>
                                                 <input type="number"
                                                     class="form-control me-2  @error('targets.' . $index . '.value') is-invalid @enderror"
                                                     placeholder="Target Value"
@@ -347,8 +339,20 @@ border-danger
                                                 @enderror
                                             </div>
 
+                                            <div class="col">
+
+
+                                                @foreach ($financialYears as $projectYear)
+                                                    @if ($projectYear->id == $selectedFinancialYear)
+                                                        <label for="targets" class="form-label">Project Year</label>
+                                                        <input type="text" readonly class="form-control me-2"
+                                                            wire:model="selectedFinancialYear" />
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                             <!-- Remove Button -->
                                             <div class="col-1">
+                                                <label for="targets" class="form-label"></label>
                                                 <button class="btn btn-danger"
                                                     wire:click.prevent="removeTarget({{ $index }})">Remove</button>
                                             </div>
@@ -356,7 +360,7 @@ border-danger
                                     @endforeach
 
                                     <!-- Button to add new target -->
-                                    <button class="btn btn-primary" wire:click="addTarget">
+                                    <button class="btn btn-primary" type="button" @click="addTarget()">
                                         Add Target
                                     </button>
 

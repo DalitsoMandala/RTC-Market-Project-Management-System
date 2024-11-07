@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\FinancialYear;
 use Carbon\Carbon;
 use App\Models\Form;
 use App\Models\Indicator;
@@ -26,36 +27,40 @@ class PeriodSeeder extends Seeder
 
 
 
-        foreach (Indicator::with('forms', 'disaggregations')->get() as $indicator) {
+        foreach (Indicator::with('forms', 'disaggregations')->get() as $index => $indicator) {
+            foreach (FinancialYear::all() as $financialYear) {
+                if ($indicator->forms->count() > 0) {
+                    foreach ($indicator->forms as $form) {
+                        SubmissionPeriod::create([
+                            'form_id' => $form->id,
+                            'date_established' => $dateEstablished,
+                            'date_ending' => $dateEnding,
+                            'month_range_period_id' => 1,
+                            'financial_year_id' => $financialYear->id,
+                            'indicator_id' => $indicator->id,
+                            'is_open' => true,
+                            'is_expired' => false,
+                        ]);
 
 
-            if ($indicator->forms->count() > 0) {
-                foreach ($indicator->forms as $form) {
-                    SubmissionPeriod::create([
-                        'form_id' => $form->id,
-                        'date_established' => $dateEstablished,
-                        'date_ending' => $dateEnding,
-                        'month_range_period_id' => 1,
-                        'financial_year_id' => 1,
+                    }
+
+                    $indicatorDis = $indicator->disaggregations->first();
+
+
+
+                    SubmissionTarget::create([
+                        //     'month_range_period_id' => 1,
+                        'financial_year_id' => $financialYear->id,
                         'indicator_id' => $indicator->id,
-                        'is_open' => true,
-                        'is_expired' => false,
+                        'target_name' => $indicatorDis->name,
+                        'target_value' => rand(50, 100) * 10,
                     ]);
-
-
                 }
+            }
 
-                $indicatorDis = $indicator->disaggregations->first();
-
-
-
-                SubmissionTarget::create([
-                    'month_range_period_id' => 1,
-                    'financial_year_id' => 1,
-                    'indicator_id' => $indicator->id,
-                    'target_name' => $indicatorDis->name,
-                    'target_value' => 100,
-                ]);
+            if ($index === 3) {
+                break; // Stop after 4 indicators to save time. You can remove this line if you want to create all indicators.
             }
 
         }

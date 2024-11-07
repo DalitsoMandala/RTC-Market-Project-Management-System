@@ -470,9 +470,11 @@ class AddData extends Component
 
             $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
+
                 ->get();
             $user = User::find(auth()->user()->id);
+
+
 
             $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
             $this->targetIds = $target->pluck('id')->toArray();

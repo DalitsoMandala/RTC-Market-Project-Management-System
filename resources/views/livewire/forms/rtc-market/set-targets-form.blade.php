@@ -11,7 +11,7 @@
                                     Before any submission within a given period, partners are expected to set their targets. Please fill your details, and the form will be open for submission!
                                 </div>
                                 <p>Indicator: <span class="text-primary">{{ $targets->first()->Indicator->indicator_name }}</span></p>
-                                <p>Reporting period: <span class="text-primary text-capitalize">{{ $targets->first()->reportPeriodMonth->start_month.' - '. $targets->first()->reportPeriodMonth->end_month }}</span></p>
+
                                 <p>Project Year: <span class="text-primary text-capitalize">{{ $targets->first()->financialYear->number }}</span></p>
                                 <p>Organisation/Partner: <span class="text-primary">{{$organisation->name}}</span></p>
 

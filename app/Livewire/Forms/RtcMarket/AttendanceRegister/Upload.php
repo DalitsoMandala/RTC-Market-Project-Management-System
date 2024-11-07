@@ -213,11 +213,22 @@ class Upload extends Component
                 ->first();
             $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
+
                 ->get();
             $user = User::find(auth()->user()->id);
 
-            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $targets = $target->pluck('id');
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
+                ->whereHas('submissionTarget', function ($query) use ($targets) {
+                    $query->whereIn('submission_target_id', $targets)
+                        ->selectRaw('COUNT(DISTINCT submission_target_id) = ?', [count($targets)]);
+
+
+                })
+                ->get();
+
+
             $this->targetIds = $target->pluck('id')->toArray();
 
 

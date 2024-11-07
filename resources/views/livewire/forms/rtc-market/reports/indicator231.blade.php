@@ -23,7 +23,7 @@
         }
 
         // Calculate total percentage based on annual and baseline values
-        let sub = (this.annualValue - this.baselineValue) / this.annualValue;
+             const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
         let percentage = sub * 100;
 
         this.totalPercentage = Number(percentage.toFixed(2)); // Rounded to 2 decimal places
@@ -37,6 +37,7 @@
     $watch('largeScaleCommercialFarmers', () => updateTotalPercentage());
     $watch('basic', () => updateTotalPercentage());
     $watch('certified', () => updateTotalPercentage());
+        $watch('baselineValue', (v) => { updateFinancialValue() });
 }">
 
     <x-alerts />

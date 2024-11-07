@@ -22,7 +22,7 @@
             return;
         }
 
-        const sub = (this.annualValue - this.baselineValue) / this.annualValue;
+             const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
         const percentage = sub * 100;
 
         this.totalPercentage = Number(percentage.toFixed(2));
@@ -31,7 +31,7 @@
     $watch('formalCassava', () => updateFinancialValue());
     $watch('formalPotato', () => updateFinancialValue());
     $watch('formalSweetPotato', () => updateFinancialValue());
-
+    $watch('baselineValue', (v) => { updateFinancialValue() });
 }">
 
     <x-alerts />

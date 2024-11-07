@@ -773,7 +773,7 @@ class Add extends Component
 
             $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
+
                 ->get();
             $user = User::find(auth()->user()->id);
 

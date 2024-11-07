@@ -64,7 +64,7 @@ class Indicator114 extends Component
     public $sweet_potato;
     // Readonly fields
     public $annual_value = 0; // Example predefined or calculated value
-    public $baseline = 0; //  Example predefined or calculated value
+    public $baseline = null; //  Example predefined or calculated value
     public $yearNumber = 1;
 
     // Validation rules
@@ -133,7 +133,7 @@ class Indicator114 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
 
 

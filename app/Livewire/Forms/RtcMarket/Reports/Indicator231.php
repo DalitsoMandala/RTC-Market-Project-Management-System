@@ -64,7 +64,7 @@ class Indicator231 extends Component
     public $basic; // Basic
     public $certified; // Certified
     public $annual_value = 0; // Predefined or calculated value
-    public $baseline = 0; // Predefined or calculated baseline
+    public $baseline = null; // Predefined or calculated baseline
     public $yearNumber = 1;
     // Validation rules
     protected $rules = [
@@ -127,7 +127,7 @@ class Indicator231 extends Component
                 $this->openSubmission = true;
 
                 $this->openSubmission = true;
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
             } else {
                 $this->openSubmission = false;

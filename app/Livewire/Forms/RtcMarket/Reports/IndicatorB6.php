@@ -54,13 +54,13 @@ class IndicatorB6 extends Component
     public $formData = [];
 
     public $annual_value = 0; // Predefined or calculated value
-    public $baseline = 0; // Predefined or calculated baseline
+    public $baseline = null; // Predefined or calculated baseline
     public $yearNumber = 1;
     // Form data
     public $total_percentage = 0; // Calculated in the frontend
     public $cassava = 0; // User input
     public $potato = 0; // User input
-    public $sweet_potato = 0; // User input   public $baseline = 0; // Read-only, predefined or calculated value
+    public $sweet_potato = 0; // User input   public $baseline = null; // Read-only, predefined or calculated value
 
     // Validation rules
     protected $rules = [
@@ -114,7 +114,7 @@ class IndicatorB6 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
 
 

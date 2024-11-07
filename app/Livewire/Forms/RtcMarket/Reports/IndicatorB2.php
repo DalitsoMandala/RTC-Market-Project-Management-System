@@ -69,7 +69,7 @@ class IndicatorB2 extends Component
 
     // Readonly fields
     public $annual_value = 0; // Example predefined or calculated value
-    public $baseline = 0; //  Example predefined or calculated value
+    public $baseline = null; //  Example predefined or calculated value
     public $yearNumber = 1;
 
     protected $rules = [
@@ -82,6 +82,7 @@ class IndicatorB2 extends Component
         'informal_exports.cassava' => 'required|numeric',
         'informal_exports.potato' => 'required|numeric',
         'informal_exports.sweet_potato' => 'required|numeric',
+        'baseline' => 'required|numeric',
     ];
 
     protected $validationAttributes = [
@@ -94,6 +95,7 @@ class IndicatorB2 extends Component
         'informal_exports.cassava' => 'Informal Exports - Cassava',
         'informal_exports.potato' => 'Informal Exports - Potato',
         'informal_exports.sweet_potato' => 'Informal Exports - Sweet Potato',
+        'baseline' => 'Previous value',
     ];
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -131,8 +133,9 @@ class IndicatorB2 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-                $this->baseline = $findIndicator->baseline->baseline_value;
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
+
 
 
 

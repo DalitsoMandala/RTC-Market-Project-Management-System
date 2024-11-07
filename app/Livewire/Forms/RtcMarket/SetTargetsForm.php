@@ -53,7 +53,8 @@ class SetTargetsForm extends Component
 
     public function mount()
     {
-        $this->targets = SubmissionTarget::with('Indicator', 'financialYear', 'reportPeriodMonth')->whereIn('id', $this->submissionTargetIds)->get();
+        $targets = SubmissionTarget::with('Indicator', 'financialYear')->whereIn('id', $this->submissionTargetIds)->get();
+        $this->targets = $targets;
         $user = User::find(auth()->user()->id);
 
 

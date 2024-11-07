@@ -63,7 +63,7 @@ class IndicatorB3 extends Component
 
     // Readonly fields
     public $annual_value = 0; // Predefined or calculated value
-    public $baseline = 0; // Predefined or calculated baseline
+    public $baseline = null; // Predefined or calculated baseline
     public $yearNumber = 1;
 
     protected $rules = [
@@ -125,7 +125,7 @@ class IndicatorB3 extends Component
 
                 $this->openSubmission = true;
 
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
 
 

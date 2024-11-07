@@ -59,6 +59,8 @@ class SubPeriod extends Component
 
     public $targets = []; // This will hold the dynamically added targets
     public $disableTarget = true;
+
+
     protected $rules = [
         'targets.*' => 'required',
         'targets.*.name' => 'required|string|distinct',
@@ -73,6 +75,7 @@ class SubPeriod extends Component
         'targets.*.name.distinct' => 'Target name must be unique',
 
     ];
+
     public function mount()
     {
         $this->loadData();
@@ -83,10 +86,13 @@ class SubPeriod extends Component
      */
     public function addTarget()
     {
-        $this->targets[] = [
-            'name' => '',
-            'value' => ''
-        ];
+
+        $this->targets->push([
+            'name' => null,
+            'value' => null
+        ]);
+
+
     }
 
     /**
@@ -94,8 +100,9 @@ class SubPeriod extends Component
      */
     public function removeTarget($index)
     {
-        unset($this->targets[$index]);
-        // $this->targets = array_values($this->targets); // Reindex the array
+        //  unset($this->targets[$index]);
+        //  $this->targets = array_values($this->targets); // Reindex the array
+        $this->targets = $this->targets->forget($index)->values();
     }
     public function loadData()
     {
@@ -105,6 +112,14 @@ class SubPeriod extends Component
         $this->indicators = Indicator::all();
         $this->forms = Form::all();
         $this->disaggregations = IndicatorDisaggregation::all();
+        $this->fill([
+            'targets' => collect([
+                [
+                    'name' => '',
+                    'value' => ''
+                ]
+            ])
+        ]);
     }
 
     #[On('editData')]
@@ -121,7 +136,7 @@ class SubPeriod extends Component
         $this->selectedForm[] = $submissionPeriod->form_id;
         $this->selectedMonth = $submissionPeriod->month_range_period_id;
         $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
-        $this->getTargets();
+
 
 
 
@@ -140,6 +155,7 @@ class SubPeriod extends Component
 
 
             $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
+            $this->dispatch('set-targets');
         }
     }
 
@@ -162,6 +178,7 @@ class SubPeriod extends Component
     {
         try {
             $this->validate();
+
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -187,7 +204,7 @@ class SubPeriod extends Component
                     SubmissionPeriod::find($this->rowId)->update($data);
                     $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                         ->where('financial_year_id', $this->selectedFinancialYear)
-                        ->where('month_range_period_id', $this->selectedMonth)->get();
+                        ->get();
                     if ($checkTargets->isNotEmpty()) {
                         foreach ($checkTargets as $target) {
                             $target->delete();
@@ -196,7 +213,7 @@ class SubPeriod extends Component
 
                     foreach ($this->targets as $target) {
                         SubmissionTarget::create([
-                            'month_range_period_id' => $this->selectedMonth,
+
                             'financial_year_id' => $this->selectedFinancialYear,
                             'indicator_id' => $this->selectedIndicator,
                             'target_name' => $target['name'],
@@ -240,7 +257,7 @@ class SubPeriod extends Component
 
                     $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                         ->where('financial_year_id', $this->selectedFinancialYear)
-                        ->where('month_range_period_id', $this->selectedMonth)->get();
+                        ->get();
                     if ($checkTargets->isNotEmpty()) {
                         foreach ($checkTargets as $target) {
                             $target->delete();
@@ -249,7 +266,7 @@ class SubPeriod extends Component
 
                     foreach ($this->targets as $target) {
                         SubmissionTarget::create([
-                            'month_range_period_id' => $this->selectedMonth,
+
                             'financial_year_id' => $this->selectedFinancialYear,
                             'indicator_id' => $this->selectedIndicator,
                             'target_name' => $target['name'],
@@ -334,6 +351,8 @@ class SubPeriod extends Component
                 $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }
+
+
     }
 
     public function getTargets()
@@ -346,21 +365,26 @@ class SubPeriod extends Component
 
             $this->disaggregations = $disaggregations;
         }
-        $this->targets = [];
+
         $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
             ->where('financial_year_id', $this->selectedFinancialYear)
-            ->where('month_range_period_id', $this->selectedMonth)
             ->get();
+        if ($targets->count() > 0) {
+            $newTargets = [];
 
-        foreach ($targets as $target) {
-            $this->targets = [
-                [
+            // Loop through $targets and populate $newTargets
+            foreach ($targets as $target) {
+                $newTargets[] = [
                     'name' => $target->target_name,
                     'value' => $target->target_value,
-                ]
-            ];
+                ];
+            }
 
+            $this->fill([
+                'targets' => collect($newTargets)
+            ]);
         }
+
 
 
     }

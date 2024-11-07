@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('submission_targets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('month_range_period_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
+            //  $table->foreignId('month_range_period_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->string('target_name')->nullable(); // E.g., Cassava, Potato, etc.

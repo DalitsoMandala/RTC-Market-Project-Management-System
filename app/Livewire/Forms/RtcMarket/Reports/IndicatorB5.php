@@ -56,7 +56,7 @@ class IndicatorB5 extends Component
     // Form data
     public $total_percentage = 0;
     public $annual_value = 0;
-    public $baseline = 0;
+    public $baseline = null;
     public $cassava = null;
     public $potato = null;
     public $sweet_potato = null;
@@ -120,7 +120,7 @@ class IndicatorB5 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-                $this->baseline = $findIndicator->baseline->baseline_value;
+
                 $this->yearNumber = $findFinancialYear->number;
 
 
