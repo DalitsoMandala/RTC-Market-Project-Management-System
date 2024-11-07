@@ -12,6 +12,12 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class RpmpAggregationCentersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         return RpmProcessorAggregationCenter::select(

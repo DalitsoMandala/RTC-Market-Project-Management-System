@@ -10,6 +10,12 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         // Select only the columns to be included in the export

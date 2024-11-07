@@ -10,8 +10,17 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         // Select only the columns we want to include, excluding 'ID'
         return RpmFarmerMarketInformationSystem::select('name', 'rpmf_id')->get();
     }
@@ -19,7 +28,10 @@ class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
     public function headings(): array
     {
         // Exclude 'ID' from the headings
-        return ['Name', 'Farmer ID'];
+        return [
+            'Name',
+            'Farmer ID'
+        ];
     }
 
     public function title(): string

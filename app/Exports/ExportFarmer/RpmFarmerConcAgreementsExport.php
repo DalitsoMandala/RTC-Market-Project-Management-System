@@ -10,8 +10,17 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         // Select only the columns we want to include, excluding 'ID', 'Status', 'Created At', and 'Updated At'
         return RpmFarmerConcAgreement::select(
             'rpm_farmer_id',

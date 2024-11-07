@@ -102,6 +102,12 @@ class TableExport implements FromCollection, WithMapping, WithHeadings, ShouldQu
         ];
     }
 
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         return $this->data;

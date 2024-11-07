@@ -20,6 +20,12 @@ class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHe
     {
         return 'RTC_FARM_DOM';
     }
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         $faker = Faker::create();
@@ -30,11 +36,19 @@ class RtcProductionFarmerDomMarkets implements FromCollection, WithTitle, WithHe
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 10),
                     'DATE RECORDED' => $faker->date('Y-m-d'),
-                    'CROP TYPE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
+                    'CROP TYPE' => $faker->randomElement([
+                        'CASSAVA',
+                        'POTATO',
+                        'SWEET POTATO'
+                    ]),
                     'MARKET NAME' => strtoupper($faker->streetName),
                     'DISTRICT' => strtoupper($faker->streetName),
                     'DATE OF MAXIMUM SALE' => $faker->date('Y-m-d'),
-                    'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
+                    'PRODUCT TYPE' => $faker->randomElement([
+                        'SEED',
+                        'WARE',
+                        'VALUE ADDED PRODUCTS'
+                    ]),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
                     'FINANCIAL VALUE OF SALES' => $faker->numberBetween(1, 100) * 10,
 

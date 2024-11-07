@@ -20,6 +20,12 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
     {
         return 'RTC_FARM_AGR';
     }
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         $faker = Faker::create();
@@ -34,7 +40,11 @@ class RtcProductionFarmerConcAgreement implements FromCollection, WithTitle, Wit
                     'PARTNER NAME' => strtoupper($faker->name),
                     'COUNTRY' => strtoupper($faker->country),
                     'DATE OF MAXIMUM SALE' => $faker->date('Y-m-d'),
-                    'PRODUCT TYPE' => $faker->randomElement(['SEED', 'WARE', 'VALUE ADDED PRODUCTS']),
+                    'PRODUCT TYPE' => $faker->randomElement([
+                        'SEED',
+                        'WARE',
+                        'VALUE ADDED PRODUCTS'
+                    ]),
                     'VOLUME SOLD PREVIOUS PERIOD (METRIC TONNES)' => $faker->numberBetween(1, 100) * 10,
                     'FINANCIAL VALUE OF SALES (MALAWI KWACHA)' => $faker->numberBetween(1, 100) * 10,
 

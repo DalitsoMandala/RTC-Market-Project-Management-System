@@ -12,8 +12,17 @@ class RpmFarmerDomMarketsExport implements FromCollection, WithHeadings, WithTit
 {
 
 
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         // Select only the columns we want to include, excluding 'ID', 'Status', 'Created At', and 'Updated At'
         return RpmFarmerDomMarket::select(
             'rpm_farmer_id',

@@ -12,9 +12,20 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMapping, WithTitle, WithStrictNullComparison
 {
     protected $rowNumber = 0; // Start counting from 1
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
 
     public function collection()
     {
+
+        if ($this->template) {
+            return collect([]);
+        }
+
         // Select only the columns to be included in the export
         return RtcProductionFarmer::select(
             'epa',

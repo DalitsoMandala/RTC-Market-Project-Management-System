@@ -21,6 +21,12 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
     {
         return 'RTC_PROC_FLUP';
     }
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
 
@@ -31,7 +37,11 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
             foreach (range(1, 20) as $index) {
                 $data[] = [
                     'RECRUIT ID' => $faker->numberBetween(1, 10),
-                    'ENTERPRISE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
+                    'ENTERPRISE' => $faker->randomElement([
+                        'CASSAVA',
+                        'POTATO',
+                        'SWEET POTATO'
+                    ]),
                     'GROUP NAME' => strtoupper($faker->name),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',
@@ -65,21 +75,45 @@ class RtcProductionProcessorFollowUp implements FromCollection, WithTitle, WithH
                     'EPA' => $faker->randomElement(Help::getFakerNames()['epaNames']),
                     'SECTION' => $faker->randomElement(Help::getFakerNames()['sectionNames']),
                     'DATE OF FOLLOW UP' => now(),
-                    'MARKET SEGMENT/Fresh' => $faker->randomElement(['Yes', 'No']),
-                    'MARKET SEGMENT/Processed' => $faker->randomElement(['Yes', 'No']), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
-                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['Yes', 'No']),
+                    'MARKET SEGMENT/Fresh' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
+                    'MARKET SEGMENT/Processed' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]), // MULTIPLE MARKET SEGMENTS (ARRAY OF STRINGS)
+                    'HAS RTC MARKET CONTRACT' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
                     'TOTAL VOLUME PRODUCTION PREVIOUS SEASON' => $faker->optional()->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
                     'TOTAL VOLUME IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->optional()->randomFloat(2, 1, 100),
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
-                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['Yes', 'No']),
-                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['Yes', 'No']),
-                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['Yes', 'No']),
+                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
+                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
+                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
                     'MARKET INFORMATION SYSTEMS' => strtoupper($faker->text),
-                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['Yes', 'No']),
-                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['Yes', 'No']),
+                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
+                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement([
+                        'Yes',
+                        'No'
+                    ]),
                     'AGGREGATION CENTERS/SPECIFY' => strtoupper($faker->sentence),
                     'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->numberBetween(1, 100) * 10,
                 ];

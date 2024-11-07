@@ -79,6 +79,7 @@ class indicator_B1
         return $query;
     }
 
+
     public function FarmerFollowupbuilder(): Builder
     {
 
@@ -220,12 +221,18 @@ class indicator_B1
         ];
     }
 
-    public function calculations() {}
+    public function calculations()
+    {
+    }
 
 
-    private function calculateCropValue($data, $crop, $year_id) {}
+    private function calculateCropValue($data, $crop, $year_id)
+    {
+    }
 
-    private function calculateIndicatorData(&$countDataYear, $year_id, $total) {}
+    private function calculateIndicatorData(&$countDataYear, $year_id, $total)
+    {
+    }
 
     public function findTotal()
     {

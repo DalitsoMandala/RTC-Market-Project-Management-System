@@ -129,22 +129,22 @@ class indicator_3_5_2
             ->value('Total'); // Directly get the summed value.
 
 
-        $totalFrequencySum = 0; // Initialize the total frequency sum
-        $this->builderSchool()
-            ->select(
-                'school_name',
-                DB::raw('COUNT(CASE WHEN crop IN ("Cassava", "Potato", "Sweet Potato") THEN 1 END) as total_frequency')
-            )
-            ->groupBy('school_name')
-            ->orderBy('school_name') // Add orderBy to ensure consistent chunking
-            ->chunk(100, function ($schoolFrequencies) use (&$totalFrequencySum) {
-                // Loop through each chunk of results
-                foreach ($schoolFrequencies as $school) {
-                    $totalFrequencySum += $school->total_frequency; // Add the frequency to the total sum
-                }
-            });
+        // $totalFrequencySum = 0; // Initialize the total frequency sum
+        // $this->builderSchool()
+        //     ->select(
+        //         'school_name',
+        //         DB::raw('COUNT(CASE WHEN crop IN ("Cassava", "Potato", "Sweet Potato") THEN 1 END) as total_frequency')
+        //     )
+        //     ->groupBy('school_name')
+        //     ->orderBy('school_name') // Add orderBy to ensure consistent chunking
+        //     ->chunk(100, function ($schoolFrequencies) use (&$totalFrequencySum) {
+        //         // Loop through each chunk of results
+        //         foreach ($schoolFrequencies as $school) {
+        //             $totalFrequencySum += $school->total_frequency; // Add the frequency to the total sum
+        //         }
+        //     });
         return [
-            'Total' => $householdTotal + $totalFrequencySum
+            'Total' => $householdTotal
         ];
     }
 

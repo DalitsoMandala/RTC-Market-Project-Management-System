@@ -2,10 +2,13 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\User;
+use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use App\Models\SeedBeneficiary;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -21,27 +24,43 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class seedBeneficiariesTable extends PowerGridComponent
 {
     use WithExport;
-
+    use ExportTrait;
     public $crop;
 
     public string $tableName = 'seed_beneficiaries';
+    public $namedExport = null;
+
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+
+            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
     }
+    #[On('export-mydata')]
+
+    public function startExport()
+    {
+        $this->namedExport = $this->crop;
+        dd($this->namedExport);
+        $this->execute($this->namedExport);
+        $this->performExport();
+
+    }
 
 
+
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
 
     public function datasource(): Builder
     {
@@ -49,10 +68,7 @@ final class seedBeneficiariesTable extends PowerGridComponent
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select('seed_beneficiaries.*', 'users.name as user_name');
     }
-    public function onUpdatedEditable(string|int $id, string $field, string $value): void
-    {
-        dd($id);
-    }
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -84,10 +100,10 @@ final class seedBeneficiariesTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Id', 'id')->bodyAttribute('table-sticky-col ')->headerAttribute('table-sticky-col'),
             Column::make('District', 'district', 'district')
                 ->sortable()
-                ->editOnClick(hasPermission: true)
+
 
                 ->searchable(),
 
@@ -171,20 +187,33 @@ final class seedBeneficiariesTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    #[On('hideModal')]
+    public function edit(): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->refresh();
     }
 
     public function actions($row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: ' . $row->id)
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->class('my-2 btn btn-primary')
+                ->dispatch('edit-showModal', [
+                    'id' => $row->id,
+                    'name' => 'view-detail-modal'
+                ]),
+
+            Button::add('delete')
+                ->slot('<i class="bx bx-trash"></i>')
+                ->id()
+                ->class('btn btn-danger my-1')
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->dispatch('deleteRecord', [
+                    'id' => $row->id,
+                    'name' => 'delete-detail-modal'
+                ]),
         ];
     }
 

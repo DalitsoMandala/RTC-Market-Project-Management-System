@@ -25,6 +25,12 @@ class RtcProductionProcessorWookbookExport implements FromCollection, WithMultip
     /**
      * @return \Illuminate\Support\Collection
      */
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         return collect([]);

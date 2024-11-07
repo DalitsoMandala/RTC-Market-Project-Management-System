@@ -10,8 +10,17 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class RpmfAreaCultivationExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         // Select only the columns we want to include, excluding 'ID', 'Created At', and 'Updated At'
         return RpmFarmerAreaCultivation::select('variety', 'area', 'rpmf_id')->get();
     }
@@ -19,7 +28,11 @@ class RpmfAreaCultivationExport implements FromCollection, WithHeadings, WithTit
     public function headings(): array
     {
         // Only include the specified columns in the headings
-        return ['Variety', 'Area', 'Farmer ID'];
+        return [
+            'Variety',
+            'Area',
+            'Farmer ID'
+        ];
     }
 
 

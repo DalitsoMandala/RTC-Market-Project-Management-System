@@ -15,6 +15,12 @@ class SrcExport implements FromCollection, WithHeadings, WithTitle
         $this->test = $test;
     }
 
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         $faker = Faker::create();
@@ -24,15 +30,42 @@ class SrcExport implements FromCollection, WithHeadings, WithTitle
             $data[] = [
                 'SCHOOL NAME' => strtoupper($faker->streetName),
                 'DISTRICT' => $faker->randomElement([
-                    'BALAKA', 'BLANTYRE', 'CHIKWAWA', 'CHIRADZULU', 'CHITIPA', 'DEDZA', 'DOWA', 'KARONGA',
-                    'KASUNGU', 'LILONGWE', 'MACHINGA', 'MANGOCHI', 'MCHINJI', 'MULANJE', 'MWANZA', 'MZIMBA',
-                    'NENO', 'NKHATA BAY', 'NKHOTAKOTA', 'NSANJE', 'NTCHEU', 'NTCHISI', 'PHALOMBE', 'RUMPHI',
-                    'SALIMA', 'THYOLO', 'ZOMBA',
+                    'BALAKA',
+                    'BLANTYRE',
+                    'CHIKWAWA',
+                    'CHIRADZULU',
+                    'CHITIPA',
+                    'DEDZA',
+                    'DOWA',
+                    'KARONGA',
+                    'KASUNGU',
+                    'LILONGWE',
+                    'MACHINGA',
+                    'MANGOCHI',
+                    'MCHINJI',
+                    'MULANJE',
+                    'MWANZA',
+                    'MZIMBA',
+                    'NENO',
+                    'NKHATA BAY',
+                    'NKHOTAKOTA',
+                    'NSANJE',
+                    'NTCHEU',
+                    'NTCHISI',
+                    'PHALOMBE',
+                    'RUMPHI',
+                    'SALIMA',
+                    'THYOLO',
+                    'ZOMBA',
                 ]),
                 'EPA' => strtoupper($faker->city),
                 'SECTION' => strtoupper($faker->streetName),
                 'DATE' => $faker->date(),
-                'CROP' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
+                'CROP' => $faker->randomElement([
+                    'CASSAVA',
+                    'POTATO',
+                    'SWEET POTATO'
+                ]),
                 'MALES' => $faker->randomNumber(1, 100) * 10,
                 'FEMALE' => $faker->randomNumber(1, 100) * 10,
                 'TOTAL' => $faker->randomNumber(1, 100) * 10,

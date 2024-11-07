@@ -40,6 +40,11 @@ final class RpmFarmerBasic extends PowerGridComponent
         $this->performExport();
 
     }
+
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
     public function relationSearch(): array
     {
         return [
@@ -58,10 +63,7 @@ final class RpmFarmerBasic extends PowerGridComponent
     }
 
 
-    public function downloadExport()
-    {
-        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
-    }
+
 
     public function setUp(): array
     {

@@ -139,6 +139,17 @@
             /* Capitalize only the first letter */
         }
 
+
+        .table-sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #fff;
+            /* Ensure background matches table to avoid overlap issues */
+            z-index: 1;
+            /* Ensure it stays above other table content */
+        }
+
+
         [readonly] {
             background-color: #e9ecef;
         }

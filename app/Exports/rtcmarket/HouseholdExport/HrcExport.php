@@ -20,6 +20,12 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
 
         $this->test = $test;
     }
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         $faker = Faker::create();
@@ -58,7 +64,11 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
             foreach (range(1, 6000) as $index) {
 
                 $data[] = [
-                    'ENTERPRISE' => $faker->randomElement(['Cassava', 'Potato', 'Sweet potato']),
+                    'ENTERPRISE' => $faker->randomElement([
+                        'Cassava',
+                        'Potato',
+                        'Sweet potato'
+                    ]),
                     'DISTRICT' => $faker->randomElement(
                         [
                             'Balaka',
@@ -93,12 +103,27 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                     'EPA' => $faker->randomElement($epaNames),
                     'SECTION' => $faker->randomElement($sectionNames),
                     'DATE OF ASSESSMENT' => $faker->date('Y-m-d'),
-                    'ACTOR TYPE' => $faker->randomElement(['Farmer', 'Processor', 'Trader', 'Individuals from nutrition intervention', 'Other']),
-                    'RTC GROUP PLATFORM' => $faker->randomElement(['Household', 'Seed']),
+                    'ACTOR TYPE' => $faker->randomElement([
+                        'Farmer',
+                        'Processor',
+                        'Trader',
+                        'Individuals from nutrition intervention',
+                        'Other'
+                    ]),
+                    'RTC GROUP PLATFORM' => $faker->randomElement([
+                        'Household',
+                        'Seed'
+                    ]),
                     'PRODUCER ORGANISATION' => $faker->randomElement($organisationNames),
                     'ACTOR NAME' => strtoupper($faker->name),
-                    'AGE GROUP' => $faker->randomElement(['Youth', 'Not youth']),
-                    'SEX' => $faker->randomElement(['Male', 'Female']),
+                    'AGE GROUP' => $faker->randomElement([
+                        'Youth',
+                        'Not youth'
+                    ]),
+                    'SEX' => $faker->randomElement([
+                        'Male',
+                        'Female'
+                    ]),
                     'PHONE NUMBER' => $faker->numerify('###-###-####'),
                     'HOUSEHOLD SIZE' => $faker->numberBetween(1, 100),
                     'UNDER 5 IN HOUSEHOLD' => $faker->numberBetween(1, 100),
@@ -107,9 +132,18 @@ class HrcExport implements FromCollection, WithHeadings, WithTitle
                     'RTC CONSUMERS/SWEET POTATO' => $faker->numberBetween(1, 100),
                     'RTC CONSUMERS/CASSAVA' => $faker->numberBetween(1, 100),
                     'RTC CONSUMPTION FREQUENCY' => $faker->numberBetween(1, 100),
-                    'RTC MAIN FOOD/CASSAVA' => $faker->randomElement(['Cassava', '']),
-                    'RTC MAIN FOOD/POTATO' => $faker->randomElement(['Potato', '']),
-                    'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement(['Sweet potato', '']),
+                    'RTC MAIN FOOD/CASSAVA' => $faker->randomElement([
+                        'Cassava',
+                        ''
+                    ]),
+                    'RTC MAIN FOOD/POTATO' => $faker->randomElement([
+                        'Potato',
+                        ''
+                    ]),
+                    'RTC MAIN FOOD/SWEET POTATO' => $faker->randomElement([
+                        'Sweet potato',
+                        ''
+                    ]),
 
                 ];
             }

@@ -13,6 +13,12 @@ class RpmProcessorInterMarketsExport implements FromCollection, WithHeadings, Wi
 {
     protected $rowNumber = 0;
 
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         return RpmProcessorInterMarket::all();

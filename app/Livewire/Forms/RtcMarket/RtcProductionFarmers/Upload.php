@@ -311,7 +311,7 @@ class Upload extends Component
     {
         $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new RtcProductionFarmersMultiSheetExport, 'rtc_production_marketing_farmers' . $time . '.xlsx');
+        return Excel::download(new RtcProductionFarmersMultiSheetExport(true), 'rtc_production_marketing_farmers' . $time . '.xlsx');
     }
 
     public function removeTemporaryFile()

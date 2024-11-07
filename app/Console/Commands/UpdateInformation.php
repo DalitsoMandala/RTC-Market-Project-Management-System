@@ -44,7 +44,7 @@ class UpdateInformation extends Command
         })->finally(function (Batch $batch) {
             // The batch has finished executing...
 
-            $this->info('Information updated successfully!');
+
 
         })
 
