@@ -108,6 +108,7 @@ Route::middleware([
     Route::get('/submissions', \App\Livewire\Admin\Operations\Submissions::class)->name('admin-submissions');
     Route::get('/reports', \App\Livewire\Admin\Operations\Reports::class)->name('admin-reports');
 
+
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();
@@ -160,6 +161,7 @@ Route::middleware([
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/seed-beneficiaries/add', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
     Route::get('/seed-beneficiaries', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
+    Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class);
     // Route::get('/seed-distribution/add', App\Livewire\OtherForms\SeedDistribution\Add::class);
     // Route::get('/seed-distribution', App\Livewire\OtherForms\SeedDistribution\View::class);
 

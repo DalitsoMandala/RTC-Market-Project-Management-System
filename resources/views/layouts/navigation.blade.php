@@ -192,7 +192,15 @@
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
                                 </li>
-
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{$routePrefixMain}}/baseline" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Baseline Data</span>
+                                    </a>
+                                </li>
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard"
