@@ -28,7 +28,7 @@ final class seedBeneficiariesTable extends PowerGridComponent
     public $crop;
 
     public string $tableName = 'seed_beneficiaries';
-    public $namedExport = null;
+    public $namedExport = 'seedBeneficiaries';
 
 
     public function setUp(): array
@@ -43,18 +43,14 @@ final class seedBeneficiariesTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
-    #[On('export-mydata')]
 
+    #[On('export-seedBeneficiaries')]
     public function startExport()
     {
-        $this->namedExport = $this->crop;
-        dd($this->namedExport);
         $this->execute($this->namedExport);
         $this->performExport();
 
     }
-
-
 
 
     public function downloadExport()

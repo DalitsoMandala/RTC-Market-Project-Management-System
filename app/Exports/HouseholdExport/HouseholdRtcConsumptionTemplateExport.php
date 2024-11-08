@@ -8,11 +8,18 @@ use App\Exports\HouseholdExport\HouseholdSheetExport;
 
 class HouseholdRtcConsumptionTemplateExport implements WithMultipleSheets
 {
+
+    public $template = false;
+
+    public function __construct($template = false)
+    {
+        $this->template = $template;
+    }
     public function sheets(): array
     {
         return [
-            new HouseholdSheetExport(), // Sheet for household data
-            new MainFoodSheetExport(),  // Sheet for main food data
+            new HouseholdSheetExport($this->template), // Sheet for household data
+            new MainFoodSheetExport($this->template),  // Sheet for main food data
         ];
     }
 }

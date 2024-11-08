@@ -7,6 +7,11 @@ use App\Models\SeedBeneficiary;
 
 class SeedBeneficiariesExport implements WithMultipleSheets
 {
+    public $template = false;
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function sheets(): array
     {
         return [

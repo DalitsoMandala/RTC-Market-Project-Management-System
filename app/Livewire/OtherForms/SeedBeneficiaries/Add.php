@@ -209,7 +209,7 @@ class Add extends Component
     public function downloadTemplate()
     {
         // Path to your template file
-        return Excel::download(new SeedBeneficiariesExport, 'seed_beneficiaries.xlsx');
+        return Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries.xlsx');
     }
 
     public function mount()

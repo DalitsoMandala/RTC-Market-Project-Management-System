@@ -2,12 +2,15 @@
 
 namespace App\Exports\HouseholdExport;
 
+use App\Models\HouseholdRtcConsumption;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class HouseholdSheetExport implements FromArray, WithHeadings, WithTitle, WithStrictNullComparison
+class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
     protected $uuid;
     protected $userId;
@@ -16,17 +19,13 @@ class HouseholdSheetExport implements FromArray, WithHeadings, WithTitle, WithSt
     protected $financialYearId;
     protected $reportingPeriodMonthId;
     protected $status;
+    public $template;
 
-    public function __construct($uuid = null, $userId = null, $submissionPeriodId = null, $organisationId = null, $financialYearId = null, $reportingPeriodMonthId = null, $status = null)
+    public function __construct($template)
     {
-        $this->uuid = $uuid;
-        $this->userId = $userId;
-        $this->submissionPeriodId = $submissionPeriodId;
-        $this->organisationId = $organisationId;
-        $this->financialYearId = $financialYearId;
-        $this->reportingPeriodMonthId = $reportingPeriodMonthId;
-        $this->status = $status;
+        $this->template = $template;
     }
+
 
     public function headings(): array
     {
@@ -55,56 +54,40 @@ class HouseholdSheetExport implements FromArray, WithHeadings, WithTitle, WithSt
         ];
     }
 
-    public function array(): array
+    public function collection(): Collection
     {
-        return [
-            [
 
-                1,
-                'EPA1',
-                'Section1',
-                'Zomba',
-                'Cassava',
-                '2024-12-10',
-                'Farmer',
-                'RTC Group 1',
-                'Org1',
-                'Actor Name',
-                '18-25',
-                'Male',
-                '+2651234567890',
-                5,
-                2,
-                3,
-                1,
-                1,
-                1,
-                5,
-            ],
-            [
-                1,
-                'EPA2',
-                'Section2',
-                'Lilongwe',
-                'Potato',
-                '2024-12-10',
-                'Trader',
-                'RTC Group 2',
-                'Org2',
-                'Actor Name 2',
-                '26-35',
-                'Female',
-                '+265987654321',
-                4,
-                1,
-                2,
-                1,
-                1,
-                1,
-                3,
-            ],
+        if ($this->template) {
+            return collect([]);
+        }
+        return HouseholdRtcConsumption::select([
+            'id',
+            'epa',
+            'section',
+            'district',
+            'enterprise_type',
+            'date_of_assessment',
+            'actor_type',
+            'rtc_group_platform',
+            'producer_organisation',
+            'actor_name',
+            'age_group',
+            'sex',
+            'phone_number',
+            'household_size',
+            'under_5_in_household',
+            'rtc_consumers_total',
+            'rtc_consumers_potato',
+            'rtc_consumers_sw_potato',
+            'rtc_consumers_cassava',
+            'rtc_consumption_frequency',
+            
+            // Exclude hidden fields and Household ID
 
-        ];
+
+        ])->get();
+
+
     }
 
     public function title(): string

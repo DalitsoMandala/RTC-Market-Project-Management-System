@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\SeedBeneficiary;
 use App\Models\SystemReportData;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\AttendanceRegister;
@@ -1207,6 +1208,102 @@ class ExcelExportJob implements ShouldQueue
                 $writer->close(); // Finalize the file
 
                 break;
+            case 'seedBeneficiaries':
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+
+                // Define the headers
+                $headers = [
+                    'Crop',
+                    'District',
+                    'EPA',
+                    'Section',
+                    'Name of AEDO',
+                    'AEDO Phone Number',
+                    'Date',
+                    'Name of Recipient',
+                    'Village',
+                    'Sex',
+                    'Age',
+                    'Marital Status',
+                    'Household Head',
+                    'Household Size',
+                    'Children Under 5 in HH',
+                    'Variety Received',
+                    'Bundles Received',
+                    'Phone / National ID',
+                ];
+
+                // Define crop types
+                $cropTypes = [
+                    'Cassava',
+                    'OFSP',
+                    'Potato'
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath);
+
+                foreach ($cropTypes as $index => $crop) {
+                    if ($index > 0) {
+                        // Create a new sheet for each crop type after the first sheet
+                        $writer->addNewSheetAndMakeItCurrent();
+                    }
+
+                    // Name the current sheet with the crop type and add headers
+                    $writer->nameCurrentSheet($crop)->addHeader($headers);
+
+                    // Process data in chunks for the current crop
+                    SeedBeneficiary::where('crop', $crop)
+                        ->select([
+                            'crop',
+                            'district',
+                            'epa',
+                            'section',
+                            'name_of_aedo',
+                            'aedo_phone_number',
+                            'date',
+                            'name_of_recipient',
+                            'village',
+                            'sex',
+                            'age',
+                            'marital_status',
+                            'hh_head',
+                            'household_size',
+                            'children_under_5',
+                            'variety_received',
+                            'bundles_received',
+                            'phone_or_national_id',
+                        ])
+                        ->chunk(2000, function ($seedBeneficiaries) use ($writer) {
+                            foreach ($seedBeneficiaries as $record) {
+                                $writer->addRow([
+                                    $record->crop,
+                                    $record->district,
+                                    $record->epa,
+                                    $record->section,
+                                    $record->name_of_aedo,
+                                    $record->aedo_phone_number,
+                                    $record->date,
+                                    $record->name_of_recipient,
+                                    $record->village,
+                                    $record->sex,
+                                    $record->age,
+                                    $record->marital_status,
+                                    $record->hh_head,
+                                    $record->household_size,
+                                    $record->children_under_5,
+                                    $record->variety_received,
+                                    $record->bundles_received,
+                                    $record->phone_or_national_id,
+                                ]);
+                            }
+                        });
+                }
+
+                $writer->close(); // Finalize the file
+
+                break;
+
             default:
                 $this->fail('Invalid model name!');
                 return;

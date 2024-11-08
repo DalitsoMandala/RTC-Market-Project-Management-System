@@ -17,10 +17,14 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
 
     public function __construct($template)
     {
+
         $this->template = $template;
     }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);  // Return an empty collection if the template is not provided.
+        }
         return RtcProductionProcessor::all();
     }
 

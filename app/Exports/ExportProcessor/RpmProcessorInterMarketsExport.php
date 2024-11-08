@@ -21,6 +21,9 @@ class RpmProcessorInterMarketsExport implements FromCollection, WithHeadings, Wi
     }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);  // Return an empty collection if the template is not provided.
+        }
         return RpmProcessorInterMarket::all();
     }
 

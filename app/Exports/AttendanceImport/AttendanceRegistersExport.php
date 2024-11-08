@@ -10,14 +10,17 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
-    public $template;
+    public $template = false;
 
-    public function __construct($template)
+    public function __construct($template = false)
     {
         $this->template = $template;
     }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         // Select only the necessary columns to be included in the export
         return AttendanceRegister::select(
 

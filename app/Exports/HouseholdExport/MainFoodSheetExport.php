@@ -2,13 +2,22 @@
 
 namespace App\Exports\HouseholdExport;
 
+use App\Models\MainFoodHrc;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class MainFoodSheetExport implements FromArray, WithHeadings, WithTitle, WithStrictNullComparison
+class MainFoodSheetExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function headings(): array
     {
         return [
@@ -17,18 +26,15 @@ class MainFoodSheetExport implements FromArray, WithHeadings, WithTitle, WithStr
         ];
     }
 
-    public function array(): array
+    public function collection(): Collection
     {
-        return [
-            // Placeholder Household IDs, each associated with main foods
-            [1, 'Maize'],
-            [1, 'Rice'],
-            [1, 'Beans'],
-            [2, 'Cassava'],
-            [2, 'Sweet Potato'],
-            [2, 'Yam'],
-            // Add more rows as needed for the template
-        ];
+        if ($this->template) {
+            return collect([]);
+        }
+        return MainFoodHrc::select([
+            'hrc_id',
+            'name',
+        ])->get();
     }
 
     public function title(): string

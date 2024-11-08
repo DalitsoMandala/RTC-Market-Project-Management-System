@@ -10,18 +10,15 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 class CropSheetExport implements FromCollection, WithHeadings, WithTitle
 {
     protected $cropType;
-
-    public function __construct(string $cropType)
+    public $template = false;
+    public function __construct(string $cropType, $template = false)
     {
         $this->cropType = $cropType;
-    }
-
-    public $template;
-
-    public function __construct($template)
-    {
         $this->template = $template;
     }
+
+
+
     public function collection()
     {
         return SeedBeneficiary::where('crop', $this->cropType)->select(

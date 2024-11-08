@@ -18,6 +18,9 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
     }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         // Select only the columns to be included in the export
         return SchoolRtcConsumption::select(
             'sc_id',

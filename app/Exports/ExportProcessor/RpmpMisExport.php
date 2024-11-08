@@ -20,6 +20,9 @@ class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
     }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);  // Return an empty collection if the template is not provided.
+        }
         return RpmProcessorMarketInformationSystem::select(
             'name',
             'rpmp_id'

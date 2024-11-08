@@ -21,6 +21,9 @@ class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, With
     }
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);  // Return an empty collection if the template is not provided.
+        }
         return RpmProcessorDomMarket::all();
     }
 
