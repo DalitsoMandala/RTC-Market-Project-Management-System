@@ -2,19 +2,25 @@
 
 namespace App\Livewire\Internal\Staff;
 
-use Throwable;
 use App\Jobs\Mapper;
+use App\Jobs\ReportJob;
 use App\Livewire\Tables\ReportingTable;
-use App\Models\Project;
-use Livewire\Component;
-use App\Models\Indicator;
-use Illuminate\Bus\Batch;
-use Livewire\Attributes\On;
 use App\Models\FinancialYear;
-use Livewire\Attributes\Validate;
-use Illuminate\Support\Facades\Bus;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
+use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
+use App\Models\ReportStatus;
+use App\Models\ResponsiblePerson;
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Throwable;
 
 
 class Reports extends Component
@@ -22,12 +28,12 @@ class Reports extends Component
 
 
     public $projects;
-    #[Validate('required')]
+
     public $selectedProject;
 
     public $indicators;
     // #[Validate('required')]
-    public $selectedIndicators = [];
+    public $selectedIndicator;
 
     public $starting_period;
     //  #[Validate('required')]
@@ -36,36 +42,53 @@ class Reports extends Component
     public $filtered;
 
     public $reportingPeriod = [];
-
+    //  #[Validate('required')]
     public $selectedReportingPeriod;
-
+    //   #[Validate('required')]
     public $selectedFinancialYear;
+    //#[Validate('required')]
+    public $selectedOrganisation;
+    //   #[Validate('required')]
+    public $selectedDisaggregation;
+
+
 
     public $financialYears = [];
     public $data = [];
-    public bool $loadingData = true;
+
+    public $progress = 0;
+    public bool $loadingData = false;
+
+    public $organisations = [];
+    public $disaggregations = [];
+
+    public $routePrefix;
     public function mount()
     {
         $this->projects = Project::get();
         $this->indicators = Indicator::get();
-
-
+        $this->financialYears = FinancialYear::get();
+        $this->reportingPeriod = ReportingPeriodMonth::get();
+        $this->organisations = Organisation::get();
+        $this->disaggregations = IndicatorDisaggregation::get();
+        $this->routePrefix = Route::current()->getPrefix();
     }
 
     public function filter()
     {
-        $this->validate();
+        // $this->validate();
         $this->filtered = [
-            'project_id' => $this->selectedProject,
-            'indicators' => $this->selectedIndicators,
-            'reporting_period' => $this->selectedReportingPeriod,
-            'financial_year' => $this->selectedFinancialYear,
+            //   'project_id' => $this->selectedProject,
+            'indicator' => $this->selectedIndicator === '' ? null : $this->selectedIndicator,
+            'reporting_period' => $this->selectedReportingPeriod === '' ? null : $this->selectedReportingPeriod,
+            'financial_year' => $this->selectedFinancialYear === '' ? null : $this->selectedFinancialYear,
+            'organisation_id' => $this->selectedOrganisation === '' ? null : $this->selectedOrganisation,
+            'disaggregation' => $this->selectedDisaggregation === '' ? null : $this->selectedDisaggregation,
             // 'start_date' => $this->starting_period == "" ? null : $this->starting_period,
             //'end_date' => $this->ending_period  == "" ? null : $this->ending_period,
         ];
-        $this->loadingData = true;
-        $this->load();
 
+        $this->dispatch('filtered-data', $this->filtered);
 
         //$this->dispatch('filtered-data', $this->filtered);
     }
@@ -73,23 +96,48 @@ class Reports extends Component
     #[On('reset-filters')]
     public function resetFilters()
     {
-        $this->loadingData = true;
-        $this->reset('financialYears', 'reportingPeriod', 'filtered', 'selectedProject', 'selectedIndicators', 'selectedReportingPeriod', 'selectedFinancialYear');
 
+        $this->reset(
+            'financialYears',
+            'reportingPeriod',
+            'filtered',
+            'selectedOrganisation',
+            'selectedDisaggregation',
 
-        $this->load();
+            'selectedProject',
+            'selectedIndicator',
+            'selectedReportingPeriod',
+            'selectedFinancialYear'
+        );
+
+        $this->projects = Project::get();
+        $this->indicators = Indicator::get();
+        $this->financialYears = FinancialYear::get();
+        $this->reportingPeriod = ReportingPeriodMonth::get();
+        $this->organisations = Organisation::get();
+        $this->disaggregations = IndicatorDisaggregation::get();
+
         $this->resetErrorBag();
         $this->resetValidation();
-
     }
 
     public function load()
     {
 
-        if (!empty($this->filtered)) {
 
-            $batch = Bus::batch([
-                new Mapper($this->filtered)
+        $this->loadingData = true;
+
+        $completed = ReportStatus::where('status', 'completed')->exists();
+        $pending = ReportStatus::where('status', 'pending')->exists();
+        $processing = ReportStatus::where('status', 'processing')->exists();
+
+
+
+
+        if ($pending || $completed) {
+
+            Bus::batch([
+                new ReportJob([])
             ])->before(function (Batch $batch) {
                 // The batch has been created but no jobs have been added...
 
@@ -105,41 +153,27 @@ class Reports extends Component
             })
 
                 ->dispatch();
-        } else {
-            $batch = Bus::batch([
-                new Mapper([])
-            ])->before(function (Batch $batch) {
-                // The batch has been created but no jobs have been added...
-
-            })->progress(function (Batch $batch) {
-                // A single job has completed successfully...
-            })->then(function (Batch $batch) {
-                // All jobs completed successfully...
-            })->catch(function (Batch $batch, Throwable $e) {
-                // First batch job failure detected...
-            })->finally(function (Batch $batch) {
-                // The batch has finished executing...
-
-            })
-
-                ->dispatch();
-
+        } else if ($processing) {
+            $this->readCache();
         }
-
     }
     public function updated($property, $value)
     {
 
-        if ($property === 'selectedProject') {
+        if ($this->selectedOrganisation) {
 
-            $project = Project::find($this->selectedProject);
-            $periods = $project->reportingPeriod;
-            $reporting_months = ReportingPeriodMonth::whereIn('period_id', $periods)->get();
-            $this->reportingPeriod = $reporting_months;
-            $financialyears = FinancialYear::where('project_id', $project->id)->get();
-            $this->financialYears = $financialyears;
+            $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
+            $this->disaggregations = IndicatorDisaggregation::whereIn('indicator_id', $indicators)->get()->unique('name');
+            $this->indicators = Indicator::whereIn('id', $indicators)->get();
+        }
+
+
+        if ($this->selectedOrganisation !== null && $this->selectedIndicator) {
+            $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
+            $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get()->unique('name');
 
         }
+
 
     }
 
@@ -151,14 +185,15 @@ class Reports extends Component
     {
 
         $this->loadingData = true;
-        $data = cache()->get('report_', []);
+        $check = ReportStatus::where('status', 'completed')->exists();
 
-        if (!empty($data)) {
+        if ($check) {
             $this->loadingData = false;
-            $this->data = $data;
-            $this->dispatch('loaded-data', data: $this->data);
+            $this->dispatch('reset-filters');
+            cache()->clear();
         }
 
+        $this->progress = ReportStatus::find(1)->progress;
     }
     public function render()
     {

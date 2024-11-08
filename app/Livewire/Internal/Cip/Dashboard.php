@@ -58,7 +58,7 @@ class Dashboard extends Component
 
         $reportId = SystemReport::where('indicator_id', $indicator->id)
             ->where('project_id', 1)
-            ->where('organisation_id', $organisation->id)
+            //    ->where('organisation_id', $organisation->id)
             ->where('financial_year_id', $record->id)
             ->pluck('id');
 
