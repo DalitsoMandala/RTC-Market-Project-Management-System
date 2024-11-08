@@ -26,27 +26,19 @@ class indicator_2_2_2
     }
     public function builderFarmer($crop = null): Builder
     {
+        $query = RtcProductionFarmer::query()
+            ->where('status', 'approved')
+            ->with([
+                'basicSeed',
+                'certifiedSeed'
+            ]);
 
-
-        $query = RtcProductionFarmer::query()->where('status', 'approved')
-            ->with(['basicSeed', 'certifiedSeed']);
-
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
+        // Apply filters for reporting period and financial year if they are set
+        if ($this->reporting_period) {
+            $query->where('period_month_id', $this->reporting_period);
+        }
+        if ($this->financial_year) {
+            $query->where('financial_year_id', $this->financial_year);
         }
 
         // Filter by organization if set
@@ -54,27 +46,24 @@ class indicator_2_2_2
             $query->where('organisation_id', $this->organisation_id);
         }
 
-
+        // Filter by crop type if provided
         if ($crop) {
-
             $query->where('enterprise', $crop);
-            return $query;
         }
 
         return $query;
     }
 
-
-    public function getBasicSeed($cropQuery = null)
+    public function getBasicSeed($crop = null)
     {
         $totalArea = 0;
 
-        // Use the provided crop query or the default builderFarmer query
-        $query = $cropQuery ?? $this->builderFarmer()->where('group', 'Early generation seed producer');
+        // Use the builderFarmer query with specified crop and filter by group
+        $query = $this->builderFarmer($crop)->where('group', 'Early generation seed producer');
 
-        // Process the query in chunks
+        // Process the query in chunks to avoid memory issues
         $query->chunk(100, function ($farmers) use (&$totalArea) {
-            // Pluck, flatten, and sum the area from the basicSeed relationship
+            // Calculate the area for basic seeds
             $basicSeedArea = $farmers->pluck('basicSeed')->flatten()->sum('area');
             $totalArea += $basicSeedArea;
         });
@@ -82,17 +71,15 @@ class indicator_2_2_2
         return $totalArea;
     }
 
-
-
-
-    public function getCertifiedSeed($cropQuery = null)
+    public function getCertifiedSeed($crop = null)
     {
         $totalArea = 0;
 
-        // Use the provided crop query or the default builderFarmer query
-        $query = $cropQuery ?? $this->builderFarmer()->where('group', 'Seed multiplier');
+        // Use the builderFarmer query with specified crop and filter by group
+        $query = $this->builderFarmer($crop)->where('group', 'Seed multiplier');
 
         $query->chunk(100, function ($farmers) use (&$totalArea) {
+            // Calculate the area for certified seeds
             $certifiedSeedArea = $farmers->pluck('certifiedSeed')->flatten()->sum('area');
             $totalArea += $certifiedSeedArea;
         });
@@ -100,23 +87,24 @@ class indicator_2_2_2
         return $totalArea;
     }
 
-
     public function getCrop()
     {
-        $queryCassava = $this->builderFarmer('Cassava')->where('group', 'Seed multiplier');
-        $queryPotato = $this->builderFarmer('Potato')->where('group', 'Seed multiplier');
-        $querySwPotato = $this->builderFarmer('Sweet potato')->where('group', 'Seed multiplier');
+        // Calculate basic and certified seed areas for each crop type
+        $queryCassavaBasic = $this->getBasicSeed('Cassava');
+        $queryCassavaCertified = $this->getCertifiedSeed('Cassava');
+        $queryPotatoBasic = $this->getBasicSeed('Potato');
+        $queryPotatoCertified = $this->getCertifiedSeed('Potato');
+        $querySwPotatoBasic = $this->getBasicSeed('Sweet potato');
+        $querySwPotatoCertified = $this->getCertifiedSeed('Sweet potato');
 
-
-
-
+        // Aggregate areas by crop type
         return [
-
-            'cassava' => $queryCassava->count(),
-            'potato' => $queryPotato->count(),
-            'sweet_potato' => $querySwPotato->count(),
+            'cassava' => $queryCassavaBasic + $queryCassavaCertified,
+            'potato' => $queryPotatoBasic + $queryPotatoCertified,
+            'sweet_potato' => $querySwPotatoBasic + $querySwPotatoCertified,
         ];
     }
+
 
 
     public function getDisaggregations()

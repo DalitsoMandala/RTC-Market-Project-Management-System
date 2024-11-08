@@ -119,16 +119,8 @@ class indicator_3_2_5
     {
         $totals = $this->getTotals()->toArray();
 
-        $percentages = $totals['Total (% Percentage)'];
-        $count = $this->builder()->count();
 
-        $sum = 0;
-        if ($count > 0) {
-            $sum = $percentages / $count;
-            $totals['Total (% Percentage)'] = round($sum, 2);
-        }
-
-
+        $totals['Total (% Percentage)'] = 0;
 
         return $totals;
     }

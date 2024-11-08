@@ -107,7 +107,12 @@ class indicator_1_1_3
         // Subtotal based on Cassava, Potato, and Sweet potato
         $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
         return [
-            'Total' => $subTotal
+            'Total' => $subTotal,
+            'Cassava' => $totals['Cassava'],
+            'Potato' => $totals['Potato'],
+            'Sweet potato' => $totals['Sweet potato'],
+            'Fresh' => $totals['Fresh'],
+            'Processed' => $totals['Processed'],
         ];
     }
 }

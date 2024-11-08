@@ -32,7 +32,10 @@ class indicator_2_2_3
 
 
         $query = RtcProductionFarmer::query()->where('status', 'approved')
-            ->with(['basicSeed', 'certifiedSeed']);
+            ->with([
+                'basicSeed',
+                'certifiedSeed'
+            ])->where('is_registered_seed_producer', true);
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -68,17 +71,34 @@ class indicator_2_2_3
     }
 
 
-    public function getBasicSeed($cropQuery = null)
+    public function getCategoryPos($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
+
+            ->where('type', 'Producer organization (PO)')
+            ->count();
+    }
+
+    public function getCategoryIndividualFarmers($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
+
+            ->where('type', 'Large scale farm')
+            ->count();
+    }
+
+    public function getBasicSeed($crop = null)
     {
         $totalArea = 0;
 
-        // Use the provided crop query or the default builderFarmer query
-        $query = $cropQuery ?? $this->builderFarmer()->where('group', 'Early generation seed producer')
-            ->where('is_registered_seed_producer', true);
+        // Use the builderFarmer query with specified crop and filter by group
+        $query = $this->builderFarmer($crop)->where('group', 'Early generation seed producer');
 
-        // Process the query in chunks
+        // Process the query in chunks to avoid memory issues
         $query->chunk(100, function ($farmers) use (&$totalArea) {
-            // Pluck, flatten, and sum the area from the basicSeed relationship
+            // Calculate the area for basic seeds
             $basicSeedArea = $farmers->pluck('basicSeed')->flatten()->sum('area');
             $totalArea += $basicSeedArea;
         });
@@ -86,43 +106,15 @@ class indicator_2_2_3
         return $totalArea;
     }
 
-
-    public function getCategoryPos($cropQuery = null)
-    {
-
-
-        // Use the provided crop query or the default builderFarmer query
-        $query = $cropQuery ?? $this->builderFarmer()
-            ->where('is_registered_seed_producer', true)
-            ->where('type', 'Producer organization (PO)');
-
-
-
-        return $query->count();
-    }
-
-    public function getCategoryIndividualFarmers($cropQuery = null)
-    {
-
-
-        // Use the provided crop query or the default builderFarmer query
-        $query = $cropQuery ?? $this->builderFarmer()
-            ->where('is_registered_seed_producer', true)
-            ->where('type', 'Large scale farm');
-
-        return $query->count();
-    }
-
-
-    public function getCertifiedSeed($cropQuery = null)
+    public function getCertifiedSeed($crop = null)
     {
         $totalArea = 0;
 
-        // Use the provided crop query or the default builderFarmer query
-        $query = $cropQuery ?? $this->builderFarmer()->where('group', 'Seed multiplier')
-            ->where('is_registered_seed_producer', true);
+        // Use the builderFarmer query with specified crop and filter by group
+        $query = $this->builderFarmer($crop)->where('group', 'Seed multiplier');
 
         $query->chunk(100, function ($farmers) use (&$totalArea) {
+            // Calculate the area for certified seeds
             $certifiedSeedArea = $farmers->pluck('certifiedSeed')->flatten()->sum('area');
             $totalArea += $certifiedSeedArea;
         });
@@ -130,21 +122,17 @@ class indicator_2_2_3
         return $totalArea;
     }
 
-
     public function getCrop()
     {
-        $queryCassava = $this->builderFarmer('Cassava')->where('group', 'Seed multiplier');
-        $queryPotato = $this->builderFarmer('Potato')->where('group', 'Seed multiplier');
-        $querySwPotato = $this->builderFarmer('Sweet potato')->where('group', 'Seed multiplier');
-
-
-
+        // Calculate counts for each crop with 'Seed multiplier' group
+        $cassavaCount = $this->builderFarmer('Cassava')->count();
+        $potatoCount = $this->builderFarmer('Potato')->count();
+        $sweetPotatoCount = $this->builderFarmer('Sweet potato')->count();
 
         return [
-
-            'cassava' => $queryCassava->count(),
-            'potato' => $queryPotato->count(),
-            'sweet_potato' => $querySwPotato->count(),
+            'cassava' => $cassavaCount,
+            'potato' => $potatoCount,
+            'sweet_potato' => $sweetPotatoCount,
         ];
     }
     public function findIndicator()
@@ -161,27 +149,10 @@ class indicator_2_2_3
     public function getDisaggregations()
     {
         $cropData = $this->getCrop(); // Store crop data to avoid redundant calls
-        $total = $this->builderFarmer()
-            ->where('group', 'Seed multiplier')
-            ->where('is_registered_seed_producer', true)->count();
-
-        // Subtotal based on Cassava, Potato, and Sweet potato
-        $subTotal = $total;
-
-        // Retrieve the indicator to get the baseline
-        $indicator = $this->findIndicator();
-
-        // Get the baseline value, defaulting to 0 if the indicator or baseline doesn't exist
-        $baseline = $indicator->baseline->baseline_value ?? 0;
-
-        // Calculate the percentage increase based on the subtotal and baseline
-        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
-
-        $finalTotalPercentage = $percentageIncrease->percentage();
 
 
         return [
-            'Total (% Percentage)' => $finalTotalPercentage,
+            'Total (% Percentage)' => 0,
             'Cassava' => $cropData['cassava'],
             'Potato' => $cropData['potato'],
             'Sweet potato' => $cropData['sweet_potato'],

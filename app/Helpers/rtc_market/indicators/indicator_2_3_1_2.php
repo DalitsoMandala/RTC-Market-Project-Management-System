@@ -117,20 +117,12 @@ class indicator_2_3_1_2
     public function getDisaggregations()
     {
         // Get the totals from getTotals() method
-        $totals = $this->getTotals();
+        $totals = $this->getTotals()->toArray();
 
-        $percentages = $totals['Total (% Percentage)'];
-        $count = $this->builder()->count();
-
-        $sum = 0;
-        if ($count > 0) {
-            $sum = $percentages / $count;
-            $totals['Total (% Percentage)'] = round($sum, 2);
-        }
 
         // Return the disaggregated data
         return [
-            'Total (% Percentage)' => $totals['Total (% Percentage)'],
+            'Total (% Percentage)' => 0,
             'POs' => $totals['POs'],
             'SMEs' => $totals['SMEs'],
             'Large scale commercial farmers' => $totals['Large scale commercial farmers'],

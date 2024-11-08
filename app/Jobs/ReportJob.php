@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Models\Indicator;
 use App\Models\Organisation;
+use App\Models\PercentageIncreaseIndicator;
+use App\Models\ReportStatus;
 use App\Models\SystemReport;
 use App\Models\FinancialYear;
 use Illuminate\Bus\Batchable;
@@ -13,8 +15,8 @@ use App\Models\SystemReportData;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\DB;
 use App\Models\ReportingPeriodMonth;
-use App\Models\ReportStatus;
 use Illuminate\Support\Facades\Cache;
+use App\Helpers\PopulatePreviousValue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -40,6 +42,7 @@ class ReportJob implements ShouldQueue
         DB::statement('SET FOREIGN_KEY_CHECKS = 0;'); // Disable foreign key checks for truncation
         SystemReportData::truncate();
         SystemReport::truncate();
+        PercentageIncreaseIndicator::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS = 1;'); // Re-enable foreign key checks
 
         // Fetch Indicator classes and set up progress tracking
@@ -52,7 +55,10 @@ class ReportJob implements ShouldQueue
         $currentProgress = 0;
         $updateInterval = 10; // Update progress every 10 iterations
         Cache::put('report_progress', 0);
-        ReportStatus::find(1)->update(['status' => 'pending', 'progress' => 0]);
+        ReportStatus::find(1)->update([
+            'status' => 'pending',
+            'progress' => 0
+        ]);
 
         foreach ($Indicator_classes as $Indicator_class) {
             $reportingPeriods = ReportingPeriodMonth::pluck('id')->toArray();
@@ -90,7 +96,10 @@ class ReportJob implements ShouldQueue
                                             ]);
 
                                             foreach ($class->getDisaggregations() as $key => $value) {
-                                                $report->data()->create(['name' => $key, 'value' => $value]);
+                                                $report->data()->create([
+                                                    'name' => $key,
+                                                    'value' => $value
+                                                ]);
                                             }
                                         }
 
@@ -115,7 +124,15 @@ class ReportJob implements ShouldQueue
             }
         }
 
-        ReportStatus::find(1)->update(['status' => 'completed', 'progress' => 100]);
+        $class = new PopulatePreviousValue();
+
+        $class->start(); // percentages
+
+
+        ReportStatus::find(1)->update([
+            'status' => 'completed',
+            'progress' => 100
+        ]);
         Cache::put('report_progress', 100);
         Cache::put('report_', 'completed');
     }

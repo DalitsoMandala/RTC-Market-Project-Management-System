@@ -117,7 +117,7 @@ class indicator_B2
         $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
         $finalTotalPercentage = $percentageIncrease->percentage();
         return [
-            "Total (% Percentage)" => $finalTotalPercentage,
+            "Total (% Percentage)" => 0,
             '(Formal) Cassava' => $totals['(Formal) Cassava'],
             '(Formal) Potato' => $totals['(Formal) Potato'],
             '(Formal) Sweet potato' => $totals['(Formal) Sweet potato'],

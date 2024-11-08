@@ -147,31 +147,34 @@ class indicator_2_2_1
 
     public function findCropCount()
     {
-        $farmer = $this->builderFarmer()
-            ->leftJoin('rpm_farmer_follow_ups', 'rpm_farmer_follow_ups.rpm_farmer_id', '=', 'rtc_production_farmers.id')
-            ->select([
-                // Sum for Cassava
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Cassava' THEN 1 ELSE 0 END) AS Cassava_total"),
+        // Count for Cassava
+        $cassavaTotal = $this->builderFarmer()
+            ->where('enterprise', '=', 'Cassava')
+            ->where('sector', '=', 'Private')
+            ->where('group', '=', 'Seed multiplier')
+            ->count();
 
-                // Sum for Sweet potato
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Sweet potato' THEN 1 ELSE 0 END) AS Sweet_potato_total"),
+        // Count for Sweet potato
+        $sweetPotatoTotal = $this->builderFarmer()
+            ->where('enterprise', '=', 'Sweet potato')
+            ->where('sector', '=', 'Private')
+            ->where('group', '=', 'Seed multiplier')
+            ->count();
 
-                // Sum for Potato
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Potato' THEN 1 ELSE 0 END) AS Potato_total")
-            ])
-            ->where('rtc_production_farmers.sector', '=', 'Private')  // Explicitly reference rtc_production_farmers
-            ->where('rtc_production_farmers.group', '=', 'Seed multiplier')  // Explicitly reference rtc_production_farmers
-            ->first()
-            ->toArray();
-
-
+        // Count for Potato
+        $potatoTotal = $this->builderFarmer()
+            ->where('enterprise', '=', 'Potato')
+            ->where('sector', '=', 'Private')
+            ->where('group', '=', 'Seed multiplier')
+            ->count();
 
         return [
-            'cassava' => $farmer['Cassava_total'] ?? 0,
-            'potato' => $farmer['Potato_total'] ?? 0,
-            'sweet_potato' => $farmer['Sweet_potato_total'] ?? 0,
+            'cassava' => $cassavaTotal,
+            'potato' => $potatoTotal,
+            'sweet_potato' => $sweetPotatoTotal,
         ];
     }
+
 
 
     public function getDisaggregations()

@@ -122,11 +122,11 @@ class indicator_B3
 
         // Return the disaggregated data
         return [
-            "Total (% Percentage)" => $finalTotalPercentage, // Calculated percentage increase
+            "Total (% Percentage)" => 0, // Calculated percentage <increase></increase>
             '(Formal) Cassava' => $totals['(Formal) Cassava'],
             '(Formal) Potato' => $totals['(Formal) Potato'],
             '(Formal) Sweet potato' => $totals['(Formal) Sweet potato'],
-            // 'Volume (Metric Tonnes)' => $totals['Volume (Metric Tonnes)'], // Volume
+            'Volume (Metric Tonnes)' => $totals['Volume (Metric Tonnes)'], // Volume
             "Financial value ($)" => $subTotal, // Financial value is the subtotal of formal crops
         ];
     }

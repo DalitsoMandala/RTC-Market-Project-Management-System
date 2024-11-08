@@ -73,7 +73,8 @@ class indicator_1_1_4
     {
         $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->where('indicator_no', '1.1.4')->first();
         if (!$indicator) {
-            Log::error('Indicator not found');
+
+            \Log::error('Indicator not found');
             return null; // Or throw an exception if needed
         }
 
@@ -115,16 +116,19 @@ class indicator_1_1_4
     {
         $totals = $this->getTotals()->toArray();
 
-        $percentages = $totals['Total (% Percentage)'];
-        $count = $this->builder()->count();
-        $sum = 0;
-        if ($count > 0) {
-            $sum = $percentages / $count;
-            $totals['Total (% Percentage)'] = round($sum, 2);
-        }
 
 
-
-        return $totals;
+        $totals['Total (% Percentage)'] = 0;
+        return [
+            'Total (% Percentage)' => $totals['Total (% Percentage)'],
+            'Improved RTC variety' => $totals['Improved RTC variety'],
+            'Seed production' => $totals['Seed production'],
+            'Storage' => $totals['Storage'],
+            'Agronomic production' => $totals['Agronomic production'],
+            'Post-harvest processing' => $totals['Post-harvest processing'],
+            'Cassava' => $totals['Cassava'],
+            'Potato' => $totals['Potato'],
+            'Sweet potato' => $totals['Sweet potato']
+        ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use Log;
+use Carbon\Carbon;
 use App\Models\Project;
 use App\Models\Indicator;
 use App\Models\Submission;
@@ -132,94 +133,64 @@ class indicator_B1
         return $query;
     }
 
-
     public function findCropCount()
     {
+        // Farmers' totals for each crop
+        $cassavaTotalFarmer = $this->Farmerbuilder()->where('enterprise', '=', 'Cassava')->sum('prod_value_previous_season_usd_value');
+        $potatoTotalFarmer = $this->Farmerbuilder()->where('enterprise', '=', 'Potato')->sum('prod_value_previous_season_usd_value');
+        $sweetPotatoTotalFarmer = $this->Farmerbuilder()->where('enterprise', '=', 'Sweet potato')->sum('prod_value_previous_season_usd_value');
 
+        // Farmers' related follow-ups totals
+        $cassavaFarmerFollowUps = $this->Farmerbuilder()
+            ->where('enterprise', '=', 'Cassava')
+            ->withSum('followups', 'prod_value_previous_season_usd_value')
+            ->first();
+        $cassavaRelatedTotalFarmer = $cassavaFarmerFollowUps ? $cassavaFarmerFollowUps->followups_sum_prod_value_previous_season_usd_value : 0;
 
-        $farmer = $this->Farmerbuilder()
-            ->leftJoin('rpm_farmer_follow_ups', 'rpm_farmer_follow_ups.rpm_farmer_id', '=', 'rtc_production_farmers.id') // Assuming the related table has `farmer_id` to reference the main table
-            ->select([
-                DB::raw('COUNT(rtc_production_farmers.prod_value_previous_season_usd_value) AS Total'),
+        $potatoFarmerFollowUps = $this->Farmerbuilder()
+            ->where('enterprise', '=', 'Potato')
+            ->withSum('followups', 'prod_value_previous_season_usd_value')
+            ->first();
+        $potatoRelatedTotalFarmer = $potatoFarmerFollowUps ? $potatoFarmerFollowUps->followups_sum_prod_value_previous_season_usd_value : 0;
 
-                // Sum from main table (farmers) for Cassava
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Cassava' THEN rtc_production_farmers.prod_value_previous_season_usd_value ELSE 0 END) AS Cassava_total"),
+        $sweetPotatoFarmerFollowUps = $this->Farmerbuilder()
+            ->where('enterprise', '=', 'Sweet potato')
+            ->withSum('followups', 'prod_value_previous_season_usd_value')
+            ->first();
+        $sweetPotatoRelatedTotalFarmer = $sweetPotatoFarmerFollowUps ? $sweetPotatoFarmerFollowUps->followups_sum_prod_value_previous_season_usd_value : 0;
 
-                // Sum from related table (related_table) for Cassava
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Cassava' THEN rpm_farmer_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Cassava_total"),
+        // Processors' totals for each crop
+        $cassavaTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Cassava')->sum('prod_value_previous_season_usd_value');
+        $potatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Potato')->sum('prod_value_previous_season_usd_value');
+        $sweetPotatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Sweet potato')->sum('prod_value_previous_season_usd_value');
 
-                // Sum from main table (farmers) for Sweet potato
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Sweet potato' THEN rtc_production_farmers.prod_value_previous_season_usd_value ELSE 0 END) AS Sweet_potato_total"),
+        // Processors' related follow-ups totals
+        $cassavaProcessorFollowUps = $this->Processorbuilder()
+            ->where('enterprise', '=', 'Cassava')
+            ->withSum('followups', 'prod_value_previous_season_usd_value')
+            ->first();
+        $cassavaRelatedTotalProcessor = $cassavaProcessorFollowUps ? $cassavaProcessorFollowUps->followups_sum_prod_value_previous_season_usd_value : 0;
 
-                // Sum from related table (related_table) for Sweet potato
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Sweet potato' THEN rpm_farmer_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Sweet_potato_total"),
+        $potatoProcessorFollowUps = $this->Processorbuilder()
+            ->where('enterprise', '=', 'Potato')
+            ->withSum('followups', 'prod_value_previous_season_usd_value')
+            ->first();
+        $potatoRelatedTotalProcessor = $potatoProcessorFollowUps ? $potatoProcessorFollowUps->followups_sum_prod_value_previous_season_usd_value : 0;
 
-                // Sum from main table (farmers) for Potato
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Potato' THEN rtc_production_farmers.prod_value_previous_season_usd_value ELSE 0 END) AS Potato_total"),
+        $sweetPotatoProcessorFollowUps = $this->Processorbuilder()
+            ->where('enterprise', '=', 'Sweet potato')
+            ->withSum('followups', 'prod_value_previous_season_usd_value')
+            ->first();
+        $sweetPotatoRelatedTotalProcessor = $sweetPotatoProcessorFollowUps ? $sweetPotatoProcessorFollowUps->followups_sum_prod_value_previous_season_usd_value : 0;
 
-                // Sum from related table (related_table) for Potato
-                DB::raw("SUM(CASE WHEN rtc_production_farmers.enterprise = 'Potato' THEN rpm_farmer_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Potato_total"),
-            ])
-            //  ->where('rtc_production_farmers.status', '=', 'approved')
-
-            ->first()
-            ->toArray();
-
-
-
-        $processor = $this->Processorbuilder()->leftJoin('rpm_processor_follow_ups', 'rpm_processor_follow_ups.rpm_processor_id', '=', 'rtc_production_processors.id') // Assuming the related table has `farmer_id` to reference the main table
-            ->select([
-                DB::raw('COUNT(rtc_production_processors.prod_value_previous_season_usd_value) AS Total'),
-
-                // Sum from main table (farmers) for Cassava
-                DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Cassava' THEN rtc_production_processors.prod_value_previous_season_usd_value ELSE 0 END) AS Cassava_total"),
-
-                // Sum from related table (related_table) for Cassava
-                DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Cassava' THEN rpm_processor_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Cassava_total"),
-
-                // Sum from main table (farmers) for Sweet potato
-                DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Sweet potato' THEN rtc_production_processors.prod_value_previous_season_usd_value ELSE 0 END) AS Sweet_potato_total"),
-
-                // Sum from related table (related_table) for Sweet potato
-                DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Sweet potato' THEN rpm_processor_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Sweet_potato_total"),
-
-                // Sum from main table (farmers) for Potato
-                DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Potato' THEN rtc_production_processors.prod_value_previous_season_usd_value ELSE 0 END) AS Potato_total"),
-
-                // Sum from related table (related_table) for Potato
-                DB::raw("SUM(CASE WHEN rtc_production_processors.enterprise = 'Potato' THEN rpm_processor_follow_ups.prod_value_previous_season_usd_value ELSE 0 END) AS Related_Potato_total"),
-            ])
-
-            //   ->where('rtc_production_processors.status', '=', 'approved')
-            ->first()
-            ->toArray();
-
-
-        $combined = [];
-
-        foreach ($farmer as $key => $value) {
-            // Check if the key exists in the second array
-            if (array_key_exists($key, $processor)) {
-                // If the value is numeric, sum the values from both arrays
-                if (is_numeric($value)) {
-                    $combined[$key] = $value + $processor[$key];
-                } else {
-                    // For non-numeric values (e.g., followups), just keep the value from the first array
-                    $combined[$key] = $value;
-                }
-            } else {
-                // If the key doesn't exist in the second array, just keep the value from the first array
-                $combined[$key] = $value;
-            }
-        }
-
-        // Optionally, print out the combined array
+        // Combine totals for each crop
         return [
-            'cassava' => $combined['Cassava_total'] + $combined['Related_Cassava_total'],
-            'potato' => $combined['Potato_total'] + $combined['Related_Potato_total'],
-            'sweet_potato' => $combined['Sweet_potato_total'] + $combined['Related_Sweet_potato_total'],
+            'cassava' => $cassavaTotalFarmer + $cassavaRelatedTotalFarmer + $cassavaTotalProcessor + $cassavaRelatedTotalProcessor,
+            'potato' => $potatoTotalFarmer + $potatoRelatedTotalFarmer + $potatoTotalProcessor + $potatoRelatedTotalProcessor,
+            'sweet_potato' => $sweetPotatoTotalFarmer + $sweetPotatoRelatedTotalFarmer + $sweetPotatoTotalProcessor + $sweetPotatoRelatedTotalProcessor,
         ];
     }
+
 
     public function calculations()
     {
@@ -236,14 +207,29 @@ class indicator_B1
 
     public function findTotal()
     {
+        // $previousValue = 0;
+        // //  $currentDate = Carbon::today()->toDateString();
+        // $currentDate = '2026-01-01 00:00:00';
 
-        // $farmer = $this->Farmerbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
-        // $farmer_followup =  $this->FarmerFollowupbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
+        // // Query to find the record where the current date is on or after start_date and on or before end_date
+        // $record = FinancialYear::query()
+        //     ->whereDate('start_date', '<=', $currentDate)  // Current date is on or after start_date
+        //     ->whereDate('end_date', '>=', $currentDate)    // Current date is on or before end_date
+        //     ->where('project_id', 1)
+        //     ->select('id', 'number', 'start_date', 'end_date', 'project_id')
+        //     ->first();
+        // $previousYear = $record->number - 1;
+        // if ($previousYear == 1) {
+        //     $indicator = $this->findIndicator();
+        //     $baseline = $indicator->baseline->baseline_value ?? 0;
+        //     $previousValue = $baseline;
 
-        // $processor = $this->Processorbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
-        // $processor_followup =  $this->ProcessorFollowupbuilder()->where('status', 'approved')->select('prod_value_previous_season_usd_value')->sum('prod_value_previous_season_usd_value');
+        // } else {
 
-        // $subTotal = $farmer + $farmer_followup + $processor + $processor_followup;
+
+
+        // }
+
         $crop = $this->findCropCount();
         $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
         $indicator = $this->findIndicator();
@@ -267,7 +253,7 @@ class indicator_B1
         $crop = $this->findCropCount();
 
         return [
-            'Total (% Percentage)' => round($total, 2),
+            'Total (% Percentage)' => 0,
             'Cassava' => round($crop['cassava'], 2),
             'Sweet potato' => round($crop['sweet_potato'], 2),
             'Potato' => round($crop['potato'], 2),

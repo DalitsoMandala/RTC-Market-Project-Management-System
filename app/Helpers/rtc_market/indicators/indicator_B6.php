@@ -132,7 +132,7 @@ class indicator_B6
 
         // Return the disaggregated data
         return [
-            "Total (% Percentage)" => $finalTotalPercentage, // Calculated percentage increase
+            "Total (% Percentage)" => 0, // Calculated percentage increase
             'Cassava' => $totals['Cassava'],
             'Potato' => $totals['Potato'],
             'Sweet potato' => $totals['Sweet potato'],

@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\FinancialYear;
+
 class IncreasePercentage
 {
     protected $annualValue;
@@ -27,4 +29,6 @@ class IncreasePercentage
             2
         );
     }
+
+
 }

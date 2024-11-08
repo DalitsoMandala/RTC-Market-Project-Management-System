@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\PopulatePreviousValue;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Models\Project;
@@ -59,8 +60,19 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $a1 = new \App\Helpers\rtc_market\indicators\indicator_B1(financial_year: 1);
-    dd($a1->getDisaggregations());
+    $CLASSES = IndicatorClass::all();
+    $data = [];
+    foreach ($CLASSES as $CLASS) {
+        $class = new $CLASS->class();
+        $data[] = $class->getDisaggregations();
+    }
+
+    $query = new \App\Helpers\rtc_market\indicators\indicator_3_1_1();
+    dd($query->getDisaggregations());
+
+
+
+
 });
 
 

@@ -75,7 +75,7 @@ class indicator_3_5_3
     {
         $total = $this->builder()->count();
         return [
-            'Total' => $total
+            'Total (% Percentage)' => 0
         ];
     }
 }
