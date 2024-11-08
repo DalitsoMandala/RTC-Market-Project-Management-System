@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreignId('indicator_id')->nullable()->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->decimal('total_value', 15, 2); // Adjust precision as needed
             $table->decimal('growth_percentage', 10, 2); // Adjust precision as needed
+            $table->string('name');
             // Optional: Add foreign key constraints
             $table->foreignId('organisation_id')->nullable()->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

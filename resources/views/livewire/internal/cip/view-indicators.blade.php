@@ -40,10 +40,10 @@
                                             $wire.dispatch('refreshData');
                                             this.disable = false;
                                         }, 1000);
-                                
+
                                     },
-                                
-                                
+
+
                                 }">
 
 
@@ -69,7 +69,7 @@
                                 </div>
 
                             </div>
-                            <div class="col">
+                            <div class="col d-none">
 
                                 <div class="dropdown" x-data="{
                                     reportingPeriod: $wire.entangle('selectedReportingPeriod'),
@@ -81,10 +81,10 @@
                                             $wire.dispatch('refreshData');
                                             this.disable = false;
                                         }, 1000);
-                                
+
                                     },
-                                
-                                
+
+
                                 }">
 
 
@@ -123,16 +123,16 @@
                                             $wire.dispatch('refreshData');
                                             this.disable = false;
                                         }, 1000);
-                                
-                                
-                                
-                                
-                                
-                                
+
+
+
+
+
+
                                     },
-                                
+
                                     disable: false
-                                
+
                                 }">
 
 

@@ -47,19 +47,30 @@ class Indicator223 extends Component
 
 
         $reportId = SystemReport::where('indicator_id', $this->indicator_id)
-            ->where('reporting_period_id', $this->reporting_period['id'])
             ->where('project_id', $this->project_id)
             ->where('organisation_id', $this->organisation['id'])
             ->where('financial_year_id', $this->financial_year['id'])
-            ->first();
+            ->pluck('id');
 
 
-        if ($reportId) {
-            $data = SystemReportData::where('system_report_id', $reportId->id)->pluck('value', 'name')->toArray();
-            $this->data = $data;
-            $this->total = $this->data['Total (% Percentage)'];
+        if ($reportId->isNotEmpty()) {
+            // Retrieve and group data by 'name'
+            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
+            $groupedData = $data->groupBy('name');
+
+
+            // Sum each group's values
+            $summedGroups = $groupedData->map(function ($group) {
+                return $group->first()->value;
+            });
+
+
+            // Store the results
+            $this->data = $summedGroups;
+
+            // Retrieve the total if 'Total' is one of the grouped items
+            $this->total = $summedGroups->get('Total (% Percentage)', 0); // Defaults to 0 if 'Total' is not present
         }
-
 
 
 

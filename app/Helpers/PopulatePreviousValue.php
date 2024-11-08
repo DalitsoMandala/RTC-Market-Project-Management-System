@@ -6,7 +6,6 @@ use App\Models\Indicator;
 use App\Models\SystemReport;
 use App\Models\FinancialYear;
 use App\Models\SystemReportData;
-use App\Models\IndicatorPreviousValue;
 use App\Models\PercentageIncreaseIndicator;
 
 class PopulatePreviousValue
@@ -19,68 +18,92 @@ class PopulatePreviousValue
         })->get();
 
         foreach ($indicators as $indicator) {
-            $previousValue = $indicator->baseline->baseline_value;
+            // Initialize each organization's previous value with the baseline
+            $previousValues = [];
+
+            foreach ($indicator->organisation as $organisation) {
+                $previousValues[$organisation->id] = $indicator->baseline->baseline_value;
+            }
 
             foreach ($financialYears as $financialYear) {
-                $organisations = $indicator->organisation;
+                foreach ($indicator->organisation as $organisation) {
+                    // Retrieve the previous value specific to this organization
+                    $previousValue = $previousValues[$organisation->id];
 
-                foreach ($organisations as $organisation) {
-                    $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation);
+                    // Calculate annual value for this financial year and organization
+                    $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)');
                     $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
 
-                    $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation);
+                    // Save or update previous value and growth percentage for the organization
+                    $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)');
 
-                    $previousValue = $annualValue; // Update for next year
+                    // Update the previous value for this organization for the next financial year
+                    $previousValues[$organisation->id] = $annualValue;
                 }
             }
         }
     }
 
-    protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation)
+
+
+    protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name)
     {
+        // For the first year, return the baseline as the annual value
         if ($financialYear->number == 1) {
             return $previousValue;
         }
 
-        $report = SystemReport::where('financial_year_id', $financialYear->id)
+        $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
             ->where('project_id', 1)
+            ->where('organisation_id', $organisation->id)
             ->where('indicator_id', $indicator->id)
-            ->get();
+            ->pluck('id');
 
-        $data = SystemReportData::whereIn('system_report_id', $report->pluck('id'))->get();
+        $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
 
+        // Calculate the annual value based on the indicator's type
         switch ($indicator->indicator_name) {
             case 'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities':
-                return $data->where('name', 'Cassava')->sum('value') +
-                    $data->where('name', 'Potato')->sum('value') +
-                    $data->where('name', 'Sweet potato')->sum('value');
+                return $this->sumDisaggregations($data, $disaggregation_name, [
+                    'Cassava',
+                    'Potato',
+                    'Sweet potato'
+                ]);
 
             case 'Percentage increase in value of formal RTC exports':
-                return $data->where('name', '(Formal) Cassava')->sum('value') +
-                    $data->where('name', '(Formal) Potato')->sum('value') +
-                    $data->where('name', '(Formal) Sweet potato')->sum('value') +
-                    $data->where('name', '(Informal) Cassava')->sum('value') +
-                    $data->where('name', '(Informal) Potato')->sum('value') +
-                    $data->where('name', '(Informal) Sweet potato')->sum('value');
+                return $this->sumDisaggregations($data, $disaggregation_name, [
+                    '(Formal) Cassava',
+                    '(Formal) Potato',
+                    '(Formal) Sweet potato',
+                    '(Informal) Cassava',
+                    '(Informal) Potato',
+                    '(Informal) Sweet potato'
+                ]);
 
             case 'Percentage of value ($) of formal RTC imports substituted through local production':
-                return $data->where('name', '(Formal) Cassava')->sum('value') +
-                    $data->where('name', '(Formal) Potato')->sum('value') +
-                    $data->where('name', '(Formal) Sweet potato')->sum('value');
+                return $this->sumDisaggregations($data, $disaggregation_name, [
+                    '(Formal) Cassava',
+                    '(Formal) Potato',
+                    '(Formal) Sweet potato'
+                ]);
 
             case 'Percentage Increase in the volume of RTC produced':
             case 'Percentage increase in adoption of new RTC technologies':
             case 'Percentage seed multipliers with formal registration':
             case 'Percentage business plans for the production of different classes of RTC seeds that are executed':
             case 'Percentage increase in households consuming RTCs as the main foodstuff (OC)':
-                return $data->where('name', 'Cassava')->sum('value') +
-                    $data->where('name', 'Potato')->sum('value') +
-                    $data->where('name', 'Sweet potato')->sum('value');
+                return $this->sumDisaggregations($data, $disaggregation_name, [
+                    'Cassava',
+                    'Potato',
+                    'Sweet potato'
+                ]);
 
             case 'Percentage increase in RTC investment':
-                return $data->where('name', '(Formal) Cassava')->sum('value') +
-                    $data->where('name', '(Formal) Potato')->sum('value') +
-                    $data->where('name', '(Formal) Sweet potato')->sum('value');
+                return $this->sumDisaggregations($data, $disaggregation_name, [
+                    '(Formal) Cassava',
+                    '(Formal) Potato',
+                    '(Formal) Sweet potato'
+                ]);
 
             case 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)':
                 return $data->where('name', 'Total')->sum('value');
@@ -90,39 +113,46 @@ class PopulatePreviousValue
         }
     }
 
-    protected function calculateGrowthPercentage($annualValue, $baseline)
+    protected function sumDisaggregations($data, $disaggregation_name, array $categories)
     {
-        if ($annualValue == 0) {
-            return 0; // Avoid division by zero
+        if ($disaggregation_name == 'Total (% Percentage)') {
+            return $data->whereIn('name', $categories)->sum('value');
         }
-        return (($annualValue - $baseline) / $annualValue) * 100;
+
+        return $data->where('name', $disaggregation_name)->sum('value');
     }
 
-    protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation)
+    protected function calculateGrowthPercentage($annualValue, $baseline)
+    {
+        if ($annualValue == 0 || $baseline == 0) {
+            return 0; // Avoid division by zero
+        }
+        return round((($annualValue - $baseline) / $baseline) * 100, 2);
+    }
+
+    protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
     {
         PercentageIncreaseIndicator::updateOrCreate(
             [
                 'financial_year_id' => $financialYear->id,
                 'indicator_id' => $indicator->id,
                 'organisation_id' => $organisation->id,
+                'name' => $disaggregation_name
             ],
             [
                 'total_value' => $annualValue,
-                'growth_percentage' => round($growthPercentage, 2),
+                'growth_percentage' => $growthPercentage,
             ]
         );
 
-
-        $reportIds = SystemReport::where('financial_year_id', $financialYear->id)->where('project_id', 1)->where('indicator_id', $indicator->id)
+        $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
+            ->where('project_id', 1)
+            ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
             ->pluck('id');
 
         SystemReportData::whereIn('system_report_id', $reportIds)
-            ->where('name', 'Total (% Percentage)')
-            ->update([
-                'value' => round($growthPercentage, 2)
-            ]);
-
-
+            ->where('name', $disaggregation_name)
+            ->update(['value' => $growthPercentage]);
     }
 }

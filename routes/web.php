@@ -67,8 +67,11 @@ Route::get('/test', function () {
         $data[] = $class->getDisaggregations();
     }
 
-    $query = new \App\Helpers\rtc_market\indicators\indicator_3_1_1();
-    dd($query->getDisaggregations());
+
+
+    $class = new PopulatePreviousValue();
+
+    $class->start(); // percentages
 
 
 
