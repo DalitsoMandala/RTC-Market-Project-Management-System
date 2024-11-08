@@ -170,7 +170,7 @@
                                 'indicator_name' => $indicator_name,
                                 'indicator_id' => $indicator_id,
                                 'project_id' => $project_id,
-                                'reporting_period' => $selectedReportingPeriod,
+     
                                 'financial_year' => $selectedFinancialYear,
                                 'organisation' => $selectedOrganisation,
                             ])

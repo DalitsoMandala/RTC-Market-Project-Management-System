@@ -42,25 +42,13 @@ class UserSeeder extends Seeder
             'organisation_id' => 1,
         ])->assignRole(['admin']);
 
-        User::create([
-            'name' => 'Eliya Kapalasa',
-            'email' => 'user@example.com',
-            'password' => Hash::make('password'),
-            'phone_number' => '+9999999999',
-            'organisation_id' => 1,
-            'image' => 'eliya.jpg'
-        ])->assignRole([
-                    'internal',
-                    'cip',
-                    'manager'
-                ]);
 
         User::create([
             'name' => 'Dalitso Mandala',
             'email' => 'cip@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 1,
+            'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
                     'internal',
                     'cip',
@@ -72,7 +60,7 @@ class UserSeeder extends Seeder
             'email' => 'staff@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 1,
+            'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
                     'internal',
                     'cip',
@@ -86,7 +74,7 @@ class UserSeeder extends Seeder
             'email' => 'iita@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 3,
+            'organisation_id' => getOrganisationId('IITA'),
         ])->assignRole([
                     'external',
 
@@ -97,7 +85,7 @@ class UserSeeder extends Seeder
             'email' => 'tradeline@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 7,
+            'organisation_id' => getOrganisationId('TRADELINE'),
         ])->assignRole([
                     'external',
 
@@ -108,7 +96,7 @@ class UserSeeder extends Seeder
             'email' => 'dcd@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 5,
+            'organisation_id' => getOrganisationId('DCD'),
         ])->assignRole([
                     'external',
 
@@ -119,14 +107,14 @@ class UserSeeder extends Seeder
             'email' => 'daes@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
-            'organisation_id' => 4,
+            'organisation_id' => getOrganisationId('DAES'),
         ])->assignRole([
                     'external',
 
                 ]);
 
         User::create([
-            'name' => 'Janet Malumbo',
+            'name' => 'Marah Malumbo',
             'email' => 'mot@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
@@ -136,7 +124,39 @@ class UserSeeder extends Seeder
 
                 ]);
 
+        User::create([
+            'name' => 'Mary Malumbo',
+            'email' => 'ace@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('ACE'),
+        ])->assignRole([
+                    'external',
 
+                ]);
+
+        User::create([
+            'name' => 'Janet Jackie Malumbo',
+            'email' => 'dars@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('DARS'),
+        ])->assignRole([
+                    'external',
+
+                ]);
+
+
+        User::create([
+            'name' => 'Patrick John Malembe',
+            'email' => 'rtcdt@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('RTCDT'),
+        ])->assignRole([
+                    'external',
+
+                ]);
         //roletype,project,position
     }
 }

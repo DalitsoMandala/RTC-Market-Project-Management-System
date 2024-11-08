@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
         $this->call(DataGenerationSeeder::class);
+        Artisan::call('update:information');
 
     }
 }

@@ -266,6 +266,8 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
     Route::get('/submissions', \App\Livewire\External\Submissions::class)->name('external-submissions');
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
+    Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
+    Route::get('/targets', App\Livewire\Targets\View::class);
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();

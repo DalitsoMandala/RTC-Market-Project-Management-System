@@ -11,7 +11,8 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Indicators</li>
+                            <li class="breadcrumb-item"><a href="/cip/indicators">Indicators</a></li>
+                            <li class="breadcrumb-item active">View Indicator</li>
                         </ol>
                     </div>
 
@@ -68,7 +69,7 @@
                                 </div>
 
                             </div>
-                            <div class="col">
+                            <div class="col d-none">
 
                                 <div class="dropdown" x-data="{
                                     reportingPeriod: $wire.entangle('selectedReportingPeriod'),
@@ -169,9 +170,9 @@
                                 'indicator_name' => $indicator_name,
                                 'indicator_id' => $indicator_id,
                                 'project_id' => $project_id,
-                                'reporting_period' => $selectedReportingPeriod,
+
                                 'financial_year' => $selectedFinancialYear,
-                                'organisation_id' => $selectedOrganisation,
+                                'organisation' => $selectedOrganisation,
                             ])
                         @else
                             <div class="d-flex justify-content-center align-items-center">

@@ -60,15 +60,20 @@ class IndicatorA1 extends Component
             ->where('financial_year_id', $this->financial_year['id'])
             ->pluck('id');
 
+
         if ($reportId->isNotEmpty()) {
             // Retrieve and group data by 'name'
             $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
             $groupedData = $data->groupBy('name');
 
+
+
             // Sum each group's values
             $summedGroups = $groupedData->map(function ($group) {
                 return $group->sum('value'); // Assuming 'value' is the field to be summed
             });
+
+
 
 
             // Store the results

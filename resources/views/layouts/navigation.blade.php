@@ -347,8 +347,8 @@
                                     </div>
                                 </li>
 
-                                <li class="nav-item d-none">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
+                                <li class="nav-item">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-reports') }}" id="topnav-dashboard"
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-table'></i>

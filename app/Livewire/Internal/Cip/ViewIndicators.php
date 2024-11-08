@@ -68,7 +68,7 @@ class ViewIndicators extends Component
         $organisationIds = $indicatorOrganisations->first()->pluck('id');
         $this->organisations = Organisation::whereIn('id', $organisationIds)->get()->toArray();
 
-        $this->selectedOrganisation = Organisation::where('id', $this->organisations[0]['id'])->first()->toArray();
+        $this->selectedOrganisation = Organisation::where('id', auth()->user()->organisation->id)->first()->toArray();
 
         $this->reRender();
 

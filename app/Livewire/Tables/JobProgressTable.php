@@ -97,13 +97,6 @@ final class JobProgressTable extends PowerGridComponent
 
                 ->searchable(),
 
-            Column::make('Started At', 'created_at')
-
-                ->searchable(),
-            Column::make('Errors', 'error')
-
-                ->searchable(),
-
 
 
 
