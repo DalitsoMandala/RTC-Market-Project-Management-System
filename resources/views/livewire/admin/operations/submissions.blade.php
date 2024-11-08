@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Submissions</li>
                         </ol>
                     </div>
@@ -40,15 +40,15 @@
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch-submission" type="button" role="tab"
-                                    aria-controls="home" aria-selected="true">
+                                    data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">
                                     Batch Submissions
                                 </button>
                             </li>
                             {{-- <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
-                                    data-bs-target="#manual-submission" type="button" role="tab"
-                                    aria-controls="profile" aria-selected="false">
+                                    data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
                                     Manual Submissions
                                 </button>
                             </li> --}}
@@ -105,12 +105,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -119,7 +119,7 @@
                 }
             });
         })
-        
+
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -127,10 +127,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('showDataAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -138,8 +138,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })">
 
 
@@ -153,9 +153,9 @@
 
                     <div x-data="{
                         data: $wire.entangle('inputs'),
-                    
-                    
-                    
+
+
+
                     }">
 
 
@@ -192,7 +192,7 @@
                             $wire.status = status;
                             $wire.save();
                         }
-                    
+
                     }">
                         <hr>
 
@@ -208,9 +208,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-                
-                
-                
+
+
+
                 }">
 
 
@@ -257,10 +257,9 @@
                             $wire.status = status;
                             $wire.save();
                         }
-                    
+
                     }">
-                        <button type="button" @click="statusGet('denied')"
-                            class="btn btn-danger">Disapprove</button>
+                        <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
                         <button type="button" @click="statusGet('approved')"
                             class="pr-4 btn btn-primary">Approve</button>
 
@@ -275,15 +274,15 @@
     </div>
 
     @script
-        <script>
-            if (window.location.hash !== '') {
-                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-                if (button) {
-                    button.click();
+    <script>
+        if (window.location.hash !== '') {
+            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+            if (button) {
+                button.click();
 
-                }
             }
-        </script>
+        }
+    </script>
     @endscript
 
 </div>

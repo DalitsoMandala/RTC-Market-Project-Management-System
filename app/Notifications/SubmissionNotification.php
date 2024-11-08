@@ -44,7 +44,7 @@ class SubmissionNotification extends Notification
     {
 
         $mailMessage = new MailMessage();
-        if ($this->status === 'accepted') {
+        if ($this->status === 'approved') {
             $mailMessage
                 ->greeting('Hello ' . $notifiable->name . ',')
                 ->subject('Submission Accepted')

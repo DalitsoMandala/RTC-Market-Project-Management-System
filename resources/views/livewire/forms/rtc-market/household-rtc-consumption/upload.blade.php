@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Upload</li>
                         </ol>
                     </div>
@@ -20,24 +20,37 @@
         <!-- end page title -->
         <div class="row justify-content-center">
             <div class="col-12 col-md-8">
-                <div>
-
-                    <h3 class="mb-5 text-center text-primary">HOUSEHOLD CONSUMPTION FORM</h3>
 
 
-                    @if ($openSubmission === false)
-                        <div class="alert alert-warning" role="alert">
-                            You can not submit a form right now
-                            because submissions are closed for the moment!
-                        </div>
-                    @endif
-                </div>
+                <h3 class="mb-5 text-center text-primary">HOUSEHOLD RTC CONSUMPTION</h3>
 
-                <div class="my-2 border shadow-none card card-body">
+                <x-alerts />
+
+
+
+
+
+
+                @if (!$targetSet)
+                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                @endif
+
+                @if ($openSubmission === false)
+                    <div class="alert alert-warning" role="alert">
+                        You can not submit a form right now
+                        because submissions are closed for the moment!
+                    </div>
+                @endif
+
+                <div class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif"
+                    x-data="{
+                        selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
+                        selectedMonth: $wire.entangle('selectedMonth'),
+                        selectedIndicator: $wire.entangle('selectedIndicator'),
+                    }">
                     <h5> Instructions</h5>
-                    <p class="alert bg-info-subtle text-uppercase">Download the household
-                        RTC
-                        consumption template & uploading your
+                    <p class="alert bg-info-subtle text-uppercase">Download the Household Rtc consumption template &
+                        upload your
                         data.</p>
 
                     <form wire:submit='submitUpload'>
@@ -47,12 +60,7 @@
                                 Download template <i class="bx bx-download"></i> </a>
                             <hr>
                         </div>
-                        <div class="row">
-                            <div class="col">
 
-                                <x-alerts />
-                            </div>
-                        </div>
                         <div id="table-form">
                             <div class="row">
                                 <div class="col">
@@ -60,39 +68,36 @@
 
                                 </div>
                                 @if ($importing && !$importingFinished)
-                                    <div class="alert alert-warning" wire:poll.5s='checkErrors()'>Importing your
+                                    <div class="alert alert-warning d-flex justify-content-between"
+                                        wire:poll.5s='checkProgress()'>Importing your
                                         file
-                                        Please wait....</div>
+                                        Please wait....
+
+                                        <div class=" d-flex align-content-center ">
+                                            <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
 
 
-
-                                    <div x-data="{
-                                        progress: 0,
-                                    
-                                    
-                                    }"
-                                        @progress-update.window="progress = $event.detail.progress; ">
-
-                                        <div x-show="progress > 0">
-                                            <div class="d-flex justify-content-end">
-
-
-                                                <p class="fw-bolder text-primary"> <span x-text="progress + '%'"></span>
-                                                </p>
-
+                                            <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                                <span class="visually-hidden">Loading...</span>
                                             </div>
-
-                                            <div x-data class="my-2 progress progress-sm">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                                    role="progressbar" :style="{ width: progress + '%' }"
-                                                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-
-                                                </div>
-                                            </div>
-
 
                                         </div>
                                     </div>
+
+
+
+
+
+                                    <div x-data class="my-2 progress progress-sm">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                            role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
+                                            aria-valuemin="0" aria-valuemax="100">
+
+                                        </div>
+                                    </div>
+
+
+
                                 @endif
 
 
@@ -107,11 +112,12 @@
                                         <x-error class="text-center ">{{ $message }}</x-error>
                                     </div>
                                 @enderror
-                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                <div class="mt-5 d-flex justify-content-center"
+                                    x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"
-                                        class="btn btn-primary ">
+                                        class="btn btn-primary px-5 ">
                                         Submit data
                                     </button>
 
@@ -122,21 +128,27 @@
                             </div>
                         </div>
 
+
+                    </form>
+
+                    <small></small>
                 </div>
-                </form>
-
-
-
-
             </div>
         </div>
+
+
+
+
+
+
+
     </div>
 
-
-
-
 </div>
-
-
-
-</div>
+@script
+<script>
+    $wire.on('complete-submission', () => {
+        $wire.send();
+    });
+</script>
+@endscript

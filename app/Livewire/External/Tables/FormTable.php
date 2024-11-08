@@ -80,7 +80,6 @@ final class FormTable extends PowerGridComponent
         // ;
 
         return $query;
-
     }
 
 
@@ -107,19 +106,17 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-    
+
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {
 
                 return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
-
             })
             ->add('project_id')
             ->add('project', function ($model) {
                 $form = Form::find($model->form->id);
                 return $form->project->name;
-
             })
 
             ->add('submission_duration', function ($model) {
@@ -127,7 +124,6 @@ final class FormTable extends PowerGridComponent
                 $date_start = Carbon::parse($model->date_established)->format('d F Y') ?? null;
                 $date_end = Carbon::parse($model->date_ending)->format('d F Y') ?? null;
                 return "{$date_start} - {$date_end}";
-
             })
 
             ->add('remaining_days', function ($model) {
@@ -144,9 +140,7 @@ final class FormTable extends PowerGridComponent
                     } else {
                         return "<b>{$date_end}</b>";
                     }
-
                 }
-
             })
             ->add('submission_status', function ($model) {
                 $userId = $this->userId;
@@ -159,7 +153,6 @@ final class FormTable extends PowerGridComponent
                     return '<span class="badge bg-danger">Not submitted</span>';
                 } else {
                     return '<span class="badge bg-success">Submitted</span>';
-
                 }
             })
             ->add('financial_year', fn($model) => FinancialYear::find($model->financial_year_id)->number)
@@ -187,18 +180,14 @@ final class FormTable extends PowerGridComponent
             Column::make('Project', 'project')
                 ->sortable(),
 
-            Column::make('Open for submission', 'open_for_submission')
-            ,
+            Column::make('Open for submission', 'open_for_submission'),
 
             Column::make('Indicator', 'indicator'),
 
-            Column::make('Submission Period', 'submission_period')
-            ,
+            Column::make('Submission Period', 'submission_period'),
 
-            Column::make('Financial Year', 'financial_year')
-            ,
-            Column::make('Submission Dates', 'submission_duration')
-            ,
+            Column::make('Financial Year', 'financial_year'),
+            Column::make('Submission Dates', 'submission_duration'),
 
 
 
@@ -216,9 +205,7 @@ final class FormTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     #[On('edit')]
@@ -269,13 +256,8 @@ final class FormTable extends PowerGridComponent
 
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-
-
-
-
         } else {
             $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-
         }
 
         $this->redirect($route);
@@ -317,6 +299,17 @@ final class FormTable extends PowerGridComponent
 
         // Check if the organisation is responsible for the indicator
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
+
+        $currentDate  = Carbon::now();
+        $establishedDate = $row->date_established;
+        $endDate = $row->end_date;
+
+        $startDate  = Carbon::parse($establishedDate);
+        $endDate  = Carbon::parse($endDate);
+
+        $withinDateRange = $currentDate->between($startDate, $endDate);
+
+        //  $check = SubmissionPeriod::wherebet;
         return [
 
 
@@ -328,7 +321,7 @@ final class FormTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
                 ->disable(),
 
             Rule::button('upload')
@@ -342,6 +335,10 @@ final class FormTable extends PowerGridComponent
                     }
                 })
                 ->disable(),
+
+            Rule::button('upload')
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
+                ->disable(),
         ];
     }
 
@@ -350,5 +347,4 @@ final class FormTable extends PowerGridComponent
 
         $this->dispatch('reload-tooltips');
     }
-
 }

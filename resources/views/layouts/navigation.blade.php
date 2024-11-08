@@ -13,6 +13,11 @@
                 </a>
             </div>
 
+            @php
+            $routePrefixMain = \Illuminate\Support\Facades\Route::current()->getPrefix();
+            @endphp
+
+
             <button type="button" class="px-3 btn btn-sm font-size-16 d-lg-none header-item" data-bs-toggle="collapse"
                 data-bs-target="#topnav-menu-content">
                 <i class="fa fa-fw fa-bars"></i>
@@ -173,7 +178,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('internal|cip|organiser')
+                @hasallroles('internal|cip|manager')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -187,7 +192,15 @@
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
                                 </li>
-
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{$routePrefixMain}}/baseline" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Baseline Data</span>
+                                    </a>
+                                </li>
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard"
@@ -237,6 +250,35 @@
                                     </div>
                                 </li>
 
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Other Forms</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ $routePrefixMain}}/seed-beneficiaries" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">Seed Beneficiaries</span>
+
+                                        </a>
+                                        <!-- <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ $routePrefixMain}}/seed-distribution" id="topnav-utility"
+                                            role="button">
+                                            <span data-key="t-utility">Seeed Disribution</span>
+
+                                        </a> -->
+
+
+
+                                    </div>
+                                </li>
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ route('cip-internal-reports') }}" id="topnav-dashboard" role="button"
@@ -249,7 +291,7 @@
                         </div>
                     </nav>
                 @endhasallroles
-                @hasallroles('external|organiser')
+                @hasallroles('external')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -305,8 +347,8 @@
                                     </div>
                                 </li>
 
-                                <li class="nav-item d-none">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="#" id="topnav-dashboard"
+                                <li class="nav-item">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-reports') }}" id="topnav-dashboard"
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-table'></i>
@@ -318,7 +360,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('internal|staff')
+                @hasallroles('internal|cip|staff')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -388,35 +430,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('external|donor')
-                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
-                        <div class="collapse navbar-collapse" id="topnav-menu-content">
-                            <ul class="navbar-nav">
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('donor-dashboard') }}"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('donor-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
-                                    </a>
-                                </li>
-
-
-
-                            </ul>
-                        </div>
-                    </nav>
-                @endhasallroles
             </div>
         </div>
 

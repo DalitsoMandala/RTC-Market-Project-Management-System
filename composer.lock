@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d961d78bd32036d486d2ab3123e5a62",
+    "content-hash": "48774fca2f014fd5726835d608cf4dd4",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -3360,16 +3360,16 @@
         },
         {
             "name": "power-components/livewire-powergrid",
-            "version": "v5.6.4",
+            "version": "v5.10.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Power-Components/livewire-powergrid.git",
-                "reference": "8499b461032447a905152fc6af9b422a83e9dc10"
+                "reference": "98690cdb62ceafd46984f210688b4fb28bb432c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Power-Components/livewire-powergrid/zipball/8499b461032447a905152fc6af9b422a83e9dc10",
-                "reference": "8499b461032447a905152fc6af9b422a83e9dc10",
+                "url": "https://api.github.com/repos/Power-Components/livewire-powergrid/zipball/98690cdb62ceafd46984f210688b4fb28bb432c1",
+                "reference": "98690cdb62ceafd46984f210688b4fb28bb432c1",
                 "shasum": ""
             },
             "require": {
@@ -3386,6 +3386,7 @@
                 "laradumps/laradumps-core": "^2.0",
                 "larastan/larastan": "^2.9.0",
                 "laravel/pint": "^1.14.0",
+                "laravel/scout": "^10.9",
                 "orchestra/testbench": "8.19|^9.0",
                 "pestphp/pest": "^2.34.0"
             },
@@ -3428,7 +3429,7 @@
             "homepage": "https://github.com/power-components/livewire-powergrid",
             "support": {
                 "issues": "https://github.com/Power-Components/livewire-powergrid/issues",
-                "source": "https://github.com/Power-Components/livewire-powergrid/tree/v5.6.4"
+                "source": "https://github.com/Power-Components/livewire-powergrid/tree/v5.10.7"
             },
             "funding": [
                 {
@@ -3436,7 +3437,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-20T19:12:08+00:00"
+            "time": "2024-10-01T11:12:07+00:00"
         },
         {
             "name": "psr/clock",

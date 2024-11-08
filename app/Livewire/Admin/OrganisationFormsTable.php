@@ -54,10 +54,9 @@ final class OrganisationFormsTable extends PowerGridComponent
                 $data = $model->organisation->pluck('name');
 
                 return implode(', ', $data->toArray());
-
-
             })
             ->add('indicator_id')
+            ->add('indicator_no', fn($model) => $model->indicator_no)
             ->add('indicator', fn($model) => $model->indicator_name)
             ->add('forms', function ($model) {
                 $sources = $model->responsiblePeopleforIndicators->pluck('id');
@@ -101,6 +100,7 @@ final class OrganisationFormsTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
+            Column::make('Indicator #', 'indicator_no'),
             Column::make('Indicator', 'indicator'),
             Column::make('Organisation', 'organisation')->searchable(),
 
@@ -114,14 +114,10 @@ final class OrganisationFormsTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
     #[\Livewire\Attributes\On('refresh')]
-    public function refreshData(): void
-    {
-
-    }
+    public function refreshData(): void {}
 
     public function actions($row): array
     {

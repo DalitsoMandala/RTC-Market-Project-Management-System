@@ -9,5 +9,6 @@ class JobProgress extends Model
 {
     use HasFactory;
     protected $table = 'job_progress';
-    protected $guarded = ['id'];
+
+    protected $fillable = ['cache_key', 'total_rows', 'processed_rows', 'progress', 'status', 'user_id', 'form_name', 'error'];
 }

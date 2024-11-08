@@ -22,6 +22,12 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
     {
         return 'RTC_FARMERS';
     }
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
     public function collection()
     {
         $faker = Faker::create();
@@ -60,7 +66,11 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
 
                 $data[] = [
                     '#' => $count++,
-                    'ENTERPRISE' => $faker->randomElement(['CASSAVA', 'POTATO', 'SWEET POTATO']),
+                    'ENTERPRISE' => $faker->randomElement([
+                        'CASSAVA',
+                        'POTATO',
+                        'SWEET POTATO'
+                    ]),
                     'DISTRICT' => $faker->randomElement([
                         'BALAKA',
                         'BLANTYRE',
@@ -107,15 +117,28 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
                         'COLLECTIVE PRODUCTION, MARKETING AND KNOWLEDGE SHARING',
                         'N/A',
                     ]),
-                    'SECTOR' => $faker->randomElement(['PRIVATE', 'PUBLIC']),
+                    'SECTOR' => $faker->randomElement([
+                        'PRIVATE',
+                        'PUBLIC'
+                    ]),
                     'NUMBER OF MEMBERS/TOTAL' => $faker->numberBetween(10, 100) * 10,
                     'NUMBER OF MEMBERS/FEMALE 18-35YRS' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF MEMBERS/FEMALE 35YRS+' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF MEMBERS/MALE 18-35YRS' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF MEMBERS/MALE 35YRS+' => $faker->numberBetween(1, 100) * 10,
-                    'GROUP' => $faker->randomElement(['EARLY GENERATION SEED PRODUCER', 'SEED MULTIPLIER', 'RTC PRODUCER']),
-                    'ESTABLISHMENT STATUS' => $faker->randomElement(['NEW', 'OLD']),
-                    'IS REGISTERED' => $faker->randomElement(['Yes', "No"]),
+                    'GROUP' => $faker->randomElement([
+                        'EARLY GENERATION SEED PRODUCER',
+                        'SEED MULTIPLIER',
+                        'RTC PRODUCER'
+                    ]),
+                    'ESTABLISHMENT STATUS' => $faker->randomElement([
+                        'NEW',
+                        'OLD'
+                    ]),
+                    'IS REGISTERED' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
                     'REGISTRATION DETAILS/REGISTRATION BODY' => strtoupper($faker->company()),
                     'REGISTRATION DETAILS/REGISTRATION NUMBER' => $faker->regexify('[A-Z]{5}[0-4]{3}'),
                     'REGISTRATION DETAILS/REGISTRATION DATE' => $faker->date('Y-m-d'),
@@ -130,11 +153,31 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
                     'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 18-35YRS' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF EMPLOYEES/INFORMAL EMPLOYEES/MALE 35YRS+' => $faker->numberBetween(1, 100) * 10,
                     'AREA UNDER CULTIVATION/TOTAL' => $faker->numberBetween(1, 100) * 10,
-                    'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CULTIVATION/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CULTIVATION/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CULTIVATION/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
+                    'AREA UNDER CULTIVATION/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CULTIVATION/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CULTIVATION/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CULTIVATION/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CULTIVATION/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
                     'NUMBER OF PLANTLETS PRODUCED/CASSAVA' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF PLANTLETS PRODUCED/POTATO' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF PLANTLETS PRODUCED/SWEET POTATO' => $faker->numberBetween(1, 100) * 10,
@@ -142,40 +185,130 @@ class RtcProductionFarmerMainSheet implements FromCollection, WithTitle, WithHea
                     'NUMBER OF SCREEN HOUSE MIN TUBERS HARVESTED' => $faker->numberBetween(1, 100) * 10,
                     'NUMBER OF SAH PLANTS PRODUCED' => $faker->numberBetween(1, 100) * 10,
                     'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/TOTAL' => $faker->numberBetween(1, 100) * 10,
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 6 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 7 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 6 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER BASIC SEED MULTIPLICATION (NUMBER OF ACRES)/VARIETY 7 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
                     'AREA UNDER CERTIFIED SEED MULTIPLICATION/TOTAL' => $faker->numberBetween(1, 100) * 10,
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 6 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 7 (SPECIFY)' => strtoupper($faker->randomElement(['Variety A', 'Variety B', 'Variety C'])),
-                    'IS REGISTERED SEED PRODUCER' => $faker->randomElement(['Yes', "No"]),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 1 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 2 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 3 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 4 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 5 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 6 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'AREA UNDER CERTIFIED SEED MULTIPLICATION/VARIETY 7 (SPECIFY)' => strtoupper($faker->randomElement([
+                        'Variety A',
+                        'Variety B',
+                        'Variety C'
+                    ])),
+                    'IS REGISTERED SEED PRODUCER' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
                     'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION NUMBER' => $faker->regexify('[A-Z]{5}[0-4]{3}'),
                     'REGISTRATION DETAILS (SEED SERVICES UNIT)/REGISTRATION DATE' => $faker->date('Y-m-d'),
-                    'USES CERTIFIED SEED' => $faker->randomElement(['Yes', "No"]),
-                    'MARKET SEGMENT/Fresh' => $faker->randomElement(['Yes', "No"]),
-                    'MARKET SEGMENT/Processed' => $faker->randomElement(['Yes', "No"]),
-                    'HAS RTC MARKET CONTRACT' => $faker->randomElement(['Yes', "No"]),
+                    'USES CERTIFIED SEED' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'MARKET SEGMENT/Fresh' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'MARKET SEGMENT/Processed' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'HAS RTC MARKET CONTRACT' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
                     'TOTAL VOLUME PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL VALUE PRODUCTION PREVIOUS SEASON (FINANCIAL VALUE-MWK)/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
                     'TOTAL VOLUME IRRIGATION PRODUCTION PREVIOUS SEASON' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/TOTAL' => $faker->numberBetween(1, 100) * 10,
                     'TOTAL IRRIGATION PRODUCTION VALUE PREVIOUS SEASON/DATE OF MAXIMUM SALES' => $faker->date('Y-m-d'),
-                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement(['Yes', "No"]),
-                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement(['Yes', "No"]),
-                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement(['Yes', "No"]),
-                    'MARKET INFORMATION SYSTEMS' => strtoupper($faker->randomElement(['System A', 'System B', 'System C'])),
-                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement(['Yes', "No"]),
-                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement(['Yes', "No"]),
+                    'SELLS TO DOMESTIC MARKETS' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'SELLS TO INTERNATIONAL MARKETS' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'USES MARKET INFORMATION SYSTEMS' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'MARKET INFORMATION SYSTEMS' => strtoupper($faker->randomElement([
+                        'System A',
+                        'System B',
+                        'System C'
+                    ])),
+                    'SELLS TO AGGREGATION CENTERS' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
+                    'AGGREGATION CENTERS/RESPONSE' => $faker->randomElement([
+                        'Yes',
+                        "No"
+                    ]),
                     'AGGREGATION CENTERS/SPECIFY' => $faker->streetName,
                     'TOTAL AGGREGATION CENTER SALES VOLUME' => $faker->numberBetween(1, 100) * 10,
                 ];

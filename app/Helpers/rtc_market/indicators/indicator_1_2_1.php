@@ -22,14 +22,13 @@ class indicator_1_2_1
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
 
         $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->where('indicator_no', '1.2.1')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -68,7 +67,6 @@ class indicator_1_2_1
 
 
         return $query;
-
     }
 
     public function getTotals()
@@ -86,33 +84,28 @@ class indicator_1_2_1
 
 
 
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
                 $json = collect(json_decode($model->data, true));
 
-
-
+                // Add the values for each key to the totals
                 foreach ($data as $key => $dt) {
-
                     if ($json->has($key)) {
-
                         $data->put($key, $data->get($key) + $json[$key]);
                     }
                 }
-
             });
-
-
-        }
+        });
 
         return $data;
     }
     public function getDisaggregations()
     {
+        $totals = $this->getTotals()->toArray();
 
-        return $this->getTotals()->toArray();
+        return [
+            'Total' => $totals['Total']
+        ];
     }
-
 }

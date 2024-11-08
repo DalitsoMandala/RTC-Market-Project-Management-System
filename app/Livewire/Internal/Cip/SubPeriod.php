@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use App\Models\IndicatorDisaggregation;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Form;
@@ -18,6 +19,7 @@ use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
 use App\Models\ReportingPeriodMonth;
+use App\Models\SubmissionTarget;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
 
@@ -47,18 +49,61 @@ class SubPeriod extends Component
     #[Validate('required')]
     public $selectedProject;
     public $expired;
-
+    public $disaggregations = [];
     public $indicators = [];
 
     #[Validate('required')]
     public $selectedIndicator;
 
     public $all;
+
+    public $targets = []; // This will hold the dynamically added targets
+    public $disableTarget = true;
+
+
+    protected $rules = [
+        'targets.*' => 'required',
+        'targets.*.name' => 'required|string|distinct',
+        'targets.*.value' => 'required|numeric',
+    ];
+
+
+    protected $messages = [
+        'targets.*.name.required' => 'Target name required',
+        'targets.*.value.required' => 'Target value required',
+        'targets.*.value.numeric' => 'Target value must be numeric',
+        'targets.*.name.distinct' => 'Target name must be unique',
+
+    ];
+
     public function mount()
     {
         $this->loadData();
+        //  $this->targets = [['name' => 'Total', 'value' => '']];
+    }
+    /**
+     * Add a new target to the array
+     */
+    public function addTarget()
+    {
+
+        $this->targets->push([
+            'name' => null,
+            'value' => null
+        ]);
+
+
     }
 
+    /**
+     * Remove a target from the array
+     */
+    public function removeTarget($index)
+    {
+        //  unset($this->targets[$index]);
+        //  $this->targets = array_values($this->targets); // Reindex the array
+        $this->targets = $this->targets->forget($index)->values();
+    }
     public function loadData()
     {
         $this->projects = Project::all();
@@ -66,12 +111,21 @@ class SubPeriod extends Component
         $this->months = ReportingPeriodMonth::all();
         $this->indicators = Indicator::all();
         $this->forms = Form::all();
+        $this->disaggregations = IndicatorDisaggregation::all();
+        $this->fill([
+            'targets' => collect([
+                [
+                    'name' => '',
+                    'value' => ''
+                ]
+            ])
+        ]);
     }
 
     #[On('editData')]
     public function fillData($rowId)
     {
-        $this->resetErrorBag();
+
         $this->rowId = $rowId;
 
         $submissionPeriod = SubmissionPeriod::findOrFail($rowId);
@@ -98,9 +152,15 @@ class SubPeriod extends Component
             $formIds = $indicator->forms->pluck('id');
             $this->all = $formIds;
             $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
+
+
             $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
+            $this->dispatch('set-targets');
         }
     }
+
+
+
 
     public function updateProjectRelatedData($project)
     {
@@ -118,28 +178,52 @@ class SubPeriod extends Component
     {
         try {
             $this->validate();
+
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
         }
 
-        $data = [
-            'date_established' => $this->start_period,
-            'date_ending' => $this->end_period,
-            'is_open' => !$this->expired && $this->status,
-            'form_id' => $this->selectedForm[0],
-            'is_expired' => $this->expired ?? false,
-            'month_range_period_id' => $this->selectedMonth,
-            'financial_year_id' => $this->selectedFinancialYear,
-            'indicator_id' => $this->selectedIndicator,
-        ];
 
         try {
+            $data = [
+                'date_established' => $this->start_period,
+                'date_ending' => $this->end_period,
+                'is_open' => !$this->expired && $this->status,
+                'form_id' => $this->selectedForm[0],
+                'is_expired' => $this->expired ?? false,
+                'month_range_period_id' => $this->selectedMonth,
+                'financial_year_id' => $this->selectedFinancialYear,
+                'indicator_id' => $this->selectedIndicator,
+            ];
             if ($this->rowId) {
                 $submissions = Submission::where('period_id', $this->rowId)->count();
                 if ($submissions === 0) {
+
+
                     SubmissionPeriod::find($this->rowId)->update($data);
+                    $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                        ->where('financial_year_id', $this->selectedFinancialYear)
+                        ->get();
+                    if ($checkTargets->isNotEmpty()) {
+                        foreach ($checkTargets as $target) {
+                            $target->delete();
+                        }
+                    }
+
+                    foreach ($this->targets as $target) {
+                        SubmissionTarget::create([
+
+                            'financial_year_id' => $this->selectedFinancialYear,
+                            'indicator_id' => $this->selectedIndicator,
+                            'target_name' => $target['name'],
+                            'target_value' => $target['value'],
+                        ]);
+                    }
+                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
                     session()->flash('success', 'Updated Successfully');
+
+
                 } else {
                     session()->flash('error', 'Cannot update this record because it has submissions.');
                 }
@@ -169,6 +253,26 @@ class SubPeriod extends Component
                     foreach ($this->selectedForm as $formId) {
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }
+
+
+                    $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                        ->where('financial_year_id', $this->selectedFinancialYear)
+                        ->get();
+                    if ($checkTargets->isNotEmpty()) {
+                        foreach ($checkTargets as $target) {
+                            $target->delete();
+                        }
+                    }
+
+                    foreach ($this->targets as $target) {
+                        SubmissionTarget::create([
+
+                            'financial_year_id' => $this->selectedFinancialYear,
+                            'indicator_id' => $this->selectedIndicator,
+                            'target_name' => $target['name'],
+                            'target_value' => $target['value'],
+                        ]);
+                    }
                     session()->flash('success', 'Created Successfully');
 
 
@@ -187,37 +291,43 @@ class SubPeriod extends Component
 
 
 
-        $users = User::all();
+        $users = User::with('roles')->get();
         $indicatorFound = Indicator::find($Indicator);
         foreach ($users as $user) {
 
-            if ($user->hasAnyRole('external')) {
-                $organisationId = $user->organisation->id;
+
+            $organisationId = $user->organisation->id;
 
 
-                $responsiblePeople = ResponsiblePerson::where('indicator_id', $indicatorFound->id)
-                    ->where('organisation_id', $organisationId)
-                    ->first();
+            $responsiblePeople = ResponsiblePerson::where('indicator_id', $indicatorFound->id)
+                ->where('organisation_id', $organisationId)
+                ->first();
 
 
-                // Check if the organisation has responsible people
-                $hasResponsiblePeople = $responsiblePeople !== null;
+            // Check if the organisation has responsible people
+            $hasResponsiblePeople = $responsiblePeople !== null;
 
-                // Check if the responsible person has the required form
-                $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
+            // Check if the responsible person has the required form
+            $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
 
-                if ($hasFormAccess) {
+            if ($hasFormAccess) {
 
-                    $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
-                    $link = env('APP_URL');
+                $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
+                $link = env('APP_URL');
+                // $roles = $user->roles;
+                // $roleNames = $roles->pluck('name');
 
-                    SendNotificationJob::dispatch($user, $messageContent, $link);
-                }
+                // if ($roleNames->contains('staff') || $roleNames->contains('external')) {
+
+                // }
+
+                SendNotificationJob::dispatch($user, $messageContent, $link);
+
 
             }
-
         }
     }
+
 
 
     public function updatedSelectedProject($value)
@@ -241,9 +351,44 @@ class SubPeriod extends Component
                 $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }
+
+
     }
 
-    public function updatedSelectedIndicator()
+    public function getTargets()
+    {
+
+        $indicator = Indicator::find($this->selectedIndicator);
+
+        if ($indicator) {
+            $disaggregations = $indicator->disaggregations()->pluck('name')->toArray();
+
+            $this->disaggregations = $disaggregations;
+        }
+
+        $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+            ->where('financial_year_id', $this->selectedFinancialYear)
+            ->get();
+        if ($targets->count() > 0) {
+            $newTargets = [];
+
+            // Loop through $targets and populate $newTargets
+            foreach ($targets as $target) {
+                $newTargets[] = [
+                    'name' => $target->target_name,
+                    'value' => $target->target_value,
+                ];
+            }
+
+            $this->fill([
+                'targets' => collect($newTargets)
+            ]);
+        }
+
+
+
+    }
+    public function updatedSelectedIndicator($value)
     {
         if (!$this->rowId) {
             $this->selectedForm = null;
@@ -260,8 +405,6 @@ class SubPeriod extends Component
     public function render()
     {
 
-        return view('livewire.internal.cip.sub-period', [
-
-        ]);
+        return view('livewire.internal.cip.sub-period', []);
     }
 }

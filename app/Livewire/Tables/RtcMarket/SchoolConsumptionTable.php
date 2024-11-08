@@ -55,6 +55,9 @@ final class SchoolConsumptionTable extends PowerGridComponent
             ->add('section')
             ->add('date_formatted', fn($model) => Carbon::parse($model->date)->format('d/m/Y'))
             ->add('crop')
+            ->add('crop_cassava')
+            ->add('crop_potato')
+            ->add('crop_sweet_potato')
             ->add('male_count')
             ->add('female_count')
             ->add('total', function ($model) {
@@ -72,7 +75,6 @@ final class SchoolConsumptionTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('updated_at');
     }
@@ -89,7 +91,6 @@ final class SchoolConsumptionTable extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -110,13 +111,25 @@ final class SchoolConsumptionTable extends PowerGridComponent
             Column::make('School ID', 'sc_id')->sortable()->searchable(),
             Column::make('School Name', 'school_name', 'school_name')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
-            Column::make('EPA', 'epa', )->sortable()->searchable(),
-            Column::make('Section', 'section', )->sortable()->searchable(),
+            Column::make('EPA', 'epa',)->sortable()->searchable(),
+            Column::make('Section', 'section',)->sortable()->searchable(),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable()->searchable(),
 
             Column::make('Crop', 'crop')
+                ->sortable()
+                ->hidden()
+                ->searchable(),
+
+            Column::make('Cassava', 'crop_cassava')
+                ->sortable()
+                ->searchable(),
+
+            Column::make('Potato', 'crop_potato')
+                ->sortable()
+                ->searchable(),
+            Column::make('Sweet potato', 'crop_sweet_potato')
                 ->sortable()
                 ->searchable(),
 
@@ -169,5 +182,4 @@ final class SchoolConsumptionTable extends PowerGridComponent
     {
         $this->js('alert(' . $rowId . ')');
     }
-
 }

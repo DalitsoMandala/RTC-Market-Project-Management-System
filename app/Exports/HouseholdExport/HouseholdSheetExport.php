@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Exports\HouseholdExport;
+
+use App\Models\HouseholdRtcConsumption;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+
+class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
+{
+    protected $uuid;
+    protected $userId;
+    protected $submissionPeriodId;
+    protected $organisationId;
+    protected $financialYearId;
+    protected $reportingPeriodMonthId;
+    protected $status;
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
+
+
+    public function headings(): array
+    {
+        return [
+            'ID',
+            'EPA',
+            'Section',
+            'District',
+            'Enterprise Type',
+            'Date of Assessment',
+            'Actor Type (Farmer, Trader, etc.)',
+            'RTC Group/Platform',
+            'Producer Organisation',
+            'Actor Name',
+            'Age Group',
+            'Sex',
+            'Phone Number',
+            'Household Size',
+            'Under 5 in Household',
+            'RTC Consumers (Total)',
+            'RTC Consumers - Potato',
+            'RTC Consumers - Sweet Potato',
+            'RTC Consumers - Cassava',
+            'RTC Consumption Frequency',
+            // Exclude hidden fields and Household ID
+        ];
+    }
+
+    public function collection(): Collection
+    {
+
+        if ($this->template) {
+            return collect([]);
+        }
+        return HouseholdRtcConsumption::select([
+            'id',
+            'epa',
+            'section',
+            'district',
+            'enterprise_type',
+            'date_of_assessment',
+            'actor_type',
+            'rtc_group_platform',
+            'producer_organisation',
+            'actor_name',
+            'age_group',
+            'sex',
+            'phone_number',
+            'household_size',
+            'under_5_in_household',
+            'rtc_consumers_total',
+            'rtc_consumers_potato',
+            'rtc_consumers_sw_potato',
+            'rtc_consumers_cassava',
+            'rtc_consumption_frequency',
+            
+            // Exclude hidden fields and Household ID
+
+
+        ])->get();
+
+
+    }
+
+    public function title(): string
+    {
+        return 'Household Data';
+    }
+}

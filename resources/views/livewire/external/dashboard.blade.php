@@ -38,7 +38,7 @@
                 </div>
             </div>
         </div>
-        <div class="row @if ($showContent) d-none @endif" x-data x-init="$wire.loadData()">
+        <div class="row my-5 @if ($showContent) d-none @endif" x-data x-init="$wire.loadData()">
             <div class="col-12">
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="spinner-border text-primary spinner-border-lg" role="status">
@@ -49,7 +49,7 @@
 
             </div>
 
-            <div class="loading">
+            <div class="loading my-5">
                 <div class="col-12">
                     <div class="row">
                         <div class="col-8">
@@ -134,8 +134,7 @@
                     <div class="col">
 
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             <strong>Submission are open!</strong> Please submit your data/reports before the closing
                             dates. <a href="/external/submission-periods" class="alert-link">Click Here</a>
                         </div>
@@ -173,57 +172,57 @@
                                 </div>
                                 <div class="row ">
                                     <div class="col-12 col-sm-6" x-data="{
-                                        chartData: @js($data['actors']),
-                                        categories: ['Farmers', 'Processors', 'Traders'],
-                                        values: [],
-                                        init() {
-                                            let data = this.chartData;
-                                            this.values = [data['Farmers'], data['Processors'], data['Traders']];
-                                            options = {
-                                                chart: {
-                                                    type: 'pie',
-                                    
-                                    
-                                                },
-                                                labels: this.categories,
-                                                series: this.values,
-                                                colors: ['#006989', '#E88D67', '#FA7070'],
-                                                legend: {
-                                                    position: 'top'
-                                                }
-                                            }
-                                    
-                                            let chart = new ApexCharts($refs.chart, options);
-                                            chart.render();
-                                        }
-                                    }">
+                                                                    chartData: @js($data['actors']),
+                                                                    categories: ['Farmers', 'Processors', 'Traders'],
+                                                                    values: [],
+                                                                    init() {
+                                                                        let data = this.chartData;
+                                                                        this.values = [data['Farmers'], data['Processors'], data['Traders']];
+                                                                        options = {
+                                                                            chart: {
+                                                                                type: 'pie',
+
+
+                                                                            },
+                                                                            labels: this.categories,
+                                                                            series: this.values,
+                                                                            colors: ['#006989', '#E88D67', '#FA7070'],
+                                                                            legend: {
+                                                                                position: 'top'
+                                                                            }
+                                                                        }
+
+                                                                        let chart = new ApexCharts($refs.chart, options);
+                                                                        chart.render();
+                                                                    }
+                                                                }">
                                         <div x-ref="chart"></div>
                                     </div>
 
                                     <div class=" col-12 col-sm-6" x-data="{
-                                        chartData: @js($data['actors']),
-                                        categories: ['Cassava', 'Potato', 'Sweet potato'],
-                                        values: [],
-                                        init() {
-                                            let data = this.chartData;
-                                            this.values = [data['Cassava'], data['Potato'], data['Sweet potato']];
-                                            options = {
-                                                chart: {
-                                                    type: 'donut',
-                                    
-                                                },
-                                                labels: this.categories,
-                                                series: this.values,
-                                                colors: ['#006989', '#E88D67', '#FA7070'],
-                                                legend: {
-                                                    position: 'top'
-                                                }
-                                            }
-                                    
-                                            let chart = new ApexCharts($refs.chart, options);
-                                            chart.render();
-                                        }
-                                    }">
+                                                                    chartData: @js($data['actors']),
+                                                                    categories: ['Cassava', 'Potato', 'Sweet potato'],
+                                                                    values: [],
+                                                                    init() {
+                                                                        let data = this.chartData;
+                                                                        this.values = [data['Cassava'], data['Potato'], data['Sweet potato']];
+                                                                        options = {
+                                                                            chart: {
+                                                                                type: 'donut',
+
+                                                                            },
+                                                                            labels: this.categories,
+                                                                            series: this.values,
+                                                                            colors: ['#006989', '#E88D67', '#FA7070'],
+                                                                            legend: {
+                                                                                position: 'top'
+                                                                            }
+                                                                        }
+
+                                                                        let chart = new ApexCharts($refs.chart, options);
+                                                                        chart.render();
+                                                                    }
+                                                                }">
                                         <div x-ref="chart"></div>
                                     </div>
                                 </div>
@@ -283,51 +282,51 @@
                                             Submissions progress
                                         </div>
                                         <div class="card-body" x-data="{
-                                            init() {
-                                        
-                                                let chartData = @js($submissions);
-                                                const months = [
-                                                    'January', 'February', 'March', 'April', 'May', 'June',
-                                                    'July', 'August', 'September', 'October', 'November', 'December'
-                                                ];
-                                                let currentYear = new Date().getFullYear();
-                                        
-                                        
-                                                const seriesData = months.map((month, index) => {
-                                                    const data = chartData.find(item => item.month === index + 1);
-                                                    return data ? data.total : 0;
-                                                });
-                                        
-                                                options = {
-                                                    chart: {
-                                                        type: 'area',
-                                                        height: '400px'
-                                                    },
-                                                    series: [{
-                                                        name: 'Submissions',
-                                                        data: seriesData
-                                                    }],
-                                                    dataLabels: {
-                                                        enabled: false
-                                                    },
-                                                    stroke: {
-                                                        curve: 'smooth'
-                                                    },
-                                                    xaxis: {
-                                                        categories: months
-                                                    },
-                                                    colors: ['#E88D67', '#FA7070'],
-                                                    tooltip: {
-                                                        x: {
-                                                            format: 'dd/MM/yy'
-                                                        },
-                                                    },
-                                                };
-                                        
-                                                let chart = new ApexCharts($refs.chart, options);
-                                                chart.render();
-                                            }
-                                        }">
+                                                                        init() {
+
+                                                                            let chartData = @js($submissions);
+                                                                            const months = [
+                                                                                'January', 'February', 'March', 'April', 'May', 'June',
+                                                                                'July', 'August', 'September', 'October', 'November', 'December'
+                                                                            ];
+                                                                            let currentYear = new Date().getFullYear();
+
+
+                                                                            const seriesData = months.map((month, index) => {
+                                                                                const data = chartData.find(item => item.month === index + 1);
+                                                                                return data ? data.total : 0;
+                                                                            });
+
+                                                                            options = {
+                                                                                chart: {
+                                                                                    type: 'area',
+                                                                                    height: '400px'
+                                                                                },
+                                                                                series: [{
+                                                                                    name: 'Submissions',
+                                                                                    data: seriesData
+                                                                                }],
+                                                                                dataLabels: {
+                                                                                    enabled: false
+                                                                                },
+                                                                                stroke: {
+                                                                                    curve: 'smooth'
+                                                                                },
+                                                                                xaxis: {
+                                                                                    categories: months
+                                                                                },
+                                                                                colors: ['#E88D67', '#FA7070'],
+                                                                                tooltip: {
+                                                                                    x: {
+                                                                                        format: 'dd/MM/yy'
+                                                                                    },
+                                                                                },
+                                                                            };
+
+                                                                            let chart = new ApexCharts($refs.chart, options);
+                                                                            chart.render();
+                                                                        }
+                                                                    }">
 
                                             <div x-ref="chart"></div>
                                         </div>

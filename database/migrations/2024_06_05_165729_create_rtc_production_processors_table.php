@@ -56,13 +56,7 @@ return new class extends Migration {
             $table->date('prod_value_previous_season_date_of_max_sales')->nullable();
             $table->decimal('prod_value_previous_season_usd_rate', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_usd_value', 16, 2)->nullable();
-            // MWK
-            // $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
-            // //    $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
-            // $table->decimal('irr_prod_value_previous_season_total', 16, 2)->nullable();
-            // $table->date('irr_prod_value_previous_season_date_of_max_sales')->nullable();
-            // $table->decimal('irr_prod_value_previous_season_usd_rate', 16, 2)->nullable();
-            // $table->decimal('irr_prod_value_previous_season_usd_value', 16, 2)->nullable();
+
 
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);

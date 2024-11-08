@@ -17,7 +17,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Page Name</li>
                         </ol>
                     </div>
@@ -32,6 +32,9 @@
 
                 <x-alerts />
 
+                @if (!$targetSet)
+                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                @endif
 
                 @if ($openSubmission === false)
                     <div class="alert alert-warning" role="alert">
@@ -39,6 +42,7 @@
                         because submissions are closed for the moment!
                     </div>
                 @endif
+
 
 
                 <div class="mb-1 row justify-content-center  @if ($openSubmission === false) opacity-25  pe-none @endif"
@@ -116,12 +120,31 @@
                                     <div class="mb-3">
                                         <label for="crop" class="form-label">CROP</label>
 
-                                        <select class="form-select form-select-md" wire:model="crop">
+                                        <div class="list-group  @error('crop')border border-danger @enderror">
+                                            <label class="mb-0 list-group-item text-capitalize">
+                                                <input class="form-check-input me-1" type="checkbox" wire:model='crop'
+                                                    value="cassava" />
+                                                Cassava
+                                            </label>
+                                            <label class="mb-0 list-group-item text-capitalize">
+                                                <input class="form-check-input me-1" type="checkbox" wire:model='crop'
+                                                    value="potato" />
+                                                Potato
+                                            </label>
+                                            <label class="mb-0 list-group-item text-capitalize">
+                                                <input class="form-check-input me-1" wire:model='crop' type="checkbox"
+                                                    value="sweet_potato" />
+                                                Sweet potato
+                                            </label>
+
+                                        </div>
+
+                                        <!-- <select class="form-select form-select-md" wire:model="crop">
 
                                             <option>CASSAVA</option>
                                             <option>POTATO</option>
                                             <option>SWEET POTATO</option>
-                                        </select>
+                                        </select> -->
 
                                         @error('crop')
                                             <x-error>{{ $message }}</x-error>
@@ -161,7 +184,7 @@
 
                                     <div class="d-grid justify-content-center">
 
-                                        <button class="btn btn-success btn-lg" @click="window.scrollTo({
+                                        <button class="btn btn-success " @click="window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
                                         })" type="submit">Submit</button>

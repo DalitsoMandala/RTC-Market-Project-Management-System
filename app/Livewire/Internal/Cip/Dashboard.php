@@ -2,16 +2,20 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use Carbon\Carbon;
+use App\Models\Form;
+use App\Models\Project;
+use Livewire\Component;
+use App\Models\Indicator;
+use App\Models\Submission;
+use App\Models\SystemReport;
+use App\Models\FinancialYear;
+use Livewire\Attributes\Lazy;
+use App\Models\SystemReportData;
+use App\Models\AttendanceRegister;
+use Illuminate\Support\Facades\DB;
 use App\Helpers\rtc_market\indicators\A1;
 use App\Helpers\rtc_market\indicators\indicator_A1;
-use App\Models\AttendanceRegister;
-use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\Project;
-use App\Models\Submission;
-use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\Lazy;
-use Livewire\Component;
 
 class Dashboard extends Component
 {
@@ -43,14 +47,46 @@ class Dashboard extends Component
     {
         $indicatorA1 = new Indicator_A1();
         $indicator = Indicator::where('indicator_no', 'A1')->first();
+        $organisation = auth()->user()->organisation;
+        $currentDate = Carbon::now();
+        $record = FinancialYear::
+            whereDate('start_date', '<=', $currentDate)  // Current date is on or after start_date
+            ->whereDate('end_date', '>=', $currentDate)    // Current date is on or before end_date
+            ->where('project_id', 1)
 
-        if ($indicator) {
+            ->first();
+
+        $reportId = SystemReport::where('indicator_id', $indicator->id)
+            ->where('project_id', 1)
+            //    ->where('organisation_id', $organisation->id)
+            ->where('financial_year_id', $record->id)
+            ->pluck('id');
+
+        if ($reportId->isNotEmpty()) {
+            // Retrieve and group data by 'name'
+            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
+            $groupedData = $data->groupBy('name');
+
+            // Sum each group's values
+            $summedGroups = $groupedData->map(function ($group) {
+                return $group->sum('value'); // Assuming 'value' is the field to be summed
+            });
+
+
+            // Store the results
+            $this->data = $summedGroups;
+
+        }
+
+
+
+        if ($indicator && $this->data->isNotEmpty()) {
             $this->fill([
                 'indicatorCount' => Indicator::count(),
             ]);
 
             $this->data = [
-                'actors' => $indicatorA1->getDisaggregations(),
+                'actors' => $this->data->toArray(),
                 'name' => $indicator->indicator_name,
             ];
         } else {
@@ -81,7 +117,10 @@ class Dashboard extends Component
 
     private function loadQuickFormsData()
     {
-        $this->quickForms = Form::with(['project', 'indicators'])
+        $this->quickForms = Form::with([
+            'project',
+            'indicators'
+        ])
             ->whereNot('name', 'REPORT FORM')
             ->take(5)
             ->get();

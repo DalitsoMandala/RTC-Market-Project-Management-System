@@ -138,6 +138,21 @@
             text-transform: uppercase;
             /* Capitalize only the first letter */
         }
+
+
+        .table-sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: #fff;
+            /* Ensure background matches table to avoid overlap issues */
+            z-index: 1;
+            /* Ensure it stays above other table content */
+        }
+
+
+        [readonly] {
+            background-color: #e9ecef;
+        }
     </style>
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
@@ -176,25 +191,28 @@
         <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-exif-orientation@1.0.11/dist/filepond-plugin-image-exif-orientation.min.js">
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-resize@2.0.10/dist/filepond-plugin-image-resize.min.js">
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/filepond-plugin-file-encode@2.1.14/dist/filepond-plugin-file-encode.min.js">
-        </script>
+            </script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-resize@2.0.10/dist/filepond-plugin-image-resize.min.js">
+            </script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/filepond-plugin-file-encode@2.1.14/dist/filepond-plugin-file-encode.min.js">
+            </script>
         <script
             src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-transform@3.8.7/dist/filepond-plugin-image-transform.min.js">
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-edit@1.6.3/dist/filepond-plugin-image-edit.min.js">
-        </script>
+            </script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-edit@1.6.3/dist/filepond-plugin-image-edit.min.js">
+            </script>
         <script
             src="https://cdn.jsdelivr.net/npm/filepond-plugin-file-validate-type@1.2.9/dist/filepond-plugin-file-validate-type.min.js">
-        </script>
+            </script>
         <script
             src="https://cdn.jsdelivr.net/npm/filepond-plugin-file-validate-size@2.2.8/dist/filepond-plugin-file-validate-size.min.js">
-        </script>
+            </script>
         <script
             src="https://cdn.jsdelivr.net/npm/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js">
-        </script>
+            </script>
         <script src="https://cdn.jsdelivr.net/npm/filepond@4.31.1/dist/filepond.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <script src="{{ asset('assets/libs/choicesjs/scripts/choices.min.js') }}"></script>
@@ -220,6 +238,8 @@
         <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-table2excel@1.1.1/dist/jquery.table2excel.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
         <script>
             document.addEventListener('livewire:init', () => {
 
@@ -241,21 +261,21 @@
         </script>
         @stack('scripts')
         <script>
-            $(document).ready(function() {
+            $(document).ready(function () {
                 $('.preloader').fadeOut('slow');
 
             });
 
-            $(document).ajaxError(function(event, jqxhr, settings, exception) {
+            $(document).ajaxError(function (event, jqxhr, settings, exception) {
                 if (jqxhr.status === 419) { // 419 is the status code for Laravel's CSRF token mismatch
 
                     window.location.href = '/login'; // Redirect to the login page
                 }
             });
-            $(document).ready(function() {
+            $(document).ready(function () {
                 // Set a timeout to start fading out the alert after 10 seconds
-                setTimeout(function() {
-                    $('.alert-success').fadeOut(3000, function() {
+                setTimeout(function () {
+                    $('.alert-success').fadeOut(3000, function () {
                         $(this).remove(); // Remove the alert from the DOM after fading out
                     });
 
@@ -263,7 +283,7 @@
                 }, 10000); // 10 seconds
 
 
-                document.querySelectorAll('input[type="number"]').forEach(function(input) {
+                document.querySelectorAll('input[type="number"]').forEach(function (input) {
                     input.setAttribute('step', 'any');
                 });
 

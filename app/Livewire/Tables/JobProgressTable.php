@@ -28,7 +28,7 @@ final class JobProgressTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
+            Header::make(),
             Footer::make()
                 ->showPerPage()->pageName('pending-submissions')
                 ->showRecordCount(),
@@ -44,7 +44,7 @@ final class JobProgressTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('job_id')
+            ->add('cache_key')
             ->add('form_name')
             ->add('user_id')
             ->add('status', function ($model) {
@@ -59,22 +59,20 @@ final class JobProgressTable extends PowerGridComponent
             ->add('progress', function ($model) {
                 return '
 <div class="mb-1 text-center text-primary fw-medium">' . $model->progress . '%</div>
-<div class="progress bg-primary-subtle progress-sm">
-<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="' . $model->progress . '" aria-valuemin="0" aria-valuemax="100" style="width: ' . $model->progress . '%"></div>
-</div>
+
 
 ';
-
             })
             ->add('is_finished', function ($model) {
 
-                if ($model->is_finished === 1) {
+                if ($model->status == 'completed') {
                     return '<i class="bx bx-check fs-2 text-success"></i>';
-                } else {
+                } else if ($model->status = 'failed') {
                     return '<i class="bx bx-x fs-2 text-danger"></i>';
                 }
             })
-            ->add('created_at')
+            ->add('error')
+            ->add('created_at', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y h:i A'))
             ->add('updated_at');
     }
 
@@ -82,25 +80,21 @@ final class JobProgressTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('UUID', 'job_id')
-                ->sortable()
+            Column::make('UUID', 'cache_key')
+
                 ->searchable(),
 
             Column::make('Form name', 'form_name')
-                ->sortable()
+
                 ->searchable(),
 
 
             Column::make('Status', 'status')
-                ->sortable()
+
                 ->searchable(),
 
             Column::make('Progress', 'progress')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Is finished', 'is_finished')
-                ->sortable()
                 ->searchable(),
 
 
@@ -111,8 +105,7 @@ final class JobProgressTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]

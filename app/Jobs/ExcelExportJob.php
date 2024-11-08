@@ -7,7 +7,10 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\SeedBeneficiary;
+use App\Models\SystemReportData;
 use App\Models\RpmFarmerFollowUp;
+use App\Models\AttendanceRegister;
 use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerDomMarket;
 use App\Models\RtcProductionFarmer;
@@ -32,7 +35,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\RpmProcessorAggregationCenter;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
-use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\Cache; // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
@@ -1033,7 +1035,10 @@ class ExcelExportJob implements ShouldQueue
                     'District',
                     'EPA',
                     'Section',
-                    'Crop',
+                    // 'Crop',
+                    'Crop (Cassava)',
+                    'Crop (Potato)',
+                    'Crop (Sweet potato)',
                     'Male Count',
                     'Female Count',
                     'Total',
@@ -1061,7 +1066,10 @@ class ExcelExportJob implements ShouldQueue
                             $item->district ?? null,
                             $item->epa ?? null,
                             $item->section ?? null,
-                            $item->crop,
+                            //  $item->crop,
+                            $item->crop_cassava,
+                            $item->crop_potato,
+                            $item->crop_sweet_potato,
                             $item->male_count,
                             $item->female_count,
                             $item->total,
@@ -1140,6 +1148,162 @@ class ExcelExportJob implements ShouldQueue
                 $writer->close(); // Finalize the file
 
                 break;
+
+            case 'report':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'Disaggregation',
+                    'Value',
+                    'Indicator Name',
+                    'Indicator #',
+                    'Project',
+                    'Reporting period',
+                    'Organisation',
+                    'Project year',
+                ];
+
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                SystemReportData::query()->with('systemReport')
+                    ->join('system_reports', function ($join) {
+                        $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
+                    })
+                    ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
+                    ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
+                    ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
+                    ->select([
+                        'system_report_data.*',
+                        'indicators.indicator_name as indicator_name',
+                        'indicators.indicator_no as indicator_no',
+                        'organisations.name as organisation_name',
+                        'financial_years.number as financial_year',
+                    ])->chunk(2000, function ($reports) use ($writer) {
+                        foreach ($reports as $record) {
+
+                            // Check if systemReport and reportingPeriod are available
+                            $report_period = null;
+                            if ($record->systemReport && $record->systemReport->reportingPeriod) {
+                                $start_month = $record->systemReport->reportingPeriod->start_month;
+                                $end_month = $record->systemReport->reportingPeriod->end_month;
+                                $report_period = $start_month . ' - ' . $end_month;
+                            }
+
+                            $writer->addRow([
+                                $record->name, // Disaggregation (from `name` field)
+                                (float) $record->value, // Value
+                                $record->indicator_name ?? null, // Indicator Name
+                                $record->indicator_no ?? null, // Indicator #
+                                $record->systemReport->project->name ?? null, // Project
+                                $report_period, // Reporting period (null if no systemReport or reportingPeriod)
+                                $record->organisation_name ?? null, // Organisation
+                                $record->financial_year ?? null, // Project year
+                            ]);
+                        }
+                    });
+                $writer->close(); // Finalize the file
+
+                break;
+            case 'seedBeneficiaries':
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+
+                // Define the headers
+                $headers = [
+                    'Crop',
+                    'District',
+                    'EPA',
+                    'Section',
+                    'Name of AEDO',
+                    'AEDO Phone Number',
+                    'Date',
+                    'Name of Recipient',
+                    'Village',
+                    'Sex',
+                    'Age',
+                    'Marital Status',
+                    'Household Head',
+                    'Household Size',
+                    'Children Under 5 in HH',
+                    'Variety Received',
+                    'Bundles Received',
+                    'Phone / National ID',
+                ];
+
+                // Define crop types
+                $cropTypes = [
+                    'Cassava',
+                    'OFSP',
+                    'Potato'
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath);
+
+                foreach ($cropTypes as $index => $crop) {
+                    if ($index > 0) {
+                        // Create a new sheet for each crop type after the first sheet
+                        $writer->addNewSheetAndMakeItCurrent();
+                    }
+
+                    // Name the current sheet with the crop type and add headers
+                    $writer->nameCurrentSheet($crop)->addHeader($headers);
+
+                    // Process data in chunks for the current crop
+                    SeedBeneficiary::where('crop', $crop)
+                        ->select([
+                            'crop',
+                            'district',
+                            'epa',
+                            'section',
+                            'name_of_aedo',
+                            'aedo_phone_number',
+                            'date',
+                            'name_of_recipient',
+                            'village',
+                            'sex',
+                            'age',
+                            'marital_status',
+                            'hh_head',
+                            'household_size',
+                            'children_under_5',
+                            'variety_received',
+                            'bundles_received',
+                            'phone_or_national_id',
+                        ])
+                        ->chunk(2000, function ($seedBeneficiaries) use ($writer) {
+                            foreach ($seedBeneficiaries as $record) {
+                                $writer->addRow([
+                                    $record->crop,
+                                    $record->district,
+                                    $record->epa,
+                                    $record->section,
+                                    $record->name_of_aedo,
+                                    $record->aedo_phone_number,
+                                    $record->date,
+                                    $record->name_of_recipient,
+                                    $record->village,
+                                    $record->sex,
+                                    $record->age,
+                                    $record->marital_status,
+                                    $record->hh_head,
+                                    $record->household_size,
+                                    $record->children_under_5,
+                                    $record->variety_received,
+                                    $record->bundles_received,
+                                    $record->phone_or_national_id,
+                                ]);
+                            }
+                        });
+                }
+
+                $writer->close(); // Finalize the file
+
+                break;
+
             default:
                 $this->fail('Invalid model name!');
                 return;
@@ -1161,7 +1325,6 @@ class ExcelExportJob implements ShouldQueue
             }
 
             return $chunkSize;
-
         }
     }
 }

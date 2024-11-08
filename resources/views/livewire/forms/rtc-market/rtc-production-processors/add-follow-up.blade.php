@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Add Follow Up</h4>
+                <h4 class="mb-0">Add Data</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
@@ -65,7 +65,7 @@
                                     <option selected value="">Select one</option>
                                     @foreach ($recruits as $recruit)
                                     <option value="{{ $recruit->id }}">
-                                        ({{ str_pad($recruit->id, 5, '0', STR_PAD_LEFT) }})
+                                        ({{ $recruit->id }})
                                         {{ $recruit->name_of_actor }} </option>
                                     @endforeach
                                 </select>
@@ -470,7 +470,7 @@
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
 
-                                    <button class="px-5 btn btn-primary btn-lg" @click="window.scrollTo({
+                                    <button class="px-5 btn btn-primary " @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
                                 })" type="submit">Submit</button>

@@ -4,6 +4,9 @@ namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Helpers\IncreasePercentage;
+use App\Models\RtcProductionFarmer;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -23,14 +26,16 @@ class indicator_2_2_3
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
-    public function builder(): Builder
+    public function builderFarmer($crop = null): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage seed multipliers with formal registration')->where('indicator_no', '2.2.3')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = RtcProductionFarmer::query()->where('status', 'approved')
+            ->with([
+                'basicSeed',
+                'certifiedSeed'
+            ])->where('is_registered_seed_producer', true);
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -54,67 +59,107 @@ class indicator_2_2_3
         if ($this->organisation_id) {
             $query->where('organisation_id', $this->organisation_id);
         }
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
+        if ($crop) {
 
-
-        return $query;
-
-    }
-
-    public function getTotals()
-    {
-
-        $builder = $this->builder()->get();
-
-
-        $indicator = Indicator::where('indicator_name', 'Percentage seed multipliers with formal registration')->where('indicator_no', '2.2.3')->first();
-        $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
-        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-            $data->put($item, 0);
-        });
-
-
-
-
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
-                $json = collect(json_decode($model->data, true));
-
-
-
-                foreach ($data as $key => $dt) {
-
-                    if ($json->has($key)) {
-
-                        $data->put($key, $data->get($key) + $json[$key]);
-                    }
-                }
-
-            });
-
-
+            $query->where('enterprise', $crop);
+            return $query;
         }
 
-        return $data;
+        return $query;
     }
+
+
+    public function getCategoryPos($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
+
+            ->where('type', 'Producer organization (PO)')
+            ->count();
+    }
+
+    public function getCategoryIndividualFarmers($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
+
+            ->where('type', 'Large scale farm')
+            ->count();
+    }
+
+    public function getBasicSeed($crop = null)
+    {
+        $totalArea = 0;
+
+        // Use the builderFarmer query with specified crop and filter by group
+        $query = $this->builderFarmer($crop)->where('group', 'Early generation seed producer');
+
+        // Process the query in chunks to avoid memory issues
+        $query->chunk(100, function ($farmers) use (&$totalArea) {
+            // Calculate the area for basic seeds
+            $basicSeedArea = $farmers->pluck('basicSeed')->flatten()->sum('area');
+            $totalArea += $basicSeedArea;
+        });
+
+        return $totalArea;
+    }
+
+    public function getCertifiedSeed($crop = null)
+    {
+        $totalArea = 0;
+
+        // Use the builderFarmer query with specified crop and filter by group
+        $query = $this->builderFarmer($crop)->where('group', 'Seed multiplier');
+
+        $query->chunk(100, function ($farmers) use (&$totalArea) {
+            // Calculate the area for certified seeds
+            $certifiedSeedArea = $farmers->pluck('certifiedSeed')->flatten()->sum('area');
+            $totalArea += $certifiedSeedArea;
+        });
+
+        return $totalArea;
+    }
+
+    public function getCrop()
+    {
+        // Calculate counts for each crop with 'Seed multiplier' group
+        $cassavaCount = $this->builderFarmer('Cassava')->count();
+        $potatoCount = $this->builderFarmer('Potato')->count();
+        $sweetPotatoCount = $this->builderFarmer('Sweet potato')->count();
+
+        return [
+            'cassava' => $cassavaCount,
+            'potato' => $potatoCount,
+            'sweet_potato' => $sweetPotatoCount,
+        ];
+    }
+    public function findIndicator()
+    {
+        $indicator = Indicator::where('indicator_name', 'Percentage seed multipliers with formal registration')->where('indicator_no', '2.2.3')->first();
+        if (!$indicator) {
+            Log::error('Indicator not found');
+            return null; // Or throw an exception if needed
+        }
+
+        return $indicator;
+    }
+
     public function getDisaggregations()
     {
+        $cropData = $this->getCrop(); // Store crop data to avoid redundant calls
 
-        return $this->getTotals()->toArray();
+
+        return [
+            'Total (% Percentage)' => 0,
+            'Cassava' => $cropData['cassava'],
+            'Potato' => $cropData['potato'],
+            'Sweet potato' => $cropData['sweet_potato'],
+            'Basic' => $this->getBasicSeed(),
+            'Certified' => $this->getCertifiedSeed(),
+            'POs' => $this->getCategoryPos(),
+            'Individual farmers not in POs' => $this->getCategoryIndividualFarmers(),
+        ];
     }
-
 }

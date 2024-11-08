@@ -3,11 +3,13 @@
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
 use App\Exceptions\UserErrorException;
+use App\Helpers\ExchangeRateHelper;
 use App\Models\ExchangeRate;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
+use App\Models\OrganisationTarget;
 use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
 use App\Models\RpmFarmerConcAgreement;
@@ -17,6 +19,8 @@ use App\Models\RpmFarmerInterMarket;
 use App\Models\RtcProductionFarmer;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
+use App\Models\User;
 use App\Notifications\ManualDataAddedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -156,6 +160,9 @@ class Add extends Component
     public $routePrefix;
 
     public $rate = 0;
+
+    public $targetSet = false;
+    public $targetIds = [];
     public function rules()
     {
 
@@ -517,42 +524,51 @@ class Add extends Component
 
     }
 
+
+    public function getExchangeRate($value, $date)
+    {
+        $exchangeRate = new ExchangeRateHelper();
+        return $exchangeRate->getRate($value, $date);
+    }
+
     public function updated($property, $value)
     {
+        // Process the first set of data
+        $this->processExchangeRate(
+            'total_production_value_previous_season',
+            $this->total_production_value_previous_season['value'] ?? null,
+            $this->total_production_value_previous_season['date_of_maximum_sales'] ?? null
+        );
 
-
-        if ($this->total_production_value_previous_season) {
-            if ($this->total_production_value_previous_season['value'] && $this->total_production_value_previous_season['date_of_maximum_sales']) {
-                $date = $this->total_production_value_previous_season['date_of_maximum_sales'];
-                $value = $this->total_production_value_previous_season['value'];
-                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.00;  // change this when you have historical data through exchange rate api
-
-                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
-                $this->total_production_value_previous_season['rate'] = $rate;
-                $this->total_production_value_previous_season['total'] = $totalvalue;
-
-            }
-
-
-
-
-
-        }
-
-        if ($this->total_irrigation_production_value_previous_season) {
-            if ($this->total_irrigation_production_value_previous_season['value'] && $this->total_irrigation_production_value_previous_season['date_of_maximum_sales']) {
-                $date = $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'];
-                $value = $this->total_irrigation_production_value_previous_season['value'];
-                $rate = ExchangeRate::whereDate('date', date('Y-m-d'))->first()->rate ?? 1.00;  // change this when you have historical data through exchange rate api
-
-                $totalvalue = round(((float) ($value ?? 0)) / (float) $rate, 2);
-                $this->total_irrigation_production_value_previous_season['rate'] = $rate;
-                $this->total_irrigation_production_value_previous_season['total'] = $totalvalue;
-            }
-
-        }
-
+        // Process the second set of data
+        $this->processExchangeRate(
+            'total_irrigation_production_value_previous_season',
+            $this->total_irrigation_production_value_previous_season['value'] ?? null,
+            $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'] ?? null
+        );
     }
+
+    /**
+     * Helper function to process exchange rates and update the given dataset.
+     */
+    protected function processExchangeRate($key, $value, $date)
+    {
+        if ($value && $date) {
+            $rate = $this->getExchangeRate($value, $date);
+
+            if ($rate === null) {
+                $this->{$key}['date_of_maximum_sales'] = null;
+                $this->{$key}['value'] = null;
+                $this->{$key}['rate'] = null;
+                $this->{$key}['total'] = null;
+            } else {
+                $totalValue = round(((float) ($value ?? 0)) / (float) $rate, 2);
+                $this->{$key}['rate'] = $rate;
+                $this->{$key}['total'] = $totalValue;
+            }
+        }
+    }
+
     public function save()
     {
 
@@ -913,7 +929,13 @@ class Add extends Component
         );
     }
 
-
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
 
@@ -947,12 +969,21 @@ class Add extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+
+                ->get();
+            $user = User::find(auth()->user()->id);
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
         }
 

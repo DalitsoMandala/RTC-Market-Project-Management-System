@@ -34,7 +34,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
+
 
         return [
             // Exportable::make('export')
@@ -250,19 +250,36 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function actions($row): array
     {
         return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('btn btn-primary my-1')
-                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('organiser')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
-                ->dispatch('showAggregate', ['id' => $row->id, 'name' => 'view-aggregate-modal']),
+            // Button::add('edit')
+            //     ->slot('<i class="bx bx-pen"></i>')
+            //     ->id()
+            //     ->class('btn btn-primary my-1')
+            //     ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+            //     ->dispatch('showAggregate', [
+            //         'id' => $row->id,
+            //         'name' => 'view-aggregate-modal'
+            //     ]),
 
             Button::add('show')
                 ->slot('<i class="fas fa-eye"></i>')
                 ->id()
                 ->class('btn btn-primary my-1')
                 ->tooltip('View Data')
-                ->dispatch('showDataAggregate', ['id' => $row->id, 'name' => 'view-data-agg-modal']),
+                ->dispatch('showDataAggregate', [
+                    'id' => $row->id,
+                    'name' => 'view-data-agg-modal'
+                ]),
+
+            Button::add('delete')
+                ->slot('<i class="bx bx-trash"></i>')
+                ->id()
+                ->class('btn btn-danger my-1')
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->dispatch('deleteAggregate', [
+                    'id' => $row->id,
+                    'name' => 'delete-aggregate-modal'
+                ]),
+
         ];
     }
 
@@ -272,15 +289,26 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
         return [
             // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
-                ->disable(),
+            // Rule::button('edit')
+            //     ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('manager')) || User::find($row->user_id)->hasAnyRole('admin'))
+            //     ->disable(),
 
-            Rule::button('edit')
+
+
+            // Rule::button('edit')
+            //     ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external'))
+            //     ->disable(),
+
+            Rule::button('delete')
                 ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external'))
                 ->disable(),
 
-            Rule::button('edit')
+            // Rule::button('edit')
+            //     ->when(fn($row) => $row->status == 'denied')
+            //     ->disable(),
+
+
+            Rule::button('delete')
                 ->when(fn($row) => $row->status == 'denied')
                 ->disable(),
         ];

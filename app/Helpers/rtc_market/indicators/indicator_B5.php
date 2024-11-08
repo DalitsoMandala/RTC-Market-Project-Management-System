@@ -2,11 +2,14 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use Log;
+use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RpmFarmerDomMarket;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\IncreasePercentage;
 use App\Models\RtcProductionFarmer;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RpmProcessorFollowUp;
@@ -35,54 +38,12 @@ class indicator_B5
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
-    public function builder(): Builder
-    {
-        $query = HouseholdRtcConsumption::query()->where('status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-
-        return $query;
-    }
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query()->where('status', 'approved');
+        $query = RtcProductionFarmer::query();
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -121,143 +82,129 @@ class indicator_B5
 
         return $query;
     }
-
-
-    public function builderProcessor(): Builder
+    public function Processorbuilder(): Builder
     {
-        $query = RtcProductionProcessor::query()->where('status', 'approved');
 
-        if ($this->reporting_period && $this->financial_year) {
-            $hasValidBatchUuids = false;
+        $query = RtcProductionProcessor::query()->with('followups')
+            ->where('rtc_production_processors.status', 'approved');
 
-            $query->where(function ($query) use (&$hasValidBatchUuids) {
+        // Check if both reporting period and financial year are set
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
+            }
 
-                $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
-                if (!empty($submissionPeriod)) {
-                    $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
-                    if (!empty($batchUuids)) {
-                        $query->orWhereIn('uuid', $batchUuids);
-                        $hasValidBatchUuids = true;
-                    }
-                }
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
 
-
-
-            });
-
-            if (!$hasValidBatchUuids) {
-                // No valid batch UUIDs found, return an empty collection
-                return $query->whereIn('uuid', []);
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
+                $query->whereIn('id', []); // Empty result filter
             }
         }
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
 
         return $query;
     }
 
-    public function getFarmerContractual()
-    {
-        return $this->builderFarmer()->with('agreements')->whereHas('agreements');
-
-    }
-
-    public function getFarmerDom()
-    {
-        return $this->builderFarmer()->with('doms')->whereHas('doms');
-
-
-    }
-
-    public function getFarmerInter()
-    {
-        return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
-
-
-    }
-
-    public function getProcessorContractual()
-    {
-        return $this->builderProcessor()->with('agreements')->whereHas('agreements');
-
-
-    }
-
-    public function getProcessorDom()
+    public function FarmerFollowupbuilder(): Builder
     {
 
-        return $this->builderProcessor()->with('doms')->whereHas('doms');
+
+
+        $query = RpmFarmerFollowUp::query();
+
+
+
+        return $query;
     }
 
-    public function getProcessorInter()
-    {
-        return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
-
-    }
     public function getTotal()
     {
-        $farmer = $this->builderFarmer()->get()->sum('total_vol_production_previous_season');
-        $processor = $this->builderProcessor()->get()->sum('total_vol_production_previous_season');
+        $crop = $this->findCropCount();
+        $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
+        $indicator = $this->findIndicator();
+        $baseline = $indicator->baseline->baseline_value ?? 0;
+        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
+        return $percentageIncrease->percentage();
+    }
+    public function findIndicator()
+    {
+        $indicator = Indicator::where('indicator_name', 'Percentage Increase in the volume of RTC produced')->where('indicator_no', 'B5')->first();
+        if (!$indicator) {
+            Log::error('Indicator not found');
+            return null; // Or throw an exception if needed
+        }
 
-        $farmerContractual = $this->getFarmerContractual()->get()->pluck('agreements')->flatten()->sum('volume_sold_previous_period');
-        $farmerDom = $this->getFarmerDom()->get()->pluck('doms')->flatten()->sum('volume_sold_previous_period');
-        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten()->sum('volume_sold_previous_period');
-        $processorContractual = $this->getProcessorContractual()->get()->pluck('agreements')->flatten()->sum('volume_sold_previous_period');
-        $processorDom = $this->getProcessorDom()->get()->pluck('doms')->flatten()->sum('volume_sold_previous_period');
-        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten()->sum('volume_sold_previous_period');
-        $farmerDetail = $farmer + $farmerContractual + $farmerDom + $farmerInter;
-        $processorDetail = $processor + $processorContractual + $processorDom + $processorInter;
-
-        return $farmerDetail + $processorDetail;
-
-
+        return $indicator;
     }
 
 
-    public function getCropTotal()
+
+    public function findCropCount()
     {
-        // Use getFarmerDom() to get the builder and then retrieve the flattened collection of doms
-        $farmerDom = $this->getFarmerDom()->get()->pluck('doms')->flatten();
+        // Calculate totals for each crop type from the main `rtc_production_farmers` table
+        $cassavaTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Cassava')->sum('total_vol_production_previous_season');
+        $potatoTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Potato')->sum('total_vol_production_previous_season');
+        $sweetPotatoTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Sweet potato')->sum('total_vol_production_previous_season');
 
-        // Aggregate crop types within the doms collection
-        $totalPotato = $farmerDom->where('crop_type', 'POTATO')->count();
-        $totalCassava = $farmerDom->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato = $farmerDom->where('crop_type', 'SWEET POTATO')->count();
+        // Calculate totals from the related `rpm_farmer_follow_ups` table for each crop type
+        $cassavaFarmerFollowUps = $this->builderFarmer()
+            ->where('enterprise', '=', 'Cassava')
+            ->withSum('followups', 'total_vol_production_previous_season')
+            ->first();
+        $cassavaRelatedTotalFarmer = $cassavaFarmerFollowUps ? $cassavaFarmerFollowUps->followups_sum_total_vol_production_previous_season : 0;
 
-        // Repeat similar logic for other related methods
-        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten();
-        $processorDom = $this->getProcessorDom()->get()->pluck('doms')->flatten();
-        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten();
+        $potatoFarmerFollowUps = $this->builderFarmer()
+            ->where('enterprise', '=', 'Potato')
+            ->withSum('followups', 'total_vol_production_previous_season')
+            ->first();
+        $potatoRelatedTotalFarmer = $potatoFarmerFollowUps ? $potatoFarmerFollowUps->followups_sum_total_vol_production_previous_season : 0;
 
-        // Aggregate for other relationships
-        $totalPotato += $farmerInter->where('crop_type', 'POTATO')->count();
-        $totalCassava += $farmerInter->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato += $farmerInter->where('crop_type', 'SWEET POTATO')->count();
+        $sweetPotatoFarmerFollowUps = $this->builderFarmer()
+            ->where('enterprise', '=', 'Sweet potato')
+            ->withSum('followups', 'total_vol_production_previous_season')
+            ->first();
+        $sweetPotatoRelatedTotalFarmer = $sweetPotatoFarmerFollowUps ? $sweetPotatoFarmerFollowUps->followups_sum_total_vol_production_previous_season : 0;
 
-        $totalPotato += $processorDom->where('crop_type', 'POTATO')->count();
-        $totalCassava += $processorDom->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato += $processorDom->where('crop_type', 'SWEET POTATO')->count();
+        // Processor totals (following a similar approach for processors)
+        $cassavaTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Cassava')->sum('total_vol_production_previous_season');
+        $potatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Potato')->sum('total_vol_production_previous_season');
+        $sweetPotatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Sweet potato')->sum('total_vol_production_previous_season');
 
-        $totalPotato += $processorInter->where('crop_type', 'POTATO')->count();
-        $totalCassava += $processorInter->where('crop_type', 'CASSAVA')->count();
-        $totalSweetPotato += $processorInter->where('crop_type', 'SWEET POTATO')->count();
+        // Processor related follow-ups totals
+        $cassavaProcessorFollowUps = $this->Processorbuilder()
+            ->where('enterprise', '=', 'Cassava')
+            ->withSum('followups', 'total_vol_production_previous_season')
+            ->first();
+        $cassavaRelatedTotalProcessor = $cassavaProcessorFollowUps ? $cassavaProcessorFollowUps->followups_sum_total_vol_production_previous_season : 0;
 
+        $potatoProcessorFollowUps = $this->Processorbuilder()
+            ->where('enterprise', '=', 'Potato')
+            ->withSum('followups', 'total_vol_production_previous_season')
+            ->first();
+        $potatoRelatedTotalProcessor = $potatoProcessorFollowUps ? $potatoProcessorFollowUps->followups_sum_total_vol_production_previous_season : 0;
+
+        $sweetPotatoProcessorFollowUps = $this->Processorbuilder()
+            ->where('enterprise', '=', 'Sweet potato')
+            ->withSum('followups', 'total_vol_production_previous_season')
+            ->first();
+        $sweetPotatoRelatedTotalProcessor = $sweetPotatoProcessorFollowUps ? $sweetPotatoProcessorFollowUps->followups_sum_total_vol_production_previous_season : 0;
+
+        // Optionally, return the combined totals
         return [
-            'Potato' => $totalPotato,
-            'Cassava' => $totalCassava,
-            'Sweet potato' => $totalSweetPotato,
+            'cassava' => $cassavaTotalFarmer + $cassavaRelatedTotalFarmer + $cassavaTotalProcessor + $cassavaRelatedTotalProcessor,
+            'potato' => $potatoTotalFarmer + $potatoRelatedTotalFarmer + $potatoTotalProcessor + $potatoRelatedTotalProcessor,
+            'sweet_potato' => $sweetPotatoTotalFarmer + $sweetPotatoRelatedTotalFarmer + $sweetPotatoTotalProcessor + $sweetPotatoRelatedTotalProcessor,
         ];
     }
-
 
 
     public function followUpBuilder()
@@ -265,57 +212,20 @@ class indicator_B5
 
 
         return $this->builderFarmer()->with('followups')->whereHas('followups');
-
-
-    }
-
-    public function followUpBuilderProcessor()
-    {
-
-        return $this->builderProcessor()->with('followups')->whereHas('followups');
-
     }
 
 
-    public function getCertifiedSeed()
-    {
-
-        $followups = $this->followUpBuilder()->get()->pluck('followups')->flatten();
-        $farmer = $this->builderFarmer()->where('uses_certified_seed', 1)->get()->count();
-        $farmerFollowup = $followups->where('uses_certified_seed', 1)->count();
-
-        return $farmer + $farmerFollowup;
-    }
-
-    public function getValueAddedProducts()
-    {
-        $farmerDOm = $this->getFarmerDom()->get()->pluck('doms')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
-        $farmerInter = $this->getFarmerInter()->get()->pluck('intermarkets')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
-        $farmerConc = $this->getFarmerContractual()->get()->pluck('agreements')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
-        $processorDOm = $this->getProcessorDom()->get()->pluck('doms')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
-        $processorInter = $this->getProcessorInter()->get()->pluck('intermarkets')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
-        $processorConc = $this->getProcessorContractual()->get()->pluck('agreements')->flatten()->where('product_type', 'VALUE ADDED PRODUCTS')->count();
-
-
-        return $farmerDOm + $farmerInter + $farmerConc + $processorDOm + $processorInter + $processorConc;
-
-
-
-    }
 
     public function getDisaggregations()
     {
 
         return [
-            'Total' => $this->getTotal(),
-            'Cassava' => $this->getCropTotal()['Cassava'],
-            'Potato' => $this->getCropTotal()['Potato'],
-            'Sweet potato' => $this->getCropTotal()['Sweet potato'],
-            'Certified seed produce' => $this->getCertifiedSeed(),
-            'Value added RTC products' => $this->getValueAddedProducts()
+            'Total (% Percentage)' => $this->getTotal(),
+            'Cassava' => round($this->findCropCount()['cassava'], 2),
+            'Potato' => round($this->findCropCount()['potato'], 2),
+            'Sweet potato' => round($this->findCropCount()['sweet_potato'], 2),
+            //  'Certified seed produce' => $this->getCertifiedSeed(),
+            //  'Value added RTC products' => $this->getValueAddedProducts()
         ];
-
     }
-
-
 }

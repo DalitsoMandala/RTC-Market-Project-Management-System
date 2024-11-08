@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Page Name</li>
                         </ol>
                     </div>
@@ -38,47 +38,47 @@
 
 
 
-    {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+    {{-- <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })">
 
 
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
+        <x-modal id="view-indicator-modal" title="edit">
+            <form>
+                <div class="mb-3">
 
-                        <x-text-input placeholder="Name of indicator..." />
-                    </div>
+                    <x-text-input placeholder="Name of indicator..." />
+                </div>
 
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
 
-                    </div>
-                </form>
-            </x-modal>
+                </div>
+            </form>
+        </x-modal>
 
-        </div> --}}
+    </div> --}}
 
     @script
-        <script>
-            const tooltipTriggerList = document.querySelectorAll('button[title]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('button[title]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-            $wire.on('reload-tooltips', () => {
+        $wire.on('reload-tooltips', () => {
 
-                setTimeout(() => {
-                    const tooltipTriggerList = document.querySelectorAll('button[title]');
-                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                        tooltipTriggerEl))
+            setTimeout(() => {
+                const tooltipTriggerList = document.querySelectorAll('button[title]');
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                    tooltipTriggerEl))
 
-                }, 1000);
+            }, 1000);
 
 
-            })
-        </script>
+        })
+    </script>
     @endscript
 
 

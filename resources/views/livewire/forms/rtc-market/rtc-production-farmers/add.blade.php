@@ -40,8 +40,17 @@
                 <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING (FARMERS)</h3>
 
 
+
                 <x-alerts />
 
+
+
+
+
+
+                @if (!$targetSet)
+                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                @endif
 
                 @if ($openSubmission === false)
                     <div class="alert alert-warning" role="alert">
@@ -49,7 +58,6 @@
                         because submissions are closed for the moment!
                     </div>
                 @endif
-
 
                 <div class="mb-1 row  @if ($openSubmission === false) opacity-25  pe-none @endif">
 
@@ -124,7 +132,7 @@
 
                                     <div class="d-grid col-12 justify-content-center" x-data>
 
-                                        <button class=" btn btn-primary btn-lg" @click="window.scrollTo({
+                                        <button class=" btn btn-primary px-5" @click="window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
                                         })" type="submit">Submit</button>

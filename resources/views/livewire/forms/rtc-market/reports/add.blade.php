@@ -5,12 +5,13 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                    <h4 class="mb-0">Add Data</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Page Name</li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+
+                            <li class="breadcrumb-item active">Add</li>
                         </ol>
                     </div>
 
@@ -20,178 +21,101 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <x-alerts />
+                @php
 
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Enter your data for : <span
-                                class="text-primary">{{ $indicatorName }}</span> </h4>
-                    </div>
-                    <div class="card-body">
-                        <div x-data="{
-                            data: $store.disagg.dataArray,
-                            name: @js($indicatorName),
-                            inputed: {},
-                            percentage: false,
-                            disabledButton: false,
-                            checkValidation() {
-                                // Prevent further submissions if already submitted
-                                if (this.submitted) return;
-                        
-                                let form = this.$refs.livewireForm; // Reference the first form
-                                if (form.checkValidity()) {
-                                    let values = this.inputed;
-                                    this.disabledButton = true;
-                                    this.submitted = true; // Mark as submitted
-                        
-                                    setTimeout(() => {
-                                        $wire.save(values);
-                                        this.resetForm(); // Reset form after submission
-                                    }, 2000);
-                                } else {
-                                    form.classList.add('was-validated'); // Add validation feedback
-                                }
-                            },
-                        
-                            checkValidationNormal() {
-                                // Prevent further submissions if already submitted
-                                if (this.submitted) return;
-                        
-                                let form = this.$refs.livewireForm2; // Reference the second form
-                                if (form.checkValidity()) {
-                                    let values = this.inputed;
-                                    this.disabledButton = true;
-                                    this.submitted = true; // Mark as submitted
-                        
-                                    setTimeout(() => {
-                                        $wire.save(values);
-                                        this.resetForm(); // Reset form after submission
-                                    }, 2000);
-                                } else {
-                                    form.classList.add('was-validated'); // Add validation feedback
-                                }
-                            },
-                        
-                        
-                        }" x-init="() => {
-                        
-                        
-                            if (name.includes('Percentage')) {
-                                percentage = true;
-                            } else {
-                                percentage = false;
-                            }
-                        
-                        
-                        
-                        
-                        
-                        }">
-                            <form x-ref="livewireForm" class="needs-validation" @submit.prevent="checkValidation()"
-                                novalidate x-show="percentage">
 
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="mb-3">
-                                            <label for="manual-input" class="form-label">Annual value</label>
-                                            <input readonly type="number" class="form-control bg-light"
-                                                id="manual-input" placeholder="Enter value"
-                                                x-model="inputed['Annual value']" />
-                                            <div class="invalid-feedback">
-                                                This field requires a value.
-                                            </div>
-                                        </div>
-                                    </div>
+                @endphp
 
-                                    <div class="col">
-                                        <div class="mb-3">
-                                            <label for="manual-input" class="form-label">Baseline value</label>
-                                            <input readonly type="number" class="form-control bg-light" id="base-input"
-                                                placeholder="Enter value" x-model="inputed['Baseline value']" />
-                                            <div class="invalid-feedback">
-                                                This field requires a value.
-                                            </div>
-                                        </div>
-                                    </div>
+
+                <div class="col-12">
+
+                    <x-alerts />
+
+                    @if (!$targetSet)
+                        <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                    @endif
+
+                    @if ($openSubmission === false)
+                        <div class="alert alert-warning" role="alert">
+                            You can not submit a form right now
+                            because submissions are closed for the moment!
+                        </div>
+                    @endif
+                    <div class="card @if ($openSubmission === false) opacity-25  pe-none @endif">
+                        <div class="card-header">
+                            <h4 class="card-title">Enter your data for : <span
+                                    class="text-primary">{{ $indicator->indicator_name }}</span> </h4>
+                        </div>
+                        <div class="card-body">
+                            @if ($indicator->indicator_name == 'Percentage increase in value of formal RTC exports')
+                                <livewire:forms.rtc-market.reports.indicator-b2 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
+                            @elseif ($indicator->indicator_name == 'Percentage of value ($) of formal RTC imports substituted through local production')
+                                <livewire:forms.rtc-market.reports.indicator-b3 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
+                            @elseif ($indicator->indicator_name == 'Percentage increase in RTC investment')
+                                <livewire:forms.rtc-market.reports.indicator-b6 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
+                            @elseif ($indicator->indicator_name == 'Percentage increase in adoption of new RTC technologies')
+                                <livewire:forms.rtc-market.reports.indicator-114 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
+                            @elseif ($indicator->indicator_name == 'Percentage seed multipliers with formal registration')
+                                <livewire:forms.rtc-market.reports.indicator-223 :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
+                            @elseif (
+                                    $indicator->indicator_name ==
+                                    'Percentage business plans for the production of different classes of RTC seeds that are executed'
+                                )
+                                                            <livewire:forms.rtc-market.reports.indicator-231 :form_id="$array['form_id']"
+                                                                :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                                                :month_period_id="$array['month_period_id']"
+                                                                :submission_period_id="$array['submission_period_id']" />
+
+
+                            @elseif (
+                                    $indicator->indicator_name ==
+                                    'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)'
+                                )
+                                                            <livewire:forms.rtc-market.reports.indicator-325 :form_id="$array['form_id']"
+                                                                :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                                                :month_period_id="$array['month_period_id']"
+                                                                :submission_period_id="$array['submission_period_id']" />
 
 
 
-                                </div>
-                                <template x-for="(input, index) in data" :key="index">
-                                    <div class="mb-3">
-                                        <label for="" class="form-label" x-text="input.name"></label>
-                                        <input :readonly="input.name === 'Total(% Percentage)'"
-                                            :class="{ 'bg-light': input.name === 'Total(% Percentage)' }"
-                                            :id="'input' + index" type="number" class="form-control"
-                                            :required="input.name !== 'Total(% Percentage)'" placeholder="Enter value"
-                                            aria-describedby="helpId" x-model='inputed[input.name]' />
-                                        <div class="invalid-feedback">
-                                            This field requires a value.
-                                        </div>
 
-                                    </div>
-
-
-                                </template>
+                            @else
+                                <livewire:forms.rtc-market.reports.number-indicators :form_id="$array['form_id']"
+                                    :indicator_id="$array['indicator_id']" :financial_year_id="$array['financial_year_id']"
+                                    :month_period_id="$array['month_period_id']"
+                                    :submission_period_id="$array['submission_period_id']" />
+                            @endif
 
 
 
-                                <div class="text-center">
-                                    <button type="submit" :disabled="disabledButton" class="btn btn-primary btn-lg">
-                                        Submit
-                                    </button>
-                                </div>
-
-
-                            </form>
-
-
-                            <form x-ref="livewireForm2" class="needs-validation"
-                                @submit.prevent="checkValidationNormal()" novalidate x-show="percentage=== false">
-
-
-                                <template x-for="(input, index) in data" :key="index">
-                                    <div class="mb-3">
-                                        <label for="" class="form-label" x-text="input.name"></label>
-                                        <input :id="'input' + index" type="number" required class="form-control"
-                                            placeholder="Enter value" aria-describedby="helpId"
-                                            x-model='inputed[input.name]' />
-                                        <div class="invalid-feedback">
-                                            This field requires a value.
-                                        </div>
-
-                                    </div>
-
-
-                                </template>
-
-                                <div class="text-center">
-                                    <button type="submit" :disabled="disabledButton" class="btn btn-primary btn-lg">
-                                        Submit
-                                    </button>
-                                </div>
-
-
-                            </form>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
     <x-scroll-up />
 
-    @script
-        <script>
-            Alpine.store('disagg', {
-                dataArray: @js($inputs)
-            })
-        </script>
-    @endscript
 
 
 
-</div>
+
 
 </div>

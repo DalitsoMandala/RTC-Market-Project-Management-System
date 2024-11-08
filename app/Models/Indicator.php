@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Indicator extends Model
 {
@@ -24,6 +25,7 @@ class Indicator extends Model
     {
         return $this->hasManyThrough(Organisation::class, ResponsiblePerson::class, 'indicator_id', 'id', 'id', 'organisation_id');
     }
+
 
 
     public function forms()
@@ -62,4 +64,14 @@ class Indicator extends Model
         return $this->hasMany(IndicatorTarget::class, 'indicator_id');
     }
 
+
+    /**
+     * Get the baseline associated with the Indicator
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function baseline()
+    {
+        return $this->hasOne(Baseline::class);
+    }
 }

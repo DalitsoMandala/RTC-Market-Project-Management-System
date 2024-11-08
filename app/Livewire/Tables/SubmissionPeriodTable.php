@@ -20,6 +20,7 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -38,7 +39,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(5)
                 ->showRecordCount(),
         ];
     }
@@ -46,7 +47,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        return SubmissionPeriod::query()->with(['form', 'financialYears', 'reportingMonths']);
+        return SubmissionPeriod::query()->with([
+            'form',
+            'financialYears',
+            'reportingMonths'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -61,7 +66,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
 
                 return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-
             })
             ->add('financial_year', function ($model) {
                 return $model->financialYears->number;
@@ -74,15 +78,21 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 return $indicator->indicator_name;
             })
 
+            ->add('indicator_no', function ($model) {
+                $indicator = Indicator::find($model->indicator_id);
+                return $indicator->indicator_no;
+            })
+
             ->add('assigned', function ($model) {
                 $indicator = Indicator::find($model->indicator_id);
 
                 $checkIds = $indicator->responsiblePeopleforIndicators->pluck('id');
+
+
                 $sources = Source::whereIn('person_id', $checkIds)->where('form_id', $model->form_id)->pluck('person_id');
                 $responsiblePeople = $indicator->responsiblePeopleforIndicators->whereIn('id', $sources)->pluck('organisation_id');
                 $oganisations = Organisation::whereIn('id', $responsiblePeople)->pluck('name');
                 return implode(', ', $oganisations->toArray());
-
             })
 
             ->add('month_range', function ($model) {
@@ -148,10 +158,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
+            Column::make('indicator #', 'indicator_no')->headerAttribute(classAttr: 'table-sticky-col')
+                ->bodyAttribute(classAttr: 'table-sticky-col'),
             Column::make('Form', 'form_name')
                 ->headerAttribute(classAttr: 'table-sticky-col')
-                ->bodyAttribute(classAttr: 'table-sticky-col')
-            ,
+                ->bodyAttribute(classAttr: 'table-sticky-col'),
 
             Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
                 ->sortable(),
@@ -162,18 +173,15 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('Status', 'is_open_toggle', 'is_open')
                 ->sortable()
                 ->searchable(),
-            Column::make('Months', 'month_range')
-            ,
+            Column::make('Months', 'month_range'),
 
             Column::make('Financial Year', 'financial_year')
 
                 ->searchable(),
 
-            Column::make('Indicator', 'indicator')
-            ,
+            Column::make('Indicator', 'indicator'),
 
-            Column::make('Assigned Organisations', 'assigned')
-            ,
+            Column::make('Assigned Organisations', 'assigned'),
 
             Column::make('Expired', 'is_expired_toggle', 'is_expired')
                 ->sortable()
@@ -204,6 +212,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return [
             // Filter::datetimepicker('date_established'),
             // Filter::datetimepicker('date_ending'),
+            Filter::select('form_name', 'form_id')
+                ->dataSource(Form::all())
+                ->optionLabel('name')
+                ->optionValue('id'),
         ];
     }
     #[On('refresh')]
@@ -236,13 +248,8 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-
-
-
-
         } else {
             $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-
         }
 
         $this->redirect($route);
@@ -269,13 +276,8 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
 
             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-
-
-
-
         } else {
             $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-
         }
 
         $this->redirect($route);
@@ -297,6 +299,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $this->redirect($route);
     }
+    #[On('timeout')]
+    public function timeout()
+    {
+        SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
+            'is_expired' => 1,
+            'is_open' => 0
+        ]);
+    }
 
     public function actions($row): array
     {
@@ -315,12 +325,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->tooltip('Add Data')
                 ->dispatch('sendData', ['model' => $row]),
 
-            // Button::add('upload')
-            //     ->slot('<i class="bx bx-upload"></i>')
-            //     ->id()
-            //     ->tooltip('Upload Your Data')
-            //     ->class('btn btn-primary my-1 btn-sm')
-            //     ->dispatch('sendUploadData', ['model' => $row]),
+            Button::add('upload')
+                ->slot('<i class="bx bx-upload"></i>')
+                ->id()
+                ->tooltip('Upload Your Data')
+                ->class('btn btn-primary my-1 btn-sm')
+                ->dispatch('sendUploadData', ['model' => $row]),
 
 
         ];
@@ -349,6 +359,19 @@ final class SubmissionPeriodTable extends PowerGridComponent
         // Check if the organisation is responsible for the indicator
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
 
+
+        $currentDate = Carbon::now();
+        $establishedDate = $row->date_established;
+        $endDate = $row->end_date;
+
+        $startDate = Carbon::parse($establishedDate);
+        $endDate = Carbon::parse($endDate);
+
+        $withinDateRange = $currentDate->between($startDate, $endDate);
+
+
+
+
         return [
             // Hide button edit for ID 1
             Rule::button('edit')
@@ -357,13 +380,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
-                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM', 'SCHOOL RTC CONSUMPTION FORM'])))
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
                 ->disable(),
         ];
     }
@@ -373,5 +396,4 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
         $this->dispatch('reload-tooltips');
     }
-
 }

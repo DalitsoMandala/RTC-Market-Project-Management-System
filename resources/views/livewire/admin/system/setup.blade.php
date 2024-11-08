@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">System settings</a></li>
+                            <li class="breadcrumb-item"><a href="/">System settings</a></li>
                             <li class="breadcrumb-item active">Setup</li>
                         </ol>
                     </div>
@@ -97,7 +97,8 @@
                         <!-- Maintenance Message -->
                         <div class="mb-3">
                             <label for="maintenance_message" class="form-label">Maintenance Mode Message</label>
-                            <textarea class="form-control" id="maintenance_message" wire:model="maintenance_message"></textarea>
+                            <textarea class="form-control" id="maintenance_message"
+                                wire:model="maintenance_message"></textarea>
                             @error('maintenance_message')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -140,7 +141,7 @@
 
 
 
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+        {{-- <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();

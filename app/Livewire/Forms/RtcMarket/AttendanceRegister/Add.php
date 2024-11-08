@@ -4,14 +4,17 @@ namespace App\Livewire\Forms\RtcMarket\AttendanceRegister;
 
 use Throwable;
 use App\Models\Form;
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Livewire\Component;
 use App\Models\Indicator;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
 use Livewire\Attributes\Validate;
 use App\Models\AttendanceRegister;
+use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +65,9 @@ class Add extends Component
     $submissionPeriodId;
     public $routePrefix;
     public $openSubmission = true;
+
+    public $targetSet = false;
+    public $targetIds = [];
     protected $rules = [
         'meetingTitle' => 'required|string|max:255',
         'meetingCategory' => 'required',
@@ -133,26 +139,24 @@ class Add extends Component
 
 
                 $insert = AttendanceRegister::create($data);
-
+                session()->put([
+                    'meetingTitle' => $this->meetingTitle,
+                    'meetingCategory' => $this->meetingCategory,
+                    'rtcCrop' => $this->rtcCrop,
+                    'venue' => $this->venue,
+                    'district' => $this->district,
+                    'startDate' => $this->startDate,
+                    'endDate' => $this->endDate,
+                    'totalDays' => $this->totalDays,
+                    'submissionPeriodId' => $this->submissionPeriodId,
+                    'selectedFinancialYear' => $this->selectedFinancialYear,
+                    'selectedMonth' => $this->selectedMonth,
+                    'routePrefix' => $this->routePrefix,
+                ]);
 
                 session()->flash('success', 'Successfully submitted!  <a href="' . $this->routePrefix . '/forms/rtc_market/attendance-register/view">View Submission here</a>');
                 session()->flash('info', 'Your ID is: <b>' . $insert->att_id . '</b>' . '<br><br> Please keep this ID for future reference.');
-                $this->dispatch('refresh-data');
-                $this->resetExcept(
-                    'meetingTitle',
-                    'meetingCategory',
-                    'rtcCrop',
-                    'venue',
-                    'district',
-                    'startDate',
-                    'endDate',
-                    'totalDays',
-                    'added',
-                    'submissionPeriodId',
-                    'selectedFinancialYear',
-                    'selectedMonth',
-                    'routePrefix'
-                );
+                return redirect()->to(url()->previous());
 
 
             } catch (UserErrorException $e) {
@@ -178,6 +182,8 @@ class Add extends Component
     // }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
+
+
 
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
@@ -209,20 +215,95 @@ class Add extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+
+                ->get();
+            $user = User::find(auth()->user()->id);
+
+            $targets = $target->pluck('id');
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
+                ->whereHas('submissionTarget', function ($query) use ($targets) {
+                    $query->whereIn('submission_target_id', $targets)
+                        ->selectRaw('COUNT(DISTINCT submission_target_id) = ?', [count($targets)]);
+
+
+                })
+                ->get();
+
+
+            $this->targetIds = $target->pluck('id')->toArray();
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
 
+                $this->meetingTitle = session('meetingTitle', $this->meetingTitle ?? null);
+                $this->meetingCategory = session('meetingCategory', $this->meetingCategory ?? null);
+                $this->rtcCrop = session('rtcCrop', $this->rtcCrop ?? []);
+                $this->venue = session('venue', $this->venue ?? null);
+                $this->district = session('district', $this->district ?? 'BALAKA'); // Default district
+                $this->startDate = session('startDate', $this->startDate ?? null);
+                $this->endDate = session('endDate', $this->endDate ?? null);
+                $this->totalDays = session('totalDays', $this->totalDays ?? 0);
+                $this->submissionPeriodId = session('submissionPeriodId', $this->submissionPeriodId ?? $submission_period_id);
+                $this->selectedFinancialYear = session('selectedFinancialYear', $this->selectedFinancialYear ?? $financial_year_id);
+                $this->selectedMonth = session('selectedMonth', $this->selectedMonth ?? $month_period_id);
+                $this->routePrefix = session('routePrefix', $this->routePrefix ?? Route::current()->getPrefix());
+
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
+
 
             $this->routePrefix = Route::current()->getPrefix();
 
 
         }
     }
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
+    public function clearSessionData()
+    {
+        session()->forget([
+            'meetingTitle',
+            'meetingCategory',
+            'rtcCrop',
+            'venue',
+            'district',
+            'startDate',
+            'endDate',
+            'totalDays',
+            'submissionPeriodId',
+            'selectedFinancialYear',
+            'selectedMonth',
+            'routePrefix'
+        ]);
 
+        $this->reset([
+            'meetingTitle',
+            'meetingCategory',
+            'rtcCrop',
+            'venue',
+            'district',
+            'startDate',
+            'endDate',
+            'totalDays',
+            'submissionPeriodId',
+            'selectedFinancialYear',
+            'selectedMonth',
+            'routePrefix'
+        ]);
+        session()->flash('info', 'Form data has been cleared.');
+    }
 
     public function render()
     {

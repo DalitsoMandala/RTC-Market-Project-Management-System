@@ -12,10 +12,13 @@ use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
+use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
+use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use App\Exceptions\UserErrorException;
 use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -51,7 +54,10 @@ class Add extends Component
     public $inputs = [];
 
     public $formData = [];
+    public $targetSet = false;
+    public $targetIds = [];
 
+    public $indicator, $array;
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -85,145 +91,39 @@ class Add extends Component
                 ->where('month_range_period_id', $this->selectedMonth)
                 ->where('is_open', true)
                 ->first();
-            $this->indicatorName = $findIndicator->indicator_name;
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+
+                ->get();
+            $user = User::find(auth()->user()->id);
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+            $this->targetIds = $target->pluck('id')->toArray();
+            $this->indicator = $findIndicator;
+            $this->array = Route::current()->parameters;
+
+
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-
-                $user = Auth::user();
-
-                $this->inputs = IndicatorDisaggregation::with('indicator.indicatorTargets')->where('indicator_id', $indicator_id)
-                    ->get();
-
-
-
-
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
-
+                $this->targetSet = false;
             }
         }
 
     }
 
 
-
-    #[On('save')]
-    public function save($data)
+    #[On('open-submission')]
+    public function clearTable()
     {
-        $currentUser = Auth::user();
-        $uuid = Uuid::uuid4()->toString();
-        $user = User::find($currentUser->id);
-
-        $checkSubmission = Submission::where('period_id', $this->submissionPeriodId)
-            ->where('batch_type', 'aggregate')
-            ->where(function ($query) {
-                $query->where('status', '=', 'pending')
-                    ->orWhere('status', '=', 'approved');
-            })
-            ->where('user_id', auth()->user()->id)->first();
-
-        if ($checkSubmission) {
-            session()->flash('error', 'You have already submitted your aggregate data for this period!');
-            $this->dispatch('notify');
-        } else {
-
-            if (($user->hasAnyRole('internal') && $user->hasAnyRole('organiser')) || $user->hasAnyRole('admin')) {
-
-                try {
-
-                    $submission = Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => $currentUser->id,
-                        'status' => 'approved',
-                        //         'data' => json_encode($data),
-                        'batch_type' => 'aggregate',
-                        'is_complete' => 1,
-                        'period_id' => $this->submissionPeriodId,
-                        'table_name' => 'reports',
-
-                    ]);
-                    $user = User::find($submission->user_id);
-                    $period = SubmissionPeriod::find($submission->period_id);
-
-                    SubmissionReport::create([
-                        'indicator_id' => $this->selectedIndicator,
-                        'submission_id' => $submission->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'submission_period_id' => $this->submissionPeriodId,
-                        'period_month_id' => $period->month_range_period_id,
-                        'organisation_id' => $user->organisation->id,
-                        'user_id' => $user->id,
-                        'status' => 'approved',
-                        'data' => json_encode($data),
-                        'uuid' => $uuid
-                    ]);
-
-
-
-
-                    session()->flash('success', 'Successfully submitted!');
-                    $this->redirect(route('cip-internal-submissions') . '#aggregate-submission');
-                    //    $this->redirect(route('rtc-market-hrc', ['project' => 'rtc_market']));
-
-                } catch (UserErrorException $e) {
-                    // Log the actual error for debugging purposes
-                    Log::error('Submission error: ' . $e->getMessage());
-
-                    // Provide a generic error message to the user
-                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
-                }
-
-            } else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
-
-                try {
-                    $submission = Submission::create([
-                        'batch_no' => $uuid,
-                        'form_id' => $this->selectedForm,
-                        'period_id' => $this->submissionPeriodId,
-                        'user_id' => $currentUser->id,
-                        //'data' => json_encode($data),
-                        'batch_type' => 'aggregate',
-                        //   'status' => 'approved',
-                        'is_complete' => 1,
-                        'table_name' => 'reports',
-
-                    ]);
-
-                    $user = User::find($submission->user_id);
-                    $period = SubmissionPeriod::find($submission->period_id);
-
-                    SubmissionReport::create([
-                        'indicator_id' => $this->selectedIndicator,
-                        'submission_id' => $submission->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'submission_period_id' => $this->submissionPeriodId,
-                        'period_month_id' => $period->month_range_period_id,
-                        'organisation_id' => $user->organisation->id,
-                        'user_id' => $user->id,
-                        'data' => json_encode($data),
-                        'uuid' => $uuid
-                    ]);
-
-
-
-
-                    session()->flash('success', 'Successfully submitted!');
-                    $this->redirect(route('external-submissions') . '#aggregate-submission');
-                } catch (UserErrorException $e) {
-                    // Log the actual error for debugging purposes
-                    Log::error('Submission error: ' . $e->getMessage());
-
-                    // Provide a generic error message to the user
-                    session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
-                }
-
-            }
-
-        }
-
-
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
     public function render()

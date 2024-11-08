@@ -49,7 +49,7 @@
     <select class="form-select form-select-md @error('type') is-invalid @enderror" wire:model='type'>
         <option selected value="">Select One</option>
         <option value="Producer organization">Producer organization (PO)</option>
-        <option value="Large scale farm">Large scale farm</option>
+        <option value="Large scale processor">Large scale processor</option>
         <option value="Small medium entrprise (SME)">Small medium entrprise (SME)</option>
     </select>
 
@@ -480,7 +480,7 @@ $watch('number_of_members', (v) => {
         </label>
         <input type="number" min="0" step="any"
             class="form-control  @error('total_production_value_previous_season.value') is-invalid @enderror"
-            id="totalProductionValue" wire:model.live.debounce.600ms="total_production_value_previous_season.value">
+            id="totalProductionValue" wire:model.blur="total_production_value_previous_season.value">
         @error('total_production_value_previous_season.value')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -491,8 +491,7 @@ $watch('number_of_members', (v) => {
             Sales:</label>
         <input type="date"
             class="form-control  @error('total_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
-            id="dateOfMaximumSales"
-            wire:model.live.debounce.600ms="total_production_value_previous_season.date_of_maximum_sales">
+            id="dateOfMaximumSales" wire:model.blur="total_production_value_previous_season.date_of_maximum_sales">
         @error('total_production_value_previous_season.date_of_maximum_sales')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -549,8 +548,7 @@ $watch('number_of_members', (v) => {
         </label>
         <input type="number" min="0" step="any"
             class="form-control  @error('total_irrigation_production_value_previous_season.value') is-invalid @enderror"
-            id="totalProductionValue"
-            wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.value">
+            id="totalProductionValue" wire:model.blur="total_irrigation_production_value_previous_season.value">
         @error('total_irrigation_production_value_previous_season.value')
             <x-error>{{ $message }}</x-error>
         @enderror
@@ -562,7 +560,7 @@ $watch('number_of_members', (v) => {
         <input type="date"
             class="form-control  @error('total_irrigation_production_value_previous_season.date_of_maximum_sales') is-invalid @enderror"
             id="dateOfMaximumSales"
-            wire:model.live.debounce.600ms="total_irrigation_production_value_previous_season.date_of_maximum_sales">
+            wire:model.blur="total_irrigation_production_value_previous_season.date_of_maximum_sales">
         @error('total_irrigation_production_value_previous_season.date_of_maximum_sales')
             <x-error>{{ $message }}</x-error>
         @enderror

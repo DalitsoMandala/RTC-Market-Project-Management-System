@@ -40,7 +40,7 @@ final class SubmissionTable extends PowerGridComponent
             Exportable::make('export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            Header::make(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -258,7 +258,21 @@ final class SubmissionTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-primary')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('internal'))
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-submission-modal']),
+                ->dispatch('showModal', [
+                    'rowId' => $row->id,
+                    'name' => 'view-submission-modal'
+                ]),
+
+
+            Button::add('delete')
+                ->slot('<i class="bx bx-trash"></i>')
+                ->id()
+                ->class('btn btn-danger my-1')
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->dispatch('deleteBatch', [
+                    'id' => $row->id,
+                    'name' => 'delete-batch-modal'
+                ]),
         ];
     }
 
@@ -267,9 +281,9 @@ final class SubmissionTable extends PowerGridComponent
 
 
         return [
-            // Hide button edit for ID 1
+            //  Hide button edit for ID 1
             Rule::button('edit')
-                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('organiser')) || User::find($row->user_id)->hasAnyRole('admin'))
+                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('manager')) || User::find($row->user_id)->hasAnyRole('admin'))
                 ->disable(),
 
             Rule::button('edit')

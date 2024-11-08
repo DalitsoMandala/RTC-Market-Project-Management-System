@@ -40,7 +40,10 @@ final class UserTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return User::with(['organisation', 'roles'])->withTrashed();
+        return User::with([
+            'organisation',
+            'roles'
+        ])->withTrashed();
     }
 
     public function fields(): PowerGridFields
@@ -100,7 +103,7 @@ final class UserTable extends PowerGridComponent
                         $role->name = '<span class="badge bg-primary" style="font-size:11px">DESIRA</span>';
                     }
 
-                    if ($role->name == 'organiser') {
+                    if ($role->name == 'manager') {
                         $role->name = '<span class="badge bg-primary" style="font-size:11px">Organiser</span>';
                     }
 
@@ -190,19 +193,28 @@ final class UserTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->class('btn btn-primary goUp')
-                ->dispatch('edit', ['rowId' => $row->id, 'name' => 'view-edit-modal']),
+                ->dispatch('edit', [
+                    'rowId' => $row->id,
+                    'name' => 'view-edit-modal'
+                ]),
 
             Button::add('delete')
                 ->slot('<i class="bx bx-trash"></i>')
                 ->id()
                 ->class('btn btn-danger goUp')
-                ->dispatch('showModal-delete', ['rowId' => $row->id, 'name' => 'view-delete-modal']),
+                ->dispatch('showModal-delete', [
+                    'rowId' => $row->id,
+                    'name' => 'view-delete-modal'
+                ]),
 
             Button::add('restore')
                 ->slot('<i class="bx bx-recycle"></i>')
                 ->id()
                 ->class('btn btn-success goUp')
-                ->dispatch('showModal-restore', ['rowId' => $row->id, 'name' => 'view-restore-modal'])
+                ->dispatch('showModal-restore', [
+                    'rowId' => $row->id,
+                    'name' => 'view-restore-modal'
+                ])
         ];
     }
 

@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use App\Models\SystemReport;
+use App\Models\SystemReportData;
 
 class Indicator223 extends Component
 {
     use LivewireAlert;
     #[Validate('required')]
-
     public $rowId;
     public $data = [];
     public $indicator_no;
@@ -24,31 +25,55 @@ class Indicator223 extends Component
 
     public $total;
 
+    public $selectedProjectYear = [];
+
+    public $projectYears = [];
+
+    public $selectedOrganisation = 1;
+
+    public $reportingPeriods = [];
+
+    public $reporting_period;
+    public $financial_year;
+    public $organisation;
+
+
 
 
 
     public function calculations()
     {
 
-        $organisation = auth()->user()->organisation;
-        $class = Indicator::find($this->indicator_id)->class()->first();
-        $newClass = null;
-        if (auth()->user()->hasAnyRole('admin') || (auth()->user()->hasAnyRole('cip') && auth()->user()->hasAnyRole('organiser'))) {
-            $newClass = new $class->class();
-        } else {
-            $newClass = new $class->class(organisation_id: $organisation->id);
+
+
+        $reportId = SystemReport::where('indicator_id', $this->indicator_id)
+            ->where('project_id', $this->project_id)
+            ->where('organisation_id', $this->organisation['id'])
+            ->where('financial_year_id', $this->financial_year['id'])
+            ->pluck('id');
+
+
+        if ($reportId->isNotEmpty()) {
+            // Retrieve and group data by 'name'
+            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
+            $groupedData = $data->groupBy('name');
+
+
+            // Sum each group's values
+            $summedGroups = $groupedData->map(function ($group) {
+                return $group->first()->value;
+            });
+
+
+            // Store the results
+            $this->data = $summedGroups;
+
+            // Retrieve the total if 'Total' is one of the grouped items
+            $this->total = $summedGroups->get('Total (% Percentage)', 0); // Defaults to 0 if 'Total' is not present
         }
 
 
 
-        try {
-            $this->data = $newClass->getDisaggregations();//
-            $this->total = $this->data['Total'];
-
-
-        } catch (\Throwable $th) {
-
-        }
 
     }
     public function mount()

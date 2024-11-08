@@ -28,19 +28,12 @@ return [
          * https://flatpickr.js.org
          */
         'flatpickr' => [
-            // ..
             'locales' => [
                 'pt_BR' => [
                     'locale' => 'pt',
                     'dateFormat' => 'd/m/Y H:i',
                     'enableTime' => true,
                     'time_24hr' => true,
-                ],
-                'us' => [
-                    'locale' => 'us',
-                    'dateFormat' => 'm/d/Y',
-                    'enableTime' => true,
-                    'time_24hr' => false,
                 ],
             ],
         ],
@@ -93,6 +86,7 @@ return [
     |
     | PowerGrid supports persisting of the filters, columns and sorting.
     | 'session': persist in the session.
+    | 'cache': persist with cache.
     | 'cookies': persist with cookies (default).
     |
     */

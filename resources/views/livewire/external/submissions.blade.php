@@ -9,7 +9,7 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Submissions</li>
                         </ol>
                     </div>
@@ -35,21 +35,21 @@
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link disabled" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch-submission" type="button" role="tab"
-                                    aria-controls="home" aria-selected="true">
+                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                                    data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">
                                     Batch Submissions
                                 </button>
                             </li>
                             {{-- <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
-                                    data-bs-target="#manual-submission" type="button" role="tab"
-                                    aria-controls="profile" aria-selected="false">
+                                    data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
                                     Manual Submissions
                                 </button>
                             </li> --}}
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="people-tab" data-bs-toggle="tab"
+                                <button class="nav-link " id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
                                     Aggregate Submission
@@ -68,16 +68,16 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane  fade show" id="batch-submission" role="tabpanel"
-                                aria-labelledby="home-tab">
+                            <div wire:ignore class="mt-2 tab-pane  active fade show" id="batch-submission"
+                                role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
                             {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.submission-table :filter="'manual'" />
                             </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="aggregate-submission"
-                                role="tabpanel" aria-labelledby="profile-tab">
+                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
 
@@ -101,12 +101,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -115,8 +115,8 @@
                 }
             });
         })
-        
-        
+
+
         $wire.on('showDataAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -124,17 +124,17 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })">
 
-            <x-modal id="view-data-agg-modal" title="Approve Submission">
+            <x-modal id="view-data-agg-modal" title="View Submission">
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-                
-                
-                
+
+
+
                 }">
 
 
@@ -206,18 +206,18 @@
 
 </div>
 @script
-    <script>
-        if (window.location.hash !== '') {
-            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-            if (button) {
-                button.click();
+<script>
+    if (window.location.hash !== '') {
+        const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+        if (button) {
+            button.click();
 
-            }
         }
+    }
 
-        setTimeout(() => {
-            $wire.dispatch('timeout');
+    setTimeout(() => {
+        $wire.dispatch('timeout');
 
-        }, 5000);
-    </script>
+    }, 5000);
+</script>
 @endscript

@@ -20,6 +20,9 @@ return new class extends Migration {
             $table->string('school_name');
             $table->date('date')->nullable();
             $table->string('crop')->nullable();
+            $table->boolean('crop_cassava')->default(false);
+            $table->boolean('crop_potato')->default(false);
+            $table->boolean('crop_sweet_potato')->default(false);
             $table->integer('male_count')->nullable();
             $table->integer('female_count')->nullable();
             $table->integer('total')->nullable();
@@ -29,8 +32,7 @@ return new class extends Migration {
             $table->foreignId('organisation_id')->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
-            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
-            ;
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');;
             $table->timestamps();
         });
     }

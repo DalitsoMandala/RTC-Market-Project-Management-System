@@ -4,8 +4,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Add Follow Up</h4>
-                    <h4 class="mb-0">Add Follow Up</h4>
+                    <h4 class="mb-0">Add Data</h4>
+
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
@@ -134,7 +134,7 @@
                                 @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
-                                    <button class="btn btn-primary btn-lg" @click="window.scrollTo({
+                                    <button class="btn btn-primary " @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
                                 })" type="submit">

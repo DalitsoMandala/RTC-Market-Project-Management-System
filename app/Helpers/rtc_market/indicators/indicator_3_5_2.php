@@ -2,8 +2,14 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use Log;
+use App\Models\Indicator;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\IncreasePercentage;
+use App\Models\SchoolRtcConsumption;
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log as Logger;
 
 
 class indicator_3_5_2
@@ -28,7 +34,6 @@ class indicator_3_5_2
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
@@ -73,11 +78,100 @@ class indicator_3_5_2
         return $query;
     }
 
+
+    public function builderSchool(): Builder
+    {
+        $query = SchoolRtcConsumption::query()->where('status', 'approved');
+
+        // Check if both reporting period and financial year are set
+        if ($this->reporting_period || $this->financial_year) {
+            // Apply filter for reporting period if it's set
+            if ($this->reporting_period) {
+                $query->where('period_month_id', $this->reporting_period);
+            }
+
+            // Apply filter for financial year if it's set
+            if ($this->financial_year) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
+
+            // If no data is found, return an empty result
+            if (!$query->exists()) {
+                $query->whereIn('id', []); // Empty result filter
+            }
+        }
+
+        // Filter by organization if set
+        if ($this->organisation_id) {
+            $query->where('organisation_id', $this->organisation_id);
+        }
+
+
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
+
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
+
+
+        return $query;
+    }
+    public function getFrequency()
+    {
+        // Optimized household query: using `value()` instead of `first()->toArray()` for a single aggregate.
+        $householdTotal = $this->builder()
+            ->select(DB::raw('SUM(rtc_consumption_frequency) as Total'))
+            ->value('Total'); // Directly get the summed value.
+
+
+        // $totalFrequencySum = 0; // Initialize the total frequency sum
+        // $this->builderSchool()
+        //     ->select(
+        //         'school_name',
+        //         DB::raw('COUNT(CASE WHEN crop IN ("Cassava", "Potato", "Sweet Potato") THEN 1 END) as total_frequency')
+        //     )
+        //     ->groupBy('school_name')
+        //     ->orderBy('school_name') // Add orderBy to ensure consistent chunking
+        //     ->chunk(100, function ($schoolFrequencies) use (&$totalFrequencySum) {
+        //         // Loop through each chunk of results
+        //         foreach ($schoolFrequencies as $school) {
+        //             $totalFrequencySum += $school->total_frequency; // Add the frequency to the total sum
+        //         }
+        //     });
+        return [
+            'Total' => $householdTotal
+        ];
+    }
+
+
+    public function findIndicator()
+    {
+        $indicator = Indicator::where('indicator_name', 'Frequency of RTC consumption by households per week (OC)')->where('indicator_no', '3.5.2')->first();
+        return $indicator ?? Logger::error('Indicator not found');
+    }
+
+
     public function getDisaggregations()
     {
-        $total = $this->builder()->sum('rtc_consumption_frequency');
+        $subTotal = $this->getFrequency()['Total'];
+        // Retrieve the indicator
+        $indicator = $this->findIndicator();
+
+        // Get the baseline value, defaulting to 0 if the indicator or baseline doesn't exist
+        $baseline = $indicator->baseline->baseline_value ?? 0;
+
+        // Calculate the percentage increase based on the subtotal and baseline
+        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
+        $finalTotalPercentage = $percentageIncrease->percentage();
+
+        $this->getFrequency();
         return [
-            'Total' => $total
+            'Total' => $finalTotalPercentage,
         ];
     }
 }

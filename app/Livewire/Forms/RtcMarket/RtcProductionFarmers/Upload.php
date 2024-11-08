@@ -2,24 +2,30 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionFarmers;
 
+use App\Exceptions\ExcelValidationException;
 use App\Exceptions\UserErrorException;
+use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Helpers\SheetNamesValidator;
+use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
 use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\ImportError;
 use App\Models\Indicator;
 use App\Models\JobProgress;
+use App\Models\OrganisationTarget;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
 use App\Models\User;
 use App\Notifications\JobNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -59,7 +65,8 @@ class Upload extends Component
     public $importId, $showReport;
 
     public $queue = false;
-
+    public $targetSet = false;
+    public $targetIds = [];
     public function submitUpload()
     {
 
@@ -82,57 +89,59 @@ class Upload extends Component
 
                 // Use storage_path to get the absolute path
                 $path = storage_path('app/public/imports/' . $name);
-                $sheets = SheetNamesValidator::getSheetNames($path);
 
-                $this->updateJobStatus();
+
+
+
+
 
                 try {
 
-                    $table = ['rtc_production_farmers', 'rpm_farmer_follow_ups', 'rpm_farmer_conc_agreements', 'rpm_farmer_dom_markets', 'rpm_farmer_inter_markets'];
-                    $this->importing = true;
-                    $this->importingFinished = false;
 
-                    $this->dispatch('notify');
+                    Excel::import(new RtcProductionFarmersMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
-                    Excel::import(new RpmFarmerImport($userId, $sheets, $path, $this->importId, [
                         'submission_period_id' => $this->submissionPeriodId,
                         'organisation_id' => Auth::user()->organisation->id,
                         'financial_year_id' => $this->selectedFinancialYear,
                         'period_month_id' => $this->selectedMonth,
                         'form_id' => $this->selectedForm,
                         'user_id' => Auth::user()->id,
-
-                        //    'data' => [],
                         'batch_type' => 'batch',
-                        'period_id' => $this->submissionPeriodId,
-                        'table_name' => json_encode($table),
+                        'table_name' => 'household_rtc_consumption',
                         'is_complete' => 1,
                         'file_link' => $name,
+                        'batch_no' => $this->importId
+
 
                     ]), $path);
-
-
-                } catch (UserErrorException $e) {
+                    $this->checkProgress();
+                } catch (ExcelValidationException $th) {
 
                     $this->reset('upload');
-                    $this->importing = false;
-                    $this->importingFinished = true;
-
-                    session()->flash('error', $e->getMessage());
+                    session()->flash('error', $th->getMessage());
+                    Log::error($th);
                 }
             }
-
         } catch (\Exception $th) {
             //throw $th;
-
+            dd($th);
             session()->flash('error', 'Something went wrong!');
             Log::channel('system_log')->error($th);
-
         }
 
         $this->removeTemporaryFile();
-
     }
+
+
+
+    #[On('open-submission')]
+    public function clearTable()
+    {
+        $this->openSubmission = true;
+        $this->targetSet = true;
+        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
+    }
+
 
     public function checkErrors()
     {
@@ -155,10 +164,12 @@ class Upload extends Component
 
             $importJob = JobProgress::where('user_id', $userId)->where('job_id', $this->importId)->first();
             if ($importJob) {
-                $importJob->update(['status' => 'failed', 'is_finished' => true]);
+                $importJob->update([
+                    'status' => 'failed',
+                    'is_finished' => true
+                ]);
             }
             $importError->delete();
-
         } else {
             // Check progress
 
@@ -167,7 +178,6 @@ class Upload extends Component
 
             if ($importJob) {
                 $this->progress = $importJob->progress;
-
             }
 
             $this->dispatch('progress-update', progress: $this->progress ?? 0);
@@ -180,23 +190,53 @@ class Upload extends Component
                 $this->dispatch('import-finished');
 
                 if ($importJob) {
-                    $importJob->update(['status' => 'completed', 'is_finished' => true]);
+                    $importJob->update([
+                        'status' => 'completed',
+                        'is_finished' => true
+                    ]);
                     $this->importId = Uuid::uuid4()->toString();
                     $this->sendToLocation();
                 }
+            }
+        }
+    }
+
+    public function checkProgress()
+    {
+        $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
+
+        $this->progress = $jobProgress ? $jobProgress->progress : 0;
+        $this->importing = true;
+        $this->importingFinished = false;
+
+
+        if ($this->progress == 100) {
+            $this->importing = false;
+            $this->importingFinished = true;
+
+
+            $this->importId = Uuid::uuid4()->toString(); // change key
+
+            if ($jobProgress->status == 'failed') {
+
+                session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+                $this->reset('upload');
+            } else if ($jobProgress->status == 'completed') {
+                $this->reset('upload');
+
+                $this->dispatch('complete-submission');
 
             }
 
-        }
 
+        }
     }
 
-    public function sendToLocation()
+
+    public function send()
     {
-
-
         $user = User::find(auth()->user()->id);
-        cache()->clear();
+
         if ($user->hasAnyRole('external')) {
             session()->flash('success', 'Successfully submitted!');
             $this->redirect(route('external-submissions') . '#batch-submission');
@@ -208,44 +248,10 @@ class Upload extends Component
             $this->redirect(route('cip-internal-submissions') . '#batch-submission');
         }
 
-    }
-
-    public function updateJobStatus()
-    {
-
-        $pendingjob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'processing')->first();
-        if ($pendingjob) {
-            throw new UserErrorException('You have a pending import running in your background! Please wait... You can see the progress in your submissions page');
-        }
-
-        $job = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('is_finished', true)->first();
-        if ($job) {
-
-            $job->update([
-                'user_id' => auth()->user()->id,
-                'job_id' => $this->importId,
-                'status' => 'pending',
-                'is_finished' => false,
-            ]);
-        } else {
-            JobProgress::create([
-                'user_id' => auth()->user()->id,
-                'job_id' => $this->importId,
-                'status' => 'pending',
-                'form_name' => Form::find($this->selectedForm)->name,
-            ]);
-        }
 
     }
 
-    public function checkJobProgress()
-    {
-        // $job = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->orWhere('status', 'pending')->first();
-        // if ($job) {
-        //     $this->importing = true;
-        // }
 
-    }
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
     {
@@ -253,7 +259,6 @@ class Upload extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -264,7 +269,6 @@ class Upload extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -280,37 +284,34 @@ class Upload extends Component
                 ->where('is_open', true)
                 ->first();
 
-            if ($submissionPeriod) {
+            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
+                ->where('financial_year_id', $this->selectedFinancialYear)
+
+                ->get();
+            $user = User::find(auth()->user()->id);
+
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+            $this->targetIds = $target->pluck('id')->toArray();
+
+
+            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
                 $this->openSubmission = true;
-                $user = Auth::user();
-                $organisation = $user->organisation;
-
-                $getSubmissionType = ResponsiblePerson::where('indicator_id', $this->selectedIndicator)->where('organisation_id', $organisation->id)->first();
-                if ($getSubmissionType) {
-                    $this->showReport = $getSubmissionType->type_of_submission == 'normal' ? false : true;
-                }
+                $this->targetSet = true;
             } else {
                 $this->openSubmission = false;
+                $this->targetSet = false;
             }
         }
 
-        $this->importId = $uuid;
-        $finishedJob = JobProgress::where('user_id', auth()->user()->id)->where('job_id', $this->importId)->where('status', 'completed')->where('is_finished', true)->first();
-        if ($finishedJob) {
-
-            $this->importId = Uuid::uuid4()->toString();
-
-        }
-
+        $this->importId = Uuid::uuid4()->toString();
     }
 
     public function downloadTemplate()
     {
         $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new RtcProductionFarmerWorkbookExport, 'rtc_production_marketing_farmers' . $time . '.xlsx');
-
+        return Excel::download(new RtcProductionFarmersMultiSheetExport(true), 'rtc_production_marketing_farmers' . $time . '.xlsx');
     }
 
     public function removeTemporaryFile()
@@ -328,9 +329,7 @@ class Upload extends Component
                     Log::error('Failed to delete temporary file: ' . $e->getMessage());
                 }
             }
-
         }
-
     }
     public function render()
     {

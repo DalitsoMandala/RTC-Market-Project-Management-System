@@ -21,7 +21,7 @@ class FetchExchangeRates extends Command
     {
         $apiKey = env('EXCHANGE_RATE_API'); // Store your API key in config/services.php
         $baseCurrency = 'USD'; // or any other base currency
-        $url = "v6.exchangerate-api.com/v6/{$apiKey}/latest/{$baseCurrency}";
+        $url = "https://v6.exchangerate-api.com/v6/{$apiKey}/latest/{$baseCurrency}";
 
         $response = Http::get($url);
 

@@ -3,15 +3,16 @@
 namespace App\Helpers\rtc_market\indicators;
 
 
-use App\Livewire\Internal\Cip\Submissions;
-use App\Models\HouseholdRtcConsumption;
+use App\Models\Submission;
 use App\Models\Organisation;
+use App\Models\SubmissionPeriod;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use App\Models\RtcProductionProcessor;
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
+use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
+use App\Livewire\Internal\Cip\Submissions;
 
 class indicator_A1
 {
@@ -183,95 +184,109 @@ class indicator_A1
 
     public function findGender()
     {
-        return $this->builder()
-            ->select([
-                DB::raw('COUNT(*) AS Total'),
-                DB::raw('SUM(CASE WHEN sex = \'Male\' THEN 1 ELSE 0 END) AS MaleCount'),
-                DB::raw('SUM(CASE WHEN sex = \'Female\' THEN 1 ELSE 0 END) AS FemaleCount'),
-            ])
+        $totalGender = ['Total' => 0, 'MaleCount' => 0, 'FemaleCount' => 0];
 
-            ->first()->toArray();
+        $this->builder()->chunk(100, function ($data) use (&$totalGender) {
+            foreach ($data as $model) {
+                $totalGender['Total'] += 1;
+                $totalGender['MaleCount'] += $model->sex == 'Male' ? 1 : 0;
+                $totalGender['FemaleCount'] += $model->sex == 'Female' ? 1 : 0;
+            }
+        });
+
+        return $totalGender;
     }
-    public function findAge()
+    public function findAge(): Collection
     {
-        return $this->builder()
-            ->select([
-                DB::raw('COUNT(*) AS Total'),
-                DB::raw('SUM(CASE WHEN age_group = \'Youth\' THEN 1 ELSE 0 END) AS youth'),
-                DB::raw('SUM(CASE WHEN age_group = \'Not youth\' THEN 1 ELSE 0 END) AS not_youth'),
-            ])
+        $totalAge = collect(['Total' => 0, 'youth' => 0, 'not_youth' => 0]);
 
-            ->first()->toArray();
+        $this->builder()->chunk(100, function ($data) use (&$totalAge) {
+            foreach ($data as $model) {
+                $totalAge['Total'] += 1;
+                $totalAge['youth'] += $model->age_group == 'Youth' ? 1 : 0;
+                $totalAge['not_youth'] += $model->age_group == 'Not youth' ? 1 : 0;
+            }
+        });
+
+        return $totalAge;
     }
-
     public function findActorType()
     {
-        return $this->countActor()->first()->toArray();
+
+        return $this->countActor()->toArray();
     }
 
-    public function countCrop()
+    public function countCrop(): Collection
     {
-        return $this->builder()
-            ->select([
-                DB::raw('SUM(rtc_consumers_potato) as potato'),
-                DB::raw('SUM(rtc_consumers_cassava) as cassava'),
-                DB::raw('SUM(rtc_consumers_sw_potato) as sweet_potato'),
-            ])
+        $totalCrop = collect(['potato' => 0, 'cassava' => 0, 'sweet_potato' => 0]);
 
-        ;
+        $this->builder()->chunk(100, function ($data) use (&$totalCrop) {
+            foreach ($data as $model) {
+                if ($model->enterprise == 'Potato') {
+                    $totalCrop['potato'] += 1;
+                } elseif ($model->enterprise == 'Cassava') {
+                    $totalCrop['cassava'] += 1;
+                } elseif ($model->enterprise == 'Sweet potato') {
+                    $totalCrop['sweet_potato'] += 1;
+                }
+            }
+        });
+
+        return $totalCrop;
     }
 
-    public function countActor()
-    {
-        return $this->builder()
-            ->select([
-                DB::raw('COUNT(*) AS Total'),
-                DB::raw('SUM(CASE WHEN actor_type = \'FARMER\' THEN 1 ELSE 0 END) AS farmer'),
-                DB::raw('SUM(CASE WHEN actor_type = \'PROCESSOR\' THEN 1 ELSE 0 END) AS processor'),
-                DB::raw('SUM(CASE WHEN actor_type = \'TRADER\' THEN 1 ELSE 0 END) AS trader'),
-            ])
 
-        ;
+    public function countActor(): Collection
+    {
+        $totalActor = collect(['Total' => 0, 'farmer' => 0, 'processor' => 0, 'trader' => 0]);
+
+        $this->builder()->chunk(100, function ($data) use (&$totalActor) {
+            foreach ($data as $model) {
+                $totalActor['Total'] += 1;
+                $totalActor['farmer'] += $model->actor_type == 'Farmer' ? 1 : 0;
+                $totalActor['processor'] += $model->actor_type == 'Processor' ? 1 : 0;
+                $totalActor['trader'] += $model->actor_type == 'Trader' ? 1 : 0;
+            }
+        });
+
+        return $totalActor;
     }
     public function findByCrop()
     {
-        return $this->countCrop()->first()->toArray();
+
+        return $this->countCrop()->toArray();
     }
 
     public function RtcActorByCrop($actor)
     {
         return $this->countCrop()->where('actor_type', $actor)->first()->toArray();
-
     }
 
     public function RtcActorBySex($sex)
     {
         return $this->countActor()->where('sex', $sex)->first()->toArray();
-
     }
     public function RtcActorByAge($age)
     {
         return $this->countActor()->where('age_group', $age)->first()->toArray();
-
     }
 
     public function getEstablishmentFarmers()
     {
         return $this->builderFarmer()->select([
             DB::raw('COUNT(*) AS Total'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS NEW'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS OLD'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS New'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS Old'),
 
         ])->first()->toArray();
-
     }
 
     public function getEstablishmentProcessors()
     {
         return $this->builderProcessor()->select([
             DB::raw('COUNT(*) AS Total'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS NEW'),
-            DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS OLD'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS New'),
+            DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS Old'),
 
         ])->first()->toArray();
     }
@@ -309,25 +324,24 @@ class indicator_A1
 
         $totalProcessorEmployees = $this->findTotalProcessorEmployees();
         $totalEmployees = $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
-        $totalOldEstablishment = $this->getEstablishmentFarmers()['OLD'] + $this->getEstablishmentProcessors()['OLD'];
-        $totalNewEstablishment = $this->getEstablishmentFarmers()['NEW'] + $this->getEstablishmentProcessors()['NEW'];
+        $totalOldEstablishment = $this->getEstablishmentFarmers()['Old'] + $this->getEstablishmentProcessors()['Old'];
+        $totalNewEstablishment = $this->getEstablishmentFarmers()['New'] + $this->getEstablishmentProcessors()['New'];
 
         return [
             'Total' => $this->findTotal(),
-            'Female' => (float) $gender['FemaleCount'],
-            'Male' => (float) $gender['MaleCount'],
-            'Youth (18-35 yrs)' => (float) $age['youth'],
-            'Not youth (35yrs+)' => (float) $age['not_youth'],
-            'Farmers' => (float) $actorType['farmer'],
-            'Processors' => (float) $actorType['processor'],
-            'Traders' => (float) $actorType['trader'],
-            'Cassava' => (float) $crop['cassava'],
-            'Potato' => (float) $crop['potato'],
-            'Sweet potato' => (float) $crop['sweet_potato'],
+            'Female' => (int) $gender['FemaleCount'],
+            'Male' => (int) $gender['MaleCount'],
+            'Youth (18-35 yrs)' => (int) $age['youth'],
+            'Not youth (35yrs+)' => (int) $age['not_youth'],
+            'Farmers' => (int) $actorType['farmer'],
+            'Processors' => (int) $actorType['processor'],
+            'Traders' => (int) $actorType['trader'],
+            'Cassava' => (int) $crop['cassava'],
+            'Potato' => (int) $crop['potato'],
+            'Sweet potato' => (int) $crop['sweet_potato'],
             'Employees on RTC establishment' => $totalEmployees,
             'New establishment' => $totalNewEstablishment,
             'Old establishment' => $totalOldEstablishment,
         ];
-
     }
 }

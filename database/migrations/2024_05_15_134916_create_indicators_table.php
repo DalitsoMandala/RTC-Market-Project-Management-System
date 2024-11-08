@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->string('indicator_no');
             $table->text('indicator_name');
             $table->foreignId('project_id')->constrained('projects', 'id')->onDelete('cascade')->onUpdate('cascade');
-            $table->enum('type', ['number', 'percentage'])->default('number');
             $table->timestamps();
         });
     }

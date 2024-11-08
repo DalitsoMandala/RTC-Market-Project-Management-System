@@ -23,14 +23,13 @@ class indicator_1_2_2
         //$this->project = $project;
         $this->organisation_id = $organisation_id;
         $this->target_year_id = $target_year_id;
-
     }
     public function builder(): Builder
     {
 
         $indicator = Indicator::where('indicator_name', 'Number of RTC and derived products recorded in official trade statistics')->where('indicator_no', '1.2.2')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id);
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -69,7 +68,6 @@ class indicator_1_2_2
 
 
         return $query;
-
     }
 
     public function getTotals()
@@ -87,33 +85,27 @@ class indicator_1_2_2
 
 
 
-        if ($builder->isNotEmpty()) {
-
-
-            $builder->each(function ($model) use ($data) {
+        $this->builder()->chunk(100, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
                 $json = collect(json_decode($model->data, true));
 
-
-
+                // Add the values for each key to the totals
                 foreach ($data as $key => $dt) {
-
                     if ($json->has($key)) {
-
                         $data->put($key, $data->get($key) + $json[$key]);
                     }
                 }
-
             });
-
-
-        }
+        });
 
         return $data;
     }
     public function getDisaggregations()
     {
-
-        return $this->getTotals()->toArray();
+        $totals = $this->getTotals()->toArray();
+        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
+        $totals['Total'] = $subTotal;
+        return $totals;
     }
-
 }

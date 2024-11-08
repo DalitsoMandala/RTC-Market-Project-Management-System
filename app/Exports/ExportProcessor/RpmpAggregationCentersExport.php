@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Exports\ExportProcessor;
+
+
+use App\Models\RpmpAggregationCenter;
+use App\Models\RpmProcessorAggregationCenter;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+
+class RpmpAggregationCentersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
+{
+    public $template;
+
+    public function __construct($template)
+    {
+        $this->template = $template;
+    }
+    public function collection()
+    {
+
+        if ($this->template) {
+            return collect([]);  // Return an empty collection if the template is not provided.
+        }
+        return RpmProcessorAggregationCenter::select(
+            'name',
+            'rpmp_id'
+        )->get();
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Aggregation Center Name',
+            'Processor ID'
+        ];
+    }
+
+    public function title(): string
+    {
+        return 'Aggregation Centers';
+    }
+}
