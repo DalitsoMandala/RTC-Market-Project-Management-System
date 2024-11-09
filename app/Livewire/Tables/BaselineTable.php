@@ -60,6 +60,7 @@ final class BaselineTable extends PowerGridComponent
             Column::make('Indicator', 'indicator'),
             Column::make('Baseline value', 'baseline_value')
                 ->sortable()
+
                 ->searchable(),
 
 

@@ -89,7 +89,8 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
 // Admin routes
 Route::middleware([
     'auth',
-    'role:admin'
+    'role:admin',
+    'check_baseline'
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
@@ -107,7 +108,7 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Admin\Operations\Forms::class)->name('admin-forms');
     Route::get('/submissions', \App\Livewire\Admin\Operations\Submissions::class)->name('admin-submissions');
     Route::get('/reports', \App\Livewire\Admin\Operations\Reports::class)->name('admin-reports');
-
+    Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->name('admin-baseline');
 
     // Form routes
     $formPrefix = '/forms/{project}';
@@ -146,7 +147,8 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'all_roles:internal,cip,manager'
+    'all_roles:internal,cip,manager',
+    'check_baseline'
 ])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-internal-dashboard');
     Route::get('/indicators', Indicators::class)->name('cip-internal-indicators');
@@ -161,7 +163,7 @@ Route::middleware([
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/seed-beneficiaries/add', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
     Route::get('/seed-beneficiaries', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
-    Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class);
+    Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->name('cip-baseline');
     // Route::get('/seed-distribution/add', App\Livewire\OtherForms\SeedDistribution\Add::class);
     // Route::get('/seed-distribution', App\Livewire\OtherForms\SeedDistribution\View::class);
 
@@ -206,7 +208,8 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'all_roles:internal,cip,staff'
+    'all_roles:internal,cip,staff',
+    'check_baseline'
 ])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
     Route::get('/indicators', \App\Livewire\Internal\Staff\Indicators::class)->name('cip-staff-indicators');
@@ -258,7 +261,8 @@ Route::middleware([
 // External routes
 Route::middleware([
     'auth',
-    'role:external'
+    'role:external',
+    'check_baseline'
 ])->prefix('external')->group(function () {
     Route::get('/dashboard', ExternalDashboard::class)->name('external-dashboard');
     Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');

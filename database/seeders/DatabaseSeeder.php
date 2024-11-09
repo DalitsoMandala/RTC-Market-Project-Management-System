@@ -19,12 +19,12 @@ class DatabaseSeeder extends Seeder
         $this->call(CgiarProjectSeeder::class); //
         $this->call(ReportPeriodSeeder::class);
         $this->call(ProjectSeeder::class);
-        // $this->call(IndicatorSeeder::class);
+        $this->call(IndicatorSeeder::class);
         //$this->call(IndicatorTargetSeeder::class);
-        $this->call(AssignedTargetSeeder::class);
+        // $this->call(AssignedTargetSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
-        $this->call(PeriodSeeder::class);
+        //  $this->call(PeriodSeeder::class);
         $this->call(SubmissionSeeder::class);
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
