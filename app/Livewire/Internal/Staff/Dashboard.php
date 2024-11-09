@@ -8,27 +8,25 @@ use Livewire\Component;
 use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SystemReport;
-use Livewire\Attributes\Lazy;
+use App\Models\FinancialYear;
+use App\Models\SystemReportData;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\rtc_market\indicators\A1;
-use App\Helpers\rtc_market\indicators\indicator_A1;
+use App\Helpers\rtc_market\indicators\Indicator_A1;
 
 class Dashboard extends Component
 {
-
     public $data;
     public $project;
     public $indicatorCount;
     public $submissions;
-
     public $attendance;
     public $showContent = false;
     public $quickForms;
+
     public function mount()
     {
-
-
+        // Initialization if needed
     }
 
     public function loadData()
@@ -36,79 +34,70 @@ class Dashboard extends Component
         $indicatorA1 = new Indicator_A1();
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $organisation = auth()->user()->organisation;
-        $currentDate = Carbon::now();
-        $record = FinancialYear::
-            whereDate('start_date', '<=', $currentDate)  // Current date is on or after start_date
-            ->whereDate('end_date', '>=', $currentDate)    // Current date is on or before end_date
-            ->where('project_id', 1)
+        $currentDate = now();
 
+        // Retrieve the current financial year record
+        $record = FinancialYear::whereDate('start_date', '<=', $currentDate)
+            ->whereDate('end_date', '>=', $currentDate)
+            ->where('project_id', 1)
             ->first();
 
-        $reportId = SystemReport::where('indicator_id', $indicator->id)
-            ->where('project_id', 1)
-            //    ->where('organisation_id', $organisation->id)
-            ->where('financial_year_id', $record->id)
-            ->pluck('id');
+        if ($record && $indicator) {
+            // Get report IDs related to the indicator and financial year
+            $reportIds = SystemReport::where('indicator_id', $indicator->id)
+                ->where('project_id', 1)
+                ->where('financial_year_id', $record->id)
+                ->pluck('id');
 
-        if ($reportId->isNotEmpty()) {
-            // Retrieve and group data by 'name'
-            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
-            $groupedData = $data->groupBy('name');
+            if ($reportIds->isNotEmpty()) {
+                // Retrieve and group data by 'name' and sum each group's values
+                $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
+                $groupedData = $data->groupBy('name');
+                $summedGroups = $groupedData->map(fn($group) => $group->sum('value'));
 
-            // Sum each group's values
-            $summedGroups = $groupedData->map(function ($group) {
-                return $group->sum('value'); // Assuming 'value' is the field to be summed
-            });
-
-
-            // Store the results
-            $this->data = $summedGroups;
-
+                $this->data = [
+                    'actors' => $summedGroups->toArray(),
+                    'name' => $indicator->indicator_name,
+                ];
+                $this->indicatorCount = Indicator::count();
+            } else {
+                $this->data = [
+                    'actors' => [],
+                    'name' => ''
+                ];
+            }
         }
 
-
-
-        if ($indicator && $this->data->isNotEmpty()) {
-            $this->fill([
-                'indicatorCount' => Indicator::count(),
-            ]);
-
-            $this->data = [
-                'actors' => $this->data->toArray(),
-                'name' => $indicator->indicator_name,
-            ];
-        } else {
-            // Handle the case where the indicator is not found
-            $this->data = [
-                'actors' => [],
-                'name' => '',
-            ];
-        }
-
+        // Fetch submission data grouped by year and month
         $this->submissions = Submission::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as total')
         )
             ->groupBy('year', 'month')
-            ->get()->toArray();
+            ->get()
+            ->toArray();
 
-        $this->attendance = AttendanceRegister::get()->take(5);
+        // Get the latest 5 attendance records
+        $this->attendance = AttendanceRegister::latest()->take(5)->get();
+
+        // Get the latest 5 quick forms, excluding 'REPORT FORM'
         $this->quickForms = Form::with([
             'project',
             'indicators'
-        ])->whereNot('name', 'REPORT FORM')->get()->take(5);
-
+        ])
+            ->where('name', '!=', 'REPORT FORM')
+            ->latest()
+            ->take(5)
+            ->get();
 
         $this->showContent = true;
     }
 
-
-
     public function render()
     {
         return view('livewire.internal.staff.dashboard', [
-            'projects' => Project::get(),
+            'projects' => Project::all(),
         ]);
     }
 }

@@ -10,28 +10,25 @@ use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SystemReport;
 use App\Models\FinancialYear;
-use Livewire\Attributes\Lazy;
 use App\Models\SystemReportData;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\rtc_market\indicators\A1;
-use App\Helpers\rtc_market\indicators\indicator_A1;
+use App\Helpers\rtc_market\indicators\Indicator_A1;
 
 class Dashboard extends Component
 {
-
     public $data;
     public $project;
     public $indicatorCount;
     public $submissions;
-
     public $attendance;
     public $showContent = false;
     public $quickForms;
+
     public function mount()
     {
-
-
+        // Initialization code if required
     }
 
     public function loadData()
@@ -49,52 +46,34 @@ class Dashboard extends Component
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $organisation = auth()->user()->organisation;
         $currentDate = Carbon::now();
-        $record = FinancialYear::
-            whereDate('start_date', '<=', $currentDate)  // Current date is on or after start_date
-            ->whereDate('end_date', '>=', $currentDate)    // Current date is on or before end_date
-            ->where('project_id', 1)
 
+        $financialYear = FinancialYear::whereDate('start_date', '<=', $currentDate)
+            ->whereDate('end_date', '>=', $currentDate)
+            ->where('project_id', 1)
             ->first();
 
-        $reportId = SystemReport::where('indicator_id', $indicator->id)
-            ->where('project_id', 1)
-            //    ->where('organisation_id', $organisation->id)
-            ->where('financial_year_id', $record->id)
-            ->pluck('id');
+        if ($financialYear && $indicator) {
+            $reportIds = SystemReport::where('indicator_id', $indicator->id)
+                ->where('project_id', 1)
+                ->where('financial_year_id', $financialYear->id)
+                ->pluck('id');
 
-        if ($reportId->isNotEmpty()) {
-            // Retrieve and group data by 'name'
-            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
-            $groupedData = $data->groupBy('name');
+            if ($reportIds->isNotEmpty()) {
+                $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
+                $groupedData = $data->groupBy('name');
+                $summedGroups = $groupedData->map(fn($group) => $group->sum('value'));
 
-            // Sum each group's values
-            $summedGroups = $groupedData->map(function ($group) {
-                return $group->sum('value'); // Assuming 'value' is the field to be summed
-            });
-
-
-            // Store the results
-            $this->data = $summedGroups;
-
-        }
-
-
-
-        if ($indicator && $this->data->isNotEmpty()) {
-            $this->fill([
-                'indicatorCount' => Indicator::count(),
-            ]);
-
-            $this->data = [
-                'actors' => $this->data->toArray(),
-                'name' => $indicator->indicator_name,
-            ];
-        } else {
-            // Handle the case where the indicator is not found
-            $this->data = [
-                'actors' => [],
-                'name' => '',
-            ];
+                $this->data = [
+                    'actors' => $summedGroups->toArray(),
+                    'name' => $indicator->indicator_name,
+                ];
+                $this->indicatorCount = Indicator::count();
+            } else {
+                $this->data = [
+                    'actors' => [],
+                    'name' => '',
+                ];
+            }
         }
     }
 
@@ -121,17 +100,15 @@ class Dashboard extends Component
             'project',
             'indicators'
         ])
-            ->whereNot('name', 'REPORT FORM')
+            ->where('name', '!=', 'REPORT FORM')
             ->take(5)
             ->get();
     }
 
-
-
     public function render()
     {
         return view('livewire.internal.cip.dashboard', [
-            'projects' => Project::get(),
+            'projects' => Project::all(),
         ]);
     }
 }

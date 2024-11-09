@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CgiarProjectSeeder::class); //
         $this->call(ReportPeriodSeeder::class);
         $this->call(ProjectSeeder::class);
-        $this->call(IndicatorSeeder::class);
-        $this->call(IndicatorTargetSeeder::class);
+        // $this->call(IndicatorSeeder::class);
+        //$this->call(IndicatorTargetSeeder::class);
         $this->call(AssignedTargetSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
@@ -29,8 +29,8 @@ class DatabaseSeeder extends Seeder
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
-        $this->call(DataGenerationSeeder::class);
-        Artisan::call('update:information');
+        // $this->call(DataGenerationSeeder::class);
+        //   Artisan::call('update:information');
 
     }
 }
