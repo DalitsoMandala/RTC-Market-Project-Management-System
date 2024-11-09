@@ -270,7 +270,7 @@
 
 
                                 <div x-data="{ show: $wire.entangle('loadingData') }" :class="{ 'pe-none opacity-25': show === true }">
-                                    <livewire:tables.rtcmarket.report-table />
+                                    <livewire:tables.rtc-market.report-table />
                                 </div>
 
 

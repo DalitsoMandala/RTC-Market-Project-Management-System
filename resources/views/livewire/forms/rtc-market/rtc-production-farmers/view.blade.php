@@ -169,13 +169,13 @@
 
                             <div class="mt-2 tab-pane fade show" id="certified" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-certified />
+                                <livewire:tables.rtc-market.rpm-farmer-certified />
                             </div>
 
 
                             <div class="mt-2 tab-pane fade show" id="cultiv" role="tabpanel"
                                 aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-cultivation />
+                                <livewire:tables.rtc-market.rpm-farmer-cultivation />
                             </div>
                             {{--
 
@@ -184,7 +184,7 @@
 
 
                             <div class="mt-2 tab-pane fade show" id="agg" role="tabpanel" aria-labelledby="profile-tab">
-                                <livewire:tables.rtcmarket.rpm-farmer-agg-centers />
+                                <livewire:tables.rtc-market.rpm-farmer-agg-centers />
                             </div>
                             --}}
 

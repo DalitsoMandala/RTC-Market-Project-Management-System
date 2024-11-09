@@ -27,7 +27,7 @@
                         </h4>
                     </div>
                     <div class="card-body">
-                        <livewire:tables.rtcmarket.attendance-register-table />
+                        <livewire:tables.rtc-market.attendance-register-table />
                     </div>
                 </div>
 

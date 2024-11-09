@@ -22,7 +22,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <livewire:forms.rtcmarket.householdrtcconsumption.details-table />
+                        <livewire:forms.rtc-market.householdrtcconsumption.details-table />
                     </div>
                 </div>
             </div>
