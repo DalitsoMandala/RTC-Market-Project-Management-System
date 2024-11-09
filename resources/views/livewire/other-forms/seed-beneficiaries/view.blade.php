@@ -24,9 +24,9 @@
             showCard: false,
             toggleShow() {
                 this.showCard = !this.showCard;
-        
+
             }
-        
+
         }" @close-form="showCard = false">
 
             <div class="col-12">
@@ -59,8 +59,7 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="ofsp-tab" data-bs-toggle="tab" data-bs-target="#ofsp"
-                                    type="button" role="tab" aria-controls="ofsp"
-                                    aria-selected="false">OFSP</button>
+                                    type="button" role="tab" aria-controls="ofsp" aria-selected="false">OFSP</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="cassava-tab" data-bs-toggle="tab" data-bs-target="#cassava"
@@ -78,19 +77,19 @@
                             <!-- Potato Table -->
                             <div class="tab-pane fade show active" id="potato" role="tabpanel"
                                 aria-labelledby="potato-tab" wire:ignore.self>
-                                <livewire:tables.seed-beneficiaries-table :crop="'Potato'" />
+                                <livewire:tables.seed-beneficiary-table :crop="'Potato'" />
                             </div>
 
                             <!-- OFSP Table -->
                             <div class="tab-pane fade" id="ofsp" role="tabpanel" aria-labelledby="ofsp-tab"
                                 wire:ignore.self>
-                                <livewire:tables.seed-beneficiaries-table :crop="'OFSP'" />
+                                <livewire:tables.seed-beneficiary-table :crop="'OFSP'" />
                             </div>
 
                             <!-- Cassava Table -->
                             <div class="tab-pane fade" id="cassava" role="tabpanel" aria-labelledby="cassava-tab"
                                 wire:ignore.self>
-                                <livewire:tables.seed-beneficiaries-table :crop="'Cassava'" />
+                                <livewire:tables.seed-beneficiary-table :crop="'Cassava'" />
                             </div>
                         </div>
                     </div>
@@ -102,22 +101,22 @@
 
 
         <div x-data x-init="$wire.on('edit-showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             $wire.setData(e.id);
             myModal.show();
         })
-        
+
         $wire.on('deleteRecord', (e) => {
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             $wire.setData(e.id);
             myModal.show();
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -141,8 +140,7 @@
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteDetail"
-                            class="btn btn-danger"
-                            @click=" window.scrollTo({
+                            class="btn btn-danger" @click=" window.scrollTo({
                                 top: 0,
                                 behavior: 'smooth'
                             })">Yes,
@@ -195,8 +193,7 @@
                         <!-- EPA -->
                         <div class="mb-3">
                             <label class="form-label">EPA</label>
-                            <input type="text" class="form-control @error('epa') is-invalid @enderror"
-                                wire:model="epa">
+                            <input type="text" class="form-control @error('epa') is-invalid @enderror" wire:model="epa">
                             @error('epa')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -225,8 +222,7 @@
                         <!-- AEDO Phone Number -->
                         <div class="mb-3">
                             <label class="form-label">AEDO Phone Number</label>
-                            <input type="text"
-                                class="form-control @error('aedo_phone_number') is-invalid @enderror"
+                            <input type="text" class="form-control @error('aedo_phone_number') is-invalid @enderror"
                                 wire:model="aedo_phone_number">
                             @error('aedo_phone_number')
                                 <span class="text-danger">{{ $message }}</span>
@@ -246,8 +242,7 @@
                         <!-- Name of Recipient -->
                         <div class="mb-3">
                             <label class="form-label">Name of Recipient</label>
-                            <input type="text"
-                                class="form-control @error('name_of_recipient') is-invalid @enderror"
+                            <input type="text" class="form-control @error('name_of_recipient') is-invalid @enderror"
                                 wire:model="name_of_recipient">
                             @error('name_of_recipient')
                                 <span class="text-danger">{{ $message }}</span>
@@ -334,8 +329,7 @@
                         <!-- Children Under 5 in HH -->
                         <div class="mb-3">
                             <label class="form-label">Children Under 5 in HH</label>
-                            <input type="number"
-                                class="form-control @error('children_under_5') is-invalid @enderror"
+                            <input type="number" class="form-control @error('children_under_5') is-invalid @enderror"
                                 wire:model="children_under_5" min="0">
                             @error('children_under_5')
                                 <span class="text-danger">{{ $message }}</span>
@@ -345,8 +339,7 @@
                         <!-- Variety Received -->
                         <div class="mb-3">
                             <label class="form-label">Variety Received</label>
-                            <input type="text"
-                                class="form-control @error('variety_received') is-invalid @enderror"
+                            <input type="text" class="form-control @error('variety_received') is-invalid @enderror"
                                 wire:model="variety_received">
                             @error('variety_received')
                                 <span class="text-danger">{{ $message }}</span>
@@ -356,8 +349,7 @@
                         <!-- Bundles Received -->
                         <div class="mb-3">
                             <label class="form-label">Bundles Received</label>
-                            <input type="number"
-                                class="form-control @error('bundles_received') is-invalid @enderror"
+                            <input type="number" class="form-control @error('bundles_received') is-invalid @enderror"
                                 wire:model="bundles_received" min="1">
                             @error('bundles_received')
                                 <span class="text-danger">{{ $message }}</span>
@@ -367,8 +359,7 @@
                         <!-- Phone / National ID -->
                         <div class="mb-3">
                             <label class="form-label">Phone / National ID</label>
-                            <input type="text"
-                                class="form-control @error('phone_or_national_id') is-invalid @enderror"
+                            <input type="text" class="form-control @error('phone_or_national_id') is-invalid @enderror"
                                 wire:model="phone_or_national_id">
                             @error('phone_or_national_id')
                                 <span class="text-danger">{{ $message }}</span>
@@ -382,8 +373,7 @@
 
                     <div class="modal-footer border-top-0" x-data>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary"
-                            @click=" window.scrollTo({
+                        <button type="submit" class="btn btn-primary" @click=" window.scrollTo({
                             top: 0,
                             behavior: 'smooth'
                         })">Save
