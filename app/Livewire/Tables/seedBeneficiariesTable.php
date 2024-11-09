@@ -21,7 +21,8 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class seedBeneficiariesTable extends PowerGridComponent
+
+final class SeedBeneficiariesTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
