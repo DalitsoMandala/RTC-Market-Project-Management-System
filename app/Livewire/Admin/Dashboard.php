@@ -12,7 +12,7 @@ use Livewire\Attributes\Validate;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Helpers\rtc_market\indicators\indicator_A1;
+
 use App\Models\Project;
 
 class Dashboard extends Component
@@ -65,7 +65,7 @@ class Dashboard extends Component
 
     private function loadIndicatorData()
     {
-        $indicatorA1 = new indicator_A1();
+
         $indicator = Indicator::where('indicator_no', 'A1')->first();
 
         if ($indicator) {
@@ -116,7 +116,10 @@ class Dashboard extends Component
 
     private function loadQuickFormsData()
     {
-        $this->quickForms = Form::with(['project', 'indicators'])
+        $this->quickForms = Form::with([
+            'project',
+            'indicators'
+        ])
             ->whereNot('name', 'REPORT FORM')
             ->take(5)
             ->get();
