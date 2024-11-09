@@ -16,7 +16,7 @@ use App\Models\SystemReportData;
 use App\Models\ResponsiblePerson;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\rtc_market\indicators\Indicator_A1;
+
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Dashboard extends Component
@@ -55,7 +55,7 @@ class Dashboard extends Component
 
     public function loadData()
     {
-        $indicatorA1 = new Indicator_A1();
+
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $organisation = auth()->user()->organisation;
         $currentDate = Carbon::now();
