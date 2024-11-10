@@ -26,7 +26,17 @@ final class RpmProcessorAggCenters extends PowerGridComponent
     use ExportTrait;
     public function datasource(): Builder
     {
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
 
+        if ($user->hasAnyRole('external')) {
+
+            return RpmProcessorAggregationCenter::query()->with('processors')->whereHas('processors', function ($model) use ($organisation_id) {
+
+                $model->where('organisation_id', $organisation_id);
+
+            });
+        }
 
         return RpmProcessorAggregationCenter::query()->with('processors');
     }
@@ -109,9 +119,7 @@ final class RpmProcessorAggCenters extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make(' ID', 'id', )
-                ->sortable()
-            ,
+
             Column::make('Actor ID', 'unique_id', )
                 ->searchable()
             ,

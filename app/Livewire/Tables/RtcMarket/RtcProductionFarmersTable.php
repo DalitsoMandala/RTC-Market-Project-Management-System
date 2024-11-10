@@ -53,8 +53,23 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
     public function datasource(): EloquentBuilder
     {
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
 
-        return RtcProductionFarmer::query()->with('cultivatedArea', 'user', 'user.organisation');
+        if ($user->hasAnyRole('external')) {
+
+            return RtcProductionFarmer::query()->with([
+                'user',
+                'user.organisation'
+            ])->where('organisation_id', $organisation_id);
+
+        }
+
+        return RtcProductionFarmer::query()->with([
+
+            'user',
+            'user.organisation'
+        ]);
 
 
     }
@@ -314,7 +329,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'id'),
+
             Column::make('Actor ID', 'unique_id', 'pf_id')->sortable()->searchable(),
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable()->searchable(),

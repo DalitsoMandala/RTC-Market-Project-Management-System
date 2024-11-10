@@ -44,6 +44,10 @@ class RtcProductionProcessor extends Model
     {
         return $this->hasMany(RpmProcessorAggregationCenter::class, 'rpmp_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     protected static function booted()
     {

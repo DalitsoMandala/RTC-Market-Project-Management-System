@@ -42,7 +42,7 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin') || $user->hasAnyRole('donor') || $user->hasAnyRole('staff')) {
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin') || $user->hasAnyRole('project_manager') || $user->hasAnyRole('staff')) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
@@ -165,9 +165,7 @@ final class IndicatorTable extends PowerGridComponent
         $showActionColumn = false; // Set this variable based on your condition
 
         $columns = [
-            Column::make('Id', 'id')
-                ->sortable()
-            ,
+
             Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
 
                 ->searchable(),

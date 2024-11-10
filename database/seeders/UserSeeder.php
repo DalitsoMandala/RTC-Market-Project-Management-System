@@ -56,6 +56,19 @@ class UserSeeder extends Seeder
                 ]);
 
         User::create([
+            'name' => 'Dr. Chipungu',
+            'email' => 'cip@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('CIP'),
+        ])->assignRole([
+                    'internal',
+                    'cip',
+                    'project_manager'
+                ]);
+
+
+        User::create([
             'name' => 'Thoko Mvula',
             'email' => 'staff@example.com',
             'password' => Hash::make('password'),

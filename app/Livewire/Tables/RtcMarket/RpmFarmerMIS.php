@@ -26,6 +26,17 @@ final class RpmFarmerMIS extends PowerGridComponent
     use ExportTrait;
     public function datasource(): Builder
     {
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RpmFarmerMarketInformationSystem::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+
+                $model->where('organisation_id', $organisation_id);
+
+            });
+        }
         return RpmFarmerMarketInformationSystem::query()->with('farmers');
     }
     public $namedExport = 'rpmfMIS';
@@ -109,9 +120,7 @@ final class RpmFarmerMIS extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make(' ID', 'id', )
-                ->sortable()
-            ,
+
             Column::make('Actor ID', 'unique_id', )
                 ->searchable()
             ,

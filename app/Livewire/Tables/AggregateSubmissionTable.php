@@ -49,14 +49,15 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function datasource(): Builder
     {
         $query = Submission::query()->with('period.indicator')->where('batch_type', 'aggregate');
-        if ($this->userId) {
-            $user = User::find($this->userId);
-            if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
-                $query = $query->where('user_id', $user->id);
 
-            }
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return Submission::query()->with('period.indicator')->where('batch_type', 'aggregate')->where('user_id', $user->id);
+
         }
-
 
         return $query;
     }

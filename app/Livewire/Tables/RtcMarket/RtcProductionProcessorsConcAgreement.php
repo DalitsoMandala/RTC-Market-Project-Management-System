@@ -45,6 +45,18 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RpmProcessorConcAgreement::query()->with('processors')->whereHas('processors', function ($model) use ($organisation_id) {
+
+                $model->where('organisation_id', $organisation_id);
+
+            });
+        }
         return RpmProcessorConcAgreement::query()->with('processors');
     }
 
@@ -194,7 +206,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('id', 'id')->sortable(),
+
             Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
 

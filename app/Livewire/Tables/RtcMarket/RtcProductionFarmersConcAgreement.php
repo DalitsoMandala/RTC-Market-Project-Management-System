@@ -46,6 +46,18 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RpmFarmerConcAgreement::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+
+                $model->where('organisation_id', $organisation_id);
+
+            });
+        }
         return RpmFarmerConcAgreement::query()->with('farmers');
     }
 
@@ -134,7 +146,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('id', 'id')->sortable(),
+
             Column::make('Actor ID', 'unique_id')->searchable(),
             Column::make('Actor Name', 'actor_name'),
 

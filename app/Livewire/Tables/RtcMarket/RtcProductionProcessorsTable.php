@@ -49,7 +49,24 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return RtcProductionProcessor::query();
+
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RtcProductionProcessor::query()->with([
+
+                'user',
+                'user.organisation'
+            ])->where('organisation_id', $organisation_id);
+
+        }
+        return RtcProductionProcessor::query()->with([
+
+            'user',
+            'user.organisation'
+        ]);
     }
 
 
@@ -394,8 +411,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     {
         return [
             // Column::action('Action'),
-            Column::make('Id', 'id')->searchable()
-                ->sortable(),
 
             Column::make('Processor ID', 'pp_id')->searchable()
                 ->sortable(),

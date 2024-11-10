@@ -29,6 +29,17 @@ final class RpmFarmerAggCenters extends PowerGridComponent
     {
 
 
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RpmFarmerAggregationCenter::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+
+                $model->where('organisation_id', $organisation_id);
+
+            });
+        }
         return RpmFarmerAggregationCenter::query()->with('farmers');
     }
     public $namedExport = 'rpmfAC';
@@ -110,9 +121,7 @@ final class RpmFarmerAggCenters extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make(' ID', 'id', )
-                ->sortable()
-            ,
+
             Column::make('Actor ID', 'unique_id', )
                 ->searchable()
             ,

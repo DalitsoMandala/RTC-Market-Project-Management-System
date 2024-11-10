@@ -46,6 +46,26 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
 
     public function datasource(): Builder
     {
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RpmFarmerFollowUp::query()->with('farmers', 'user', 'user.organisation')
+                ->whereHas('user.organisation', function ($model) use ($organisation_id) {
+
+                    $model->where('id', $organisation_id);
+
+                })
+                ->join('rtc_production_farmers', function ($model) {
+                    $model->on('rtc_production_farmers.id', '=', 'rpm_farmer_follow_ups.rpm_farmer_id');
+                })->select([
+                        'rpm_farmer_follow_ups.*',
+                        'rtc_production_farmers.pf_id'
+                    ]);
+
+        }
+
         return RpmFarmerFollowUp::query()->with('farmers', 'user', 'user.organisation')->join('rtc_production_farmers', function ($model) {
             $model->on('rtc_production_farmers.id', '=', 'rpm_farmer_follow_ups.rpm_farmer_id');
         })->select([
@@ -239,7 +259,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')->sortable(),
+
             Column::make('Actor ID', 'unique_id')->searchable()->sortable(),
             Column::make('Actor Name', 'actor_name'),
 

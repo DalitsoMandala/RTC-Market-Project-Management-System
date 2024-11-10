@@ -6,9 +6,9 @@ use App\Models\User;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
-use App\Models\RpmFarmerFollowUp;
+use App\Models\RpmprocessorFollowUp;
 use Illuminate\Support\Facades\DB;
-use App\Models\RpmProcessorFollowUp;
+
 use App\Models\RtcProductionProcessor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,7 +46,34 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return RpmProcessorFollowUp::query()->with('processors');
+
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+
+            return RpmProcessorFollowUp::query()->with('processors', 'user', 'user.organisation')
+                ->whereHas('user.organisation', function ($model) use ($organisation_id) {
+
+                    $model->where('id', $organisation_id);
+
+                })
+                ->join('rtc_production_processors', function ($model) {
+                    $model->on('rtc_production_processors.id', '=', 'rpm_processor_follow_ups.rpm_processor_id');
+                })->select([
+                        'rpm_processor_follow_ups.*',
+                        'rtc_production_processors.pp_id'
+                    ]);
+
+        }
+        return RpmProcessorFollowUp::query()->with('processors', 'user', 'user.organisation')
+
+            ->join('rtc_production_processors', function ($model) {
+                $model->on('rtc_production_processors.id', '=', 'rpm_processor_follow_ups.rpm_processor_id');
+            })->select([
+                    'rpm_processor_follow_ups.*',
+                    'rtc_production_processors.pp_id'
+                ]);
     }
 
     public $namedExport = 'rpmpFU';
@@ -74,8 +101,8 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
             ->add('unique_id', fn($model) => $model->processors->pp_id)
             ->add('rpm_processor_id')
             ->add('actor_name', function ($model) {
-                $farmer = $model->rpm_processor_id;
-                $row = RtcProductionProcessor::find($farmer);
+                $processor = $model->rpm_processor_id;
+                $row = RtcProductionProcessor::find($processor);
 
                 if ($row) {
                     return $row->name_of_actor;

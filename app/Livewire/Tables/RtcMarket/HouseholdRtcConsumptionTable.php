@@ -70,9 +70,17 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
 
+        if ($user->hasAnyRole('external')) {
+            return HouseholdRtcConsumption::query()->where('organisation_id', $organisation_id);
+        }
 
-        return HouseholdRtcConsumption::query()->with(['mainFoods', 'user']);
+        return HouseholdRtcConsumption::query()->with([
+            'mainFoods',
+            'user'
+        ]);
 
 
 
@@ -191,7 +199,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+
 
             //  Column::make('Location id', 'location_id'),
             Column::make('Enterprise', 'enterprise')
