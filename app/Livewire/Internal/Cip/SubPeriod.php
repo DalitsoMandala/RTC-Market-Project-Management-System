@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Internal\Cip;
 
-use App\Models\IndicatorDisaggregation;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Form;
@@ -15,11 +14,13 @@ use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\ReportingPeriod;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
 use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Bus;
 use App\Models\ReportingPeriodMonth;
-use App\Models\SubmissionTarget;
+use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
 
@@ -189,7 +190,7 @@ class SubPeriod extends Component
             $data = [
                 'date_established' => $this->start_period,
                 'date_ending' => $this->end_period,
-                'is_open' => !$this->expired && $this->status,
+                'is_open' => $this->status,
                 'form_id' => $this->selectedForm[0],
                 'is_expired' => $this->expired ?? false,
                 'month_range_period_id' => $this->selectedMonth,
@@ -220,7 +221,16 @@ class SubPeriod extends Component
                             'target_value' => $target['value'],
                         ]);
                     }
-                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
+
+                    if ($this->status == false) {
+
+                        $this->dispatch('timeout');
+                        session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
+                        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, 'Submissions have been closed for this form and period.');
+                        $this->resetData();
+                        return;
+                    }
+
                     session()->flash('success', 'Updated Successfully');
 
 
@@ -236,20 +246,13 @@ class SubPeriod extends Component
                     ->where('is_expired', false)
                     ->exists();
 
-                // Check if any form ID in the selected forms is already active
-                // $activeFormExists = SubmissionPeriod::whereIn('form_id', $this->selectedForm)
-                //     ->where('is_open', true)
-                //     ->exists();
+
 
                 if ($exists) {
                     session()->flash('error', 'This record already exists.');
 
                     return;
-                }
-                // elseif ($activeFormExists) {
-                //     session()->flash('error', 'One of the selected forms is already active.');
-                // }
-                else {
+                } else {
                     foreach ($this->selectedForm as $formId) {
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }
@@ -286,7 +289,7 @@ class SubPeriod extends Component
         }
     }
 
-    public function sendBroadcast($Indicator, $forms)
+    public function sendBroadcast($Indicator, $forms, $errorMessage = null)
     {
 
 
@@ -311,17 +314,28 @@ class SubPeriod extends Component
             $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
 
             if ($hasFormAccess) {
-
                 $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
                 $link = env('APP_URL');
-                // $roles = $user->roles;
-                // $roleNames = $roles->pluck('name');
 
-                // if ($roleNames->contains('staff') || $roleNames->contains('external')) {
+                if ($errorMessage) {
 
-                // }
+                    Bus::chain([
+                        new SendNotificationJob($user, $errorMessage, $link, true)
+                    ])->dispatch();
 
-                SendNotificationJob::dispatch($user, $messageContent, $link);
+                } else {
+
+
+
+
+                    Bus::chain([
+                        new SendNotificationJob($user, $messageContent, $link, false)
+                    ])->dispatch();
+
+
+                }
+
+
 
 
             }

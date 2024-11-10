@@ -14,10 +14,13 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
     public $messageContent;
     public $link;
 
-    public function __construct($messageContent, $link)
+    public $error = false;
+
+    public function __construct($messageContent, $link, $error = false)
     {
         $this->messageContent = $messageContent;
         $this->link = $link;
+        $this->error = $error; // Assume there are no errors at first
     }
 
     public function via($notifiable)
@@ -27,6 +30,15 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
+        if ($this->error === true) {
+            return (new MailMessage)
+                ->greeting('Hello!')
+                ->subject('Important Update - Error')
+                ->line($this->messageContent);
+
+
+        }
+
         return (new MailMessage)
             ->subject('Important Update')
             ->greeting('Hello!')

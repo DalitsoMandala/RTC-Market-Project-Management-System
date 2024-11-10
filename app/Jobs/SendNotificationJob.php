@@ -17,14 +17,16 @@ class SendNotificationJob implements ShouldQueue
     protected $messageContent;
     protected $link;
 
+    protected $error = false;
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, $messageContent, $link)
+    public function __construct(User $user, $messageContent, $link, $error = false)
     {
         $this->user = $user;
         $this->messageContent = $messageContent;
         $this->link = $link;
+        $this->error = $error;
     }
 
     /**
@@ -32,6 +34,6 @@ class SendNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->user->notify(new EmployeeBroadcastNotification($this->messageContent, $this->link));
+        $this->user->notify(new EmployeeBroadcastNotification($this->messageContent, $this->link, $this->error));
     }
 }

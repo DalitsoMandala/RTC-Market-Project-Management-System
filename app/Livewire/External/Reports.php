@@ -63,7 +63,7 @@ class Reports extends Component
         $this->indicators = Indicator::get();
         $this->financialYears = FinancialYear::get();
         $this->reportingPeriod = ReportingPeriodMonth::get();
-        $this->organisations = Organisation::get();
+        $this->organisations = Organisation::where('id', auth()->user()->organisation->id)->get();
         $this->disaggregations = IndicatorDisaggregation::get();
         $this->routePrefix = Route::current()->getPrefix();
     }
