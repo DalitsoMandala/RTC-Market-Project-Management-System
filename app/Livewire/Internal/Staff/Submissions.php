@@ -226,12 +226,12 @@ class Submissions extends Component
             session()->flash('success', 'Successfully updated');
 
         } catch (\Throwable $th) {
-            dd($th);
+
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
             session()->flash('error', 'Something went wrong');
 
-            Log::channel('system_log')->error($th->getMessage());
+            Log::error($th->getMessage());
         }
 
 
@@ -404,7 +404,7 @@ class Submissions extends Component
             session()->flash('success', 'Successfully updated');
             $this->dispatch('refresh');
         } catch (\Throwable $th) {
-            dd($th);
+
             session()->flash('error', 'Something went wrong');
 
             Log::error($th);

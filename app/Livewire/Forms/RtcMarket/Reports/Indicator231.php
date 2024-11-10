@@ -78,6 +78,7 @@ class Indicator231 extends Component
         'basic' => 'required|numeric|min:0',
         'certified' => 'required|numeric|min:0',
         //   'annual_value' => 'required|numeric|min:0', // Not directly input but needs validation
+        'baseline' => 'required|numeric',
     ];
 
     protected $validationAttributes = [
@@ -89,6 +90,7 @@ class Indicator231 extends Component
         'smes' => 'SMEs',
         'large_scale_commercial_farmers' => 'Large Scale Commercial Farmers',
         //   'annual_value' => 'Annual Value',
+        'baseline' => 'Previous value',
     ];
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
@@ -126,7 +128,7 @@ class Indicator231 extends Component
 
                 $this->openSubmission = true;
 
-                $this->openSubmission = true;
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
 
                 $this->yearNumber = $findFinancialYear->number;
             } else {

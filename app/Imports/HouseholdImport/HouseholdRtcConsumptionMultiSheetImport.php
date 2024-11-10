@@ -67,7 +67,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     if (!in_array($expectedSheetName, $sheetNames)) {
                         Log::error("Missing expected sheet: {$expectedSheetName}");
                         throw new ExcelValidationException(
-                            "The sheet '{$expectedSheetName}' is missing. Please ensure the file contains sheets named 'Household Data' and 'Main Food Data'."
+                            "The sheet '{$expectedSheetName}' is missing. Please ensure the file contains all required sheets."
                         );
                     }
                 }
@@ -78,8 +78,25 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         Log::error("Unexpected sheet name: {$sheetName}");
 
                         throw new ExcelValidationException(
-                            "The sheet '{$sheetName}' is not recognized. Please ensure the file contains only sheets named 'Household Data' and 'Main Food Data'."
+                            "Unexpected sheet: '{$sheetName}' in file."
                         );
+                    }
+                }
+
+                // Check if the first sheet is blank
+                $firstSheetName = $this->expectedSheetNames[0];
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($sheet <= 1 && $firstSheetName) {
+
+                        Log::error("The sheet '{$firstSheetName}' is blank.");
+                        throw new ExcelValidationException(
+                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                        );
+
+
                     }
                 }
                 // Get total rows from both sheets

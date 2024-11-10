@@ -10,9 +10,9 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
 {
-    public $template;
+    public $template = false;
 
-    public function __construct($template)
+    public function __construct($template = false)
     {
         $this->template = $template;
     }

@@ -64,9 +64,14 @@
             </div>
             <div class="col">
                 <div class="mb-3">
-                    <label for="baseline" class="form-label">Baseline</label>
-                    <input type="number" id="baseline" x-model="baselineValue" class="form-control" readonly>
+                    <label for="baseline" class="form-label">Previous Value</label>
+                    <input type="number" id="baseline" x-model="baselineValue"
+                        class="form-control         @error('baseline') is-invalid @enderror">
+                    @error('baseline')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
+
             </div>
 
             <div class="col">
@@ -117,6 +122,14 @@
             @error('formal_sweet_potato')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="formal_sweet_potato" class="form-label">Total Formal Exports</label>
+            <input type="number" readonly x-model=" (isNaN(parseFloat(formalCassava)) ? 0 : parseFloat(formalCassava)) +
+            (isNaN(parseFloat(formalPotato)) ? 0 : parseFloat(formalPotato)) +
+            (isNaN(parseFloat(formalSweetPotato)) ? 0 : parseFloat(formalSweetPotato))" class="form-control">
+
         </div>
 
         {{-- <div class="mb-3">

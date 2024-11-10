@@ -158,7 +158,7 @@ class SubPeriod extends Component
                 }
                 // elseif ($activeFormExists) {
                 //     session()->flash('error', 'One of the selected forms is already active.');
-                // } 
+                // }
                 else {
                     foreach ($this->selectedForm as $formId) {
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
@@ -168,7 +168,7 @@ class SubPeriod extends Component
                 }
             }
         } catch (Throwable $th) {
-            dd($th);
+
             session()->flash('error', 'Something went wrong');
         }
     }

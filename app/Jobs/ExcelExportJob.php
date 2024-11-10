@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\ReportingPeriod;
 use App\Models\SeedBeneficiary;
 use App\Models\SystemReportData;
 use App\Models\RpmFarmerFollowUp;
@@ -1160,8 +1161,11 @@ class ExcelExportJob implements ShouldQueue
                     'Indicator #',
                     'Project',
                     'Reporting period',
+                    'Reporting period time',
                     'Organisation',
                     'Project year',
+                    'Start Date',
+                    'End Date',
                 ];
 
 
@@ -1182,15 +1186,22 @@ class ExcelExportJob implements ShouldQueue
                         'indicators.indicator_no as indicator_no',
                         'organisations.name as organisation_name',
                         'financial_years.number as financial_year',
+                        'financial_years.start_date as financial_year_start_date',
+                        'financial_years.end_date as financial_year_end_date',
                     ])->chunk(2000, function ($reports) use ($writer) {
                         foreach ($reports as $record) {
 
                             // Check if systemReport and reportingPeriod are available
                             $report_period = null;
+                            $type_of_period = null;
                             if ($record->systemReport && $record->systemReport->reportingPeriod) {
                                 $start_month = $record->systemReport->reportingPeriod->start_month;
                                 $end_month = $record->systemReport->reportingPeriod->end_month;
                                 $report_period = $start_month . ' - ' . $end_month;
+                                $type_of_period = $record->systemReport->reportingPeriod->type;
+
+
+
                             }
 
                             $writer->addRow([
@@ -1200,8 +1211,11 @@ class ExcelExportJob implements ShouldQueue
                                 $record->indicator_no ?? null, // Indicator #
                                 $record->systemReport->project->name ?? null, // Project
                                 $report_period, // Reporting period (null if no systemReport or reportingPeriod)
+                                $type_of_period,
                                 $record->organisation_name ?? null, // Organisation
-                                $record->financial_year ?? null, // Project year
+                                $record->financial_year_start_date ?? null, // Project year
+                                $record->financial_year_end_date ?? null, // Year Category
+    
                             ]);
                         }
                     });

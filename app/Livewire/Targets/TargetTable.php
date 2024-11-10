@@ -91,13 +91,19 @@ final class TargetTable extends PowerGridComponent
 
 
                 if (count($reportIds) == 0) {
-                    return 'N/A';
+                    return '<span class="badge bg-warning">Not available!</span>';
                 }
 
                 $data = SystemReportData::whereIn('system_report_id', $reportIds)->where('name', $model->submissionTarget->target_name)->sum('value');
 
+
                 if ($data) {
-                    return $data;
+
+                    if ($data >= $model->submissionTarget->target_value) {
+                        return '<span class="badge bg-success">' . $data . '</span>';
+                    } else {
+                        return '<span class="badge bg-danger">' . $data . '</span>';
+                    }
                 }
 
                 return 0;

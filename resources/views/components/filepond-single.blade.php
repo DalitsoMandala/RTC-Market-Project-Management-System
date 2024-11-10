@@ -5,7 +5,7 @@ pond = FilePond.create($refs.input, {
 
             setTimeout(() => {
                 @this.upload('{{ $attributes['wire:model'] }}', file, load, error, progress)
-            }, 500)
+            }, 2000)
 
 
         },

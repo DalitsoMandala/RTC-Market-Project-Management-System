@@ -15,7 +15,11 @@ class ReportPeriodSeeder extends Seeder
     {
         //
 
-        $reportingPeriods = ['QUARTERLY', 'MONTHLY', 'ANNUALLY'];
+        $reportingPeriods = [
+            'QUARTERLY',
+            'MONTHLY',
+            'ANNUALLY'
+        ];
 
         foreach ($reportingPeriods as $period) {
             $reportingPeriod = ReportingPeriod::create([
@@ -29,24 +33,28 @@ class ReportPeriodSeeder extends Seeder
                     'period_id' => $reportingPeriod->id,
                     'start_month' => 'JANUARY',
                     'end_month' => 'MARCH',
+                    'type' => 'QUARTER 1'
                 ]);
 
                 ReportingPeriodMonth::create([
                     'period_id' => $reportingPeriod->id,
                     'start_month' => 'APRIL',
                     'end_month' => 'JUNE',
+                    'type' => 'QUARTER 2'
                 ]);
 
                 ReportingPeriodMonth::create([
                     'period_id' => $reportingPeriod->id,
                     'start_month' => 'JULY',
                     'end_month' => 'SEPTEMBER',
+                    'type' => 'QUARTER 3'
                 ]);
 
                 ReportingPeriodMonth::create([
                     'period_id' => $reportingPeriod->id,
                     'start_month' => 'OCTOBER',
                     'end_month' => 'DECEMBER',
+                    'type' => 'QUARTER 4'
                 ]);
             }
         }

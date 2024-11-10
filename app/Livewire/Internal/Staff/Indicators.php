@@ -87,7 +87,7 @@ class Indicators extends Component
             $this->dispatch('refresh');
             session()->flash('success', 'Successfully updated!');
         } catch (\Throwable $th) {
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
             Log::error($th);
         }

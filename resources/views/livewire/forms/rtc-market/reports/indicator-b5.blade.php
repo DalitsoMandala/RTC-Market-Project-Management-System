@@ -59,9 +59,14 @@
             </div>
             <div class="col">
                 <div class="mb-3">
-                    <label for="baseline" class="form-label">Baseline</label>
-                    <input type="number" readonly id="baseline" x-model="baselineValue" class="form-control" readonly>
+                    <label for="baseline" class="form-label">Previous Value</label>
+                    <input type="number" id="baseline" x-model="baselineValue"
+                        class="form-control         @error('baseline') is-invalid @enderror">
+                    @error('baseline')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
+
             </div>
         </div>
 

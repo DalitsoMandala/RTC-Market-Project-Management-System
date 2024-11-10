@@ -58,7 +58,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                 foreach ($this->expectedSheetNames as $expectedSheetName) {
                     if (!in_array($expectedSheetName, $sheetNames)) {
                         Log::error("Missing expected sheet: {$expectedSheetName}");
-                        throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing.");
+                        throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing. Please ensure the file contains all required sheets.");
                     }
                 }
 
@@ -71,26 +71,22 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                 }
 
 
-                // $spreadsheet = IOFactory::load($this->filePath); // Load the spreadsheet once
-                // $sheetNames = $spreadsheet->getSheetNames();
-    
-                // foreach ($sheetNames as $sheetName) {
-                //     $sheet = $spreadsheet->getSheetByName($sheetName);
-                //     $headings = $sheet->toArray()[0] ?? []; // Fetch the first row for headers
-    
-                //     // Ensure all expected headings are present
-                //     $missingHeadings = array_diff($this->expectedHeadings, $headings);
-                //     if (!empty($missingHeadings)) {
-                //         Log::error("Missing headings in sheet: {$sheetName}");
-                //         throw new ExcelValidationException(
-                //             "Missing headings in sheet '{$sheetName}': " . implode(', ', $missingHeadings)
-                //         );
-                //     }
-    
-                //     Log::info("Headings for sheet '{$sheetName}' validated successfully.");
-                // }
-    
-                // Initialize total rows and JobProgress
+                // Check if the first sheet is blank
+                $firstSheetName = $this->expectedSheetNames[0];
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($sheet <= 1 && $firstSheetName) {
+
+                        Log::error("The sheet '{$firstSheetName}' is blank.");
+                        throw new ExcelValidationException(
+                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                        );
+
+
+                    }
+                }
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 1) ?? 0); // excluding headers

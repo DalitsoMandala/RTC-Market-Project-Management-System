@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('start_month');
             $table->string('end_month');
+            $table->string('type');
             $table->foreignId('period_id')->constrained('reporting_periods', 'id')->onDelete('cascade')->onDelete('cascade');
             $table->timestamps();
         });

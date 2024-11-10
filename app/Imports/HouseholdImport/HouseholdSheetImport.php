@@ -48,7 +48,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],
-            'enterprise' => $row['Enterprise Type'],
+            'enterprise' => $row['Enterprise'],
             'date_of_assessment' => \Carbon\Carbon::parse($row['Date of Assessment'])->format('Y-m-d'),
             'actor_type' => $row['Actor Type (Farmer, Trader, etc.)'],
             'rtc_group_platform' => $row['RTC Group/Platform'],
@@ -104,7 +104,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
-            'Enterprise Type' => 'required|string|max:255',
+            'Enterprise' => 'required|string|max:255',
             'Date of Assessment' => 'nullable|date_format:Y-m-d', // Ensure it's a valid date format
             'Actor Type (Farmer, Trader, etc.)' => 'nullable|string|max:255',
             'RTC Group/Platform' => 'nullable|string|max:255',

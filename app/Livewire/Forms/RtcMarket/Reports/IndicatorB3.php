@@ -75,6 +75,7 @@ class IndicatorB3 extends Component
         'formal_potato' => 'required|numeric',
         'formal_sweet_potato' => 'required|numeric',
         //  'formal_imports' => 'required|numeric',
+        'baseline' => 'required|numeric',
     ];
 
     protected $validationAttributes = [
@@ -85,6 +86,7 @@ class IndicatorB3 extends Component
         'formal_potato' => '(Formal) Potato',
         'formal_sweet_potato' => '(Formal) Sweet Potato',
         'formal_imports' => 'Formal Imports',
+        'baseline' => 'Previous value',
     ];
 
 
@@ -125,7 +127,7 @@ class IndicatorB3 extends Component
 
                 $this->openSubmission = true;
 
-
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
 
 

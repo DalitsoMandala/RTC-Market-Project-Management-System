@@ -135,17 +135,19 @@ class Upload extends Component
                     $this->checkProgress();
                 } catch (ExcelValidationException $th) {
 
-                    $this->reset('upload');
+
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
+                    return redirect()->to(url()->previous());
                 }
             }
         } catch (\Exception $th) {
 
-            $this->reset('upload');
+
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th);
+            return redirect()->to(url()->previous());
         }
 
         $this->removeTemporaryFile();
@@ -177,10 +179,21 @@ class Upload extends Component
             if ($jobProgress->status == 'failed') {
 
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-                $this->reset('upload');
+                return redirect()->to(url()->previous());
             } else if ($jobProgress->status == 'completed') {
-                $this->reset('upload');
-                $this->dispatch('complete-submission');
+
+                $user = User::find(auth()->user()->id);
+
+                if ($user->hasAnyRole('external')) {
+                    session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('external-submissions') . '#batch-submission');
+                } else if ($user->hasAnyRole('staff')) {
+                    session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('cip-staff-submissions') . '#batch-submission');
+                } else {
+                    session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+                }
             }
 
 
@@ -269,7 +282,7 @@ class Upload extends Component
     {
         //  $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new HouseholdRtcConsumptionTemplateExport, 'household_rtc_consumption_template.xlsx');
+        return Excel::download(new HouseholdRtcConsumptionTemplateExport(true), 'household_rtc_consumption_template.xlsx');
     }
 
     public function removeTemporaryFile()

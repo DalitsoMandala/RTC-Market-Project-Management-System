@@ -120,7 +120,11 @@ class AssignedTargets extends Component
                 $this->detail = [];
                 $json = json_decode($assignedTargets->detail, true);
                 foreach ($json as $value) {
-                    $this->detail[] = ['name' => $value['name'], 'target_value' => $value['target_value'], 'type' => $value['type']];
+                    $this->detail[] = [
+                        'name' => $value['name'],
+                        'target_value' => $value['target_value'],
+                        'type' => $value['type']
+                    ];
                 }
 
             } else {
@@ -168,7 +172,11 @@ class AssignedTargets extends Component
         $this->current_value = 0;
         $this->type = null;
         $this->rowId = null;
-        $this->detail[] = ['name' => '', 'target_value' => '', 'type' => 'number'];
+        $this->detail[] = [
+            'name' => '',
+            'target_value' => '',
+            'type' => 'number'
+        ];
         $this->lop_details = '';
         $this->lop_target_value = null;
         $this->lop_type = null;
@@ -239,7 +247,7 @@ class AssignedTargets extends Component
             $this->dispatch('refresh');
 
         } catch (\Throwable $th) {
-            dd($th);
+
             Log::error($th);
             session()->flash('error', 'An error occurred while saving the assigned target.');
         }
@@ -248,7 +256,11 @@ class AssignedTargets extends Component
 
     public function mount()
     {
-        $this->detail[] = ['name' => '', 'target_value' => '', 'type' => 'number'];
+        $this->detail[] = [
+            'name' => '',
+            'target_value' => '',
+            'type' => 'number'
+        ];
         $this->indicatorTargets = IndicatorTarget::with('indicator')->get();
 
         $this->organisations = Organisation::get();
@@ -259,7 +271,11 @@ class AssignedTargets extends Component
 
     public function addDetail()
     {
-        $this->detail[] = ['name' => '', 'target_value' => '', 'type' => 'number'];
+        $this->detail[] = [
+            'name' => '',
+            'target_value' => '',
+            'type' => 'number'
+        ];
     }
 
     public function removeDetail($index)

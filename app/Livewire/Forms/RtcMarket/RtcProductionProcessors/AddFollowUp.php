@@ -193,7 +193,7 @@ class AddFollowUp extends Component
             }
 
         } catch (Throwable $th) {
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
 

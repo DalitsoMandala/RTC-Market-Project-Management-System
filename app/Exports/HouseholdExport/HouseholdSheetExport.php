@@ -34,7 +34,7 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
             'EPA',
             'Section',
             'District',
-            'Enterprise Type',
+            'Enterprise',
             'Date of Assessment',
             'Actor Type (Farmer, Trader, etc.)',
             'RTC Group/Platform',
@@ -65,7 +65,7 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
             'epa',
             'section',
             'district',
-            'enterprise_type',
+            'enterprise',
             'date_of_assessment',
             'actor_type',
             'rtc_group_platform',
@@ -76,12 +76,12 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
             'phone_number',
             'household_size',
             'under_5_in_household',
-            'rtc_consumers_total',
+            'rtc_consumers',
             'rtc_consumers_potato',
             'rtc_consumers_sw_potato',
             'rtc_consumers_cassava',
             'rtc_consumption_frequency',
-            
+
             // Exclude hidden fields and Household ID
 
 

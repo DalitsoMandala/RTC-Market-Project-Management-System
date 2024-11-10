@@ -131,6 +131,14 @@
             @enderror
         </div>
 
+        <div class="mb-3">
+            <label for="formal_sweet_potato" class="form-label">Total Formal Exports</label>
+            <input type="number" readonly x-model=" (isNaN(parseFloat(formalCassava)) ? 0 : parseFloat(formalCassava)) +
+            (isNaN(parseFloat(formalPotato)) ? 0 : parseFloat(formalPotato)) +
+            (isNaN(parseFloat(formalSweetPotato)) ? 0 : parseFloat(formalSweetPotato))" class="form-control">
+
+        </div>
+
         <h5>Informal Exports</h5>
         <div class="mb-3">
             <label for="informal_cassava" class="form-label">Cassava</label>
@@ -159,6 +167,14 @@
             @enderror
         </div>
 
+
+        <div class="mb-3">
+            <label for="formal_sweet_potato" class="form-label">Total Informal Exports</label>
+            <input type="number" readonly x-model=" (isNaN(parseFloat(informalCassava)) ? 0 : parseFloat(informalCassava)) +
+            (isNaN(parseFloat(informalPotato)) ? 0 : parseFloat(informalPotato)) +
+            (isNaN(parseFloat(informalSweetPotato)) ? 0 : parseFloat(informalSweetPotato))" class="form-control">
+
+        </div>
         <div class="d-grid col-12 justify-content-center">
             <button class="btn btn-primary " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
                 Submit

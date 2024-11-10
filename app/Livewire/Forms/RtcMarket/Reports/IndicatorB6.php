@@ -68,6 +68,7 @@ class IndicatorB6 extends Component
         'cassava' => 'required|numeric|min:0',
         'potato' => 'required|numeric|min:0',
         'sweet_potato' => 'required|numeric|min:0',
+        'baseline' => 'required|numeric',
 
     ];
 
@@ -77,6 +78,7 @@ class IndicatorB6 extends Component
         'potato' => 'Potato',
         'sweet_potato' => 'Sweet Potato',
         'annual_value' => 'Annual Value',
+        'baseline' => 'Previous value',
     ];
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -114,7 +116,7 @@ class IndicatorB6 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
 
 

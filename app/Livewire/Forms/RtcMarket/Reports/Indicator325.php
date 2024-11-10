@@ -61,9 +61,13 @@ class Indicator325 extends Component
     protected $rules = [
 
         'total' => 'required|numeric|min:0',
+        'baseline' => 'required|numeric',
         //   'annual_value' => 'required|numeric|min:0', // Not directly input but needs validation
     ];
 
+    protected $message = [
+        'baseline' => 'Previous value',
+    ];
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -100,7 +104,7 @@ class Indicator325 extends Component
 
                 $this->openSubmission = true;
 
-                $this->openSubmission = true;
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
 
                 $this->yearNumber = $findFinancialYear->number;
             } else {

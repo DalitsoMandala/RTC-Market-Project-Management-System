@@ -73,6 +73,7 @@ class IndicatorB5 extends Component
         'sweet_potato' => 'required|numeric',
         'certified_seed_produce' => 'required|numeric',
         'value_added_rtc_products' => 'required|numeric',
+        'baseline' => 'required|numeric',
     ];
 
     protected $validationAttributes = [
@@ -82,6 +83,7 @@ class IndicatorB5 extends Component
         'sweet_potato' => 'Sweet Potato',
         'certified_seed_produce' => 'Certified Seed Produce',
         'value_added_rtc_products' => 'Value Added RTC Products',
+        'baseline' => 'Previous value',
     ];
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
@@ -120,7 +122,7 @@ class IndicatorB5 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
 
 

@@ -81,6 +81,7 @@ class Indicator114 extends Component
         'potato' => 'required|numeric|min:0',
         'sweet_potato' => 'required|numeric|min:0',
         // 'annual_value' => 'required|numeric|min:0', // Not directly input but needs validation
+        'baseline' => 'required|numeric',
     ];
 
     protected $validationAttributes = [
@@ -94,6 +95,7 @@ class Indicator114 extends Component
         'potato' => 'Potato',
         'sweet_potato' => 'Sweet Potato',
         //  'annual_value' => 'Annual Value',
+        'baseline' => 'Previous value',
     ];
 
 
@@ -133,7 +135,7 @@ class Indicator114 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-
+                $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
 
 

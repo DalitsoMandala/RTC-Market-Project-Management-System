@@ -117,16 +117,17 @@ class Upload extends Component
                     $this->checkProgress();
                 } catch (ExcelValidationException $th) {
 
-                    $this->reset('upload');
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
+                    return redirect()->to(url()->previous());
                 }
             }
         } catch (\Exception $th) {
             //throw $th;
-            dd($th);
+
             session()->flash('error', 'Something went wrong!');
-            Log::channel('system_log')->error($th);
+            Log::error($th);
+            return redirect()->to(url()->previous());
         }
 
         $this->removeTemporaryFile();
@@ -220,11 +221,21 @@ class Upload extends Component
             if ($jobProgress->status == 'failed') {
 
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-                $this->reset('upload');
-            } else if ($jobProgress->status == 'completed') {
-                $this->reset('upload');
+                return redirect()->to(url()->previous());
 
-                $this->dispatch('complete-submission');
+            } else if ($jobProgress->status == 'completed') {
+                $user = User::find(auth()->user()->id);
+
+                if ($user->hasAnyRole('external')) {
+                    session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('external-submissions') . '#batch-submission');
+                } else if ($user->hasAnyRole('staff')) {
+                    session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('cip-staff-submissions') . '#batch-submission');
+                } else {
+                    session()->flash('success', 'Successfully submitted!');
+                    $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+                }
 
             }
 
@@ -311,7 +322,7 @@ class Upload extends Component
     {
         $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new RtcProductionFarmersMultiSheetExport(true), 'rtc_production_marketing_farmers' . $time . '.xlsx');
+        return Excel::download(new RtcProductionFarmersMultiSheetExport(true), 'rtc_production_marketing_farmers_template.xlsx');
     }
 
     public function removeTemporaryFile()

@@ -53,7 +53,11 @@ class IndicatorTargets extends Component
             $this->targetDetails = [];
             $details = $row->details()->get();
             foreach ($details as $detail) {
-                $this->targetDetails[] = ['name' => $detail->name, 'target_value' => $detail->target_value, 'type' => $detail->type];
+                $this->targetDetails[] = [
+                    'name' => $detail->name,
+                    'target_value' => $detail->target_value,
+                    'type' => $detail->type
+                ];
             }
         }
 
@@ -91,7 +95,11 @@ class IndicatorTargets extends Component
     {
 
         // Initialize with one target detail if creating a new indicator
-        $this->targetDetails[] = ['name' => '', 'target_value' => '', 'type' => 'number'];
+        $this->targetDetails[] = [
+            'name' => '',
+            'target_value' => '',
+            'type' => 'number'
+        ];
 
 
         $this->indicators = Indicator::get();
@@ -101,7 +109,11 @@ class IndicatorTargets extends Component
 
     public function addTargetDetail()
     {
-        $this->targetDetails[] = ['name' => '', 'target_value' => '', 'type' => 'number'];
+        $this->targetDetails[] = [
+            'name' => '',
+            'target_value' => '',
+            'type' => 'number'
+        ];
     }
 
     public function removeTargetDetail($index)
@@ -186,7 +198,7 @@ class IndicatorTargets extends Component
 
 
         } catch (\Throwable $th) {
-            dd($th);
+
             $this->alert('error', 'Something went wrong');
             Log::error($th);
         }
