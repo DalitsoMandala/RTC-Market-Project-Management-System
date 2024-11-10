@@ -32,6 +32,8 @@ class Dashboard extends Component
     public $today;
     public $openSubmissions = 0;
 
+    public $overviewIndicator;
+
     public function mount()
     {
         $user = User::find(auth()->id());
@@ -57,6 +59,7 @@ class Dashboard extends Component
     {
 
         $indicator = Indicator::where('indicator_no', 'A1')->first();
+        $this->overviewIndicator = $indicator;
         $organisation = auth()->user()->organisation;
         $currentDate = Carbon::now();
 
