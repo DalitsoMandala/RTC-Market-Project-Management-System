@@ -23,7 +23,7 @@ class Dashboard extends Component
     public $attendance;
     public $showContent = false;
     public $quickForms;
-
+    public $overviewIndicator;
     public function mount()
     {
         // Initialization if needed
@@ -35,7 +35,7 @@ class Dashboard extends Component
         $indicator = Indicator::where('indicator_no', 'A1')->first();
         $organisation = auth()->user()->organisation;
         $currentDate = now();
-
+        $this->overviewIndicator = $indicator;
         // Retrieve the current financial year record
         $record = FinancialYear::whereDate('start_date', '<=', $currentDate)
             ->whereDate('end_date', '>=', $currentDate)

@@ -24,7 +24,7 @@ class Dashboard extends Component
     public $attendance;
     public $showContent = false;
     public $quickForms;
-
+    public $overviewIndicator;
     public function mount()
     {
         // Initialization code if required
@@ -43,6 +43,7 @@ class Dashboard extends Component
     {
 
         $indicator = Indicator::where('indicator_no', 'A1')->first();
+        $this->overviewIndicator = $indicator;
         $organisation = auth()->user()->organisation;
         $currentDate = Carbon::now();
 

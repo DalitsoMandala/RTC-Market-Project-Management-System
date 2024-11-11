@@ -1,6 +1,6 @@
 <?php
 
-use App\Helpers\PopulatePreviousValue;
+use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Models\Project;
@@ -17,15 +17,18 @@ use App\Models\AssignedTarget;
 use App\Models\IndicatorClass;
 use App\Helpers\AmountSplitter;
 use App\Models\IndicatorTarget;
+use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
 use App\Helpers\ExchangeRateHelper;
+use App\Notifications\SendReminder;
 use App\Livewire\Internal\Cip\Forms;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use App\Helpers\PopulatePreviousValue;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Targets;
 use App\Notifications\JobNotification;
@@ -39,6 +42,7 @@ use App\Livewire\Internal\Cip\Submissions;
 use App\Http\Controllers\TestingController;
 use App\Livewire\Internal\Cip\SubPeriodStaff;
 use App\Livewire\Internal\Cip\ViewIndicators;
+use App\Jobs\SendExpiredPeriodNotificationJob;
 use App\Livewire\Internal\Cip\ViewSubmissions;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B2;
@@ -60,20 +64,6 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $CLASSES = IndicatorClass::all();
-    $data = [];
-    foreach ($CLASSES as $CLASS) {
-        $class = new $CLASS->class();
-        $data[] = $class->getDisaggregations();
-    }
-
-
-
-    $class = new PopulatePreviousValue();
-
-    $class->start(); // percentages
-
-
 
 
 });

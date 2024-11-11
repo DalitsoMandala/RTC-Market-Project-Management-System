@@ -2,22 +2,23 @@
 
 namespace App\Livewire\targets;
 
-use App\Models\OrganisationTarget;
+use App\Models\User;
 use App\Models\SystemReport;
-use App\Models\SystemReportData;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use App\Models\SystemReportData;
+use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class TargetTable extends PowerGridComponent
 {
@@ -42,8 +43,22 @@ final class TargetTable extends PowerGridComponent
     {
 
 
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
 
-        return OrganisationTarget::query()->with(
+        if ($user->hasAnyRole('external')) {
+
+            return OrganisationTarget::query()->with([
+                'submissionTarget',
+                'organisation',
+
+                'submissionTarget.financialYear',
+                'submissionTarget.Indicator',
+                'submissionTarget.Indicator.project',
+                'submissionTarget.Indicator.class'
+            ])->whereHas('organisation', fn($query) => $query->where('id', $organisation_id));
+        }
+        return OrganisationTarget::query()->with([
             'submissionTarget',
             'organisation',
 
@@ -51,7 +66,7 @@ final class TargetTable extends PowerGridComponent
             'submissionTarget.Indicator',
             'submissionTarget.Indicator.project',
             'submissionTarget.Indicator.class'
-        );
+        ]);
     }
 
     public function fields(): PowerGridFields

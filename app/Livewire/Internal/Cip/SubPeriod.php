@@ -228,7 +228,7 @@ class SubPeriod extends Component
                         $form = Form::find($this->selectedForm[0]);
                         $period = ReportingPeriodMonth::find($this->selectedMonth);
                         session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
-                        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed ({$form->name} and {$period->start_month} - {$period->end_month}).");
+                        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for the period of {$period->start_month} - {$period->end_month}).");
                         $this->resetData();
                         return;
                     }

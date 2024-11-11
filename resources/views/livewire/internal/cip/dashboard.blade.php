@@ -39,91 +39,19 @@
                 </div>
             </div>
         </div>
-        <div class="row my-5 @if ($showContent) d-none @endif" x-data x-init="$wire.loadData();">
-            <div class="col-12 mb-5">
+        <div class="row my-5 @if ($showContent) d-none @endif" x-data x-init="setTimeout(() => {
+            $wire.loadData()
+        }, 3000);">
+            <div class="col-12">
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="spinner-border text-primary spinner-border-lg" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-
+                    <small class="mx-2 text-muted">Please wait...</small>
                 </div>
 
             </div>
-            <div class="loading my-5">
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-8">
 
-                            <div class="card">
-                                <div class="card-body">
-                                    <p class="placeholder-glow">
-                                        <span class="placeholder col-12"></span>
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-4">
-
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <p class="placeholder-glow">
-                                        <span class="placeholder col-12"></span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col">
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <p class="placeholder-glow">
-                                        <span class="placeholder col-12"></span>
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-8">
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <p class="placeholder-glow">
-                                        <span class="placeholder col-12"></span>
-                                    </p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-4">
-
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <p class="placeholder-glow">
-                                        <span class="placeholder col-12"></span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
 
 
         </div>
@@ -154,63 +82,97 @@
                         <div class="col-12 col-md-8 ">
                             <div class="card">
                                 <div class="card-header fw-bold  text-dark py-3 ">
-                                    {{ $data['name'] }}
+                                    {{ $overviewIndicator->indicator_name }}
                                 </div>
-                                <div class="row ">
-                                    <div class="col-12 col-sm-6" x-data="{
-                                                            chartData: @js($data['actors']),
-                                                            categories: ['Farmers', 'Processors', 'Traders'],
-                                                            values: [],
-                                                            init() {
-                                                                let data = this.chartData;
-                                                                this.values = [data['Farmers'], data['Processors'], data['Traders']];
-                                                                options = {
-                                                                    chart: {
-                                                                        type: 'pie',
+                                <div class="card-body">
+                                    <div class="row ">
+                                        <div class="col-12 col-sm-6" x-data="{
+                                            chartData: @js($data['actors']),
+                                            categories: ['Farmers', 'Processors', 'Traders'],
+                                            values: [],
+                                            init() {
+                                                let data = this.chartData;
+                                                this.values = [data['Farmers'], data['Processors'], data['Traders']];
+                                                console.log(this.values);
+                                                options = {
+                                                    chart: {
+                                                        type: 'pie',
 
 
-                                                                    },
-                                                                    labels: this.categories,
-                                                                    series: this.values,
-                                                                    colors: ['#006989', '#E88D67', '#FA7070'],
-                                                                    legend: {
-                                                                        position: 'top'
-                                                                    }
-                                                                }
+                                                    },
+                                                    labels: this.categories,
+                                                    series: this.values,
+                                                    colors: ['#006989', '#E88D67', '#FA7070'],
+                                                    legend: {
+                                                        position: 'top'
+                                                    }
+                                                }
 
-                                                                let chart = new ApexCharts($refs.chart, options);
-                                                                chart.render();
-                                                            }
-                                                        }">
-                                        <div x-ref="chart"></div>
+                                                let chart = new ApexCharts($refs.chart, options);
+                                                chart.render();
+                                            }
+                                        }">
+
+                                            <div
+                                                x-show="values.every(value => value === 0) || values.every(value => value === undefined)">
+                                                <div>
+                                                    <div class="alert alert-info alert-dismissible fade show px-4 mb-0 text-center "
+                                                        role="alert">
+                                                        <i
+                                                            class="mdi mdi-alert-circle-outline d-block display-4 mt-2 mb-3 text-info"></i>
+                                                        <h5 class="text-info">Info</h5>
+                                                        <p>Data not available at the moment.</p>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div x-show="values.some(value => value !== 0 && value !== undefined)"
+                                                x-ref="chart"></div>
+                                        </div>
+
+                                        <div class=" col-12 col-sm-6" x-data="{
+                                            chartData: @js($data['actors']),
+                                            categories: ['Cassava', 'Potato', 'Sweet potato'],
+                                            values: [],
+                                            init() {
+                                                let data = this.chartData;
+                                                this.values = [data['Cassava'], data['Potato'], data['Sweet potato']];
+                                                options = {
+                                                    chart: {
+                                                        type: 'donut',
+
+                                                    },
+                                                    labels: this.categories,
+                                                    series: this.values,
+                                                    colors: ['#006989', '#E88D67', '#FA7070'],
+                                                    legend: {
+                                                        position: 'top'
+                                                    }
+                                                }
+
+                                                let chart = new ApexCharts($refs.chart, options);
+                                                chart.render();
+                                            }
+                                        }">
+                                            <div
+                                                x-show="values.every(value => value === 0) || values.every(value => value === undefined)">
+                                                <div>
+                                                    <div class="alert alert-info alert-dismissible fade show px-4 mb-0 text-center "
+                                                        role="alert">
+                                                        <i
+                                                            class="mdi mdi-alert-circle-outline d-block display-4 mt-2 mb-3 text-info"></i>
+                                                        <h5 class="text-info">Info</h5>
+                                                        <p>Data not available at the moment.</p>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div x-show="values.some(value => value !== 0 && value !== undefined)"
+                                                x-ref="chart"></div>
+                                        </div>
                                     </div>
 
-                                    <div class=" col-12 col-sm-6" x-data="{
-                                                            chartData: @js($data['actors']),
-                                                            categories: ['Cassava', 'Potato', 'Sweet potato'],
-                                                            values: [],
-                                                            init() {
-                                                                let data = this.chartData;
-                                                                this.values = [data['Cassava'], data['Potato'], data['Sweet potato']];
-                                                                options = {
-                                                                    chart: {
-                                                                        type: 'donut',
 
-                                                                    },
-                                                                    labels: this.categories,
-                                                                    series: this.values,
-                                                                    colors: ['#006989', '#E88D67', '#FA7070'],
-                                                                    legend: {
-                                                                        position: 'top'
-                                                                    }
-                                                                }
-
-                                                                let chart = new ApexCharts($refs.chart, options);
-                                                                chart.render();
-                                                            }
-                                                        }">
-                                        <div x-ref="chart"></div>
-                                    </div>
                                 </div>
 
                             </div>
@@ -230,17 +192,17 @@
 
                                     <div class="row" x-data x-init="() => {
 
-                                                            let calendarEl = document.getElementById('calendar');
-                                                            let calendar = new FullCalendar.Calendar(calendarEl, {
-                                                                initialView: 'dayGridMonth',
-                                                                headerToolbar: {
-                                                                    start: 'title', // will normally be on the left. if RTL, will be on the right
-                                                                    center: '',
-                                                                    end: 'today prev,next'
-                                                                }
-                                                            });
-                                                            calendar.render();
-                                                        }">
+                                        let calendarEl = document.getElementById('calendar');
+                                        let calendar = new FullCalendar.Calendar(calendarEl, {
+                                            initialView: 'dayGridMonth',
+                                            headerToolbar: {
+                                                start: 'title', // will normally be on the left. if RTL, will be on the right
+                                                center: '',
+                                                end: 'today prev,next'
+                                            }
+                                        });
+                                        calendar.render();
+                                    }">
                                         <div class="col">
 
                                             <div id="calendar"></div>
@@ -261,51 +223,51 @@
                                     Submissions progress
                                 </div>
                                 <div class="card-body" x-data="{
-                                                        init() {
+                                    init() {
 
-                                                            let chartData = @js($submissions);
-                                                            const months = [
-                                                                'January', 'February', 'March', 'April', 'May', 'June',
-                                                                'July', 'August', 'September', 'October', 'November', 'December'
-                                                            ];
-                                                            let currentYear = new Date().getFullYear();
+                                        let chartData = @js($submissions);
+                                        const months = [
+                                            'January', 'February', 'March', 'April', 'May', 'June',
+                                            'July', 'August', 'September', 'October', 'November', 'December'
+                                        ];
+                                        let currentYear = new Date().getFullYear();
 
 
-                                                            const seriesData = months.map((month, index) => {
-                                                                const data = chartData.find(item => item.month === index + 1);
-                                                                return data ? data.total : 0;
-                                                            });
+                                        const seriesData = months.map((month, index) => {
+                                            const data = chartData.find(item => item.month === index + 1);
+                                            return data ? data.total : 0;
+                                        });
 
-                                                            options = {
-                                                                chart: {
-                                                                    type: 'area',
-                                                                    height: '400px'
-                                                                },
-                                                                series: [{
-                                                                    name: 'Submissions',
-                                                                    data: seriesData
-                                                                }],
-                                                                dataLabels: {
-                                                                    enabled: false
-                                                                },
-                                                                stroke: {
-                                                                    curve: 'smooth'
-                                                                },
-                                                                xaxis: {
-                                                                    categories: months
-                                                                },
-                                                                colors: ['#E88D67', '#FA7070'],
-                                                                tooltip: {
-                                                                    x: {
-                                                                        format: 'dd/MM/yy'
-                                                                    },
-                                                                },
-                                                            };
+                                        options = {
+                                            chart: {
+                                                type: 'area',
+                                                height: '400px'
+                                            },
+                                            series: [{
+                                                name: 'Submissions',
+                                                data: seriesData
+                                            }],
+                                            dataLabels: {
+                                                enabled: false
+                                            },
+                                            stroke: {
+                                                curve: 'smooth'
+                                            },
+                                            xaxis: {
+                                                categories: months
+                                            },
+                                            colors: ['#E88D67', '#FA7070'],
+                                            tooltip: {
+                                                x: {
+                                                    format: 'dd/MM/yy'
+                                                },
+                                            },
+                                        };
 
-                                                            let chart = new ApexCharts($refs.chart, options);
-                                                            chart.render();
-                                                        }
-                                                    }">
+                                        let chart = new ApexCharts($refs.chart, options);
+                                        chart.render();
+                                    }
+                                }">
 
                                     <div x-ref="chart"></div>
                                 </div>
@@ -339,8 +301,8 @@
                                             <tr class="">
                                                 <td scope="row">
                                                     <div class="d-flex">
-                                                        <img src="{{ asset('assets/images/users/usr.png') }}" alt=""
-                                                            class="shadow avatar-sm rounded-circle me-2">
+                                                        <img src="{{ asset('assets/images/users/usr.png') }}"
+                                                            alt="" class="shadow avatar-sm rounded-circle me-2">
                                                         <span class="text-capitalize"> {{ $people->name }}</span>
                                                     </div>
                                                 </td>
@@ -394,32 +356,33 @@
                         <a href="#" class="list-group-item list-group-item-action  pe-none fw-bold "><i
                                 class="ri-download-2-fill align-middle me-2"></i>Quick access to forms</a>
                         @foreach ($quickForms as $form)
-                                        @php
-                                            $form_name = str_replace(' ', '-', strtolower($form->name));
-                                            $project = str_replace(' ', '-', strtolower($form->project->name));
-                                            $link = '';
+                            @php
+                                $form_name = str_replace(' ', '-', strtolower($form->name));
+                                $project = str_replace(' ', '-', strtolower($form->project->name));
+                                $link = '';
 
-                                        @endphp
+                            @endphp
 
-                                        @if ($form->name == 'REPORT FORM')
-                                            <div class="d-flex justify-content-between">
-                                                <a class="pe-none text-muted" href="forms/{{ $project }}/{{ $form_name }}/view"
-                                                    class="list-group-item list-group-item-action">{{ $form->name }}</a>
+                            @if ($form->name == 'REPORT FORM')
+                                <div class="d-flex justify-content-between">
+                                    <a class="pe-none text-muted"
+                                        href="forms/{{ $project }}/{{ $form_name }}/view"
+                                        class="list-group-item list-group-item-action">{{ $form->name }}</a>
 
-                                            </div>
-                                        @elseif($form->name == 'ATTENDANCE REGISTER')
-                                            <div class="d-flex justify-content-between">
-                                                <a href="forms/{{ $project }}/{{ $form_name }}"
-                                                    class="list-group-item list-group-item-action">{{ $form->name }}</a>
+                                </div>
+                            @elseif($form->name == 'ATTENDANCE REGISTER')
+                                <div class="d-flex justify-content-between">
+                                    <a href="forms/{{ $project }}/{{ $form_name }}"
+                                        class="list-group-item list-group-item-action">{{ $form->name }}</a>
 
-                                            </div>
-                                        @else
-                                            <div class="d-flex justify-content-between">
-                                                <a href="forms/{{ $project }}/{{ $form_name }}/view"
-                                                    class="list-group-item list-group-item-action">{{ $form->name }}</a>
+                                </div>
+                            @else
+                                <div class="d-flex justify-content-between">
+                                    <a href="forms/{{ $project }}/{{ $form_name }}/view"
+                                        class="list-group-item list-group-item-action">{{ $form->name }}</a>
 
-                                            </div>
-                                        @endif
+                                </div>
+                            @endif
                         @endforeach
 
 

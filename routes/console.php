@@ -8,4 +8,6 @@ use App\Console\Commands\FetchExchangeRates;
 
 
 
-Schedule::command('update:information')->dailyAt('05:00');
+//Schedule::command('update:information')->dailyAt('00:01');
+Schedule::command('update:information')->everyMinute()->withoutOverlapping();
+Schedule::command('notifications:send-expired-periods')->dailyAt('00:01');
