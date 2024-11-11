@@ -1325,20 +1325,5 @@ class ExcelExportJob implements ShouldQueue
         }
 
 
-        function chunkRecords($model)
-        {
-            $totalCount = $model::count();
-            $chunkSize = 100;
-            // Set chunk size dynamically depending on the total number of records
-            if ($totalCount > 10000) {
-                $chunkSize = 2000; // Larger chunks for large datasets
-            } elseif ($totalCount > 5000) {
-                $chunkSize = 1000;
-            } else {
-                $chunkSize = 500;  // Smaller chunks for smaller datasets
-            }
-
-            return $chunkSize;
-        }
     }
 }
