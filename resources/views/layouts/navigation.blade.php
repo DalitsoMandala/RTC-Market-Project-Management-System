@@ -134,7 +134,8 @@
                                                     data-key="t-range-slider">Submission Periods</a>
                                                 <a href="{{ route('admin-reports') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reports</a>
-
+                                                <a href="{{ route('admin-jobs') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Queue Management</a>
                                             </div>
                                         </div>
 
@@ -270,11 +271,11 @@
 
                                         </a>
                                         <!-- <a class="dropdown-item dropdown-toggle arrow-none"
-                                                        href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
-                                                        role="button">
-                                                        <span data-key="t-utility">Seeed Disribution</span>
+                                                            href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
+                                                            role="button">
+                                                            <span data-key="t-utility">Seeed Disribution</span>
 
-                                                    </a> -->
+                                                        </a> -->
 
 
 
