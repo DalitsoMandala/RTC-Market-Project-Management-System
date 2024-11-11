@@ -14,7 +14,7 @@
             </div>
 
             @php
-            $routePrefixMain = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                $routePrefixMain = \Illuminate\Support\Facades\Route::current()->getPrefix();
             @endphp
 
 
@@ -103,16 +103,16 @@
                                                 <a href="{{ route('admin-indicators') }}" class="dropdown-item"
                                                     data-key="t-lightbox">Indicators</a>
 
-                                                <a href="{{ route('admin-leads') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Lead partners</a>
+                                                {{-- <a href="{{ route('admin-leads') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Lead partners</a> --}}
 
                                                 <a href="{{ route('admin-sources') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Organisation Forms</a>
-                                                <a href="{{ route('admin-indicators-targets') }}" class="dropdown-item"
+                                                {{-- <a href="{{ route('admin-indicators-targets') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Indicator Targets</a>
 
                                                 <a href="{{ route('admin-assigned-targets') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Assigned Targets</a>
+                                                    data-key="t-range-slider">Assigned Targets</a> --}}
                                             </div>
                                         </div>
 
@@ -130,7 +130,8 @@
 
                                                 <a href="{{ route('admin-submissions') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Submissions</a>
-
+                                                <a href="{{ route('admin-submission-period') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Submission Periods</a>
                                                 <a href="{{ route('admin-reports') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reports</a>
 
@@ -194,9 +195,8 @@
                                 </li>
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{$routePrefixMain}}/baseline" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
+                                        href="{{ $routePrefixMain }}/baseline" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
                                         <span data-key="t-dashboards">Baseline Data</span>
                                     </a>
@@ -264,16 +264,17 @@
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ $routePrefixMain}}/seed-beneficiaries" id="topnav-utility" role="button">
+                                            href="{{ $routePrefixMain }}/seed-beneficiaries" id="topnav-utility"
+                                            role="button">
                                             <span data-key="t-utility">Seed Beneficiaries</span>
 
                                         </a>
                                         <!-- <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ $routePrefixMain}}/seed-distribution" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Seeed Disribution</span>
+                                                        href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
+                                                        role="button">
+                                                        <span data-key="t-utility">Seeed Disribution</span>
 
-                                        </a> -->
+                                                    </a> -->
 
 
 
@@ -348,9 +349,9 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('external-reports') }}" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('external-reports') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-table'></i>
                                         <span data-key="t-dashboards">Reports</span>
                                     </a>

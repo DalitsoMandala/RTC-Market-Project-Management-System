@@ -80,7 +80,7 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
 Route::middleware([
     'auth',
     'role:admin',
-    'check_baseline'
+    'all_roles:admin',
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
@@ -99,7 +99,7 @@ Route::middleware([
     Route::get('/submissions', \App\Livewire\Admin\Operations\Submissions::class)->name('admin-submissions');
     Route::get('/reports', \App\Livewire\Admin\Operations\Reports::class)->name('admin-reports');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->name('admin-baseline');
-
+    Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('admin-submission-period');
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();
@@ -122,13 +122,9 @@ Route::middleware([
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
 
-
-
-
     Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-
 
     Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);

@@ -407,8 +407,9 @@
                         <div class="card-header">
                             <div class="align-items-center d-flex">
                                 <h4 class="card-title mb-0 flex-grow-1">Recent Register</h4>
-                                <a class="btn btn-primary btn-sm" href="/admin/forms/rtc-market/attendance-register"
-                                    role="button">View More</a>
+                                <a class="btn btn-primary btn-sm"
+                                    href="/admin/forms/rtc-market/attendance-register/view" role="button">View
+                                    More</a>
 
                             </div>
                         </div>

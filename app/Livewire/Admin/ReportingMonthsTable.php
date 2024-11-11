@@ -49,6 +49,7 @@ final class ReportingMonthsTable extends PowerGridComponent
             ->add('end_month')
             ->add('period_id')
             ->add('period', fn($model) => $model->reportingPeriod->name)
+            ->add('type')
             ->add('created_at')
             ->add('updated_at');
     }
@@ -67,7 +68,7 @@ final class ReportingMonthsTable extends PowerGridComponent
 
             Column::make('Period', 'period'),
 
-
+            Column::make('Period Type', 'type'),
         ];
     }
 

@@ -2,27 +2,27 @@
 
 namespace App\Livewire\admin;
 
-use Illuminate\Database\Query\Builder;
+use App\Models\FinancialYear;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class cgiarProjectTable extends PowerGridComponent
+final class FinancialYearTable extends PowerGridComponent
 {
     use WithExport;
 
     public function setUp(): array
     {
-
 
         return [
             Exportable::make('export')
@@ -37,15 +37,25 @@ final class cgiarProjectTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('cgiar_projects');
+        return FinancialYear::query()->with('project');
     }
 
+    /*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * PowerGrid Financial Year Table fields.
+     *
+     * @return PowerGridFields
+     */
+    /******  dd4b8436-80a2-4243-a299-f13702eb97c8  *******/
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('name')
-            ->add('slug')
+            ->add('number')
+            ->add('start_date_formatted', fn($model) => Carbon::parse($model->start_date)->format('d/m/Y'))
+            ->add('end_date_formatted', fn($model) => Carbon::parse($model->end_date)->format('d/m/Y'))
+            ->add('project_id')
+            ->add('project', fn($model) => $model->project->name)
             ->add('created_at')
             ->add('updated_at');
     }
@@ -54,15 +64,17 @@ final class cgiarProjectTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Name', 'name')
+            Column::make('Year', 'number')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Slug', 'slug')
-                ->sortable()->bodyAttribute('text-uppercase')
-                ->searchable(),
+            Column::make('Start date', 'start_date_formatted', 'start_date')
+                ->sortable(),
 
+            Column::make('End date', 'end_date_formatted', 'end_date')
+                ->sortable(),
 
+            Column::make('Project', 'project'),
 
         ];
     }
@@ -70,6 +82,8 @@ final class cgiarProjectTable extends PowerGridComponent
     public function filters(): array
     {
         return [
+            Filter::datepicker('start_date'),
+            Filter::datepicker('end_date'),
         ];
     }
 

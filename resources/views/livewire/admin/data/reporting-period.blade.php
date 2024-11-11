@@ -37,6 +37,14 @@
                         </button>
                     </li>
 
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#financial_year"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            Project Years
+                        </button>
+                    </li>
+
+
                 </ul>
 
 
@@ -44,10 +52,17 @@
                 <div class="tab-content mt-2">
                     <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <livewire:admin.reporting-period-table />
+
+
+                    </div>
+
+                    <div class="tab-pane" id="financial_year" role="tabpanel" aria-labelledby="profile-tab">
+                        <livewire:admin.financial-year-table />
                     </div>
                     <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <livewire:admin.reporting-months-table />
                     </div>
+
                 </div>
 
 
