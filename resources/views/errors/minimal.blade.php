@@ -1,194 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+<x-guest-layout>
+    <!-- Session Status -->
 
+    <div class="authentication-bg min-vh-100" style=" bottom;">
+        <div class="bg-overlay bg-light"></div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-8">
+                    <div class="home-wrapper text-center">
+                        <div>
+                            <div class="row justify-content-center">
+                                <div class="col-sm-9">
+                                    @yield('error-img')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+                                </div>
+                            </div>
+                        </div>
 
-    <title>{{ config('app.name') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-
-    <!-- Bootstrap Css -->
-    <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="{{ asset('assets/libs/choicesjs/styles/choices.min.css') }}">
-    <!-- Icons Css -->
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
-    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond@4.31.1/dist/filepond.min.css">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/css/tableexport.css"
-        integrity="sha512-+m+NCQG6uttXsLjwxHTUdhov99LW3TSFEiM2LSFMwfOePszb2as348/96cCBG35mOK+3Gp4P0EQRWpKLZfGTnA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.11/build/css/intlTelInput.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
-    <style>
-        /* Preloader */
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
-            /* semi-transparent white background */
-            z-index: 9999;
-            /* Ensure it appears above all other content */
-        }
-
-        /* Spinner animation */
-        .spinner-border.spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-
-
-            /* Spin animation */
-        }
-
-        .main-content {
-            overflow: visible;
-        }
-
-        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
-        .select2-container--bootstrap-5.select2-container--open .select2-selection {
-            border-color: #9cc0e0;
-            outline: 0;
-            -webkit-box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25);
-            box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25)
-        }
-
-        .select2-container--bootstrap-5 .select2-selection {
-
-            font-size: .875rem;
-
-        }
-
-        .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field:focus {
-            border-color: #9cc0e0;
-            outline: 0;
-            -webkit-box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25);
-            box-shadow: 0 0 0 .25rem rgba(57, 128, 192, .25)
-        }
-
-        .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--selected,
-        .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[aria-selected=true]:not(.select2-results__option--highlighted) {
-            color: #fff;
-            background-color: #3980c0;
-        }
-
-        .select2-container--bootstrap-5 .select2-dropdown {
-
-            border-color: #9cc0e0;
-
-        }
-
-        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice {
-            display: flex;
-            flex-direction: row;
-
-            padding-right: 10px;
-            margin-right: .375rem;
-            margin-bottom: .375rem;
-            font-size: 12px;
-            color: #212529;
-            cursor: auto;
-
-            border-radius: 10rem;
-            background-color: #3980c0;
-            border-color: #3980c0;
-            color: #fff;
-            word-break: break-all;
-            box-sizing: border-box;
-            font-weight: 500;
-        }
-
-        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice .select2-selection__choice__remove {
-            width: .75rem;
-            height: .75rem;
-            padding: .55em;
-            margin-right: .25rem;
-            overflow: hidden;
-            text-indent: 100%;
-            white-space: nowrap;
-            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") 50%/.75rem auto no-repeat;
-
-            border: 0;
-        }
-
-        label {
-            text-transform: lowercase;
-            /* Ensure all text is lowercase */
-        }
-
-        label::first-letter {
-            text-transform: uppercase;
-            /* Capitalize only the first letter */
-        }
-
-
-        .table-sticky-col {
-            position: sticky;
-            left: 0;
-            background-color: #fff;
-            /* Ensure background matches table to avoid overlap issues */
-            z-index: 1;
-            /* Ensure it stays above other table content */
-        }
-
-
-        [readonly] {
-            background-color: #e9ecef;
-        }
-    </style>
-    <!-- Scripts -->
-    @vite(['resources/js/app.js'])
-</head>
-
-<body class="d-flex align-items-center min-vh-100 bg-light text-dark">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-                <div class="border-end pe-3 text-secondary fw-bold  lead" style="font-size: 100px">
-                    @yield('code')
-                </div>
-
-                <div class="mt-2 text-uppercase text-secondary fs-4 fw-bold">
-                    @yield('message')
-                </div>
-
-
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <a class="btn btn-primary my-5" href="{{ route('logout') }}" onclick="event.preventDefault();
+                        <h4 class="text-uppercase mt-5"> @yield('code')</h4>
+                        <p class="text-muted">@yield('message')</p>
+                        <div class="mt-2">
+                            <a class="btn btn-primary waves-effect waves-light" href="/">Back to Dashboard</a>
+                            <span class="mx-1">or</span>
+                            <form class="d-inline-flex" method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a class="btn btn-primary " href="{{ route('logout') }}" onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        <i class='align-middle bx bx-log-out text-muted font-size-18 me-1'></i> <span
-                            class="align-middle">
-                            {{ __('Log Out') }}</span>
+                                    <i class='align-middle bx bx-log-out  font-size-18 me-1'></i> <span
+                                        class="align-middle">
+                                        {{ __('Log Out') }}</span>
 
-                    </a>
+                                </a>
 
-                </form>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
             </div>
+            <!-- end row -->
         </div>
+        <!-- end container -->
     </div>
 
-    <!-- Bootstrap 5 JavaScript (optional) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
 
-</html>
+</x-guest-layout>

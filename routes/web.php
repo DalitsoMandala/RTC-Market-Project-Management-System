@@ -68,8 +68,17 @@ Route::get('/test', function () {
 
 });
 
+Route::get('/session-check', function () {
+    return response()->json(['active' => auth()->check()]);
+})->name('session.check');
 
+Route::get('/logout', function () {
+    return abort(404);
+});
 
+Route::get('/register', function () {
+    return abort(404);
+});
 
 // Profile route
 Route::get('/profile', \App\Livewire\Profile\Details::class)
