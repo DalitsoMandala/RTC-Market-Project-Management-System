@@ -8,7 +8,7 @@
                 <a href="/" class="logo">
 
                     <span class="logo-xl">
-                        <x-application-logo width="22" /> <span class="logo-txt">CDMS</span>
+                        <x-application-logo width="50" />
                     </span>
                 </a>
             </div>
@@ -271,11 +271,11 @@
 
                                         </a>
                                         <!-- <a class="dropdown-item dropdown-toggle arrow-none"
-                                                            href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
-                                                            role="button">
-                                                            <span data-key="t-utility">Seeed Disribution</span>
+                                                                    href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
+                                                                    role="button">
+                                                                    <span data-key="t-utility">Seeed Disribution</span>
 
-                                                        </a> -->
+                                                                </a> -->
 
 
 

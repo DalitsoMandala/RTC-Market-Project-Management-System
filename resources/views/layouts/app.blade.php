@@ -149,6 +149,14 @@
             /* Ensure it stays above other table content */
         }
 
+        th {
+            text-transform: uppercase;
+            background-color: #ffc107;
+            /* Warning color in Bootstrap */
+            color: #212529;
+        }
+
+
 
         [readonly] {
             background-color: #e9ecef;
@@ -178,7 +186,7 @@
 
             <footer class="footer mt-auto py-3 bg-light">
                 <div class="container text-center">
-                    <span class="text-muted">&copy; 2024 CIP Database Management System. All rights reserved.</span>
+                    <span class="text-muted">&copy; 2024 {{ env('APP_NAME') }}. All rights reserved.</span>
                 </div>
             </footer>
         </div>

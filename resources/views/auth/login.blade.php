@@ -11,8 +11,9 @@
 
                         <div class="mb-4 text-center">
                             <a href="/">
-                                <x-application-logo width="50" /> <span
-                                    class="logo-txt">{{ config('app.name') }}</span>
+                                <x-application-logo width="150" />
+                                <br>
+                                <span class="logo-txt mt-5">{{ config('app.name') }}</span>
                             </a>
                         </div>
 
@@ -29,8 +30,8 @@
                                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                         <div class="mb-3">
                                             <x-input-label for="email" :value="__('Email')" />
-                                            <x-text-input id="email" class="" type="email" name="email"
-                                                required autofocus placeholder="Enter your email" />
+                                            <x-text-input id="email" class="" type="email" name="email" required
+                                                autofocus placeholder="Enter your email" />
 
 
                                         </div>

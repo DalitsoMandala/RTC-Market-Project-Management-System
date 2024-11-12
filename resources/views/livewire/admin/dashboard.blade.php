@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-xl-4">
-                <div class="card bg-primary">
+                <div class="card bg-warning">
                     <div class="card-body">
                         <div class="py-3 text-center">
                             <ul class="bg-bubbles ps-0">
@@ -27,7 +27,7 @@
                                     experience. We're thrilled to have you on board!"</p>
 
                                 <div class="pt-2 mt-4 mb-2">
-                                    <a href="/profile" class="btn btn-success">View Profile <i
+                                    <a href="/profile" class="btn btn-light">View Profile <i
                                             class="mdi mdi-arrow-right ms-1"></i></a>
                                 </div>
                             </div>
@@ -44,7 +44,7 @@
                                 <div>
 
                                     <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-primary rounded-circle fs-2">
+                                        <span class="avatar-title bg-warning rounded-circle fs-2">
                                             <i class='bx bx-user'></i>
                                         </span>
                                     </div>
@@ -75,7 +75,7 @@
                                 <div>
 
                                     <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-success rounded-circle fs-2">
+                                        <span class="avatar-title bg-warning rounded-circle fs-2">
                                             <i class='bx bx-user-check'></i>
                                         </span>
                                     </div>
@@ -106,7 +106,7 @@
                                 <div>
 
                                     <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-danger rounded-circle fs-2">
+                                        <span class="avatar-title bg-warning rounded-circle fs-2">
                                             <i class='bx bx-user-x'></i>
                                         </span>
                                     </div>
@@ -172,7 +172,7 @@
                                 <div>
 
                                     <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-info rounded-circle fs-2">
+                                        <span class="avatar-title bg-warning rounded-circle fs-2">
                                             <i class='bx bx-briefcase'></i>
                                         </span>
                                     </div>
@@ -203,7 +203,7 @@
                                 <div>
 
                                     <div class="avatar-md flex-shrink-0">
-                                        <span class="avatar-title bg-secondary rounded-circle fs-2">
+                                        <span class="avatar-title bg-warning rounded-circle fs-2">
                                             <i class='bx bx-book-open'></i>
                                         </span>
                                     </div>
@@ -291,7 +291,7 @@
                                     xaxis: {
                                         categories: months
                                     },
-                                    colors: ['#E88D67', '#FA7070'],
+                                    colors: ['#FC931D', '#FA7070'],
                                     tooltip: {
                                         x: {
                                             format: 'dd/MM/yy'
@@ -328,7 +328,7 @@
                                 },
                                 labels: ['Pending', 'Approved', 'Denied'],
                     
-                                colors: ['#006989', '#34A287', '#FA7070'],
+                                colors: ['#FC931D', '#34A287', '#FA7070'],
                                 legend: {
                                     position: 'bottom'
                                 }
