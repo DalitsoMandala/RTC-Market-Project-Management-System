@@ -2,11 +2,13 @@
 
 namespace App\Imports\AttendanceImport;
 
+
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Notifications\JobNotification;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -20,11 +22,34 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
 use App\Imports\AttendanceImport\AttendanceRegistersImport;
+use App\Helpers\ExcelValidator;
 
 class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     protected $expectedSheetNames = [
         'Attendance Registers',
+
+    ];
+
+    protected $expectedHeaders = [
+        'Attendance Registers' => [
+            'Meeting Title',
+            'Meeting Category',
+            'RTC Crop Cassava',
+            'RTC Crop Potato',
+            'RTC Crop Sweet Potato',
+            'Venue',
+            'District',
+            'Start Date',
+            'End Date',
+            'Total Days',
+            'Name',
+            'Sex',
+            'Organization',
+            'Designation',
+            'Phone Number',
+            'Email',
+        ],
 
     ];
     protected $cacheKey;
@@ -87,6 +112,19 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
 
                     }
                 }
+
+                $filePath = $this->filePath;
+                $expectedSheetNames = $this->expectedSheetNames;
+                $expectedHeaders = $this->expectedHeaders;
+
+                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
+                $message = $validator->validateHeaders();
+
+                if ($message) {
+                    throw new ExcelValidationException($message->getMessage());
+                }
+
+
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 1) ?? 0); // excluding headers
