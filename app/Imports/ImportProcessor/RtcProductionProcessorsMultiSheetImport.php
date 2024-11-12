@@ -5,6 +5,7 @@ namespace App\Imports\ImportProcessor;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Helpers\ExcelValidator;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
@@ -15,17 +16,17 @@ use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Exceptions\ExcelValidationException;
+use App\Imports\ImportProcessor\RpmpMisImport;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Validators\ValidationException;
-use App\Exceptions\ExcelValidationException;
-use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
-use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
-use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
-use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
-use App\Imports\ImportProcessor\RpmpMisImport;
 use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
+use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
+use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
+use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
+use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
 
 class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
@@ -39,6 +40,95 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
         'Market Information Systems',
         'Aggregation Centers'
     ];
+
+    protected $expectedHeaders = [
+        'Production Processors' => [
+            'ID',
+            'EPA',
+            'Section',
+            'District',
+            'Enterprise',
+            'Date of Recruitment',
+            'Name of Actor',
+            'Name of Representative',
+            'Phone Number',
+            'Type',
+            'Approach',
+            'Sector',
+            'Members Female 18-35',
+            'Members Male 18-35',
+            'Members Male 35+',
+            'Members Female 35+',
+            'Group',
+            'Establishment Status',
+            'Is Registered',
+            'Registration Body',
+            'Registration Number',
+            'Registration Date',
+            'Employees Formal Female 18-35',
+            'Employees Formal Male 18-35',
+            'Employees Formal Male 35+',
+            'Employees Formal Female 35+',
+            'Employees Informal Female 18-35',
+            'Employees Informal Male 18-35',
+            'Employees Informal Male 35+',
+            'Employees Informal Female 35+',
+            'Market Segment Fresh',
+            'Market Segment Processed',
+            'Has RTC Market Contract',
+            'Total Volume Production Previous Season',
+            'Production Value Previous Season Total',
+            'Date of Max Sales',
+            'USD Rate',
+            'USD Value',
+            'Sells to Domestic Markets',
+            'Sells to International Markets',
+            'Uses Market Info Systems',
+            'Sells to Aggregation Centers',
+            'Total Volume Aggregation Center Sales'
+        ],
+        'Contractual Agreements' => [
+            'Processor ID',
+            'Date Recorded',
+            'Partner Name',
+            'Country',
+            'Date of Maximum Sale',
+            'Product Type',
+            'Volume Sold Previous Period',
+            'Financial Value of Sales'
+        ],
+        'Domestic Markets' => [
+            'Processor ID',
+            'Date Recorded',
+            'Crop Type',
+            'Market Name',
+            'District',
+            'Date of Maximum Sale',
+            'Product Type',
+            'Volume Sold Previous Period',
+            'Financial Value of Sales'
+        ],
+        'International Markets' => [
+            'Processor ID',
+            'Date Recorded',
+            'Crop Type',
+            'Market Name',
+            'Country',
+            'Date of Maximum Sale',
+            'Product Type',
+            'Volume Sold Previous Period',
+            'Financial Value of Sales'
+        ],
+        'Market Information Systems' => [
+            'MIS Name',
+            'Processor ID'
+        ],
+        'Aggregation Centers' => [
+            'Aggregation Center Name',
+            'Processor ID'
+        ]
+    ];
+
 
     protected $cacheKey;
     protected $filePath;
@@ -86,21 +176,16 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                 }
 
 
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
 
-                foreach ($sheets as $key => $sheet) {
+                $filePath = $this->filePath;
+                $expectedSheetNames = $this->expectedSheetNames;
+                $expectedHeaders = $this->expectedHeaders;
 
-                    if ($sheet <= 1 && $firstSheetName) {
+                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
+                $message = $validator->validateHeaders();
 
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-
-
-                    }
+                if ($message) {
+                    throw new ExcelValidationException($message->getMessage());
                 }
 
                 // Get total rows from all sheets and initialize JobProgress

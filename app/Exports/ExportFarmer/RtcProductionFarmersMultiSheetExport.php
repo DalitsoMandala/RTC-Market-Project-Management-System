@@ -18,10 +18,10 @@ class RtcProductionFarmersMultiSheetExport implements WithMultipleSheets, WithSt
     {
         return [
             'Production Farmers' => new RtcProductionFarmersExport($this->template),
-            'Conc Agreements' => new RpmFarmerConcAgreementsExport($this->template),
+            'Conctractual Agreements' => new RpmFarmerConcAgreementsExport($this->template),
             'Domestic Markets' => new RpmFarmerDomMarketsExport($this->template),
             'International Markets' => new RpmFarmerInterMarketsExport($this->template),
-            'Market Info Systems' => new RpmfMisExport($this->template),
+            'Market Information Systems' => new RpmfMisExport($this->template),
             'Aggregation Centers' => new RpmfAggregationCentersExport($this->template),
             'Basic Seed' => new RpmfBasicSeedExport($this->template),
             'Certified Seed' => new RpmfCertifiedSeedExport($this->template),

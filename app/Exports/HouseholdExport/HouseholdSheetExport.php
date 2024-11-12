@@ -50,7 +50,7 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
             'RTC Consumers - Sweet Potato',
             'RTC Consumers - Cassava',
             'RTC Consumption Frequency',
-            // Exclude hidden fields and Household ID
+
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Imports\HouseholdImport;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Helpers\ExcelValidator;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +35,34 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
         'Household Data',
         'Main Food Data'
     ];
-
+    protected $expectedHeaders = [
+        'Household Data' => [
+            'ID',
+            'EPA',
+            'Section',
+            'District',
+            'Enterprise',
+            'Date of Assessment',
+            'Actor Type (Farmer, Trader, etc.)',
+            'RTC Group/Platform',
+            'Producer Organisation',
+            'Actor Name',
+            'Age Group',
+            'Sex',
+            'Phone Number',
+            'Household Size',
+            'Under 5 in Household',
+            'RTC Consumers (Total)',
+            'RTC Consumers - Potato',
+            'RTC Consumers - Sweet Potato',
+            'RTC Consumers - Cassava',
+            'RTC Consumption Frequency',
+        ],
+        'Main Food Data' => [
+            'Household ID',
+            'Main Food Name',
+        ]
+    ];
     protected $cacheKey;
     protected $filePath;
 
@@ -83,22 +111,17 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     }
                 }
 
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
+                $filePath = $this->filePath;
+                $expectedSheetNames = $this->expectedSheetNames;
+                $expectedHeaders = $this->expectedHeaders;
 
-                foreach ($sheets as $key => $sheet) {
+                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
+                $message = $validator->validateHeaders();
 
-                    if ($sheet <= 1 && $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-
-
-                    }
+                if ($message) {
+                    throw new ExcelValidationException($message->getMessage());
                 }
+
                 // Get total rows from both sheets
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = (($rowCounts['Household Data'] - 1) ?? 0) + (($rowCounts['Main Food Data'] - 1) ?? 0); // others are header rows

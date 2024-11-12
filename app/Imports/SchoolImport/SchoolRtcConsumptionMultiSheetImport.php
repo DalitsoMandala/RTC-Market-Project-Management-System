@@ -5,6 +5,7 @@ namespace App\Imports\SchoolImport;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Helpers\ExcelValidator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
@@ -30,6 +31,23 @@ use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
 class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     protected $expectedSheetNames = ['School RTC Consumption'];
+    protected $expectedHeaders = [
+        'School RTC Consumption' => [
+            'School ID',
+            'EPA',
+            'Section',
+            'District',
+            'School Name',
+            'Date',
+            'Cassava Crop',
+            'Potato Crop',
+            'Sweet Potato Crop',
+            'Male Count',
+            'Female Count',
+
+        ],
+
+    ];
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails = [];
@@ -69,22 +87,17 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     }
                 }
 
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
+                $filePath = $this->filePath;
+                $expectedSheetNames = $this->expectedSheetNames;
+                $expectedHeaders = $this->expectedHeaders;
 
-                foreach ($sheets as $key => $sheet) {
+                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
+                $message = $validator->validateHeaders();
 
-                    if ($sheet <= 1 && $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-
-
-                    }
+                if ($message) {
+                    throw new ExcelValidationException($message->getMessage());
                 }
+
                 // Get total rows from all sheets and initialize JobProgress
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {

@@ -5,6 +5,7 @@ namespace App\Imports\ImportFarmer;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Helpers\ExcelValidator;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
@@ -20,8 +21,8 @@ use App\Imports\ImportFarmer\RpmfMisImport;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use App\Imports\ImportFarmer\RpmfBasicSeedImport;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Imports\ImportFarmer\RpmfCertifiedSeedImport;
@@ -48,6 +49,125 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
         'Basic Seed',
         'Certified Seed',
         'Area Cultivation'
+    ];
+    protected $expectedHeaders = [
+
+        'Production Farmers' => [
+            'ID', // Add ID as the first column heading
+            'EPA',
+            'Section',
+            'District',
+            'Enterprise',
+            'Date of Recruitment',
+            'Name of Actor',
+            'Name of Representative',
+            'Phone Number',
+            'Type',
+            'Approach',
+            'Sector',
+            'Members Female 18-35',
+            'Members Male 18-35',
+            'Members Male 35+',
+            'Members Female 35+',
+            'Group',
+            'Establishment Status',
+            'Is Registered',
+            'Registration Body',
+            'Registration Number',
+            'Registration Date',
+            'Employees Formal Female 18-35',
+            'Employees Formal Male 18-35',
+            'Employees Formal Male 35+',
+            'Employees Formal Female 35+',
+            'Employees Informal Female 18-35',
+            'Employees Informal Male 18-35',
+            'Employees Informal Male 35+',
+            'Employees Informal Female 35+',
+            'Number of Plantlets Produced Cassava',
+            'Number of Plantlets Produced Potato',
+            'Number of Plantlets Produced Sweet Potato',
+            'Screen House Vines Harvested',
+            'Screen House Min Tubers Harvested',
+            'SAH Plants Produced',
+            'Is Registered Seed Producer',
+            'Seed Producer Registration Number',
+            'Seed Producer Registration Date',
+            'Uses Certified Seed',
+            'Market Segment Fresh',
+            'Market Segment Processed',
+            'Has RTC Market Contract',
+            'Total Volume Production Previous Season',
+            'Production Value Previous Season Total',
+            'Production Value Date of Max Sales',
+            'Production Value USD Rate',
+            'Production Value USD Value',
+            'Total Volume Irrigation Production Previous Season',
+            'Irrigation Production Value Total',
+            'Irrigation Production Date of Max Sales',
+            'Irrigation Production USD Rate',
+            'Irrigation Production USD Value',
+            'Sells to Domestic Markets',
+            'Sells to International Markets',
+            'Uses Market Information Systems',
+            'Sells to Aggregation Centers',
+            'Total Volume Aggregation Center Sales'
+        ],
+        'Contractual Agreements' => [
+            'Farmer ID',
+            'Date Recorded',
+            'Partner Name',
+            'Country',
+            'Date of Maximum Sale',
+            'Product Type',
+            'Volume Sold Previous Period',
+            'Financial Value of Sales'
+        ],
+        'Domestic Markets' => [
+            'Farmer ID',
+            'Date Recorded',
+            'Crop Type',
+            'Market Name',
+            'District',
+            'Date of Maximum Sale',
+            'Product Type',
+            'Volume Sold Previous Period',
+            'Financial Value of Sales'
+        ],
+        'International Markets' => [
+            'Farmer ID',
+            'Date Recorded',
+            'Crop Type',
+            'Market Name',
+            'Country',
+            'Date of Maximum Sale',
+            'Product Type',
+            'Volume Sold Previous Period',
+            'Financial Value of Sales'
+        ],
+        'Market Information Systems' => [
+            'Name',
+            'Farmer ID'
+        ],
+        'Aggregation Centers' => [
+            'Name',
+            'Farmer ID'
+        ],
+        'Basic Seed' => [
+            'Variety',
+            'Area',
+            'Farmer ID'
+        ],
+        'Certified Seed' => [
+            'Variety',
+            'Area',
+            'Farmer ID'
+        ],
+        'Area Cultivation' => [
+            'Variety',
+            'Area',
+            'Farmer ID'
+        ],
+
     ];
 
     protected $cacheKey;
@@ -103,22 +223,17 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
                     }
                 }
 
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
+                $filePath = $this->filePath;
+                $expectedSheetNames = $this->expectedSheetNames;
+                $expectedHeaders = $this->expectedHeaders;
 
-                foreach ($sheets as $key => $sheet) {
+                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
+                $message = $validator->validateHeaders();
 
-                    if ($sheet <= 1 && $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-
-
-                    }
+                if ($message) {
+                    throw new ExcelValidationException($message->getMessage());
                 }
+
 
                 // Get total rows from all sheets
                 $rowCounts = $event->reader->getTotalRows();
