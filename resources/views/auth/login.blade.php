@@ -63,8 +63,8 @@
                                             @endif
                                         </div>
 
-                                        <div class="mt-3 mb-5 text-end">
-                                            <x-primary-button class="btn btn-warning w-sm waves-effect waves-light"
+                                        <div class="mt-5 mb-5 text-center">
+                                            <x-primary-button class="btn btn-warning w-sm waves-effect waves-light mx-5"
                                                 type="submit">Log In</x-primary-button>
                                         </div>
 
