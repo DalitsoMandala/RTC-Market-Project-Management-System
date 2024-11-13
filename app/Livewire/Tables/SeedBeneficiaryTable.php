@@ -196,7 +196,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('my-2 btn btn-primary')
+                ->class('my-2 btn btn-warning')
                 ->dispatch('edit-showModal', [
                     'id' => $row->id,
                     'name' => 'view-detail-modal'

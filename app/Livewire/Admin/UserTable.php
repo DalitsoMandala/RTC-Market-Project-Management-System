@@ -87,28 +87,28 @@ final class UserTable extends PowerGridComponent
 
                     if ($role->name == 'external') {
 
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">External user</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">External user</span>';
                     }
 
                     if ($role->name == 'internal') {
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">Internal user</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">Internal user</span>';
                     }
 
                     if ($role->name == 'cip') {
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">CIP</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">CIP</span>';
                     }
 
 
                     if ($role->name == 'desira') {
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">DESIRA</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">DESIRA</span>';
                     }
 
                     if ($role->name == 'manager') {
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">Organiser</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">Organiser</span>';
                     }
 
                     if ($role->name == 'donor') {
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">Donor</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">Donor</span>';
                     }
 
                     if ($role->name == 'admin') {
@@ -116,7 +116,7 @@ final class UserTable extends PowerGridComponent
                     }
 
                     if ($role->name == 'staff') {
-                        $role->name = '<span class="badge bg-primary" style="font-size:11px">Staff</span>';
+                        $role->name = '<span class="badge bg-warning" style="font-size:11px">Staff</span>';
                     }
 
 
@@ -192,7 +192,7 @@ final class UserTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary goUp')
+                ->class('btn btn-warning goUp')
                 ->dispatch('edit', [
                     'rowId' => $row->id,
                     'name' => 'view-edit-modal'

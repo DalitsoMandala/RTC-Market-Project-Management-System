@@ -21,7 +21,7 @@
         <!-- end page title -->
 
         <div class="row">
-            <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING FORM (FARMERS) [FOLLOW UP]</h3>
+            <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING FORM (FARMERS) [FOLLOW UP]</h3>
             <div class="col">
                 <x-alerts />
             </div>
@@ -134,7 +134,7 @@
                                 @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
-                                    <button class="btn btn-primary " @click="window.scrollTo({
+                                    <button class="btn btn-warning " @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
                                 })" type="submit">

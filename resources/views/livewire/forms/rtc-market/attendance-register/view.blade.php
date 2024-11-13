@@ -23,7 +23,7 @@
                 <div class="card">
 
                     <div class="card-header">
-                        <h4 class="text-center text-primary text-uppercase">Attendance Register
+                        <h4 class="text-center text-warning text-uppercase">Attendance Register
                         </h4>
                     </div>
                     <div class="card-body">

@@ -28,7 +28,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <h3 class="mb-5 text-center text-primary">SCHOOL CONSUMPTION FORM</h3>
+                <h3 class="mb-5 text-center text-warning">SCHOOL CONSUMPTION FORM</h3>
 
                 <x-alerts />
 

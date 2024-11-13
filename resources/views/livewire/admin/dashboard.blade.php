@@ -238,7 +238,7 @@
 
             <div class="col-12 mb-5">
                 <div class="d-flex justify-content-center align-items-center">
-                    <div class="spinner-border text-primary spinner-border-lg" role="status">
+                    <div class="spinner-border text-warning spinner-border-lg" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
 
@@ -355,7 +355,7 @@
                         <div class="card-header">
                             <div class="align-items-center d-flex">
                                 <h4 class="card-title mb-0 flex-grow-1">Users</h4>
-                                <a class="btn btn-primary btn-sm" href="/admin/users" role="button">View More</a>
+                                <a class="btn btn-warning btn-sm" href="/admin/users" role="button">View More</a>
 
                             </div>
                         </div>
@@ -407,7 +407,7 @@
                         <div class="card-header">
                             <div class="align-items-center d-flex">
                                 <h4 class="card-title mb-0 flex-grow-1">Recent Register</h4>
-                                <a class="btn btn-primary btn-sm"
+                                <a class="btn btn-warning btn-sm"
                                     href="/admin/forms/rtc-market/attendance-register/view" role="button">View
                                     More</a>
 

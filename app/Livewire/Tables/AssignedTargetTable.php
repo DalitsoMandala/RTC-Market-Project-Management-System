@@ -40,7 +40,10 @@ final class AssignedTargetTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return AssignedTarget::query()->with(['organisation', 'final_target']);
+        return AssignedTarget::query()->with([
+            'organisation',
+            'final_target'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -65,8 +68,8 @@ final class AssignedTargetTable extends PowerGridComponent
 
 
                 return '
-<div class="mb-1 text-center text-primary fw-medium">' . floor($progress) . '%</div>
-<div class="progress bg-primary-subtle progress-sm">
+<div class="mb-1 text-center text-warning fw-medium">' . floor($progress) . '%</div>
+<div class="progress bg-warning-subtle progress-sm">
 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="' . $progress . '" aria-valuemin="0" aria-valuemax="100" style="width: ' . $progress . '%"></div>
 </div>
 

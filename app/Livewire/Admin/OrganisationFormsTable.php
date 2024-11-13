@@ -42,7 +42,12 @@ final class OrganisationFormsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Indicator::with(['organisation', 'forms', 'responsiblePeopleforIndicators', 'responsiblePeopleforIndicators.sources']);
+        return Indicator::with([
+            'organisation',
+            'forms',
+            'responsiblePeopleforIndicators',
+            'responsiblePeopleforIndicators.sources'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -117,7 +122,9 @@ final class OrganisationFormsTable extends PowerGridComponent
         return [];
     }
     #[\Livewire\Attributes\On('refresh')]
-    public function refreshData(): void {}
+    public function refreshData(): void
+    {
+    }
 
     public function actions($row): array
     {
@@ -125,8 +132,11 @@ final class OrganisationFormsTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary goUp')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-modal']),
+                ->class('btn btn-warning goUp')
+                ->dispatch('showModal', [
+                    'rowId' => $row->id,
+                    'name' => 'view-modal'
+                ]),
 
         ];
     }

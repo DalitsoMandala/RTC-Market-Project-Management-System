@@ -25,7 +25,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Enter your data for : <span
-                                class="text-primary">{{ $indicatorName }}</span> </h4>
+                                class="text-warning">{{ $indicatorName }}</span> </h4>
                     </div>
                     <div class="card-body">
                         <form>

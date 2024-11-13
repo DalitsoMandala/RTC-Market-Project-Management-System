@@ -40,15 +40,15 @@
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch-submission" type="button" role="tab"
-                                    aria-controls="home" aria-selected="true">
+                                    data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">
                                     Batch Submissions
                                 </button>
                             </li>
                             {{-- <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
-                                    data-bs-target="#manual-submission" type="button" role="tab"
-                                    aria-controls="profile" aria-selected="false">
+                                    data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
                                     Manual Submissions
                                 </button>
                             </li> --}}
@@ -207,7 +207,7 @@
 
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No,
                             cancel</button>
-                        <button type="submit" class="pr-4 btn btn-primary">Update Data</button>
+                        <button type="submit" class="pr-4 btn btn-warning">Update Data</button>
 
                     </div>
                 </form>
@@ -266,8 +266,8 @@
                     <div class="d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" wire:target="save"
                             class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
-                        <button type="button" wire:loading.attr="disabled" wire:target="save"
-                            class="btn btn-primary" wire:click="setStatus('approved')">Approve</button>
+                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-warning"
+                            wire:click="setStatus('approved')">Approve</button>
                     </div>
                 </form>
             </x-modal>
@@ -322,15 +322,15 @@
     </div>
 
     @script
-        <script>
-            if (window.location.hash !== '') {
-                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-                if (button) {
-                    button.click();
+    <script>
+        if (window.location.hash !== '') {
+            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+            if (button) {
+                button.click();
 
-                }
             }
-        </script>
+        }
+    </script>
     @endscript
 
 </div>

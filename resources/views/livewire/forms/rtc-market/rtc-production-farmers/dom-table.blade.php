@@ -79,7 +79,7 @@
                         titleAttr: 'Excel',
                         title: 'Rtc Production and Marketing for farmers (Domestic markets) ' +
                             today,
-                        className: 'bg-primary'
+                        className: 'bg-warning'
                     }],
                     paging: true,
                     searching: true,

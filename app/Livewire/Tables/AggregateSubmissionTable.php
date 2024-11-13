@@ -254,7 +254,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             // Button::add('edit')
             //     ->slot('<i class="bx bx-pen"></i>')
             //     ->id()
-            //     ->class('btn btn-primary my-1')
+            //     ->class('btn btn-warning my-1')
             //     ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
             //     ->dispatch('showAggregate', [
             //         'id' => $row->id,
@@ -264,7 +264,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             Button::add('show')
                 ->slot('<i class="fas fa-eye"></i>')
                 ->id()
-                ->class('btn btn-primary my-1')
+                ->class('btn btn-warning my-1')
                 ->tooltip('View Data')
                 ->dispatch('showDataAggregate', [
                     'id' => $row->id,

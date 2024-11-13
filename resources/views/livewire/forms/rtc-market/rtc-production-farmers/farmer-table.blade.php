@@ -132,7 +132,7 @@
                 data.forEach(function(row) {
                     let tr = $('<tr>');
                     tr.append($('<td>').html(
-                        "<a class='btn btn-sm btn-primary' href='" + routePrefix +
+                        "<a class='btn btn-sm btn-warning' href='" + routePrefix +
                         "/forms/rtc-market/rtc-production-and-marketing-form-farmers/followup/" +
                         row.id + "'>Add follow up</a>"
                     ));
@@ -243,7 +243,7 @@
                         text: '<i class="fas fa-file-excel" data-bs-toggle="tooltip" data-bs-placement="top" title="Export"></i>',
                         titleAttr: 'Excel',
                         title: 'Rtc Production and Marketing for farmers ' + today,
-                        className: 'bg-primary'
+                        className: 'bg-warning'
                     }],
                     paging: true,
                     searching: true,

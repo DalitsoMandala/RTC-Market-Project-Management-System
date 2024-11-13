@@ -142,7 +142,7 @@
         </div> --}}
 
         <div class="d-grid col-12 justify-content-center">
-            <button class="btn btn-primary " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
+            <button class="btn btn-warning " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
                 Submit
             </button>
         </div>

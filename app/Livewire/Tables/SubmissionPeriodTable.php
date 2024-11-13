@@ -315,13 +315,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->tooltip('Edit Record')
-                ->class('btn btn-primary goUp btn-sm my-1')
+                ->class('btn btn-warning goUp btn-sm my-1')
                 ->dispatch('editData', ['rowId' => $row->id]),
 
             Button::add('add-data')
                 ->slot('<i class="bx bx-plus"></i>')
                 ->id()
-                ->class('btn btn-primary btn-sm my-1')
+                ->class('btn btn-warning btn-sm my-1')
                 ->tooltip('Add Data')
                 ->dispatch('sendData', ['model' => $row]),
 
@@ -329,7 +329,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-upload"></i>')
                 ->id()
                 ->tooltip('Upload Your Data')
-                ->class('btn btn-primary my-1 btn-sm')
+                ->class('btn btn-warning my-1 btn-sm')
                 ->dispatch('sendUploadData', ['model' => $row]),
 
 

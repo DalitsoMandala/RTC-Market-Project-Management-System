@@ -19,11 +19,11 @@
                         <h4 class="text-uppercase mt-5"> @yield('code')</h4>
                         <p class="text-muted">@yield('message')</p>
                         <div class="mt-2">
-                            <a class="btn btn-primary waves-effect waves-light" href="/">Back to Dashboard</a>
+                            <a class="btn btn-warning waves-effect waves-light" href="/">Back to Dashboard</a>
                             <span class="mx-1">or</span>
                             <form class="d-inline-flex" method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <a class="btn btn-primary " href="{{ route('logout') }}" onclick="event.preventDefault();
+                                <a class="btn btn-warning " href="{{ route('logout') }}" onclick="event.preventDefault();
                                         this.closest('form').submit();">
                                     <i class='align-middle bx bx-log-out  font-size-18 me-1'></i> <span
                                         class="align-middle">

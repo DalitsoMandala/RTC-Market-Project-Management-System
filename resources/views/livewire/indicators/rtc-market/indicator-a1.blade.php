@@ -1,14 +1,14 @@
 <div>
 
     <div x-data="{
-    
+
         downloadForm() {
             // Create a new workbook
             var wb = XLSX.utils.book_new();
-    
+
             // List of table IDs
             var tableIds = ['table1']; // Add more table IDs as needed
-    
+
             // Loop through each table ID
             tableIds.forEach(function(id, index) {
                 // Get the table element
@@ -20,7 +20,7 @@
                     XLSX.utils.book_append_sheet(wb, ws, 'Sheet' + (index + 1));
                 }
             });
-    
+
             // Write the workbook to a file
             XLSX.writeFile(wb, '{{ $indicator_name }}_{{ $indicator_no }}.xlsx');
         }
@@ -31,8 +31,8 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="alert alert-primary" role="alert">
-                    <button class="btn btn-primary" @click="downloadForm()"> Download this data</button>
+                <div class="alert alert-warning" role="alert">
+                    <button class="btn btn-warning" @click="downloadForm()"> Download this data</button>
                 </div>
 
             </div>
@@ -82,14 +82,14 @@
                         let data = this.chartData;
                         categories = Object.keys(data); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
                         seriesData = Object.values(data).map(value => Number(value)); // [0, 0, 0, 0]
-                
-                
-                
+
+
+
                         options = {
                             chart: {
                                 type: 'bar'
                             },
-                
+
                             series: [{
                                 name: 'Count',
                                 data: seriesData
@@ -99,7 +99,7 @@
                                 categories: categories
                             }
                         };
-                
+
                         let chart = new ApexCharts($refs.chart, options);
                         chart.render();
                     }
@@ -116,30 +116,30 @@
                     init() {
                         let data = this.chartData;
                         let keysToKeep = ['Male', 'Female'];
-                
+
                         // Filtering the object
                         let filteredData = Object.fromEntries(
                             Object.entries(data).filter(([key]) => keysToKeep.includes(key))
                         );
-                
-                
+
+
                         let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
                         let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
-                
+
                         let options = {
                             chart: {
                                 type: 'donut'
                             },
-                
-                
-                
+
+
+
                             series: seriesData,
                             labels: categories,
                             colors: ['#006989', '#E88D67', '#FA7070', '#A1C181'],
-                
-                
+
+
                         };
-                
+
                         let chart = new ApexCharts($refs.genderChart, options);
                         chart.render();
                     }
@@ -154,16 +154,16 @@
                     init() {
                         let data = this.chartData;
                         let keysToKeep = ['Cassava', 'Potato', 'Sweet potato'];
-                
+
                         // Filtering the object
                         let filteredData = Object.fromEntries(
                             Object.entries(data).filter(([key]) => keysToKeep.includes(key))
                         );
-                
-                
+
+
                         let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
                         let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
-                
+
                         let options = {
                             chart: {
                                 type: 'radialBar'
@@ -171,7 +171,7 @@
                             series: seriesData,
                             labels: categories,
                             colors: ['#006989', '#E88D67', '#FA7070', '#A1C181'],
-                
+
                             plotOptions: {
                                 radialBar: {
                                     dataLabels: {
@@ -194,13 +194,13 @@
                                             }
                                         }
                                     },
-                
-                
+
+
                                 }
                             }
-                
+
                         };
-                
+
                         let chart = new ApexCharts($refs.cropChart, options);
                         chart.render();
                     }
@@ -215,16 +215,16 @@
                     init() {
                         let data = this.chartData;
                         let keysToKeep = ['Farmers', 'Traders', 'Processors'];
-                
+
                         // Filtering the object
                         let filteredData = Object.fromEntries(
                             Object.entries(data).filter(([key]) => keysToKeep.includes(key))
                         );
-                
-                
+
+
                         let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
                         let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
-                
+
                         let options = {
                             chart: {
                                 type: 'pie'
@@ -233,7 +233,7 @@
                             labels: categories,
                             colors: ['#006989', '#E88D67', '#FA7070', '#A1C181']
                         };
-                
+
                         let chart = new ApexCharts($refs.cropChart, options);
                         chart.render();
                     }
@@ -247,6 +247,6 @@
 
 
     @script
-        <script></script>
+    <script></script>
     @endscript
 </div>

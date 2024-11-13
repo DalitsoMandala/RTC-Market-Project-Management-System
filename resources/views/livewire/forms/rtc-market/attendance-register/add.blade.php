@@ -21,7 +21,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8 col-sm-12">
 
-                <h3 class="mb-5 text-center text-primary">ATTENDANCE REGISTER</h3>
+                <h3 class="mb-5 text-center text-warning">ATTENDANCE REGISTER</h3>
                 <x-alerts />
 
                 @if (!$targetSet)
@@ -114,11 +114,9 @@
 
                                 <div class="mb-3">
                                     <label for="district" class="form-label">District</label>
-                                    <select
-                                        class="form-select @error('district')
+                                    <select class="form-select @error('district')
                                         is-invalid
-                                    @enderror"
-                                        wire:model='district'>
+                                    @enderror" wire:model='district'>
                                         @include('layouts.district-options')
                                     </select>
                                     @error('district')
@@ -139,8 +137,7 @@
                                     <div class="col">
                                         <label for="endDate" class="form-label">End Date</label>
                                         <input type="date" wire:model="endDate"
-                                            class="form-control @error('endDate') is-invalid @enderror"
-                                            id="endDate">
+                                            class="form-control @error('endDate') is-invalid @enderror" id="endDate">
                                         @error('endDate')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -148,8 +145,8 @@
                                     <div class="col">
                                         <label for="totalDays" class="form-label">Total Number of Days</label>
                                         <input type="number" wire:model="totalDays"
-                                            class="form-control @error('totalDays') is-invalid @enderror"
-                                            id="totalDays" min="0">
+                                            class="form-control @error('totalDays') is-invalid @enderror" id="totalDays"
+                                            min="0">
                                         @error('totalDays')
                                             <x-error>{{ $message }}</x-error>
                                         @enderror
@@ -212,8 +209,8 @@
 
                                     <div class="mb-3 col">
                                         <label for="sex" class="form-label">Sex</label>
-                                        <select class="form-select @error('sex') is-invalid @enderror"
-                                            wire:model="sex" id="sex">
+                                        <select class="form-select @error('sex') is-invalid @enderror" wire:model="sex"
+                                            id="sex">
                                             <option disabled value="">Choose...</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
@@ -275,12 +272,10 @@
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
 
-                                    <button class="px-5 btn btn-primary "
-                                        @click="window.scrollTo({
+                                    <button class="px-5 btn btn-warning " @click="window.scrollTo({
 top: 0,
 behavior: 'smooth'
-})"
-                                        type="submit">Submit</button>
+})" type="submit">Submit</button>
                                 </div>
                             </div>
 
@@ -309,21 +304,21 @@ behavior: 'smooth'
 
     </div>
     @script
-        <script>
-            let textInputs = document.querySelectorAll('input[type="text"]');
+    <script>
+        let textInputs = document.querySelectorAll('input[type="text"]');
 
-            // Attach event listener to each input
-            textInputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    // Convert input value to uppercase
-                    this.value = this.value.toUpperCase();
-                });
-
+        // Attach event listener to each input
+        textInputs.forEach(function (input) {
+            input.addEventListener('input', function () {
+                // Convert input value to uppercase
+                this.value = this.value.toUpperCase();
             });
 
-            document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                input.setAttribute('step', '0.01');
-            });
-        </script>
+        });
+
+        document.querySelectorAll('input[type="number"]').forEach(function (input) {
+            input.setAttribute('step', '0.01');
+        });
+    </script>
     @endscript
 </div>

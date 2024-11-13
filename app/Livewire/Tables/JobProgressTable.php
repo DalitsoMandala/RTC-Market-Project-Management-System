@@ -58,7 +58,7 @@ final class JobProgressTable extends PowerGridComponent
             })
             ->add('progress', function ($model) {
                 return '
-<div class="mb-1 text-center text-primary fw-medium">' . $model->progress . '%</div>
+<div class="mb-1 text-center text-warning fw-medium">' . $model->progress . '%</div>
 
 
 ';

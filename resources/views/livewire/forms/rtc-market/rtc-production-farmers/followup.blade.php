@@ -1,4 +1,4 @@
-<div class="mb-5 alert alert-primary" id="section-d" role="alert">
+<div class="mb-5 alert alert-warning" id="section-d" role="alert">
     <strong>SECTION D: ABOUT RTC PRODUCTION (FOLLOW UP)</strong>
 </div>
 <!-- Group Name -->
@@ -390,7 +390,7 @@
 
 
 
-<div class="mb-5 alert alert-primary" id="section-e" role="alert">
+<div class="mb-5 alert alert-warning" id="section-e" role="alert">
     <strong>SECTION E: RTC MARKETING</strong>
 </div>
 
@@ -540,8 +540,8 @@
 
 <div class="mb-3">
     <label for="" class="form-label">Specify MIS</label>
-    <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
-        placeholder="" wire:model='f_market_information_systems' />
+    <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder=""
+        wire:model='f_market_information_systems' />
 
 </div>
 

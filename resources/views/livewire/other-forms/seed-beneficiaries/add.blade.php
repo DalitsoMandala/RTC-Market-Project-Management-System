@@ -114,8 +114,7 @@
                                 <!-- Name of AEDO -->
                                 <div class="mb-3">
                                     <label class="form-label">Name of AEDO</label>
-                                    <input type="text"
-                                        class="form-control @error('name_of_aedo') is-invalid @enderror"
+                                    <input type="text" class="form-control @error('name_of_aedo') is-invalid @enderror"
                                         wire:model="name_of_aedo">
                                     @error('name_of_aedo')
                                         <span class="text-danger">{{ $message }}</span>
@@ -279,7 +278,7 @@
 
                                 <!-- Submit Button -->
                                 <div class="d-grid col-12 justify-content-center" x-data>
-                                    <button class="px-5 btn btn-primary"
+                                    <button class="px-5 btn btn-warning"
                                         @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
                                         type="submit">Submit</button>
                                 </div>
@@ -300,8 +299,8 @@
 
                             <form wire:submit='uploadBatch'>
                                 <div x-data>
-                                    <a class="btn btn-soft-primary" href="#" data-toggle="modal"
-                                        role="button" @click="$wire.downloadTemplate()">
+                                    <a class="btn btn-soft-warning" href="#" data-toggle="modal" role="button"
+                                        @click="$wire.downloadTemplate()">
                                         Download template <i class="bx bx-download"></i> </a>
                                     <hr>
                                 </div>
@@ -319,11 +318,11 @@
                                                 Please wait....
 
                                                 <div class=" d-flex align-content-center ">
-                                                    <span class="text-primary fw-bold me-2">
+                                                    <span class="text-warning fw-bold me-2">
                                                         {{ $progress }}%</span>
 
 
-                                                    <div class="spinner-border text-primary spinner-border-sm"
+                                                    <div class="spinner-border text-warning spinner-border-sm"
                                                         role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
@@ -336,7 +335,7 @@
 
 
                                             <div x-data class="my-2 progress progress-sm">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
                                                     role="progressbar" style="width: {{ $progress . '%' }}"
                                                     aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
 
@@ -356,11 +355,12 @@
                                                 <x-error class="text-center ">{{ $message }}</x-error>
                                             </div>
                                         @enderror
-                                        <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                        <div class="mt-5 d-flex justify-content-center"
+                                            x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
                                             <button type="submit" @uploading-files.window="disableButton = true"
                                                 @finished-uploading.window="disableButton = false"
                                                 :disabled="disableButton === true || openSubmission === false"
-                                                class="btn btn-primary px-5">
+                                                class="btn btn-warning px-5">
                                                 Submit data
                                             </button>
 
@@ -384,9 +384,9 @@
 
 </div>
 @script
-    <script>
-        $wire.on('complete-submission', () => {
-            $wire.send();
-        });
-    </script>
+<script>
+    $wire.on('complete-submission', () => {
+        $wire.send();
+    });
+</script>
 @endscript

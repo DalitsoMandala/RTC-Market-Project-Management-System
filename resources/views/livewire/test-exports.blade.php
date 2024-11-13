@@ -27,20 +27,20 @@
                     <div class="card-body">
                         <form wire:submit.prevent="save" wire:loading.class='pe-none opacity-25'>
 
-                            <button type="button" class="btn btn-outline-primary"
+                            <button type="button" class="btn btn-outline-warning"
                                 wire:click="selectOption('HRC')">HRC</button>
-                            <button type="button" class="btn btn-outline-primary"
+                            <button type="button" class="btn btn-outline-warning"
                                 wire:click="selectOption('RPMF')">RPMF</button>
-                            <button type="button" class="btn btn-outline-primary"
+                            <button type="button" class="btn btn-outline-warning"
                                 wire:click="selectOption('RPMP')">RPMP</button>
-                            <button type="button" class="btn btn-outline-primary"
+                            <button type="button" class="btn btn-outline-warning"
                                 wire:click="selectOption('ATT')">Att</button>
-                            <button type="button" class="btn btn-outline-primary"
+                            <button type="button" class="btn btn-outline-warning"
                                 wire:click="selectOption('SC')">SC</button>
 
                             <input type="text" wire:model="selectedOption" name="selectedOption">
                             <br />
-                            <button type="submit" class="btn btn-primary my-2">Submit</button>
+                            <button type="submit" class="btn btn-warning my-2">Submit</button>
                         </form>
 
                     </div>
@@ -78,7 +78,7 @@
 
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-warning">Save changes</button>
 
                     </div>
                 </form>

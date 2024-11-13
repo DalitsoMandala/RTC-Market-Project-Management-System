@@ -213,7 +213,7 @@ final class IndicatorTable extends PowerGridComponent
     //         Button::add('edit')
     //             ->slot('<i class="bx bx-pen"></i>')
     //             ->id()
-    //             ->class('btn btn-primary')
+    //             ->class('btn btn-warning')
     //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal']),
     //     ];
     // }

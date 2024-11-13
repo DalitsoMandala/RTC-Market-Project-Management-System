@@ -110,7 +110,7 @@ final class FormTable extends PowerGridComponent
                 $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
-                    return '<a class="btn btn-primary btn-sm"  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
+                    return '<a class="btn btn-warning btn-sm"  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
                 }
                 return null;
             })
@@ -173,7 +173,7 @@ final class FormTable extends PowerGridComponent
     //         Button::add('edit')
     //             ->slot('<i class="bx bx-pen"></i>')
     //             ->id()
-    //             ->class('btn btn-primary')
+    //             ->class('btn btn-warning')
     //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-form-modal'])
     //     ];
     // }

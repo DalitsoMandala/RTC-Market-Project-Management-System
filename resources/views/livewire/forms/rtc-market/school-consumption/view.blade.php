@@ -31,7 +31,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-primary text-uppercase">School consumption data @if ($batch_no)
+                        <h4 class="text-center text-warning text-uppercase">School consumption data @if ($batch_no)
                             [Batch : {{ $batch_no }}]
                         @endif
                         </h4>

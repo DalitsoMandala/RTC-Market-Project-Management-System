@@ -36,7 +36,7 @@
                         @php
                             $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
                         @endphp
-                        <a class="btn btn-primary btn-sm" href="{{ $routePrefix }}/seed-beneficiaries/add">Add Data
+                        <a class="btn btn-warning btn-sm" href="{{ $routePrefix }}/seed-beneficiaries/add">Add Data
                             +</a>
                     </div>
                     <div class="card-header text-muted">
@@ -373,7 +373,7 @@
 
                     <div class="modal-footer border-top-0" x-data>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" @click=" window.scrollTo({
+                        <button type="submit" class="btn btn-warning" @click=" window.scrollTo({
                             top: 0,
                             behavior: 'smooth'
                         })">Save

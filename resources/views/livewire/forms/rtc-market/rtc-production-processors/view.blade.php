@@ -30,7 +30,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-primary text-uppercase">RTC PRODUCTION AND MARKETING FORM DATA FOR
+                        <h4 class="text-center text-warning text-uppercase">RTC PRODUCTION AND MARKETING FORM DATA FOR
                             PROCESSORS @if ($batch_no)
                                 [Batch : {{ $batch_no }}]
                             @endif

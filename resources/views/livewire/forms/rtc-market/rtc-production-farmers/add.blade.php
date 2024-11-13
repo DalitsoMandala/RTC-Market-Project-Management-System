@@ -37,7 +37,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12 ">
-                <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING (FARMERS)</h3>
+                <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING (FARMERS)</h3>
 
 
 
@@ -132,7 +132,7 @@
 
                                     <div class="d-grid col-12 justify-content-center" x-data>
 
-                                        <button class=" btn btn-primary px-5" @click="window.scrollTo({
+                                        <button class=" btn btn-warning px-5" @click="window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
                                         })" type="submit">Submit</button>

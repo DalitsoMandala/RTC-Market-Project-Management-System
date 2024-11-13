@@ -257,7 +257,7 @@ final class SubmissionTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary')
+                ->class('btn btn-warning')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('internal'))
                 ->dispatch('showModal', [
                     'rowId' => $row->id,

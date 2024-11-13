@@ -103,8 +103,11 @@ final class IndicatorTargetDetailsTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-organisation-modal'])
+                ->class('btn btn-warning')
+                ->dispatch('showModal', [
+                    'rowId' => $row->id,
+                    'name' => 'view-organisation-modal'
+                ])
         ];
     }
     /*

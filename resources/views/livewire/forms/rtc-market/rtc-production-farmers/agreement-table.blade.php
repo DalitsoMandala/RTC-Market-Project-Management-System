@@ -77,7 +77,7 @@
                         titleAttr: 'Excel',
                         title: 'Rtc Production and Marketing for farmers (Contractual agreement) ' +
                             today,
-                        className: 'bg-primary'
+                        className: 'bg-warning'
                     }],
                     paging: true,
                     searching: true,

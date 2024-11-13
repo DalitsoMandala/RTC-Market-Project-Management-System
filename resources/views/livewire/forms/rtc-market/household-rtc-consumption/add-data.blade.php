@@ -25,7 +25,7 @@
         <div class="row justify-content-center">
             <div class="col-8">
 
-                <h3 class="mb-5 text-center text-primary">HOUSEHOLD CONSUMPTION FORM</h3>
+                <h3 class="mb-5 text-center text-warning">HOUSEHOLD CONSUMPTION FORM</h3>
 
                 <x-alerts />
 
@@ -377,11 +377,11 @@
 
                                                                     <div class="d-grid justify-content-center">
 
-                                                                        <button class="px-5 btn btn-primary "
+                                                                        <button class="px-5 btn btn-warning "
                                                                             @click=" window.scrollTo({
-                                                                                                                                                                                                                                                        top: 0,
-                                                                                                                                                                                                                                                        behavior: 'smooth'
-                                                                                                                                                                                                                                                    })"
+                                                                                                                                                                                                                                                                                                                        top: 0,
+                                                                                                                                                                                                                                                                                                                        behavior: 'smooth'
+                                                                                                                                                                                                                                                                                                                    })"
                                                                             type="submit">Submit</button>
                                                                     </div>
                                     @endforeach
