@@ -20,20 +20,20 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-<div class="card ">
-<div class="card-header">
-        <h5 class="card-title"></h5>
-</div>
-  <div class="card-body">
+                <div class="card ">
+                    <div class="card-header">
+                        <h5 class="card-title"></h5>
+                    </div>
+                    <div class="card-body">
 
-  </div>
-</div>
+                    </div>
+                </div>
             </div>
         </div>
 
 
 
- {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+        {{-- <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
@@ -61,7 +61,7 @@
 
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-warning">Save changes</button>
 
                     </div>
                 </form>

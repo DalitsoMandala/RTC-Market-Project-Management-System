@@ -57,7 +57,7 @@
                 <form wire:submit='save'>
                     <div class="mb-3">
 
-                        <div class="alert alert-primary">{{ $indicator }}</div>
+                        <div class="alert alert-warning">{{ $indicator }}</div>
 
                         <x-text-input hidden placeholder="Name of indicator..." wire:model='indicator' readonly />
                         @error('indicator')
@@ -176,7 +176,7 @@
                     @enderror
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="submit" class="btn btn-warning">Save changes</button>
 
                     </div>
                 </form>

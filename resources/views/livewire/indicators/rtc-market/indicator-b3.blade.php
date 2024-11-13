@@ -30,8 +30,8 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="alert alert-primary" role="alert">
-                    <button class="btn btn-primary" @click="downloadForm()"> Download this data</button>
+                <div class="alert alert-warning" role="alert">
+                    <button class="btn btn-warning" @click="downloadForm()"> Download this data</button>
                 </div>
 
             </div>

@@ -22,7 +22,7 @@
             <div class="col-12 col-md-8">
 
 
-                <h3 class="mb-5 text-center text-primary">HOUSEHOLD RTC CONSUMPTION</h3>
+                <h3 class="mb-5 text-center text-warning">HOUSEHOLD RTC CONSUMPTION</h3>
 
                 <x-alerts />
 
@@ -55,7 +55,7 @@
 
                     <form wire:submit='submitUpload'>
                         <div x-data>
-                            <a class="btn btn-soft-primary" href="#" data-toggle="modal" role="button"
+                            <a class="btn btn-soft-warning" href="#" data-toggle="modal" role="button"
                                 @click="$wire.downloadTemplate()">
                                 Download template <i class="bx bx-download"></i> </a>
                             <hr>
@@ -74,10 +74,10 @@
                                         Please wait....
 
                                         <div class=" d-flex align-content-center ">
-                                            <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
+                                            <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
 
 
-                                            <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                            <div class="spinner-border text-warning spinner-border-sm" role="status">
                                                 <span class="visually-hidden">Loading...</span>
                                             </div>
 
@@ -89,7 +89,7 @@
 
 
                                     <div x-data class="my-2 progress progress-sm">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
                                             role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
                                             aria-valuemin="0" aria-valuemax="100">
 
@@ -117,7 +117,7 @@
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"
-                                        class="btn btn-primary px-5 ">
+                                        class="btn btn-warning px-5 ">
                                         Submit data
                                     </button>
 

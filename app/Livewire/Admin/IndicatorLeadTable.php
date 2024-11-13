@@ -40,7 +40,10 @@ final class IndicatorLeadTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Indicator::with(['organisation', 'forms']);
+        return Indicator::with([
+            'organisation',
+            'forms'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -124,8 +127,11 @@ final class IndicatorLeadTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary goUp')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-modal']),
+                ->class('btn btn-warning goUp')
+                ->dispatch('showModal', [
+                    'rowId' => $row->id,
+                    'name' => 'view-modal'
+                ]),
 
         ];
     }

@@ -192,11 +192,11 @@
 
                                     <div class="mb-1 d-flex  justify-content-center" x-data>
                                         <button type="submit"
-                                            class="btn btn-primary @if ($loadingData) disabled @endif me-2">
+                                            class="btn btn-warning @if ($loadingData) disabled @endif me-2">
                                             <i class="bx bx-filter"></i> Filter Data
                                         </button>
                                         <button
-                                            class="btn btn-primary @if ($loadingData) disabled @endif"
+                                            class="btn btn-warning @if ($loadingData) disabled @endif"
                                             @click="$wire.dispatch('reset-filters')">Reset</button>
                                     </div>
 
@@ -227,11 +227,11 @@
                                             </div>
                                         </div>
                                         <div class="col-3 d-flex ">
-                                            <span class="text-primary fw-bold me-2"> {{ $progress }}%</span>
+                                            <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
 
                                             <div x-data wire:poll.5000ms='readCache()'
                                                 class="d-flex justify-content-center align-items-center">
-                                                <div class="spinner-border text-primary spinner-border-sm"
+                                                <div class="spinner-border text-warning spinner-border-sm"
                                                     role="status">
                                                     <span class="visually-hidden">Loading...</span>
                                                 </div>

@@ -25,10 +25,10 @@
                     <h5 class="card-title">Update Baseline Data</h5>
                 </div>
                 <div class="card-body" x-data="{
-                
+
                     indicator_id: $wire.entangle('indicator_id'),
                     baseline_value: $wire.entangle('baseline_value'),
-                
+
                 }">
                     <form wire:submit.prevent="confirmUpdate">
                         <div class="mb-3">
@@ -57,7 +57,7 @@
                             @enderror
                         </div>
 
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
                             data-bs-target="#confirmModal">
                             Update
                         </button>
@@ -84,7 +84,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" wire:click="save"
+                    <button type="button" class="btn btn-warning" wire:click="save"
                         data-bs-dismiss="modal">Confirm</button>
                 </div>
             </div>

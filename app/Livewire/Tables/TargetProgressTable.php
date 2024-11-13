@@ -286,7 +286,7 @@ final class TargetProgressTable extends PowerGridComponent
                                 $progress = $target == 0 ? 0 : ($current / $target) * 100;
                                 $progress = min(100, floor($progress));
 
-                                $progressData = '<span class="text-primary fw-bold">' . $progress . '%</span>';
+                                $progressData = '<span class="text-warning fw-bold">' . $progress . '%</span>';
                                 $html .= '<li class="list-group-item text-nowrap">' . $progressData . '</li>';
                             } else {
                                 $details = json_decode($assignedTarget->detail);
@@ -296,7 +296,7 @@ final class TargetProgressTable extends PowerGridComponent
                                     $target = $detail->target_value ?? 0;
                                     $progress = $target == 0 ? 0 : ($current / $target) * 100;
                                     $progress = min(100, floor($progress));
-                                    $progressForEachDetail[] = $detail->name . ': <span class="text-primary fw-bold">' . $progress . '%</span>';
+                                    $progressForEachDetail[] = $detail->name . ': <span class="text-warning fw-bold">' . $progress . '%</span>';
                                     ;
 
                                 }

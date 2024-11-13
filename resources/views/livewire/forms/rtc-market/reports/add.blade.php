@@ -44,7 +44,7 @@
                     <div class="card @if ($openSubmission === false) opacity-25  pe-none @endif">
                         <div class="card-header">
                             <h4 class="card-title">Enter your data for : <span
-                                    class="text-primary">{{ $indicator->indicator_name }}</span> </h4>
+                                    class="text-warning">{{ $indicator->indicator_name }}</span> </h4>
                         </div>
                         <div class="card-body">
                             @if ($indicator->indicator_name == 'Percentage increase in value of formal RTC exports')

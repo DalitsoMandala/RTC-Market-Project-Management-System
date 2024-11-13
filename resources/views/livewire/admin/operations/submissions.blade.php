@@ -199,7 +199,7 @@
 
                         <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
                         <button type="button" @click="statusGet('approved')"
-                            class="pr-4 btn btn-primary">Approve</button>
+                            class="pr-4 btn btn-warning">Approve</button>
 
                     </div>
                 </form>
@@ -261,7 +261,7 @@
                     }">
                         <button type="button" @click="statusGet('denied')" class="btn btn-danger">Disapprove</button>
                         <button type="button" @click="statusGet('approved')"
-                            class="pr-4 btn btn-primary">Approve</button>
+                            class="pr-4 btn btn-warning">Approve</button>
 
                     </div>
                 </form>

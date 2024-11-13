@@ -20,7 +20,7 @@
                         <div class="card">
                             <div class="p-4 card-body">
                                 <div class="mt-2 text-center">
-                                    <h5 class="text-primary">Welcome!</h5>
+                                    <h5 class="text-warning">Welcome!</h5>
                                     <p class="text-muted">Sign in </p>
                                 </div>
                                 <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -64,7 +64,7 @@
                                         </div>
 
                                         <div class="mt-3 mb-5 text-end">
-                                            <x-primary-button class="btn btn-primary w-sm waves-effect waves-light"
+                                            <x-primary-button class="btn btn-warning w-sm waves-effect waves-light"
                                                 type="submit">Log In</x-primary-button>
                                         </div>
 
@@ -72,7 +72,7 @@
 
                                         <div class="mt-4 text-center d-none">
                                             <p class="mb-0">Don't have an account ? <a href="auth-register.html"
-                                                    class="fw-medium text-primary"> Signup now </a> </p>
+                                                    class="fw-medium text-warning"> Signup now </a> </p>
                                         </div>
                                     </form>
                                 </div>

@@ -28,7 +28,7 @@
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title">User Table</h4>
-                        <button class="btn btn-primary" @click="showForm= true; resetForm()">Add <i
+                        <button class="btn btn-warning" @click="showForm= true; resetForm()">Add <i
                                 class="bx bx-plus"></i></button>
                     </div>
 
@@ -117,7 +117,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary goUp">
+                            <button type="submit" class="btn btn-warning goUp">
                                 @if ($rowId)
                                     Update
                                 @else

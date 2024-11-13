@@ -44,7 +44,11 @@ final class indicatorLeads extends PowerGridComponent
     public function datasource(): Collection
     {
 
-        return ResponsiblePerson::with(['indicator', 'organisation', 'sources.form'])->get();
+        return ResponsiblePerson::with([
+            'indicator',
+            'organisation',
+            'sources.form'
+        ])->get();
     }
 
     public function fields(): PowerGridFields
@@ -133,7 +137,7 @@ final class indicatorLeads extends PowerGridComponent
     //             ->slot('<i class="bx bx-pen"></i>')
     //             ->id()
     //             ->tooltip('Edit Record')
-    //             ->class('btn btn-primary my-1')
+    //             ->class('btn btn-warning my-1')
     //             ->dispatch('editData', ['rowId' => $row->id]),
     //     ];
     // }

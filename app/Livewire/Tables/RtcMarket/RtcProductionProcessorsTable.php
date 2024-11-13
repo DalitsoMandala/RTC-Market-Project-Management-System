@@ -617,7 +617,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     //             ->render(function ($model) use ($route) {
     //                 return Blade::render(<<<HTML
-    //         <a  href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-primary" ><i class="bx bxs-add-to-queue"></i></a>
+    //         <a  href="$route" data-bs-toggle="tooltip" data-bs-title="add follow up" class="btn btn-warning" ><i class="bx bxs-add-to-queue"></i></a>
     //         HTML);
     //             })
 

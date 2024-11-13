@@ -12,7 +12,7 @@
         $wire.addInputOne();
     }
 });" x-show='has_rtc_market_contract == 1'>
-    <div class="alert alert-primary" id="section-f" role="alert">
+    <div class="alert alert-warning" id="section-f" role="alert">
         <strong>DO YOU HAVE ANY RTC MARKET CONTRACTUAL AGREEMENT? –SPECIFY PARTNER</strong>
     </div>
 
@@ -27,8 +27,7 @@
             <label for="conc_date_recorded_{{ $index }}" class="form-label">DATE RECORDED</label>
             <input type="date"
                 class="form-control    @error('inputOne.' . $index . '.conc_date_recorded') is-invalid @enderror"
-                id="conc_date_recorded_{{ $index }}"
-                wire:model="inputOne.{{ $index }}.conc_date_recorded">
+                id="conc_date_recorded_{{ $index }}" wire:model="inputOne.{{ $index }}.conc_date_recorded">
 
             @error('inputOne.' . $index . '.conc_date_recorded')
                 <x-error>{{ $message }}</x-error>
@@ -63,8 +62,7 @@
                 SALE</label>
             <input type="date"
                 class="form-control  @error('inputOne.' . $index . '.conc_date_of_maximum_sale') is-invalid @enderror"
-                id="conc_date_of_maximum_sale_{{ $index }}"
-                wire:model="inputOne.{{ $index }}.conc_date_of_maximum_sale">
+                id="conc_date_of_maximum_sale_{{ $index }}" wire:model="inputOne.{{ $index }}.conc_date_of_maximum_sale">
             @error('inputOne.' . $index . '.conc_date_of_maximum_sale')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -149,7 +147,7 @@
     }
 });" x-show='sells_to_domestic_markets == 1'>
     {{-- DO YOU SELL YOUR RTC PRODUCTS TO DOMESTIC MARKETS? –SPECIFY PARTNER --}}
-    <div class="alert alert-primary" id="section-g" role="alert">
+    <div class="alert alert-warning" id="section-g" role="alert">
         <strong>DO YOU SELL YOUR RTC PRODUCTS TO DOMESTIC MARKETS? –SPECIFY PARTNER</strong>
     </div>
 
@@ -163,8 +161,7 @@
             <label for="dom_date_recorded_{{ $index }}" class="form-label">DATE RECORDED</label>
             <input type="date"
                 class="form-control    @error('inputTwo.' . $index . '.dom_date_recorded') is-invalid @enderror"
-                id="dom_date_recorded_{{ $index }}"
-                wire:model="inputTwo.{{ $index }}.dom_date_recorded">
+                id="dom_date_recorded_{{ $index }}" wire:model="inputTwo.{{ $index }}.dom_date_recorded">
             @error('inputTwo.' . $index . '.dom_date_recorded')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -174,8 +171,7 @@
             <label for="dom_crop_type_{{ $index }}" class="form-label">CROP TYPE</label>
 
 
-            <select
-                class="form-select form-select-md  @error('inputTwo.' . $index . '.dom_crop_type') is-invalid @enderror"
+            <select class="form-select form-select-md  @error('inputTwo.' . $index . '.dom_crop_type') is-invalid @enderror"
                 wire:model="inputTwo.{{ $index }}.dom_crop_type">
                 <option value="">Select one</option>
                 <option>Cassava</option>
@@ -189,8 +185,7 @@
 
         <div class="mb-3">
             <label for="dom_market_name_{{ $index }}" class="form-label">MARKET NAME</label>
-            <input type="text"
-                class="form-control  @error('inputTwo.' . $index . '.dom_market_name') is-invalid @enderror"
+            <input type="text" class="form-control  @error('inputTwo.' . $index . '.dom_market_name') is-invalid @enderror"
                 id="dom_market_name_{{ $index }}" wire:model="inputTwo.{{ $index }}.dom_market_name">
             @error('inputTwo.' . $index . '.dom_market_name')
                 <x-error>{{ $message }}</x-error>
@@ -217,8 +212,7 @@
                 SALE</label>
             <input type="date"
                 class="form-control  @error('inputTwo.' . $index . '.dom_date_of_maximum_sale') is-invalid @enderror"
-                id="dom_date_of_maximum_sale_{{ $index }}"
-                wire:model="inputTwo.{{ $index }}.dom_date_of_maximum_sale">
+                id="dom_date_of_maximum_sale_{{ $index }}" wire:model="inputTwo.{{ $index }}.dom_date_of_maximum_sale">
             @error('inputTwo.' . $index . '.dom_date_of_maximum_sale')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -302,7 +296,7 @@
 
 
     {{-- DO YOU SELL YOUR RTC PRODUCTS TO INTERNATIONAL MARKETS? –SPECIFY PARTNER --}}
-    <div class="alert alert-primary" id="section-h" role="alert">
+    <div class="alert alert-warning" id="section-h" role="alert">
         <strong>DO YOU SELL YOUR RTC PRODUCTS TO INTERNATIONAL MARKETS? –SPECIFY PARTNER</strong>
     </div>
 
@@ -317,8 +311,7 @@
             <label for="inter_date_recorded_{{ $index }}" class="form-label">DATE RECORDED</label>
             <input type="date"
                 class="form-control   @error('inputThree.' . $index . '.inter_date_recorded') is-invalid @enderror"
-                id="inter_date_recorded_{{ $index }}"
-                wire:model="inputThree.{{ $index }}.inter_date_recorded">
+                id="inter_date_recorded_{{ $index }}" wire:model="inputThree.{{ $index }}.inter_date_recorded">
             @error('inputThree.' . $index . '.inter_date_recorded')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -346,8 +339,7 @@
             <label for="inter_market_name_{{ $index }}" class="form-label">MARKET NAME</label>
             <input type="text"
                 class="form-control   @error('inputThree.' . $index . '.inter_market_name') is-invalid @enderror"
-                id="inter_market_name_{{ $index }}"
-                wire:model="inputThree.{{ $index }}.inter_market_name">
+                id="inter_market_name_{{ $index }}" wire:model="inputThree.{{ $index }}.inter_market_name">
             @error('inputThree.' . $index . '.inter_market_name')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -422,8 +414,7 @@
 
             <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
                 @if ($index > 0)
-                    <button type="button" class="btn btn-danger"
-                        wire:click='removeInputThree({{ $index }})'>
+                    <button type="button" class="btn btn-danger" wire:click='removeInputThree({{ $index }})'>
                         <i class="bx bx-minus fs-6"></i>
                     </button>
                 @endif

@@ -45,7 +45,10 @@ final class ResponsibilitiesTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        return ResponsiblePerson::with(['indicator', 'organisation']);
+        return ResponsiblePerson::with([
+            'indicator',
+            'organisation'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -106,8 +109,11 @@ final class ResponsibilitiesTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-people-modal']),
+                ->class('btn btn-warning')
+                ->dispatch('showModal', [
+                    'rowId' => $row->id,
+                    'name' => 'view-people-modal'
+                ]),
         ];
     }
 

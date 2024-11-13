@@ -128,8 +128,11 @@ final class IndicatorTargetTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary goUp')
-                ->dispatch('show-form', ['rowId' => $row->id, 'indicator_id' => $row->indicator_id])
+                ->class('btn btn-warning goUp')
+                ->dispatch('show-form', [
+                    'rowId' => $row->id,
+                    'indicator_id' => $row->indicator_id
+                ])
         ];
     }
 

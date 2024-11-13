@@ -14,16 +14,15 @@
 
                         <div class="mb-4 text-center">
                             <a href="/">
-                                <x-application-logo width="50" /> <span
-                                    class="logo-txt">{{ config('app.name') }}</span>
+                                <x-application-logo width="50" /> <span class="logo-txt">{{ config('app.name') }}</span>
                             </a>
                         </div>
 
                         <div class="card">
                             <div class="p-4 card-body">
                                 <div class="mt-2 text-center">
-                                    <h5 class="text-primary">Forgot Password!</h5>
-                                    <div class="alert alert-primary mt-4">
+                                    <h5 class="text-warning">Forgot Password!</h5>
+                                    <div class="alert alert-warning mt-4">
                                         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
                                     </div>
 
@@ -37,13 +36,13 @@
                                         <!-- Email Address -->
                                         <div>
                                             <x-input-label for="email" :value="__('Email')" />
-                                            <x-text-input id="email" class="block mt-1 w-full" type="email"
-                                                name="email" :value="old('email')" required autofocus />
+                                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
+                                                :value="old('email')" required autofocus />
                                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                         </div>
 
                                         <div class="text-center my-4">
-                                            <x-primary-button class="btn btn-primary w-sm waves-effect waves-light"
+                                            <x-primary-button class="btn btn-warning w-sm waves-effect waves-light"
                                                 type="submit"> {{ __('Email Password Reset Link') }}</x-primary-button>
 
                                         </div>

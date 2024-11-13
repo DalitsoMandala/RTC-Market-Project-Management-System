@@ -23,7 +23,7 @@
 
         <div class="row">
 
-            <h3 class="mb-5 text-center text-primary">RTC PRODUCTION AND MARKETING (PROCESSORS) [FOLLOW UP]</h3>
+            <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING (PROCESSORS) [FOLLOW UP]</h3>
             <div class="col">
 
                 <x-alerts />
@@ -344,7 +344,7 @@
                                                 <div class="row">
                                                     <div class="col-2" x-data>
 
-                                                        <button type="button" class="btn btn-primary" @click='$wire.addMIS()'>
+                                                        <button type="button" class="btn btn-warning" @click='$wire.addMIS()'>
                                                             +
                                                         </button>
                                                     </div>
@@ -439,7 +439,7 @@
                                                 <div class="row">
                                                     <div class="col-2" x-data>
 
-                                                        <button type="button" class="btn btn-primary" @click='$wire.addSales()'>
+                                                        <button type="button" class="btn btn-warning" @click='$wire.addSales()'>
                                                             +
                                                         </button>
                                                     </div>
@@ -470,7 +470,7 @@
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
 
-                                    <button class="px-5 btn btn-primary " @click="window.scrollTo({
+                                    <button class="px-5 btn btn-warning " @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
                                 })" type="submit">Submit</button>

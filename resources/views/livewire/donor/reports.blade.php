@@ -25,29 +25,29 @@
                                      const selectInput = new Choices($refs.selectElement, {
                                          shouldSort: false,
                                          placeholder: true,
-                                    
+
                                          choices: @js($projects->map(fn($option) => ['value' => $option->id, 'label' => $option->name])) // Adjust as per your model fields
                                      });
-                                    
-                                    
-                                    
+
+
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
+
                                              myInput(event.detail.value);
-                                    
-                                    
-                                    
+
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
                                          selectInput.setChoiceByValue('');
-                                    
+
                                      })">
                                         <label for="" class="form-label">Project</label>
                                         <select class="form-select form-select-sm " x-ref="selectElement">
@@ -68,7 +68,7 @@
                                         myInput(data) {
                                             this.selected = data;
                                         },
-                                    
+
                                     }" x-init=" const input = $refs.selectElementIndicator;
                                      const selectInput = new Choices($refs.selectElementIndicator, {
                                          shouldSort: false,
@@ -77,27 +77,27 @@
                                          placeholderValue: 'Select indicators here...',
                                          choices: @js($indicators->map(fn($option) => ['value' => $option->id, 'label' => '(' . $option->indicator_no . ') ' . $option->indicator_name])) // Adjust as per your model fields
                                      });
-                                    
+
                                      input.addEventListener(
                                          'change',
                                          function(event) {
-                                    
-                                    
+
+
                                              let selectedValues = selectInput.getValue(true);
-                                    
-                                    
+
+
                                              myInput(selectedValues);
-                                    
-                                    
+
+
                                          },
                                          false,
                                      );
                                      $wire.on('reset-filters', () => {
-                                    
-                                    
+
+
                                          selectInput.removeActiveItems(); // Clear the selected item
-                                    
-                                    
+
+
                                      })">
 
 
@@ -164,11 +164,11 @@
                                 <div class="col-3 align-self-end">
                                     <div class="mb-1" x-data>
                                         <button type="submit"
-                                            class="btn btn-primary @if ($loadingData) disabled @endif">
+                                            class="btn btn-warning @if ($loadingData) disabled @endif">
                                             <i class="bx bx-filter"></i> Filter Data
                                         </button>
                                         <button
-                                            class="btn btn-primary @if ($loadingData) disabled @endif"
+                                            class="btn btn-warning @if ($loadingData) disabled @endif"
                                             @click="$wire.dispatch('reset-filters')">Reset</button>
                                     </div>
 
@@ -185,7 +185,7 @@
                                 @if ($loadingData)
                                     <div x-data wire:poll.10s='readCache()'
                                         class="d-flex justify-content-center align-items-center">
-                                        <div class="spinner-border text-primary spinner-border-lg" role="status">
+                                        <div class="spinner-border text-warning spinner-border-lg" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
                                     </div>

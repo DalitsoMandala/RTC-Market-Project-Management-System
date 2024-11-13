@@ -25,7 +25,7 @@
                 <div class="card ">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title">Assigned Targets Table</h5>
-                        <button class="btn btn-primary " wire:click="$dispatch('add-form')">Add <i
+                        <button class="btn btn-warning " wire:click="$dispatch('add-form')">Add <i
                                 class="bx bx-plus"></i>
                     </div>
 
@@ -261,7 +261,7 @@
                                 Add</button>
                             <button type="button" class="btn btn-danger mt-3" wire:click='deleteData'>Delete Assign
                                 Target</button>
-                            <button type="submit" class="btn btn-primary mt-3 goUp">Submit</button>
+                            <button type="submit" class="btn btn-warning mt-3 goUp">Submit</button>
                         </form>
 
                     </div>
@@ -300,7 +300,7 @@
 
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-warning">Save changes</button>
 
                     </div>
                 </form>

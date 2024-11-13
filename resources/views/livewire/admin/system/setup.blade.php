@@ -76,7 +76,7 @@
                             </div>
 
 
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-warning">Save Changes</button>
                         </form>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                             @enderror
                         </div>
 
-                        <button class="btn btn-primary" data-bs-toggle="modal"
+                        <button class="btn btn-warning" data-bs-toggle="modal"
                             data-bs-target="#confirmingMaintenanceMode">Confirm</button>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" wire:click="toggleMaintenanceMode">Yes,
+                                <button type="button" class="btn btn-warning" wire:click="toggleMaintenanceMode">Yes,
                                     Proceed</button>
                             </div>
                         </div>
@@ -157,7 +157,7 @@
 
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-warning">Save changes</button>
 
                     </div>
                 </form>

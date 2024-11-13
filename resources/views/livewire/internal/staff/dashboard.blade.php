@@ -5,7 +5,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card bg-primary">
+                <div class="card bg-warning">
                     <div class="card-body">
                         <div class="py-3 text-center">
                             <ul class="bg-bubbles ps-0">
@@ -44,7 +44,7 @@
         }, 3000)">
             <div class="col-12 mb-5">
                 <div class="d-flex justify-content-center align-items-center">
-                    <div class="spinner-border text-primary spinner-border-lg" role="status">
+                    <div class="spinner-border text-warning spinner-border-lg" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
 
@@ -86,34 +86,34 @@
                                 <div class="card-body">
                                     <div class="row ">
                                         <div class="col-12 col-sm-6" x-data="{
-                                                                chartData: @js($data['actors']),
-                                                                categories: ['Farmers', 'Processors', 'Traders'],
-                                                                values: [],
-                                                                init() {
-                                                                    let data = this.chartData;
-                                                                    this.values = [data['Farmers'], data['Processors'], data['Traders']];
-                                                                    options = {
-                                                                        chart: {
-                                                                            type: 'pie',
+                                                                            chartData: @js($data['actors']),
+                                                                            categories: ['Farmers', 'Processors', 'Traders'],
+                                                                            values: [],
+                                                                            init() {
+                                                                                let data = this.chartData;
+                                                                                this.values = [data['Farmers'], data['Processors'], data['Traders']];
+                                                                                options = {
+                                                                                    chart: {
+                                                                                        type: 'pie',
 
 
-                                                                        },
-                                                                        labels: this.categories,
-                                                                        series: this.values,
-                                                                        colors: ['#006989', '#E88D67', '#FA7070'],
-                                                                        legend: {
-                                                                            position: 'top'
-                                                                        }
-                                                                    }
+                                                                                    },
+                                                                                    labels: this.categories,
+                                                                                    series: this.values,
+                                                                                    colors: ['#006989', '#E88D67', '#FA7070'],
+                                                                                    legend: {
+                                                                                        position: 'top'
+                                                                                    }
+                                                                                }
 
-                                                                    let chart = new ApexCharts($refs.chart, options);
-                                                                    chart.render();
-                                                                }
-                                                            }">
+                                                                                let chart = new ApexCharts($refs.chart, options);
+                                                                                chart.render();
+                                                                            }
+                                                                        }">
                                             <div
                                                 x-show="values.every(value => value === 0) || values.every(value => value === undefined)">
                                                 <div>
-                                                    <div class="alert alert-info alert-dismissible fade show px-4 mb-0 text-center "
+                                                    <div class="alert alert-warning alert-dismissible fade show px-4 mb-0 text-center "
                                                         role="alert">
                                                         <i
                                                             class="mdi mdi-alert-circle-outline d-block display-4 mt-2 mb-3 text-info"></i>
@@ -128,33 +128,33 @@
                                         </div>
 
                                         <div class=" col-12 col-sm-6" x-data="{
-                                                                chartData: @js($data['actors']),
-                                                                categories: ['Cassava', 'Potato', 'Sweet potato'],
-                                                                values: [],
-                                                                init() {
-                                                                    let data = this.chartData;
-                                                                    this.values = [data['Cassava'], data['Potato'], data['Sweet potato']];
-                                                                    options = {
-                                                                        chart: {
-                                                                            type: 'donut',
+                                                                            chartData: @js($data['actors']),
+                                                                            categories: ['Cassava', 'Potato', 'Sweet potato'],
+                                                                            values: [],
+                                                                            init() {
+                                                                                let data = this.chartData;
+                                                                                this.values = [data['Cassava'], data['Potato'], data['Sweet potato']];
+                                                                                options = {
+                                                                                    chart: {
+                                                                                        type: 'donut',
 
-                                                                        },
-                                                                        labels: this.categories,
-                                                                        series: this.values,
-                                                                        colors: ['#006989', '#E88D67', '#FA7070'],
-                                                                        legend: {
-                                                                            position: 'top'
-                                                                        }
-                                                                    }
+                                                                                    },
+                                                                                    labels: this.categories,
+                                                                                    series: this.values,
+                                                                                    colors: ['#006989', '#E88D67', '#FA7070'],
+                                                                                    legend: {
+                                                                                        position: 'top'
+                                                                                    }
+                                                                                }
 
-                                                                    let chart = new ApexCharts($refs.chart, options);
-                                                                    chart.render();
-                                                                }
-                                                            }">
+                                                                                let chart = new ApexCharts($refs.chart, options);
+                                                                                chart.render();
+                                                                            }
+                                                                        }">
                                             <div
                                                 x-show="values.every(value => value === 0) || values.every(value => value === undefined)">
                                                 <div>
-                                                    <div class="alert alert-info alert-dismissible fade show px-4 mb-0 text-center "
+                                                    <div class="alert alert-warning alert-dismissible fade show px-4 mb-0 text-center "
                                                         role="alert">
                                                         <i
                                                             class="mdi mdi-alert-circle-outline d-block display-4 mt-2 mb-3 text-info"></i>
@@ -188,17 +188,17 @@
 
                                     <div class="row" x-data x-init="() => {
 
-                                                                let calendarEl = document.getElementById('calendar');
-                                                                let calendar = new FullCalendar.Calendar(calendarEl, {
-                                                                    initialView: 'dayGridMonth',
-                                                                    headerToolbar: {
-                                                                        start: 'title', // will normally be on the left. if RTL, will be on the right
-                                                                        center: '',
-                                                                        end: 'today prev,next'
-                                                                    }
-                                                                });
-                                                                calendar.render();
-                                                            }">
+                                                                            let calendarEl = document.getElementById('calendar');
+                                                                            let calendar = new FullCalendar.Calendar(calendarEl, {
+                                                                                initialView: 'dayGridMonth',
+                                                                                headerToolbar: {
+                                                                                    start: 'title', // will normally be on the left. if RTL, will be on the right
+                                                                                    center: '',
+                                                                                    end: 'today prev,next'
+                                                                                }
+                                                                            });
+                                                                            calendar.render();
+                                                                        }">
                                         <div class="col">
 
                                             <div id="calendar"></div>

@@ -1,4 +1,4 @@
-<div class="mb-5 alert alert-primary" id="section-c" role="alert">
+<div class="mb-5 alert alert-warning" id="section-c" role="alert">
     <strong>SECTION C: RTC MARKETING (FOLLOW UP)</strong>
 </div>
 
@@ -124,8 +124,8 @@
 
 <div class="mb-3">
     <label for="" class="form-label">Specify MIS</label>
-    <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
-        placeholder="" wire:model='f_market_information_systems' />
+    <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder=""
+        wire:model='f_market_information_systems' />
 
 </div>
 

@@ -39,7 +39,10 @@ final class ProjectTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Project::with(['reportingPeriod', 'indicators']);
+        return Project::with([
+            'reportingPeriod',
+            'indicators'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -109,8 +112,11 @@ final class ProjectTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary')
-                ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-edit-modal'])
+                ->class('btn btn-warning')
+                ->dispatch('showModal', [
+                    'rowId' => $row->id,
+                    'name' => 'view-edit-modal'
+                ])
         ];
     }
 

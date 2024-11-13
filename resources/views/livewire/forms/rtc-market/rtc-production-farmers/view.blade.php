@@ -30,7 +30,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-primary text-uppercase">RTC PRODUCTION AND MARKETING FORM DATA FOR
+                        <h4 class="text-center text-warning text-uppercase">RTC PRODUCTION AND MARKETING FORM DATA FOR
                             FARMERS @if ($batch_no)
                                 [Batch : {{ $batch_no }}]
                             @endif
@@ -41,7 +41,7 @@
 
                         {{-- @if ($loadingData)
                         <div wire:poll.5s='readCache()' class="d-flex justify-content-center align-items-center">
-                            <div class="spinner-border text-primary spinner-border-lg" role="status">
+                            <div class="spinner-border text-warning spinner-border-lg" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
 

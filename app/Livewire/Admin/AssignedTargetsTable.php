@@ -39,7 +39,10 @@ final class AssignedTargetsTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return IndicatorTarget::query()->with(['details', 'assignedTargets']);
+        return IndicatorTarget::query()->with([
+            'details',
+            'assignedTargets'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -124,8 +127,11 @@ final class AssignedTargetsTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-primary goUp')
-                ->dispatch('show-form', ['rowId' => $row->id, 'indicator_id' => $row->indicator_id])
+                ->class('btn btn-warning goUp')
+                ->dispatch('show-form', [
+                    'rowId' => $row->id,
+                    'indicator_id' => $row->indicator_id
+                ])
         ];
     }
 

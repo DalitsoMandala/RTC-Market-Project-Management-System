@@ -106,7 +106,7 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-
+    
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {
@@ -221,7 +221,7 @@ final class FormTable extends PowerGridComponent
             Button::add('add-data')
                 ->slot('<i class="bx bx-plus"></i>')
                 ->id()
-                ->class('btn btn-primary my-1')
+                ->class('btn btn-warning my-1')
                 ->tooltip('Add Manual Data')
                 ->dispatch('sendData', ['model' => $row]),
 
@@ -229,7 +229,7 @@ final class FormTable extends PowerGridComponent
                 ->slot('<i class="bx bx-upload"></i>')
                 ->id()
                 ->tooltip('Upload Your Data')
-                ->class('btn btn-primary my-1')
+                ->class('btn btn-warning my-1')
                 ->dispatch('sendUploadData', ['model' => $row]),
 
         ];
@@ -300,12 +300,12 @@ final class FormTable extends PowerGridComponent
         // Check if the organisation is responsible for the indicator
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
 
-        $currentDate  = Carbon::now();
+        $currentDate = Carbon::now();
         $establishedDate = $row->date_established;
         $endDate = $row->end_date;
 
-        $startDate  = Carbon::parse($establishedDate);
-        $endDate  = Carbon::parse($endDate);
+        $startDate = Carbon::parse($establishedDate);
+        $endDate = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
 

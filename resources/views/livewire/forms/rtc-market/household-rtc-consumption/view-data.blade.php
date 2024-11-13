@@ -33,7 +33,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-primary text-uppercase">Household consumption data @if ($batch_no)
+                        <h4 class="text-center text-warning text-uppercase">Household consumption data @if ($batch_no)
                             [Batch : {{ $batch_no }}]
                         @endif
                         </h4>
@@ -45,7 +45,7 @@
 
                         {{-- @if ($loadingData)
                         <div wire:poll.5s='checkJobStatus()' class="d-flex justify-content-center align-items-center">
-                            <div class="spinner-border text-primary spinner-border-lg" role="status">
+                            <div class="spinner-border text-warning spinner-border-lg" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
 
@@ -150,7 +150,7 @@
                 text: '<i class="fas fa-file-excel" data-bs-toggle="tooltip" data-bs-placement="top" title="Export"></i>',
                 titleAttr: 'Excel',
                 title: 'Household consumption ' + today,
-                className: 'bg-primary'
+                className: 'bg-warning'
             }],
             paging: true,
             searching: true,
