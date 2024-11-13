@@ -25,7 +25,7 @@
 
                                 <h3 class="mb-0 text-white"> Welcome Back, {{ auth()->user()->name }}!</h3>
                                 <h4 class="text-white">({{ auth()->user()->organisation->name }})</h4>
-
+                                <x-application-logo width="80" />
                                 <p class="px-4 mt-4 text-white-50" style="font-size:12px"> The International Potato
                                     Center (CIP) has developed
                                     a novel approach that integrates research and development activities aimed at

@@ -5,7 +5,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card bg-info">
+                <div class="card bg-warning">
                     <div class="card-body">
                         <div class="py-3 text-center">
                             <ul class="bg-bubbles ps-0">
@@ -25,6 +25,7 @@
 
                                 <h3 class="mb-0 text-white"> Welcome Back, {{ auth()->user()->name }}!</h3>
                                 <h4 class="text-white">({{ auth()->user()->organisation->name }})</h4>
+                                <x-application-logo width="80" />
                                 <p class="px-4 mt-4 text-white-50" style="font-size:12px"> The International Potato
                                     Center (CIP) has developed
                                     a novel approach that integrates research and development activities aimed at
@@ -41,7 +42,7 @@
                                     performance of diversity actors (60,000) to be reached in 4 years.</p>
 
                                 <div class="pt-2 mt-4 mb-2">
-                                    <a href="#" class="btn btn-warning">View Profile <i
+                                    <a href="#" class="btn btn-light">View Profile <i
                                             class="mdi mdi-arrow-right ms-1"></i></a>
                                 </div>
                             </div>
@@ -73,10 +74,10 @@
                     <div class="col">
 
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                aria-label="Close"></button>
+
                             <strong>Submission are open!</strong> Please submit your data/reports before the closing
-                            dates. <a href="/external/submission-periods" class="alert-link">Click Here</a>
+                            dates. <a href="/external/submission-periods"
+                                class="alert-link text-decoration-underline">Click Here</a>
                         </div>
 
 
@@ -106,7 +107,7 @@
 
                     <div class="mt-3 row">
                         <div class="col-12 col-md-8 d-flex align-items-stretch ">
-                            <div class="card">
+                            <div class="card w-100">
                                 <div class="card-header fw-bold  text-dark py-3 ">
                                     {{ $overviewIndicator->indicator_name }}
                                 </div>
@@ -250,7 +251,7 @@
 
                                 <div class="col-12">
                                     <div class="card">
-                                        <div class="card-header bg-info text-white py-3">
+                                        <div class="card-header bg-warning text-white py-3">
                                             Submissions progress
                                         </div>
                                         <div class="card-body" x-data="{
@@ -287,7 +288,7 @@
                                                     xaxis: {
                                                         categories: months
                                                     },
-                                                    colors: ['#E88D67', '#FA7070'],
+                                                    colors: ['#FC931D', '#FA7070'],
                                                     tooltip: {
                                                         x: {
                                                             format: 'dd/MM/yy'
