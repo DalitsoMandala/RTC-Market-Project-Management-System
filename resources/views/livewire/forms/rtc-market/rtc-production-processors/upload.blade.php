@@ -41,7 +41,7 @@
                 <div
                     class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif">
                     <h5> Instructions</h5>
-                    <p class="alert bg-info-subtle text-uppercase">Download the Rtc production Processors template &
+                    <p class="alert bg-secondary-subtle text-uppercase">Download the Rtc production Processors template &
                         upload your
                         data.</p>
 

@@ -289,7 +289,7 @@
                         <div class="tab-pane fade" id="batch" role="tabpanel" aria-labelledby="batch-tab"
                             wire:ignore.self>
                             <div class="mb-3">
-                                <p class="alert bg-info-subtle text-uppercase">Download the Seed Beneficiaries template
+                                <p class="alert bg-secondary-subtle text-uppercase">Download the Seed Beneficiaries template
                                     &
                                     upload
                                     your

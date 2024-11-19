@@ -216,7 +216,7 @@
                                     <div class="row border  rounded-2 p-2 my-2">
                                         <div class="col-9">
                                             <div class="progress my-2">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
                                                     role="progressbar" style="width: {{ $progress }}%;"
                                                     aria-valuenow="{{ $progress }}" aria-valuemin="0"
                                                     aria-valuemax="100">

@@ -49,7 +49,7 @@
                         selectedIndicator: $wire.entangle('selectedIndicator'),
                     }">
                     <h5> Instructions</h5>
-                    <p class="alert bg-info-subtle text-uppercase">Download the Household Rtc consumption template &
+                    <p class="alert bg-secondary-subtle text-uppercase">Download the Household Rtc consumption template &
                         upload your
                         data.</p>
 
