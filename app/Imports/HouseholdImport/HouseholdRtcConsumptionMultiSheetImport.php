@@ -154,7 +154,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'household_rtc_consumption',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
                 } else {
@@ -166,7 +166,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'household_rtc_consumption',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
                 }

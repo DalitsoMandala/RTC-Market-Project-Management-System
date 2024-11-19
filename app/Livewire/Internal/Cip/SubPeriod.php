@@ -224,19 +224,22 @@ class SubPeriod extends Component
 
                     if ($this->status == false) {
 
-                        $this->dispatch('timeout');
                         $form = Form::find($this->selectedForm[0]);
                         $period = ReportingPeriodMonth::find($this->selectedMonth);
                         session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
                         $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for the period of {$period->start_month} - {$period->end_month}).");
                         $this->resetData();
+
                         return;
                     }
 
+                    $this->dispatch('timeout');
                     session()->flash('success', 'Updated Successfully');
 
 
                 } else {
+
+                    $this->dispatch('timeout');
                     session()->flash('error', 'Cannot update this record because it has submissions.');
                 }
             } else {
@@ -251,6 +254,8 @@ class SubPeriod extends Component
 
 
                 if ($exists) {
+
+                    $this->dispatch('timeout');
                     session()->flash('error', 'This record already exists.');
 
                     return;

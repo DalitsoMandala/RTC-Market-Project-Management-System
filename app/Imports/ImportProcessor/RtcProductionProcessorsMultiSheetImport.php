@@ -220,7 +220,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'rtc_production_processors',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
                 } else {
@@ -232,7 +232,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'rtc_production_processors',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
                 }
