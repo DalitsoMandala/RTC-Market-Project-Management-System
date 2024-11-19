@@ -2,6 +2,7 @@
 
 namespace App\Imports\AttendanceImport;
 
+use App\Models\User;
 use App\Models\JobProgress;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\Log;
@@ -9,8 +10,8 @@ use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Validators\Failure;
-use Maatwebsite\Excel\Concerns\WithEvents;
 
+use Maatwebsite\Excel\Concerns\WithEvents;
 use App\Exceptions\ExcelValidationException;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -32,6 +33,12 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
 
     public function model(array $row)
     {
+
+        $user = User::find($this->submissionDetails['user_id']);
+        $status = 'pending';
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+            $status = 'approved';
+        }
         $attendanceRecord = AttendanceRegister::create([
             'meetingTitle' => $row['Meeting Title'],
             'meetingCategory' => $row['Meeting Category'],
@@ -55,7 +62,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'financial_year_id' => $this->submissionDetails['financial_year_id'],
             'period_month_id' => $this->submissionDetails['period_month_id'],
             'uuid' => $this->cacheKey,
-            'status' => 'pending',
+            'status' => $status,
         ]);
 
         // Cache the mapping of `att_id` to primary key if necessary

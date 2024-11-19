@@ -136,7 +136,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     'status' => $status,
                     'batch_type' => 'batch',
                     'is_complete' => 1,
-                    'table_name' => 'rtc_production_processors',
+                    'table_name' => 'school_rtc_consumption',
                     'file_link' => $this->submissionDetails['file_link']
                 ]);
 

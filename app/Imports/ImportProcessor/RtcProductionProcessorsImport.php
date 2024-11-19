@@ -2,17 +2,18 @@
 
 namespace App\Imports\ImportProcessor;
 
-use App\Models\RtcProductionProcessor;
+use App\Models\User;
+use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-use App\Models\JobProgress;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use App\Models\RtcProductionProcessor;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
@@ -40,6 +41,11 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     public function model(array $row)
     {
         // Create a new RtcProductionProcessor record
+        $user = User::find($this->data['user_id']);
+        $status = 'pending';
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+            $status = 'approved';
+        }
         $processorRecord = RtcProductionProcessor::create([
             'epa' => $row['EPA'],
             'section' => $row['Section'],
@@ -89,7 +95,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'submission_period_id' => $this->data['submission_period_id'],
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
-            'status' => 'approved'
+            'status' => $status
         ]);
 
         // Cache the mapping of 'ID' to primary key

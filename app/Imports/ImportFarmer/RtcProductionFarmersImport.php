@@ -3,6 +3,7 @@
 namespace App\Imports\ImportFarmer;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\JobProgress;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,8 @@ use Maatwebsite\Excel\Events\BeforeImport;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -42,6 +43,12 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
     public function model(array $row)
     {
         // Create RtcProductionFarmer record without storing the 'ID' column in the database
+
+        $user = User::find($this->data['user_id']);
+        $status = 'pending';
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+            $status = 'approved';
+        }
         $farmerRecord = RtcProductionFarmer::create([
             'epa' => $row['EPA'],
             'section' => $row['Section'],
@@ -106,7 +113,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'submission_period_id' => $this->data['submission_period_id'],
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
-            'status' => 'approved'
+            'status' => $status
         ]);
 
 

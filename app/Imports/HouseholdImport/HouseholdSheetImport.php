@@ -2,14 +2,16 @@
 
 namespace App\Imports\HouseholdImport;
 
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Models\JobProgress;
-use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\HouseholdRtcConsumption;
-use Maatwebsite\Excel\Concerns\ToModel;
 
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
@@ -20,7 +22,6 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, WithEvents, SkipsOnFailure
@@ -43,6 +44,11 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     {
         // Create HouseholdRtcConsumption record without storing the 'ID' column in the database
 
+        $user = User::find($this->data['user_id']);
+        $status = 'pending';
+        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+            $status = 'approved';
+        }
 
         $householdRecord = HouseholdRtcConsumption::create([
             'epa' => $row['EPA'],
@@ -70,7 +76,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'submission_period_id' => $this->data['submission_period_id'],
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
-            'status' => 'approved'
+            'status' => $status
         ]);
 
         // Map the 'ID' from the sheet to the actual primary key
