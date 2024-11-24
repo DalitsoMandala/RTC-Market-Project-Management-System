@@ -37,12 +37,18 @@
                     </div>
                     <div class="card-body">
                         <!-- Nav tabs -->
+
+                        @php
+                            $batch = \App\Models\Submission::where('batch_type', 'batch')->count();
+                            $manual = \App\Models\Submission::where('batch_type','manual')->count();
+                            $aggregate = \App\Models\Submission::where('batch_type','aggregate')->count();
+                        @endphp
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
                                     data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
                                     aria-selected="true">
-                                    Batch Submissions
+                                    Batch Submissions <span class="badge bg-warning @if($batch == 0) d-none @endif">{{ $batch }}</span>
                                 </button>
                             </li>
                             {{-- <li class="nav-item" role="presentation">
@@ -53,10 +59,10 @@
                                 </button>
                             </li> --}}
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link " id="people-tab" data-bs-toggle="tab"
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
-                                    Aggregate Submission
+                                    Aggregate Submission <span class="badge bg-warning @if($aggregate == 0) d-none @endif">{{ $batch }}</span>
                                 </button>
                             </li>
 

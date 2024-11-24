@@ -111,8 +111,8 @@ final class IndicatorTable extends PowerGridComponent
 
                     return '<a class="text-decoration-underline"  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
 
-                } else if ($user->hasAnyRole('donor')) {
-                    return '<a class="text-decoration-underline"  href="' . route('donor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                } else if ($user->hasAnyRole('project_manager')) {
+                    return '<a class="text-decoration-underline"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
 
                 } else if ($user->hasAnyRole('staff')) {
                     return '<a class="text-decoration-underline"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';

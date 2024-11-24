@@ -252,6 +252,30 @@ Route::middleware([
 
 });
 
+
+Route::middleware([
+    'auth',
+    'all_roles:internal,cip,project_manager',
+    'check_baseline'
+])->prefix('cip/project-manager')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project_manager-dashboard');
+    Route::get('/indicators', \App\Livewire\Internal\Manager\Indicators::class)->name('project_manager-indicators');
+    Route::get('/indicators/view/{id}', \App\Livewire\Internal\Manager\ViewIndicator::class)->name('project_manager-indicator-view');
+    Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');
+    Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
+    Route::get('/targets', App\Livewire\Targets\View::class);
+    // Form routes
+    $formPrefix = '/forms/{project}';
+    $randId = Uuid::uuid4()->toString();
+    Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
+    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
+    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+
+    Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+
+
+});
 // External routes
 Route::middleware([
     'auth',

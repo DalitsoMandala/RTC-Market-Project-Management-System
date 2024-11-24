@@ -108,10 +108,12 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
 
                 $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
+                $projectManager = User::find(auth()->user()->id)->hasAllRoles(['internal','cip','project_manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
-                    return '<a class="btn btn-warning btn-sm"  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
+                    return '<a class="btn btn-warning btn-sm '.$projectManager.' "  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
                 }
+
                 return null;
             })
             ->add('created_at')

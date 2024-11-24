@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use App\Helpers\RoleBasedRedirectHelper;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -30,38 +31,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = auth()->user();
 
-        if ($user->hasAnyRole('admin')) {
-
-            return redirect()->intended(route('admin-dashboard'));
-        } else if ($user->hasAnyRole('internal')) {
-
-            //internal users
-
-            if ($user->hasAnyRole('cip')) {
-
-                if ($user->hasAnyRole('staff')) {
-                    return redirect()->intended(route('cip-staff-dashboard'));
-                }
-                return redirect()->intended(route('cip-internal-dashboard'));
-
-            } else
-
-                if ($user->hasAnyRole('desira')) {
-                    return redirect()->intended(route('desira-dashboard'));
-
-                }
-
-        } else {
-
-            if ($user->hasAnyRole('donor')) {
-                return redirect()->intended(route('donor-dashboard'));
-
-            }
-
-            return redirect()->intended(route('external-dashboard'));
-
-        }
-
+        $redirectUrl = RoleBasedRedirectHelper::getDashboardRoute($user);
+        return redirect($redirectUrl);
         // return redirect()->intended(route('dashboard', absolute: false));
     }
 
