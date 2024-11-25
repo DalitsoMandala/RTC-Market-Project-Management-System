@@ -196,7 +196,7 @@ class Indicator231 extends Component
                 $this->selectedForm,
                 $this->selectedIndicator,
                 $this->selectedFinancialYear,
-                route('staff-submissions'),
+                route('cip-staff-submissions'),
                 'staff'
             );
         }

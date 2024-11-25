@@ -198,7 +198,7 @@ $submit->submit_aggregate_data(
     $this->selectedForm,
     $this->selectedIndicator,
     $this->selectedFinancialYear,
-    route('staff-submissions'),
+    route('cip-staff-submissions'),
     'staff'
 );
 }
