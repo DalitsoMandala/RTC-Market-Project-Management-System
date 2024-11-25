@@ -161,18 +161,32 @@ class IndicatorB6 extends Component
         }
         // Roles for external users
         else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
-            $submit->submit_aggregate_data(
-                $data,
-                $user,
-                $this->submissionPeriodId,
-                $this->selectedForm,
-                $this->selectedIndicator,
-                $this->selectedFinancialYear,
-                route('external-submissions'),
-                'external'
-            );
 
-        }
+
+$submit->submit_aggregate_data(
+    $data,
+    $user,
+    $this->submissionPeriodId,
+    $this->selectedForm,
+    $this->selectedIndicator,
+    $this->selectedFinancialYear,
+    route('external-submissions'),
+    'external'
+);
+} else if ($user->hasAnyRole('staff')) {
+
+
+$submit->submit_aggregate_data(
+    $data,
+    $user,
+    $this->submissionPeriodId,
+    $this->selectedForm,
+    $this->selectedIndicator,
+    $this->selectedFinancialYear,
+    route('staff-submissions'),
+    'staff'
+);
+}
 
     }
     public function render()

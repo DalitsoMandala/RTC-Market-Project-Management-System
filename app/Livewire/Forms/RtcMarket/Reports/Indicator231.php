@@ -174,6 +174,8 @@ class Indicator231 extends Component
         }
         // Roles for external users
         else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+
+
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -183,6 +185,19 @@ class Indicator231 extends Component
                 $this->selectedFinancialYear,
                 route('external-submissions'),
                 'external'
+            );
+        } else if ($user->hasAnyRole('staff')) {
+
+
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('staff-submissions'),
+                'staff'
             );
         }
     }
