@@ -55,6 +55,7 @@ class ListUsers extends Component
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::get();
+        $this->organisation = 1;
     }
 
     #[On('edit')]
@@ -109,11 +110,11 @@ class ListUsers extends Component
         $this->rowId = null;
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::get();
-        $this->organisation = null;
+        $this->organisation = 1;
         $this->role = null;
         $this->password = null;
         $this->password_confirmation = null;
-        $this->changePassword = true;
+        $this->changePassword = false;
     }
 
     public function save()
@@ -125,12 +126,22 @@ class ListUsers extends Component
         try {
 
             if ($this->rowId) {
+
+                if ($this->changePassword) {
+                    User::find($this->rowId)->update([
+                        'name' => $this->name,
+                        'email' => $this->email,
+                        'phone_number' => $this->phone,
+                        'organisation_id' => $this->organisation,
+                        'password' => Hash::make($this->password),
+                    ]);
+                }
                 User::find($this->rowId)->update([
                     'name' => $this->name,
                     'email' => $this->email,
                     'phone_number' => $this->phone,
                     'organisation_id' => $this->organisation,
-                    'password' => Hash::make($this->password),
+
                 ]);
 
                 User::find($this->rowId)->syncRoles($this->role);

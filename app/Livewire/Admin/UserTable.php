@@ -114,7 +114,9 @@ final class UserTable extends PowerGridComponent
                     if ($role->name == 'admin') {
                         $role->name = '<span class="badge bg-success" style="font-size:11px">Administrator</span>';
                     }
-
+                    if ($role->name == 'project_manager') {
+                        $role->name = '<span class="badge bg-success" style="font-size:11px">Project Manager</span>';
+                    }
                     if ($role->name == 'staff') {
                         $role->name = '<span class="badge bg-warning" style="font-size:11px">Staff</span>';
                     }

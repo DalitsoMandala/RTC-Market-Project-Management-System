@@ -82,7 +82,7 @@
                                     wire:model="role">
                                     <option value="" disabled>Select a role</option>
                                     @foreach ($roles as $role)
-                                        <option value="{{ $role }}">{{ $role }}</option>
+                                        <option value="{{ $role }}">{{ str_replace('_', ' ', $role)}}</option>
                                     @endforeach
                                 </select>
                                 @error('role')
