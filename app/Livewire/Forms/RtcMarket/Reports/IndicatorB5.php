@@ -92,7 +92,6 @@ class IndicatorB5 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -103,7 +102,6 @@ class IndicatorB5 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -124,15 +122,10 @@ class IndicatorB5 extends Component
                 $this->openSubmission = true;
                 $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
-
-
-
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
     public function save()
@@ -168,34 +161,34 @@ class IndicatorB5 extends Component
             );
         }
         // Roles for external users
-        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+         // Roles for external users
+        else if ($user->hasAnyRole('external')) {
 
 
-$submit->submit_aggregate_data(
-    $data,
-    $user,
-    $this->submissionPeriodId,
-    $this->selectedForm,
-    $this->selectedIndicator,
-    $this->selectedFinancialYear,
-    route('external-submissions'),
-    'external'
-);
-} else if ($user->hasAnyRole('staff')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+        } else if ($user->hasAnyRole('staff')) {
 
 
-$submit->submit_aggregate_data(
-    $data,
-    $user,
-    $this->submissionPeriodId,
-    $this->selectedForm,
-    $this->selectedIndicator,
-    $this->selectedFinancialYear,
-    route('cip-staff-submissions'),
-    'staff'
-);
-}
-
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-staff-submissions'),
+                'staff'
+            );
+        }
     }
     public function render()
     {

@@ -251,15 +251,15 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function actions($row): array
     {
         return [
-            // Button::add('edit')
-            //     ->slot('<i class="bx bx-pen"></i>')
-            //     ->id()
-            //     ->class('btn btn-warning my-1')
-            //     ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
-            //     ->dispatch('showAggregate', [
-            //         'id' => $row->id,
-            //         'name' => 'view-aggregate-modal'
-            //     ]),
+            Button::add('edit')
+                ->slot('<i class="bx bx-pen"></i>')
+                ->id()
+                ->class('btn btn-warning my-1')
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->dispatch('showAggregate', [
+                    'id' => $row->id,
+                    'name' => 'view-aggregate-modal'
+                ]),
 
             Button::add('show')
                 ->slot('<i class="fas fa-eye"></i>')
@@ -290,29 +290,34 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
         return [
             // Hide button edit for ID 1
-            // Rule::button('edit')
-            //     ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('manager')) || User::find($row->user_id)->hasAnyRole('admin'))
-            //     ->disable(),
+            Rule::button('show')
+                ->when(fn($row) => (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->hide(),
 
 
-
-            // Rule::button('edit')
-            //     ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external'))
-            //     ->disable(),
+            Rule::button('edit')
+            ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
+            ->hide(),
 
             Rule::button('delete')
-                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external'))
-                ->disable(),
+            ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
+            ->disable(),
+
+
+            Rule::button('delete')
+            ->when(fn($row) => $row->status !== 'pending')
+            ->disable(),
 
             // Rule::button('edit')
             //     ->when(fn($row) => $row->status == 'denied')
             //     ->disable(),
 
-
+            Rule::button('edit')
+            ->when(fn($row) => $row->status == 'denied')
+            ->disable(),
             Rule::button('delete')
                 ->when(fn($row) => $row->status == 'denied')
                 ->disable(),
         ];
     }
-
 }

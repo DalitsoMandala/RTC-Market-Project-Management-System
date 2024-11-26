@@ -173,7 +173,8 @@ class Indicator231 extends Component
             );
         }
         // Roles for external users
-        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+         // Roles for external users
+        else if ($user->hasAnyRole('external')) {
 
 
             $submit->submit_aggregate_data(

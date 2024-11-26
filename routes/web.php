@@ -65,6 +65,8 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
+  
+
 
 });
 

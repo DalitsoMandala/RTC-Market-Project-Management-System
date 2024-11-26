@@ -37,18 +37,25 @@
                     </div>
                     <div class="card-body">
                         <!-- Nav tabs -->
-
                         @php
-                            $batch = \App\Models\Submission::where('batch_type', 'batch')->count();
-                            $manual = \App\Models\Submission::where('batch_type','manual')->count();
-                            $aggregate = \App\Models\Submission::where('batch_type','aggregate')->count();
+                            $batch = \App\Models\Submission::where('batch_type', 'batch')
+                                ->where('status', 'pending')
+                                ->count();
+                            $manual = \App\Models\Submission::where('batch_type', 'manual')
+                                ->where('status', 'pending')
+                                ->count();
+                            $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
+                                ->where('status', 'pending')
+                                ->count();
+
                         @endphp
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true">
-                                    Batch Submissions <span class="badge bg-warning @if($batch == 0) d-none @endif">{{ $batch }}</span>
+                                    data-bs-target="#batch-submission" type="button" role="tab"
+                                    aria-controls="home" aria-selected="true">
+                                    Batch Submissions <span
+                                        class="badge bg-warning @if ($batch == 0) d-none @endif">{{ $batch }}</span>
                                 </button>
                             </li>
                             {{-- <li class="nav-item" role="presentation">
@@ -62,7 +69,8 @@
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
-                                    Aggregate Submission <span class="badge bg-warning @if($aggregate == 0) d-none @endif">{{ $batch }}</span>
+                                    Aggregate Submission <span
+                                        class="badge bg-warning @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
                                 </button>
                             </li>
 
@@ -175,7 +183,7 @@
 
 
             <x-modal id="view-aggregate-modal" title="Update Submission">
-                <form wire:submit='saveData'>
+                <div>
 
 
                     <div x-data="{
@@ -206,17 +214,29 @@
 
                     </div>
 
+                    <div class="mt-4 mb-3">
+                        <label for="">Comment</label>
+                        <textarea wire:model="comment" rows="5" class=" form-control @error('comment') is-invalid @enderror"></textarea>
 
-                    <div class="modal-footer border-top-0 justify-content-center">
-                        <hr>
+                        @error('comment')
+                            <x-error>{{ $message }}</x-error>
+                        @enderror
+                    </div>
 
 
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No,
-                            cancel</button>
-                        <button type="submit" class="pr-4 btn btn-warning">Update Data</button>
+                    <div class="d-flex border-top-0 justify-content-center" >
+                        <form wire:submit="DisapproveAggregateSubmission">
+                            <button type="submit" wire:loading.attr="disabled"
+                                wire:target="DisapproveAggregateSubmission"
+                                class="btn btn-danger me-2">Disapprove</button>
+                        </form>
+                        <form wire:submit="ApproveAggregateSubmission">
+                            <button type="submit" wire:loading.attr="disabled" wire:target="ApproveAggregateSubmission"
+                                class="btn btn-warning me-2">Approve</button>
+                        </form>
 
                     </div>
-                </form>
+                </div>
             </x-modal>
             <x-modal id="view-data-agg-modal" title="Approve Submission">
 
@@ -272,8 +292,8 @@
                     <div class="d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" wire:target="save"
                             class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
-                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-warning"
-                            wire:click="setStatus('approved')">Approve</button>
+                        <button type="button" wire:loading.attr="disabled" wire:target="save"
+                            class="btn btn-warning" wire:click="setStatus('approved')">Approve</button>
                     </div>
                 </form>
             </x-modal>
@@ -328,15 +348,15 @@
     </div>
 
     @script
-    <script>
-        if (window.location.hash !== '') {
-            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-            if (button) {
-                button.click();
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
 
+                }
             }
-        }
-    </script>
+        </script>
     @endscript
 
 </div>

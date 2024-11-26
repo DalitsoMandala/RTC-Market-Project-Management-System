@@ -35,9 +35,11 @@
                         <!-- Nav tabs -->
 
                         @php
-                            $batch = \App\Models\Submission::where('batch_type', 'batch')->count();
-                            $manual = \App\Models\Submission::where('batch_type','manual')->count();
-                            $aggregate = \App\Models\Submission::where('batch_type','aggregate')->count();
+                            $batch = \App\Models\Submission::where('batch_type', 'batch')->where('status', 'pending')->where('user_id', auth()->user()->id)->count();
+                            $manual = \App\Models\Submission::where('batch_type','manual')->where('status', 'pending')->where('user_id', auth()->user()->id)->count();
+                            $aggregate = \App\Models\Submission::where('batch_type','aggregate')->where('status', 'pending')->where('user_id', auth()->user()->id)->count();
+
+
                         @endphp
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
@@ -58,7 +60,7 @@
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
-                                    Aggregate Submission <span class="badge bg-warning @if($aggregate == 0) d-none @endif">{{ $batch }}</span>
+                                    Aggregate Submission <span class="badge bg-warning @if($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
                                 </button>
                             </li>
 

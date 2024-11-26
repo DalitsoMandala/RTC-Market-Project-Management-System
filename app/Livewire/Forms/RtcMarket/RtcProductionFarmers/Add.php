@@ -974,7 +974,13 @@ class Add extends Component
 
                 ->get();
             $user = User::find(auth()->user()->id);
-            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
+
+            $targets = $target->pluck('id');
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
+                ->whereHas('submissionTarget', function ($query) use ($targets) {
+                    $query->whereIn('submission_target_id', $targets);
+                })
+                ->get();
             $this->targetIds = $target->pluck('id')->toArray();
 
             if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {

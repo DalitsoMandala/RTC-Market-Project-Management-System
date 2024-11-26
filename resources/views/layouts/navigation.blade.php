@@ -242,11 +242,7 @@
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-leads') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Indicators & Lead Partners</span>
 
-                                        </a>
 
                                     </div>
                                 </li>

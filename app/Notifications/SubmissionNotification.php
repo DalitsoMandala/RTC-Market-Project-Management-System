@@ -3,9 +3,10 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\HtmlString;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 class SubmissionNotification extends Notification
 {
@@ -55,7 +56,7 @@ class SubmissionNotification extends Notification
                 ->greeting('Hello ' . $notifiable->name . ',')
                 ->subject('Submission Denied')
                 ->line('We regret to inform you that your submission has been denied.')
-                ->line('Reason for denial: ' . $this->denialMessage);
+            ->line('Reason for denial: ' . new HtmlString('<b>' . $this->denialMessage . '</b>'));
         }
 
 

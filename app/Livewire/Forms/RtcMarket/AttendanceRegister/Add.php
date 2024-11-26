@@ -84,6 +84,12 @@ class Add extends Component
         'phone_number' => 'required|string',
         'email' => 'required|email|max:255',
     ];
+    public function validationAttributes()
+    {
+        return [
+            'rtcCrop' => 'Crop'
+        ];
+    }
 
     public function save()
     {
@@ -214,30 +220,28 @@ class Add extends Component
                 ->where('month_range_period_id', $this->selectedMonth)
                 ->where('is_open', true)
                 ->first();
-
             $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
-
                 ->get();
+
             $user = User::find(auth()->user()->id);
 
             $targets = $target->pluck('id');
 
+
+
             $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
                 ->whereHas('submissionTarget', function ($query) use ($targets) {
-                    $query->whereIn('submission_target_id', $targets)
-                        ->selectRaw('COUNT(DISTINCT submission_target_id) = ?', [count($targets)]);
-
-
+                    $query->whereIn('submission_target_id', $targets);
                 })
                 ->get();
+
 
 
             $this->targetIds = $target->pluck('id')->toArray();
 
             if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
 
-                $this->openSubmission = true;
 
                 $this->meetingTitle = session('meetingTitle', $this->meetingTitle ?? null);
                 $this->meetingCategory = session('meetingCategory', $this->meetingCategory ?? null);
@@ -251,6 +255,9 @@ class Add extends Component
                 $this->selectedFinancialYear = session('selectedFinancialYear', $this->selectedFinancialYear ?? $financial_year_id);
                 $this->selectedMonth = session('selectedMonth', $this->selectedMonth ?? $month_period_id);
                 $this->routePrefix = session('routePrefix', $this->routePrefix ?? Route::current()->getPrefix());
+
+
+                $this->openSubmission = true;
 
                 $this->targetSet = true;
             } else {

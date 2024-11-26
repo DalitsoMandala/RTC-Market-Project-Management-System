@@ -142,7 +142,7 @@ class AddData extends Component
             [
                 'date_of_assessment' => null,
                 'actor_type' => null,
-                'rtc_group_platform' => null,
+                'rtc_group_platform' => 'Household',
                 'producer_organisation' => null,
                 'actor_name' => null,
                 'age_group' => null,
@@ -315,7 +315,7 @@ class AddData extends Component
                         [
                             'date_of_assessment' => null,
                             'actor_type' => null,
-                            'rtc_group_platform' => null,
+                            'rtc_group_platform' => 'Household',
                             'producer_organisation' => null,
                             'actor_name' => null,
                             'age_group' => null,
@@ -475,8 +475,13 @@ class AddData extends Component
             $user = User::find(auth()->user()->id);
 
 
+            $targets = $target->pluck('id');
+            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
+                ->whereHas('submissionTarget', function ($query) use ($targets) {
+                    $query->whereIn('submission_target_id', $targets);
+                })
+                ->get();
 
-            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)->whereIn('submission_target_id', $target->pluck('id'))->get();
             $this->targetIds = $target->pluck('id')->toArray();
 
 
@@ -498,7 +503,7 @@ class AddData extends Component
                         [
                             'date_of_assessment' => null,
                             'actor_type' => null,
-                            'rtc_group_platform' => null,
+                            'rtc_group_platform' => 'Household',
                             'producer_organisation' => null,
                             'actor_name' => null,
                             'age_group' => null,

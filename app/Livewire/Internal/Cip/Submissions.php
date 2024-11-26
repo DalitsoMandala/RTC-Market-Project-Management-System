@@ -37,6 +37,7 @@ class Submissions extends Component
 
     public $inputs = [];
     public $disable = false;
+    public $statusSet = false;
 
     #[On('set')]
     public function setData($id)
@@ -46,7 +47,7 @@ class Submissions extends Component
         $this->rowId = $id;
         $this->status = $submission->status === 'pending' ? null : $submission->status;
         $this->comment = $submission->comments;
-
+        $this->statusSet = $submission->status === 'pending' ? false : true;
         if ($submission->table_name == 'reports') {
             $uuid = $submission->batch_no;
             $reports = SubmissionReport::where('uuid', $uuid)->first();
@@ -76,15 +77,20 @@ class Submissions extends Component
             // Perform actions based on status
             if ($this->status === 'approved') {
                 $this->approveSubmission($submission, $tables);
-            } else {
-                $this->denySubmission($submission, $tables);
-            }
-
-            // Dispatch notification using Bus::chain
+                   // Dispatch notification using Bus::chain
             $user = User::find($submission->user_id);
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(status: $this->status, batchId: $submission->batch_no)),
             ])->dispatch();
+            } else {
+                $this->denySubmission($submission, $tables);
+                $user = User::find($submission->user_id);
+                Bus::chain([
+                    fn() => $user->notify(new SubmissionNotification(status: 'denied', batchId: $submission->batch_no, denialMessage: $this->comment)),
+                ])->dispatch();
+            }
+
+
 
             $this->disable = false;
             session()->flash('success', 'Successfully updated');
@@ -177,7 +183,69 @@ class Submissions extends Component
     }
 
 
+    public function ApproveAggregateSubmission()
+    {
+        try {
+            # code...
+            $submission = Submission::findOrFail($this->rowId);
+            $submission->update([
+                'comments' => '',
+                'status' => 'approved',
+                'is_complete' => true,
+            ]);
 
+            $uuid = $submission->batch_no;
+            $reports = SubmissionReport::where('uuid', $uuid)->first();
+            $reports->update([
+                'status' => 'approved',
+            ]);
+            session()->flash('success', 'Successfully approved aggregate submission');
+            $user = User::find($submission->user_id);
+            Bus::chain([
+                fn() => $user->notify(new SubmissionNotification(status: 'approved', batchId: $submission->batch_no)),
+            ])->dispatch();
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
+        } catch (\Throwable $e) {
+            Log::error($e);
+        }
+    }
+
+    public function DisapproveAggregateSubmission()
+    {
+
+        try {
+
+            $this->validate();
+        } catch (\Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
+
+        try {
+            $submission = Submission::findOrFail($this->rowId);
+            $submission->update([
+                'comments' => $this->comment,
+                'status' => 'denied',
+                'is_complete' => true,
+            ]);
+
+            $uuid = $submission->batch_no;
+            $reports = SubmissionReport::where('uuid', $uuid)->first();
+            $reports->update([
+                'status' => 'denied',
+            ]);
+            session()->flash('success', 'Successfully disapproved aggregate submission');
+            $user = User::find($submission->user_id);
+            Bus::chain([
+                fn() => $user->notify(new SubmissionNotification(status: 'denied', batchId: $submission->batch_no, denialMessage: $this->comment)),
+            ])->dispatch();
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
+        } catch (\Throwable $e) {
+            Log::error($e);
+        }
+    }
     public function checkbatch($table, $uuid)
     {
         return DB::table($table)->where('uuid', $uuid)->exists();

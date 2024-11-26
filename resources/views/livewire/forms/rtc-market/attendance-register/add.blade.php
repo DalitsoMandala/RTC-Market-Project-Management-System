@@ -82,7 +82,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">RTC Crop</label>
+                                    <label class="form-label">Crop</label>
                                     <div class="form-check">
                                         <input class="form-check-input @error('rtcCrop') is-invalid @enderror"
                                             type="checkbox" wire:model="rtcCrop" value="Cassava" id="cassava">

@@ -175,33 +175,34 @@ class IndicatorB3 extends Component
             );
         }
         // Roles for external users
-        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+         // Roles for external users
+        else if ($user->hasAnyRole('external')) {
 
 
-$submit->submit_aggregate_data(
-    $data,
-    $user,
-    $this->submissionPeriodId,
-    $this->selectedForm,
-    $this->selectedIndicator,
-    $this->selectedFinancialYear,
-    route('external-submissions'),
-    'external'
-);
-} else if ($user->hasAnyRole('staff')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+        } else if ($user->hasAnyRole('staff')) {
 
 
-$submit->submit_aggregate_data(
-    $data,
-    $user,
-    $this->submissionPeriodId,
-    $this->selectedForm,
-    $this->selectedIndicator,
-    $this->selectedFinancialYear,
-    route('cip-staff-submissions'),
-    'staff'
-);
-}
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-staff-submissions'),
+                'staff'
+            );
+        }
 
     }
 

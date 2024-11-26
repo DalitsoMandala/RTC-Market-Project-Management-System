@@ -234,12 +234,10 @@ class Upload extends Component
 
             $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
                 ->whereHas('submissionTarget', function ($query) use ($targets) {
-                    $query->whereIn('submission_target_id', $targets)
-                        ->selectRaw('COUNT(DISTINCT submission_target_id) = ?', [count($targets)]);
-
-
+                    $query->whereIn('submission_target_id', $targets);
                 })
                 ->get();
+
 
 
             $this->targetIds = $target->pluck('id')->toArray();
