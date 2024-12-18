@@ -64,11 +64,11 @@ class ExcelValidator
             }
 
             // Check if the sheet is blank
-            $totalRows = $sheet->getHighestRow();
-            if ($totalRows <= 1) { // Only header row present or blank
-                Log::error("The sheet '{$sheetName}' is blank.");
-                return new ExcelValidationException("The sheet '{$sheetName}' is blank. Please ensure it contains data before importing.");
-            }
+            // $totalRows = $sheet->getHighestRow();
+            // if ($totalRows <= 1) { // Only header row present or blank
+            //     Log::error("The sheet '{$sheetName}' is blank.");
+            //     return new ExcelValidationException("The sheet '{$sheetName}' is blank. Please ensure it contains data before importing.");
+            // }
         }
 
         // No exceptions, return null if everything is valid

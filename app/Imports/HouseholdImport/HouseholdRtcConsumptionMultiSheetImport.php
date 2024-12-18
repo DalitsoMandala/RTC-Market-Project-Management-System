@@ -5,11 +5,13 @@ namespace App\Imports\HouseholdImport;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Models\MainFoodHrc;
 use App\Helpers\ExcelValidator;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
 use App\Notifications\JobNotification;
+use App\Models\HouseholdRtcConsumption;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeSheet;
@@ -74,6 +76,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
+
     }
     public function sheets(): array
     {
@@ -126,7 +129,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = (($rowCounts['Household Data'] - 1) ?? 0) + (($rowCounts['Main Food Data'] - 1) ?? 0); // others are header rows
                 // Initialize JobProgress record
-    
+
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -194,6 +197,9 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'error' => $errorMessage,
                     ]
                 );
+
+                HouseholdRtcConsumption::where('uuid', $this->cacheKey)->delete();
+                MainFoodHrc::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

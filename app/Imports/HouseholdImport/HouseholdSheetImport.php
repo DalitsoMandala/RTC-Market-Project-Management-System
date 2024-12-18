@@ -40,14 +40,24 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         $this->cacheKey = $cacheKey;
         $this->totalRows = $totalRows;
         $this->data = $data;
+
     }
     public function prepareForValidation(array $row)
     {
-
-
-        if (isset($row['Date of Assessment']) && is_numeric($row['Date of Assessment'])) {
+        if (!empty($row['Date of Assessment']) && is_numeric($row['Date of Assessment'])) {
             // Convert Excel serial date to d-m-Y before validation
             $row['Date of Assessment'] = Carbon::instance(Date::excelToDateTimeObject($row['Date of Assessment']))->format('d-m-Y');
+        } elseif (!empty($row['Date of Assessment'])) {
+            try {
+                $row['Date of Assessment'] = Carbon::createFromFormat('d-m-Y', $row['Date of Assessment'])->format('d-m-Y');
+            } catch (\Exception $e) {
+                \Log::error('Date conversion failed', ['date' => $row['Date of Assessment'], 'error' => $e->getMessage()]);
+                // Set default value if the date is invalid
+                $row['Date of Assessment'] = Carbon::now()->format('d-m-Y');
+            }
+        } else {
+            // Set default value if the date is empty
+            $row['Date of Assessment'] = Carbon::now()->format('d-m-Y');
         }
 
         return $row;
@@ -76,7 +86,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
 
         $householdRecord = HouseholdRtcConsumption::create([
             'epa' => $row['EPA'],
-            'section' => $row['Section'],
+            'section' => $row['Section'] ?? '',
             'district' => $row['District'],
             'enterprise' => $row['Enterprise'],
             'date_of_assessment' => $dateOfAssessment,
@@ -136,9 +146,9 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     public function rules(): array
     {
         return [
-            'ID' => 'required|distinct',
+            'ID' => 'required|distinct|integer',
             'EPA' => 'required|string|max:255',
-            'Section' => 'required|string|max:255',
+            'Section' => 'nullable|string|max:255',
             'District' => 'required|string|max:255',
             'Enterprise' => 'required|string|max:255',
             'Date of Assessment' => 'nullable|date_format:d-m-Y', // Ensure it's a valid date format
@@ -149,7 +159,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Age Group' => 'nullable|string|max:50', // Customize as needed based on expected age group values
             'Sex' => 'nullable|in:Male,Female,Other,1,2,3', // Limit to specific options
             'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
-            'Household Size' => 'nullable|integer|min:1', // Minimum 1 household member
+            'Household Size' => 'nullable|integer|min:0', // Minimum 1 household member
             'Under 5 in Household' => 'nullable|integer|min:0', // Minimum 0
             'RTC Consumers (Total)' => 'nullable|integer|min:0', // Minimum 0 consumers
             'RTC Consumers - Potato' => 'nullable|integer|min:0', // Minimum 0 consumers for Potato
