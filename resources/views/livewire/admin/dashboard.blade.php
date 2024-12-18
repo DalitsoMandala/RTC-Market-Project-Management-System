@@ -259,20 +259,20 @@
                         </div>
                         <div class="card-body" x-data="{
                             init() {
-                        
+
                                 let chartData = @js($submissions);
                                 const months = [
                                     'January', 'February', 'March', 'April', 'May', 'June',
                                     'July', 'August', 'September', 'October', 'November', 'December'
                                 ];
                                 let currentYear = new Date().getFullYear();
-                        
-                        
+
+
                                 const seriesData = months.map((month, index) => {
                                     const data = chartData.find(item => item.month === index + 1);
                                     return data ? data.total : 0;
                                 });
-                        
+
                                 options = {
                                     chart: {
                                         type: 'area',
@@ -298,7 +298,7 @@
                                         },
                                     },
                                 };
-                        
+
                                 let chart = new ApexCharts($refs.chart, options);
                                 chart.render();
                             }
@@ -311,35 +311,35 @@
 
                 <div class="col-4 d-flex align-items-stretch">
                     <div class="card w-100" x-data="{
-                    
+
                         init() {
                             let submissionCategories = @js($submissionCategories);
                             // Convert string values to numbers
                             let pending = parseInt(submissionCategories.pending);
                             let approved = parseInt(submissionCategories.approved);
                             let denied = parseInt(submissionCategories.denied);
-                    
+
                             options = {
                                 series: [pending, approved, denied],
                                 chart: {
                                     width: '100%',
-                    
+
                                     type: 'donut',
                                 },
                                 labels: ['Pending', 'Approved', 'Denied'],
-                    
+
                                 colors: ['#FC931D', '#34A287', '#FA7070'],
                                 legend: {
                                     position: 'bottom'
                                 }
-                    
+
                             };
-                    
+
                             let chart = new ApexCharts($refs.pies, options);
                             chart.render();
                         }
-                    
-                    
+
+
                     }">
 
 

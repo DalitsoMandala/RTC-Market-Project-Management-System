@@ -222,11 +222,12 @@
                     id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
                     <img class="rounded-circle header-profile-user"
-                        src="{{ asset('assets/images/users/avatar-4.jpg') }}" alt="Header Avatar">
+                        src="{{ auth()->user()->image != null ? asset('storage/profiles/' . auth()->user()->image) : asset('assets/images/users/usr.png') }}"
+                        alt="Header Avatar">
                 </button>
                 <div class="pt-0 dropdown-menu dropdown-menu-end">
                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}</h6>
-                    <a class="dropdown-item" href="contacts-profile.html"><i
+                    <a class="dropdown-item" href="/profile"><i
                             class='align-middle bx bx-user-circle text-muted font-size-18 me-1'></i> <span
                             class="align-middle">My Account</span></a>
 

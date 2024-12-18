@@ -2,16 +2,18 @@
 
 namespace App\Imports\HouseholdImport;
 
+use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
-use App\Models\JobProgress;
 
+use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-use App\Models\HouseholdRtcConsumption;
 
+use App\Models\HouseholdRtcConsumption;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
@@ -39,7 +41,17 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         $this->totalRows = $totalRows;
         $this->data = $data;
     }
+    public function prepareForValidation(array $row)
+    {
 
+
+        if (isset($row['Date of Assessment']) && is_numeric($row['Date of Assessment'])) {
+            // Convert Excel serial date to d-m-Y before validation
+            $row['Date of Assessment'] = Carbon::instance(Date::excelToDateTimeObject($row['Date of Assessment']))->format('d-m-Y');
+        }
+
+        return $row;
+    }
     public function model(array $row)
     {
         // Create HouseholdRtcConsumption record without storing the 'ID' column in the database
@@ -50,18 +62,30 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             $status = 'approved';
         }
 
+        $sex = $row['Sex'];
+        if (is_numeric($sex)) {
+            $sex = match ($sex) {
+                1 => 'Male',
+                2 => 'Female',
+                3 => 'Other',
+                default => $sex
+            };
+        }
+        $dateOfAssessment = Carbon::parse($row['Date of Assessment'])->format('Y-m-d');
+
+
         $householdRecord = HouseholdRtcConsumption::create([
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],
             'enterprise' => $row['Enterprise'],
-            'date_of_assessment' => \Carbon\Carbon::parse($row['Date of Assessment'])->format('Y-m-d'),
+            'date_of_assessment' => $dateOfAssessment,
             'actor_type' => $row['Actor Type (Farmer, Trader, etc.)'],
             'rtc_group_platform' => $row['RTC Group/Platform'],
             'producer_organisation' => $row['Producer Organisation'],
             'actor_name' => $row['Actor Name'],
             'age_group' => $row['Age Group'],
-            'sex' => $row['Sex'],
+            'sex' => $sex,
             'phone_number' => $row['Phone Number'],
             'household_size' => $row['Household Size'],
             'under_5_in_household' => $row['Under 5 in Household'],
@@ -96,6 +120,12 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
+            \Log::info('Validation Error', [
+                'row_number' => $failure->row(),
+                'failed_field' => $failure->attribute(),
+                'error_message' => $failure->errors(),
+                'row_data' => $failure->values(),
+            ]);
             $errorMessage = "Validation Error on sheet 'Household Data' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
@@ -111,13 +141,13 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
             'Enterprise' => 'required|string|max:255',
-            'Date of Assessment' => 'nullable|date_format:Y-m-d', // Ensure it's a valid date format
+            'Date of Assessment' => 'nullable|date_format:d-m-Y', // Ensure it's a valid date format
             'Actor Type (Farmer, Trader, etc.)' => 'nullable|string|max:255',
             'RTC Group/Platform' => 'nullable|string|max:255',
             'Producer Organisation' => 'nullable|string|max:255',
             'Actor Name' => 'nullable|string|max:255',
             'Age Group' => 'nullable|string|max:50', // Customize as needed based on expected age group values
-            'Sex' => 'nullable|string|in:Male,Female,Other', // Limit to specific options
+            'Sex' => 'nullable|in:Male,Female,Other,1,2,3', // Limit to specific options
             'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
             'Household Size' => 'nullable|integer|min:1', // Minimum 1 household member
             'Under 5 in Household' => 'nullable|integer|min:0', // Minimum 0

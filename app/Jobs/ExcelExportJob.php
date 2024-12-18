@@ -1205,6 +1205,8 @@ class ExcelExportJob implements ShouldQueue
                             }
 
                             $writer->addRow([
+
+
                                 $record->name, // Disaggregation (from `name` field)
                                 (float) $record->value, // Value
                                 $record->indicator_name ?? null, // Indicator Name
@@ -1213,9 +1215,10 @@ class ExcelExportJob implements ShouldQueue
                                 $report_period, // Reporting period (null if no systemReport or reportingPeriod)
                                 $type_of_period,
                                 $record->organisation_name ?? null, // Organisation
-                                $record->financial_year_start_date ?? null, // Project year
-                                $record->financial_year_end_date ?? null, // Year Category
-    
+                                $record->financial_year, // Project year
+                                $record->financial_year_start_date ?? null, // Start year
+                                $record->financial_year_end_date ?? null, // End Year
+
                             ]);
                         }
                     });
