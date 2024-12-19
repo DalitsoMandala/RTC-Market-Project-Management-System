@@ -40,7 +40,7 @@
 
 
                         {{-- @if ($loadingData)
-                        <div wire:poll.5s='readCache()' class="d-flex justify-content-center align-items-center">
+                        <div wire:poll.5000ms='readCache()' class="d-flex justify-content-center align-items-center">
                             <div class="spinner-border text-warning spinner-border-lg" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
@@ -111,15 +111,16 @@
 
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#certified" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
+                                    data-bs-target="#certified" type="button" role="tab"
+                                    aria-controls="profile" aria-selected="false">
                                     Certified seed multiplication
                                 </button>
                             </li>
 
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#cultiv"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
+                                    data-bs-target="#cultiv" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
                                     Area under cultivation
                                 </button>
                             </li>
@@ -145,7 +146,8 @@
                                 <livewire:tables.rtc-market.rtc-production-farmers-conc-agreement />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-farmers-dom-markets />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
@@ -153,11 +155,13 @@
                                 <livewire:tables.rtc-market.rtc-production-farmers-inter-markets />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="agg" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="agg" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rpm-farmer-agg-centers />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rpm-farmer-m-i-s />
                             </div>
 
@@ -206,15 +210,14 @@
     </div>
 
     @script
-    <script>
-        if (window.location.hash !== '') {
-            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-            if (button) {
-                button.click();
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
 
+                }
             }
-        }
-
-    </script>
+        </script>
     @endscript
 </div>

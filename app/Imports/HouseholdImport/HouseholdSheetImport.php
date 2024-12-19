@@ -156,7 +156,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'RTC Group/Platform' => 'nullable|string|max:255',
             'Producer Organisation' => 'nullable|string|max:255',
             'Actor Name' => 'nullable|string|max:255',
-            'Age Group' => 'nullable|string|max:50', // Customize as needed based on expected age group values
+            'Age Group' => 'nullable|string|max:255', // Customize as needed based on expected age group values
             'Sex' => 'nullable|in:Male,Female,Other,1,2,3', // Limit to specific options
             'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
             'Household Size' => 'nullable|integer|min:0', // Minimum 1 household member

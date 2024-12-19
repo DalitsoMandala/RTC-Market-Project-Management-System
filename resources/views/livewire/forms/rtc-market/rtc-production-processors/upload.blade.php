@@ -41,7 +41,8 @@
                 <div
                     class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif">
                     <h5> Instructions</h5>
-                    <p class="alert bg-secondary-subtle text-uppercase">Download the Rtc production Processors template &
+                    <p class="alert bg-secondary-subtle text-uppercase">Download the Rtc production Processors template
+                        &
                         upload your
                         data.</p>
 
@@ -61,7 +62,7 @@
                                 </div>
                                 @if ($importing && !$importingFinished)
                                     <div class="alert alert-warning d-flex justify-content-between"
-                                        wire:poll.5s='checkProgress()'>Importing your
+                                        wire:poll.5000ms='checkProgress()'>Importing your
                                         file
                                         Please wait....
 
@@ -87,9 +88,6 @@
 
                                         </div>
                                     </div>
-
-
-
                                 @endif
 
 
@@ -104,8 +102,7 @@
                                         <x-error class="text-center ">{{ $message }}</x-error>
                                     </div>
                                 @enderror
-                                <div class="mt-5 d-flex justify-content-center"
-                                    x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"
@@ -138,9 +135,9 @@
 
 </div>
 @script
-<script>
-    $wire.on('complete-submission', () => {
-        $wire.send();
-    });
-</script>
+    <script>
+        $wire.on('complete-submission', () => {
+            $wire.send();
+        });
+    </script>
 @endscript

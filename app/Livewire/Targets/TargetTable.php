@@ -113,12 +113,12 @@ final class TargetTable extends PowerGridComponent
 
 
                 if ($data) {
+                    $target_value = ($model->submissionTarget->target_value + 0);
 
-                    if ($data >= $model->submissionTarget->target_value) {
-                        return '<span class="badge bg-success">' . $data . '</span>';
-                    } else {
-                        return '<span class="badge bg-danger">' . $data . '</span>';
-                    }
+
+
+                    return '<span class="badge bg-secondary fs-6">' . (float) $data . '</span>';
+
                 }
 
                 return 0;
