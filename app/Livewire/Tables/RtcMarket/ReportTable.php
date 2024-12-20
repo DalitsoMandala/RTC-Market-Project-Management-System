@@ -50,7 +50,7 @@ final class ReportTable extends PowerGridComponent
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-component'),
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->showRecordCount(),
         ];
     }

@@ -34,7 +34,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->showRecordCount(),
         ];
     }
@@ -111,8 +111,8 @@ final class SchoolConsumptionTable extends PowerGridComponent
             Column::make('School ID', 'sc_id')->sortable()->searchable(),
             Column::make('School Name', 'school_name', 'school_name')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
-            Column::make('EPA', 'epa',)->sortable()->searchable(),
-            Column::make('Section', 'section',)->sortable()->searchable(),
+            Column::make('EPA', 'epa', )->sortable()->searchable(),
+            Column::make('Section', 'section', )->sortable()->searchable(),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable()->searchable(),

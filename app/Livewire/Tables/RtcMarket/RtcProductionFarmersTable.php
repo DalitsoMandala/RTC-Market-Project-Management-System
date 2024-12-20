@@ -45,7 +45,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             //     ->includeViewOnTop('components.export-data-farmers')
             ,
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->pageName('farmers')
                 ->showRecordCount(),
         ];

@@ -41,7 +41,7 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
                 ->showSearchInput()
             ,
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->pageName('processors-domestic-markets')
                 ->showRecordCount(),
         ];

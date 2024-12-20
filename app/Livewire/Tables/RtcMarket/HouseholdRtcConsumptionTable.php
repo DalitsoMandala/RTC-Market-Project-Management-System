@@ -63,7 +63,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
             ,
-            Footer::make()->showPerPage(5)->showRecordCount(),
+            Footer::make()->showPerPage(10)->showRecordCount(),
         ];
     }
 

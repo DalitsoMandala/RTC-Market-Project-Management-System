@@ -40,7 +40,7 @@
 
 
                         {{-- @if ($loadingData)
-                        <div wire:poll.5000ms='readCache()' class="d-flex justify-content-center align-items-center">
+                        <div wire:poll.keep-alive.5s='readCache()' class="d-flex justify-content-center align-items-center">
                             <div class="spinner-border text-warning spinner-border-lg" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>

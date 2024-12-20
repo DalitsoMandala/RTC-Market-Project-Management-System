@@ -79,7 +79,7 @@ final class RpmProcessorMIS extends PowerGridComponent
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->showRecordCount(),
         ];
     }

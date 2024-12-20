@@ -37,7 +37,7 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->pageName('international-markets')
                 ->showRecordCount(),
         ];

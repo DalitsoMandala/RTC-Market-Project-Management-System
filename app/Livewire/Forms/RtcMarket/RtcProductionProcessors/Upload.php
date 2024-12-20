@@ -161,8 +161,7 @@ class Upload extends Component
 
 
         if ($this->progress == 100) {
-            $this->importing = false;
-            $this->importingFinished = true;
+
 
 
             $this->importId = Uuid::uuid4()->toString(); // change key

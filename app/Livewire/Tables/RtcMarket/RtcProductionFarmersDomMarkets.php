@@ -40,7 +40,7 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
                 ->showSearchInput()
             ,
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->pageName('farmers-domestic-markets')
                 ->showRecordCount(),
         ];

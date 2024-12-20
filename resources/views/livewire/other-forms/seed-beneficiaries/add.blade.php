@@ -315,7 +315,7 @@
                                         </div>
                                         @if ($importing && !$importingFinished)
                                             <div class="alert alert-warning d-flex justify-content-between"
-                                                wire:poll.5000ms='checkProgress()'>Importing your
+                                                wire:poll.keep-alive.5s='checkProgress()'>Importing your
                                                 file
                                                 Please wait....
 

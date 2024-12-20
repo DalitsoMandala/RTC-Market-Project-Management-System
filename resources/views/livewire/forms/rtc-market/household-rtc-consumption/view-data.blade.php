@@ -44,7 +44,7 @@
                         <livewire:tables.rtc-market.household-rtc-consumption-table />
 
                         {{-- @if ($loadingData)
-                        <div wire:poll.5000ms='checkJobStatus()' class="d-flex justify-content-center align-items-center">
+                        <div wire:poll.keep-alive.5s='checkJobStatus()' class="d-flex justify-content-center align-items-center">
                             <div class="spinner-border text-warning spinner-border-lg" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>

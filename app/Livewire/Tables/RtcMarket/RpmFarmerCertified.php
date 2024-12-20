@@ -82,7 +82,7 @@ final class RpmFarmerCertified extends PowerGridComponent
 
             Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->pageName('certified-seed')
                 ->showRecordCount(),
         ];

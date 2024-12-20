@@ -41,7 +41,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make(),
             Footer::make()
-                ->showPerPage(5)
+                ->showPerPage(10)
                 ->showRecordCount(),
         ];
     }
