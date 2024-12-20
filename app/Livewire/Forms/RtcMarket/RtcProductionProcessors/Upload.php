@@ -2,47 +2,48 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
-use App\Exceptions\ExcelValidationException;
-use App\Exceptions\SheetImportException;
-use App\Exceptions\UserErrorException;
-use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
-
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
-use App\Helpers\SheetNamesValidator;
-use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
-use App\Imports\ImportProcessor\RtcProductionProcessorsMultiSheetImport;
-use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
-use App\Models\FinancialYear;
+use Throwable;
+use Carbon\Carbon;
 use App\Models\Form;
-use App\Models\ImportError;
+use App\Models\User;
+
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
 use App\Models\Indicator;
-use App\Models\JobProgress;
-use App\Models\OrganisationTarget;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
-use App\Models\RpmProcessorConcAgreement;
-use App\Models\RpmProcessorDomMarket;
-use App\Models\RpmProcessorFollowUp;
-use App\Models\RpmProcessorInterMarket;
-use App\Models\RtcProductionProcessor;
 use App\Models\Submission;
+use App\Models\ImportError;
+use App\Models\JobProgress;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use Livewire\WithFileUploads;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\User;
-use App\Notifications\BatchDataAddedNotification;
-use App\Notifications\JobNotification;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
+use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
-use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\Models\OrganisationTarget;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\SheetNamesValidator;
+use App\Models\ReportingPeriodMonth;
+use App\Models\RpmProcessorFollowUp;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use Ramsey\Uuid\Uuid;
-use Throwable;
+use App\Models\RpmProcessorDomMarket;
+use Illuminate\Support\Facades\Cache;
+use App\Exceptions\UserErrorException;
+use App\Models\RtcProductionProcessor;
+use App\Notifications\JobNotification;
+use App\Models\RpmProcessorInterMarket;
+use App\Exceptions\SheetImportException;
+use App\Models\RpmProcessorConcAgreement;
+use App\Exceptions\ExcelValidationException;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Notifications\BatchDataAddedNotification;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
+use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
+use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
+use App\Imports\ImportProcessor\RtcProductionProcessorsMultiSheetImport;
+use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
+use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
 
 class Upload extends Component
 {
@@ -169,13 +170,14 @@ class Upload extends Component
             if ($jobProgress->status == 'failed') {
 
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+                Cache::forget($this->importId);
                 return redirect()->to(url()->previous());
             } else if ($jobProgress->status == 'completed') {
 
 
 
                 $user = User::find(auth()->user()->id);
-
+                Cache::forget($this->importId);
                 if ($user->hasAnyRole('external')) {
                     session()->flash('success', 'Successfully submitted!');
                     return redirect(route('external-submissions') . '#batch-submission');

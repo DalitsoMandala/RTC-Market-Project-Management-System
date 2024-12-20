@@ -177,11 +177,12 @@ class Upload extends Component
             if ($jobProgress->status == 'failed') {
 
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+                Cache::forget($this->importId);
                 return redirect()->to(url()->previous());
             } else if ($jobProgress->status == 'completed') {
 
                 $user = User::find(auth()->user()->id);
-
+                Cache::forget($this->importId);
                 if ($user->hasAnyRole('external')) {
                     session()->flash('success', 'Successfully submitted!');
                     return redirect(route('external-submissions') . '#batch-submission');

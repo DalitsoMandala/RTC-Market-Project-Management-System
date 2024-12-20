@@ -3,33 +3,34 @@
 namespace App\Livewire\Forms\RtcMarket\AttendanceRegister;
 
 
-use App\Exceptions\ExcelValidationException;
-use App\Exports\AttendanceImport\AttendanceRegistersExport;
-use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
-use App\Helpers\SheetNamesValidator;
-use App\Imports\AttendanceImport\AttendanceRegistersMultiSheetImport;
-use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
-use App\Imports\SchoolImport\SchoolRtcConsumptionMultiSheetImport;
-use App\Models\FinancialYear;
+use Carbon\Carbon;
 use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
 use App\Models\Indicator;
 use App\Models\JobProgress;
-use App\Models\OrganisationTarget;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use Livewire\WithFileUploads;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
+use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
-use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\Models\OrganisationTarget;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\SheetNamesValidator;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Facades\Cache;
+use App\Exceptions\ExcelValidationException;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
+use App\Exports\AttendanceImport\AttendanceRegistersExport;
+use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
+use App\Imports\SchoolImport\SchoolRtcConsumptionMultiSheetImport;
+use App\Imports\AttendanceImport\AttendanceRegistersMultiSheetImport;
 
 class Upload extends Component
 {
@@ -154,11 +155,12 @@ class Upload extends Component
             if ($jobProgress->status == 'failed') {
 
                 session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+                Cache::forget($this->importId);
                 return redirect()->to(url()->previous());
             } else if ($jobProgress->status == 'completed') {
 
                 $user = User::find(auth()->user()->id);
-
+                Cache::forget($this->importId);
                 if ($user->hasAnyRole('external')) {
                     session()->flash('success', 'Successfully submitted!');
                     return redirect(route('external-submissions') . '#batch-submission');
