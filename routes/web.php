@@ -65,7 +65,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
-  
+
 
 
 });
@@ -76,6 +76,7 @@ Route::get('/session-check', function () {
 
 Route::get('/logout', function () {
     return abort(404);
+    
 });
 
 

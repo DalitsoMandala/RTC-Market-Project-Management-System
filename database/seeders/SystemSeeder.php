@@ -18,7 +18,7 @@ class SystemSeeder extends Seeder
         //
 
         SystemDetail::create([
-            'name' => 'CIP DATABASE MANAGEMENT SYSTEM',
+            'name' => config(),
             'address' => 'International Potato Center, Area 11 Plot 36, Chimutu Road, P.O Box 31600, Capital City, Lilongwe, Malawi',
             'website' => 'https://cipotato.org',
             'phone' => '265-1-123-456', // Example phone number

@@ -23,9 +23,12 @@ class BaselineSeeder extends Seeder
             $faker = Faker::create();
             Baseline::create([
                 'indicator_id' => $indicator->id,
-                'baseline_value' => $faker->numberBetween(10, 50) * 10
+                'baseline_value' => 0
             ]);
         }
+
+
+
 
     }
 }
