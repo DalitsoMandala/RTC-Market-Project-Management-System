@@ -194,7 +194,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i> Edit')
                 ->id()
                 ->class('my-2 btn btn-warning')
                 ->dispatch('edit-showModal', [
@@ -203,7 +203,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash"></i> Delete')
                 ->id()
                 ->class('btn btn-danger my-1')
                 ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))

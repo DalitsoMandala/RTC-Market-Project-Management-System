@@ -130,7 +130,7 @@ final class OrganisationFormsTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i> Edit')
                 ->id()
                 ->class('btn btn-warning goUp')
                 ->dispatch('showModal', [

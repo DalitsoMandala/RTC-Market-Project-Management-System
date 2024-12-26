@@ -192,7 +192,7 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i> Edit')
                 ->id()
                 ->class('btn btn-warning goUp')
                 ->dispatch('edit', [
@@ -201,7 +201,7 @@ final class UserTable extends PowerGridComponent
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash"></i> Delete')
                 ->id()
                 ->class('btn btn-danger goUp')
                 ->dispatch('showModal-delete', [

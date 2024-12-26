@@ -255,7 +255,7 @@ final class SubmissionTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i> Edit')
                 ->id()
                 ->class('btn btn-warning')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('internal'))
@@ -266,7 +266,7 @@ final class SubmissionTable extends PowerGridComponent
 
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash"></i> Delete')
                 ->id()
                 ->class('btn btn-danger my-1')
                 ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))

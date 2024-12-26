@@ -17,6 +17,10 @@ class Baseline extends Model
         return $this->belongsTo(Indicator::class);
     }
 
+    public function baselineMultiple()
+    {
+        return $this->hasMany(BaselineDataMultiple::class, 'baseline_id');
+    }
 
 
 }

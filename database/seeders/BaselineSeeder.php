@@ -21,10 +21,21 @@ class BaselineSeeder extends Seeder
 
         foreach (Indicator::all() as $indicator) {
             $faker = Faker::create();
-            Baseline::create([
-                'indicator_id' => $indicator->id,
-                'baseline_value' => 0
-            ]);
+
+            if($indicator->id ==20){
+                Baseline::create([
+                    'indicator_id' => $indicator->id,
+                    'baseline_value' => 0,
+                    'baseline_is_multiple' => true
+                ]);
+            }else{
+
+                Baseline::create([
+                    'indicator_id' => $indicator->id,
+                    'baseline_value' => 0
+                ]);
+            }
+
         }
 
 
