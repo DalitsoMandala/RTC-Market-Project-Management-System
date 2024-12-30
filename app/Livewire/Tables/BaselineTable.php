@@ -2,27 +2,36 @@
 
 namespace App\Livewire\tables;
 
+use Nette\Utils\Html;
 use App\Models\Baseline;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Illuminate\Support\Facades\DB;
+use App\Models\BaselineDataMultiple;
+use Illuminate\Support\Facades\Blade;
+
+use Illuminate\Database\Eloquent\Builder;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use Illuminate\Support\Facades\Blade;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class BaselineTable extends PowerGridComponent
 {
     use WithExport;
+    use LivewireAlert;
+
     public bool $showErrorBag = true;
-public $baseline_value;
+
+    public $html;
+
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -40,7 +49,7 @@ public $baseline_value;
 
     public function datasource(): Builder
     {
-        return Baseline::query();
+        return Baseline::query()->with('indicator');
     }
 
     public function fields(): PowerGridFields
@@ -48,53 +57,191 @@ public $baseline_value;
         return PowerGrid::fields()
             ->add('id')
             ->add('indicator_id')
-            ->add('indicator', function ($model) {
-                return $model->indicator->indicator_name;
+            ->add('indicator_no', function($model) {
+
+                return $model->indicator?->indicator_no;
+            })
+            ->add('indicator_name', function ($model) {
+                return $model->indicator?->indicator_name;
             })
             ->add('baseline_value', function ($model) {
-             return Blade::render("<div>$model->baseline_value</div>");
-            })
+                if ($model->baseline_is_multiple) {
+                    $multipleValues = $model->baselineMultiple; // Assuming this returns a collection of multiple values.
+                    $forms = '';
 
-            ;
+                    foreach ($multipleValues as $value) {
+
+                        $forms .= <<<HTML
+                        <form class="mb-3 needs-validation" novalidate
+                            x-data="{
+                                baseline_value: '{$value->baseline_value}',
+                                initial_value: '{$value->baseline_value}',
+                                baseline_name:'{$value->name}',
+                                unit: '{$value->unit_type}',
+                                base_id: '{$value->id}',
+                                error: '',
+                                validate() {
+                                    this.error = ''; // Clear existing errors
+                                    let value = this.baseline_value.trim();
+
+                                    // Validate the input value
+                                    if (!value) {
+                                        this.error = 'Value cannot be empty.';
+                                        return false;
+                                    }
+                                    if (isNaN(value)) {
+                                        this.error = 'Value must be a number.';
+                                        return false;
+                                    }
+                                    return true;
+                                },
+                                submitForm() {
+                                    if (this.validate()) {
+                                        \$dispatch('submit-form', { value: this.baseline_value, id: this.base_id, type:'multiple' });
+                                        this.initial_value = this.baseline_value;
+                                    }
+                                }
+                            }"
+                            @submit.prevent.debounce.600ms="submitForm">
+
+                            <label for="" ><span x-text="baseline_name" class="text-uppercase fw-bolder"></span> (<span x-text="unit"></span>)
+
+                            </label>
+                            <!-- Input Field -->
+                            <input type="text"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="bg-secondary-subtle"
+                                class="form-control"
+                                name="baseline_value_{$value->id}"
+                                x-model="baseline_value"
+                                :class="{
+                                    'is-invalid': error || (baseline_value =='' || baseline_value == null) ,
+
+                                }">
+
+                            <!-- Error Message -->
+                            <div x-show="error" x-text="error" class="mt-1 text-danger"></div>
+
+                            <!-- Buttons -->
+                            <div class="my-2">
+                                <button class="btn btn-warning btn-sm" type="submit">Save</button>
+                                <button class="btn btn-danger btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
+                            </div>
+                        </form>
+                        HTML;
+                    }
+
+                    return $forms;
+                }
+
+                // Handle the single value case as before.
+                $baselineValue = $model->baseline_value;
+
+                return <<<HTML
+                <form class="needs-validation" novalidate
+                    x-data="{
+                        baseline_value: '{$baselineValue}',
+                        initial_value: '{$baselineValue}',
+                        base_id: '{$model->id}',
+                        error: '',
+                        validate() {
+                            this.error = ''; // Clear existing errors
+                            let value = this.baseline_value.trim();
+
+                            // Validate the input value
+                            if (!value) {
+                                this.error = 'Value cannot be empty.';
+                                return false;
+                            }
+                            if (isNaN(value)) {
+                                this.error = 'Value must be a number.';
+                                return false;
+                            }
+                            return true;
+                        },
+                        submitForm() {
+                            if (this.validate()) {
+                                \$dispatch('submit-form', { value: this.baseline_value, id: this.base_id, type:'single' });
+                                this.initial_value = this.baseline_value;
+                            }
+                        }
+                    }"
+                    @submit.prevent.debounce.600ms="submitForm">
+
+                    <!-- Input Field -->
+                    <input type="text"
+                        wire:loading.attr="disabled"
+                        wire:loading.class="bg-secondary-subtle"
+                        class="form-control"
+                        name="baseline_value"
+                        x-model="baseline_value"
+                        :class="{
+                            'is-invalid': error,
+
+                        }">
+
+                    <!-- Error Message -->
+                    <div x-show="error" x-text="error" class="mt-1 text-danger"></div>
+
+                    <!-- Buttons -->
+                    <div class="my-2">
+                        <button class="btn btn-warning btn-sm" type="submit">Save</button>
+                        <button class="btn btn-danger btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
+                    </div>
+                </form>
+                HTML;
+            });
+
+
     }
 
-    public function rules()
+
+    #[On('submit-form')]
+    public function save($value,$id,$type)
     {
-        return [
-            'baseline_value.*' => ['required', 'numeric','min:0'],
-        ];
+
+
+        if($type == 'multiple'){
+
+            BaselineDataMultiple::find($id)->update([
+                'baseline_value' => $value
+            ]);
+
+
+   $this->dispatch('refresh');
+        $this->alert('success', 'Value updated successfully');
+
+        return;
+        }
+        Baseline::find($id)->update([
+            'baseline_value' => $value
+        ]);
+
+        $this->dispatch('refresh');
+        $this->alert('success', 'Value updated successfully');
     }
-    protected function validationAttributes()
-    {
-        return [
-            'baseline_value.*'       => 'Baseline value',
 
-        ];
-    }
-
-
-    public function onUpdatedEditable(string|int $id, string $field, string $value): void
-    {
-
-        $this->validate();
-
-
-
-    }
 
     public function columns(): array
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Indicator', 'indicator'),
+               Column::make('Indicator #', 'indicator_no')
+               ->searchable()
+               ,
+            Column::make('Indicator', 'indicator_name')
+                ->searchable(),
             Column::make('Baseline value', 'baseline_value')
-                ->sortable()
-                ->searchable()
-                ->editOnClick(
-                            hasPermission: auth()->check(),
-                    fallback: '- empty -'
-                ),
+        ];
+    }
 
+    public function relationSearch(): array
+    {
+        return [
+            'indicator' => [
+                'indicator_name',
+                'indicator_no'
+            ],
         ];
     }
 
@@ -104,8 +251,10 @@ public $baseline_value;
     }
 
     #[\Livewire\Attributes\On('refresh')]
-    public function edit(): void {}
-
+    public function edit(): void
+    {
+        $this->refresh();
+    }
 
     // public function actions($row): array{
     //     return [
@@ -115,7 +264,6 @@ public $baseline_value;
     //         ->tooltip('Edit Record')
     //         ->class('btn btn-warning goUp btn-sm my-1')
     //         ->dispatch('editData', ['rowId' => $row->id]),
-
 
     //     ];
     // }

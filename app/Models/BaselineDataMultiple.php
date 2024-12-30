@@ -13,6 +13,6 @@ class BaselineDataMultiple extends Model
     protected $guarded = ['id'];
     public function baseline()
     {
-        return $this->belongsTo(Baseline::class, 'baseline_id');
+        return $this->belongsTo(Baseline::class, 'baseline_data_id');
     }
 }

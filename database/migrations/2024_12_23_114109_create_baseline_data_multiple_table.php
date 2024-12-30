@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('baseline_data_id')->constrained('baseline_data', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->decimal('baseline_value', 16, 2)->default(0.00);
+            $table->string('name');
             $table->string('unit_type')->default('value');
             $table->timestamps();
         });

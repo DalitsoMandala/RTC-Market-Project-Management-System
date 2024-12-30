@@ -19,8 +19,10 @@ class Baseline extends Model
 
     public function baselineMultiple()
     {
-        return $this->hasMany(BaselineDataMultiple::class, 'baseline_id');
+        return $this->hasMany(BaselineDataMultiple::class, 'baseline_data_id');
     }
 
+
+    
 
 }
