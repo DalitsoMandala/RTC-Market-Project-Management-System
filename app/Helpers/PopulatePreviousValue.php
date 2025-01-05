@@ -21,9 +21,14 @@ class PopulatePreviousValue
             // Initialize each organization's previous value with the baseline
             $previousValues = [];
 
+            if(!$indicator->baseline->baseline_is_multiple){ // if not multiple baseline for each indicator
+
+
+
             foreach ($indicator->organisation as $organisation) {
                 $previousValues[$organisation->id] = $indicator->baseline->baseline_value;
             }
+
 
             foreach ($financialYears as $financialYear) {
                 foreach ($indicator->organisation as $organisation) {
@@ -41,6 +46,8 @@ class PopulatePreviousValue
                     $previousValues[$organisation->id] = $annualValue;
                 }
             }
+
+        }
         }
     }
 

@@ -65,9 +65,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
+$data = new PopulatePreviousValue();
 
-
-
+dd($data->start());
 });
 
 Route::get('/session-check', function () {
@@ -76,7 +76,7 @@ Route::get('/session-check', function () {
 
 Route::get('/logout', function () {
     return abort(404);
-    
+
 });
 
 

@@ -24,12 +24,12 @@ class DatabaseSeeder extends Seeder
         // $this->call(AssignedTargetSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
-        //   $this->call(PeriodSeeder::class); //edit this
+           $this->call(PeriodSeeder::class); //edit this
         $this->call(SubmissionSeeder::class);
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
-        //   $this->call(DataGenerationSeeder::class); //edit this
+          $this->call(DataGenerationSeeder::class); //edit this
         //   Artisan::call('update:information');
 
     }
