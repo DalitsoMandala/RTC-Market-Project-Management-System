@@ -65,9 +65,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
-$data = new PopulatePreviousValue();
+$a1 = new App\Helpers\rtc_market\indicators\indicator_A1();
 
-dd($data->start());
+
 });
 
 Route::get('/session-check', function () {
