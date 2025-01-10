@@ -12,6 +12,31 @@
         max-width: 360px;
     }
 
+    .jumbo {
+        position: relative;
+    }
+
+    .jumbo>.wave {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 30px;
+        height: 30px;
+        background: #fec482;
+        transition: width .6s ease-in-out, height .6s ease-in-out;
+        border-top-left-radius: 5px;
+
+    }
+
+    .jumbo:hover .wave {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+
+    }
+
+
     @media only screen and (max-width: 1400px) {
         .topbox img {
             top: -20px;
@@ -47,7 +72,9 @@
             your
             tasks, access valuable insights, and streamline your workflow with ease.</p>
 
-        <div class="my-3 border card bg-warning-subtle border-warning">
+        <div class="my-3 bg-opacity-25 card bg-warning jumbo">
+            <div class="wave"> </div>
+
             <div class="card-body">
                 <div class="text-left ">
                     <ul class="bg-bubbles ps-0">
@@ -66,6 +93,8 @@
 
                         <div class="mx-0 my-0 row">
                             <div class="px-0 col-lg-8">
+
+                                <h5 class="mt-2 fw-bolder h2">{{ config('app.name') }}</h5>
                                 <p class="mt-4 text-body" style="font-size:14px"> The International Potato
                                     Center (CIP) has developed
                                     a novel approach that integrates research and development activities aimed

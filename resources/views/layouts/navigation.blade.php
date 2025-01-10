@@ -199,7 +199,7 @@
                                         href="{{ $routePrefixMain }}/baseline" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Baseline Data</span>
+                                        <span data-key="t-dashboards">Manage Baselines</span>
                                     </a>
                                 </li>
                                 <li class="nav-item ">
@@ -267,11 +267,11 @@
 
                                         </a>
                                         <!-- <a class="dropdown-item dropdown-toggle arrow-none"
-                                                                    href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
-                                                                    role="button">
-                                                                    <span data-key="t-utility">Seeed Disribution</span>
+                                                                            href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
+                                                                            role="button">
+                                                                            <span data-key="t-utility">Seeed Disribution</span>
 
-                                                                </a> -->
+                                                                        </a> -->
 
 
 
@@ -436,8 +436,9 @@
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('project_manager-dashboard') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('project_manager-dashboard') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
@@ -445,8 +446,9 @@
 
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('project_manager-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('project_manager-indicators') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
                                         <span data-key="t-dashboards">Indicators</span>
                                     </a>
@@ -464,7 +466,8 @@
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('project_manager-forms') }}" id="topnav-utility" role="button">
+                                            href="{{ route('project_manager-forms') }}" id="topnav-utility"
+                                            role="button">
                                             <span data-key="t-utility">Forms</span>
 
                                         </a>
@@ -476,8 +479,9 @@
 
                                 <li class="nav-item">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('project_manager-reports') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        href="{{ route('project_manager-reports') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-table'></i>
                                         <span data-key="t-dashboards">Reports</span>
                                     </a>

@@ -1,25 +1,41 @@
 <div>
 
-    <div class="row my-5 @if ($showContent) d-none @endif" x-data x-init="setTimeout(() => {
-        $wire.dispatch('showContent');
-    }, 1000);">
-        <div class="col-12">
-            <div class="d-flex justify-content-center align-items-center">
-                <div class="spinner-border text-warning spinner-border-lg" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <small class="mx-2 text-muted fs-6">Loading...</small>
+
+
+
+    <div x-data="dashboard" class="my-4 " wire:ignore>
+        <div class="my-2 row align-items-center">
+            <div class="col">
+                <h2 class="h2">Summary</h2>
+                <p class="text-muted"><span x-text="name"></span></p>
             </div>
+            <div class="col ">
 
+                <div class="d-flex justify-content-end">
+                    <div class="dropdown card-header-dropdown">
+                        <a class="shadow-none dropdown-btn btn btn-soft-warning waves-effect waves-light" href="#"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="bx bx-filter me-5 fw-bold"></i> <span> <span id='report_year'
+                                    x-text="'Year ' + selectedReportYear"></span> <i
+                                    class="mdi mdi-chevron-down ms-1"></i></span>
+
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end" style="">
+                            <template x-for="(value, index) in financialYears" :key="value.id">
+                                <a class="dropdown-item" href="#" x-on:click="changeYear(value)"
+                                    :class="{
+                                        'disabled': value.number === selectedReportYear
+                                    }"
+                                    x-text="'Year ' + value.number"></a>
+                            </template>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
-
-
-
-    </div>
-
-
-
-    <div x-data="dashboard" class="my-4 @if (!$showContent) d-none @endif">
 
         <div class="row">
             <div class="col-xl-3 col-sm-6">
@@ -266,19 +282,31 @@
             professionChart: [],
             cropChart: [],
             establishmentChart: [],
-            data: @json($data),
+            data: $wire.entangle('data'),
+            name: $wire.entangle('name'),
+            financialYears: $wire.entangle('financialYears'),
+            selectedReportYear: $wire.entangle('selectedReportYear'),
+            genderChartInstance: null,
+            ageGroupChartInstance: null,
+            professionChartInstance: null,
+            cropChartInstance: null,
+            establishmentChartInstance: null,
+
+            changeYear(data) {
+                $wire.dispatch('updateReportYear', {
+                    id: data.id,
+                });
+            },
+
             hasZeroValues(array) {
                 if (!array.every(item => typeof item === 'number')) {
                     throw new Error("Array contains non-number elements.");
                 }
-
-                console.log(array.reduce((a, b) => a + b, 0) === 0, array);
                 return array.reduce((a, b) => a + b, 0) === 0;
             },
+            setData(data) {
 
-            init() {
 
-                const data = this.data;
                 this.genderChart = [data.Female, data.Male];
                 this.ageGroupChart = [data['Youth (18-35 yrs)'], data['Not youth (35yrs+)']];
                 this.professionChart = [data.Farmers, data.Processors, data.Traders];
@@ -290,15 +318,19 @@
                 ];
 
 
+            },
 
 
-                // Gender Distribution
-                new ApexCharts(document.querySelector("#genderChart"), {
+            init() {
+
+                let data = this.data;
+                this.setData(data);
+
+                // Initialize charts and store instances
+                this.genderChartInstance = new ApexCharts(document.querySelector("#genderChart"), {
                     chart: {
                         type: 'pie',
                         height: 300
-
-
                     },
                     colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                     legend: {
@@ -306,10 +338,10 @@
                     },
                     series: this.genderChart,
                     labels: ['Female', 'Male']
-                }).render();
+                });
+                this.genderChartInstance.render();
 
-                // Age Group Distribution
-                new ApexCharts(document.querySelector("#ageGroupChart"), {
+                this.ageGroupChartInstance = new ApexCharts(document.querySelector("#ageGroupChart"), {
                     chart: {
                         type: 'donut',
                         height: 300
@@ -320,10 +352,10 @@
                     colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                     series: this.ageGroupChart,
                     labels: ['Youth (18-35 yrs)', 'Not Youth (35yrs+)']
-                }).render();
+                });
+                this.ageGroupChartInstance.render();
 
-                // Profession Distribution
-                new ApexCharts(document.querySelector("#professionChart"), {
+                this.professionChartInstance = new ApexCharts(document.querySelector("#professionChart"), {
                     chart: {
                         type: 'bar',
                         height: 213
@@ -335,51 +367,71 @@
                     xaxis: {
                         categories: ['Farmers', 'Processors', 'Traders']
                     },
+                });
+                this.professionChartInstance.render();
 
-                }).render();
-
-                // Crop Distribution
-                new ApexCharts(document.querySelector("#cropChart"), {
+                this.cropChartInstance = new ApexCharts(document.querySelector("#cropChart"), {
                     chart: {
                         type: 'pie',
                         height: 300
                     },
-
                     colors: ['#DE8F5F', '#FC931D', '#FA7070'],
-
                     series: this.cropChart,
                     labels: ['Cassava', 'Potato', 'Sweet Potato']
-                }).render();
+                });
+                this.cropChartInstance.render();
 
-
-
-                // Establishment Distribution
-                new ApexCharts(document.querySelector("#establishmentChart"), {
+                this.establishmentChartInstance = new ApexCharts(document.querySelector(
+                    "#establishmentChart"), {
                     chart: {
                         type: 'bar',
-                        height: 285,
-
+                        height: 285
                     },
-
-
                     colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                     series: [{
-
-                            data: this.establishmentChart
-                        },
-
-
-                    ],
+                        data: this.establishmentChart
+                    }],
                     xaxis: {
-                        categories: ['Employees on RTC', 'New Establishment',
-                            'Old Establishment'
-                        ],
-
+                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment']
                     },
+                });
+                this.establishmentChartInstance.render();
+
+                $wire.on('updateChartData', (event) => {
+                    data = event.data;
+
+                    this.setData(data);
+
+                    this.genderChartInstance.updateOptions({
+                        series: this.genderChart,
+                    });
+
+                    this.cropChartInstance.updateOptions({
+                        series: this.cropChart,
+                    });
+
+                    this.ageGroupChartInstance.updateOptions({
+                        series: this.ageGroupChart,
+                    });
+
+                    this.professionChartInstance.updateSeries([{
+                        data: this.professionChart,
+                    }]);
+
+                    this.establishmentChartInstance.updateSeries([{
+                        data: this.establishmentChart,
+                    }]);
+                    // Re-render charts with updated data
 
 
-                }).render();
-            }
+                })
+
+            },
+
+            getRandomNumber() {
+                return Math.floor(Math.random() * 10);
+            },
+
         }));
     </script>
 @endscript
