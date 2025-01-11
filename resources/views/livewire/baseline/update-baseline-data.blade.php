@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <!-- start page title -->
-    <div class="row">
+    <div class="my-2 row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between">
                 <h4 class="mb-0">Update Baseline Values</h4>
@@ -18,11 +18,11 @@
     <x-alerts />
     <!-- end page title -->
 
-    <div class="row">
+    <div class=" row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Update Baseline Data</h5>
+                    <h5 class="card-title">Baseline Table</h5>
                 </div>
                 <div class="card-body">
 
@@ -54,3 +54,14 @@
         </div>
     </div>
 </div>
+
+@script
+    <script>
+        $wire.on('submit-form', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+@endscript

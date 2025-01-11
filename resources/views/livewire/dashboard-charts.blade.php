@@ -22,7 +22,8 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-end" style="">
                             <template x-for="(value, index) in financialYears" :key="value.id">
-                                <a class="dropdown-item" href="#" x-on:click="changeYear(value)"
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                    x-on:click="changeYear(value)"
                                     :class="{
                                         'disabled': value.number === selectedReportYear
                                     }"

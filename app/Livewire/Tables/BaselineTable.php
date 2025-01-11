@@ -57,7 +57,7 @@ final class BaselineTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('indicator_id')
-            ->add('indicator_no', function($model) {
+            ->add('indicator_no', function ($model) {
 
                 return $model->indicator?->indicator_no;
             })
@@ -99,6 +99,7 @@ final class BaselineTable extends PowerGridComponent
                                     if (this.validate()) {
                                         \$dispatch('submit-form', { value: this.baseline_value, id: this.base_id, type:'multiple' });
                                         this.initial_value = this.baseline_value;
+
                                     }
                                 }
                             }"
@@ -124,7 +125,7 @@ final class BaselineTable extends PowerGridComponent
 
                             <!-- Buttons -->
                             <div class="my-2">
-                                <button class="btn btn-warning btn-sm" type="submit">Save</button>
+                                <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
                                 <button class="btn btn-danger btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
                             </div>
                         </form>
@@ -185,40 +186,39 @@ final class BaselineTable extends PowerGridComponent
 
                     <!-- Buttons -->
                     <div class="my-2">
-                        <button class="btn btn-warning btn-sm" type="submit">Save</button>
+                        <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
                         <button class="btn btn-danger btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
                     </div>
                 </form>
                 HTML;
             });
-
-
     }
 
 
     #[On('submit-form')]
-    public function save($value,$id,$type)
+    public function save($value, $id, $type)
     {
 
 
-        if($type == 'multiple'){
+        if ($type == 'multiple') {
 
             BaselineDataMultiple::find($id)->update([
                 'baseline_value' => $value
             ]);
 
 
-   $this->dispatch('refresh');
-        $this->alert('success', 'Value updated successfully');
+            $this->dispatch('refresh');
 
-        return;
+
+            return;
         }
         Baseline::find($id)->update([
             'baseline_value' => $value
         ]);
 
+
+
         $this->dispatch('refresh');
-        $this->alert('success', 'Value updated successfully');
     }
 
 
@@ -226,9 +226,8 @@ final class BaselineTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-               Column::make('Indicator #', 'indicator_no')
-               ->searchable()
-               ,
+            Column::make('Indicator #', 'indicator_no')
+                ->searchable(),
             Column::make('Indicator', 'indicator_name')
                 ->searchable(),
             Column::make('Baseline value', 'baseline_value')

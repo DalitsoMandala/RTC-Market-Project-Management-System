@@ -274,6 +274,15 @@
 
             });
 
+            setTimeout(function() {
+                if ($('.alert-success').length > 0) {
+                    $('.alert-success').fadeOut(3000, function() {
+                        $(this).remove(); // Remove the alert from the DOM after fading out
+                    });
+                }
+            }, 10000); // 10 seconds delay
+
+
             $(document).ajaxError(function(event, jqxhr, settings, exception) {
                 if (jqxhr.status === 419) { // 419 is the status code for Laravel's CSRF token mismatch
 
@@ -282,13 +291,7 @@
             });
             $(document).ready(function() {
                 // Set a timeout to start fading out the alert after 10 seconds
-                setTimeout(function() {
-                    $('.alert-success').fadeOut(3000, function() {
-                        $(this).remove(); // Remove the alert from the DOM after fading out
-                    });
 
-
-                }, 10000); // 10 seconds
 
 
                 document.querySelectorAll('input[type="number"]').forEach(function(input) {
