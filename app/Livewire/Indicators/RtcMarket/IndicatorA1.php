@@ -44,21 +44,25 @@ class IndicatorA1 extends Component
     public function setData($id)
     {
         $this->resetErrorBag();
-
     }
 
 
 
     public function calculations()
     {
-
-
-
         $reportId = SystemReport::where('indicator_id', $this->indicator_id)
             ->where('project_id', $this->project_id)
             ->where('organisation_id', $this->organisation['id'])
             ->where('financial_year_id', $this->financial_year['id'])
             ->pluck('id');
+
+        if ($this->organisation['id'] == 0) {
+            $reportId = SystemReport::where('indicator_id', $this->indicator_id)
+                ->where('project_id', $this->project_id)
+                ->where('financial_year_id', $this->financial_year['id'])
+                ->pluck('id');
+        }
+
 
 
         if ($reportId->isNotEmpty()) {
@@ -82,10 +86,6 @@ class IndicatorA1 extends Component
             // Retrieve the total if 'Total' is one of the grouped items
             $this->total = $summedGroups->get('Total', 0); // Defaults to 0 if 'Total' is not present
         }
-
-
-
-
     }
 
 
@@ -93,7 +93,6 @@ class IndicatorA1 extends Component
     {
 
         $this->calculations();
-
     }
     public function render()
     {

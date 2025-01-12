@@ -21,11 +21,11 @@
 
         @if (session()->has('import_failures'))
             <div class="alert alert-danger " x-data="{
-                       is_open: false
-                   }" role="alert">
+                is_open: false
+            }" role="alert">
                 <div class="d-flex justify-content-between align-items-center">
                     There were errors on your uploaded file! <a @click="is_open = !is_open" href="javascript: void(0);"
-                        class="btn btn-danger btn-sm">View errors <i class="bx bx-caret-down"></i></a>
+                        class="btn btn-theme-red btn-sm">View errors <i class="bx bx-caret-down"></i></a>
                 </div>
                 <div x-show="is_open">
                     <hr>

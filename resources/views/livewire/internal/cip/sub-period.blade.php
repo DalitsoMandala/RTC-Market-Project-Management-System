@@ -184,8 +184,8 @@
 
                                     }
 
-                                }" @change="selectForm()" @changed-form.window="setForms($event.detail.forms)"
-                                x-init="">
+                                }" @change="selectForm()"
+                                @changed-form.window="setForms($event.detail.forms)" x-init="">
                                 <div class="@if (!$selectedIndicator) pe-none opacity-25 @endif">
                                     <label for="form-select" class="form-label">Choose Form</label>
                                     <select id="form-select"
@@ -193,9 +193,9 @@
                                         multiple x-model="selectedForm">
 
 
-                                        <template :key="form . id" x-for="form in forms">
+                                        <template :key="form.id" x-for="form in forms">
 
-                                            <option :value="form . id"> <span x-text="form.name"></span>
+                                            <option :value="form.id"> <span x-text="form.name"></span>
                                             </option>
                                         </template>
 
@@ -282,11 +282,14 @@
 
                             }" x-effect="
 checkValues();
-" @set-targets="updateTargets()" x-bind:class="{
+" @set-targets="updateTargets()"
+                                x-bind:class="{
                                     'opacity-25 pe-none': !(selectedIndicator && selectedFinancialYear)
-                                }" wire:loading.attr='disabled' class="card card-body shadow-none border
+                                }"
+                                wire:loading.attr='disabled'
+                                class="card card-body shadow-none border
   @error('targets')
-    border-danger
+border-danger
 @enderror
   ">
 
@@ -303,14 +306,14 @@ checkValues();
                                         <div class="row mb-3 align-items-end" x-init="() => {
 
 
-                                                }">
+                                        }">
                                             <!-- Target Name Input -->
                                             <div class="col">
                                                 <label for="targets" class="form-label">Target Name</label>
                                                 <select
                                                     class="form-select @error('targets.' . $index . '.name') is-invalid @enderror"
-                                                    wire:model="targets.{{ $index }}.name" wire:loading.attr='disabled'
-                                                    wire:loading.class='opacity-25'>
+                                                    wire:model="targets.{{ $index }}.name"
+                                                    wire:loading.attr='disabled' wire:loading.class='opacity-25'>
                                                     <option value="">Select one</option>
                                                     @foreach ($disaggregations as $dsg)
                                                         <option @if ($dsg == $targets[$index]['name']) selected @endif
@@ -329,7 +332,8 @@ checkValues();
                                                 <label for="targets" class="form-label">Target Value</label>
                                                 <input type="number"
                                                     class="form-control me-2  @error('targets.' . $index . '.value') is-invalid @enderror"
-                                                    placeholder="Target Value" wire:model="targets.{{ $index }}.value" />
+                                                    placeholder="Target Value"
+                                                    wire:model="targets.{{ $index }}.value" />
                                                 @error('targets.' . $index . '.value')
                                                     <x-error>{{ $message }}</x-error>
                                                 @enderror
@@ -349,7 +353,7 @@ checkValues();
                                             <!-- Remove Button -->
                                             <div class="col-1">
                                                 <label for="targets" class="form-label"></label>
-                                                <button class="btn btn-danger"
+                                                <button class="btn btn-theme-red"
                                                     wire:click.prevent="removeTarget({{ $index }})">Remove</button>
                                             </div>
                                         </div>
@@ -369,8 +373,8 @@ checkValues();
 
                             <div class="mb-3">
                                 <label for="start-period" class="form-label">Start of submissions</label>
-                                <x-text-input :class="$errors->has('start_period') ? 'is-invalid' : ''"
-                                    id="start-period" wire:model.debounce.700ms='start_period' type="date" />
+                                <x-text-input :class="$errors->has('start_period') ? 'is-invalid' : ''" id="start-period"
+                                    wire:model.debounce.700ms='start_period' type="date" />
                                 @error('start_period')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -378,16 +382,14 @@ checkValues();
 
                             <div class="mb-3">
                                 <label for="end-period" class="form-label">End of submissions</label>
-                                <x-text-input :class="$errors->has('end_period') ? 'is-invalid' : ''" id="end-period"
-                                    wire:model.debounce.700ms='end_period' type="date" />
+                                <x-text-input :class="$errors->has('end_period') ? 'is-invalid' : ''" id="end-period" wire:model.debounce.700ms='end_period'
+                                    type="date" />
                                 @error('end_period')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
-                            <div class="mb-3 " dir="ltr"
-                                x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }"
-                                x-show="row">
+                            <div class="mb-3 " dir="ltr" x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }" x-show="row">
 
                                 <label for="">Open for submissions ?</label>
                                 <div class="square-switch d-flex align-items-baseline">
@@ -401,9 +403,9 @@ checkValues();
                             </div>
 
                             <div class="mb-3 form-check form-switch form-switch-lg d-none" dir="ltr"
-                                x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }"
-                                x-show="row !== null">
-                                <input type="checkbox" x-model="expired" class="form-check-input" id="expire-switch">
+                                x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">
+                                <input type="checkbox" x-model="expired" class="form-check-input"
+                                    id="expire-switch">
                                 <label class="form-check-label" for="expire-switch">Cancel/Set to
                                     Expire</label>
                                 <br>
@@ -412,12 +414,13 @@ checkValues();
                                     inaccessible for updates</small>
                             </div>
 
-                            <button x-data class="btn btn-warning" type="submit" wire:loading.attr='disabled' @click="  window.scrollTo({
+                            <button x-data class="btn btn-warning" type="submit" wire:loading.attr='disabled'
+                                @click="  window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
                                         })">Submit</button>
-                            <button class="btn btn-outline-warning" type="button" wire:click.debounce.1000ms='resetData'
-                                wire:loading.attr='disabled'>Reset</button>
+                            <button class="btn btn-outline-warning" type="button"
+                                wire:click.debounce.1000ms='resetData' wire:loading.attr='disabled'>Reset</button>
                         </form>
 
 
@@ -451,33 +454,33 @@ checkValues();
 </div>
 
 @script
-<script>
-    const tooltipTriggerList = document.querySelectorAll('button[title]');
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('button[title]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-    $wire.on('reload-tooltips', () => {
+        $wire.on('reload-tooltips', () => {
+
+            setTimeout(() => {
+                const tooltipTriggerList = document.querySelectorAll('button[title]');
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                    tooltipTriggerEl))
+
+            }, 1000);
+
+
+        })
+
+
+        $('.goUp').on('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        });
 
         setTimeout(() => {
-            const tooltipTriggerList = document.querySelectorAll('button[title]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                tooltipTriggerEl))
+            $wire.dispatch('timeout');
 
         }, 1000);
-
-
-    })
-
-
-    $('.goUp').on('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        })
-    });
-
-    setTimeout(() => {
-        $wire.dispatch('timeout');
-
-    }, 1000);
-</script>
+    </script>
 @endscript

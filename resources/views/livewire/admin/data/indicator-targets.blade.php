@@ -129,7 +129,8 @@
                             <div class="mb-3">
                                 <label for="target_value" class="form-label">Target Value</label>
                                 <input type="number" wire:model="target_value" id="target_value"
-                                    class="form-control   @if ($type === 'detail') bg-light @endif" @if ($type === 'detail') readonly @endif>
+                                    class="form-control   @if ($type === 'detail') bg-light @endif"
+                                    @if ($type === 'detail') readonly @endif>
                                 @error('target_value')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -138,8 +139,8 @@
                             <div class="mb-3">
                                 <label for="baseline_value" class="form-label">Baseline Value</label>
                                 <input type="number" wire:model="baseline_value" id="baseline_value"
-                                    class="form-control @if ($type === 'detail') bg-light @endif" @if ($type === 'detail')
-                                    readonly @endif>
+                                    class="form-control @if ($type === 'detail') bg-light @endif"
+                                    @if ($type === 'detail') readonly @endif>
                                 @error('baseline_value')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -170,28 +171,35 @@
                                 @foreach ($targetDetails as $index => $detail)
                                     <div class="border p-3 mb-3" wire:key="target-detail-{{ $index }}">
                                         <div class="mb-3">
-                                            <label for="targetDetails.{{ $index }}.name" class="form-label">Name</label>
+                                            <label for="targetDetails.{{ $index }}.name"
+                                                class="form-label">Name</label>
                                             <input type="text" wire:model="targetDetails.{{ $index }}.name"
-                                                id="targetDetails.{{ $index }}.name" class="form-control" required>
+                                                id="targetDetails.{{ $index }}.name" class="form-control"
+                                                required>
                                             @error('targetDetails.' . $index . '.name')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="targetDetails.{{ $index }}.target_value" class="form-label">Target
+                                            <label for="targetDetails.{{ $index }}.target_value"
+                                                class="form-label">Target
                                                 Value</label>
-                                            <input type="number" wire:model="targetDetails.{{ $index }}.target_value"
-                                                id="targetDetails.{{ $index }}.target_value" class="form-control" required>
+                                            <input type="number"
+                                                wire:model="targetDetails.{{ $index }}.target_value"
+                                                id="targetDetails.{{ $index }}.target_value"
+                                                class="form-control" required>
                                             @error('targetDetails.' . $index . '.target_value')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="targetDetails.{{ $index }}.type" class="form-label">Type</label>
+                                            <label for="targetDetails.{{ $index }}.type"
+                                                class="form-label">Type</label>
                                             <select wire:model="targetDetails.{{ $index }}.type"
-                                                id="targetDetails.{{ $index }}.type" class="form-select" required>
+                                                id="targetDetails.{{ $index }}.type" class="form-select"
+                                                required>
                                                 <option value="number">Number</option>
                                                 <option value="percentage">Percentage</option>
                                             </select>
@@ -200,21 +208,24 @@
                                             @enderror
                                         </div>
 
-                                        <button type="button" class="btn btn-danger"
+                                        <button type="button" class="btn btn-theme-red"
                                             wire:click="removeTargetDetail({{ $index }})">Remove</button>
                                     </div>
                                 @endforeach
 
-                                <button type="button" class="btn btn-secondary mt-3" wire:click="addTargetDetail">Add
+                                <button type="button" class="btn btn-secondary mt-3"
+                                    wire:click="addTargetDetail">Add
                                     Target
                                     Detail</button>
                             @endif
 
                             <div class="form-group my-2">
-                                <button type="submit" x-data x-on:click="window.scrollTo({
+                                <button type="submit" x-data
+                                    x-on:click="window.scrollTo({
         top: 0,
         behavior: 'smooth'
-    })" class="btn btn-warning goUp">Save changes</button>
+    })"
+                                    class="btn btn-warning goUp">Save changes</button>
                             </div>
 
 

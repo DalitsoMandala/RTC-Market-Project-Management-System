@@ -230,7 +230,7 @@
                                             @enderror
                                         </div>
 
-                                        <button type="button" class="btn btn-danger"
+                                        <button type="button" class="btn btn-theme-red"
                                             wire:click="removeDetail({{ $index }})"
                                             @if (count($detail) <= 1) disabled @endif>Remove</button>
                                     </div>
@@ -259,7 +259,8 @@
                                     $('#select-indicators').change();"
                                 class="btn btn-secondary mt-3">Reset &
                                 Add</button>
-                            <button type="button" class="btn btn-danger mt-3" wire:click='deleteData'>Delete Assign
+                            <button type="button" class="btn btn-theme-red mt-3" wire:click='deleteData'>Delete
+                                Assign
                                 Target</button>
                             <button type="submit" class="btn btn-warning mt-3 goUp">Submit</button>
                         </form>

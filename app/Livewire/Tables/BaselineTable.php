@@ -126,7 +126,7 @@ final class BaselineTable extends PowerGridComponent
                             <!-- Buttons -->
                             <div class="my-2">
                                 <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
-                                <button class="btn btn-danger btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
+                                <button class="btn btn-theme-red btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
                             </div>
                         </form>
                         HTML;
@@ -187,7 +187,7 @@ final class BaselineTable extends PowerGridComponent
                     <!-- Buttons -->
                     <div class="my-2">
                         <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
-                        <button class="btn btn-danger btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
+                        <button class="btn btn-theme-red btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
                     </div>
                 </form>
                 HTML;

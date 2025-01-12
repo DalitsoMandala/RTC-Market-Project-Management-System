@@ -9,7 +9,7 @@
 
             <div class="my-2">
                 <button class="btn btn-success btn-sm" type="submit">Save</button>
-                <button class="btn btn-danger btn-sm" type="button" wire:click='cancel'>Cancel</button>
+                <button class="btn btn-theme-red btn-sm" type="button" wire:click='cancel'>Cancel</button>
             </div>
             @error('baseline_value')
                 <x-error>{{ $message }}</x-error>

@@ -51,7 +51,7 @@ final class JobProgressTable extends PowerGridComponent
                 if ($model->status === 'completed') {
                     return '<span class="badge bg-success">' . $model->status . '</span>';
                 } else if ($model->status === 'failed') {
-                    return '<span class="badge bg-danger">' . $model->status . '</span>';
+                    return '<span class="badge bg-theme-red">' . $model->status . '</span>';
                 } else {
                     return '<span class="badge bg-warning">' . $model->status . '</span>';
                 }

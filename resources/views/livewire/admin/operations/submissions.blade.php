@@ -224,11 +224,11 @@
                     </div>
 
 
-                    <div class="d-flex border-top-0 justify-content-center" >
+                    <div class="d-flex border-top-0 justify-content-center">
                         <form wire:submit="DisapproveAggregateSubmission">
                             <button type="submit" wire:loading.attr="disabled"
                                 wire:target="DisapproveAggregateSubmission"
-                                class="btn btn-danger me-2">Disapprove</button>
+                                class="btn btn-theme-red me-2">Disapprove</button>
                         </form>
                         <form wire:submit="ApproveAggregateSubmission">
                             <button type="submit" wire:loading.attr="disabled" wire:target="ApproveAggregateSubmission"
@@ -291,7 +291,7 @@
 
                     <div class="d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" wire:target="save"
-                            class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
+                            class="btn btn-theme-red me-2" wire:click="setStatus('denied')">Disapprove</button>
                         <button type="button" wire:loading.attr="disabled" wire:target="save"
                             class="btn btn-warning" wire:click="setStatus('approved')">Approve</button>
                     </div>
@@ -314,7 +314,7 @@
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteAGG"
-                            class="btn btn-danger">Yes, I'm sure</button>
+                            class="btn btn-theme-red">Yes, I'm sure</button>
                     </div>
                 </form>
             </x-modal>
@@ -334,7 +334,7 @@
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteBatch"
-                            class="btn btn-danger">Yes, I'm sure</button>
+                            class="btn btn-theme-red">Yes, I'm sure</button>
                     </div>
                 </form>
             </x-modal>

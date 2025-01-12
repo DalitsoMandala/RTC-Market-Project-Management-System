@@ -21,10 +21,10 @@
         top: 0;
         left: 0;
 
-        width: 30px;
-        height: 30px;
-        background: #fec482;
-        transition: width .6s ease-in-out, height .6s ease-in-out;
+        width: 0;
+        height: 0;
+        background: #ffdbc9;
+        transition: width .5s ease-in-out, height .5s ease-in-out;
         border-top-left-radius: 5px;
 
     }
@@ -124,7 +124,8 @@
 
 
                         <div class="pt-2 mt-2 mb-2">
-                            <a href="/profile" class="btn btn-dark rounded-3"> <i class="bx bx-user"></i> View
+                            <a href="/profile" class="btn rounded-3 btn-theme-red"> <i class="bx bx-user"></i>
+                                View
                                 Profile <i class="mdi mdi-arrow-right ms-1"></i></a>
                             <a href="forms" class="btn btn-warning rounded-3"> <i class="bx bx-file"></i> View
                                 Forms <i class="mdi mdi-arrow-right ms-1"></i></a>

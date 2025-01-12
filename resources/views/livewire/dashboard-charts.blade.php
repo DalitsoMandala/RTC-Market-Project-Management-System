@@ -40,7 +40,7 @@
 
         <div class="row">
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-dark bg-gradient">
+                <div class="card bg-theme-red bg-gradient">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data.Total"></h2>
@@ -189,7 +189,7 @@
                     </div>
                     <div class="card-body">
 
-                        <div id="establishmentChart"></div>
+                        <div id="establishmentChart" x-show="!hasZeroValues(establishmentChart)"></div>
                         <x-no-data x-show="hasZeroValues(establishmentChart)" />
                     </div>
                 </div>
@@ -359,7 +359,10 @@
                 this.professionChartInstance = new ApexCharts(document.querySelector("#professionChart"), {
                     chart: {
                         type: 'bar',
-                        height: 213
+                        height: 213,
+                        toolbar: {
+                            show: false, // Disables the entire toolbar including the download button
+                        },
                     },
                     series: [{
                         data: this.professionChart
@@ -386,7 +389,10 @@
                     "#establishmentChart"), {
                     chart: {
                         type: 'bar',
-                        height: 285
+                        height: 285,
+                        toolbar: {
+                            show: false, // Disables the entire toolbar including the download button
+                        },
                     },
                     colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                     series: [{

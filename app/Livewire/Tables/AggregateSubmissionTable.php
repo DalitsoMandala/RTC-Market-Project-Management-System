@@ -56,7 +56,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
         if ($user->hasAnyRole('external')) {
 
             return Submission::query()->with('period.indicator')->where('batch_type', 'aggregate')->where('user_id', $user->id);
-
         }
 
         return $query;
@@ -87,13 +86,11 @@ final class AggregateSubmissionTable extends PowerGridComponent
                     return $submission->get();
                 })
                 ->optionLabel('status')
-                ->optionValue('status')
-            ,
+                ->optionValue('status'),
             Filter::inputText('batch_no_formatted', 'batch_no'),
             Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
 
         ];
-
     }
 
     public function fields(): PowerGridFields
@@ -109,7 +106,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('user_id')
             ->add('username', function ($model) {
                 return User::find($model->user_id)->name;
-
             })
             ->add('form_id')
             ->add('form_name', function ($model) {
@@ -127,24 +123,19 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 $user = User::find($model->user_id);
 
                 return $user->organisation->name;
-
             })
             ->add('status')
             ->add('batch_type')
-            ->add('record_filter', function ($model) {
-
-            })
+            ->add('record_filter', function ($model) {})
             ->add('status_formatted', function ($model) {
 
                 if ($model->status === 'approved') {
                     return '<span class="badge bg-success">' . $model->status . '</span>';
-
                 } else if ($model->status === 'pending') {
                     return '<span class="badge bg-warning">' . $model->status . '</span>';
                 } else {
-                    return '<span class="badge bg-danger">' . $model->status . '</span>';
+                    return '<span class="badge bg-theme-red">' . $model->status . '</span>';
                 }
-
             })
 
             ->add('period_id')
@@ -156,7 +147,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 } else {
                     return 'N/A';
                 }
-
             })
             ->add('comments')
             ->add('comments_truncated', function ($model) {
@@ -164,7 +154,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 $trunc = new TruncateText($text, 30);
 
                 return $trunc->truncate();
-
             })
             ->add('financial_year', function ($model) {
 
@@ -192,11 +181,9 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
                 if ($model->file_link) {
                     return '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
-
                 }
 
                 return null;
-
             })
             ->add('date_of_submission', fn($model) => $model->created_at != null ? Carbon::parse($model->created_at)->format('Y-m-d H:i:s') : null)
             ->add('updated_at');
@@ -217,8 +204,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
             Column::make('Indicator', 'indicator'),
 
-            Column::make('SUBMISSION PERIOD', 'month_range')
-            ,
+            Column::make('SUBMISSION PERIOD', 'month_range'),
 
             Column::make('Project Year', 'financial_year'),
             Column::make('Status', 'status_formatted')
@@ -274,7 +260,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             Button::add('delete')
                 ->slot('<i class="bx bx-trash"></i> Delete')
                 ->id()
-                ->class('btn btn-danger my-1')
+                ->class('btn btn-theme-red my-1')
                 ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('deleteAggregate', [
                     'id' => $row->id,
@@ -296,25 +282,25 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
 
             Rule::button('edit')
-            ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
-            ->hide(),
+                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
+                ->hide(),
 
             Rule::button('delete')
-            ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
-            ->disable(),
+                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
+                ->disable(),
 
 
             Rule::button('delete')
-            ->when(fn($row) => $row->status !== 'pending')
-            ->disable(),
+                ->when(fn($row) => $row->status !== 'pending')
+                ->disable(),
 
             // Rule::button('edit')
             //     ->when(fn($row) => $row->status == 'denied')
             //     ->disable(),
 
             Rule::button('edit')
-            ->when(fn($row) => $row->status == 'denied')
-            ->disable(),
+                ->when(fn($row) => $row->status == 'denied')
+                ->disable(),
             Rule::button('delete')
                 ->when(fn($row) => $row->status == 'denied')
                 ->disable(),
