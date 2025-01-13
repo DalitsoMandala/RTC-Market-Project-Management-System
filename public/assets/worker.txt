@@ -1,0 +1,9 @@
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /home/cdms/htdocs/cdms/artisan queue:work --sleep=3 --tries=3 --timeout=90
+autostart=true
+autorestart=true
+user=cdms
+numprocs=3
+redirect_stderr=true
+stdout_logfile=/home/cdms/htdocs/cdms/storage/logs/worker.log

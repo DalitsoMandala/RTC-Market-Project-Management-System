@@ -1,30 +1,6 @@
 <div>
 
-    <div x-data="{
-    
-        downloadForm() {
-            // Create a new workbook
-            var wb = XLSX.utils.book_new();
-    
-            // List of table IDs
-            var tableIds = ['table1']; // Add more table IDs as needed
-    
-            // Loop through each table ID
-            tableIds.forEach(function(id, index) {
-                // Get the table element
-                var table = document.getElementById(id);
-                if (table) {
-                    // Convert the table to a sheet
-                    var ws = XLSX.utils.table_to_sheet(table);
-                    // Add the sheet to the workbook
-                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet' + (index + 1));
-                }
-            });
-    
-            // Write the workbook to a file
-            XLSX.writeFile(wb, '{{ $indicator_name }}_{{ $indicator_no }}.xlsx');
-        }
-    }">
+    <div>
 
 
 
@@ -32,49 +8,112 @@
 
         <div class="row gy-1 ">
             <div class="col-12 col-md-12">
-                <h5 class="p-2 mb-3 text-center card-title fw-bold text-warning bg-soft-warning rounded-1"> <i
-                        class="bx bx-table"></i> Table
-                    view
-                </h5>
-                <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="bx bx-table"></i> Table
+                            view
+                        </h5>
+
+                    </div>
+                    <div class="card-body">
+                        <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
+                    </div>
+                </div>
+
+
             </div>
             <div class="col-12 col-md-12 ">
-                <h5 class="p-2 mb-3 text-center card-title fw-bold text-warning bg-soft-warning rounded-1"> <i
-                        class="bx bx-table"></i> Chart view</h5>
-                <div class="row gy-3" x-data="dashboard">
-                    <div class="text-center col-6">
-                        <h3 class=" text-muted h5">Crop Distribution</h3>
-                        <span class="bx bx-chevron-down text-muted fw-bold" style="font-size:15px"></span>
-                        <div id="cropChart" x-show='!hasZeroValues(cropChart)'></div>
 
-                        <x-no-data x-show='hasZeroValues(cropChart)' />
+                <div class="alert alert-warning" role="alert">
+                    <strong> <i class="bx bx-chart"></i> Charts</strong>
+                </div>
+
+
+
+                <div class="row gy-3 justify-content-center" x-data="dashboard">
+
+                    <div class="text-center col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Crop Distribution</h5>
+
+                                </h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div id="cropChart" x-show='!hasZeroValues(cropChart)'></div>
+
+                                <x-no-data x-show='hasZeroValues(cropChart)' />
+                            </div>
+                        </div>
+
+
                     </div>
 
-                    <div class="text-center col-6">
-                        <h3 class=" text-muted h5">Age Group
-                            Distribution</h3> <span class="bx bx-chevron-down text-muted fw-bold"
-                            style="font-size:15px"></span>
-                        <div id="ageGroupChart" x-show="!hasZeroValues(ageGroupChart)"></div>
+                    <div class="text-center col-md-6 col-12">
 
-                        <x-no-data x-show='hasZeroValues(ageGroupChart)' />
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Age Group
+                                    Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="ageGroupChart" x-show="!hasZeroValues(ageGroupChart)"></div>
+
+                                <x-no-data x-show='hasZeroValues(ageGroupChart)' />
+                            </div>
+                        </div>
+
+
                     </div>
-                    <div class="text-center col-6">
-                        <h3 class=" text-muted h5">Establishment Distribution</h3>
-                        <span class="bx bx-chevron-down text-muted fw-bold" style="font-size:15px"></span>
-                        <div id="establishmentChart" x-show="!hasZeroValues(establishmentChart)"></div>
-                        <x-no-data x-show="hasZeroValues(establishmentChart)" />
+                    <div class="text-center col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title"> Establishment Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="establishmentChart" x-show="!hasZeroValues(establishmentChart)"></div>
+                                <x-no-data x-show="hasZeroValues(establishmentChart)" />
+                            </div>
+                        </div>
+
+
                     </div>
-                    <div class="text-center col-6">
-                        <h3 class=" text-muted h5">Gender Distribution</h3>
-                        <span class="bx bx-chevron-down text-muted fw-bold" style="font-size:15px"></span>
-                        <div id="genderChart" x-show="!hasZeroValues(genderChart)"></div>
-                        <x-no-data x-show="hasZeroValues(genderChart)" />
+                    <div class="text-center col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Gender Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="genderChart" x-show="!hasZeroValues(genderChart)"></div>
+                                <x-no-data x-show="hasZeroValues(genderChart)" />
+                            </div>
+                        </div>
+
+
                     </div>
-                    <div class="text-center col-6">
-                        <h3 class=" text-muted h5">Actor Distribution</h3>
-                        <span class="bx bx-chevron-down text-muted fw-bold" style="font-size:15px"></span>
-                        <div id="professionChart" x-show="!hasZeroValues(professionChart)"></div>
-                        <x-no-data x-show="hasZeroValues(professionChart)" />
+                    <div class="text-center col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Actor Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="professionChart" x-show="!hasZeroValues(professionChart)"></div>
+                                <x-no-data x-show="hasZeroValues(professionChart)" />
+                            </div>
+                        </div>
+
+
                     </div>
 
                 </div>
@@ -164,18 +203,31 @@
                 const professionChartInstance = new ApexCharts(document.querySelector("#professionChart"), {
                     chart: {
                         type: 'bar',
-                        height: 213,
+                        height: 300,
                         toolbar: {
                             show: false, // Disables the entire toolbar including the download button
                         },
                     },
+                    plotOptions: {
+                        bar: {
+                            distributed: true,
+                            endingShape: 'rounded', // Rounded bar ends
+                            borderRadius: 4,
+                            borderRadiusApplication: 'end',
+                        }
+                    },
                     series: [{
+                        name: 'Value',
                         data: this.professionChart
                     }],
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+
                     xaxis: {
-                        categories: ['Farmers', 'Processors', 'Traders']
+                        categories: ['Farmers', 'Processors', 'Traders'],
+
                     },
+
+
+                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                 });
                 professionChartInstance.render();
                 const cropChartInstance = new ApexCharts(document.querySelector("#cropChart"), {
@@ -196,18 +248,29 @@
                     "#establishmentChart"), {
                     chart: {
                         type: 'bar',
-                        height: 285,
+                        height: 300,
                         toolbar: {
                             show: false, // Disables the entire toolbar including the download button
                         },
                     },
+                    plotOptions: {
+                        bar: {
+                            distributed: true,
+                            endingShape: 'rounded', // Rounded bar ends
+                            borderRadius: 4,
+                            borderRadiusApplication: 'end',
+                        }
+                    },
                     colors: ['#FC931D', '#FA7070', '#DE8F5F'],
                     series: [{
-                        data: this.establishmentChart
+                        name: 'Value',
+                        data: this.establishmentChart,
                     }],
                     xaxis: {
-                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment']
+                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment'],
+
                     },
+
                 });
                 establishmentChartInstance.render();
 

@@ -359,18 +359,32 @@
                 this.professionChartInstance = new ApexCharts(document.querySelector("#professionChart"), {
                     chart: {
                         type: 'bar',
-                        height: 213,
+                        height: 300,
                         toolbar: {
                             show: false, // Disables the entire toolbar including the download button
                         },
                     },
+                    plotOptions: {
+                        bar: {
+                            distributed: true,
+                            endingShape: 'rounded', // Rounded bar ends
+                            borderRadius: 4,
+                            borderRadiusApplication: 'end',
+                        }
+                    },
                     series: [{
+                        name: 'Value',
                         data: this.professionChart
                     }],
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
-                    xaxis: {
-                        categories: ['Farmers', 'Processors', 'Traders']
+                    fill: {
+                        colors: ['#FC931D', '#FA7070', '#DE8F5F']
                     },
+                    xaxis: {
+                        categories: ['Farmers', 'Processors', 'Traders'],
+
+                    },
+
+
                 });
                 this.professionChartInstance.render();
 
@@ -389,18 +403,32 @@
                     "#establishmentChart"), {
                     chart: {
                         type: 'bar',
-                        height: 285,
+                        height: 300,
                         toolbar: {
                             show: false, // Disables the entire toolbar including the download button
                         },
                     },
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    plotOptions: {
+                        bar: {
+                            distributed: true,
+                            endingShape: 'rounded', // Rounded bar ends
+                            borderRadius: 4,
+                            borderRadiusApplication: 'end',
+                        }
+                    },
+
+                    fill: {
+                        colors: ['#FC931D', '#FA7070', '#DE8F5F']
+                    },
                     series: [{
+                        name: 'Value',
                         data: this.establishmentChart
                     }],
                     xaxis: {
-                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment']
+                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment'],
+
                     },
+
                 });
                 this.establishmentChartInstance.render();
 

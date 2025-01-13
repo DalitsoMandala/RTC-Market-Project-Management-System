@@ -25,7 +25,8 @@
                 <x-alerts />
                 <div class="card">
                     <div class="card-header fw-bold">
-                        Indicators Table
+                        <h5 class="card-title">Indicators Table</h5>
+
                     </div>
                     <div class="card-body">
                         <livewire:tables.indicatorTable :userId="auth()->user()->id" />
@@ -42,7 +43,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -82,37 +83,37 @@
 
 
                     <div class="mb-1" wire:ignore x-data="{
-                    
+
                         myInput(data) {
                                 this.selected = data;
                             },
-                    
+
                     }" x-init="$('#selectElementPartner').select2({
                         width: '100%',
                         theme: 'bootstrap-5',
                         containerCssClass: 'select2--small',
                         dropdownCssClass: 'select2--small',
                     });
-                    
-                    
+
+
                     $('#selectElementPartner').on('change', function() {
-                    
+
                         data = $(this).val();
-                    
+
                         $wire.selectedLeadPartner = data;
-                    
-                    
+
+
                     });
-                    
-                    
-                    
+
+
+
                     $wire.on('select-partners', (e) => {
                         data = e.data;
                         $('#selectElementPartner').val(data).trigger('change');
-                    
-                    
-                    
-                    
+
+
+
+
                     })">
 
 
@@ -134,31 +135,31 @@
                         myInput(data) {
                             this.selected = data;
                         },
-                    
+
                     }" x-init="$('#selectSource').select2({
                         width: '100%',
                         theme: 'bootstrap-5',
                         containerCssClass: 'select2--small',
                         dropdownCssClass: 'select2--small',
                     });
-                    
-                    
+
+
                     $('#selectSource').on('change', function() {
-                    
+
                         data = $(this).val();
                         $wire.selectedSource = data;
                         // console.log(selected)
-                    
+
                     });
-                    
-                    
+
+
                     $wire.on('select-partners', (e) => {
                         data = e.data2;
                         $('#selectSource').val(data).trigger('change');
-                    
-                    
-                    
-                    
+
+
+
+
                     })">
 
 

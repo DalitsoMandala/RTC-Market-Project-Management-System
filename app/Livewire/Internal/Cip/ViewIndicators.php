@@ -80,7 +80,8 @@ class ViewIndicators extends Component
         ];
         $this->organisations = array_merge($additionalOrganisations, $this->organisations);
 
-        $this->selectedOrganisation = Organisation::where('id', auth()->user()->organisation->id)->first()->toArray();
+        $this->selectedOrganisation =   $this->organisations[0];
+
 
         $this->reRender();
     }
