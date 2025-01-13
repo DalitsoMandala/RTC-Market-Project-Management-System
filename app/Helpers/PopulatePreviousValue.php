@@ -21,9 +21,6 @@ class PopulatePreviousValue
             // Initialize each organization's previous value with the baseline
             $previousValues = [];
 
-            if(!$indicator->baseline->baseline_is_multiple){ // if not multiple baseline for each indicator
-
-
 
             foreach ($indicator->organisation as $organisation) {
                 $previousValues[$organisation->id] = $indicator->baseline->baseline_value;
@@ -46,8 +43,6 @@ class PopulatePreviousValue
                     $previousValues[$organisation->id] = $annualValue;
                 }
             }
-
-        }
         }
     }
 
@@ -131,10 +126,11 @@ class PopulatePreviousValue
 
     protected function calculateGrowthPercentage($annualValue, $baseline)
     {
+
         if ($annualValue == 0 || $baseline == 0) {
             return 0; // Avoid division by zero
         }
-        return round((($annualValue - $baseline) / $baseline) * 100, 2);
+        return round((($annualValue - $baseline) / $annualValue) * 100, 2);
     }
 
     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)

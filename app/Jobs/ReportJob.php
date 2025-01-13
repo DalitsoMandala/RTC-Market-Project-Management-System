@@ -139,82 +139,83 @@ class ReportJob implements ShouldQueue
     // }
 
     public function handle(): void
-{
-    // Fetch Indicator classes and set up progress tracking
-    $Indicator_classes = IndicatorClass::all();
-    $totalReportingPeriods = ReportingPeriodMonth::count() + 1;
-    $totalFinancialYears = FinancialYear::count() + 1;
-    $totalOrganisations = Organisation::count() + 1;
-    $totalIterations = $Indicator_classes->count() * $totalReportingPeriods * $totalFinancialYears * $totalOrganisations;
+    {
+        // Fetch Indicator classes and set up progress tracking
+        $Indicator_classes = IndicatorClass::all();
+        $totalReportingPeriods = ReportingPeriodMonth::count() + 1;
+        $totalFinancialYears = FinancialYear::count() + 1;
+        $totalOrganisations = Organisation::count() + 1;
+        $totalIterations = $Indicator_classes->count() * $totalReportingPeriods * $totalFinancialYears * $totalOrganisations;
 
-    $currentProgress = 0;
-    $updateInterval = 10; // Update progress every 10 iterations
-    Cache::put('report_progress', 0);
-    ReportStatus::find(1)->update([
-        'status' => 'pending',
-        'progress' => 0
-    ]);
+        $currentProgress = 0;
+        $updateInterval = 10; // Update progress every 10 iterations
+        Cache::put('report_progress', 0);
+        ReportStatus::find(1)->update([
+            'status' => 'pending',
+            'progress' => 0
+        ]);
 
-    foreach ($Indicator_classes as $Indicator_class) {
-        $reportingPeriods = ReportingPeriodMonth::pluck('id')->toArray();
-        $reportingPeriods = array_chunk($reportingPeriods, 50); // Chunk reporting periods
+        foreach ($Indicator_classes as $Indicator_class) {
+            $reportingPeriods = ReportingPeriodMonth::pluck('id')->toArray();
+            $reportingPeriods = array_chunk($reportingPeriods, 50); // Chunk reporting periods
 
-        $financialYears = FinancialYear::pluck('id')->toArray();
-        $financialYears = array_chunk($financialYears, 50); // Chunk financial years
+            $financialYears = FinancialYear::first()->pluck('id')->toArray();
+            $financialYears = array_chunk($financialYears, 50); // Chunk financial years
 
-        $organisations = Organisation::pluck('id')->toArray();
-        $organisations = array_chunk($organisations, 50); // Chunk organisations
+            $organisations = Organisation::pluck('id')->toArray();
+            $organisations = array_chunk($organisations, 50); // Chunk organisations
 
-        foreach ($reportingPeriods as $periodChunk) {
-            foreach ($periodChunk as $period) {
-                foreach ($financialYears as $financialYearChunk) {
-                    foreach ($financialYearChunk as $financialYear) {
-                        foreach ($organisations as $organisationChunk) {
-                            foreach ($organisationChunk as $organisation) {
-                                try {
-                                    $class = new $Indicator_class->class(
-                                        reporting_period: $period,
-                                        financial_year: $financialYear,
-                                        organisation_id: $organisation
-                                    );
-
-                                    $project = Indicator::find($Indicator_class->indicator_id)->project;
-                                    $indicators = ResponsiblePerson::where('organisation_id', $organisation)->pluck('indicator_id');
-
-                                    if ($indicators->contains($Indicator_class->indicator_id)) {
-                                        // Use updateOrCreate to handle updates
-                                        $report = SystemReport::updateOrCreate(
-                                            [
-                                                'reporting_period_id' => $period,
-                                                'financial_year_id' => $financialYear,
-                                                'organisation_id' => $organisation,
-                                                'project_id' => $project->id,
-                                                'indicator_id' => $Indicator_class->indicator_id,
-                                            ],
-                                            [] // No additional fields to update
+            foreach ($reportingPeriods as $periodChunk) {
+                foreach ($periodChunk as $period) {
+                    foreach ($financialYears as $financialYearChunk) {
+                        foreach ($financialYearChunk as $financialYear) {
+                            foreach ($organisations as $organisationChunk) {
+                                foreach ($organisationChunk as $organisation) {
+                                    try {
+                                        $class = new $Indicator_class->class(
+                                            reporting_period: $period,
+                                            financial_year: $financialYear,
+                                            organisation_id: $organisation
                                         );
 
-                                        foreach ($class->getDisaggregations() as $key => $value) {
-                                            // Update or create data entries
-                                            $report->data()->updateOrCreate(
-                                                ['name' => $key],
-                                                ['value' => $value]
-                                            );
-                                        }
-                                    }
+                                        $project = Indicator::find($Indicator_class->indicator_id)->project;
+                                        $indicators = ResponsiblePerson::where('organisation_id', $organisation)->pluck('indicator_id');
 
-                                    // Update progress
-                                    $currentProgress++;
-                                    if ($currentProgress % $updateInterval === 0 || $currentProgress === $totalIterations) {
-                                        $progressPercentage = ($currentProgress / $totalIterations) * 100;
-                                        Cache::put('report_progress', round($progressPercentage));
-                                        ReportStatus::find(1)->update([
-                                            'status' => 'processing',
-                                            'progress' => round($progressPercentage)
-                                        ]);
+                                        if ($indicators->contains($Indicator_class->indicator_id)) {
+                                            // Use updateOrCreate to handle updates
+                                            $report = SystemReport::updateOrCreate(
+                                                [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id' => $financialYear,
+                                                    'organisation_id' => $organisation,
+                                                    'project_id' => $project->id,
+                                                    'indicator_id' => $Indicator_class->indicator_id,
+                                                ],
+                                                [] // No additional fields to update
+                                            );
+
+                                            foreach ($class->getDisaggregations() as $key => $value) {
+                                                // Update or create data entries
+                                                $report->data()->updateOrCreate(
+                                                    ['name' => $key],
+                                                    ['value' => $value]
+                                                );
+                                            }
+                                        }
+
+                                        // Update progress
+                                        $currentProgress++;
+                                        if ($currentProgress % $updateInterval === 0 || $currentProgress === $totalIterations) {
+                                            $progressPercentage = ($currentProgress / $totalIterations) * 100;
+                                            Cache::put('report_progress', round($progressPercentage));
+                                            ReportStatus::find(1)->update([
+                                                'status' => 'processing',
+                                                'progress' => round($progressPercentage)
+                                            ]);
+                                        }
+                                    } catch (\Exception $e) {
+                                        Log::error("Error processing report for organisation: $organisation", ['error' => $e->getMessage()]);
                                     }
-                                } catch (\Exception $e) {
-                                    Log::error("Error processing report for organisation: $organisation", ['error' => $e->getMessage()]);
                                 }
                             }
                         }
@@ -222,8 +223,7 @@ class ReportJob implements ShouldQueue
                 }
             }
         }
-    }
-      $class = new PopulatePreviousValue();
+        $class = new PopulatePreviousValue();
 
         $class->start(); // percentages
 
@@ -234,7 +234,5 @@ class ReportJob implements ShouldQueue
         ]);
         Cache::put('report_progress', 100);
         Cache::put('report_', 'completed');
-
-}
-
+    }
 }
