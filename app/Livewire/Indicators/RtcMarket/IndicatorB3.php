@@ -71,9 +71,8 @@ class IndicatorB3 extends Component
 
             // Sum each group's values
             $summedGroups = $groupedData->map(function ($group) {
-                return $group->sum('value');
+                return $group->first()->value; // Assuming 'value' is the field to be summed
             });
-
 
             // Store the results
             $this->data = $summedGroups;

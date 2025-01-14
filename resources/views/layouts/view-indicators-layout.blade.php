@@ -40,8 +40,8 @@
         <div class="col-12 col-md-8">
             <h5 class="h3 mb-3">{{ $indicator_name }} ({{ $indicator_no }} )</h5>
         </div>
-        <div class="col-12 col-md-4 d-flex justify-content-end">
-            <div class="dropdown @if (auth()->user()->hasAnyRole('external')) d-none @endif" x-data="{
+        <div class="col-12 col-md-4 d-flex justify-content-end flex-wrap ">
+            <div class="dropdown mb-1 @if (auth()->user()->hasAnyRole('external')) d-none @endif" x-data="{
                 Organisation: $wire.entangle('selectedOrganisation'),
                 Organisations: $wire.entangle('organisations'),
                 setData(value) {
@@ -72,7 +72,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                     <template x-for="(value, index) in Organisations" :key="value.id">
-                        <a class="dropdown-item" @click="setData(value)" href="#"
+                        <a class="dropdown-item" @click="setData(value)" href="#" data-bs-toggle="modal"
                             :class="{
                                 'disabled': Organisation.name === value.name
                             }">
@@ -82,7 +82,7 @@
 
                 </div>
             </div>
-            <div class="dropdown" x-data="{
+            <div class="dropdown mb-1" x-data="{
                 financialYear: $wire.entangle('selectedFinancialYear'),
                 financialYears: $wire.entangle('financialYears'),
                 setData(value) {
@@ -117,7 +117,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                     <template x-for="(value, index) in financialYears" :key="value.id">
-                        <a class="dropdown-item" @click="setData(value)" href="#"
+                        <a class="dropdown-item" @click="setData(value)" href="#" data-bs-toggle="modal"
                             :class="{
                                 'disabled': financialYear.number === value.number
                             }">

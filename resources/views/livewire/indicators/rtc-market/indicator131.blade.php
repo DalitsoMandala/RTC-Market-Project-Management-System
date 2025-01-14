@@ -1,118 +1,95 @@
 <div>
 
-    <div x-data="{
-
-        downloadForm() {
-            // Create a new workbook
-            var wb = XLSX.utils.book_new();
-
-            // List of table IDs
-            var tableIds = ['table1']; // Add more table IDs as needed
-
-            // Loop through each table ID
-            tableIds.forEach(function(id, index) {
-                // Get the table element
-                var table = document.getElementById(id);
-                if (table) {
-                    // Convert the table to a sheet
-                    var ws = XLSX.utils.table_to_sheet(table);
-                    // Add the sheet to the workbook
-                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet' + (index + 1));
-                }
-            });
-
-            // Write the workbook to a file
-            XLSX.writeFile(wb, '{{ $indicator_name }}_{{ $indicator_no }}.xlsx');
-        }
-    }">
+    <div>
 
 
 
-        <div class="row">
-            <div class="col-12">
-                <div class="alert alert-warning" role="alert">
-                    <button class="btn btn-warning" @click="downloadForm()"> Download this data</button>
-                </div>
-
-            </div>
-        </div>
-        <div class="row ">
-            <div class="col-12 col">
-                <div class="border shadow-none card ">
 
 
-                    <div class="card-body ">
-                        <div class="table-responsive ">
-                            <table class="table mb-0 table-hover table-striped table-bordered" id="table1">
-                                <thead class="table-primary">
-                                    <tr>
+        <div class="row gy-1 ">
+            <div class="col-12 col-md-12">
 
-                                        <th scope="col">Disaggregation</th>
-                                        <th scope="col">Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="bx bx-table"></i> Table
+                            view
+                        </h5>
 
-                                    @foreach ($data as $index => $value)
-                                        <tr class="">
-
-                                            <td scope="row">{{ $index }}</td>
-                                            <td scope="row">{{ $value }}</td>
-                                        </tr>
-                                    @endforeach
-
-                                </tbody>
-                            </table>
-                        </div>
-
+                    </div>
+                    <div class="card-body">
+                        <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
                     </div>
                 </div>
 
 
-
             </div>
 
-            <div class="col-12">
-                <div class="border shadow-none card card-body" x-data="{
-                    chartData: @js($data),
-                    categories: ['Total'],
-                    values: [],
-                    init() {
-                        let data = this.chartData;
-                        categories = Object.keys(data); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        seriesData = Object.values(data).map(value => Number(value)); // [0, 0, 0, 0]
 
 
-
-                        options = {
-                            chart: {
-                                type: 'bar'
-                            },
-                            series: [{
-                                name: 'Count',
-                                data: seriesData
-                            }],
-                            colors: ['#006989', '#E88D67', '#FA7070'],
-                            xaxis: {
-                                categories: categories
-                            }
-                        };
-
-                        let chart = new ApexCharts($refs.chart, options);
-                        chart.render();
-                    }
-                }">
-                    <div x-ref="chart"></div>
-                </div>
-
-
-            </div>
         </div>
 
     </div>
 
 
-    @script
-    <script></script>
-    @endscript
 </div>
+@script
+    <script>
+        Alpine.data('dashboard', () => ({
+            rtcPeople: [],
+
+
+            data: $wire.entangle('data'),
+
+            changeYear(data) {
+                $wire.dispatch('updateReportYear', {
+                    id: data.id,
+                });
+            },
+
+            hasZeroValues(array) {
+                if (!array.every(item => typeof item === 'number')) {
+                    throw new Error("Array contains non-number elements.");
+                }
+                return array.reduce((a, b) => a + b, 0) === 0;
+            },
+            setData(data) {
+
+
+                this.rtcPeople = [data['RTC actors and households'],
+                    data['School feeding beneficiaries']
+                ];
+
+
+
+
+            },
+
+
+            init() {
+
+                let data = this.data;
+                this.setData(data);
+
+
+                const rtcChart = new ApexCharts(document.querySelector("#cropChart"), {
+                    chart: {
+                        type: 'pie',
+                        height: 300
+                    },
+                    colors: ['#DE8F5F', '#FC931D', '#FA7070'],
+                    legend: {
+                        position: 'bottom'
+                    },
+                    series: this.rtcPeople,
+                    labels: ['RTC actors and households', 'School feeding beneficiaries']
+                });
+                rtcChart.render();
+
+
+            },
+
+
+        }));
+    </script>
+@endscript

@@ -154,8 +154,15 @@ class PopulatePreviousValue
             ->where('organisation_id', $organisation->id)
             ->pluck('id');
 
-        SystemReportData::whereIn('system_report_id', $reportIds)
-            ->where('name', $disaggregation_name)
-            ->update(['value' => $growthPercentage]);
+
+
+        $data =  SystemReportData::whereIn('system_report_id', $reportIds)
+            ->where('name', $disaggregation_name)->get();
+
+        foreach ($data as $item) {
+            $item->update([
+                'value' => $growthPercentage
+            ]);
+        }
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('system_report_id')->constrained('system_reports')->onDelete('cascade')->onUpdate('cascade');
             $table->string('name');
-            $table->string('value')->nullable();
+            $table->float('value')->default(0.00);
             $table->timestamps();
         });
     }

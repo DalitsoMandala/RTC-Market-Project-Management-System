@@ -51,7 +51,9 @@
                             </div>
 
                             <div class="card-body">
-                                <div id="totalCropBar"></div>
+                                <div id="totalCropBar" x-show='!hasZeroValues(totalCropBar)'></div>
+                                <x-no-data x-show='hasZeroValues(totalCropBar)'></x-no-data>
+
                             </div>
                         </div>
                     </div>
@@ -75,10 +77,9 @@
 @script
     <script>
         Alpine.data('dashboard', () => ({
-            totalCrop: null,
-            totalPotato: null,
-            totalCassava: null,
-            totalSweetPotato: null,
+            totalCrop: [],
+
+            totalCropBar: [],
             data: $wire.entangle('data'),
 
 
@@ -91,11 +92,13 @@
             },
             setData(data) {
 
-                this.totalCrop = data['Total (% Percentage)'];
-                this.totalPotato = data.Potato;
-                this.totalCassava = data.Cassava;
-                this.totalSweetPotato = data['Sweet potato'];
+                this.totalCrop = [data['Total (% Percentage)']];
 
+                this.totalCropBar = [
+                    data.Potato,
+                    data.Cassava,
+                    data['Sweet potato'],
+                ];
 
 
             },
@@ -106,7 +109,7 @@
                 this.setData(data);
 
                 const totalChart = new ApexCharts(document.querySelector("#totalCrop"), {
-                    series: [this.totalCrop],
+                    series: this.totalCrop,
                     chart: {
                         height: 350,
                         type: 'radialBar',
@@ -152,9 +155,7 @@
                     series: [{
                             name: 'Value',
                             type: 'bar', // Bar series
-                            data: [this.totalPotato, this.totalSweetPotato, this
-                                .totalCassava
-                            ], // Raw numeric values for the bar
+                            data: this.totalCropBar // Raw numeric values for the bar
                         },
 
                     ],
