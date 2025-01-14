@@ -156,8 +156,8 @@ Route::middleware([
     Route::get('/targets', App\Livewire\Targets\View::class);
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
-    Route::get('/seed-beneficiaries/add', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
-    Route::get('/seed-beneficiaries', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
+    //  Route::get('/seed-beneficiaries/add', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
+    //    Route::get('/seed-beneficiaries', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
     // Route::get('/seed-distribution/add', App\Livewire\OtherForms\SeedDistribution\Add::class);
     // Route::get('/seed-distribution', App\Livewire\OtherForms\SeedDistribution\View::class);
@@ -196,6 +196,9 @@ Route::middleware([
     Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
     Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+
+    Route::get($formPrefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}',  App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
+    Route::get($formPrefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
 });
 
 // CIP Internal routes

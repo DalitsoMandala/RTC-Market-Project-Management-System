@@ -16,8 +16,7 @@ class SourceSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            [
-                'person_id' => 1,
+            [     'person_id' => 1,
                 'form_id' => 1
             ],
             [

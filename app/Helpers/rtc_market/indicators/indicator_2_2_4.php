@@ -3,6 +3,7 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
+use App\Models\SeedBeneficiary;
 use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -26,9 +27,9 @@ class indicator_2_2_4
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Volume of seed distributed within communities to enhance POs productivity')->where('indicator_no', '2.2.4')->first();
+        //   $indicator = Indicator::where('indicator_name', 'Volume of seed distributed within communities to enhance POs productivity')->where('indicator_no', '2.2.4')->first();
 
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
+        $query = SeedBeneficiary::query()->where('indicator_id', '2.2.4')->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {

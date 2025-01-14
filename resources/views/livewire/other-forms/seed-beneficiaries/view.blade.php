@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">View Seed Beneficiaries</h4>
+                    <h4 class="mb-0">View Seed Distribution Register</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">View Seed Beneficiaries</li>
+                            <li class="breadcrumb-item active">View Seed Distribution Register</li>
                         </ol>
                     </div>
 
@@ -24,20 +24,19 @@
             showCard: false,
             toggleShow() {
                 this.showCard = !this.showCard;
-
+        
             }
-
+        
         }" @close-form="showCard = false">
 
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">Seed Beneficiaries</h5>
+                        <h5 class="card-title">Seed Distribution Register Table</h5>
                         @php
                             $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
                         @endphp
-                        <a class="btn btn-warning btn-sm" href="{{ $routePrefix }}/seed-beneficiaries/add">Add Data
-                            +</a>
+
                     </div>
                     <div class="card-header text-muted">
                         <strong>Column Information:</strong>
@@ -102,22 +101,22 @@
 
 
         <div x-data x-init="$wire.on('edit-showModal', (e) => {
-
+        
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             $wire.setData(e.id);
             myModal.show();
         })
-
+        
         $wire.on('deleteRecord', (e) => {
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             $wire.setData(e.id);
             myModal.show();
-
-
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
