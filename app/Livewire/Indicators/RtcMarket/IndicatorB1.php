@@ -49,12 +49,20 @@ class IndicatorB1 extends Component
 
 
 
+
         $reportId = SystemReport::where('indicator_id', $this->indicator_id)
             ->where('project_id', $this->project_id)
             ->where('organisation_id', $this->organisation['id'])
             ->where('financial_year_id', $this->financial_year['id'])
             ->pluck('id');
 
+
+        if ($this->organisation['id'] == 0) {
+            $reportId = SystemReport::where('indicator_id', $this->indicator_id)
+                ->where('project_id', $this->project_id)
+                ->where('financial_year_id', $this->financial_year['id'])
+                ->pluck('id');
+        }
 
         if ($reportId->isNotEmpty()) {
             // Retrieve and group data by 'name'
@@ -63,26 +71,25 @@ class IndicatorB1 extends Component
 
 
             // Sum each group's values
+
             $summedGroups = $groupedData->map(function ($group) {
-                return $group->first()->value;
+                return $group->first()->value; // Assuming 'value' is the field to be summed
             });
+
 
 
             // Store the results
             $this->data = $summedGroups;
 
+
+
             // Retrieve the total if 'Total' is one of the grouped items
             $this->total = $summedGroups->get('Total (% Percentage)', 0); // Defaults to 0 if 'Total' is not present
         }
-
-
-
-
     }
     public function mount()
     {
         $this->calculations();
-
     }
 
     public function render()

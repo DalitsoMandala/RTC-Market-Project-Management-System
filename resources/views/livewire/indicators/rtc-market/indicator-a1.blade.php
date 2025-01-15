@@ -1,252 +1,282 @@
 <div>
 
-    <div x-data="{
-
-        downloadForm() {
-            // Create a new workbook
-            var wb = XLSX.utils.book_new();
-
-            // List of table IDs
-            var tableIds = ['table1']; // Add more table IDs as needed
-
-            // Loop through each table ID
-            tableIds.forEach(function(id, index) {
-                // Get the table element
-                var table = document.getElementById(id);
-                if (table) {
-                    // Convert the table to a sheet
-                    var ws = XLSX.utils.table_to_sheet(table);
-                    // Add the sheet to the workbook
-                    XLSX.utils.book_append_sheet(wb, ws, 'Sheet' + (index + 1));
-                }
-            });
-
-            // Write the workbook to a file
-            XLSX.writeFile(wb, '{{ $indicator_name }}_{{ $indicator_no }}.xlsx');
-        }
-    }">
+    <div>
 
 
 
 
-        <div class="row">
-            <div class="col-12">
-                <div class="alert alert-warning" role="alert">
-                    <button class="btn btn-warning" @click="downloadForm()"> Download this data</button>
-                </div>
 
-            </div>
-        </div>
-        <div class="row ">
-            <div class="col-12 col">
-                <div class="border shadow-none card ">
+        <div class="row gy-1 ">
+            <div class="col-12 col-md-12">
 
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="bx bx-table"></i> Table
+                            view
+                        </h5>
 
-                    <div class="card-body ">
-                        <div class="table-responsive ">
-                            <table class="table mb-0 table-hover table-striped table-bordered" id="table1">
-                                <thead class="table-primary">
-                                    <tr>
-
-                                        <th scope="col">Disaggregation</th>
-                                        <th scope="col">Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    @foreach ($data as $index => $value)
-                                        <tr class="">
-
-                                            <td scope="row">{{ $index }}</td>
-                                            <td scope="row">{{ $value }}</td>
-                                        </tr>
-                                    @endforeach
-
-                                </tbody>
-                            </table>
-                        </div>
-
+                    </div>
+                    <div class="card-body">
+                        <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
                     </div>
                 </div>
 
 
-
             </div>
+            <div class="col-12 col-md-12 ">
 
-            <div class="col-12">
-                <div class="border shadow-none card card-body" x-data="{
-                    chartData: @js($data),
-                    categories: ['Total'],
-                    values: [],
-                    init() {
-                        let data = this.chartData;
-                        categories = Object.keys(data); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        seriesData = Object.values(data).map(value => Number(value)); // [0, 0, 0, 0]
-
-
-
-                        options = {
-                            chart: {
-                                type: 'bar'
-                            },
-
-                            series: [{
-                                name: 'Count',
-                                data: seriesData
-                            }],
-                            colors: ['#006989', '#E88D67', '#FA7070'],
-                            xaxis: {
-                                categories: categories
-                            }
-                        };
-
-                        let chart = new ApexCharts($refs.chart, options);
-                        chart.render();
-                    }
-                }">
-                    <div x-ref="chart"></div>
+                <div class="alert alert-warning" role="alert">
+                    <strong> <i class="bx bx-chart"></i> Charts</strong>
                 </div>
 
 
-            </div>
 
-            <div class="col">
-                <div class="border shadow-none card card-body" x-data="{
-                    chartData: @js($data),
-                    init() {
-                        let data = this.chartData;
-                        let keysToKeep = ['Male', 'Female'];
+                <div class="row gy-3 justify-content-center" x-data="dashboard">
 
-                        // Filtering the object
-                        let filteredData = Object.fromEntries(
-                            Object.entries(data).filter(([key]) => keysToKeep.includes(key))
-                        );
+                    <div class="text-center col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Crop Distribution</h5>
 
+                                </h5>
+                            </div>
 
-                        let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
+                            <div class="card-body">
+                                <div id="cropChart" x-show='!hasZeroValues(cropChart)'></div>
 
-                        let options = {
-                            chart: {
-                                type: 'donut'
-                            },
+                                <x-no-data x-show='hasZeroValues(cropChart)' />
+                            </div>
+                        </div>
 
 
+                    </div>
 
-                            series: seriesData,
-                            labels: categories,
-                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181'],
+                    <div class="text-center col-md-6 col-12">
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Age Group
+                                    Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="ageGroupChart" x-show="!hasZeroValues(ageGroupChart)"></div>
+
+                                <x-no-data x-show='hasZeroValues(ageGroupChart)' />
+                            </div>
+                        </div>
 
 
-                        };
+                    </div>
+                    <div class="text-center col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title"> Establishment Distribution</h5>
 
-                        let chart = new ApexCharts($refs.genderChart, options);
-                        chart.render();
-                    }
-                }">
-                    <div x-ref="genderChart"></div>
+                            </div>
+
+                            <div class="card-body">
+                                <div id="establishmentChart" x-show="!hasZeroValues(establishmentChart)"></div>
+                                <x-no-data x-show="hasZeroValues(establishmentChart)" />
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="text-center col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Gender Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="genderChart" x-show="!hasZeroValues(genderChart)"></div>
+                                <x-no-data x-show="hasZeroValues(genderChart)" />
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="text-center col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Actor Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="professionChart" x-show="!hasZeroValues(professionChart)"></div>
+                                <x-no-data x-show="hasZeroValues(professionChart)" />
+                            </div>
+                        </div>
+
+
+                    </div>
+
                 </div>
+
             </div>
 
-            <div class="col">
-                <div class="border shadow-none card card-body" x-data="{
-                    chartData: @js($data),
-                    init() {
-                        let data = this.chartData;
-                        let keysToKeep = ['Cassava', 'Potato', 'Sweet potato'];
 
-                        // Filtering the object
-                        let filteredData = Object.fromEntries(
-                            Object.entries(data).filter(([key]) => keysToKeep.includes(key))
-                        );
-
-
-                        let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
-
-                        let options = {
-                            chart: {
-                                type: 'radialBar'
-                            },
-                            series: seriesData,
-                            labels: categories,
-                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181'],
-
-                            plotOptions: {
-                                radialBar: {
-                                    dataLabels: {
-                                        name: {
-                                            fontSize: '22px',
-                                        },
-                                        value: {
-                                            fontSize: '16px',
-                                            formatter: function(val) {
-                                                return val
-                                            }
-                                        },
-                                        total: {
-                                            show: true,
-                                            label: 'Total',
-                                            formatter: function(w) {
-                                                return w.globals.seriesTotals.reduce((a, b) => {
-                                                    return a + b
-                                                }, 0)
-                                            }
-                                        }
-                                    },
-
-
-                                }
-                            }
-
-                        };
-
-                        let chart = new ApexCharts($refs.cropChart, options);
-                        chart.render();
-                    }
-                }">
-                    <div x-ref="cropChart"></div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="border shadow-none card card-body" x-data="{
-                    chartData: @js($data),
-                    init() {
-                        let data = this.chartData;
-                        let keysToKeep = ['Farmers', 'Traders', 'Processors'];
-
-                        // Filtering the object
-                        let filteredData = Object.fromEntries(
-                            Object.entries(data).filter(([key]) => keysToKeep.includes(key))
-                        );
-
-
-                        let categories = Object.keys(filteredData); // ['Cassava', 'Potato', 'Sweet potato', 'Total']
-                        let seriesData = Object.values(filteredData).map(value => Number(value)); // [0, 0, 0, 0]
-
-                        let options = {
-                            chart: {
-                                type: 'pie'
-                            },
-                            series: seriesData,
-                            labels: categories,
-                            colors: ['#006989', '#E88D67', '#FA7070', '#A1C181']
-                        };
-
-                        let chart = new ApexCharts($refs.cropChart, options);
-                        chart.render();
-                    }
-                }">
-                    <div x-ref="cropChart"></div>
-                </div>
-            </div>
         </div>
 
     </div>
 
 
-    @script
-    <script></script>
-    @endscript
 </div>
+@script
+    <script>
+        Alpine.data('dashboard', () => ({
+            genderChart: [],
+            ageGroupChart: [],
+            professionChart: [],
+            cropChart: [],
+            establishmentChart: [],
+            data: $wire.entangle('data'),
+
+            changeYear(data) {
+                $wire.dispatch('updateReportYear', {
+                    id: data.id,
+                });
+            },
+
+            hasZeroValues(array) {
+                if (!array.every(item => typeof item === 'number')) {
+                    throw new Error("Array contains non-number elements.");
+                }
+                return array.reduce((a, b) => a + b, 0) === 0;
+            },
+            setData(data) {
+
+
+                this.genderChart = [data.Female, data.Male];
+                this.ageGroupChart = [data['Youth (18-35 yrs)'], data['Not youth (35yrs+)']];
+                this.professionChart = [data.Farmers, data.Processors, data.Traders];
+                this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
+                this.establishmentChart = [
+                    data['Employees on RTC establishment'],
+                    data['New establishment'],
+                    data['Old establishment']
+                ];
+
+
+            },
+
+
+            init() {
+
+                let data = this.data;
+                this.setData(data);
+
+                // Initialize charts and store instances
+                const genderChartInstance = new ApexCharts(document.querySelector("#genderChart"), {
+                    chart: {
+                        type: 'pie',
+                        height: 300
+                    },
+                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    legend: {
+                        position: 'bottom'
+                    },
+                    series: this.genderChart,
+                    labels: ['Female', 'Male']
+                });
+                genderChartInstance.render();
+
+                const ageGroupChartInstance = new ApexCharts(document.querySelector("#ageGroupChart"), {
+                    chart: {
+                        type: 'donut',
+                        height: 300
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    series: this.ageGroupChart,
+                    labels: ['Youth (18-35 yrs)', 'Not Youth (35yrs+)']
+                });
+                ageGroupChartInstance.render();
+
+                const professionChartInstance = new ApexCharts(document.querySelector("#professionChart"), {
+                    chart: {
+                        type: 'bar',
+                        height: 300,
+                        toolbar: {
+                            show: false, // Disables the entire toolbar including the download button
+                        },
+                    },
+                    plotOptions: {
+                        bar: {
+                            distributed: true,
+                            endingShape: 'rounded', // Rounded bar ends
+                            borderRadius: 4,
+                            borderRadiusApplication: 'end',
+                        }
+                    },
+                    series: [{
+                        name: 'Value',
+                        data: this.professionChart
+                    }],
+
+                    xaxis: {
+                        categories: ['Farmers', 'Processors', 'Traders'],
+
+                    },
+
+
+                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                });
+                professionChartInstance.render();
+                const cropChartInstance = new ApexCharts(document.querySelector("#cropChart"), {
+                    chart: {
+                        type: 'pie',
+                        height: 300
+                    },
+                    colors: ['#DE8F5F', '#FC931D', '#FA7070'],
+                    legend: {
+                        position: 'bottom'
+                    },
+                    series: this.cropChart,
+                    labels: ['Cassava', 'Potato', 'Sweet Potato']
+                });
+                cropChartInstance.render();
+
+                const establishmentChartInstance = new ApexCharts(document.querySelector(
+                    "#establishmentChart"), {
+                    chart: {
+                        type: 'bar',
+                        height: 300,
+                        toolbar: {
+                            show: false, // Disables the entire toolbar including the download button
+                        },
+                    },
+                    plotOptions: {
+                        bar: {
+                            distributed: true,
+                            endingShape: 'rounded', // Rounded bar ends
+                            borderRadius: 4,
+                            borderRadiusApplication: 'end',
+                        }
+                    },
+                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    series: [{
+                        name: 'Value',
+                        data: this.establishmentChart,
+                    }],
+                    xaxis: {
+                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment'],
+
+                    },
+
+                });
+                establishmentChartInstance.render();
+
+            },
+
+
+        }));
+    </script>
+@endscript

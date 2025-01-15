@@ -13,40 +13,41 @@
     <div class="row">
         <div class="card card-body shadow-none border">
             @foreach ($area_under_cultivation as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">VARIETY
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">VARIETY
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('area_under_cultivation.' . $index . '.variety')
-                ? 'is-invalid'
-                : ''" wire:model='area_under_cultivation.{{ $index }}.variety'
-                                    placeholder="variety" />
-                                @error('area_under_cultivation.' . $index . '.variety')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_cultivation.' . $index . '.area') ? 'is-invalid' : ''" wire:model='area_under_cultivation.{{ $index }}.area'
-                                    placeholder="area" />
-                                @error('area_under_cultivation.' . $index . '.area')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-
-
-                        <div class="col-2" x-data> <button type="button" class="btn btn-danger"
-                                @click="$wire.removeAreaofCultivation({{ $index }})" @if ($index == 0) disabled @endif>
-                                -
-                            </button>
+                            <x-text-input :class="$errors->has('area_under_cultivation.' . $index . '.variety')
+                                ? 'is-invalid'
+                                : ''"
+                                wire:model='area_under_cultivation.{{ $index }}.variety' placeholder="variety" />
+                            @error('area_under_cultivation.' . $index . '.variety')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
                     </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_cultivation.' . $index . '.area') ? 'is-invalid' : ''"
+                                wire:model='area_under_cultivation.{{ $index }}.area' placeholder="area" />
+                            @error('area_under_cultivation.' . $index . '.area')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                    </div>
+
+
+                    <div class="col-2" x-data> <button type="button" class="btn btn-theme-red"
+                            @click="$wire.removeAreaofCultivation({{ $index }})"
+                            @if ($index == 0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+                </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
@@ -213,42 +214,44 @@
     <div class="row">
         <div class="card card-body shadow-none border">
             @foreach ($area_under_basic_seed_multiplication as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">vARIETY
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">vARIETY
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.variety')
-                ? 'is-invalid'
-                : ''"
-                                    wire:model='area_under_basic_seed_multiplication.{{ $index }}.variety'
-                                    placeholder="variety" />
-                                @error('area_under_basic_seed_multiplication.' . $index . '.variety')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <x-text-input type="number" min="0" step="any"
-                                    :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.area')
-                ? 'is-invalid'
-                : ''" wire:model='area_under_basic_seed_multiplication.{{ $index }}.area'
-                                    placeholder="area" />
-                                @error('area_under_basic_seed_multiplication.' . $index . '.area')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-2" x-data>
-                            <button type="button" class="btn btn-danger" @click="$wire.removeBasicSeed({{ $index }})" @if ($index == 0) disabled @endif>
-                                -
-                            </button>
+                            <x-text-input :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.variety')
+                                ? 'is-invalid'
+                                : ''"
+                                wire:model='area_under_basic_seed_multiplication.{{ $index }}.variety'
+                                placeholder="variety" />
+                            @error('area_under_basic_seed_multiplication.' . $index . '.variety')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
                     </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_basic_seed_multiplication.' . $index . '.area')
+                                ? 'is-invalid'
+                                : ''"
+                                wire:model='area_under_basic_seed_multiplication.{{ $index }}.area'
+                                placeholder="area" />
+                            @error('area_under_basic_seed_multiplication.' . $index . '.area')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-theme-red"
+                            @click="$wire.removeBasicSeed({{ $index }})"
+                            @if ($index == 0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+                </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
@@ -275,43 +278,45 @@
     <div class="row">
         <div class="card card-body shadow-none border">
             @foreach ($area_under_certified_seed_multiplication as $index => $value)
-                    <div class="row">
-                        <label for="variety" class="my-3 form-label fw-bold">vARIETY
-                            ({{ $index + 1 }})
-                        </label>
-                        <div class="col">
+                <div class="row">
+                    <label for="variety" class="my-3 form-label fw-bold">vARIETY
+                        ({{ $index + 1 }})
+                    </label>
+                    <div class="col">
 
-                            <div class="mb-3">
+                        <div class="mb-3">
 
-                                <x-text-input :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.variety')
-                ? 'is-invalid'
-                : ''"
-                                    wire:model='area_under_certified_seed_multiplication.{{ $index }}.variety'
-                                    placeholder="variety" />
-                                @error('area_under_certified_seed_multiplication.' . $index . '.variety')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
+                            <x-text-input :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.variety')
+                                ? 'is-invalid'
+                                : ''"
+                                wire:model='area_under_certified_seed_multiplication.{{ $index }}.variety'
+                                placeholder="variety" />
+                            @error('area_under_certified_seed_multiplication.' . $index . '.variety')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
                         </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <x-text-input type="number" min="0" step="any"
-                                    :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.area')
-                ? 'is-invalid'
-                : ''" wire:model='area_under_certified_seed_multiplication.{{ $index }}.area'
-                                    placeholder="area" />
-                                @error('area_under_certified_seed_multiplication.' . $index . '.area')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-2" x-data>
-                            <button type="button" class="btn btn-danger" @click="$wire.removeCertifiedSeed({{ $index }})" @if ($index == 0) disabled @endif>
-                                -
-                            </button>
-                        </div>
-
                     </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_certified_seed_multiplication.' . $index . '.area')
+                                ? 'is-invalid'
+                                : ''"
+                                wire:model='area_under_certified_seed_multiplication.{{ $index }}.area'
+                                placeholder="area" />
+                            @error('area_under_certified_seed_multiplication.' . $index . '.area')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-2" x-data>
+                        <button type="button" class="btn btn-theme-red"
+                            @click="$wire.removeCertifiedSeed({{ $index }})"
+                            @if ($index == 0) disabled @endif>
+                            -
+                        </button>
+                    </div>
+
+                </div>
             @endforeach
             <div class="row">
                 <div class="col-2" x-data>
@@ -691,31 +696,34 @@
             <div class="card card-body shadow-none border">
                 <label for="" class="form-label">Specify Market Information System</label>
                 @foreach ($market_information_systems as $index => $value)
-                            <div class="row">
-                                <label for="variety" class="my-3 form-label fw-bold">Market information System
-                                    ({{ $index + 1 }})
-                                </label>
-                                <div class="col">
+                    <div class="row">
+                        <label for="variety" class="my-3 form-label fw-bold">Market information System
+                            ({{ $index + 1 }})
+                        </label>
+                        <div class="col">
 
-                                    <div class="mb-3">
+                            <div class="mb-3">
 
-                                        <x-text-input :class="$errors->has('market_information_systems.' . $index . '.name')
-                    ? 'is-invalid'
-                    : ''" wire:model='market_information_systems.{{ $index }}.name'
-                                            placeholder="Name of market information systems" />
-                                        @error('market_information_systems.' . $index . '.name')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-2" x-data>
-                                    <button type="button" class="btn btn-danger" @click="$wire.removeMIS({{ $index }})" @if ($index == 0) disabled @endif>
-                                        -
-                                    </button>
-                                </div>
-
-
+                                <x-text-input :class="$errors->has('market_information_systems.' . $index . '.name')
+                                    ? 'is-invalid'
+                                    : ''"
+                                    wire:model='market_information_systems.{{ $index }}.name'
+                                    placeholder="Name of market information systems" />
+                                @error('market_information_systems.' . $index . '.name')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
                             </div>
+                        </div>
+                        <div class="col-2" x-data>
+                            <button type="button" class="btn btn-theme-red"
+                                @click="$wire.removeMIS({{ $index }})"
+                                @if ($index == 0) disabled @endif>
+                                -
+                            </button>
+                        </div>
+
+
+                    </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>
@@ -789,31 +797,33 @@
             <div class="card card-body shadow-none border">
                 <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
                 @foreach ($aggregation_center_sales as $index => $value)
-                            <div class="row">
-                                <label for="variety" class="my-3 form-label fw-bold">Aggregation Center
-                                    ({{ $index + 1 }})
-                                </label>
-                                <div class="col">
+                    <div class="row">
+                        <label for="variety" class="my-3 form-label fw-bold">Aggregation Center
+                            ({{ $index + 1 }})
+                        </label>
+                        <div class="col">
 
-                                    <div class="mb-3">
+                            <div class="mb-3">
 
-                                        <x-text-input :class="$errors->has('aggregation_center_sales.' . $index . '.name')
-                    ? 'is-invalid'
-                    : ''" wire:model='aggregation_center_sales.{{ $index }}.name'
-                                            placeholder="Name of aggregation center" />
-                                        @error('aggregation_center_sales.' . $index . '.name')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </div>
-                                </div>
-
-
-                                <div class="col-2" x-data> <button type="button" class="btn btn-danger"
-                                        @click="$wire.removeSales({{ $index }})" @if ($index == 0) disabled @endif>
-                                        -
-                                    </button>
-                                </div>
+                                <x-text-input :class="$errors->has('aggregation_center_sales.' . $index . '.name')
+                                    ? 'is-invalid'
+                                    : ''"
+                                    wire:model='aggregation_center_sales.{{ $index }}.name'
+                                    placeholder="Name of aggregation center" />
+                                @error('aggregation_center_sales.' . $index . '.name')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
                             </div>
+                        </div>
+
+
+                        <div class="col-2" x-data> <button type="button" class="btn btn-theme-red"
+                                @click="$wire.removeSales({{ $index }})"
+                                @if ($index == 0) disabled @endif>
+                                -
+                            </button>
+                        </div>
+                    </div>
                 @endforeach
                 <div class="row">
                     <div class="col-2" x-data>

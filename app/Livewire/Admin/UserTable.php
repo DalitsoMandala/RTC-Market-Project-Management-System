@@ -68,7 +68,6 @@ final class UserTable extends PowerGridComponent
                                                      ' . $model->name . '
                                                     </div>
   </div>';
-
             })
             ->add('email')
             ->add('phone_number')
@@ -123,7 +122,6 @@ final class UserTable extends PowerGridComponent
 
 
                     return $role;
-
                 })->pluck('name');
                 return implode(' ', $roleArray->toArray());
             })
@@ -134,7 +132,7 @@ final class UserTable extends PowerGridComponent
                 if (!$model->deleted_at) {
                     return '<span class="badge bg-success" style="font-size:11px">Active</span>';
                 } else {
-                    return '<span class="badge bg-danger" style="font-size:11px">Deleted</span>';
+                    return '<span class="badge bg-theme-red" style="font-size:11px">Deleted</span>';
                 }
             })
             ->add('created_at')
@@ -167,8 +165,7 @@ final class UserTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
 
@@ -192,7 +189,7 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i> Edit')
                 ->id()
                 ->class('btn btn-warning goUp')
                 ->dispatch('edit', [
@@ -201,9 +198,9 @@ final class UserTable extends PowerGridComponent
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash"></i> Delete')
                 ->id()
-                ->class('btn btn-danger goUp')
+                ->class('btn btn-theme-red goUp')
                 ->dispatch('showModal-delete', [
                     'rowId' => $row->id,
                     'name' => 'view-delete-modal'
@@ -249,6 +246,4 @@ final class UserTable extends PowerGridComponent
                 ->hide(),
         ];
     }
-
-
 }

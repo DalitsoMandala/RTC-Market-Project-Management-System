@@ -34,7 +34,7 @@
                 @enderror
             </div>
 
-            <button type="button" class="btn btn-danger"
+            <button type="button" class="btn btn-theme-red"
                 wire:click="removeTargetDetail({{ $index }})">Remove</button>
         </div>
     @endforeach

@@ -113,7 +113,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
             })
             ->add('is_expired')
             ->add('is_expired_toggle', function ($model) {
-                $open = $model->is_expired === 1 ? 'bg-danger' : 'bg-secondary';
+                $open = $model->is_expired === 1 ? 'bg-theme-red' : 'bg-secondary';
                 $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
@@ -314,21 +314,21 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i> Edit')
                 ->id()
                 ->tooltip('Edit Record')
                 ->class('btn btn-warning goUp btn-sm my-1')
                 ->dispatch('editData', ['rowId' => $row->id]),
 
             Button::add('add-data')
-                ->slot('<i class="bx bx-plus"></i>')
+                ->slot('<i class="bx bx-plus"></i> Add Data')
                 ->id()
                 ->class('btn btn-warning btn-sm my-1')
                 ->tooltip('Add Data')
                 ->dispatch('sendData', ['model' => $row]),
 
             Button::add('upload')
-                ->slot('<i class="bx bx-upload"></i>')
+                ->slot('<i class="bx bx-upload"></i> Upload Data')
                 ->id()
                 ->tooltip('Upload Your Data')
                 ->class('btn btn-warning my-1 btn-sm')

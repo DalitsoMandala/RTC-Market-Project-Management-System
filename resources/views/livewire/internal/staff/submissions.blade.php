@@ -39,18 +39,24 @@
                         <!-- Nav tabs -->
 
                         @php
-                            $batch = \App\Models\Submission::where('batch_type', 'batch')->where('status', 'pending')->count();
-                            $manual = \App\Models\Submission::where('batch_type','manual')->where('status', 'pending')->count();
-                            $aggregate = \App\Models\Submission::where('batch_type','aggregate')->where('status', 'pending')->count();
-
+                            $batch = \App\Models\Submission::where('batch_type', 'batch')
+                                ->where('status', 'pending')
+                                ->count();
+                            $manual = \App\Models\Submission::where('batch_type', 'manual')
+                                ->where('status', 'pending')
+                                ->count();
+                            $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
+                                ->where('status', 'pending')
+                                ->count();
 
                         @endphp
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true">
-                                    Batch Submissions <span class="badge bg-warning @if($batch == 0) d-none @endif">{{ $batch }}</span>
+                                    data-bs-target="#batch-submission" type="button" role="tab"
+                                    aria-controls="home" aria-selected="true">
+                                    Batch Submissions <span
+                                        class="badge bg-warning @if ($batch == 0) d-none @endif">{{ $batch }}</span>
                                 </button>
                             </li>
                             {{-- <li class="nav-item" role="presentation">
@@ -64,7 +70,8 @@
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                     data-bs-target="#aggregate-submission" type="button" role="tab"
                                     aria-controls="profile" aria-selected="false">
-                                    Aggregate Submission <span class="badge bg-warning @if($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
+                                    Aggregate Submission <span
+                                        class="badge bg-warning @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
                                 </button>
                             </li>
 
@@ -272,9 +279,9 @@
 
                     <div class="d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" wire:target="save"
-                            class="btn btn-danger me-2" wire:click="setStatus('denied')">Disapprove</button>
-                        <button type="button" wire:loading.attr="disabled" wire:target="save" class="btn btn-warning"
-                            wire:click="setStatus('approved')">Approve</button>
+                            class="btn btn-theme-red me-2" wire:click="setStatus('denied')">Disapprove</button>
+                        <button type="button" wire:loading.attr="disabled" wire:target="save"
+                            class="btn btn-warning" wire:click="setStatus('approved')">Approve</button>
                     </div>
                 </form>
             </x-modal>
@@ -295,7 +302,7 @@
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteAGG"
-                            class="btn btn-danger">Yes, I'm sure</button>
+                            class="btn btn-theme-red">Yes, I'm sure</button>
                     </div>
                 </form>
             </x-modal>
@@ -315,7 +322,7 @@
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteBatch"
-                            class="btn btn-danger">Yes, I'm sure</button>
+                            class="btn btn-theme-red">Yes, I'm sure</button>
                     </div>
                 </form>
             </x-modal>
@@ -329,15 +336,15 @@
     </div>
 
     @script
-    <script>
-        if (window.location.hash !== '') {
-            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-            if (button) {
-                button.click();
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
 
+                }
             }
-        }
-    </script>
+        </script>
     @endscript
 
 </div>

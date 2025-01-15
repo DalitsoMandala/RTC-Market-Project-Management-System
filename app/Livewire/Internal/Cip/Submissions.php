@@ -77,11 +77,11 @@ class Submissions extends Component
             // Perform actions based on status
             if ($this->status === 'approved') {
                 $this->approveSubmission($submission, $tables);
-                   // Dispatch notification using Bus::chain
-            $user = User::find($submission->user_id);
-            Bus::chain([
-                fn() => $user->notify(new SubmissionNotification(status: $this->status, batchId: $submission->batch_no)),
-            ])->dispatch();
+                // Dispatch notification using Bus::chain
+                $user = User::find($submission->user_id);
+                Bus::chain([
+                    fn() => $user->notify(new SubmissionNotification(status: $this->status, batchId: $submission->batch_no)),
+                ])->dispatch();
             } else {
                 $this->denySubmission($submission, $tables);
                 $user = User::find($submission->user_id);
@@ -96,7 +96,6 @@ class Submissions extends Component
             session()->flash('success', 'Successfully updated');
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
-
         } catch (\Throwable $th) {
             Log::channel('system_log')->error($th->getMessage());
             $this->dispatch('hideModal');
@@ -147,21 +146,7 @@ class Submissions extends Component
 
         try {
             $submission = Submission::findOrFail($this->rowId);
-            $tables = [
-                'household_rtc_consumption',
-                'rtc_production_farmers',
-                'rtc_production_processors',
-                'attendance_registers',
-
-            ];
-            if ($submission->batch_type == 'batch') {
-                foreach ($tables as $table) {
-                    if ($this->checkbatch($table, $submission->batch_no)) {
-                        DB::table($table)->where('uuid', $submission->batch_no)->delete();
-                    }
-                }
-            }
-
+            DB::table($submission->table_name)->where('uuid', $submission->batch_no)->delete();
             $submission->delete();
             session()->flash('success', 'Successfully deleted batch');
             $this->dispatch('hideModal');
@@ -171,7 +156,6 @@ class Submissions extends Component
 
             Log::error($th);
         }
-
     }
 
 
@@ -321,7 +305,6 @@ class Submissions extends Component
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
             session()->flash('success', 'Successfully updated');
-
         } catch (\Throwable $th) {
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
@@ -329,8 +312,6 @@ class Submissions extends Component
 
             Log::error($th);
         }
-
-
     }
 
 

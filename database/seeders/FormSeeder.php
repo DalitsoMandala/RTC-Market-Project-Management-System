@@ -23,6 +23,7 @@ class FormSeeder extends Seeder
             'SCHOOL RTC CONSUMPTION FORM',
             'ATTENDANCE REGISTER',
             'REPORT FORM',
+            'SEED DISTRIBUTION REGISTER',
 
         ];
 
@@ -31,6 +32,7 @@ class FormSeeder extends Seeder
                 'name' => $formName,
                 'type' => 'routine/recurring',
                 'project_id' => 1,
+                'slug' => strtolower(str_replace(' ', '-', $formName))
             ]);
         }
         $indicators = IndicatorsContent::indicatorArray()->pluck('indicator_name', 'indicator_name');
@@ -79,7 +81,7 @@ class FormSeeder extends Seeder
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
                 'RTC PRODUCTION AND MARKETING FORM PROCESSORS'
             ],
-            $indicators['Volume of seed distributed within communities to enhance POs productivity'] => ['REPORT FORM'],
+            $indicators['Volume of seed distributed within communities to enhance POs productivity'] => ['SEED DISTRIBUTION REGISTER'],
             $indicators['Number of on-farm seed production technology demonstrations established'] => ['REPORT FORM'],
             $indicators['Number of international learning visits for seed producers (OC)'] => ['REPORT FORM'],
             $indicators['Percentage business plans for the production of different classes of RTC seeds that are executed'] => ['REPORT FORM'],

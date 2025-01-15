@@ -6,13 +6,22 @@ use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
 use App\Helpers\ExcelValidator;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\RpmFarmerBasicSeed;
+use App\Models\RpmFarmerDomMarket;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
+use App\Models\RpmFarmerInterMarket;
 use Illuminate\Support\Facades\Cache;
+use App\Models\RpmFarmerCertifiedSeed;
+use App\Models\RpmFarmerConcAgreement;
 use App\Notifications\JobNotification;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Validators\Failure;
+use App\Models\RpmFarmerAggregationCenter;
+
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
@@ -21,7 +30,6 @@ use App\Imports\ImportFarmer\RpmfMisImport;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use App\Imports\ImportFarmer\RpmfBasicSeedImport;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -258,7 +266,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
 
             AfterImport::class => function (AfterImport $event) {
                 // Finalize Submission record after import completes
-    
+
                 $user = User::find($this->submissionDetails['user_id']);
                 $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
@@ -314,6 +322,10 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
                 );
 
                 Log::error($exception->getMessage());
+
+                RtcProductionFarmer::where('uuid', $this->cacheKey)->delete();
+
+
 
                 // throw new ExcelValidationException($exception->getMessage());
             }

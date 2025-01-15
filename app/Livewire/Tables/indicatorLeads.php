@@ -134,7 +134,7 @@ final class indicatorLeads extends PowerGridComponent
     // {
     //     return [
     //         Button::add('edit')
-    //             ->slot('<i class="bx bx-pen"></i>')
+    //             ->slot('<i class="bx bx-pen"></i> Edit')
     //             ->id()
     //             ->tooltip('Edit Record')
     //             ->class('btn btn-warning my-1')

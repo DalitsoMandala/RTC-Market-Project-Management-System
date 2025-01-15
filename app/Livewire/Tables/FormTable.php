@@ -61,7 +61,7 @@ final class FormTable extends PowerGridComponent
 
 
 
-        return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM')->where('name', '!=', 'SEED DISTRIBUTION REGISTER');
+        return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM');
     }
     public function relationSearch(): array
     {
@@ -75,9 +75,7 @@ final class FormTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id', function ($model) {
-
-            })
+            ->add('id', function ($model) {})
             ->add('name')
             ->add('name_formatted', function ($model) {
 
@@ -88,9 +86,6 @@ final class FormTable extends PowerGridComponent
                 } else
 
                     return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
-
-
-
             })
             ->add('type')
             ->add('project_id')
@@ -108,10 +103,10 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
 
                 $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
-                $projectManager = User::find(auth()->user()->id)->hasAllRoles(['internal','cip','project_manager']) ? 'disabled' : '';
+                $projectManager = User::find(auth()->user()->id)->hasAllRoles(['internal', 'cip', 'project_manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
-                    return '<a class="btn btn-warning btn-sm '.$projectManager.' "  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
+                    return '<a class="btn btn-warning btn-sm ' . $projectManager . ' "  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
                 }
 
                 return null;
@@ -127,7 +122,7 @@ final class FormTable extends PowerGridComponent
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Project', 'project', )
+            Column::make('Project', 'project',)
                 ->searchable(),
 
             Column::make('Type', 'type')
@@ -136,8 +131,7 @@ final class FormTable extends PowerGridComponent
                 ->searchable(),
 
 
-            Column::make('Action', 'followup')
-            ,
+            Column::make('Action', 'followup'),
 
             // Column::make('Project id', 'project_id'),
             // Column::make('Created at', 'created_at_formatted', 'created_at')
@@ -159,8 +153,7 @@ final class FormTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('refresh')]
@@ -173,7 +166,7 @@ final class FormTable extends PowerGridComponent
     // {
     //     return [
     //         Button::add('edit')
-    //             ->slot('<i class="bx bx-pen"></i>')
+    //             ->slot('<i class="bx bx-pen"></i> Edit')
     //             ->id()
     //             ->class('btn btn-warning')
     //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-form-modal'])
@@ -191,5 +184,4 @@ Rule::button('edit')
 ];
 }
  */
-
 }

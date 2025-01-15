@@ -82,7 +82,7 @@
                                     wire:model="role">
                                     <option value="" disabled>Select a role</option>
                                     @foreach ($roles as $role)
-                                        <option value="{{ $role }}">{{ str_replace('_', ' ', $role)}}</option>
+                                        <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}</option>
                                     @endforeach
                                 </select>
                                 @error('role')
@@ -151,7 +151,8 @@
                         <p class="text-center ">ID: {{ $this->rowId }}</p>
                         <div class=" d-flex gap-1 justify-content-center mt-3">
                             <button type="button" class="btn btn-secondary px-5" data-bs-dismiss="modal">No</button>
-                            <button type="button" class="btn btn-danger px-5" wire:click='deleteUser'>Yes</button>
+                            <button type="button" class="btn btn-theme-red px-5"
+                                wire:click='deleteUser'>Yes</button>
 
                         </div>
                     </form>

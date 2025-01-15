@@ -21,6 +21,9 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
 
     public function collection()
     {
+        if ($this->template) {
+            return collect([]);
+        }
         return SeedBeneficiary::where('crop', $this->cropType)->select(
             'crop',
             'district',

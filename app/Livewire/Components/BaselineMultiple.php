@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\OtherForms\SeedDistribution;
+namespace App\Livewire\Components;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-class Add extends Component
+class BaselineMultiple extends Component
 {
         use LivewireAlert;
 
@@ -23,6 +23,6 @@ class Add extends Component
 
     public function render()
     {
-        return view('livewire.other-forms.seed-distribution.add');
+        return view('livewire.components.baseline-multiple');
     }
 }

@@ -64,9 +64,7 @@ class Upload extends Component
     public $queue = false;
     public $targetSet = false;
     public $targetIds = [];
-    public function save()
-    {
-    }
+    public function save() {}
 
     public function submitUpload()
     {
@@ -150,7 +148,7 @@ class Upload extends Component
 
 
 
-            $this->importId = Uuid::uuid4()->toString(); // change key
+
 
             if ($jobProgress->status == 'failed') {
 
@@ -174,6 +172,7 @@ class Upload extends Component
             }
 
 
+            $this->importId = Uuid::uuid4()->toString(); // change key
         }
     }
 

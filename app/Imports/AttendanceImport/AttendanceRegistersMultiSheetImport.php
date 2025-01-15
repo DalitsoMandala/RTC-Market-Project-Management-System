@@ -6,6 +6,8 @@ namespace App\Imports\AttendanceImport;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Helpers\ExcelValidator;
+use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,7 +24,6 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
 use App\Imports\AttendanceImport\AttendanceRegistersImport;
-use App\Helpers\ExcelValidator;
 
 class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
@@ -108,8 +109,6 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         throw new ExcelValidationException(
                             "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
                         );
-
-
                     }
                 }
 
@@ -197,6 +196,8 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'error' => $errorMessage,
                     ]
                 );
+
+                AttendanceRegister::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

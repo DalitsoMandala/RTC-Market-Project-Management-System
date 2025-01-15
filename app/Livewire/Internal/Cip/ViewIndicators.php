@@ -53,6 +53,7 @@ class ViewIndicators extends Component
     public $disaggregations = [];
 
     public $routePrefix;
+
     public function mount(Indicator $id)
     {
         $this->indicator_name = $id->indicator_name;
@@ -68,10 +69,21 @@ class ViewIndicators extends Component
         $organisationIds = $indicatorOrganisations->first()->pluck('id');
         $this->organisations = Organisation::whereIn('id', $organisationIds)->get()->toArray();
 
-        $this->selectedOrganisation = Organisation::where('id', auth()->user()->organisation->id)->first()->toArray();
+        $additionalOrganisations = [
+            [
+                'id' => 0,
+                'name' => 'ALL',
+                'created_at' => '2020-01-01 00:00:00',
+                'updated_at' => '2020-01-01 00:00:00'
+            ],
+
+        ];
+        $this->organisations = array_merge($additionalOrganisations, $this->organisations);
+
+        $this->selectedOrganisation =   $this->organisations[0];
+
 
         $this->reRender();
-
     }
 
 
@@ -84,7 +96,6 @@ class ViewIndicators extends Component
 
         $this->component = null;
         $this->dispatch('reload');
-
     }
 
 

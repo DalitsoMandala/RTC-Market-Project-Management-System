@@ -21,9 +21,11 @@ class PopulatePreviousValue
             // Initialize each organization's previous value with the baseline
             $previousValues = [];
 
+
             foreach ($indicator->organisation as $organisation) {
                 $previousValues[$organisation->id] = $indicator->baseline->baseline_value;
             }
+
 
             foreach ($financialYears as $financialYear) {
                 foreach ($indicator->organisation as $organisation) {
@@ -124,10 +126,11 @@ class PopulatePreviousValue
 
     protected function calculateGrowthPercentage($annualValue, $baseline)
     {
+
         if ($annualValue == 0 || $baseline == 0) {
             return 0; // Avoid division by zero
         }
-        return round((($annualValue - $baseline) / $baseline) * 100, 2);
+        return round((($annualValue - $baseline) / $annualValue) * 100, 2);
     }
 
     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
@@ -151,8 +154,15 @@ class PopulatePreviousValue
             ->where('organisation_id', $organisation->id)
             ->pluck('id');
 
-        SystemReportData::whereIn('system_report_id', $reportIds)
-            ->where('name', $disaggregation_name)
-            ->update(['value' => $growthPercentage]);
+
+
+        $data =  SystemReportData::whereIn('system_report_id', $reportIds)
+            ->where('name', $disaggregation_name)->get();
+
+        foreach ($data as $item) {
+            $item->update([
+                'value' => $growthPercentage
+            ]);
+        }
     }
 }

@@ -29,6 +29,4 @@ class IncreasePercentage
             2
         );
     }
-
-
 }

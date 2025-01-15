@@ -179,12 +179,12 @@
 
         <!-- Page Content -->
         <div class="main-content">
-            <div class="page-content mb-5 ">
+            <div class="mb-1 page-content ">
                 {{ $slot }}
 
             </div>
 
-            <footer class="footer mt-auto py-3 bg-light">
+            <footer class="py-3 mt-auto footer bg-light">
                 <div class="container text-center">
                     <span class="text-muted">&copy; 2024 {{ env('APP_NAME') }}. All rights reserved.</span>
                 </div>
@@ -245,6 +245,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery-table2excel@1.1.1/dist/jquery.table2excel.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+        <script src="https://cdn.lordicon.com/lordicon.js"></script>
         <script>
             document.addEventListener('livewire:init', () => {
 
@@ -273,6 +274,15 @@
 
             });
 
+            setTimeout(function() {
+                if ($('.alert-success').length > 0) {
+                    $('.alert-success').fadeOut(3000, function() {
+                        $(this).remove(); // Remove the alert from the DOM after fading out
+                    });
+                }
+            }, 10000); // 10 seconds delay
+
+
             $(document).ajaxError(function(event, jqxhr, settings, exception) {
                 if (jqxhr.status === 419) { // 419 is the status code for Laravel's CSRF token mismatch
 
@@ -281,13 +291,7 @@
             });
             $(document).ready(function() {
                 // Set a timeout to start fading out the alert after 10 seconds
-                setTimeout(function() {
-                    $('.alert-success').fadeOut(3000, function() {
-                        $(this).remove(); // Remove the alert from the DOM after fading out
-                    });
 
-
-                }, 10000); // 10 seconds
 
 
                 document.querySelectorAll('input[type="number"]').forEach(function(input) {

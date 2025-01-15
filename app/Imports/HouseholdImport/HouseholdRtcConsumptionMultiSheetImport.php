@@ -76,7 +76,6 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
-
     }
     public function sheets(): array
     {
@@ -89,7 +88,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
     public function registerEvents(): array
     {
         return [
-                // Handle by a closure.
+            // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
                 $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
 
@@ -199,7 +198,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                 );
 
                 HouseholdRtcConsumption::where('uuid', $this->cacheKey)->delete();
-                MainFoodHrc::where('uuid', $this->cacheKey)->delete();
+
 
                 Log::error($exception->getMessage());
             }

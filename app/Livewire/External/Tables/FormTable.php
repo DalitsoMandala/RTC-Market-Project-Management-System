@@ -106,12 +106,12 @@ final class FormTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
                 return $form->name;
                 //  return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-    
+
             })
             ->add('type')
             ->add('open_for_submission', function ($model) {
 
-                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
+                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-theme-red">No</span>';
             })
             ->add('project_id')
             ->add('project', function ($model) {
@@ -150,7 +150,7 @@ final class FormTable extends PowerGridComponent
                     ->where('form_id', $model->form->id)->count();
 
                 if ($submitted === 0) {
-                    return '<span class="badge bg-danger">Not submitted</span>';
+                    return '<span class="badge bg-theme-red">Not submitted</span>';
                 } else {
                     return '<span class="badge bg-success">Submitted</span>';
                 }
@@ -219,14 +219,14 @@ final class FormTable extends PowerGridComponent
         return [
 
             Button::add('add-data')
-                ->slot('<i class="bx bx-plus"></i>')
+                ->slot('<i class="bx bx-plus"></i> Add Data')
                 ->id()
                 ->class('btn btn-warning my-1')
                 ->tooltip('Add Manual Data')
                 ->dispatch('sendData', ['model' => $row]),
 
             Button::add('upload')
-                ->slot('<i class="bx bx-upload"></i>')
+                ->slot('<i class="bx bx-upload"></i> Upload Data')
                 ->id()
                 ->tooltip('Upload Your Data')
                 ->class('btn btn-warning my-1')

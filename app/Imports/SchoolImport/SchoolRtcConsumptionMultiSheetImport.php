@@ -27,6 +27,7 @@ use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
 use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
 use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
 use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
+use App\Models\SchoolRtcConsumption;
 
 class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
@@ -163,6 +164,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                         'error' => $errorMessage,
                     ]
                 );
+                SchoolRtcConsumption::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

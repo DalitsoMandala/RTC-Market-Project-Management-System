@@ -42,16 +42,18 @@ class UpdateBaselineData extends Component
             $this->indicator_id = $baselineData->indicator_id;
             $this->baseline_value = $baselineData->baseline_value;
         }
+    }
 
+    #[On('submit-form')]
+    public function resetForm()
+    {
+        session()->flash('success', 'Value updated successfully');
     }
     public function save()
     {
         try {
 
             $this->validate();
-
-
-
         } catch (\Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -69,14 +71,11 @@ class UpdateBaselineData extends Component
 
             $this->dispatch('refresh');
             session()->flash('success', 'Baseline data updated successfully.');
-
         } catch (\Throwable $th) {
             //throw $th;
             session()->flash('error', 'Something went wrong while updating the baseline data.');
             \Log::error($th->getMessage());
         }
-
-
     }
 
 

@@ -4,7 +4,7 @@
     <div class="container-fluid">
 
         <!-- start page title -->
-        <div class="row ">
+        <div class="my-2 row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">Indicators</h4>
@@ -25,7 +25,8 @@
                 <x-alerts />
                 <div class="card">
                     <div class="card-header fw-bold">
-                        Indicators Table
+                        <h5 class="card-title">Indicators Table</h5>
+
                     </div>
                     <div class="card-body">
                         <livewire:tables.indicatorTable :userId="auth()->user()->id" />
