@@ -23,7 +23,7 @@ class FormSeeder extends Seeder
             'SCHOOL RTC CONSUMPTION FORM',
             'ATTENDANCE REGISTER',
             'REPORT FORM',
-            'SEED DISTRIBUTION REI'
+            'SEED DISTRIBUTION REGISTER',
 
         ];
 
@@ -32,6 +32,7 @@ class FormSeeder extends Seeder
                 'name' => $formName,
                 'type' => 'routine/recurring',
                 'project_id' => 1,
+                'slug' => strtolower(str_replace(' ', '-', $formName))
             ]);
         }
         $indicators = IndicatorsContent::indicatorArray()->pluck('indicator_name', 'indicator_name');

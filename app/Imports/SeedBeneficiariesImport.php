@@ -91,14 +91,32 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
 
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing.', []));
-
-                $status = ($user->hasRole([
-                    'internal',
-                    'manager',
-                    'admin'
-                ])) ? 'approved' : 'pending';
-
+                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+                if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'seed_beneficiaries',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                } else {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'pending',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'seed_beneficiaries',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                }
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -123,6 +141,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                         'error' => $errorMessage,
                     ]
                 );
+
+                SeedBeneficiary::where('cache_key', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

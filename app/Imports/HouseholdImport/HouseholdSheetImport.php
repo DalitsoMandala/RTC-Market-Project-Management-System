@@ -40,7 +40,6 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         $this->cacheKey = $cacheKey;
         $this->totalRows = $totalRows;
         $this->data = $data;
-
     }
     public function prepareForValidation(array $row)
     {
@@ -151,7 +150,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Section' => 'nullable|string|max:255',
             'District' => 'required|string|max:255',
             'Enterprise' => 'required|string|max:255',
-            'Date of Assessment' => 'nullable|date_format:d-m-Y', // Ensure it's a valid date format
+            'Date of Assessment' => 'nullable|date|date_format:d-m-Y', // Ensure it's a valid date format
             'Actor Type (Farmer, Trader, etc.)' => 'nullable|string|max:255',
             'RTC Group/Platform' => 'nullable|string|max:255',
             'Producer Organisation' => 'nullable|string|max:255',

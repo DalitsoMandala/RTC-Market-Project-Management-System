@@ -17,6 +17,7 @@ use App\Models\HouseholdRtcConsumption;
 use App\Models\IndicatorDisaggregation;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerFollowUp;
+use App\Models\SeedBeneficiary;
 
 class DataGenerationSeeder extends Seeder
 {
@@ -1171,6 +1172,69 @@ class DataGenerationSeeder extends Seeder
                     ]);
                 }
             }
+        }
+
+
+
+
+        function seed_distribution()
+        {
+
+
+            $faker = Faker::create();
+            $dates = [
+                'created_at' => now()->toDateTimeString(),
+                'updated_at' => now()->toDateTimeString()
+            ];
+
+            $crops = [
+                'OFSP',
+                'Potato',
+                'Cassava'
+            ];
+
+
+
+
+
+            return [
+                'main' => [
+                    'crop' => $faker->randomElement($crops),
+                    'district' => $faker->randomElement(DistrictObject::districts()),
+                    'epa' => $faker->word,
+                    'section' => $faker->word,
+                    'name_of_aedo' => $faker->name,
+                    'aedo_phone_number' => $faker->phoneNumber(),
+                    'date' => $faker->date,
+                    'name_of_recipient' => $faker->name,
+                    'village' => $faker->state,
+                    'sex' => $faker->randomElement([1, 2, 3]),
+                    'age' => $faker->randomNumber(2),
+                    'marital_status' =>  $faker->randomElement([1, 2, 3]),
+                    'hh_head' => 1,
+                    'household_size' => $faker->randomElement([1, 2, 3]),
+                    'children_under_5' => $faker->randomElement([1, 2, 3]),
+                    'variety_received' =>  '1,2',
+                    'bundles_received' => random_int(1, 100),
+                    'phone_or_national_id' => $faker->phoneNumber(),
+                    'user_id' => $faker->numberBetween(4, 7), // Random user ID
+                    'uuid' => $faker->uuid, // Random UUID
+                    'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2, 3]), // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
+                    'status' => 'approved', // Fixed value
+
+
+                ]
+            ];
+        }
+
+
+
+        foreach (range(1, 10) as $index) {
+            $data = seed_distribution();
+            SeedBeneficiary::create(attributes: $data['main']);
         }
     }
 }

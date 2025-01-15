@@ -29,12 +29,13 @@ return new class extends Migration {
             $table->string('variety_received');
             $table->integer('bundles_received');
             $table->string('phone_or_national_id');
-            $table->string('crop'); // Can be "OFSP" or "Potato" or "Cassava"
+            $table->enum('crop', ['OFSP', 'Potato', 'Cassava']); // Can be "OFSP" or "Potato" or "Cassava"
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes
             $table->foreignId('organisation_id')->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->string('uuid');
             $table->timestamps();
         });

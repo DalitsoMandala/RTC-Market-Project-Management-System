@@ -172,7 +172,7 @@ class Upload extends Component
         if ($this->progress == 100) {
 
 
-            $this->importId = Uuid::uuid4()->toString(); // change key
+
 
             if ($jobProgress->status == 'failed') {
 
@@ -197,7 +197,7 @@ class Upload extends Component
 
             // $this->importing = false;
             // $this->importingFinished = true;
-
+            $this->importId = Uuid::uuid4()->toString(); // change key
         }
     }
 
@@ -216,8 +216,6 @@ class Upload extends Component
             session()->flash('success', 'Successfully submitted!');
             return redirect(route('cip-internal-submissions') . '#batch-submission');
         }
-
-
     }
 
 

@@ -66,9 +66,7 @@ class Upload extends Component
     public $targetSet = false;
     public $targetIds = [];
 
-    public function save()
-    {
-    }
+    public function save() {}
 
     public function submitUpload()
     {
@@ -151,7 +149,7 @@ class Upload extends Component
 
 
 
-            $this->importId = Uuid::uuid4()->toString(); // change key
+
 
             if ($jobProgress->status == 'failed') {
 
@@ -172,10 +170,8 @@ class Upload extends Component
                     session()->flash('success', 'Successfully submitted!');
                     return redirect(route('cip-internal-submissions') . '#batch-submission');
                 }
-
-
             }
-
+            $this->importId = Uuid::uuid4()->toString(); // change key
 
         }
     }
@@ -195,8 +191,6 @@ class Upload extends Component
             session()->flash('success', 'Successfully submitted!');
             return redirect(route('cip-internal-submissions') . '#batch-submission');
         }
-
-
     }
     #[On('open-submission')]
     public function clearTable()

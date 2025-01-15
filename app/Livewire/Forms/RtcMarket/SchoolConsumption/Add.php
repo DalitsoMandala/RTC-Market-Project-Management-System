@@ -132,7 +132,7 @@ class Add extends Component
             $data = [];
             $now = Carbon::now();
 
-            $uuid = Uuid::uuid4()->toString();
+
             $user = User::find($userId);
             $latest = '';
             $cropCollection = collect($this->crop);
