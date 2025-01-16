@@ -23,4 +23,4 @@ Schedule::call(function () {
 
 Schedule::command('check:submission-deadlines')->dailyAt('00:00');
 
-Schedule::command('check:submission-deadlines')->everyTenSeconds(); // testing
+//Schedule::command('check:submission-deadlines')->everyTenSeconds(); // testing
