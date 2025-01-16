@@ -15,6 +15,7 @@ class CheckSubmissionDeadlines extends Command
     protected $signature = 'check:submission-deadlines';
     protected $description = 'Check submission deadlines and send reminders to users';
 
+
     public function handle()
     {
         $today = Carbon::now();
@@ -44,7 +45,6 @@ class CheckSubmissionDeadlines extends Command
                 Bus::chain([
                     fn() =>   $user->notify(new SubmissionReminder($submissionPeriod))
                 ])->dispatch();
-
             }
         }
 

@@ -1208,7 +1208,7 @@ class DataGenerationSeeder extends Seeder
                     'date' => $faker->date,
                     'name_of_recipient' => $faker->name,
                     'village' => $faker->state,
-                    'sex' => $faker->randomElement([1, 2, 3]),
+                    'sex' => $faker->randomElement([1, 2]),
                     'age' => $faker->randomNumber(2),
                     'marital_status' =>  $faker->randomElement([1, 2, 3]),
                     'hh_head' => 1,

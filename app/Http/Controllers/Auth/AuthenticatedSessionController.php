@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
         $user = auth()->user();
 
         $redirectUrl = RoleBasedRedirectHelper::getDashboardRoute($user);
-        return redirect($redirectUrl);
+        return redirect()->intended(($redirectUrl));
         // return redirect()->intended(route('dashboard', absolute: false));
     }
 

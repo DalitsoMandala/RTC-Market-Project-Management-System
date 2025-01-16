@@ -34,7 +34,7 @@
 
                 <div class="row gy-3 justify-content-center" x-data="dashboard">
 
-                    <div class="text-center col-md-6 col-12">
+                    <div class="text-center col-md-12 col-12">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title">Crop Distribution</h5>
@@ -52,23 +52,6 @@
 
                     </div>
 
-                    <div class="text-center col-md-6 col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title">Seed Distribution</h5>
-
-                                </h5>
-                            </div>
-
-                            <div class="card-body">
-                                <div id="cropChart2" x-show='!hasZeroValues(cropChart2)'></div>
-
-                                <x-no-data x-show='hasZeroValues(cropChart2)' />
-                            </div>
-                        </div>
-
-
-                    </div>
 
 
                 </div>

@@ -29,7 +29,7 @@ class indicator_2_2_4
 
         //   $indicator = Indicator::where('indicator_name', 'Volume of seed distributed within communities to enhance POs productivity')->where('indicator_no', '2.2.4')->first();
 
-        $query = SeedBeneficiary::query()->where('indicator_id', '2.2.4')->where('status', 'approved');
+        $query = SeedBeneficiary::query()->where('status', 'approved');
 
         // Check if both reporting period and financial year are set
         if ($this->reporting_period || $this->financial_year) {
@@ -73,40 +73,19 @@ class indicator_2_2_4
     public function getTotals()
     {
 
-        $builder = $this->builder()->get();
-
-        $indicator = Indicator::where('indicator_name', 'Volume of seed distributed within communities to enhance POs productivity')->where('indicator_no', '2.2.4')->first();
-        $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
-        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-            $data->put($item, 0);
-        });
-
-
-
-
-        $this->builder()->chunk(100, function ($models) use (&$data) {
-            $models->each(function ($model) use (&$data) {
-                // Decode the JSON data from the model
-                $json = collect(json_decode($model->data, true));
-
-                // Add the values for each key to the totals
-                foreach ($data as $key => $dt) {
-                    if ($json->has($key)) {
-                        $data->put($key, $data->get($key) + $json[$key]);
-                    }
-                }
-            });
-        });
-
-        return $data;
+        $cassava = $this->builder()->where('crop', 'Cassava')->sum('bundles_received');
+        $potato = $this->builder()->where('crop', 'Potato')->sum('bundles_received');
+        $sweetPotato = $this->builder()->where('crop', 'OFSP')->sum('bundles_received');
+        return [
+            'Total' => $potato + $sweetPotato + $cassava,
+            'Cassava' => (int) $cassava,
+            'Potato' => (int) $potato,
+            'Sweet potato' => (int) $sweetPotato
+        ];
     }
     public function getDisaggregations()
     {
 
-        $totals = $this->getTotals()->toArray();
-        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
-        $totals['Total'] = $subTotal;
-        return $totals;
+        return $this->getTotals();
     }
 }

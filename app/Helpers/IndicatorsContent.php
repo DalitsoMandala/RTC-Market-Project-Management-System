@@ -525,9 +525,9 @@ class IndicatorsContent
                 'Total',
                 'Cassava',
                 'Potato',
-                'Sweet potato',
-                'Basic',
-                'Certified'
+                //  'Sweet potato',
+                //   'Basic',
+                // 'Certified'
             ],
             "Number of on-farm seed production technology demonstrations established" => ['Total'],
             "Number of international learning visits for seed producers (OC)" => ['Total'],
