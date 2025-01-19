@@ -85,7 +85,7 @@ final class FormTable extends PowerGridComponent
                     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 } else
 
-                    return '<a class="text-decoration-underline"  href="forms/' . $project . '/' . $form_name . '/view" >' . $model->name . '</a>';
+                    return '<a class="text-decoration-underline text-capitalize"  href="forms/' . $project . '/' . $form_name . '/view" >' . strtolower($model->name) . '</a>';
             })
             ->add('type')
             ->add('project_id')
@@ -106,10 +106,10 @@ final class FormTable extends PowerGridComponent
                 $projectManager = User::find(auth()->user()->id)->hasAllRoles(['internal', 'cip', 'project_manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
-                    return '<a class="btn btn-warning btn-sm ' . $projectManager . ' "  href="' . $route . '" >Add Follow up <i class="bx bx-chevron-right"></i></a>';
+                    return '<a class="btn btn-warning btn-sm "  href="' . $route . '" ><i class="bx bx-plus-circle"></i> Follow up </a>';
                 }
 
-                return null;
+                return '<a class="btn btn-warning btn-sm disabled "  href="' . $route . '" ><i class="bx bx-plus-circle"></i> Follow up </a>';
             })
             ->add('created_at')
             ->add('updated_at');

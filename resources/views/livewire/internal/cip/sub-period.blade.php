@@ -25,13 +25,14 @@
                 <div class="card">
 
                     <div class="card-header fw-bold ">
-                        Add submission period
+                        <h5 class="card-title"> Add submission period </h5>
+
                     </div>
-                    <div class="card-header" x-data="{
+                    <div class="card-body" x-data="{
                         is_open: true,
-
-
-
+                    
+                    
+                    
                     }">
 
 
@@ -47,7 +48,7 @@
 
                                 <label for="project-select" class="form-label">Choose Project</label>
                                 <select id="project-select" class="form-select form-select-md"
-                                    wire:model.live.debounce.700ms="selectedProject">
+                                    wire:model.live.debounce.1000ms="selectedProject">
                                     <option selected value="">Select one</option>
                                     @foreach ($projects as $project)
                                         <option value="{{ $project->id }}">{{ $project->name }}</option>
@@ -65,76 +66,76 @@
 
 
                                     <div class="mb-3 " wire:ignore x-init="() => {
-
+                                    
                                         $('#select-indicators').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-
-
+                                    
+                                    
                                         $('#select-indicators').on('select2:select', function(e) {
                                             let data = e.params.data;
-
+                                    
                                             setTimeout(() => {
                                                 $wire.set('selectedIndicator', data.id);
                                             }, 500)
-
-
+                                    
+                                    
                                         });
-
-
+                                    
+                                    
                                         $wire.on('update-indicator', (e) => {
-
-
-
-
+                                    
+                                    
+                                    
+                                    
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-
+                                    
                                             selectElement.empty();
-
-
+                                    
+                                    
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-
+                                    
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption);
                                             });
                                             // Refresh Select2 to reflect changes
                                             selectElement.trigger('change');
-
-
+                                    
+                                    
                                             if (e.selected) {
                                                 selectElement.val([e.selected]).trigger('change');
                                             }
-
-
-
+                                    
+                                    
+                                    
                                             // setTimeout(() => {
                                             //     $wire.set('selectedIndicator', null);
                                             // }, 500)
-
-
+                                    
+                                    
                                         });
-
+                                    
                                         $wire.on('select-indicator', (e) => {
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-
+                                    
                                             selectElement.empty();
-
-
+                                    
+                                    
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-
+                                    
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption).trigger('change');
                                             });
-
-
-
+                                    
+                                    
+                                    
                                         })
                                     }">
                                         <label for="" class="form-label">Select Indicator</label>
@@ -165,25 +166,25 @@
                                     selectedForm: [],
                                     forms: [],
                                     setForms(forms) {
-
+                                
                                         this.forms = forms;
                                         selected = $wire.selectedForm;
-
+                                
                                         if (selected.length > 0 && selected != null) {
-
+                                
                                             this.selectedForm = selected;
-
+                                
                                         }
-
-
+                                
+                                
                                     },
-
+                                
                                     selectForm() {
                                         $wire.selectedForm = this.selectedForm;
-
-
+                                
+                                
                                     }
-
+                                
                                 }" @change="selectForm()"
                                 @changed-form.window="setForms($event.detail.forms)" x-init="">
                                 <div class="@if (!$selectedIndicator) pe-none opacity-25 @endif">
@@ -259,27 +260,27 @@
                                 targets: $wire.entangle('targets'),
                                 disaggregations: $wire.entangle('disaggregations'),
                                 errors: @js($errors->toArray()),
-
+                            
                                 checkValues() {
                                     if ((this.selectedIndicator && this.selectedFinancialYear)) {
                                         $wire.getTargets();
                                     }
                                 },
-
+                            
                                 addTarget() {
-
+                            
                                     setTimeout(function() {
                                         $wire.addTarget();
                                     }, 1000);
-
-
-
+                            
+                            
+                            
                                 },
-
+                            
                                 updateTargets() {
                                     $wire.getTargets();
                                 }
-
+                            
                             }" x-effect="
 checkValues();
 " @set-targets="updateTargets()"
@@ -304,8 +305,8 @@ border-danger
 
                                     @foreach ($targets as $index => $target)
                                         <div class="row mb-3 align-items-end" x-init="() => {
-
-
+                                        
+                                        
                                         }">
                                             <!-- Target Name Input -->
                                             <div class="col">
@@ -429,58 +430,62 @@ border-danger
 
                     </div>
 
+
+                </div>
+            </div>
+
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Submission Period Table</h5>
+                    </div>
                     <div class="card-body">
                         @php
 
                             $route = Route::current()->getPrefix();
                         @endphp
                         <livewire:tables.submission-period-table :currentRoutePrefix="$route">
-                    </div>
-                </div>
-            </div>
 
+                    </div>
+
+                </div>
+
+
+            </div>
 
 
 
         </div>
 
-
-
-
-    </div>
-
-
-
-</div>
-
-@script
-    <script>
-        const tooltipTriggerList = document.querySelectorAll('button[title]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
-        $wire.on('reload-tooltips', () => {
-
-            setTimeout(() => {
+        @script
+            <script>
                 const tooltipTriggerList = document.querySelectorAll('button[title]');
-                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                    tooltipTriggerEl))
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-            }, 1000);
+                $wire.on('reload-tooltips', () => {
+
+                    setTimeout(() => {
+                        const tooltipTriggerList = document.querySelectorAll('button[title]');
+                        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
+                            tooltipTriggerEl))
+
+                    }, 1000);
 
 
-        })
+                })
 
 
-        $('.goUp').on('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            })
-        });
+                $('.goUp').on('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    })
+                });
 
-        setTimeout(() => {
-            $wire.dispatch('timeout');
+                setTimeout(() => {
+                    $wire.dispatch('timeout');
 
-        }, 1000);
-    </script>
-@endscript
+                }, 1000);
+            </script>
+        @endscript

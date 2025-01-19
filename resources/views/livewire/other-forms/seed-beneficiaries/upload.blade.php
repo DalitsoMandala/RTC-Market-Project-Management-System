@@ -7,10 +7,28 @@
                  <div class="page-title-box d-flex align-items-center justify-content-between">
                      <h4 class="mb-0">Upload Seed Distribution Register</h4>
 
-                     <div class="page-title-right">
+                     <div class="page-title-right" wire:ignore>
+                         @php
+                             use Ramsey\Uuid\Uuid;
+
+                             $currentUrl = url()->current();
+                             $uuid = Route::current()->parameters()['uuid'];
+                             $newUuid = Uuid::uuid4()->toString();
+                             $addDataRoute = str_replace($uuid, '', $currentUrl);
+                             $addDataRoute = str_replace('upload', 'add', $addDataRoute);
+
+                         @endphp
                          <ol class="m-0 breadcrumb">
-                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                             <li class="breadcrumb-item active">Upload Seed Distribution Register</li>
+                             <li class="breadcrumb-item"><a href="/">Upload</a></li>
+
+                             <li class="breadcrumb-item ">
+                                 <a href="{{ $addDataRoute }}">
+                                     Add Data
+                                 </a>
+                             </li>
+
+
+                             <li class="breadcrumb-item active">Upload</li>
                          </ol>
                      </div>
 

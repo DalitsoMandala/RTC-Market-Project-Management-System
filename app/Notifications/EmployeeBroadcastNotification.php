@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class EmployeeBroadcastNotification extends Notification implements ShouldQueue
 {
@@ -34,15 +35,13 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
             return (new MailMessage)
                 ->greeting('Hello ' . $notifiable->name . ',')
                 ->subject('Important Update - Error')
-                ->line($this->messageContent);
-
-
+                ->line(new HtmlString($this->messageContent));
         }
 
         return (new MailMessage)
             ->subject('Important Update')
             ->greeting('Hello ' . $notifiable->name . ',')
-            ->line($this->messageContent)
+            ->line(new HtmlString($this->messageContent))
             ->action('Access the link', $this->link)  // Adding a call-to-action button
             ->line('Thank you for your attention!');
     }

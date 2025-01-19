@@ -7,7 +7,7 @@
                 <div class="page-title-box d-flex align-items-center justify-content-end">
 
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="/cip/forms">Forms</a></li>
@@ -108,14 +108,16 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-processors-conc-agreement />
                             </div>
-                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="dom" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-processor-dom-markets />
                             </div>
                             <div class="mt-2 tab-pane fade show" id="inter" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-processor-inter-markets />
                             </div>
-                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="mt-2 tab-pane fade show" id="mis" role="tabpanel"
+                                aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rpm-processor-m-i-s />
                             </div>
 
@@ -149,15 +151,14 @@
     </div>
 
     @script
-    <script>
-        if (window.location.hash !== '') {
-            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-            if (button) {
-                button.click();
+        <script>
+            if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
 
+                }
             }
-        }
-
-    </script>
+        </script>
     @endscript
 </div>

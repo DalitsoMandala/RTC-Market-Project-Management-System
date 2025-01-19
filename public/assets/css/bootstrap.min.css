@@ -5231,8 +5231,8 @@ fieldset:disabled .btn {
     --bs-pagination-border-radius: var(--bs-border-radius-sm);
 }
 .badge {
-    --bs-badge-padding-x: 0.6em;
-    --bs-badge-padding-y: 0.25em;
+    --bs-badge-padding-x: 0.77em;
+    --bs-badge-padding-y: 0.5235em;
     --bs-badge-font-size: 75%;
     --bs-badge-font-weight: 500;
     --bs-badge-color: #fff;

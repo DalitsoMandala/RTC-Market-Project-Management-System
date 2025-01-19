@@ -92,8 +92,6 @@ class SubPeriod extends Component
             'name' => null,
             'value' => null
         ]);
-
-
     }
 
     /**
@@ -119,7 +117,8 @@ class SubPeriod extends Component
                     'name' => '',
                     'value' => ''
                 ]
-            ])
+            ]),
+            'selectedProject' => 1
         ]);
     }
 
@@ -179,7 +178,6 @@ class SubPeriod extends Component
     {
         try {
             $this->validate();
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -235,8 +233,6 @@ class SubPeriod extends Component
 
                     $this->dispatch('timeout');
                     session()->flash('success', 'Updated Successfully');
-
-
                 } else {
 
                     $this->dispatch('timeout');
@@ -319,9 +315,14 @@ class SubPeriod extends Component
 
             // Check if the responsible person has the required form
             $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
-
+            $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
+            $htmlForms = '<ul>';
+            foreach ($formNames as $formName) {
+                $htmlForms .= "<li>{$formName}</li>";
+            }
+            $htmlForms .= '</ul>';
             if ($hasFormAccess) {
-                $messageContent = "Submissions are now open, please go to the platform to complete your submission before the period ends.";
+                $messageContent = "Submissions are now open for: {$htmlForms}, please go to the platform to complete your submission before the period ends.";
                 $link = env('APP_URL');
 
                 if ($errorMessage) {
@@ -329,7 +330,6 @@ class SubPeriod extends Component
                     Bus::chain([
                         new SendNotificationJob($user, $errorMessage, $link, true)
                     ])->dispatch();
-
                 } else {
 
 
@@ -338,13 +338,7 @@ class SubPeriod extends Component
                     Bus::chain([
                         new SendNotificationJob($user, $messageContent, $link, false)
                     ])->dispatch();
-
-
                 }
-
-
-
-
             }
         }
     }
@@ -372,8 +366,6 @@ class SubPeriod extends Component
                 $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }
-
-
     }
 
     public function getTargets()
@@ -405,9 +397,6 @@ class SubPeriod extends Component
                 'targets' => collect($newTargets)
             ]);
         }
-
-
-
     }
     public function updatedSelectedIndicator($value)
     {

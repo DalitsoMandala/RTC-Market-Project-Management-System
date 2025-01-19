@@ -7,10 +7,21 @@
                 <div class="page-title-box d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">Add Data</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
+                        @php
+                            use Ramsey\Uuid\Uuid;
+                            $uuid = Uuid::uuid4()->toString();
+                            $currentUrl = url()->current();
+                            $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
+
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Add Data</li>
+
+                            <li class="breadcrumb-item">
+                                <a href="{{ $replaceUrl }}">Upload Data</a>
+                            </li>
                         </ol>
                     </div>
 

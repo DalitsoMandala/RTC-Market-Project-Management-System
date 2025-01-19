@@ -5,11 +5,25 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                    <h4 class="mb-0">Upload</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
+                        @php
+                            use Ramsey\Uuid\Uuid;
+
+                            $currentUrl = url()->current();
+                            $uuid = Route::current()->parameters()['uuid'] ?? null;
+                            $newUuid = Uuid::uuid4()->toString();
+                            $addDataRoute = $uuid ? str_replace($uuid, '', $currentUrl) : $currentUrl;
+                            $addDataRoute = str_replace('upload', 'add', $addDataRoute);
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ $addDataRoute }}">
+                                    Add Data
+                                </a>
+                            </li>
                             <li class="breadcrumb-item active">Upload</li>
                         </ol>
                     </div>
@@ -71,7 +85,7 @@
                                         file
                                         Please wait....
 
-                                        <div class=" d-flex align-content-center ">
+                                        <div class=" d-flex align-content-center">
                                             <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
 
 
@@ -111,7 +125,7 @@
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
                                         :disabled="disableButton === true || openSubmission === false"
-                                        class="btn btn-warning px-5">
+                                        class="px-5 btn btn-warning">
                                         Submit data
                                     </button>
 

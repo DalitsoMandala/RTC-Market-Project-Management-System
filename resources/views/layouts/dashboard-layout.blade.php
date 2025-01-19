@@ -23,7 +23,7 @@
 
         width: 0;
         height: 0;
-        background: #ffdbc9;
+
         transition: width .5s ease-in-out, height .5s ease-in-out;
         border-top-left-radius: 5px;
 

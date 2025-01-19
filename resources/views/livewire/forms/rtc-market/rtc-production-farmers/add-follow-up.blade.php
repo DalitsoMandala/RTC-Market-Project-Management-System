@@ -7,7 +7,7 @@
                     <h4 class="mb-0">Add Data</h4>
 
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item">
                                 <a href="/">Dashboard</a>
@@ -41,12 +41,12 @@
                                 });
                                 $('#select-recruits').on('change', function(e) {
                                     data = e.target.value;
-
+                            
                                     setTimeout(() => {
                                         $wire.set('selectedRecruit', data);
                                     }, 1000)
-
-
+                            
+                            
                                 });
                             }">
                                 <label for="" class="form-label">Select Actor</label>
@@ -55,30 +55,34 @@
                                         Select one
                                     </option>
                                     @foreach ($recruits as $recruit)
-                                    <option value="{{ $recruit->id }}">
-                                        ({{ $recruit->id }})
-                                        {{ $recruit->name_of_actor }}
-                                    </option>
+                                        <option value="{{ $recruit->id }}">
+                                            ({{ $recruit->id }})
+                                            {{ $recruit->name_of_actor }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="hide" x-data="{
                                 show: $wire.entangle('show')
-
-                            }" :class="{ 'pe-none opacity-25': show === false }">
+                            
+                            }"
+                                :class="{ 'pe-none opacity-25': show === false }">
                                 <div class="mb-3">
                                     <label for="" class="form-label">Date of follow up</label>
-                                    <input readonly type="date" class="form-control bg-light @error('date_of_follow_up') is-invalid @enderror" wire:model="date_of_follow_up" />
+                                    <input readonly type="date"
+                                        class="form-control bg-light @error('date_of_follow_up') is-invalid @enderror"
+                                        wire:model="date_of_follow_up" />
                                     @error('date_of_follow_up')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
                                 <!-- Group -->
                                 <div class="mb-3" x-data="{ group: $wire.entangle('group') }">
                                     <label for="group" class="form-label">Group</label>
-                                    <select class="form-select @error('group') is-invalid @enderror bg-light" x-model="group" disabled>
+                                    <select class="form-select @error('group') is-invalid @enderror bg-light"
+                                        x-model="group" disabled>
                                         <option value="">Select One</option>
                                         <option value="Early generation seed producer">
                                             Early generation seed producer
@@ -92,40 +96,45 @@
                                     </select>
 
                                     @error('group')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="" class="form-label">ENTERPRISE</label>
-                                    <x-text-input style="background: #f8f9fa" disabled wire:model="location_data.enterprise" :class="$errors->has('location_data.enterprise') ? 'is-invalid' : ''" />
+                                    <x-text-input style="background: #f8f9fa" disabled
+                                        wire:model="location_data.enterprise" :class="$errors->has('location_data.enterprise') ? 'is-invalid' : ''" />
                                     @error('location_data.enterprise')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
                                 <div class="mb-3">
                                     <label for="" class="form-label">DISTRICT</label>
-                                    <select disabled style="background: #f8f9fa" class="form-select @error('location_data.district') is-invalid @enderror" wire:model="location_data.district">
+                                    <select disabled style="background: #f8f9fa"
+                                        class="form-select @error('location_data.district') is-invalid @enderror"
+                                        wire:model="location_data.district">
                                         @include('layouts.district-options')
                                     </select>
                                     @error('location_data.district')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="" class="form-label">EPA</label>
-                                    <x-text-input style="background: #f8f9fa" disabled wire:model="location_data.epa" :class="$errors->has('location_data.epa') ? 'is-invalid' : ''" />
+                                    <x-text-input style="background: #f8f9fa" disabled wire:model="location_data.epa"
+                                        :class="$errors->has('location_data.epa') ? 'is-invalid' : ''" />
                                     @error('location_data.epa')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="" class="form-label">SECTION</label>
-                                    <x-text-input style="background: #f8f9fa" disabled wire:model="location_data.section" :class="$errors->has('location_data.section') ? 'is-invalid' : ''" />
+                                    <x-text-input style="background: #f8f9fa" disabled
+                                        wire:model="location_data.section" :class="$errors->has('location_data.section') ? 'is-invalid' : ''" />
                                     @error('location_data.section')
-                                    <x-error>{{ $message }}</x-error>
+                                        <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
 
@@ -134,10 +143,12 @@
                                 @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
 
                                 <div class="d-grid col-12 justify-content-center" x-data>
-                                    <button class="btn btn-warning " @click="window.scrollTo({
+                                    <button class="btn btn-warning "
+                                        @click="window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
-                                })" type="submit">
+                                })"
+                                        type="submit">
                                         Submit
                                     </button>
                                 </div>

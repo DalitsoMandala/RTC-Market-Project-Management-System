@@ -7,7 +7,7 @@
                 <div class="page-title-box d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">Dashboard</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="/cip/forms">Forms</a></li>
@@ -32,8 +32,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="text-center text-warning text-uppercase">School consumption data @if ($batch_no)
-                            [Batch : {{ $batch_no }}]
-                        @endif
+                                [Batch : {{ $batch_no }}]
+                            @endif
                         </h4>
                     </div>
 

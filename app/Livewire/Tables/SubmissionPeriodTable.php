@@ -104,14 +104,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y'))
             ->add('is_open')
             ->add('is_open_toggle', function ($model) {
-                $open = $model->is_open === 1 ? 'bg-success' : 'bg-secondary';
+                $open = $model->is_open === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary';
                 $is_open = $model->is_open === 1 ? 'Open' : 'Closed';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_open . '</span>';
             })
             ->add('is_expired')
             ->add('is_expired_toggle', function ($model) {
-                $open = $model->is_expired === 1 ? 'bg-theme-red' : 'bg-secondary';
+                $open = $model->is_expired === 1 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success';
                 $is_expired = $model->is_expired === 1 ? 'Yes' : 'No';
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
@@ -170,13 +170,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('End of Submissions', 'date_ending_formatted', 'date_ending')
                 ->sortable(),
 
-            Column::make('Status', 'is_open_toggle', 'is_open')
-                ->sortable()
-                ->searchable(),
             Column::make('Months', 'month_range'),
 
             Column::make('Financial Year', 'financial_year')
 
+                ->searchable(),
+
+            Column::make('Status', 'is_open_toggle', 'is_open')
+                ->sortable()
                 ->searchable(),
 
             Column::make('Indicator', 'indicator'),
@@ -187,9 +188,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Submissions', 'submissions')
 
-                ->searchable(),
             Column::make('Submission/Batch', 'submission_batch')
 
                 ->searchable(),
@@ -199,6 +198,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Submissions/Manual', 'submission_manual')
+
+                ->searchable(),
+
+            Column::make('Total Submissions', 'submissions')
 
                 ->searchable(),
 
@@ -325,6 +328,8 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm my-1')
                 ->tooltip('Add Data')
+
+
                 ->dispatch('sendData', ['model' => $row]),
 
             Button::add('upload')

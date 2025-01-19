@@ -7,7 +7,7 @@
                 <div class="page-title-box d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">Add Data</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item">
                                 <a href="/">Dashboard</a>
@@ -52,12 +52,12 @@
                                 });
                                 $('#select-recruits').on('change', function(e) {
                                     data = e.target.value;
-
+                            
                                     setTimeout(() => {
                                         $wire.set('selectedRecruit', data);
                                     }, 1000)
-
-
+                            
+                            
                                 });
                             }">
                                 <label for="" class="form-label">Select Actor</label>
@@ -193,14 +193,14 @@
 
                                 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
                                 <div class="mb-3 card card-body shadow-none border" x-data="{
-
-
-
+                                
+                                
+                                
                                 }"
                                     x-init="() => {
-
-
-
+                                    
+                                    
+                                    
                                     }">
                                     <label for="totalValueProduction" class="my-3 form-label fw-bold">Total Value
                                         Production
@@ -333,13 +333,13 @@
 
                                 <div class="mb-3" x-data="{
                                     uses_market_information_systems: $wire.entangle('uses_market_information_systems'),
-
+                                
                                 }" x-init="$watch('uses_market_information_systems', (v) => {
-
+                                
                                     if (v == 0) {
-
+                                
                                         $wire.resetValues('market_information_systems');
-
+                                
                                     } else if (v == 1) {
                                         $wire.resetValues('market_information_systems');
                                         $wire.addMIS();
@@ -413,18 +413,18 @@
 
                                 <div x-data="{
                                     sells_to_aggregation_centers: $wire.entangle('sells_to_aggregation_centers'),
-
-
-
+                                
+                                
+                                
                                 }" x-init="$watch('sells_to_aggregation_centers', (v) => {
-
+                                
                                     if (v == 0) {
-
+                                
                                         $wire.resetValues('aggregation_center_sales');
                                     } else {
                                         $wire.resetValues('aggregation_center_sales');
                                         $wire.addSales();
-
+                                
                                     }
                                 });">
                                     <div class="mb-3">

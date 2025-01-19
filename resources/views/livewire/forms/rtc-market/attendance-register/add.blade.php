@@ -5,12 +5,23 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
+                    <h4 class="mb-0">Add Data</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
+                        @php
+                            use Ramsey\Uuid\Uuid;
+                            $uuid = Uuid::uuid4()->toString();
+                            $currentUrl = url()->current();
+                            $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
+
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Page Name</li>
+                            <li class="breadcrumb-item active">Add Data</li>
+
+                            <li class="breadcrumb-item">
+                                <a href="{{ $replaceUrl }}">Upload Data</a>
+                            </li>
                         </ol>
                     </div>
 
@@ -29,7 +40,7 @@
                 @endif
 
                 @if ($openSubmission === false)
-                    <div class="alert alert-warning" role="alert">
+                    <div class="alert alert-danger" role="alert">
                         You can not submit a form right now
                         because submissions are closed for the moment!
                     </div>

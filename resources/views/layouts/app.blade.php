@@ -156,7 +156,16 @@
             color: #212529;
         }
 
-
+        #btn-back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: block;
+            /* Leave the display as block; visibility and opacity handle appearance */
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
 
         [readonly] {
             background-color: #e9ecef;
@@ -182,11 +191,17 @@
             <div class="mb-1 page-content ">
                 {{ $slot }}
 
+
+
             </div>
 
+
             <footer class="py-3 mt-auto footer bg-light">
+                <button type="button" class="btn btn-warning btn-lg rounded-circle " id="btn-back-to-top">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
                 <div class="container text-center">
-                    <span class="text-muted">&copy; 2024 {{ env('APP_NAME') }}. All rights reserved.</span>
+                    <span class="text-muted">&copy; 2025 {{ env('APP_NAME') }}. All rights reserved.</span>
                 </div>
             </footer>
         </div>
@@ -271,8 +286,43 @@
         <script>
             $(document).ready(function() {
                 $('.preloader').fadeOut('slow');
+                // Get the button
+                let mybutton = document.getElementById("btn-back-to-top");
 
+                // Initially hide the button
+                mybutton.style.opacity = "0";
+                mybutton.style.visibility = "hidden";
+                mybutton.style.transition = "opacity 0.5s ease";
+
+                // When the user scrolls down 20px from the top of the document, show the button
+                window.onscroll = function() {
+                    scrollFunction();
+                };
+
+                function scrollFunction() {
+                    if (
+                        document.body.scrollTop > 20 ||
+                        document.documentElement.scrollTop > 20
+                    ) {
+                        mybutton.style.visibility = "visible";
+                        mybutton.style.opacity = "1";
+                    } else {
+                        mybutton.style.opacity = "0";
+                        setTimeout(() => {
+                            mybutton.style.visibility = "hidden";
+                        }, 500); // Match the transition duration
+                    }
+                }
+
+                // When the user clicks on the button, scroll to the top of the document
+                mybutton.addEventListener("click", backToTop);
+
+                function backToTop() {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                }
             });
+
 
             setTimeout(function() {
                 if ($('.alert-success').length > 0) {
