@@ -43,7 +43,7 @@ trait CheckProgressTrait
                     $this->redirect(route('cip-staff-submissions') . '#batch-submission');
                 } else {
                     session()->flash('success', 'Successfully submitted!');
-                    $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+                    $this->redirect(route('cip-submissions') . '#batch-submission');
                 }
             }
         }

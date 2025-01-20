@@ -87,7 +87,7 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
 Route::middleware([
     'auth',
     'role:admin',
-    'all_roles:admin',
+
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
@@ -141,25 +141,22 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'all_roles:internal,cip,manager',
+    'all_roles:cip,manager',
     'check_baseline'
 ])->prefix('cip')->group(function () {
-    Route::get('/dashboard', Dashboard::class)->name('cip-internal-dashboard');
-    Route::get('/indicators', Indicators::class)->name('cip-internal-indicators');
-    Route::get('/indicators/view/{id}', ViewIndicators::class)->where('id', '[0-9]+')->name('cip-internal-indicator-view');
-    Route::get('/forms', Forms::class)->name('cip-internal-forms');
-    Route::get('/submissions', Submissions::class)->name('cip-internal-submissions');
-    Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-internal-submission-view');
-    Route::get('/reports', Reports::class)->name('cip-internal-reports');
-    Route::get('/submission-period', SubPeriod::class)->name('cip-internal-submission-period');
+    Route::get('/dashboard', Dashboard::class)->name('cip-dashboard');
+    Route::get('/indicators', Indicators::class)->name('cip-indicators');
+    Route::get('/indicators/view/{id}', ViewIndicators::class)->where('id', '[0-9]+')->name('cip-indicator-view');
+    Route::get('/forms', Forms::class)->name('cip-forms');
+    Route::get('/submissions', Submissions::class)->name('cip-submissions');
+    Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-submission-view');
+    Route::get('/reports', Reports::class)->name('cip-reports');
+    Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
     Route::get('/targets', App\Livewire\Targets\View::class);
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
-    //  Route::get('/seed-beneficiaries/add', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
-    //    Route::get('/seed-beneficiaries', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
-    // Route::get('/seed-distribution/add', App\Livewire\OtherForms\SeedDistribution\Add::class);
-    // Route::get('/seed-distribution', App\Livewire\OtherForms\SeedDistribution\View::class);
+
 
     // Form routes
     $formPrefix = '/forms/{project}';
@@ -205,8 +202,8 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'all_roles:internal,cip,staff',
-    'check_baseline'
+    'all_roles:cip,staff',
+
 ])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
     Route::get('/indicators', \App\Livewire\Internal\Staff\Indicators::class)->name('cip-staff-indicators');
@@ -257,7 +254,7 @@ Route::middleware([
 Route::middleware([
     'auth',
     'all_roles:internal,cip,project_manager',
-    'check_baseline'
+
 ])->prefix('cip/project-manager')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project_manager-dashboard');
     Route::get('/indicators', \App\Livewire\Internal\Manager\Indicators::class)->name('project_manager-indicators');
@@ -275,11 +272,11 @@ Route::middleware([
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
 });
-// External routes  
+// External routes
 Route::middleware([
     'auth',
     'role:external',
-    'check_baseline'
+
 ])->prefix('external')->group(function () {
     Route::get('/dashboard', ExternalDashboard::class)->name('external-dashboard');
     Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');
@@ -288,7 +285,7 @@ Route::middleware([
     Route::get('/submissions', \App\Livewire\External\Submissions::class)->name('external-submissions');
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
-    Route::get('/targets', App\Livewire\Targets\View::class);
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();
@@ -326,13 +323,5 @@ Route::middleware([
 });
 
 
-// Route::middleware([
-//     'auth',
-//     'role:donor'
-// ])->prefix('executive')->group(function () {
-//     Route::get('/dashboard', \App\Livewire\Donor\Dashboard::class)->name('donor-dashboard');
-//     Route::get('/indicators', \App\Livewire\Donor\Indicators::class)->name('donor-indicators');
-//     Route::get('/indicators/view/{id}', \App\Livewire\Donor\ViewIndicator::class)->name('donor-indicator-view');
-//});
 // Authentication routes
 require __DIR__ . '/auth.php';

@@ -43,7 +43,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         // Create a new RtcProductionProcessor record
         $user = User::find($this->data['user_id']);
         $status = 'pending';
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
         }
         $processorRecord = RtcProductionProcessor::create([

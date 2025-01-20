@@ -335,7 +335,7 @@ class SubPeriod extends Component
 
 
                 $link = match (true) {
-                    User::find($user->id)->hasAnyRole('manager') => route('cip-internal-submission-period'),
+                    User::find($user->id)->hasAnyRole('manager') => route('cip-submission-period'),
                     User::find($user->id)->hasAnyRole('staff') => route('cip-staff-submission-period'),
                     default => route('external-submission-period')
                 };

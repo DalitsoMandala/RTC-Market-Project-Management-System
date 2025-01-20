@@ -42,14 +42,13 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin') || $user->hasAnyRole('donor') || $user->hasAnyRole('staff')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin') || $user->hasAnyRole('donor') || $user->hasAnyRole('staff')) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
                 'responsiblePeopleforIndicators.organisation',
                 'forms'
             ]);
-
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
             $user = User::find($this->userId);
@@ -67,7 +66,6 @@ final class IndicatorTable extends PowerGridComponent
             // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
 
         }
-
     }
 
     public function relationSearch(): array
@@ -107,23 +105,18 @@ final class IndicatorTable extends PowerGridComponent
             ->add('indicator_name')
             ->add('name_link', function ($model) {
                 $user = User::find($this->userId);
-                if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager'))) {
+                if ($user->hasAnyRole('manager')) {
 
-                    return '<a class="text-decoration-underline"  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
+                    return '<a class="text-decoration-underline"  href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('donor')) {
                     return '<a class="text-decoration-underline"  href="' . route('donor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 } else if ($user->hasAnyRole('staff')) {
                     return '<a class="text-decoration-underline"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 } else if ($user->hasAnyRole('external')) {
                     return '<a class="text-decoration-underline"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 } else {
                     return '<a class="text-decoration-underline"  href="' . route('admin-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
-
             })
             ->add('project_id')
             ->add('project_name', fn($model) => $model->project->name)
@@ -154,7 +147,6 @@ final class IndicatorTable extends PowerGridComponent
                 if ($disaggregations) {
                     $implode = $disaggregations->pluck('name')->toArray();
                     return (implode(', ', $implode));
-
                 }
             })
             ->add('created_at')
@@ -168,8 +160,7 @@ final class IndicatorTable extends PowerGridComponent
 
         $columns = [
             Column::make('Id', 'id')
-                ->sortable()
-            ,
+                ->sortable(),
             Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
 
                 ->searchable(),
@@ -182,7 +173,7 @@ final class IndicatorTable extends PowerGridComponent
         ];
 
         $user = Auth::user();
-        if ($user->hasAnyRole('internal')) {
+        if ($user->hasAnyRole('manager')) {
             $columns[] = Column::make('Sources', 'sources');
             //   $columns[] = Column::action('Action');
         } else {
@@ -196,9 +187,7 @@ final class IndicatorTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('refresh')]
@@ -238,5 +227,4 @@ final class IndicatorTable extends PowerGridComponent
 
         ];
     }
-
 }

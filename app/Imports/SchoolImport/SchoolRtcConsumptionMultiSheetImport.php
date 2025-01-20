@@ -140,7 +140,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                 $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing.', []));
 
                 $status = ($user->hasRole([
-                    'internal',
+
                     'manager',
                     'admin'
                 ])) ? 'approved' : 'pending';

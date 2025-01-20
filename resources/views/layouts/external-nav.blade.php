@@ -19,7 +19,7 @@
             </button>
 
             <div class="topnav">
-                @hasallroles('internal|cip|organiser')
+                @hasallroles('cip|organiser')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -34,9 +34,9 @@
                                 </li>
 
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('cip-indicators') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
                                         <span data-key="t-dashboards">Indicators</span>
                                     </a>
@@ -53,21 +53,19 @@
 
 
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-internal-forms') }}" id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none" href="{{ route('cip-forms') }}"
+                                            id="topnav-utility" role="button">
                                             <span data-key="t-utility">Forms</span>
 
                                         </a>
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-internal-submission-period') }}" id="topnav-utility"
-                                            role="button">
+                                            href="{{ route('cip-submission-period') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Submission Periods</span>
 
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-internal-submissions') }}" id="topnav-utility"
-                                            role="button">
+                                            href="{{ route('cip-submissions') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
@@ -77,9 +75,9 @@
                                 </li>
 
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-internal-reports') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('cip-reports') }}"
+                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
                                         <i class='bx bx-table'></i>
                                         <span data-key="t-dashboards">Reports</span>
                                     </a>

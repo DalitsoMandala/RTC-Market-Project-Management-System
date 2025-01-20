@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+
 HeadingRowFormatter::default('none');
 class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
 {
@@ -36,7 +37,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
 
         $user = User::find($this->submissionDetails['user_id']);
         $status = 'pending';
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
         }
         $attendanceRecord = AttendanceRegister::create([

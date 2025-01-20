@@ -203,7 +203,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
                 ->slot('<i class="bx bx-trash"></i> Delete')
                 ->id()
                 ->class('btn btn-theme-red my-1')
-                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
                 ->dispatch('deleteRecord', [
                     'id' => $row->id,
                     'name' => 'delete-detail-modal'

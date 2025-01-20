@@ -105,7 +105,6 @@ class Indicator114 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -116,7 +115,6 @@ class Indicator114 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -137,15 +135,10 @@ class Indicator114 extends Component
                 $this->openSubmission = true;
                 $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
-
-
-
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
     public function save()
@@ -169,7 +162,7 @@ class Indicator114 extends Component
             'Annual value' => $this->annual_value,
             'Baseline' => $this->baseline,
         ];
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -177,8 +170,8 @@ class Indicator114 extends Component
                 $this->selectedForm,
                 $this->selectedIndicator,
                 $this->selectedFinancialYear,
-                route('cip-internal-submissions'),
-                'internal'
+                route('cip-submissions'),
+                'manager'
             );
         }
 
@@ -186,31 +179,30 @@ class Indicator114 extends Component
         else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
 
 
-$submit->submit_aggregate_data(
-    $data,
-    $user,
-    $this->submissionPeriodId,
-    $this->selectedForm,
-    $this->selectedIndicator,
-    $this->selectedFinancialYear,
-    route('external-submissions'),
-    'external'
-);
-} else if ($user->hasAnyRole('staff')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+        } else if ($user->hasAnyRole('staff')) {
 
 
-$submit->submit_aggregate_data(
-    $data,
-    $user,
-    $this->submissionPeriodId,
-    $this->selectedForm,
-    $this->selectedIndicator,
-    $this->selectedFinancialYear,
-    route('cip-staff-submissions'),
-    'staff'
-);
-}
-
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-staff-submissions'),
+                'staff'
+            );
+        }
     }
     public function render()
     {

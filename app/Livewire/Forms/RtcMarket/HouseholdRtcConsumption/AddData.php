@@ -329,7 +329,7 @@ class AddData extends Component
 
             $currentUser = Auth::user();
             $user = User::find($userId);
-            if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+            if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
 
                 try {
                     $checkSubmissions = Submission::where('period_id', $this->submissionPeriodId)
@@ -357,7 +357,7 @@ class AddData extends Component
 
 
 
-                        session()->flash('success', 'Successfully submitted! <a href="' . route('cip-internal-submissions') . '#manual-submission">View Submission here</a>');
+                        session()->flash('success', 'Successfully submitted! <a href="' . route('cip-submissions') . '#manual-submission">View Submission here</a>');
                     }
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes

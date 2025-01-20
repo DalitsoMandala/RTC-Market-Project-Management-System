@@ -178,7 +178,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
-                    $user->notify(new ImportSuccessNotification($this->cacheKey,  route('cip-internal-submissions')));
+                    $user->notify(new ImportSuccessNotification($this->cacheKey,  route('cip-submissions')));
                 } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
                         'batch_no' => $this->cacheKey,

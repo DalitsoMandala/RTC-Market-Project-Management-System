@@ -9,16 +9,16 @@
                 <div class="page-title-right">
                     <ol class="m-0 breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                        @hasallroles('internal|cip|admin')
+                        @hasallroles('cip|admin')
                             <li class="breadcrumb-item"><a href="/admin/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('internal|cip|manager')
+                        @hasallroles('cip|manager')
                             <li class="breadcrumb-item"><a href="/cip/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('internal|cip|project_manager')
+                        @hasallroles('cip|project_manager')
                             <li class="breadcrumb-item"><a href="/project_manager/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('internal|cip|staff')
+                        @hasallroles('cip|staff')
                             <li class="breadcrumb-item"><a href="/staff/indicators">Indicators</a></li>
                         @endrole
 
@@ -36,11 +36,11 @@
     </div>
     <!-- end page title -->
 
-    <div class="row my-2">
+    <div class="my-2 row">
         <div class="col-12 col-md-8">
-            <h5 class="h3 mb-3">{{ $indicator_name }} ({{ $indicator_no }} )</h5>
+            <h5 class="mb-3 h3">{{ $indicator_name }} ({{ $indicator_no }} )</h5>
         </div>
-        <div class="col-12 col-md-4 d-flex justify-content-end flex-wrap ">
+        <div class="flex-wrap col-12 col-md-4 d-flex justify-content-end ">
             <div class="dropdown mb-1 @if (auth()->user()->hasAnyRole('external')) d-none @endif" x-data="{
                 Organisation: $wire.entangle('selectedOrganisation'),
                 Organisations: $wire.entangle('organisations'),
@@ -82,7 +82,7 @@
 
                 </div>
             </div>
-            <div class="dropdown mb-1" x-data="{
+            <div class="mb-1 dropdown" x-data="{
                 financialYear: $wire.entangle('selectedFinancialYear'),
                 financialYears: $wire.entangle('financialYears'),
                 setData(value) {

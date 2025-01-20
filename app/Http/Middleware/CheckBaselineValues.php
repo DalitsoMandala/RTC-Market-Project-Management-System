@@ -21,7 +21,7 @@ class CheckBaselineValues
             if (
                 auth()->check() &&
                 ((auth()->user()->hasAllRoles([
-                    'internal',
+
                     'manager',
                     'cip'
                 ])) || auth()->user()->hasRole('admin'))

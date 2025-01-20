@@ -148,7 +148,7 @@ class IndicatorB5 extends Component
         ];
 
         // Roles for internal users
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -156,12 +156,12 @@ class IndicatorB5 extends Component
                 $this->selectedForm,
                 $this->selectedIndicator,
                 $this->selectedFinancialYear,
-                route('cip-internal-submissions'),
-                'internal'
+                route('cip-submissions'),
+                'manager'
             );
         }
         // Roles for external users
-         // Roles for external users
+        // Roles for external users
         else if ($user->hasAnyRole('external')) {
 
 

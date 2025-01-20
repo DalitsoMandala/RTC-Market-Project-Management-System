@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
             return $org->id;
         }
 
-        Role::create(['name' => 'internal']); //CIP or DESIRA
+        //   Role::create(['name' => 'internal']); //CIP or DESIRA
         Role::create(['name' => 'external']); // ANY OTHER
         Role::create(['name' => 'manager']); // ANY ONE WHO CAN DO MOST MANIPULATION
         Role::create(['name' => 'staff']); // LIMITED FUNCTIONALITY
@@ -50,22 +50,22 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-                    'internal',
-                    'cip',
-                    'manager'
-                ]);
 
-                User::create([
+            'cip',
+            'manager'
+        ]);
+
+        User::create([
             'name' => 'Alex Chase',
             'email' => 'cip2@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-                    'internal',
-                    'cip',
-                    'project_manager'
-                ]);
+
+            'cip',
+            'project_manager'
+        ]);
 
 
         User::create([
@@ -75,10 +75,10 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-                    'internal',
-                    'cip',
-                    'staff'
-                ]);
+
+            'cip',
+            'staff'
+        ]);
 
         // CIP internal
 
@@ -89,9 +89,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('IITA'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
         User::create([
             'name' => 'John Mateck',
@@ -100,9 +100,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('TRADELINE'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
         User::create([
             'name' => 'Jack Smith',
@@ -111,9 +111,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('DCD'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
         User::create([
             'name' => 'Janet Park',
@@ -122,9 +122,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('DAES'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
         User::create([
             'name' => 'Marah Malumbo',
@@ -133,9 +133,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('MINISTRY OF TRADE'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
         User::create([
             'name' => 'Mary Malumbo',
@@ -144,9 +144,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('ACE'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
         User::create([
             'name' => 'Janet Jackie Malumbo',
@@ -155,9 +155,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('DARS'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
 
 
         User::create([
@@ -167,9 +167,9 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('RTCDT'),
         ])->assignRole([
-                    'external',
+            'external',
 
-                ]);
+        ]);
         //roletype,project,position
     }
 }

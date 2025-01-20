@@ -96,7 +96,6 @@ class IndicatorB3 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -107,7 +106,6 @@ class IndicatorB3 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -129,16 +127,10 @@ class IndicatorB3 extends Component
 
                 $this->baseline = $findFinancialYear->number == 1 ? $findIndicator->baseline->baseline_value : null;
                 $this->yearNumber = $findFinancialYear->number;
-
-
-
-
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
 
@@ -162,7 +154,7 @@ class IndicatorB3 extends Component
         ];
 
         // Roles for internal users
-        if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -170,12 +162,12 @@ class IndicatorB3 extends Component
                 $this->selectedForm,
                 $this->selectedIndicator,
                 $this->selectedFinancialYear,
-                route('cip-internal-submissions'),
-                'internal'
+                route('cip-submissions'),
+                'manager'
             );
         }
         // Roles for external users
-         // Roles for external users
+        // Roles for external users
         else if ($user->hasAnyRole('external')) {
 
 
@@ -203,7 +195,6 @@ class IndicatorB3 extends Component
                 'staff'
             );
         }
-
     }
 
 

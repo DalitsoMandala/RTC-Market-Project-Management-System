@@ -40,7 +40,7 @@ class SubmitAggregateData
                 'batch_no' => $uuid,
                 'form_id' => $selectedForm,
                 'user_id' => $currentUser->id,
-                'status' => $roleType === 'internal' ? 'approved' : 'pending', // Status based on role
+                'status' => $roleType === 'manager' ? 'approved' : 'pending', // Status based on role
                 'batch_type' => 'aggregate',
                 'is_complete' => 1,
                 'period_id' => $submissionPeriodId,
@@ -58,7 +58,7 @@ class SubmitAggregateData
                 'period_month_id' => $period->month_range_period_id,
                 'organisation_id' => $user->organisation->id,
                 'user_id' => $user->id,
-                'status' => $roleType === 'internal' ? 'approved' : 'pending', // Status based on role
+                'status' => $roleType === 'manager' ? 'approved' : 'pending', // Status based on role
                 'data' => json_encode($data),
                 'uuid' => $uuid
             ]);

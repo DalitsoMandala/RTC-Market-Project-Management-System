@@ -191,7 +191,7 @@ class Upload extends Component
     //                 return redirect(route('cip-staff-submissions') . '#batch-submission');
     //             } else {
     //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('cip-internal-submissions') . '#batch-submission');
+    //                 return redirect(route('cip-submissions') . '#batch-submission');
     //             }
     //         }
 
@@ -214,7 +214,7 @@ class Upload extends Component
             return redirect(route('cip-staff-submissions') . '#batch-submission');
         } else {
             session()->flash('success', 'Successfully submitted!');
-            return redirect(route('cip-internal-submissions') . '#batch-submission');
+            return redirect(route('cip-submissions') . '#batch-submission');
         }
     }
 

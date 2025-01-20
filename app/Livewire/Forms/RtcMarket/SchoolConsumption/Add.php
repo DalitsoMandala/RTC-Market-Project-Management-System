@@ -136,7 +136,7 @@ class Add extends Component
             $user = User::find($userId);
             $latest = '';
             $cropCollection = collect($this->crop);
-            if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager')) || $user->hasAnyRole('admin')) {
+            if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
 
                 $data = [
                     'date' => $this->date,
