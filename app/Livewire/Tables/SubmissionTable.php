@@ -5,6 +5,7 @@ namespace App\Livewire\Tables;
 use App\Helpers\TruncateText;
 use App\Models\Form;
 use App\Models\Indicator;
+use App\Models\Organisation;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\User;
@@ -26,6 +27,8 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class SubmissionTable extends PowerGridComponent
 {
+
+    //Batch Submission Table
     use WithExport;
     public $filter;
     public $userId;
@@ -40,7 +43,7 @@ final class SubmissionTable extends PowerGridComponent
             Exportable::make('export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make(),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -49,14 +52,15 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = Submission::query()->with('period.indicator')->where('batch_type', 'batch');
+        $query = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'financial_year'])
+            ->where('batch_type', 'batch');
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
 
-            return Submission::query()->with('period.indicator')->where('batch_type', 'batch')->where('user_id', $user->id);
+            return $query->where('user_id', $user->id);
         }
 
         return $query;
@@ -73,8 +77,11 @@ final class SubmissionTable extends PowerGridComponent
                 })
                 ->optionLabel('status')
                 ->optionValue('status'),
-            Filter::inputText('batch_no_formatted', 'batch_no'),
-            Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
+
+
+            //     Filter::inputText('batch_no_formatted', 'batch_no'),
+            //      Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
+            //      Filter::inputText('organisation_formatted')->filterRelation('user.organisation', 'name'),
         ];
     }
     public function relationSearch(): array
@@ -84,9 +91,24 @@ final class SubmissionTable extends PowerGridComponent
                 'indicator_name', // column enabled to search
 
             ],
+            'user.organisation' => [
+                'name',
+            ],
+            'user' => [
+                'name'
+            ],
 
+            'period.reportingMonths' => [
+                'start_month',
+                'end_month',
+            ],
+            'form' => [
+                'name',
+            ],
 
-
+            'financial_year' => [
+                'number'
+            ]
 
 
         ];
@@ -127,11 +149,11 @@ final class SubmissionTable extends PowerGridComponent
             ->add('status_formatted', function ($model) {
 
                 if ($model->status === 'approved') {
-                    return '<span class="badge bg-success">' . $model->status . '</span>';
+                    return '<span class="badge bg-success-subtle text-success">' . $model->status . '</span>';
                 } else if ($model->status === 'pending') {
-                    return '<span class="badge bg-warning">' . $model->status . '</span>';
+                    return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
                 } else {
-                    return '<span class="badge bg-theme-red">' . $model->status . '</span>';
+                    return '<span class="badge bg-danger-subtle text-danger">' . $model->status . '</span>';
                 }
             })
 
@@ -177,7 +199,24 @@ final class SubmissionTable extends PowerGridComponent
             ->add('file_link', function ($model) {
 
                 if ($model->file_link) {
-                    return '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
+                    $html = "
+                       <a class='text-success custom-tooltip' title='download file' download='{$model->file_link}' href='" . asset('/storage/imports/' . $model->file_link) . "'>
+
+                    <div class='d-flex align-items-center'>
+                        <div class='flex-shrink-0 me-2'>
+                            <div class='px-2 py-1 rounded-1 bg-success-subtle'>
+                                <i class='fas fa-file-excel text-success'></i>
+                            </div>
+                        </div>
+                        <div class='flex-grow-1 fw-bolder'>
+                           {$model->file_link}
+
+                        </div>
+                    </div>
+
+                        </a>";
+
+                    return $html;
                 }
 
                 return null;
@@ -188,22 +227,25 @@ final class SubmissionTable extends PowerGridComponent
 
     public function columns(): array
     {
+
         return [
-            Column::make('Id', 'row_num'),
+            //        Column::make('Id', 'row_num'),
+            Column::make('File', 'file_link'),
+
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('SUBMITTED BY', 'username'),
+            Column::make('SUBMITTED BY', 'username')->searchable(),
 
-            Column::make('Organisation', 'organisation_formatted'),
-            Column::make('Form name', 'form_name'),
+            Column::make('Organisation', 'organisation_formatted')->searchable(),
+            Column::make('Form name', 'form_name')->searchable(),
 
-            Column::make('Indicator', 'indicator'),
+            Column::make('Indicator', 'indicator')->searchable(),
 
-            Column::make('SUBMISSION PERIOD', 'month_range'),
+            Column::make('SUBMISSION PERIOD', 'month_range')->searchable(),
 
-            Column::make('Project Year', 'financial_year'),
+            Column::make('Project Year', 'financial_year')->searchable(),
             Column::make('Status', 'status_formatted')
                 ->sortable()
                 ->searchable(),
@@ -216,7 +258,7 @@ final class SubmissionTable extends PowerGridComponent
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
-            Column::make('File', 'file_link'),
+
             Column::action('Action'),
             // Column::make('Created at', 'created_at')
             //     ->sortable()
@@ -233,23 +275,27 @@ final class SubmissionTable extends PowerGridComponent
 
     public function actions($row): array
     {
+
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i> Edit')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-warning')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('internal'))
+                ->class('btn btn-warning my-1 custom-tooltip btn-sm')
+                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->tooltip('Submit Approval')
                 ->dispatch('showModal', [
                     'rowId' => $row->id,
-                    'name' => 'view-submission-modal'
+                    'name' => 'view-submission-modal',
+
                 ]),
 
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i> Delete')
+                ->slot('<i class="bx bx-trash"></i>')
                 ->id()
-                ->class('btn btn-theme-red my-1')
-                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('internal') && User::find(auth()->user()->id)->hasAnyRole('manager')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->class('btn btn-theme-red my-1 custom-tooltip btn-sm')
+                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->tooltip('Delete Data')
                 ->dispatch('deleteBatch', [
                     'id' => $row->id,
                     'name' => 'delete-batch-modal'
@@ -263,17 +309,19 @@ final class SubmissionTable extends PowerGridComponent
 
         return [
             //  Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => (User::find($row->user_id)->hasAnyRole('internal') && User::find($row->user_id)->hasAnyRole('manager')) || User::find($row->user_id)->hasAnyRole('admin'))
-                ->disable(),
-
-            Rule::button('edit')
-                ->when(fn($row) => User::find(auth()->user()->id)->hasAnyRole('external') || User::find(auth()->user()->id)->hasAnyRole('staff'))
-                ->disable(),
 
             Rule::button('edit')
                 ->when(fn($row) => $row->status !== 'pending')
                 ->disable(),
+
+            Rule::button('delete')
+                ->when(fn($row) => !($row->status === 'pending'))
+                ->disable(),
+
+            Rule::button('delete')
+                ->when(fn($row) => !($row->user_id === auth()->user()->id))
+                ->disable(),
+
         ];
     }
 }

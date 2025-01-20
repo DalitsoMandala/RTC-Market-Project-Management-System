@@ -34,15 +34,15 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
         if ($this->error === true) {
             return (new MailMessage)
                 ->greeting('Hello ' . $notifiable->name . ',')
-                ->subject('Important Update - Error')
+                ->subject('Important Update - Error!')
                 ->line(new HtmlString($this->messageContent));
         }
 
         return (new MailMessage)
-            ->subject('Important Update')
+            ->subject('Submissions Notification!')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line(new HtmlString($this->messageContent))
-            ->action('Access the link', $this->link)  // Adding a call-to-action button
+            ->action('Go to website', $this->link)  // Adding a call-to-action button
             ->line('Thank you for your attention!');
     }
 }

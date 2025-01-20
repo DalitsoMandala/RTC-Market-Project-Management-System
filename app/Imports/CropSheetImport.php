@@ -103,7 +103,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
             'Name of AEDO' => 'required|string|max:255',
-            'AEDO Phone Number' => 'nullable|string|max:20',
+            'AEDO Phone Number' => 'nullable|max:255',
             'Date' => 'nullable|date|date_format:d-m-Y',
             'Name of Recipient' => 'required|string|max:255',
             'Village' => 'required|string|max:255',
@@ -115,7 +115,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
             'Children Under 5 in HH' => 'nullable|integer|min:0',
             'Variety Received' => 'required|string|max:255',
             'Bundles Received' => 'required|integer|min:1',
-            'Phone / National ID' => 'required|string|max:255',
+            'Phone / National ID' => 'required|max:255',
         ];
     }
     public function prepareForValidation(array $row)

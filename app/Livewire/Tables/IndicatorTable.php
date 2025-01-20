@@ -24,6 +24,7 @@ final class IndicatorTable extends PowerGridComponent
 {
     use WithExport;
     public $userId;
+    public $count = 1;
     public function setUp(): array
     {
         //   $this->showCheckBox();
@@ -49,7 +50,6 @@ final class IndicatorTable extends PowerGridComponent
                 'responsiblePeopleforIndicators.organisation',
                 'forms'
             ]);
-
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
             $user = User::find($this->userId);
@@ -67,7 +67,6 @@ final class IndicatorTable extends PowerGridComponent
             // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
 
         }
-
     }
 
     public function relationSearch(): array
@@ -98,7 +97,7 @@ final class IndicatorTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('id', fn($model) => $this->count++)
             ->add('indicator_no')
             ->add('indicator_no_bold', function ($model) {
 
@@ -110,18 +109,13 @@ final class IndicatorTable extends PowerGridComponent
                 if (($user->hasAnyRole('internal') && $user->hasAnyRole('manager'))) {
 
                     return '<a class="text-decoration-underline"  href="' . route('cip-internal-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 } else if ($user->hasAnyRole('project_manager')) {
                     return '<a class="text-decoration-underline"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 } else if ($user->hasAnyRole('staff')) {
                     return '<a class="text-decoration-underline"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 } else {
                     return '<a class="text-decoration-underline"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-
                 }
-
             })
             ->add('project_id')
             ->add('project_name', fn($model) => $model->project->name)
@@ -152,7 +146,6 @@ final class IndicatorTable extends PowerGridComponent
                 if ($disaggregations) {
                     $implode = $disaggregations->pluck('name')->toArray();
                     return (implode(', ', $implode));
-
                 }
             })
             ->add('created_at')
@@ -165,7 +158,7 @@ final class IndicatorTable extends PowerGridComponent
         $showActionColumn = false; // Set this variable based on your condition
 
         $columns = [
-
+            Column::make('#', 'id'),
             Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
 
                 ->searchable(),
@@ -192,9 +185,7 @@ final class IndicatorTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('refresh')]
@@ -234,5 +225,4 @@ final class IndicatorTable extends PowerGridComponent
 
         ];
     }
-
 }

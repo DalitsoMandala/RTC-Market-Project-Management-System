@@ -219,6 +219,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->dataSource(Form::all())
                 ->optionLabel('name')
                 ->optionValue('id'),
+
+            Filter::select('indicator', 'indicator_id')
+                ->dataSource(Indicator::all())
+                ->optionLabel('indicator_name')
+                ->optionValue('id'),
         ];
     }
     #[On('refresh')]
@@ -317,26 +322,26 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i> Edit')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
                 ->tooltip('Edit Record')
-                ->class('btn btn-warning goUp btn-sm my-1')
+                ->class('btn btn-warning goUp btn-sm my-1 custom-tooltip')
                 ->dispatch('editData', ['rowId' => $row->id]),
 
             Button::add('add-data')
-                ->slot('<i class="bx bx-plus"></i> Add Data')
+                ->slot('<i class="bx bx-plus"></i>')
                 ->id()
-                ->class('btn btn-warning btn-sm my-1')
+                ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Add Data')
 
 
                 ->dispatch('sendData', ['model' => $row]),
 
             Button::add('upload')
-                ->slot('<i class="bx bx-upload"></i> Upload Data')
+                ->slot('<i class="bx bx-upload"></i>')
                 ->id()
                 ->tooltip('Upload Your Data')
-                ->class('btn btn-warning my-1 btn-sm')
+                ->class('btn btn-warning my-1 btn-sm custom-tooltip')
                 ->dispatch('sendUploadData', ['model' => $row]),
 
 

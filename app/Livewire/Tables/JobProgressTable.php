@@ -2,6 +2,7 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\JobProgress;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,12 @@ final class JobProgressTable extends PowerGridComponent
 
     public $userId;
 
+    public $count = 1;
+
+
+    public string $sortField = 'id';
+
+    public string $sortDirection = 'desc';
     public function setUp(): array
     {
 
@@ -37,31 +44,48 @@ final class JobProgressTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('job_progress')->where('user_id', $this->userId);
+        return DB::table('job_progress')->where('user_id', $this->userId)->orderBy('id', 'desc');
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
+            ->add('row', fn($model) => $this->count++)
             ->add('id')
             ->add('cache_key')
             ->add('form_name')
             ->add('user_id')
-            ->add('status', function ($model) {
+            ->add('status')
+            ->add('status_formatted', function ($model) {
                 if ($model->status === 'completed') {
-                    return '<span class="badge bg-success">' . $model->status . '</span>';
+                    return '<span class="badge bg-success-subtle text-success">' . $model->status . '</span>';
                 } else if ($model->status === 'failed') {
-                    return '<span class="badge bg-theme-red">' . $model->status . '</span>';
+                    return '<span class="badge bg-danger-subtle text-danger">' . $model->status . '</span>';
                 } else {
-                    return '<span class="badge bg-warning">' . $model->status . '</span>';
+                    return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
                 }
             })
             ->add('progress', function ($model) {
-                return '
-<div class="mb-1 text-center text-warning fw-medium">' . $model->progress . '%</div>
+                $progressColor = match (true) {
+                    $model->progress >= 0 && $model->progress <= 49 => 'bg-danger',
+                    $model->progress >= 50 && $model->progress <= 99 => 'bg-warning',
+                    $model->progress === 100 => 'bg-success',
+                    default => 'bg-secondary', // Fallback for unexpected values
+                };
 
 
-';
+                $html = "
+
+                <div class='d-flex justify-content-between align-items-center'>
+<div class='progress progress-sm bg-secondary-subtle w-100 me-3'>
+<div class='progress-bar {$progressColor}' role='progressbar' style='width: {$model->progress}%' aria-valuenow='{$model->progress}' aria-valuemin='0' aria-valuemax='100'></div>
+</div>
+<span class='text-muted'>{$model->progress}%</span>
+</div>
+";
+
+
+                return $html;
             })
             ->add('is_finished', function ($model) {
 
@@ -79,7 +103,7 @@ final class JobProgressTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            //       Column::make('#', 'id'),
             Column::make('UUID', 'cache_key')
 
                 ->searchable(),
@@ -89,7 +113,7 @@ final class JobProgressTable extends PowerGridComponent
                 ->searchable(),
 
 
-            Column::make('Status', 'status')
+            Column::make('Status', 'status_formatted')
 
                 ->searchable(),
 
@@ -105,7 +129,17 @@ final class JobProgressTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [];
+        return [
+            Filter::select('status_formatted', 'status')
+                ->dataSource(function () {
+                    $submission = JobProgress::select(['status'])->distinct();
+
+                    return $submission->get();
+                })
+                ->optionLabel('status')
+                ->optionValue('status'),
+
+        ];
     }
 
     #[\Livewire\Attributes\On('edit')]

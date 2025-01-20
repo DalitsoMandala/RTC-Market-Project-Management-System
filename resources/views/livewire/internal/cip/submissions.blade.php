@@ -22,65 +22,44 @@
             <div class="col-12">
 
                 <div>
-                    @if (session()->has('success'))
-                        <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                    @endif
-                    @if (session()->has('error'))
-                        <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                    @endif
-
+                    <x-alerts />
                 </div>
 
-                <div class="card " wire:ignore>
+                <div class="card ">
                     <div class="card-header fw-bold ">
-                        Submissions Table
+                        <h5 class="card-title"> Submissions Table</h5>
+
                     </div>
                     <div class="card-body">
                         <!-- Nav tabs -->
-                        @php
-                            $batch = \App\Models\Submission::where('batch_type', 'batch')
-                                ->where('status', 'pending')
-                                ->count();
-                            $manual = \App\Models\Submission::where('batch_type', 'manual')
-                                ->where('status', 'pending')
-                                ->count();
-                            $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
-                                ->where('status', 'pending')
-                                ->count();
 
-                        @endphp
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#batch-submission" type="button" role="tab"
-                                    aria-controls="home" aria-selected="true">
-                                    Batch Submissions <span
-                                        class="badge bg-warning @if ($batch == 0) d-none @endif">{{ $batch }}</span>
-                                </button>
-                            </li>
-                            {{-- <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
-                                    data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
-                                    Manual Submissions
-                                </button>
-                            </li> --}}
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#aggregate-submission" type="button" role="tab"
-                                    aria-controls="profile" aria-selected="false">
-                                    Aggregate Submission <span
-                                        class="badge bg-warning @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
-                                </button>
-                            </li>
 
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
-                                    data-bs-target="#job-progress" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
-                                    Pending Submissions
-                                </button>
-                            </li>
+                            <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                                data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
+                                aria-selected="true" wire:ignore.self>
+                                Batch Submissions <span
+                                    class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
+                            </button>
+
+
+
+                            <button class="nav-link" id="people-tab" data-bs-toggle="tab"
+                                data-bs-target="#aggregate-submission" type="button" role="tab"
+                                aria-controls="profile" aria-selected="false" wire:ignore.self>
+                                Aggregate Submission <span
+                                    class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
+                            </button>
+
+
+
+                            <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
+                                data-bs-target="#job-progress" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+
+                                Pending Submissions <span
+                                    class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
+                            </button>
 
                         </ul>
 
@@ -90,11 +69,8 @@
                                 role="tabpanel" aria-labelledby="home-tab">
                                 <livewire:tables.submission-table :userId="auth()->user()->id" />
                             </div>
-                            {{-- <div class="mt-2 tab-pane fade" id="manual-submission" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.submission-table :filter="'manual'" />
-                            </div> --}}
-                            <div wire:ignore class="mt-2 tab-pane  fade show" id="aggregate-submission" role="tabpanel"
+
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
@@ -183,13 +159,30 @@
 
 
             <x-modal id="view-aggregate-modal" title="Update Submission">
+
+                <x-alerts />
+
+                <h4 class="text-center h4">Please confirm whether you would like to approve/disapprove this aggregate?
+                </h4>
+
                 <div>
 
 
                     <div x-data="{
                         data: $wire.entangle('inputs'),
+                        isManager: $wire.entangle('isManager'),
+                        disableInputs: false,
+                        init() {
 
 
+                            if (this.isManager) {
+                                this.disableInputs = false;
+                            } else {
+                                this.disableInputs = true;
+
+                            }
+
+                        }
 
                     }">
 
@@ -199,8 +192,8 @@
 
                             <div class="mb-3">
                                 <label for="" class="form-label" x-text="name"></label>
-                                <input type="text" required class="form-control  " placeholder="Enter value"
-                                    aria-describedby="helpId" :value="value" />
+                                <input type="text" required class="form-control " placeholder="Enter value"
+                                    :readonly="disableInputs" aria-describedby="helpId" :value="value" />
                                 <div class="invalid-feedback">
                                     This field requires a value.
                                 </div>
@@ -214,6 +207,9 @@
 
                     </div>
 
+
+
+                    <input type="hidden" wire:model="status">
                     <div class="mt-4 mb-3">
                         <label for="">Comment</label>
                         <textarea wire:model="comment" rows="5" class=" form-control @error('comment') is-invalid @enderror"></textarea>
@@ -227,18 +223,18 @@
                     <div class="d-flex border-top-0 justify-content-center">
                         <form wire:submit="DisapproveAggregateSubmission">
                             <button type="submit" wire:loading.attr="disabled"
-                                wire:target="DisapproveAggregateSubmission"
-                                class="btn btn-theme-red me-2">Disapprove</button>
+                                wire:target="DisapproveAggregateSubmission" class="btn btn-theme-red me-2"> <i
+                                    class="bx bx-x-circle"></i> Disapprove</button>
                         </form>
                         <form wire:submit="ApproveAggregateSubmission">
                             <button type="submit" wire:loading.attr="disabled" wire:target="ApproveAggregateSubmission"
-                                class="btn btn-warning me-2">Approve</button>
+                                class="btn btn-success me-2"> <i class="bx bx-check-double"></i> Approve</button>
                         </form>
 
                     </div>
                 </div>
             </x-modal>
-            <x-modal id="view-data-agg-modal" title="Approve Submission">
+            <x-modal id="view-data-agg-modal" title="View Aggregates">
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
@@ -271,31 +267,43 @@
 
             </x-modal>
 
-            <x-modal id="view-submission-modal" title="Approve Submission">
+            <x-modal id="view-submission-modal" title="Approve Batch Submission">
                 <x-alerts />
                 <h4 class="text-center h4">Please confirm whether you would like to approve/disapprove this record?
                 </h4>
 
-                <form wire:submit.debounce.1000ms="submit">
-                    <div class="mt-4 mb-3">
-                        <label for="">Comment</label>
-                        <input wire:model="comment" class="form-control @error('comment') is-invalid @enderror" />
-                        <small class="text-muted">Type <b>N/A</b> if no comment is available</small> <br>
-                        @error('comment')
-                            <x-error>{{ $message }}</x-error>
-                        @enderror
-                    </div>
 
-                    <!-- Hidden input to store the status -->
-                    <input type="hidden" wire:model="status">
+                <div class="mt-4 mb-3">
+                    <label for="">Comment</label>
 
-                    <div class="d-flex border-top-0 justify-content-center">
-                        <button type="button" wire:loading.attr="disabled" wire:target="save"
-                            class="btn btn-theme-red me-2" wire:click="setStatus('denied')">Disapprove</button>
-                        <button type="button" wire:loading.attr="disabled" wire:target="save"
-                            class="btn btn-warning" wire:click="setStatus('approved')">Approve</button>
-                    </div>
-                </form>
+                    <textarea name="" id="" cols="30" rows="5" wire:model="comment"
+                        class="form-control @error('comment') is-invalid @enderror" placeholder="Write a comment..."></textarea>
+                    @error('comment')
+                        <x-error>{{ $message }}</x-error>
+                    @enderror
+                </div>
+
+                <!-- Hidden input to store the status -->
+                <input type="hidden" wire:model="status">
+
+                <div class="d-flex border-top-0 justify-content-center">
+                    <form wire:submit.debounce.1000ms="disapproveBatchSubmission">
+
+                        <button type="submit" wire:loading.attr="disabled" wire:target="disapproveBatchSubmission"
+                            class="btn btn-theme-red me-2"> <i class="bx bx-x-circle"></i> Disapprove</button>
+
+                    </form>
+
+
+                    <form wire:submit.debounce.1000ms="approveBatchSubmission">
+
+                        <button type="submit" wire:loading.attr="disabled" wire:target="approveBatchSubmission"
+                            class="btn btn-success me-2"> <i class="bx bx-check-double"></i> Approve</button>
+
+                    </form>
+
+                </div>
+
             </x-modal>
 
 
@@ -310,7 +318,7 @@
 
 
 
-                    <div class="d-flex border-top-0 justify-content-center mt-5">
+                    <div class="mt-5 d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteAGG"
@@ -330,7 +338,7 @@
 
 
 
-                    <div class="d-flex border-top-0 justify-content-center mt-5">
+                    <div class="mt-5 d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteBatch"

@@ -73,18 +73,34 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
             BeforeImport::class => function (BeforeImport $event) {
                 $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
 
-                // Validate expected and unexpected sheet names
+                // Validate missing sheet names
                 foreach ($this->expectedSheetNames as $expectedSheetName) {
                     if (!in_array($expectedSheetName, $sheetNames)) {
                         Log::error("Missing expected sheet: {$expectedSheetName}");
                         throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing. Please ensure the file contains all required sheets.");
                     }
                 }
-
+                // Validate unexpected sheet names
                 foreach ($sheetNames as $sheetName) {
                     if (!in_array($sheetName, $this->expectedSheetNames)) {
                         Log::error("Unexpected sheet name: {$sheetName}");
                         throw new ExcelValidationException("Unexpected sheet: '{$sheetName}' in file.");
+                    }
+                }
+
+
+                // Check if the first sheet is blank
+                $firstSheetName = $this->expectedSheetNames[0];
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($sheet <= 1 && $firstSheetName) {
+
+                        Log::error("The sheet '{$firstSheetName}' is blank.");
+                        throw new ExcelValidationException(
+                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                        );
                     }
                 }
 
@@ -112,7 +128,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                         'processed_rows' => 0,
                         'progress' => 0,
                         'user_id' => $this->submissionDetails['user_id'],
-                        'form_name' => 'Production Processors Import',
+                        'form_name' => 'School Consumption Import',
                     ]
                 );
 

@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\Submission;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Models\JobProgress;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\RpmFarmerFollowUp;
@@ -31,14 +32,22 @@ class Submissions extends Component
     use LivewireAlert;
     #[Validate('required')]
     public $status;
-    #[Validate('required')]
+    #[Validate('required_if:status,denied|max:255')]
     public $comment;
     public $rowId;
 
     public $inputs = [];
     public $disable = false;
     public $statusSet = false;
+    public $tableName;
+    public $isManager = false;
 
+    public function messages()
+    {
+        return [
+            'comment.required_if' => 'A comment is required when the status is disapproved.',
+        ];
+    }
     #[On('set')]
     public function setData($id)
     {
@@ -54,6 +63,10 @@ class Submissions extends Component
             $json_data = json_decode($reports->data, true);
             $this->inputs = $json_data;
         }
+        $this->tableName = $submission->table_name;
+        $userId = $submission->user_id;
+        $user = User::find($userId);
+        $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
     public function save()
@@ -67,23 +80,18 @@ class Submissions extends Component
 
         try {
             $submission = Submission::findOrFail($this->rowId);
-            $tables = [
-                'household_rtc_consumption',
-                'rtc_production_farmers',
-                'rtc_production_processors',
-                'attendance_registers'
-            ];
+
 
             // Perform actions based on status
             if ($this->status === 'approved') {
-                $this->approveSubmission($submission, $tables);
+                $this->approveSubmission($submission, [$this->tableName]);
                 // Dispatch notification using Bus::chain
                 $user = User::find($submission->user_id);
                 Bus::chain([
                     fn() => $user->notify(new SubmissionNotification(status: $this->status, batchId: $submission->batch_no)),
                 ])->dispatch();
             } else {
-                $this->denySubmission($submission, $tables);
+                $this->denySubmission($submission, [$this->tableName]);
                 $user = User::find($submission->user_id);
                 Bus::chain([
                     fn() => $user->notify(new SubmissionNotification(status: 'denied', batchId: $submission->batch_no, denialMessage: $this->comment)),
@@ -92,16 +100,29 @@ class Submissions extends Component
 
 
 
-            $this->disable = false;
+
             session()->flash('success', 'Successfully updated');
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
         } catch (\Throwable $th) {
-            Log::channel('system_log')->error($th->getMessage());
+            Log::error($th->getMessage());
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
             session()->flash('error', 'Something went wrong');
         }
+    }
+
+    public function approveBatchSubmission()
+    {
+
+        $this->status = 'approved';
+        $this->save();
+    }
+
+    public function disapproveBatchSubmission()
+    {
+        $this->status = 'denied';
+        $this->save();
     }
 
     protected function approveSubmission($submission, $tables)
@@ -159,6 +180,8 @@ class Submissions extends Component
     }
 
 
+
+
     public function setStatus($value)
     {
         $this->disable = true;
@@ -169,6 +192,8 @@ class Submissions extends Component
 
     public function ApproveAggregateSubmission()
     {
+        $this->status = 'approved';
+
         try {
             # code...
             $submission = Submission::findOrFail($this->rowId);
@@ -197,7 +222,7 @@ class Submissions extends Component
 
     public function DisapproveAggregateSubmission()
     {
-
+        $this->status = 'denied';
         try {
 
             $this->validate();
@@ -317,6 +342,26 @@ class Submissions extends Component
 
     public function render()
     {
-        return view('livewire.internal.cip.submissions');
+        $batch = \App\Models\Submission::where('batch_type', 'batch')
+            ->where('status', 'pending')
+            ->count();
+        $manual = \App\Models\Submission::where('batch_type', 'manual')
+            ->where('status', 'pending')
+            ->count();
+        $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
+            ->where('status', 'pending')
+            ->count();
+        $pendingJob = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->count();
+
+
+
+        return view('livewire.internal.cip.submissions', [
+            'batch' => $batch,
+            'manual' => $manual,
+            'aggregate' => $aggregate,
+            'pendingJob' => $pendingJob,
+
+
+        ]);
     }
 }

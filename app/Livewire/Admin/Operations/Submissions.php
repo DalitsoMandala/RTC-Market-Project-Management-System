@@ -50,9 +50,7 @@ class Submissions extends Component
             $reports = SubmissionReport::where('uuid', $uuid)->first();
             $json_data = json_decode($reports->data, true);
             $this->inputs = $json_data;
-
         }
-
     }
 
     public function save()
@@ -107,13 +105,6 @@ class Submissions extends Component
                             'status' => 'approved'
                         ]);
                     }
-
-
-
-
-
-
-
                 }
 
 
@@ -130,7 +121,6 @@ class Submissions extends Component
                             'status' => 'approved'
                         ]);
                     }
-
                 }
                 $submission = Submission::find($this->rowId)->update([
                     'status' => $this->status,
@@ -146,10 +136,6 @@ class Submissions extends Component
 
 
                 $user->notify(new SubmissionNotification(status: 'accepted', batchId: $submission->batch_no));
-
-
-
-
             } else {
 
 
@@ -178,8 +164,6 @@ class Submissions extends Component
                     if ($findData) {
                         DB::table('rtc_production_processors')->where('uuid', $submission->batch_no)->delete();
                     }
-
-
                 }
 
 
@@ -193,7 +177,6 @@ class Submissions extends Component
                     if ($findData) {
                         DB::table('submission_reports')->where('uuid', $submission->batch_no)->delete();
                     }
-
                 }
 
                 $submission = Submission::find($this->rowId)->update([
@@ -215,33 +198,25 @@ class Submissions extends Component
 
 
                 $user->notify(new SubmissionNotification('denied', 'Batch No. ' . $submission->batch_no . ' : ' . $this->comment));
-
-
-
             }
 
 
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
             session()->flash('success', 'Successfully updated');
-
         } catch (\Throwable $th) {
 
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
             session()->flash('error', 'Something went wrong');
 
-            Log::channel('system_log')->error($th->getMessage());
+            Log::error($th->getMessage());
         }
-
-
-
     }
 
     public function checkbatch($table, $uuid)
     {
         return DB::table($table)->where('uuid', $uuid)->exists();
-
     }
     public function populateRtcFarmers($data)
     {
@@ -261,7 +236,6 @@ class Submissions extends Component
             $idMappings[$mainSheet['#']] = $highestId;
             unset($mainSheet['#']);
             RtcProductionFarmer::create($mainSheet);
-
         }
 
         foreach ($data['followup'] as $mainSheet) {
@@ -305,7 +279,6 @@ class Submissions extends Component
             // inter market
 
         }
-
     }
 
     public function populateRtcProducers($data)
@@ -325,7 +298,6 @@ class Submissions extends Component
             $idMappings[$mainSheet['#']] = $highestId;
             unset($mainSheet['#']);
             RtcProductionProcessor::create($mainSheet);
-
         }
 
         foreach ($data['followup'] as $mainSheet) {
@@ -368,7 +340,6 @@ class Submissions extends Component
             // inter market
 
         }
-
     }
     public function saveAGG()
     {
@@ -390,7 +361,6 @@ class Submissions extends Component
                     'comments' => $this->comment,
                     'is_complete' => true,
                 ]);
-
             }
 
             if ($this->status === 'denied') {

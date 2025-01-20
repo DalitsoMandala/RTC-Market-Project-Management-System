@@ -231,6 +231,22 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
                     }
                 }
 
+
+                // Check if the first sheet is blank
+                $firstSheetName = $this->expectedSheetNames[0];
+                $sheets = $event->reader->getTotalRows();
+
+                foreach ($sheets as $key => $sheet) {
+
+                    if ($sheet <= 1 && $firstSheetName) {
+
+                        Log::error("The sheet '{$firstSheetName}' is blank.");
+                        throw new ExcelValidationException(
+                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                        );
+                    }
+                }
+
                 $filePath = $this->filePath;
                 $expectedSheetNames = $this->expectedSheetNames;
                 $expectedHeaders = $this->expectedHeaders;

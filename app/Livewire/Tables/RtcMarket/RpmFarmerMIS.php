@@ -34,7 +34,6 @@ final class RpmFarmerMIS extends PowerGridComponent
             return RpmFarmerMarketInformationSystem::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
         return RpmFarmerMarketInformationSystem::query()->with('farmers');
@@ -45,7 +44,6 @@ final class RpmFarmerMIS extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
     public function relationSearch(): array
     {
@@ -107,27 +105,22 @@ final class RpmFarmerMIS extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
 
             ->add('name', function ($model) {
                 return $model->name;
             });
-
-
     }
 
     public function columns(): array
     {
         return [
 
-            Column::make('Actor ID', 'unique_id', )
-                ->searchable()
-            ,
+            Column::make('Actor ID', 'unique_id',)
+                ->searchable(),
 
             Column::make('Name of actor', 'name_of_actor')
-                ->searchable()
-            ,
+                ->searchable(),
 
             Column::make('Name of Market Information systems', 'name')
                 ->searchable()

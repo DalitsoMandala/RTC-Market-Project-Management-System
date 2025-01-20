@@ -297,7 +297,10 @@ class SubPeriod extends Component
 
 
 
-        $users = User::with('roles')->get();
+        $users = User::with('roles')->whereHas('roles', function ($query) {
+            $query->where('name', '!=', 'admin');
+        })->get();
+
         $indicatorFound = Indicator::find($Indicator);
         foreach ($users as $user) {
 
@@ -316,14 +319,26 @@ class SubPeriod extends Component
             // Check if the responsible person has the required form
             $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
             $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
-            $htmlForms = '<ul>';
+            $htmlForms = "</br><ol>";
             foreach ($formNames as $formName) {
-                $htmlForms .= "<li>{$formName}</li>";
+                $htmlForms .= "<li>
+                <b>{$formName}</b>
+                </li>";
             }
-            $htmlForms .= '</ul>';
+            $htmlForms .= "</ol></br>";
+            $messageContent = "";
             if ($hasFormAccess) {
-                $messageContent = "Submissions are now open for: {$htmlForms}, please go to the platform to complete your submission before the period ends.";
-                $link = env('APP_URL');
+
+                $messageContent .= "<p> Submissions are now open for: </p>";
+                $messageContent .= $htmlForms;
+                $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
+
+
+                $link = match (true) {
+                    User::find($user->id)->hasAnyRole('manager') => route('cip-internal-submission-period'),
+                    User::find($user->id)->hasAnyRole('staff') => route('cip-staff-submission-period'),
+                    default => route('external-submission-period')
+                };
 
                 if ($errorMessage) {
 

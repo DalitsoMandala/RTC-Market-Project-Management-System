@@ -30,7 +30,7 @@
     @endforeach
     @if(isset($actions) && count($actions))
         <th class="{{ data_get($theme, 'table.thClass') .' '. $column->headerClass }}" scope="col"
-            style="{{ data_get($theme, 'table.thStyle') }}" colspan="{{count($actions)}}">
+            style="{{ data_get($theme, 'table.thStyle') }} " colspan="{{count($actions)}}">
         </th>
     @endif
 </tr>

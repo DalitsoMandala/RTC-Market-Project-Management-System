@@ -6,9 +6,7 @@
     server is overloaded or there is an error in the application.'))
 @section('error-img')
     <div class="error-img">
-        <script src="https://cdn.lordicon.com/lordicon.js"></script>
-        <lord-icon src="https://cdn.lordicon.com/lltgvngb.json" trigger="loop" colors="primary:#e83a30,secondary:#e86830"
-            style="width:300px;height:300px">
-        </lord-icon>
+        <i class="bx bx-error-alt text-danger" style="font-size:190px"></i>
+        <h1 class="display-1 fw-bold">500</h1>
     </div>
 @endsection

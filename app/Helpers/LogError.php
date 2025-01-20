@@ -10,7 +10,7 @@ class LogError
     public static function sendErrors($e)
     {
 
-        \Log::channel('system_log')->error($e->getMessage());
+        \Log::error($e->getMessage());
 
         // Provide a generic error message to the user
         session()->flash('error', 'Something went wrong!');

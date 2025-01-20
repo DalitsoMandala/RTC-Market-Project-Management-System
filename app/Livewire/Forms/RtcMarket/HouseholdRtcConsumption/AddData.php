@@ -159,7 +159,6 @@ class AddData extends Component
                 'main_food' => [],
             ],
         );
-
     }
     #[On('open-submission')]
     public function clearTable()
@@ -168,10 +167,7 @@ class AddData extends Component
         $this->targetSet = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
-    public function updated($property, $value)
-    {
-
-    }
+    public function updated($property, $value) {}
 
     public function updatedSelectedIndicator($value)
     {
@@ -180,7 +176,6 @@ class AddData extends Component
             ->where('indicator_id', $this->selectedIndicator)->pluck('month_range_period_id');
         $this->months = ReportingPeriodMonth::get();
         $this->months = $this->months->whereIn('id', $period);
-
     }
     public function removeInput($index)
     {
@@ -217,8 +212,6 @@ class AddData extends Component
                 $input['district'] = $this->district;
                 $input['enterprise'] = $this->enterprise;
                 $data[] = $input;
-
-
             }
 
 
@@ -267,12 +260,6 @@ class AddData extends Component
                             'name' => $food
                         ]);
                     }
-
-
-
-
-
-
                 }
 
 
@@ -284,7 +271,6 @@ class AddData extends Component
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
                 return redirect()->to(url()->previous());
-
             } catch (UserErrorException $e) {
 
                 // Log the actual error for debugging purposes
@@ -293,15 +279,11 @@ class AddData extends Component
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
             }
-
-
-
         } catch (Throwable $th) {
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
         }
-
     }
 
     #[On('refresh-inputs')]
@@ -311,31 +293,30 @@ class AddData extends Component
         $this->fill(
             [
                 'inputs' =>
-                    collect([
-                        [
-                            'date_of_assessment' => null,
-                            'actor_type' => null,
-                            'rtc_group_platform' => 'Household',
-                            'producer_organisation' => null,
-                            'actor_name' => null,
-                            'age_group' => null,
-                            'sex' => null,
-                            'phone_number' => null,
-                            'household_size' => null,
-                            'under_5_in_household' => null,
-                            'rtc_consumers' => null,
-                            'rtc_consumers_potato' => null,
-                            'rtc_consumers_sw_potato' => null,
-                            'rtc_consumers_cassava' => null,
-                            'rtc_consumption_frequency' => null,
+                collect([
+                    [
+                        'date_of_assessment' => null,
+                        'actor_type' => null,
+                        'rtc_group_platform' => 'Household',
+                        'producer_organisation' => null,
+                        'actor_name' => null,
+                        'age_group' => null,
+                        'sex' => null,
+                        'phone_number' => null,
+                        'household_size' => null,
+                        'under_5_in_household' => null,
+                        'rtc_consumers' => null,
+                        'rtc_consumers_potato' => null,
+                        'rtc_consumers_sw_potato' => null,
+                        'rtc_consumers_cassava' => null,
+                        'rtc_consumption_frequency' => null,
 
-                            'main_food' => [],
-                        ],
+                        'main_food' => [],
+                    ],
 
-                    ]),
+                ]),
             ]
         );
-
     }
 
     public function savePack()
@@ -377,7 +358,6 @@ class AddData extends Component
 
 
                         session()->flash('success', 'Successfully submitted! <a href="' . route('cip-internal-submissions') . '#manual-submission">View Submission here</a>');
-
                     }
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
@@ -386,7 +366,6 @@ class AddData extends Component
                     // Provide a generic error message to the user
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
-
             } else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
 
                 try {
@@ -404,27 +383,19 @@ class AddData extends Component
 
 
                     session()->flash('success', 'Successfully submitted! <a href="' . route('external-submissions') . '#manual-submission">View Submission here</a>');
-
-
-
-
                 } catch (\Exception $e) {
                     // Log the actual error for debugging purposes
-                    Log::channel('system_log')->error('Submission error: ' . $e->getMessage());
+                    Log::error('Submission error: ' . $e->getMessage());
 
                     // Provide a generic error message to the user
                     session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
                 }
             }
-
         } catch (Throwable $th) {
             Log::error($th->getMessage());
 
             session()->flash('error', 'Something went wrong!');
-
-
         }
-
     }
 
     #[On('added-aggregates')]
@@ -441,7 +412,6 @@ class AddData extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -452,7 +422,6 @@ class AddData extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -499,28 +468,28 @@ class AddData extends Component
         $this->fill(
             [
                 'inputs' =>
-                    collect([
-                        [
-                            'date_of_assessment' => null,
-                            'actor_type' => null,
-                            'rtc_group_platform' => 'Household',
-                            'producer_organisation' => null,
-                            'actor_name' => null,
-                            'age_group' => null,
-                            'sex' => 'Male',
-                            'phone_number' => null,
-                            'household_size' => null,
-                            'under_5_in_household' => null,
-                            'rtc_consumers' => null,
-                            'rtc_consumers_potato' => null,
-                            'rtc_consumers_sw_potato' => null,
-                            'rtc_consumers_cassava' => null,
-                            'rtc_consumption_frequency' => null,
+                collect([
+                    [
+                        'date_of_assessment' => null,
+                        'actor_type' => null,
+                        'rtc_group_platform' => 'Household',
+                        'producer_organisation' => null,
+                        'actor_name' => null,
+                        'age_group' => null,
+                        'sex' => 'Male',
+                        'phone_number' => null,
+                        'household_size' => null,
+                        'under_5_in_household' => null,
+                        'rtc_consumers' => null,
+                        'rtc_consumers_potato' => null,
+                        'rtc_consumers_sw_potato' => null,
+                        'rtc_consumers_cassava' => null,
+                        'rtc_consumption_frequency' => null,
 
-                            'main_food' => [],
-                        ],
+                        'main_food' => [],
+                    ],
 
-                    ]),
+                ]),
             ]
         );
 

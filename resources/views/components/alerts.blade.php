@@ -20,44 +20,47 @@
         @endif
 
         @if (session()->has('import_failures'))
-            <div class="alert alert-danger " x-data="{
-                is_open: false
-            }" role="alert">
-                <div class="d-flex justify-content-between align-items-center">
-                    There were errors on your uploaded file! <a @click="is_open = !is_open" href="javascript: void(0);"
-                        class="btn btn-theme-red btn-sm">View errors <i class="bx bx-caret-down"></i></a>
-                </div>
-                <div x-show="is_open">
-                    <hr>
+            <x-error-alert>
+                <div x-data="{
+                    is_open: false
+                }">
+                    <span class="d-flex justify-content-between align-items-center">
+                        There were errors on your uploaded file! <a @click="is_open = !is_open"
+                            href="javascript: void(0);" class="btn btn-theme-red btn-sm">View errors <i
+                                class="bx bx-caret-down"></i></a>
+                    </span>
+                    <div x-show="is_open">
+                        <hr>
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered border-danger">
-                            <thead>
-                                <tr>
-                                    <th>Row</th>
-                                    <th>Errors</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                @foreach (session()->get('import_failures') as $failure)
+                        <div class="table-responsive">
+                            <table class="table table-bordered border-danger">
+                                <thead>
                                     <tr>
-                                        <td><strong>{{ $failure['row'] }}</strong></td>
-                                        <td>
-                                            <ul>
-                                                @foreach ($failure['errors'] as $error)
-                                                    <li>{{ $error }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </td>
+                                        <th>Row</th>
+                                        <th>Errors</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
 
+                                    @foreach (session()->get('import_failures') as $failure)
+                                        <tr>
+                                            <td><strong>{{ $failure['row'] }}</strong></td>
+                                            <td>
+                                                <ul>
+                                                    @foreach ($failure['errors'] as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
                 </div>
-            </div>
+            </x-error-alert>
         @endif
 
 

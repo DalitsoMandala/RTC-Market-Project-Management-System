@@ -525,7 +525,7 @@ class IndicatorsContent
                 'Total',
                 'Cassava',
                 'Potato',
-                //  'Sweet potato',
+                'Sweet potato',
                 //   'Basic',
                 // 'Certified'
             ],

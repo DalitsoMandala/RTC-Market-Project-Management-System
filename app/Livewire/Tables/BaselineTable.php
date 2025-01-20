@@ -31,7 +31,7 @@ final class BaselineTable extends PowerGridComponent
     public bool $showErrorBag = true;
 
     public $html;
-
+    public $count = 1;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -55,7 +55,7 @@ final class BaselineTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('id', fn($model) => $this->count++)
             ->add('indicator_id')
             ->add('indicator_no', function ($model) {
 
@@ -225,7 +225,7 @@ final class BaselineTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Indicator #', 'indicator_no')
                 ->searchable(),
             Column::make('Indicator', 'indicator_name')

@@ -460,22 +460,6 @@ border-danger
 
         @script
             <script>
-                const tooltipTriggerList = document.querySelectorAll('button[title]');
-                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
-                $wire.on('reload-tooltips', () => {
-
-                    setTimeout(() => {
-                        const tooltipTriggerList = document.querySelectorAll('button[title]');
-                        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
-                            tooltipTriggerEl))
-
-                    }, 1000);
-
-
-                })
-
-
                 $('.goUp').on('click', () => {
                     window.scrollTo({
                         top: 0,

@@ -8,18 +8,19 @@
                     <h4 class="mb-0">Upload</h4>
 
                     <div class="page-title-right" wire:ignore>
+                        @php
+                            use Ramsey\Uuid\Uuid;
+
+                            $currentUrl = url()->current();
+                            $uuid = Route::current()->parameters()['uuid'] ?? '';
+                            $newUuid = Uuid::uuid4()->toString();
+                            $addDataRoute = str_replace($uuid, '', $currentUrl);
+                            $addDataRoute = str_replace('upload', 'add', $addDataRoute);
+
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            @php
-                                use Ramsey\Uuid\Uuid;
 
-                                $currentUrl = url()->current();
-                                $uuid = Route::current()->parameters()['uuid'] ?? '';
-                                $newUuid = Uuid::uuid4()->toString();
-                                $addDataRoute = str_replace($uuid, '', $currentUrl);
-                                $addDataRoute = str_replace('upload', 'add', $addDataRoute);
-
-                            @endphp
                             <li class="breadcrumb-item ">
                                 <a href="{{ $addDataRoute }}">
                                     Add Data

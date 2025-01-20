@@ -275,7 +275,7 @@ Route::middleware([
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
 });
-// External routes
+// External routes  
 Route::middleware([
     'auth',
     'role:external',

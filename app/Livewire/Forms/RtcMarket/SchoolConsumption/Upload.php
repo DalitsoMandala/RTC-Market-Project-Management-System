@@ -17,6 +17,7 @@ use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
 use App\Models\OrganisationTarget;
+use App\Traits\CheckProgressTrait;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use App\Models\ReportingPeriodMonth;
@@ -36,7 +37,7 @@ class Upload extends Component
 {
     use WithFileUploads;
     use LivewireAlert;
-
+    use CheckProgressTrait;
     #[Validate('required')]
     public $upload;
     public $variable;
@@ -136,45 +137,45 @@ class Upload extends Component
         $this->removeTemporaryFile();
     }
 
-    public function checkProgress()
-    {
-        $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
+    // public function checkProgress()
+    // {
+    //     $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
 
-        $this->progress = $jobProgress ? $jobProgress->progress : 0;
-        $this->importing = true;
-        $this->importingFinished = false;
-
-
-        if ($this->progress == 100) {
+    //     $this->progress = $jobProgress ? $jobProgress->progress : 0;
+    //     $this->importing = true;
+    //     $this->importingFinished = false;
 
 
+    //     if ($this->progress == 100) {
 
 
 
-            if ($jobProgress->status == 'failed') {
 
-                session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-                Cache::forget($this->importId);
-                return redirect()->to(url()->previous());
-            } else if ($jobProgress->status == 'completed') {
 
-                $user = User::find(auth()->user()->id);
-                Cache::forget($this->importId);
-                if ($user->hasAnyRole('external')) {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('external-submissions') . '#batch-submission');
-                } else if ($user->hasAnyRole('staff')) {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('cip-staff-submissions') . '#batch-submission');
-                } else {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('cip-internal-submissions') . '#batch-submission');
-                }
-            }
-            $this->importId = Uuid::uuid4()->toString(); // change key
+    //         if ($jobProgress->status == 'failed') {
 
-        }
-    }
+    //             session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+    //             Cache::forget($this->importId);
+    //             return redirect()->to(url()->previous());
+    //         } else if ($jobProgress->status == 'completed') {
+
+    //             $user = User::find(auth()->user()->id);
+    //             Cache::forget($this->importId);
+    //             if ($user->hasAnyRole('external')) {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 return redirect(route('external-submissions') . '#batch-submission');
+    //             } else if ($user->hasAnyRole('staff')) {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 return redirect(route('cip-staff-submissions') . '#batch-submission');
+    //             } else {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 return redirect(route('cip-internal-submissions') . '#batch-submission');
+    //             }
+    //         }
+    //         $this->importId = Uuid::uuid4()->toString(); // change key
+
+    //     }
+    // }
 
 
     public function send()

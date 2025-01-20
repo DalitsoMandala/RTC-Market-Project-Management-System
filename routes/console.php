@@ -22,5 +22,6 @@ Schedule::call(function () {
 })->daily()->at('00:00');
 
 Schedule::command('check:submission-deadlines')->dailyAt('00:00');
+Schedule::command('send:expired-period-notifications')->dailyAt('00:00');
 
 //Schedule::command('check:submission-deadlines')->everyTenSeconds(); // testing

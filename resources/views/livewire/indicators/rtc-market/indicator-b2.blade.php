@@ -41,7 +41,7 @@
                         </div>
 
                     </div>
-                    <div class="text-center  col-md-9 col-12">
+                    <div class="text-center col-md-9 col-12">
 
                         <div class="card">
                             <div class="card-header">
@@ -159,7 +159,7 @@
                     },
 
                     plotOptions: {
-
+                            
                         radialBar: {
                             hollow: {
                                 size: '70%',

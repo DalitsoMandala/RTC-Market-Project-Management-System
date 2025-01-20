@@ -1,4 +1,8 @@
-<div class="alert alert-danger " role="alert">
+<div class="alert alert-danger " role="alert" x-ref="errorAlert" x-data x-init="() => {
+
+    let object = $($refs.errorAlert);
+    object.fadeTo(20000, 0).slideUp(500);
+}">
     <strong>Error!</strong>
     {{ $slot }}
 </div>

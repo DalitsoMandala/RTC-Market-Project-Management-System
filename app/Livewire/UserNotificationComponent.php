@@ -27,13 +27,13 @@ class UserNotificationComponent extends Component
     public function putNotifications()
     {
         $user = Auth::user();
-        $this->notifications = $user->unreadNotifications;
+        $this->notifications = $user->notifications;
     }
 
     public function mount()
     {
         $user = Auth::user();
-        $this->notifications = $user->unreadNotifications;
+        $this->notifications = $user->notifications;
     }
 
     public function render()

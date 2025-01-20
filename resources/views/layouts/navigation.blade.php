@@ -248,35 +248,7 @@
                                 </li>
 
 
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Other Forms</span>
-                                        <div class="arrow-down"></div>
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
 
-
-
-
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ $routePrefixMain }}/seed-beneficiaries" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Seed Beneficiaries</span>
-
-                                        </a>
-                                        <!-- <a class="dropdown-item dropdown-toggle arrow-none"
-                                                                            href="{{ $routePrefixMain }}/seed-distribution" id="topnav-utility"
-                                                                            role="button">
-                                                                            <span data-key="t-utility">Seeed Disribution</span>
-
-                                                                        </a> -->
-
-
-
-                                    </div>
-                                </li>
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ route('cip-internal-reports') }}" id="topnav-dashboard" role="button"

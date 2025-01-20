@@ -33,13 +33,14 @@ use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
+use App\Traits\CheckProgressTrait;
 
 class Upload extends Component
 {
 
     use WithFileUploads;
     use LivewireAlert;
-
+    use CheckProgressTrait;
     #[Validate('required')]
     public $upload;
     public $variable;
@@ -203,45 +204,44 @@ class Upload extends Component
         }
     }
 
-    public function checkProgress()
-    {
-        $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
+    // public function checkProgress()
+    // {
+    //     $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
 
-        $this->progress = $jobProgress ? $jobProgress->progress : 0;
-        $this->importing = true;
-        $this->importingFinished = false;
+    //     $this->progress = $jobProgress ? $jobProgress->progress : 0;
+    //     $this->importing = true;
+    //     $this->importingFinished = false;
 
 
-        if ($this->progress == 100) {
-            $this->importing = false;
-            $this->importingFinished = true;
+    //     if ($this->progress == 100) {
 
 
 
 
-            if ($jobProgress->status == 'failed') {
+    //         if ($jobProgress->status == 'failed') {
+    //             Cache::forget($this->importId);
+    //             session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
 
-                session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-                Cache::forget($this->importId);
-                return redirect()->to(url()->previous());
-            } else if ($jobProgress->status == 'completed') {
-                $user = User::find(auth()->user()->id);
-                Cache::forget($this->importId);
-                if ($user->hasAnyRole('external')) {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('external-submissions') . '#batch-submission');
-                } else if ($user->hasAnyRole('staff')) {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('cip-staff-submissions') . '#batch-submission');
-                } else {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('cip-internal-submissions') . '#batch-submission');
-                }
-            }
+    //             $this->redirect(url()->previous());
+    //         } else if ($jobProgress->status == 'completed') {
 
-            $this->importId = Uuid::uuid4()->toString(); // change key
-        }
-    }
+
+    //             $user = User::find(auth()->user()->id);
+    //             Cache::forget($this->importId);
+
+    //             if ($user->hasAnyRole('external')) {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 $this->redirect(route('external-submissions') . '#batch-submission');
+    //             } else if ($user->hasAnyRole('staff')) {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 $this->redirect(route('cip-staff-submissions') . '#batch-submission');
+    //             } else {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 $this->redirect(route('cip-internal-submissions') . '#batch-submission');
+    //             }
+    //         }
+    //     }
+    // }
 
 
     public function send()

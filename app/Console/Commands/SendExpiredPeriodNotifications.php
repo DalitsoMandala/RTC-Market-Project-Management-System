@@ -17,7 +17,7 @@ class SendExpiredPeriodNotifications extends Command
      *
      * @var string
      */
-    protected $signature = 'notify:send-reminder';
+    protected $signature = 'send:expired-period-notifications';
 
     /**
      * The console command description.
@@ -31,8 +31,7 @@ class SendExpiredPeriodNotifications extends Command
      */
     public function handle()
     {
-        $periods = SubmissionPeriod::where('date_ending', '<', Carbon::now())
-            ->where('is_expired', 0)
+        $periods = SubmissionPeriod::where('date_ending', '=', date('Y-m-d'))
             ->get();
 
         foreach ($periods as $period) {
@@ -48,8 +47,6 @@ class SendExpiredPeriodNotifications extends Command
                 'is_expired' => 1,
                 'is_open' => 0
             ]);
-
         }
-
     }
 }

@@ -16,6 +16,7 @@ use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use Livewire\Attributes\Validate;
 use App\Models\OrganisationTarget;
+use App\Traits\CheckProgressTrait;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,7 @@ class Upload extends Component
 {
     use LivewireAlert;
     use WithFileUploads;
+    use CheckProgressTrait;
     public $upload;
     public $variable;
     public $rowId;
@@ -116,46 +118,46 @@ class Upload extends Component
         // Path to your template file
         return Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries.xlsx');
     }
-    public function checkProgress()
-    {
-        $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
+    // public function checkProgress()
+    // {
+    //     $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
 
-        $this->progress = $jobProgress ? $jobProgress->progress : 0;
-        $this->importing = true;
-        $this->importingFinished = false;
-
-
-        if ($this->progress == 100) {
+    //     $this->progress = $jobProgress ? $jobProgress->progress : 0;
+    //     $this->importing = true;
+    //     $this->importingFinished = false;
 
 
+    //     if ($this->progress == 100) {
 
-            if ($jobProgress->status == 'failed') {
 
-                session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-                Cache::forget($this->importId);
-                return redirect()->to(url()->previous());
-            } else if ($jobProgress->status == 'completed') {
 
-                $user = User::find(auth()->user()->id);
-                Cache::forget($this->importId);
-                if ($user->hasAnyRole('external')) {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('external-submissions') . '#batch-submission');
-                } else if ($user->hasAnyRole('staff')) {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('cip-staff-submissions') . '#batch-submission');
-                } else {
-                    session()->flash('success', 'Successfully submitted!');
-                    return redirect(route('cip-internal-submissions') . '#batch-submission');
-                }
-            }
+    //         if ($jobProgress->status == 'failed') {
 
-            // $this->importing = false;
-            // $this->importingFinished = true;
+    //             session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
+    //             Cache::forget($this->importId);
+    //             return redirect()->to(url()->previous());
+    //         } else if ($jobProgress->status == 'completed') {
 
-            $this->importId = Uuid::uuid4()->toString(); // change key
-        }
-    }
+    //             $user = User::find(auth()->user()->id);
+    //             Cache::forget($this->importId);
+    //             if ($user->hasAnyRole('external')) {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 return redirect(route('external-submissions') . '#batch-submission');
+    //             } else if ($user->hasAnyRole('staff')) {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 return redirect(route('cip-staff-submissions') . '#batch-submission');
+    //             } else {
+    //                 session()->flash('success', 'Successfully submitted!');
+    //                 return redirect(route('cip-internal-submissions') . '#batch-submission');
+    //             }
+    //         }
+
+    //         // $this->importing = false;
+    //         // $this->importingFinished = true;
+
+    //         $this->importId = Uuid::uuid4()->toString(); // change key
+    //     }
+    // }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
     {
 

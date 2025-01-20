@@ -17,4 +17,18 @@ class Submission extends Model
     }
 
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function form()
+    {
+        return $this->belongsTo(Form::class, 'form_id');
+    }
+
+    public function financial_year()
+    {
+        return $this->belongsTo(FinancialYear::class, 'financial_year_id');
+    }
 }

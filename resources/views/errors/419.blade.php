@@ -5,6 +5,7 @@
 @section('message', __('The page has expired due to inactivity. Please try again.'))
 @section('error-img')
 <div class="error-img">
-    <img src="{{asset('assets/images/419-img.png')}}" alt="" class="img-fluid mx-auto d-block">
+    <i class="bx bx-error-alt text-danger" style="font-size:190px"></i>
+    <h1 class="display-1 fw-bold">419</h1>
 </div>
 @endsection

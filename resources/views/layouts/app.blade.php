@@ -170,6 +170,56 @@
         [readonly] {
             background-color: #e9ecef;
         }
+
+        /* Custom Tooltip Trigger */
+        .custom-tooltip {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        /* Custom Tooltip Text Styling */
+        .custom-tooltip::after {
+            content: attr(title);
+            /* Use the data-bs-title attribute */
+            visibility: hidden;
+            opacity: 0;
+            background-color: #333;
+            /* Dark background */
+            color: #fff;
+            /* White text */
+            text-align: center;
+            border-radius: 4px;
+            /* Rounded corners */
+            padding: 8px;
+            /* Padding inside the tooltip */
+            position: absolute;
+            bottom: 100%;
+            /* Position above the trigger */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            transition: opacity 0.3s;
+            /* Smooth fade-in */
+            white-space: nowrap;
+            /* Prevent text wrapping */
+            font-size: 10px;
+            /* Responsive font size */
+            width: max-content;
+            max-width: 90vw;
+            /* Ensure it fits within the viewport */
+            word-wrap: break-word;
+            /* Allow breaking long words if needed */
+            margin: 10px 10px;
+        }
+
+
+        /* Show the tooltip on hover */
+        .custom-tooltip:hover::after,
+        .custom-tooltip:hover::before {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
@@ -261,26 +311,6 @@
         <script src="https://cdn.jsdelivr.net/npm/jquery-table2excel@1.1.1/dist/jquery.table2excel.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
         <script src="https://cdn.lordicon.com/lordicon.js"></script>
-        <script>
-            document.addEventListener('livewire:init', () => {
-
-                Livewire.hook('request', ({
-                    fail
-                }) => {
-                    fail(({
-                        status,
-                        preventDefault
-                    }) => {
-                        if (status === 419) {
-                            location.reload(true)
-
-                            preventDefault()
-                        }
-                    })
-                })
-            })
-        </script>
-
 
         @stack('scripts')
         <script>
@@ -321,16 +351,13 @@
                     document.body.scrollTop = 0;
                     document.documentElement.scrollTop = 0;
                 }
+
+                document.querySelectorAll('input[type="number"]').forEach(function(input) {
+                    input.setAttribute('step', 'any');
+                });
+
             });
 
-
-            setTimeout(function() {
-                if ($('.alert-success').length > 0) {
-                    $('.alert-success').fadeOut(3000, function() {
-                        $(this).remove(); // Remove the alert from the DOM after fading out
-                    });
-                }
-            }, 10000); // 10 seconds delay
 
 
             $(document).ajaxError(function(event, jqxhr, settings, exception) {
@@ -339,19 +366,23 @@
                     window.location.href = '/login'; // Redirect to the login page
                 }
             });
-            $(document).ready(function() {
-                // Set a timeout to start fading out the alert after 10 seconds
+            document.addEventListener('livewire:init', () => {
 
+                Livewire.hook('request', ({
+                    fail
+                }) => {
+                    fail(({
+                        status,
+                        preventDefault
+                    }) => {
+                        if (status === 419) {
+                            location.reload(true)
 
-
-                document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                    input.setAttribute('step', 'any');
-                });
-
-
-
-
-            });
+                            preventDefault()
+                        }
+                    })
+                })
+            })
         </script>
 
         <script src="{{ asset('assets/js/app.js') }}"></script>

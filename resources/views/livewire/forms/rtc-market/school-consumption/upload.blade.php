@@ -12,7 +12,7 @@
                             use Ramsey\Uuid\Uuid;
 
                             $currentUrl = url()->current();
-                            $uuid = Route::current()->parameters()['uuid'];
+                            $uuid = Route::current()->parameters()['uuid'] ?? '';
                             $newUuid = Uuid::uuid4()->toString();
                             $addDataRoute = str_replace($uuid, '', $currentUrl);
                             $addDataRoute = str_replace('upload', 'add', $addDataRoute);

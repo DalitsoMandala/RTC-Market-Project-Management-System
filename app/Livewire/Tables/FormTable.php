@@ -106,10 +106,10 @@ final class FormTable extends PowerGridComponent
                 $projectManager = User::find(auth()->user()->id)->hasAllRoles(['internal', 'cip', 'project_manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
-                    return '<a class="btn btn-warning btn-sm "  href="' . $route . '" ><i class="bx bx-plus-circle"></i> Follow up </a>';
+                    return '<a class="btn btn-warning btn-sm custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i> </a>';
                 }
 
-                return '<a class="btn btn-warning btn-sm disabled "  href="' . $route . '" ><i class="bx bx-plus-circle"></i> Follow up </a>';
+                return '<a class="btn btn-warning btn-sm disabled custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i></a>';
             })
             ->add('created_at')
             ->add('updated_at');
