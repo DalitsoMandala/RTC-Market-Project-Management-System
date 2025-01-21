@@ -15,6 +15,7 @@ class UserNotificationComponent extends Component
     public $rowId;
 
     public $notifications;
+    public $unreadNotifications;
 
     public function readNotifications()
     {
@@ -28,12 +29,14 @@ class UserNotificationComponent extends Component
     {
         $user = Auth::user();
         $this->notifications = $user->notifications;
+        $this->unreadNotifications = $user->unreadNotifications;
     }
 
     public function mount()
     {
         $user = Auth::user();
         $this->notifications = $user->notifications;
+        $this->unreadNotifications = $user->unreadNotifications;
     }
 
     public function render()

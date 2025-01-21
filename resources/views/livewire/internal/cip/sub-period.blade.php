@@ -20,15 +20,16 @@
             </div>
         </div>
         <!-- end page title -->
-        <div class="row">
-            <div class="col-12">
+        <div class="row justify-content-center">
+            <x-alerts />
+            <div class="col-8">
                 <div class="card">
 
                     <div class="card-header fw-bold ">
                         <h5 class="card-title"> Add submission period </h5>
 
                     </div>
-                    <div class="card-body" x-data="{
+                    <div class="card-body " x-data="{
                         is_open: true,
                     
                     
@@ -42,7 +43,7 @@
 
 
                         <form wire:submit.debounce.1000ms='save' id="form">
-                            <x-alerts />
+
 
                             <div class="mb-3">
 
@@ -435,12 +436,18 @@ border-danger
             </div>
 
 
+
+
+        </div>
+
+        <div class="row">
+
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">Submission Period Table</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body px-0">
                         @php
 
                             $route = Route::current()->getPrefix();
@@ -454,10 +461,7 @@ border-danger
 
             </div>
 
-
-
         </div>
-
         @script
             <script>
                 $('.goUp').on('click', () => {

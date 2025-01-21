@@ -24,7 +24,7 @@
                     <div class="card-header fw-bold">
                         Forms Table
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <livewire:tables.form-table />
                     </div>
                 </div>
@@ -42,7 +42,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

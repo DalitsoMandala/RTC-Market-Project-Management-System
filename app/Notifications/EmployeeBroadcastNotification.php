@@ -50,6 +50,12 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
 
     public function toArray($notifiable)
     {
+        if ($this->link) {
+            return [
+                'message' => $this->messageContent,
+                'link' => $this->link
+            ];
+        }
 
         return [
             'message' => $this->messageContent,
@@ -59,6 +65,10 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
 
     public function databaseType($notifiable)
     {
-        return 'submissions';
+
+        if ($this->link) {
+            return 'submissions';
+        }
+        return 'failed_submissions';
     }
 }

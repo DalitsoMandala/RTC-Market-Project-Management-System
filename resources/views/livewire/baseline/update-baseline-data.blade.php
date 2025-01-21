@@ -24,7 +24,7 @@
                 <div class="card-header">
                     <h5 class="card-title">Baseline Table</h5>
                 </div>
-                <div class="card-body">
+                <div class="px-0 card-body">
 
 
                     <livewire:tables.baseline-table />

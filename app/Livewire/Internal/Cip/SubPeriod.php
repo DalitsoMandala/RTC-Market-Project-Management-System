@@ -133,7 +133,7 @@ class SubPeriod extends Component
         $this->end_period = Carbon::parse($submissionPeriod->date_ending)->format('Y-m-d');
         $this->status = $submissionPeriod->is_open;
         $this->selectedIndicator = $submissionPeriod->indicator_id;
-        $this->selectedForm[] = $submissionPeriod->form_id;
+        $this->selectedForm = [$submissionPeriod->form_id];
         $this->selectedMonth = $submissionPeriod->month_range_period_id;
         $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
 
@@ -225,7 +225,7 @@ class SubPeriod extends Component
                         $form = Form::find($this->selectedForm[0]);
                         $period = ReportingPeriodMonth::find($this->selectedMonth);
                         session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
-                        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for the period of ({$period->start_month} - {$period->end_month}).");
+                        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for {$form->name} for the period of ({$period->start_month} - {$period->end_month}).");
                         $this->resetData();
 
                         return;
@@ -318,20 +318,8 @@ class SubPeriod extends Component
 
             // Check if the responsible person has the required form
             $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
-            $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
-            $htmlForms = "</br><ol>";
-            foreach ($formNames as $formName) {
-                $htmlForms .= "<li>
-                <b>{$formName}</b>
-                </li>";
-            }
-            $htmlForms .= "</ol></br>";
-            $messageContent = "";
-            if ($hasFormAccess) {
 
-                $messageContent .= "<p> Submissions are now open for: </p>";
-                $messageContent .= $htmlForms;
-                $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
+            if ($hasFormAccess) {
 
 
                 $link = match (true) {
@@ -343,14 +331,24 @@ class SubPeriod extends Component
                 if ($errorMessage) {
 
 
-                    $errorMessage .= "<p>Form Name: </p>";
-                    $errorMessage .= $htmlForms;
                     Bus::chain([
                         new SendNotificationJob($user, $errorMessage, $link, true)
                     ])->dispatch();
                 } else {
 
 
+                    $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
+                    $htmlForms = "</br><ol>";
+                    foreach ($formNames as $formName) {
+                        $htmlForms .= "<li>
+                        <b>{$formName}</b>
+                        </li>";
+                    }
+                    $htmlForms .= "</ol></br>";
+                    $messageContent = "";
+                    $messageContent .= "<p> Submissions are now open for: </p>";
+                    $messageContent .= $htmlForms;
+                    $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
 
 
                     Bus::chain([

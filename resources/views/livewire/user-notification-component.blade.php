@@ -5,8 +5,8 @@
             aria-controls="offcanvasExample">
 
             <i class='bx bx-bell fs-3 text-muted'></i>
-            @if ($notifications->count() > 0)
-                <span class="noti-dot bg-danger rounded-pill">{{ $notifications->count() }}</span>
+            @if ($unreadNotifications->count() > 0)
+                <span class="noti-dot bg-danger rounded-pill">{{ $unreadNotifications->count() }}</span>
             @endif
         </button>
 
@@ -21,103 +21,129 @@
             </div>
             <div class="offcanvas-body">
                 <div data-simplebar>
-                    @if ($notifications->count() == 0)
-                        <div class="text-center alert alert-light" role="alert">
-                            <i class="bx bx-bell-off"></i> No notifications at the moment.
-                        </div>
-                    @endif
-                    @foreach ($notifications as $notification)
-                                    @if ($notification->type === 'manual_data_added')
-                                        <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
-                                            <div class="d-flex border-bottom align-items-start ">
-                                                <div class="flex-shrink-0">
-                                                    <div class="avatar-sm me-3">
-                                                        <span class="avatar-title bg-warning rounded-circle font-size-16">
-                                                            <i class="bx bxs-file-plus"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-1">{{ $notification->data['message'] }}</h6>
-                                                    <div class="text-muted">
-                                                        <p class="mb-1 font-size-13">Data has been successfully added. The ID is:
-                                                            <span class="text-warning">{{ $notification->data['batch_no'] }}</span>
-                                                            <span class="badge text-success bg-success-subtle">Click to view</span>
-                                                        </p>
-                                                        <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                                class="mdi mdi-clock-outline"></i>
-                                                            {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    @endif
-                                    @if ($notification->type == 'batch_data_added')
-                                                    @php
-                                                        $currentRoute = request()->route(); // Get the current route
 
-                                                        $routePrefix = $currentRoute->getPrefix(); // Get the route prefix
+                    @foreach ($notifications->take(5) as $notification)
+                        @if ($notification->type == 'failed_submissions')
+                            <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
+                                <div class="d-flex border-bottom align-items-start ">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm me-3">
+                                            <span
+                                                class="avatar-title bg-danger-subtle text-danger rounded-circle font-size-16">
+                                                <i class="bx bx-file-blank"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
 
-                                                    @endphp
+                                        <h6 class="mb-1">Submissions Closed! @if (is_null($notification->read_at))
+                                                <span class="badge bg-warning">New!</span>
+                                            @endif
+                                        </h6>
 
-                                                    <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
-                                                        <div class="d-flex border-bottom align-items-start ">
-                                                            <div class="flex-shrink-0">
-                                                                <div class="avatar-sm me-3">
-                                                                    <span class="avatar-title bg-warning rounded-circle font-size-16">
-                                                                        <i class="bx bx-upload"></i>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex-grow-1">
-                                                                <h6 class="mb-1">{{ $notification->data['message'] }}</h6>
-                                                                <div class="text-muted">
-                                                                    <p class="mb-1 font-size-13">Data has been successfully uploaded. The ID is:
-                                                                        <span class="text-warning">{{ $notification->data['batch_no'] }}</span>
-                                                                        <span class="badge text-success bg-success-subtle">Click to view</span>
-                                                                    </p>
-                                                                    <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                                            class="mdi mdi-clock-outline"></i>
-                                                                        {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                    @endif
-                                    @if ($notification->type == 'imports')
-                                                    @php
-                                                        $currentRoute = request()->route(); // Get the current route
+                                        <div class="text-muted">
+                                            <p class="mb-1 font-size-13">{{ $notification->data['message'] }}</p>
 
-                                                        $routePrefix = $currentRoute->getPrefix(); // Get the route prefix
 
-                                                     @endphp
+                                            <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
+                                                    class="mdi mdi-clock-outline"></i>
+                                                {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
+                        @if ($notification->type == 'submissions')
+                            <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
+                                <div class="d-flex border-bottom align-items-start ">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm me-3">
+                                            <span
+                                                class="avatar-title bg-success-subtle text-success rounded-circle font-size-16">
+                                                <i class="bx bx-file-blank"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">Submissions Open! @if (is_null($notification->read_at))
+                                                <span class="badge bg-warning">New!</span>
+                                            @endif
+                                        </h6>
+                                        <div class="text-muted">
+                                            <p class="mb-1 font-size-13">{{ $notification->data['message'] }}</p>
 
-                                                    <a href="{{ $routePrefix }}/submissions" class="text-reset notification-item">
-                                                        <div class="d-flex border-bottom align-items-start ">
-                                                            <div class="flex-shrink-0">
-                                                                <div class="avatar-sm me-3">
-                                                                    <span class="avatar-title bg-warning rounded-circle font-size-16">
-                                                                        <i class="bx bx-upload"></i>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex-grow-1">
-                                                                <h6 class="mb-1">Imports</h6>
-                                                                <div class="text-muted">
-                                                                    <p class="mb-1 font-size-13">{{ $notification->data['message'] }}
-                                                                    </p>
-                                                                    <p>Your ID : {{ $notification->data['uuid'] }}</p>
-                                                                    <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
-                                                                            class="mdi mdi-clock-outline"></i>
-                                                                        {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                    @endif
+
+                                            <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
+                                                    class="mdi mdi-clock-outline"></i>
+                                                {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if ($notification->type == 'imports')
+                            <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
+                                <div class="d-flex border-bottom align-items-start ">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm me-3">
+                                            <span
+                                                class="avatar-title bg-success-subtle text-success rounded-circle font-size-16">
+                                                <i class="bx bx-import"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">Import Successful! @if (is_null($notification->read_at))
+                                                <span class="badge bg-warning">New!</span>
+                                            @endif
+                                        </h6>
+                                        <div class="text-muted">
+                                            <p class="mb-1 font-size-13">{{ $notification->data['message'] }}</p>
+
+
+                                            <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
+                                                    class="mdi mdi-clock-outline"></i>
+                                                {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if ($notification->type == 'failed_imports')
+                            <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
+                                <div class="d-flex border-bottom align-items-start ">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm me-3">
+                                            <span
+                                                class="avatar-title bg-danger-subtle text-danger rounded-circle font-size-16">
+                                                <i class="bx bx-import"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">Failed to Import your file! @if (is_null($notification->read_at))
+                                                <span class="badge bg-warning">New!</span>
+                                            @endif
+                                        </h6>
+                                        <div class="text-muted">
+                                            <p class="mb-1 font-size-13">Your file failed to import. Please try again.
+                                            </p>
+
+
+                                            <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
+                                                    class="mdi mdi-clock-outline"></i>
+                                                {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
                     @endforeach
 
                 </div>
