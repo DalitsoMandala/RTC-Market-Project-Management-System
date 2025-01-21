@@ -3,19 +3,21 @@
 namespace App\Livewire\tables;
 
 use App\Models\JobProgress;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Database\Query\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class JobProgressTable extends PowerGridComponent
 {
@@ -25,13 +27,18 @@ final class JobProgressTable extends PowerGridComponent
 
     public $count = 1;
 
-
+    public $batch;
     public string $sortField = 'id';
 
     public string $sortDirection = 'desc';
     public function setUp(): array
     {
-
+        $route = Route::current();
+        $parameters = $route->parameters();
+        $collection = collect($parameters);
+        if ($collection->has('batch')) {
+            $this->batch = $collection->get('batch');
+        }
 
         return [
 
@@ -53,7 +60,11 @@ final class JobProgressTable extends PowerGridComponent
             ->add('row', fn($model) => $this->count++)
             ->add('id')
             ->add('cache_key')
-            ->add('form_name')
+            ->add('form_name_formatted', function ($model) {
+                $form = strtolower($model->form_name);
+
+                return "<span class='text-uppercase'>{$form}</span>";
+            })
             ->add('user_id')
             ->add('status')
             ->add('status_formatted', function ($model) {
@@ -96,7 +107,7 @@ final class JobProgressTable extends PowerGridComponent
                 }
             })
             ->add('error')
-            ->add('created_at', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y h:i A'))
+            ->add('updated_at_formatted', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y h:i A'))
             ->add('updated_at');
     }
 
@@ -108,7 +119,7 @@ final class JobProgressTable extends PowerGridComponent
 
                 ->searchable(),
 
-            Column::make('Form name', 'form_name')
+            Column::make('Form name', 'form_name_formatted', 'form_name')
 
                 ->searchable(),
 
@@ -119,6 +130,9 @@ final class JobProgressTable extends PowerGridComponent
 
             Column::make('Progress', 'progress')
 
+                ->searchable(),
+
+            Column::make('Created at', 'updated_at_formatted')
                 ->searchable(),
 
 
@@ -159,15 +173,15 @@ final class JobProgressTable extends PowerGridComponent
     //     ];
     // }
 
-    /*
+
     public function actionRules($row): array
     {
-       return [
+        return [
             // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+
+            Rule::rows()
+                ->when(fn($row) => $row->cache_key === $this->batch)
+                ->setAttribute('class', 'table-secondary'),
         ];
     }
-    */
 }

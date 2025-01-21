@@ -26,23 +26,39 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
 
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail($notifiable)
     {
+
+        // after admin closes the submissions
         if ($this->error === true) {
             return (new MailMessage)
+                ->subject('Submissions Update!')
                 ->greeting('Hello ' . $notifiable->name . ',')
-                ->subject('Important Update - Error!')
                 ->line(new HtmlString($this->messageContent));
         }
 
         return (new MailMessage)
-            ->subject('Submissions Notification!')
+            ->subject('Submissions Update!')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line(new HtmlString($this->messageContent))
             ->action('Go to website', $this->link)  // Adding a call-to-action button
             ->line('Thank you for your attention!');
+    }
+
+    public function toArray($notifiable)
+    {
+
+        return [
+            'message' => $this->messageContent,
+
+        ];
+    }
+
+    public function databaseType($notifiable)
+    {
+        return 'submissions';
     }
 }

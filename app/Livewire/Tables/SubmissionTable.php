@@ -2,28 +2,29 @@
 
 namespace App\Livewire\Tables;
 
-use App\Helpers\TruncateText;
 use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\Organisation;
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Indicator;
+use App\Models\Submission;
+use App\Models\Organisation;
+use App\Helpers\TruncateText;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Models\SubmissionPeriod;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SubmissionTable extends PowerGridComponent
 {
@@ -33,12 +34,20 @@ final class SubmissionTable extends PowerGridComponent
     public $filter;
     public $userId;
     public bool $showFilters = true;
-
+    public $batch;
     public $row = 1;
+    public string $sortField = 'id';
+
+    public string $sortDirection = 'desc';
     public function setUp(): array
     {
         // $this->showCheckBox();
-
+        $route = Route::current();
+        $parameters = $route->parameters();
+        $collection = collect($parameters);
+        if ($collection->has('batch')) {
+            $this->batch = $collection->get('batch');
+        }
         return [
             Exportable::make('export')
                 ->striped()
@@ -225,6 +234,7 @@ final class SubmissionTable extends PowerGridComponent
             ->add('updated_at');
     }
 
+
     public function columns(): array
     {
 
@@ -321,6 +331,10 @@ final class SubmissionTable extends PowerGridComponent
             Rule::button('delete')
                 ->when(fn($row) => !($row->user_id === auth()->user()->id))
                 ->disable(),
+
+            Rule::rows()
+                ->when(fn($row) => $row->batch_no === $this->batch)
+                ->setAttribute('class', 'table-secondary'),
 
         ];
     }

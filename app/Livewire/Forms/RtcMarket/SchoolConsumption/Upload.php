@@ -66,6 +66,7 @@ class Upload extends Component
 
     public $targetSet = false;
     public $targetIds = [];
+    public $currentRoute;
 
     public function save() {}
 
@@ -113,7 +114,8 @@ class Upload extends Component
                         'table_name' => 'household_rtc_consumption',
                         'is_complete' => 1,
                         'file_link' => $name,
-                        'batch_no' => $this->importId
+                        'batch_no' => $this->importId,
+                        'route' => $this->currentRoute
 
 
                     ]), $path);
@@ -258,6 +260,7 @@ class Upload extends Component
         }
 
         $this->importId = Uuid::uuid4()->toString();
+        $this->currentRoute = url()->current();
     }
 
 

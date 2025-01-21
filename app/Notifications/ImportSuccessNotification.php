@@ -3,15 +3,16 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ImportSuccessNotification extends Notification
+class ImportSuccessNotification extends Notification implements ShouldQueue
 {
     use Queueable;
-    public $message;
-    public $uuid, $link;
-    public $errors, $sheet;
+    protected $message;
+    protected $uuid, $link;
+    protected $errors, $sheet;
     /**
      * Create a new notification instance.
      */
@@ -27,16 +28,17 @@ class ImportSuccessNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['mail']; // Or 'database', 'slack', etc., based on your needs
+        return ['mail', 'database']; // Or 'database', 'slack', etc., based on your needs
     }
 
     public function toMail($notifiable)
     {
+
         return (new MailMessage)
             ->subject('Import Successful')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line($this->message)
-            ->action('View Details', url($this->link)) // Adjust URL
+            ->action('View Details', $this->link) // Adjust URL
             ->line('Thank you for using our application!');
     }
 

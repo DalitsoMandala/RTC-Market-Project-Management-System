@@ -20,6 +20,8 @@ use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
+use App\Notifications\ImportFailureNotification;
+use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
@@ -147,7 +149,8 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
 
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+
+                // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
@@ -160,6 +163,37 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'table_name' => 'attendance_registers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
+
+
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
+
+                        )
+                    );
+                } else if ($user->hasAnyRole('staff')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'pending',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'attendance_registers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('cip-staff-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+                    ));
                 } else {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
@@ -172,6 +206,15 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'table_name' => 'attendance_registers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
+
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('external-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+
+                    ));
                 }
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -183,21 +226,28 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
             },
 
             ImportFailed::class => function (ImportFailed $event) {
-
                 $exception = $event->getException();
 
                 $errorMessage = $exception->getMessage();
 
+                $user = User::find($this->submissionDetails['user_id']);
+                $user->notify(new ImportFailureNotification(
+                    $errorMessage,
+                    $this->submissionDetails['route'],
+                    $this->cacheKey,
+
+                ));
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'progress' => 100,
                         'error' => $errorMessage,
                     ]
                 );
 
+
                 AttendanceRegister::where('uuid', $this->cacheKey)->delete();
+                Submission::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

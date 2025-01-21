@@ -9,6 +9,7 @@ use App\Helpers\ExcelValidator;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
+use App\Models\RtcProductionProcessor;
 use App\Notifications\JobNotification;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeSheet;
@@ -19,6 +20,8 @@ use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
 use App\Imports\ImportProcessor\RpmpMisImport;
+use App\Notifications\ImportFailureNotification;
+use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
@@ -27,7 +30,6 @@ use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
 use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
 use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
 use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
-use App\Models\RtcProductionProcessor;
 
 class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
@@ -226,7 +228,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
 
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+                // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
@@ -239,6 +241,35 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'table_name' => 'rtc_production_processors',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
+
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
+
+                        )
+                    );
+                } else   if ($user->hasAnyRole('staff')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_processors',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('cip-staff-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+                    ));
                 } else {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
@@ -251,6 +282,15 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'table_name' => 'rtc_production_processors',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
+
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('external-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+
+                    ));
                 }
 
                 JobProgress::updateOrCreate(
@@ -264,20 +304,30 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
 
             ImportFailed::class => function (ImportFailed $event) {
 
+
                 $exception = $event->getException();
 
                 $errorMessage = $exception->getMessage();
+
+                $user = User::find($this->submissionDetails['user_id']);
+                $user->notify(new ImportFailureNotification(
+                    $errorMessage,
+                    $this->submissionDetails['route'],
+                    $this->cacheKey,
+
+                ));
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'progress' => 100,
+
                         'error' => $errorMessage,
                     ]
                 );
 
                 RtcProductionProcessor::where('uuid', $this->cacheKey)->delete();
+                Submission::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

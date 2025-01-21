@@ -85,7 +85,7 @@ final class FormTable extends PowerGridComponent
                     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 } else
 
-                    return '<a class="text-decoration-underline text-capitalize"  href="forms/' . $project . '/' . $form_name . '/view" >' . strtolower($model->name) . '</a>';
+                    return '<a class="text-decoration-underline "  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
             })
             ->add('type')
             ->add('project_id')

@@ -9,6 +9,7 @@ use App\Helpers\ExcelValidator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
+use App\Models\SchoolRtcConsumption;
 use Illuminate\Support\Facades\Cache;
 use App\Notifications\JobNotification;
 use Maatwebsite\Excel\Events\AfterImport;
@@ -19,15 +20,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use App\Imports\ImportProcessor\RpmpMisImport;
+use App\Notifications\ImportFailureNotification;
+use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
+use App\Imports\SchoolImport\SchoolRtcConsumptionImport;
 use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
 use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
 use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
 use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
 use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
-use App\Models\SchoolRtcConsumption;
 
 class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
@@ -137,25 +140,70 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
 
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
-                $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing.', []));
+                // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+                if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'school_rtc_consumption',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
 
-                $status = ($user->hasRole([
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
 
-                    'manager',
-                    'admin'
-                ])) ? 'approved' : 'pending';
+                        )
+                    );
+                } else   if ($user->hasAnyRole('staff')) {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'school_rtc_consumption',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('cip-staff-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
 
-                Submission::create([
-                    'batch_no' => $this->submissionDetails['batch_no'],
-                    'form_id' => $this->submissionDetails['form_id'],
-                    'period_id' => $this->submissionDetails['period_month_id'],
-                    'user_id' => $this->submissionDetails['user_id'],
-                    'status' => $status,
-                    'batch_type' => 'batch',
-                    'is_complete' => 1,
-                    'table_name' => 'school_rtc_consumption',
-                    'file_link' => $this->submissionDetails['file_link']
-                ]);
+                    ));
+                } else {
+                    Submission::create([
+                        'batch_no' => $this->cacheKey,
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'pending',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'school_rtc_consumption',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('external-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+
+                    ));
+                }
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -168,19 +216,29 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
 
             ImportFailed::class => function (ImportFailed $event) {
 
+
                 $exception = $event->getException();
 
                 $errorMessage = $exception->getMessage();
+
+                $user = User::find($this->submissionDetails['user_id']);
+                $user->notify(new ImportFailureNotification(
+                    $errorMessage,
+                    $this->submissionDetails['route'],
+                    $this->cacheKey,
+
+                ));
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'progress' => 100,
+
                         'error' => $errorMessage,
                     ]
                 );
                 SchoolRtcConsumption::where('uuid', $this->cacheKey)->delete();
+                Submission::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

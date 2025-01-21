@@ -27,6 +27,7 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Imports\HouseholdImport\MainFoodSheetImport;
 use App\Imports\HouseholdImport\HouseholdSheetImport;
+use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
@@ -178,7 +179,15 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
-                    $user->notify(new ImportSuccessNotification($this->cacheKey,  route('cip-submissions')));
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
+
+                        )
+                    );
                 } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
@@ -192,7 +201,13 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
-                    $user->notify(new ImportSuccessNotification($this->cacheKey, route('cip-staff-submissions')));
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('cip-staff-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+                    ));
                 } else {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
@@ -205,7 +220,14 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'table_name' => 'household_rtc_consumption',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
-                    $user->notify(new ImportSuccessNotification($this->cacheKey, route('external-submissions')));
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('external-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+
+                    ));
                 }
 
                 JobProgress::updateOrCreate(
@@ -223,16 +245,24 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
 
                 $errorMessage = $exception->getMessage();
 
+                $user = User::find($this->submissionDetails['user_id']);
+                $user->notify(new ImportFailureNotification(
+                    $errorMessage,
+                    $this->submissionDetails['route'],
+                    $this->cacheKey,
+
+                ));
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-                        'progress' => 100,
                         'error' => $errorMessage,
                     ]
                 );
 
+
                 HouseholdRtcConsumption::where('uuid', $this->cacheKey)->delete();
+                Submission::where('uuid', $this->cacheKey)->delete();
 
 
                 Log::error($exception->getMessage());

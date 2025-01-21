@@ -44,6 +44,7 @@ use App\Livewire\Internal\Cip\SubPeriodStaff;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Jobs\SendExpiredPeriodNotificationJob;
 use App\Livewire\Internal\Cip\ViewSubmissions;
+use App\Notifications\ImportSuccessNotification;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
@@ -64,8 +65,17 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $data = new \App\Helpers\rtc_market\indicators\indicator_2_2_4();
-    dd($data->getDisaggregations());
+    $user = User::find(auth()->user()->id);
+    $uuid = Uuid::uuid4()->toString();
+    $user->notify(
+        new ImportSuccessNotification(
+            $uuid,
+            route('cip-submissions', [
+                'batch' => $uuid,
+            ]) . '#batch-submission'
+
+        )
+    );
 });
 
 Route::get('/session-check', function () {
@@ -148,8 +158,7 @@ Route::middleware([
     Route::get('/indicators', Indicators::class)->name('cip-indicators');
     Route::get('/indicators/view/{id}', ViewIndicators::class)->where('id', '[0-9]+')->name('cip-indicator-view');
     Route::get('/forms', Forms::class)->name('cip-forms');
-    Route::get('/submissions', Submissions::class)->name('cip-submissions');
-    Route::get('/submissions/view/{batch_no}', ViewSubmissions::class)->name('cip-submission-view');
+    Route::get('/submissions/{batch?}', Submissions::class)->name('cip-submissions');
     Route::get('/reports', Reports::class)->name('cip-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
     Route::get('/targets', App\Livewire\Targets\View::class);

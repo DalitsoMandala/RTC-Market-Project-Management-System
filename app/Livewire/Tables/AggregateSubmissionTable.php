@@ -12,6 +12,7 @@ use App\Models\SubmissionPeriod;
 use Illuminate\Support\Facades\DB;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -33,10 +34,19 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public bool $showFilters = true;
 
     public $row = 1;
+    public $batch;
 
+    public string $sortField = 'id';
+
+    public string $sortDirection = 'desc';
     public function setUp(): array
     {
-
+        $route = Route::current();
+        $parameters = $route->parameters();
+        $collection = collect($parameters);
+        if ($collection->has('batch')) {
+            $this->batch = $collection->get('batch');
+        }
 
         return [
             // Exportable::make('export')
@@ -322,6 +332,11 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->when(fn($row) => !($row->user_id === auth()->user()->id))
                 ->disable(),
 
+
+
+            Rule::rows()
+                ->when(fn($row) => $row->batch_no === $this->batch)
+                ->setAttribute('class', 'table-secondary'),
         ];
     }
 }
