@@ -5,12 +5,16 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">View Seed Distribution Register</h4>
+                    <h4 class="mb-0">View Data</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-right" wire:ignore>
+                        @php
+                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">View Seed Distribution Register</li>
+                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/forms">Forms</a></li>
+                            <li class="breadcrumb-item active">View Data</li>
                         </ol>
                     </div>
 
@@ -31,8 +35,9 @@
 
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">Seed Distribution Register Table</h5>
+                    <div class="card-header">
+                        <h4 class="text-center text-warning text-uppercase">Seed Distribution Register Table
+                        </h4>
                         @php
                             $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
                         @endphp
@@ -48,9 +53,12 @@
 
                         </ul>
                     </div>
-                    <div class="card-header">
-                        <!-- Tabs for each crop type -->
-                        <ul class="nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
+
+
+
+                    <div class="card-body px-0">
+
+                        <ul class="nav nav-tabs mx-2" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="potato-tab" data-bs-toggle="tab"
                                     data-bs-target="#potato" type="button" role="tab" aria-controls="potato"
@@ -67,11 +75,6 @@
                                     aria-selected="false">Cassava</button>
                             </li>
                         </ul>
-                    </div>
-
-
-
-                    <div class="card-body">
                         <!-- Tab Content for Livewire tables -->
                         <div class="tab-content mt-3" id="seedBeneficiaryTabsContent">
                             <!-- Potato Table -->

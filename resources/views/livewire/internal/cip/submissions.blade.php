@@ -30,10 +30,10 @@
                         <h5 class="card-title"> Submissions Table</h5>
 
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <!-- Nav tabs -->
 
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <ul class="nav nav-tabs mx-1" id="myTab" role="tablist">
 
                             <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
                                 data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
@@ -95,12 +95,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -109,7 +109,7 @@
                 }
             });
         })
-
+        
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -117,10 +117,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
-
+        
         $wire.on('showDataAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -128,10 +128,10 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-
-
+        
+        
             }),
-
+        
             $wire.on('deleteAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -139,11 +139,11 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-
-
+        
+        
             })
-
-
+        
+        
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -151,8 +151,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })">
 
 
@@ -173,17 +173,17 @@
                         isManager: $wire.entangle('isManager'),
                         disableInputs: false,
                         init() {
-
-
+                    
+                    
                             if (this.isManager) {
                                 this.disableInputs = false;
                             } else {
                                 this.disableInputs = true;
-
+                    
                             }
-
+                    
                         }
-
+                    
                     }">
 
 
@@ -238,9 +238,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-
-
-
+                
+                
+                
                 }">
 
 

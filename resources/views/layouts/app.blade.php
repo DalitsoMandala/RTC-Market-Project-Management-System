@@ -251,7 +251,8 @@
                     <i class="fas fa-arrow-up"></i>
                 </button>
                 <div class="container text-center">
-                    <span class="text-muted">&copy; 2025 {{ env('APP_NAME') }}. All rights reserved.</span>
+                    <span class="text-muted">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights
+                        reserved.</span>
                 </div>
             </footer>
         </div>

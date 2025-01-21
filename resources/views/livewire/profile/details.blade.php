@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Update profile</h4>
+                    <h4 class="mb-0">Profile</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
@@ -39,8 +39,8 @@
 
                                     <div class="mb-3 form-group">
                                         <label for="email">Email</label>
-                                        <input type="email" class="form-control bg-light" id="email" wire:model="email"
-                                            readonly>
+                                        <input type="email" class="form-control bg-light" id="email"
+                                            wire:model="email" readonly>
                                     </div>
 
                                     <div class="mb-3 form-group">
@@ -57,10 +57,9 @@
                                         <div class="row">
                                             <div class="col-1">
 
-                                                @if(auth()->user()->image)
+                                                @if (auth()->user()->image)
                                                     <img src="{{ asset('storage/profiles/' . auth()->user()->image) }}"
                                                         class="rounded avatar-xl" alt=" ">
-
                                                 @else
                                                     <img src="{{ asset('assets/images/users/usr.png') }}"
                                                         class="rounded avatar-xl" alt="logo">

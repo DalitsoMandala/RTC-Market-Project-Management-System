@@ -197,7 +197,7 @@
                                     <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ $routePrefixMain }}/baseline" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <i class='bx bx-network-chart'></i>
                                         <span data-key="t-dashboards">Manage Baselines</span>
                                     </a>
                                 </li>

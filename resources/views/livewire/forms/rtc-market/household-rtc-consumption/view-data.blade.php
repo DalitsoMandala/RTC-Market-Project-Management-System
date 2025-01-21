@@ -9,13 +9,16 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-end">
-
+                    <h4 class="mb-0">View Data</h4>
 
                     <div class="page-title-right" wire:ignore>
+                        @php
+                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="/cip/forms">Forms</a></li>
-                            <li class="breadcrumb-item active">View</li>
+                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/forms">Forms</a></li>
+                            <li class="breadcrumb-item active">View Data</li>
                         </ol>
                     </div>
 
@@ -33,13 +36,13 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">Household consumption data @if ($batch_no)
+                        <h4 class="text-center text-warning text-uppercase">Household Consumption Table @if ($batch_no)
                                 [Batch : {{ $batch_no }}]
                             @endif
                         </h4>
                     </div>
 
-                    <div class="card-body ">
+                    <div class="px-0 card-body">
 
                         <livewire:tables.rtc-market.household-rtc-consumption-table />
 
@@ -53,10 +56,10 @@
                         @endif --}}
 
 
-                        {{-- <div class="table-responsive pb-5 col-md-12" style="margin: 10px 0 10px;" wire:ignore
+                        {{-- <div class="pb-5 table-responsive col-md-12" style="margin: 10px 0 10px;" wire:ignore
                             x-data="{ show: $wire.entangle('loadingData') }"
                             :class="{ 'pe-none opacity-25': show === true }">
-                            <table class="table table-striped  nowrap align-middle w-100" id="hrc">
+                            <table class="table align-middle table-striped nowrap w-100" id="hrc">
                                 <thead class="table-primary text-uppercase text-secondary">
                                     <tr style="font-size: 12px;color:#6b6a6a;">
                                         <th scope="col">

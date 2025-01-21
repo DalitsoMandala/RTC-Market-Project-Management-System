@@ -81,7 +81,7 @@ final class JobProgressTable extends PowerGridComponent
                     $model->progress >= 0 && $model->progress <= 49 => 'bg-danger',
                     $model->progress >= 50 && $model->progress <= 99 => 'bg-warning',
                     $model->progress === 100 => 'bg-success',
-                    default => 'bg-secondary', // Fallback for unexpected values
+                    default => 'bg-success', // Fallback for unexpected values
                 };
 
 
@@ -91,7 +91,7 @@ final class JobProgressTable extends PowerGridComponent
 <div class='progress progress-sm bg-secondary-subtle w-100 me-3'>
 <div class='progress-bar {$progressColor}' role='progressbar' style='width: {$model->progress}%' aria-valuenow='{$model->progress}' aria-valuemin='0' aria-valuemax='100'></div>
 </div>
-<span class='text-muted'>{$model->progress}%</span>
+<span class='text-muted fw-bold'>{$model->progress}%</span>
 </div>
 ";
 

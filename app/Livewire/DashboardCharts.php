@@ -21,16 +21,17 @@ class DashboardCharts extends Component
     public $name = null;
     public $financialYears = [];
     public $selectedReportYear = 1;
-    #[On('showContent')]
-    public function showContent()
+
+    #[On('showCharts')]
+    public function showVisuals()
     {
+
         $this->showContent = true;
     }
-
-
     #[On('updateReportYear')]
     public function updateReportYear($id)
     {
+        $this->showContent = false;
         $this->selectedReportYear = FinancialYear::find($id)->number;
         $this->loadData($id);
     }
@@ -62,6 +63,8 @@ class DashboardCharts extends Component
             ->pluck('id');
 
         if ($selectedReportYear) {
+
+
             $systemReport = SystemReport::with('data')->where('financial_year_id', $selectedReportYear)
                 ->where('indicator_id', 1)->where('project_id', 1)
                 ->pluck('id');
@@ -75,7 +78,13 @@ class DashboardCharts extends Component
             $this->data = $summedGroups;
 
 
-            $this->dispatch('updateChartData', data: $this->data);
+            $this->dispatch(
+                'updateChartData',
+                data: $this->data,
+
+
+            );
+
             return;
         }
 
