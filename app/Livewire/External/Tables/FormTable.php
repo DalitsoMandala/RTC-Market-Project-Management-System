@@ -33,14 +33,17 @@ final class FormTable extends PowerGridComponent
     use WithExport;
     public $userId;
     public $currentRoutePrefix;
+    public string $sortField = 'id';
+
+    public string $sortDirection = 'desc';
     public function setUp(): array
     {
         //  $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            // Exportable::make('export')
+            //     ->striped()
+            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -70,14 +73,6 @@ final class FormTable extends PowerGridComponent
         ])->whereIn('indicator_id', $myIndicators);
 
 
-
-        // // Query SubmissionPeriods with the necessary relationships
-        // $query = SubmissionPeriod::with(['form', 'form.indicators'])
-        //     ->whereHas('form.indicators.responsiblePeopleforIndicators', function (Builder $query) use ($organisation_id) {
-        //         $query->where('organisation_id', $organisation_id);
-        //     })
-
-        // ;
 
         return $query;
     }
@@ -111,7 +106,7 @@ final class FormTable extends PowerGridComponent
             ->add('type')
             ->add('open_for_submission', function ($model) {
 
-                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-theme-red">No</span>';
+                return ($model->is_open === 1 && $model->is_expired === 0) ? '<span class="badge bg-success-subtle text-success">Yes</span>' : '<span class="badge bg-danger-subtle text-danger">No</span>';
             })
             ->add('project_id')
             ->add('project', function ($model) {
@@ -133,12 +128,12 @@ final class FormTable extends PowerGridComponent
 
                 if ($date->isPast()) {
 
-                    return "<span class='text-danger'>Expired!</span>";
+                    return "<span class='badge bg-danger-subtle text-danger'>Expired!</span>";
                 } else {
                     if ($model->is_expired === 1 && !$date->isPast()) {
                         return "<span class='text-danger'>Expired!</span>";
                     } else {
-                        return "<b>{$date_end}</b>";
+                        return "<b> <i class='bx bx-time-five'></i> {$date_end}</b>";
                     }
                 }
             })
@@ -150,9 +145,9 @@ final class FormTable extends PowerGridComponent
                     ->where('form_id', $model->form->id)->count();
 
                 if ($submitted === 0) {
-                    return '<span class="badge bg-theme-red">Not submitted</span>';
+                    return '<span class="badge bg-danger-subtle text-danger">Not submitted</span>';
                 } else {
-                    return '<span class="badge bg-success">Submitted</span>';
+                    return '<span class="badge bg-success-subtle text-success">Submitted</span>';
                 }
             })
             ->add('financial_year', fn($model) => FinancialYear::find($model->financial_year_id)->number)
@@ -214,27 +209,6 @@ final class FormTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        return [
-
-            Button::add('add-data')
-                ->slot('<i class="bx bx-plus"></i> Add Data')
-                ->id()
-                ->class('btn btn-warning my-1')
-                ->tooltip('Add Manual Data')
-                ->dispatch('sendData', ['model' => $row]),
-
-            Button::add('upload')
-                ->slot('<i class="bx bx-upload"></i> Upload Data')
-                ->id()
-                ->tooltip('Upload Your Data')
-                ->class('btn btn-warning my-1')
-                ->dispatch('sendUploadData', ['model' => $row]),
-
-        ];
-    }
-
     #[On('sendData')]
     public function sendData($model)
     {
@@ -279,10 +253,37 @@ final class FormTable extends PowerGridComponent
 
         $this->redirect($route);
     }
+    public function actions($row): array
+    {
+        return [
+
+
+            Button::add('add-data')
+                ->slot('<i class="bx bx-plus"></i>')
+                ->id()
+                ->class('btn btn-warning btn-sm my-1 custom-tooltip')
+                ->tooltip('Add Data')
+
+
+                ->dispatch('sendData', ['model' => $row]),
+
+            Button::add('upload')
+                ->slot('<i class="bx bx-upload"></i>')
+                ->id()
+                ->tooltip('Upload Your Data')
+                ->class('btn btn-warning my-1 btn-sm custom-tooltip')
+                ->dispatch('sendUploadData', ['model' => $row]),
+
+
+        ];
+    }
+    // public function actionsFromView($row): View
+    // {
+    //     return view('livewire.submission-view', ['row' => $row]);
+    // }
 
     public function actionRules($row): array
     {
-
         $user = Auth::user();
         $organisationId = $user->organisation->id;
         $indicator = Indicator::find($row->indicator_id);
@@ -300,6 +301,7 @@ final class FormTable extends PowerGridComponent
         // Check if the organisation is responsible for the indicator
         $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
 
+
         $currentDate = Carbon::now();
         $establishedDate = $row->date_established;
         $endDate = $row->end_date;
@@ -309,35 +311,24 @@ final class FormTable extends PowerGridComponent
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
 
-        //  $check = SubmissionPeriod::wherebet;
+
+
+
         return [
-
-
-
-            Rule::button('add-data')
+            // Hide button edit for ID 1
+            Rule::button('edit')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
-            // Rules for uploading data
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
                 ->disable(),
 
+            // Rules for uploading data
             Rule::button('upload')
-                ->when(function ($row) {
-                    $form = Form::find($row->form_id);
-
-                    if ($form->name == 'REPORT FORM') {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
-                ->disable(),
-
-            Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
                 ->disable(),
         ];
     }

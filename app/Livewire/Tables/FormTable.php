@@ -45,23 +45,23 @@ final class FormTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
 
-        // if ($user->hasAnyRole('external')) {
-        //     $responsiblePeople = ResponsiblePerson::where('organisation_id', $user->organisation->id)
-        //         ->with('sources.form')
-        //         ->get();
+        if ($user->hasAnyRole('external')) {
+            $responsiblePeople = ResponsiblePerson::where('organisation_id', $user->organisation->id)
+                ->with('sources.form')
+                ->get();
 
-        //     $forms = $responsiblePeople->flatMap(function ($person) {
-        //         return $person->sources->pluck('form');
-        //     })->unique();
+            $forms = $responsiblePeople->flatMap(function ($person) {
+                return $person->sources->pluck('form');
+            })->unique();
 
-        //     $formIds = $forms->pluck('id');
-        //     return Form::query()->with('project', 'indicators')->where('name', '!=', 'SEED DISTRIBUTION REGISTER')->whereIn('id', $formIds);
-        // }
-
-
+            $formIds = $forms->pluck('id');
+            return Form::query()->with('project', 'indicators')->where('name', '!=', 'SEED DISTRIBUTION REGISTER')->whereIn('id', $formIds);
+        }
 
 
-        return Form::query()->with('project', 'indicators')->where('name', '!=', 'REPORT FORM');
+
+
+        return Form::query()->with('project', 'indicators');
     }
     public function relationSearch(): array
     {
@@ -85,7 +85,7 @@ final class FormTable extends PowerGridComponent
                     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 } else
 
-                    return '<a class="text-decoration-underline "  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Form"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
             })
             ->add('type')
             ->add('project_id')

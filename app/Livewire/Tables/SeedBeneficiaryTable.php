@@ -60,6 +60,17 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+            return SeedBeneficiary::query()->with('user')
+                ->where('seed_beneficiaries.organisation_id', $organisation_id)
+                ->where('crop', $this->crop)->join('users', function ($user) {
+                    $user->on('users.id', '=', 'seed_beneficiaries.user_id');
+                })->select('seed_beneficiaries.*', 'users.name as user_name');
+        }
         return SeedBeneficiary::query()->with('user')->where('crop', $this->crop)->join('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select('seed_beneficiaries.*', 'users.name as user_name');

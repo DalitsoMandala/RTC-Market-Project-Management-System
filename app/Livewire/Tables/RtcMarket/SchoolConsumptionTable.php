@@ -41,6 +41,14 @@ final class SchoolConsumptionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+
+
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+            return SchoolRtcConsumption::query()->where('organisation_id', $organisation_id);
+        }
         return SchoolRtcConsumption::query();
     }
 
@@ -111,8 +119,8 @@ final class SchoolConsumptionTable extends PowerGridComponent
             Column::make('School ID', 'sc_id')->sortable()->searchable(),
             Column::make('School Name', 'school_name', 'school_name')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
-            Column::make('EPA', 'epa', )->sortable()->searchable(),
-            Column::make('Section', 'section', )->sortable()->searchable(),
+            Column::make('EPA', 'epa',)->sortable()->searchable(),
+            Column::make('Section', 'section',)->sortable()->searchable(),
 
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable()->searchable(),

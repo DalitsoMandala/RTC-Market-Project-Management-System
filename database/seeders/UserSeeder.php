@@ -57,7 +57,7 @@ class UserSeeder extends Seeder
 
         User::create([
             'name' => 'Alex Chase',
-            'email' => 'cip2@example.com',
+            'email' => 'manager@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),

@@ -49,6 +49,13 @@ final class AttendanceRegisterTable extends PowerGridComponent
     {
 
 
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+            return AttendanceRegister::query()->where('organisation_id', $organisation_id);
+        }
+
         return AttendanceRegister::query();
     }
 
@@ -59,7 +66,6 @@ final class AttendanceRegisterTable extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -91,7 +97,6 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 <img src="' . asset('assets/images/users/usr.png') . '" alt="" class="shadow avatar-sm rounded-1 me-2">
                     <span class="text-capitalize">' . strtolower($model->name) . '</span>
                     </div>';
-
             })
             ->add('sex')
             ->add('organization')
@@ -110,7 +115,6 @@ final class AttendanceRegisterTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('updated_at');
     }
@@ -233,7 +237,6 @@ final class AttendanceRegisterTable extends PowerGridComponent
     {
 
         $this->refresh();
-
     }
 
 

@@ -110,11 +110,11 @@ final class IndicatorTable extends PowerGridComponent
 
                     return '<a class="text-decoration-underline"  href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('project_manager')) {
-                    return '<a class="text-decoration-underline"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
-                    return '<a class="text-decoration-underline"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else {
-                    return '<a class="text-decoration-underline"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
             })
             ->add('project_id')

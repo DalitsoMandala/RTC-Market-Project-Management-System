@@ -144,6 +144,11 @@ Route::middleware([
     Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
     Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
 
+
+    Route::get($formPrefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}',  App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
+    Route::get($formPrefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}',  App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
+    Route::get($formPrefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
+
     Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
     Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
 });
@@ -318,6 +323,9 @@ Route::middleware([
     Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
 
 
+    Route::get($formPrefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}',  App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
+    Route::get($formPrefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}',  App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
+    Route::get($formPrefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
 
 
     Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
