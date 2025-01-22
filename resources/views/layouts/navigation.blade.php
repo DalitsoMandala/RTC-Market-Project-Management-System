@@ -164,13 +164,6 @@
 
                                         </a>
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('admin-organisation-list') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Organisation list</span>
-
-                                        </a>
-
 
 
                                     </div>

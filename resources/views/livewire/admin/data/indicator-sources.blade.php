@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Indicator Sources</h4>
+                    <h4 class="mb-0">Organisation forms</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Organisation forms</li>
+                            <li class="breadcrumb-item active"> Organisation forms</li>
                         </ol>
                     </div>
 
@@ -22,9 +22,9 @@
             <div class="col-12">
                 <div class="card ">
                     <div class="card-header">
-                        <h5 class="card-title text-capitalize">Organisation assigned forms</h5>
+                        <h5 class="card-title text-capitalize">Forms & Organisations</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body px-0">
                         <livewire:admin.organisation-forms-table />
                     </div>
                 </div>
@@ -34,7 +34,7 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-
+        
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })">
@@ -48,7 +48,7 @@
 
                     <div class="mb-3">
                         <label for="" class="form-label">Indicator</label>
-                        <select class="form-select form-select bg-light" name="" disabled x-data>
+                        <select class="form-select bg-light" name="" disabled x-data>
                             @foreach ($indicators as $indicator)
                                 <option value="{{ $indicator->id }}">{{ $indicator->indicator_name }}</option>
                             @endforeach
@@ -84,7 +84,7 @@
 
                     <div class="mb-3">
                         <label for="" class="form-label">Select partner</label>
-                        <select class="form-select form-select" name="" id=""
+                        <select class="form-select" name="" id=""
                             wire:model.live.debounce.600ms='selectedLeadPartner'>
                             <option selected>Select one</option>
                             @foreach ($leadPartners as $organisation)
@@ -100,8 +100,10 @@
 
                     <div class="mb-3">
                         <label for="" class="form-label">Select forms</label>
-                        <select class="form-select form-select @if (!$selectedLeadPartner) pe-none opacity-25 @endif"
-                            name="" id="mySelect" wire:model='selectedForms' wire:loading.class='opacity-25' multiple>
+                        <select
+                            class="form-select form-select @if (!$selectedLeadPartner) pe-none opacity-25 @endif"
+                            name="" id="mySelect" wire:model='selectedForms' wire:loading.class='opacity-25'
+                            multiple>
                             <option value="" disabled>Select one</option>
                             @foreach ($forms as $form)
                                 <option value="{{ $form->id }}">{{ $form->name }}</option>
@@ -132,17 +134,17 @@
 
 </div>
 @script
-<script>
-    $('#mySelect').on('change', function () {
-        let selectedValues = $(this).val(); // Get selected values
+    <script>
+        $('#mySelect').on('change', function() {
+            let selectedValues = $(this).val(); // Get selected values
 
-        if (selectedValues.includes('6')) { // If "All" (value 1) is selected
-            // Deselect all other options
-            $(this).find('option').not('[value="6"]').prop('disabled', true).prop('selected', false);
-        } else {
-            // Enable all options
-            $(this).find('option').prop('disabled', false);
-        }
-    });
-</script>
+            if (selectedValues.includes('6')) { // If "All" (value 1) is selected
+                // Deselect all other options
+                $(this).find('option').not('[value="6"]').prop('disabled', true).prop('selected', false);
+            } else {
+                // Enable all options
+                $(this).find('option').prop('disabled', false);
+            }
+        });
+    </script>
 @endscript

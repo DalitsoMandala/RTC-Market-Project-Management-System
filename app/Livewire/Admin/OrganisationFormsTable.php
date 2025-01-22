@@ -105,8 +105,8 @@ final class OrganisationFormsTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Indicator #', 'indicator_no'),
-            Column::make('Indicator', 'indicator'),
+            Column::make('Indicator #', 'indicator_no')->searchable(),
+            Column::make('Indicator', 'indicator', 'indicator_name')->searchable(),
             Column::make('Organisation', 'organisation')->searchable(),
 
             Column::make('Assigned Forms', 'forms')->searchable(),
@@ -122,17 +122,16 @@ final class OrganisationFormsTable extends PowerGridComponent
         return [];
     }
     #[\Livewire\Attributes\On('refresh')]
-    public function refreshData(): void
-    {
-    }
+    public function refreshData(): void {}
 
     public function actions($row): array
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i> Edit')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-warning goUp')
+                ->class('btn btn-warning goUp custom-tooltip')
+                ->tooltip('Edit')
                 ->dispatch('showModal', [
                     'rowId' => $row->id,
                     'name' => 'view-modal'

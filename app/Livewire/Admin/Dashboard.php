@@ -28,10 +28,11 @@ class Dashboard extends Component
     public $submissions;
 
     public $attendance;
-    public $showContent = false;
+    protected $showContent = false;
     public $quickForms;
 
     public $submissionCategories;
+    public $lastSubmission = [];
     public $users = [];
 
     public $topData = [
@@ -45,15 +46,13 @@ class Dashboard extends Component
     ];
     public function mount()
     {
-
-
         $this->topData['users'] = User::count();
         $this->topData['inactiveUsers'] = User::withTrashed()->whereNotNull('deleted_at')->count();
         $this->topData['activeUsers'] = User::withTrashed()->whereNull('deleted_at')->count();
         $this->topData['projects'] = Project::count();
         $this->topData['forms'] = Form::count();
         $this->topData['indicators'] = Indicator::count();
-
+        $this->loadData();
     }
 
     public function loadData()
@@ -63,8 +62,9 @@ class Dashboard extends Component
         $this->loadAttendanceData();
         $this->loadQuickFormsData();
         $this->loadUsers();
-        $this->loadSubmissions();
-        $this->showContent = true;
+
+        $this->loadLastSubmissions();
+        $this->loadLastSubmissions();
     }
 
     private function loadIndicatorData()
@@ -107,14 +107,12 @@ class Dashboard extends Component
 
     private function loadSubmissionData()
     {
-        $this->submissions = Submission::select(
-            DB::raw('YEAR(created_at) as year'),
-            DB::raw('MONTH(created_at) as month'),
-            DB::raw('COUNT(*) as total')
-        )
-            ->groupBy('year', 'month')
+        $this->submissions = Submission::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total, batch_type as type')
+            ->groupBy('year', 'month', 'batch_type')
             ->get()
             ->toArray();
+
+        // dd($this->submissions);
     }
 
     public function loadSubmissions()
@@ -124,8 +122,12 @@ class Dashboard extends Component
             DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
             DB::raw('SUM(CASE WHEN status = "denied" THEN 1 ELSE 0 END) as denied'),
         ])->first()->toArray();
+    }
 
+    public function  loadLastSubmissions()
+    {
 
+        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'financial_year'])->take(5)->get();
     }
 
     private function loadAttendanceData()

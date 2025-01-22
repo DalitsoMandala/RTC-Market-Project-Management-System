@@ -76,13 +76,16 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-3" x-data="{
+                                //  role: $wire.entangle('role').live
+                            }">
                                 <label for="role" class="form-label">Roles</label>
                                 <select class="form-select @error('role') is-invalid @enderror" multiple id="role"
                                     wire:model="role">
                                     <option value="" disabled>Select a role</option>
                                     @foreach ($roles as $role)
-                                        <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}</option>
+                                        <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('role')
@@ -129,7 +132,7 @@
 
                         </form>
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <livewire:admin.user-table />
                     </div>
                 </div>
@@ -138,7 +141,7 @@
 
 
             <div x-data x-init="$wire.on('showModal-delete', (e) => {
-
+            
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })">
@@ -147,11 +150,11 @@
                 <x-modal id="view-delete-modal" title="Delete record">
                     <form>
 
-                        <p class="text-center mb-0">Are you sure you want to delete this record?</p>
+                        <p class="mb-0 text-center">Are you sure you want to delete this record?</p>
                         <p class="text-center ">ID: {{ $this->rowId }}</p>
-                        <div class=" d-flex gap-1 justify-content-center mt-3">
-                            <button type="button" class="btn btn-secondary px-5" data-bs-dismiss="modal">No</button>
-                            <button type="button" class="btn btn-theme-red px-5"
+                        <div class="gap-1 mt-3 d-flex justify-content-center">
+                            <button type="button" class="px-5 btn btn-secondary" data-bs-dismiss="modal">No</button>
+                            <button type="button" class="px-5 btn btn-theme-red"
                                 wire:click='deleteUser'>Yes</button>
 
                         </div>
@@ -161,15 +164,15 @@
             </div>
 
             <div x-data x-init="$wire.on('showModal-restore', (e) => {
-
+            
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })
-
-
+            
+            
             $wire.on('refresh', (e) => {
                 const modals = document.querySelectorAll('.modal.show');
-
+            
                 // Iterate over each modal and hide it using Bootstrap's modal hide method
                 modals.forEach(modal => {
                     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -182,11 +185,11 @@
 
                 <x-modal id="view-restore-modal" title="Restore record">
                     <form>
-                        <p class="text-center mb-0">Are you sure you want to restore this record?</p>
+                        <p class="mb-0 text-center">Are you sure you want to restore this record?</p>
                         <p class="text-center ">ID: {{ $this->rowId }}</p>
-                        <div class=" d-flex gap-1 justify-content-center mt-3">
-                            <button type="button" class="btn btn-secondary px-5" data-bs-dismiss="modal">No</button>
-                            <button type="button" class="btn btn-success px-5" wire:click='restoreUser'>Yes</button>
+                        <div class="gap-1 mt-3 d-flex justify-content-center">
+                            <button type="button" class="px-5 btn btn-secondary" data-bs-dismiss="modal">No</button>
+                            <button type="button" class="px-5 btn btn-success" wire:click='restoreUser'>Yes</button>
 
                         </div>
                     </form>

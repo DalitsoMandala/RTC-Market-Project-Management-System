@@ -10,7 +10,7 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Projects</li>
+                            <li class="breadcrumb-item active">Projects</li>
                         </ol>
                     </div>
 
@@ -24,7 +24,7 @@
                     <div class="card-header">
                         <h5 class="card-title">Projects Table</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <livewire:admin.project-table />
                     </div>
                 </div>

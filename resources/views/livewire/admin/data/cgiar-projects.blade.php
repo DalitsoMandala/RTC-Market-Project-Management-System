@@ -10,7 +10,8 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Cgiar Projects</li>
+                            <li class="breadcrumb-item active">
+                                Cgiar Projects</li>
                         </ol>
                     </div>
 
@@ -24,7 +25,7 @@
                     <div class="card-header">
                         <h4 class="card-title">Cgiar Projects Table</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <livewire:admin.cgiar-project-table />
                     </div>
                 </div>

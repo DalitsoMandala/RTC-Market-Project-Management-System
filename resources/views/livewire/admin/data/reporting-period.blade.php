@@ -10,7 +10,8 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Reporting Periods</li>
+                            <li class="breadcrumb-item active">
+                                Reporting Periods</li>
                         </ol>
                     </div>
 
@@ -21,9 +22,9 @@
 
         <!-- Nav tabs -->
         <div class="card">
-            <div class="card-body">
+            <div class="px-0 card-body">
 
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <ul class="mx-2 nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
                             type="button" role="tab" aria-controls="home" aria-selected="true">
@@ -49,7 +50,7 @@
 
 
                 <!-- Tab panes -->
-                <div class="tab-content mt-2">
+                <div class="mt-2 tab-content">
                     <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <livewire:admin.reporting-period-table />
 

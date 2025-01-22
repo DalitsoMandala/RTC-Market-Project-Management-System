@@ -29,7 +29,7 @@
                     <div class="card-header fw-bold">
                         <h5 class="card-title">Indicators Table</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body px-0">
                         <livewire:admin.indicatorTable :userId="auth()->user()->id" />
                     </div>
                 </div>

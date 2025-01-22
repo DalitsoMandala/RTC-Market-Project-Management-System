@@ -298,7 +298,7 @@ class SubPeriod extends Component
 
 
         $users = User::with('roles')->whereHas('roles', function ($query) {
-            $query->where('name', '!=', 'admin');
+            $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
         })->get();
 
         $indicatorFound = Indicator::find($Indicator);

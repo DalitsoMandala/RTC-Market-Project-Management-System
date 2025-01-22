@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Failed Processes</h4>
+                    <h4 class="mb-0">Processes</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Failed Processes</li>
+                            <li class="breadcrumb-item active">Processes</li>
                         </ol>
                     </div>
 
@@ -24,7 +24,7 @@
                     <div class="card-header">
                         <h5 class="card-title">Queue Jobs</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <livewire:admin.job-table />
                     </div>
                 </div>

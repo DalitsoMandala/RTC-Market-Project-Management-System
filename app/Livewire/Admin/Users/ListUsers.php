@@ -31,6 +31,7 @@ class ListUsers extends Component
     public $password;
     public $password_confirmation;
     public $changePassword = false;
+    public $disableValue;
     public function rules()
     {
         $rules = [
@@ -47,10 +48,9 @@ class ListUsers extends Component
         }
 
         return $rules;
-
-
     }
 
+    public function updatedRole($value) {}
     public function mount()
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
@@ -68,18 +68,14 @@ class ListUsers extends Component
         $this->phone = $user->phone_number;
         $this->organisation = $user->organisation_id;
         $this->role = $user->getRoleNames();
+
         $this->changePassword = false;
-
-
-
-
     }
 
     #[On('showModal-delete')]
     public function delete($rowId)
     {
         $this->rowId = $rowId;
-
     }
 
     public function deleteUser()
@@ -144,6 +140,9 @@ class ListUsers extends Component
 
                 ]);
 
+
+
+
                 User::find($this->rowId)->syncRoles($this->role);
 
                 $this->resetForm();
@@ -164,17 +163,11 @@ class ListUsers extends Component
                 $this->dispatch('refresh');
                 session()->flash('success', 'User successfully added!');
             }
-
-
-
         } catch (\Throwable $th) {
             Log::error($th);
             session()->flash('error', 'An error occurred while adding the user.');
             throw $th;
-
         }
-
-
     }
 
     public function render()

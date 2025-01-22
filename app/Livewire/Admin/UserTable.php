@@ -86,31 +86,31 @@ final class UserTable extends PowerGridComponent
 
                     if ($role->name == 'external') {
 
-                        $role->name = '<span class="badge bg-warning" style="font-size:11px">External user</span>';
+                        $role->name = '<span class="badge bg-warning-subtle text-warning" >External user</span>';
                     }
 
 
                     if ($role->name == 'cip') {
-                        $role->name = '<span class="badge bg-warning" style="font-size:11px">CIP</span>';
+                        $role->name = '<span class="badge bg-warning-subtle text-warning" >CIP</span>';
                     }
 
 
 
 
                     if ($role->name == 'manager') {
-                        $role->name = '<span class="badge bg-warning" style="font-size:11px">Organiser</span>';
+                        $role->name = '<span class="badge bg-warning-subtle text-warning" >Manager</span>';
                     }
 
 
 
                     if ($role->name == 'admin') {
-                        $role->name = '<span class="badge bg-success" style="font-size:11px">Administrator</span>';
+                        $role->name = '<span class="badge bg-success-subtle text-success" >Administrator</span>';
                     }
                     if ($role->name == 'project_manager') {
-                        $role->name = '<span class="badge bg-success" style="font-size:11px">Project Manager</span>';
+                        $role->name = '<span class="badge bg-success-subtle text-success" >Project Manager</span>';
                     }
                     if ($role->name == 'staff') {
-                        $role->name = '<span class="badge bg-warning" style="font-size:11px">Staff</span>';
+                        $role->name = '<span class="badge bg-warning-subtle text-warning" >Staff</span>';
                     }
 
 
@@ -123,9 +123,9 @@ final class UserTable extends PowerGridComponent
 
 
                 if (!$model->deleted_at) {
-                    return '<span class="badge bg-success" style="font-size:11px">Active</span>';
+                    return '<span class="badge bg-success-subtle text-success" >Active</span>';
                 } else {
-                    return '<span class="badge bg-theme-red" style="font-size:11px">Deleted</span>';
+                    return '<span class="badge bg-danger=subtle text-danger" >Deleted</span>';
                 }
             })
             ->add('created_at')
@@ -182,18 +182,20 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i> Edit')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-warning goUp')
+                ->class('btn btn-warning btn-sm goUp custom-tooltip')
+                ->tooltip('Edit')
                 ->dispatch('edit', [
                     'rowId' => $row->id,
                     'name' => 'view-edit-modal'
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i> Delete')
+                ->slot('<i class="bx bx-trash"></i>')
                 ->id()
-                ->class('btn btn-theme-red goUp')
+                ->class('btn btn-theme-red btn-sm goUp  custom-tooltip')
+                ->tooltip('Delete')
                 ->dispatch('showModal-delete', [
                     'rowId' => $row->id,
                     'name' => 'view-delete-modal'
@@ -202,7 +204,8 @@ final class UserTable extends PowerGridComponent
             Button::add('restore')
                 ->slot('<i class="bx bx-recycle"></i>')
                 ->id()
-                ->class('btn btn-success goUp')
+                ->class('btn btn-success btn-sm goUp  custom-tooltip')
+                ->tooltip('Restore')
                 ->dispatch('showModal-restore', [
                     'rowId' => $row->id,
                     'name' => 'view-restore-modal'

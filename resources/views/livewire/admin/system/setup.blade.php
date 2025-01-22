@@ -9,8 +9,8 @@
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">System settings</a></li>
-                            <li class="breadcrumb-item active">Setup</li>
+                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                            <li class="breadcrumb-item active">System setup</li>
                         </ol>
                     </div>
 
@@ -23,7 +23,7 @@
                 <x-alerts />
 
                 <!-- Site Name/Title Card -->
-                <div class="card mb-4">
+                <div class="mb-4 card">
                     <div class="card-header">
                         <h5>System Details</h5>
                     </div>
@@ -83,12 +83,12 @@
 
 
                 <!-- Maintenance Mode Card -->
-                <div class="card mb-4 opacity-25 pe-none">
+                <div class="mb-4 opacity-25 card pe-none">
                     <div class="card-header">
                         <h5>Maintenance Mode</h5>
                     </div>
                     <div class="card-body">
-                        <div class="form-check form-switch mb-3">
+                        <div class="mb-3 form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="maintenance_mode"
                                 wire:model.live.debounce.600ms="maintenance_mode">
                             <label class="form-check-label" for="maintenance_mode">Enable Maintenance Mode</label>
@@ -97,8 +97,7 @@
                         <!-- Maintenance Message -->
                         <div class="mb-3">
                             <label for="maintenance_message" class="form-label">Maintenance Mode Message</label>
-                            <textarea class="form-control" id="maintenance_message"
-                                wire:model="maintenance_message"></textarea>
+                            <textarea class="form-control" id="maintenance_message" wire:model="maintenance_message"></textarea>
                             @error('maintenance_message')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
