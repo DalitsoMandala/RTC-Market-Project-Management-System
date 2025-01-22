@@ -27,7 +27,6 @@ class indicator_2_2_4
     public function builder(): Builder
     {
 
-        //   $indicator = Indicator::where('indicator_name', 'Volume of seed distributed within communities to enhance POs productivity')->where('indicator_no', '2.2.4')->first();
 
         $query = SeedBeneficiary::query()->where('status', 'approved');
 
@@ -70,7 +69,8 @@ class indicator_2_2_4
         return $query;
     }
 
-    public function getTotals()
+
+    public function getDisaggregations()
     {
 
         $cassava = $this->builder()->where('crop', 'Cassava')->sum('bundles_received');
@@ -82,10 +82,5 @@ class indicator_2_2_4
             'Potato' => (int) $potato,
             'Sweet potato' => (int) $sweetPotato
         ];
-    }
-    public function getDisaggregations()
-    {
-
-        return $this->getTotals();
     }
 }
