@@ -135,8 +135,6 @@ class FormSeeder extends Seeder
             $indicators['Number of mass nutrition education campaigns conducted'] => ['REPORT FORM'],
             $indicators['Number of RTC value-added products promoted'] => ['REPORT FORM'],
             $indicators['Number of RTC actors with MBS certification for producing (or processing) RTC products'] => [
-                // 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                // 'RTC PRODUCTION AND MARKETING FORM PROCESSORS'
                 'REPORT FORM'
             ],
             $indicators['Number of RTC value-added products developed for domestic markets'] => ['REPORT FORM'],
