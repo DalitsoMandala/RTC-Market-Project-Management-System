@@ -145,7 +145,11 @@
                             </a>
                         @endif
                     @endforeach
-
+                    @if ($notifications->count() == 0)
+                        <div class="py-4 text-center">
+                            <p class="mb-0"> <i class="bx bx-bell-off"></i> No notifications available.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

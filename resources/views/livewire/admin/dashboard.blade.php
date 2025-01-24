@@ -7,7 +7,7 @@
         <livewire:dashboard-charts />
 
         <div class="row">
-            <div class="col-8">
+            <div class="col-7">
                 <div class="card">
                     <div class="py-3 border-0 card-header fw-bold">
                         <h5>Submissions progress</h5>
@@ -58,7 +58,7 @@
                             options = {
                                 chart: {
                                     type: 'area',
-                                    height: '400px'
+                                    height: '200px'
                                 },
                                 series: [{
                                         name: 'Batch Submission',
@@ -101,7 +101,7 @@
                 </div>
             </div>
 
-            <div class="col-4 d-flex align-items-stretch">
+            <div class="col-5 d-flex align-items-stretch">
                 <div class="card w-100">
                     <div class="card-header fw-bold">
                         <h5>Recent Submissions</h5>
@@ -114,9 +114,10 @@
                             <table class="table align-middle table-striped table-hover table-borderless">
                                 <thead class="table-warning">
                                     <tr>
-                                        <th scope="col">File</th>
+                                        <th scope="col">Form</th>
                                         <th scope="col">Organisation</th>
                                         <th scope="col">Submitted By</th>
+                                        <th scope="col">Date Submitted</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -124,20 +125,11 @@
                                     @foreach ($lastSubmission as $item)
                                         <tr>
                                             <td scope="row">
-                                                <div class='d-flex align-items-center'>
-                                                    <div class='flex-shrink-0 me-2'>
-                                                        <div class='px-2 py-1 rounded-1 bg-success-subtle'>
-                                                            <i class='fas fa-file-excel text-success'></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class='flex-grow-1 fw-bolder'>
-                                                        {{ $item->file_link }}
-
-                                                    </div>
-                                                </div>
+                                                {{ $item->form->name }}
                                             </td>
                                             <td>{{ $item->user->organisation->name }}</td>
                                             <td>{{ $item->user->name }}</td>
+                                            <td>{{ $item->created_at->format('d/m/Y') }}</td>
 
                                         </tr>
                                     @endforeach
@@ -170,10 +162,10 @@
                         <div class="align-items-center d-flex justify-content-between">
                             <div class="">
                                 <h4 class="mb-2 card-title flex-grow-1">Current Users</h4>
-                                <p class="mb-1 text-muted small">Active Users: <b>{{ $topData['activeUsers'] }}</b>
+                                <p class="mb-1 text-muted small"> Active Users:
+                                    <b class="badge bg-success-subtle text-success">{{ $topData['activeUsers'] }}</b>
                                 </p>
-                                <p class="mb-1 text-muted small">Total current users: <b>{{ $topData['users'] }}</b>
-                                </p>
+
                             </div>
 
                             <a class="btn btn-soft-warning" href="/admin/users" role="button"> <i
@@ -182,7 +174,7 @@
                         </div>
                     </div>
 
-                    <div class="p-0 card-body">
+                    <div class="p-0 card-body overflow-scroll" style="max-height: 250px;">
                         <div class="table-responsive">
                             <table class="table align-middle table-striped table-hover table-borderless">
                                 <thead class="table-warning">
@@ -214,7 +206,13 @@
                                             </td>
                                         </tr>
                                     @endforeach
-
+                                    @if (count($users) == 0)
+                                        <tr>
+                                            <td colspan="4">
+                                                <x-no-data />
+                                            </td>
+                                        </tr>
+                                    @endif
 
                                 </tbody>
 

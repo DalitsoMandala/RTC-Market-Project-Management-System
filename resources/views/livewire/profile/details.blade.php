@@ -54,8 +54,8 @@
                                     <div class="mb-3 form-group">
                                         <label for="profile_image">Profile Image</label>
 
-                                        <div class="row">
-                                            <div class="col-1">
+                                        <div class="row ">
+                                            <div class="col-12 ">
 
                                                 @if (auth()->user()->image)
                                                     <img src="{{ asset('storage/profiles/' . auth()->user()->image) }}"
@@ -66,7 +66,7 @@
                                                 @endif
                                             </div>
 
-                                            <div class="col">
+                                            <div class="my-2 col-12">
                                                 <x-profile-image instantUpload="true" type="file"
                                                     class="form-control-file" id="profile_image"
                                                     wire:model="profile_image" />

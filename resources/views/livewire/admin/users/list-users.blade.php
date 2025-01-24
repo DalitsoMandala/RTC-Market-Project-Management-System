@@ -28,8 +28,8 @@
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title">User Table</h4>
-                        <button class="btn btn-warning" @click="showForm= true; resetForm()">Add <i
-                                class="bx bx-plus"></i></button>
+                        <button class="btn btn-soft-warning px-3" @click="showForm= !showForm; resetForm()">Add new user
+                            <i class="bx bx-plus"></i></button>
                     </div>
 
                     <div class="card-header" x-show="showForm">

@@ -27,9 +27,7 @@ final class ProjectTable extends PowerGridComponent
         //$this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -61,7 +59,6 @@ final class ProjectTable extends PowerGridComponent
             ->add('reporting_period_id')
             ->add('reporting_period_id_formatted', function ($model) {
                 return $model->reportingPeriod->name;
-
             })
             ->add('created_at')
             ->add('updated_at');
@@ -96,9 +93,7 @@ final class ProjectTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-            Filter::datepicker('start_date'),
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
@@ -129,5 +124,4 @@ final class ProjectTable extends PowerGridComponent
                 ->disable(),
         ];
     }
-
 }

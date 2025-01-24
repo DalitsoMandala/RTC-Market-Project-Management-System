@@ -79,14 +79,11 @@
                                                 <div class="arrow-down"></div>
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                                <a href="{{ route('admin-cgiar-projects') }}" class="dropdown-item"
-                                                    data-key="t-lightbox">Cgiar Projects</a>
+
 
                                                 <a href="{{ route('admin-period') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reporting Periods</a>
 
-                                                <a href="{{ route('admin-projects') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Projects</a>
 
                                             </div>
                                         </div>
@@ -134,8 +131,7 @@
                                                     data-key="t-range-slider">Submission Periods</a>
                                                 <a href="{{ route('admin-reports') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reports</a>
-                                                <a href="{{ route('admin-jobs') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Queue Management</a>
+
                                             </div>
                                         </div>
 

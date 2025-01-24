@@ -3,7 +3,7 @@
     <x-required-notice />
     <x-alerts />
     <form wire:submit.prevent="save">
-        <div class="row my-5">
+        <div class="my-5 row">
             @foreach ($disaggregations as $disaggregation)
                 <div class="mb-3 col">
                     <label for="disaggregation_{{ $disaggregation->id }}" class="form-label">
@@ -20,8 +20,8 @@
         </div>
 
         <div class="d-grid col-12 justify-content-center">
-            <button class="btn btn-warning px-5" type="submit">
-                Submit
+            <button class="px-5 btn btn-warning" type="submit">
+                Submit Data
             </button>
         </div>
     </form>

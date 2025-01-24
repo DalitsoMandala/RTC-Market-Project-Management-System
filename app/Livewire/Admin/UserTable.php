@@ -90,9 +90,6 @@ final class UserTable extends PowerGridComponent
                     }
 
 
-                    if ($role->name == 'cip') {
-                        $role->name = '<span class="badge bg-warning-subtle text-warning" >CIP</span>';
-                    }
 
 
 

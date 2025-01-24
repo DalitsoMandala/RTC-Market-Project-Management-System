@@ -15,14 +15,14 @@
         }
 
         // Calculate total percentage based on annual and baseline values
-                   const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
+        const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
         let percentage = sub * 100;
 
         this.totalPercentage = Number(percentage.toFixed(2)); // Rounded to 2 decimal places
     }
 }" x-init="() => {
     $watch('total', () => updateTotalPercentage());
-        $watch('baselineValue', (v) => { updateFinancialValue() });
+    $watch('baselineValue', (v) => { updateFinancialValue() });
 
 }">
 
@@ -70,7 +70,8 @@
         <!-- Cassava -->
         <div class="mb-3">
             <label for="total" class="form-label">Total</label>
-            <input type="number" id="cassava" x-model="total" class="form-control @error('total') is-invalid @enderror">
+            <input type="number" id="cassava" x-model="total"
+                class="form-control @error('total') is-invalid @enderror">
             @error('total')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -80,7 +81,7 @@
         <!-- Submit Button -->
         <div class="d-grid col-12 justify-content-center">
             <button class="btn btn-warning " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
-                Submit
+                Submit Data
             </button>
         </div>
     </form>

@@ -23,7 +23,7 @@
         }
 
         // Calculate total percentage based on annual and baseline values
-             const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
+        const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
         let percentage = sub * 100;
 
         this.totalPercentage = Number(percentage.toFixed(2)); // Rounded to 2 decimal places
@@ -37,7 +37,7 @@
     $watch('largeScaleCommercialFarmers', () => updateTotalPercentage());
     $watch('basic', () => updateTotalPercentage());
     $watch('certified', () => updateTotalPercentage());
-        $watch('baselineValue', (v) => { updateFinancialValue() });
+    $watch('baselineValue', (v) => { updateFinancialValue() });
 }">
 
     <x-alerts />
@@ -125,7 +125,8 @@
         <!-- SMEs -->
         <div class="mb-3">
             <label for="smes" class="form-label">SMEs</label>
-            <input type="number" id="smes" x-model="smes" class="form-control @error('smes') is-invalid @enderror">
+            <input type="number" id="smes" x-model="smes"
+                class="form-control @error('smes') is-invalid @enderror">
             @error('smes')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -145,7 +146,8 @@
         <!-- Basic -->
         <div class="mb-3">
             <label for="basic" class="form-label">Basic</label>
-            <input type="number" id="basic" x-model="basic" class="form-control @error('basic') is-invalid @enderror">
+            <input type="number" id="basic" x-model="basic"
+                class="form-control @error('basic') is-invalid @enderror">
             @error('basic')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
@@ -164,7 +166,7 @@
         <!-- Submit Button -->
         <div class="d-grid col-12 justify-content-center">
             <button class="btn btn-warning " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
-                Submit
+                Submit Data
             </button>
         </div>
     </form>

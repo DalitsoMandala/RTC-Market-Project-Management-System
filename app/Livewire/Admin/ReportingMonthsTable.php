@@ -26,9 +26,7 @@ final class ReportingMonthsTable extends PowerGridComponent
         //     $this->showCheckBox();
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -74,8 +72,7 @@ final class ReportingMonthsTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]

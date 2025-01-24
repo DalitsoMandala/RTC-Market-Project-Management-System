@@ -25,9 +25,7 @@ final class FinancialYearTable extends PowerGridComponent
     {
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -40,13 +38,7 @@ final class FinancialYearTable extends PowerGridComponent
         return FinancialYear::query()->with('project');
     }
 
-    /*************  ✨ Codeium Command ⭐  *************/
-    /**
-     * PowerGrid Financial Year Table fields.
-     *
-     * @return PowerGridFields
-     */
-    /******  dd4b8436-80a2-4243-a299-f13702eb97c8  *******/
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
@@ -81,10 +73,7 @@ final class FinancialYearTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-            Filter::datepicker('start_date'),
-            Filter::datepicker('end_date'),
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
@@ -92,27 +81,4 @@ final class FinancialYearTable extends PowerGridComponent
     {
         $this->js('alert(' . $rowId . ')');
     }
-
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: '.$row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id])
-    //     ];
-    // }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

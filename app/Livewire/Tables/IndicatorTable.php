@@ -108,7 +108,7 @@ final class IndicatorTable extends PowerGridComponent
                 $user = User::find($this->userId);
                 if ($user->hasAnyRole('manager')) {
 
-                    return '<a class="text-decoration-underline"  href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator" href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('project_manager')) {
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {

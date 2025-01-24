@@ -49,7 +49,6 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-
             'cip',
             'manager'
         ]);

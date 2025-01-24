@@ -23,7 +23,7 @@ class CheckBaselineValues
                 ((auth()->user()->hasAllRoles([
 
                     'manager',
-                    'cip'
+
                 ])) || auth()->user()->hasRole('admin'))
             ) {
 

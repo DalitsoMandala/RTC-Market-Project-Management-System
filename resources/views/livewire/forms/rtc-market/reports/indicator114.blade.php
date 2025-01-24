@@ -18,10 +18,10 @@
             (isNaN(parseFloat(this.storage)) ? 0 : parseFloat(this.storage)) +
             (isNaN(parseFloat(this.agronomicProduction)) ? 0 : parseFloat(this.agronomicProduction)) +
             (isNaN(parseFloat(this.postHarvestProcessing)) ? 0 : parseFloat(this.postHarvestProcessing))
-            // (isNaN(parseFloat(this.cassava)) ? 0 : parseFloat(this.cassava)) +
-            // (isNaN(parseFloat(this.potato)) ? 0 : parseFloat(this.potato)) +
-            // (isNaN(parseFloat(this.sweetPotato)) ? 0 : parseFloat(this.sweetPotato)
-            ;
+        // (isNaN(parseFloat(this.cassava)) ? 0 : parseFloat(this.cassava)) +
+        // (isNaN(parseFloat(this.potato)) ? 0 : parseFloat(this.potato)) +
+        // (isNaN(parseFloat(this.sweetPotato)) ? 0 : parseFloat(this.sweetPotato)
+        ;
 
         this.annualValue = totalValue;
 
@@ -31,7 +31,7 @@
         }
 
         // Calculate total percentage based on annual and baseline values
-             const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
+        const sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
         let percentage = sub * 100;
 
         this.totalPercentage = Number(percentage.toFixed(2));
@@ -45,7 +45,7 @@
     $watch('cassava', () => updateTotalPercentage());
     $watch('potato', () => updateTotalPercentage());
     $watch('sweetPotato', () => updateTotalPercentage());
-        $watch('baselineValue', (v) => { updateFinancialValue() });
+    $watch('baselineValue', (v) => { updateFinancialValue() });
 }">
 
     <x-alerts />
@@ -175,7 +175,7 @@
         <!-- Submit Button -->
         <div class="d-grid col-12 justify-content-center">
             <button class="btn btn-warning " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
-                Submit
+                Submit Data
             </button>
         </div>
     </form>

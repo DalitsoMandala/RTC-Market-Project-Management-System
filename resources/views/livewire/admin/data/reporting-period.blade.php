@@ -53,8 +53,6 @@
                 <div class="mt-2 tab-content">
                     <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <livewire:admin.reporting-period-table />
-
-
                     </div>
 
                     <div class="tab-pane" id="financial_year" role="tabpanel" aria-labelledby="profile-tab">

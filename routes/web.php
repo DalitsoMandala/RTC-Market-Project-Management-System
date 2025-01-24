@@ -156,7 +156,7 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'all_roles:cip,manager',
+    'role:manager',
     'check_baseline'
 ])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-dashboard');
@@ -216,7 +216,7 @@ Route::middleware([
 // CIP Internal routes
 Route::middleware([
     'auth',
-    'all_roles:cip,staff',
+    'role:staff',
 
 ])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
@@ -267,7 +267,7 @@ Route::middleware([
 
 Route::middleware([
     'auth',
-    'all_roles:internal,cip,project_manager',
+    'role:project_manager',
 
 ])->prefix('cip/project-manager')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project_manager-dashboard');
