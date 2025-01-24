@@ -20,17 +20,13 @@ class DatabaseSeeder extends Seeder
         $this->call(ReportPeriodSeeder::class);
         $this->call(ProjectSeeder::class);
         $this->call(IndicatorSeeder::class);
-        //$this->call(IndicatorTargetSeeder::class);
-        // $this->call(AssignedTargetSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
         $this->call(PeriodSeeder::class); //edit this
-
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
         $this->call(DataGenerationSeeder::class); //edit this
-        //   Artisan::call('update:information');
-
+        Artisan::call('update:information');
     }
 }
