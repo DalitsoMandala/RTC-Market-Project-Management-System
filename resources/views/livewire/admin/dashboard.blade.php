@@ -136,7 +136,7 @@
 
                                     @if (count($lastSubmission) == 0)
                                         <tr>
-                                            <td colspan="3">
+                                            <td colspan="4">
                                                 <x-no-data />
                                             </td>
                                         </tr>
