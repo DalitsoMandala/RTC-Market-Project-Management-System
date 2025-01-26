@@ -8,6 +8,7 @@
 @php
     $baseTableClass = str_replace('table-bordered', '', $theme['table']['tableClass']);
     $headerTableClass = $theme['table']['theadClass'] . ' table-warning';
+    $bodyTableStyle = $theme['table']['tbodyStyle'] . ' font-size: 0.75rem';
 @endphp
 
 <div @isset($this->setUp['responsive']) x-data="pgResponsive" @endisset>
@@ -21,8 +22,7 @@
                 {{ $body }}
             </tbody>
         @else
-            <tbody class="{{ data_get($theme, 'table.tbodyClass') }}"
-                style="{{ data_get($theme, 'table.tbodyStyle') }} ">
+            <tbody class="{{ data_get($theme, 'table.tbodyClass') }}" style="{{ $bodyTableStyle }} ">
                 {{ $loading }}
             </tbody>
         @endif
