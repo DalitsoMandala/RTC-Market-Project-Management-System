@@ -14,6 +14,7 @@ use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\DB;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,7 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -67,7 +69,11 @@ final class FormTable extends PowerGridComponent
             'form',
             'form.indicators',
             'submissions'
-        ])->whereIn('indicator_id', $myIndicators);
+        ])->whereIn('indicator_id', $myIndicators)
+            ->select([
+                '*',
+                \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+            ]);
 
 
 
@@ -166,12 +172,11 @@ final class FormTable extends PowerGridComponent
 
 
         $columns = [
-            //     Column::make('Id', 'id'),
+            Column::make('#', 'rn'),
             Column::make('Name', 'name_formatted', 'name')
-                ->sortable()
+
                 ->searchable(),
-            Column::make('Project', 'project')
-                ->sortable(),
+            Column::make('Project', 'project'),
 
             Column::make('Open for submission', 'open_for_submission'),
 
@@ -198,7 +203,20 @@ final class FormTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [];
+        return [
+
+            Filter::select('open_for_submission', 'is_open')
+                ->dataSource(function () {
+                    $submission = collect([
+                        ['is_open' => 0, 'label' => 'No'],
+                        ['is_open' => 1, 'label' => 'Yes'],
+                    ]);
+
+                    return $submission->all();
+                })
+                ->optionLabel('label')
+                ->optionValue('is_open'),
+        ];
     }
 
     #[On('edit')]
