@@ -4,20 +4,16 @@
 
 The RTC Market Project Management System is a Laravel-based application designed to streamline the management of data for the RTC Market Project. This README provides guidance on setting up and running the system in both development and production environments.
 
----
-
 ## Prerequisites
 
 Ensure the following software is installed on your system:
 
--   **PHP**: 8.1 or higher
+-   **PHP**: 8.2
 -   **Composer**: Dependency management
 -   **Node.js**: For frontend asset compilation
 -   **npm**: Included with Node.js
 -   **MySQL**: Database management
 -   **Web Server**: Apache or Nginx
-
----
 
 ## Development Setup
 
