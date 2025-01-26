@@ -54,12 +54,8 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
         $user = User::find($this->userId);
-
-
-
         $organisation_id = $user->organisation->id;
-        $personIds = ResponsiblePerson::where('organisation_id', $organisation_id)->pluck('id')->toArray();
-        $sources = Source::whereIn('person_id', $personIds)->pluck('form_id')->unique();
+
 
         $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
             ->whereHas('sources')  // Ensure that the relationship 'sources' exists
@@ -69,7 +65,8 @@ final class FormTable extends PowerGridComponent
 
         $query = SubmissionPeriod::with([
             'form',
-            'form.indicators'
+            'form.indicators',
+            'submissions'
         ])->whereIn('indicator_id', $myIndicators);
 
 
@@ -140,9 +137,10 @@ final class FormTable extends PowerGridComponent
             ->add('submission_status', function ($model) {
                 $userId = $this->userId;
 
-                $submitted = Submission::where('user_id', $userId)
-                    ->where('period_id', $model->id)
+                $submitted = $model->submissions
+                    ->where('user_id', $userId)
                     ->where('form_id', $model->form->id)->count();
+
 
                 if ($submitted === 0) {
                     return '<span class="badge bg-danger-subtle text-danger">Not submitted</span>';

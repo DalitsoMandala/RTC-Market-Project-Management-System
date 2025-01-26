@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card" style="background: #FC931D">
+                <div class="card bg-gradient" style="background: #FC931D">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data.Potato"></h2>
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card" style="background: #FA7070">
+                <div class="card bg-gradient" style="background: #FA7070">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data['Sweet potato']"></h2>
@@ -88,7 +88,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card " style="background: #DE8F5F">
+                <div class="card bg-gradient" style="background: #DE8F5F">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text='data.Cassava'></h2>

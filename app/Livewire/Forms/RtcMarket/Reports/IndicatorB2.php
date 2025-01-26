@@ -21,10 +21,12 @@ use App\Exceptions\UserErrorException;
 use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
+use App\Traits\NotifyAdmins;
 
 class IndicatorB2 extends Component
 {
     use LivewireAlert;
+    use NotifyAdmins;
     public $openSubmission = false;
     public $enterprise;
 
@@ -166,6 +168,9 @@ class IndicatorB2 extends Component
             'Annual value' => $this->annual_value,
             'Baseline' => $this->baseline,
         ];
+
+        $this->notifyAdminsAndManagers();
+        
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,

@@ -20,9 +20,12 @@ use App\Exceptions\UserErrorException;
 use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
+use App\Traits\NotifyAdmins;
+
 class Indicator353 extends Component
 {
     use LivewireAlert;
+    use NotifyAdmins;
     public $openSubmission = false;
     public $enterprise;
 
@@ -58,7 +61,6 @@ class Indicator353 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -69,7 +71,6 @@ class Indicator353 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -93,16 +94,10 @@ class Indicator353 extends Component
 
                 $this->inputs = IndicatorDisaggregation::with('indicator.indicatorTargets')->where('indicator_id', $indicator_id)
                     ->get();
-
-
-
-
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
 

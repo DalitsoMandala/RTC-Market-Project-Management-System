@@ -2,29 +2,31 @@
 
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
-use App\Exceptions\UserErrorException;
-use App\Helpers\SubmitAggregateData;
-use App\Models\FinancialYear;
 use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Livewire\Component;
 use App\Models\Indicator;
-use App\Models\IndicatorDisaggregation;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
 use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Traits\NotifyAdmins;
+use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\User;
-use App\Notifications\ManualDataAddedNotification;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\SubmitAggregateData;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
+use App\Exceptions\UserErrorException;
+use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
+use App\Notifications\ManualDataAddedNotification;
 
 class Indicator223 extends Component
 {
     use LivewireAlert;
+    use NotifyAdmins;
     public $openSubmission = false;
     public $enterprise;
 
@@ -159,6 +161,7 @@ class Indicator223 extends Component
             'Baseline' => $this->baseline,
         ];
 
+        $this->notifyAdminsAndManagers();
         // Roles for internal users
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(

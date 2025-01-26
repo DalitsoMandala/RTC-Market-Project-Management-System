@@ -15,6 +15,7 @@ use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\User;
 use App\Notifications\ManualDataAddedNotification;
+use App\Traits\NotifyAdmins;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -25,6 +26,7 @@ use Ramsey\Uuid\Uuid;
 class Indicator325 extends Component
 {
     use LivewireAlert;
+    use NotifyAdmins;
     public $openSubmission = false;
     public $enterprise;
 
@@ -127,6 +129,8 @@ class Indicator325 extends Component
             'Annual value' => $this->annual_value,
             'Baseline' => $this->baseline,
         ];
+
+        $this->notifyAdminsAndManagers();
 
         // Roles for internal users
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {

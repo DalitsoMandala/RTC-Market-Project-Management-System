@@ -21,10 +21,12 @@ use App\Exceptions\UserErrorException;
 use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\ManualDataAddedNotification;
+use App\Traits\NotifyAdmins;
 
 class IndicatorB1 extends Component
 {
     use LivewireAlert;
+    use NotifyAdmins;
     public $openSubmission = false;
     public $enterprise;
 
@@ -59,7 +61,6 @@ class IndicatorB1 extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -70,7 +71,6 @@ class IndicatorB1 extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -89,17 +89,10 @@ class IndicatorB1 extends Component
             if ($submissionPeriod) {
 
                 $this->openSubmission = true;
-
-
-
-
-
             } else {
                 $this->openSubmission = false;
-
             }
         }
-
     }
 
 
@@ -118,10 +111,7 @@ class IndicatorB1 extends Component
             'baseline' => $this->baseline,
         ];
 
-        SubmissionReport::create([
-
-
-        ]);
+        SubmissionReport::create([]);
 
         session()->flash('message', 'Targets saved successfully.');
     }

@@ -309,9 +309,9 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
         return [
             // Hide button edit for ID 1
-            Rule::button('show')
-                ->when(fn($row) => ($row->status === 'pending')) // if admin or manager hide the show button
-                ->disable(),
+            // Rule::button('show')
+            //     ->when(fn($row) => ($row->status === 'pending')) // if admin or manager hide the show button
+            //     ->disable(),
 
 
 

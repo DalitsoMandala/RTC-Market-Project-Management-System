@@ -2,9 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class ImportSuccessNotification extends Notification implements ShouldQueue
@@ -44,12 +45,25 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
 
     public function toArray(object $notifiable): array
     {
+        $this->notifyAdminsAndManagers();
         return [
 
             'uuid' => $this->uuid,
             'message' => $this->message,
             'link' => $this->link,
         ];
+    }
+
+    protected function notifyAdminsAndManagers()
+    {
+
+
+        $users = User::with('roles')->whereHas('roles', function ($role) {
+            $role->where('name', 'admin')->orWhere('name', 'manager');
+        })->get();
+        foreach ($users as $user) {
+            $user->notify(new NewSubmissionNotification($user));
+        }
     }
     public function databaseType(object $notifiable): string
     {

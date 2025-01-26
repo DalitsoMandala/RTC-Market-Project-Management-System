@@ -223,7 +223,7 @@ Route::middleware([
     Route::get('/indicators', \App\Livewire\Internal\Staff\Indicators::class)->name('cip-staff-indicators');
     Route::get('/indicators/view/{id}', \App\Livewire\Internal\Staff\ViewIndicators::class)->where('id', '[0-9]+')->name('cip-staff-indicator-view');
     Route::get('/forms', \App\Livewire\Internal\Staff\Forms::class)->name('cip-staff-forms');
-    Route::get('/submissions', \App\Livewire\Internal\Staff\Submissions::class)->name('cip-staff-submissions');
+    Route::get('/submissions/{batch?}', \App\Livewire\Internal\Staff\Submissions::class)->name('cip-staff-submissions');
     Route::get('/targets', App\Livewire\Targets\View::class);
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
@@ -296,7 +296,7 @@ Route::middleware([
     Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');
     Route::get('/indicators/view/{id}', ViewIndicator::class)->where('id', '[0-9]+')->name('external-indicator-view');
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
-    Route::get('/submissions', \App\Livewire\External\Submissions::class)->name('external-submissions');
+    Route::get('/submissions/{batch?}', \App\Livewire\External\Submissions::class)->name('external-submissions');
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');

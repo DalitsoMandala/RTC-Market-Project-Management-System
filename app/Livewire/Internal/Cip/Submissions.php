@@ -343,22 +343,23 @@ class Submissions extends Component
     public function render()
     {
         $batch = \App\Models\Submission::where('batch_type', 'batch')
-            ->where('status', 'pending')
-            ->count();
+            ->where('status', 'pending');
         $manual = \App\Models\Submission::where('batch_type', 'manual')
-            ->where('status', 'pending')
-            ->count();
+            ->where('status', 'pending');
         $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
-            ->where('status', 'pending')
-            ->count();
-        $pendingJob = JobProgress::where('user_id', auth()->user()->id)->where('status', 'processing')->count();
+            ->where('status', 'pending');
+        $pendingJob = JobProgress::where('user_id', auth()->user()->id)
+            ->where('status', 'processing')->count();
 
-
-
+        if (User::find(auth()->user()->id)->hasAnyRole('external')) {
+            $batch = $batch->where('user_id', auth()->user()->id);
+            $manual = $manual->where('user_id', auth()->user()->id);
+            $aggregate = $aggregate->where('user_id', auth()->user()->id);
+        }
         return view('livewire.internal.cip.submissions', [
-            'batch' => $batch,
-            'manual' => $manual,
-            'aggregate' => $aggregate,
+            'batch' => $batch->count(),
+            'manual' => $manual->count(),
+            'aggregate' => $aggregate->count(),
             'pendingJob' => $pendingJob,
 
 
