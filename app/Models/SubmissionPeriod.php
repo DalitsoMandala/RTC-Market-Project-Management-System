@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class SubmissionPeriod extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function submissions()
     {

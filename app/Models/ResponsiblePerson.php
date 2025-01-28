@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ResponsiblePerson extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
     protected $table = 'responsible_people';
     public function indicator()
     {

@@ -10,7 +10,7 @@ class SubmissionTarget extends Model
     use HasFactory;
 
     protected $table = 'submission_targets';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
 
 

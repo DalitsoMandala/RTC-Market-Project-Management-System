@@ -9,7 +9,7 @@ class Baseline extends Model
 {
     use HasFactory;
     protected $table = "baseline_data";
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
 
     public function indicator()
@@ -21,8 +21,4 @@ class Baseline extends Model
     {
         return $this->hasMany(BaselineDataMultiple::class, 'baseline_data_id');
     }
-
-
-    
-
 }

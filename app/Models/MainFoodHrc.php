@@ -9,7 +9,7 @@ class MainFoodHrc extends Model
 {
     use HasFactory;
     protected $table = 'hrc_rtc_main_food';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function household()
     {

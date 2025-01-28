@@ -9,5 +9,5 @@ class SystemDetail extends Model
 {
     use HasFactory;
     protected $table = 'system_details';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 }

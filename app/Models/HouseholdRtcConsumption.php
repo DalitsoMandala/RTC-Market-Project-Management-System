@@ -10,7 +10,7 @@ class HouseholdRtcConsumption extends Model
 {
     use HasFactory;
     protected $table = 'household_rtc_consumption';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function location()
     {
@@ -36,5 +36,4 @@ class HouseholdRtcConsumption extends Model
             $model->hh_id = 'HH-' . str_pad($number, 5, '0', STR_PAD_LEFT); // Example: FARM-00001
         });
     }
-
 }

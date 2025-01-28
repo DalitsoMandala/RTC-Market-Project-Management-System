@@ -9,7 +9,7 @@ class PercentageIncreaseDetails extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
     protected $table = 'percentage_increase_details';
 
     public function percentageIncrease()

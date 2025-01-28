@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Source extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function person()
     {
@@ -20,5 +20,4 @@ class Source extends Model
     {
         return $this->belongsTo(Form::class, 'form_id');
     }
-
 }

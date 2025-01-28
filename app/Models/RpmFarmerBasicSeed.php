@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RpmFarmerBasicSeed extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
 
     protected $table = 'rpmf_basic_seed';
@@ -17,5 +17,4 @@ class RpmFarmerBasicSeed extends Model
     {
         return $this->belongsTo(RtcProductionFarmer::class, 'rpmf_id');
     }
-
 }

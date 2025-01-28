@@ -10,7 +10,7 @@ class OrganisationTarget extends Model
     use HasFactory;
 
     protected $table = 'organisation_selected_targets';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
 
     public function submissionTarget()

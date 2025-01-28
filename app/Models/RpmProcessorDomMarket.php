@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RpmProcessorDomMarket extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function processors()
     {

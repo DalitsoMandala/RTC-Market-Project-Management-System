@@ -9,7 +9,7 @@ class Submission extends Model
 {
     use HasFactory;
     protected $table = 'submissions';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function period()
     {

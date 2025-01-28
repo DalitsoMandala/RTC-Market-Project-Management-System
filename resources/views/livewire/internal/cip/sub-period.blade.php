@@ -305,7 +305,7 @@ border-danger
 
 
                                     @foreach ($targets as $index => $target)
-                                        <div class="row mb-3 align-items-end" x-init="() => {
+                                        <div class="mb-3 row align-items-end" x-init="() => {
                                         
                                         
                                         }">
@@ -340,7 +340,18 @@ border-danger
                                                     <x-error>{{ $message }}</x-error>
                                                 @enderror
                                             </div>
-
+                                            <!-- Your Target Value Input -->
+                                            <div class="col">
+                                                <label for="targets" class="form-label text-uppercase">CIP Target
+                                                    Value</label>
+                                                <input type="number"
+                                                    class="form-control me-2  @error('cip_targets.' . $index . '.value') is-invalid @enderror"
+                                                    placeholder="Target Value"
+                                                    wire:model="cip_targets.{{ $index }}.value" />
+                                                @error('cip_targets.' . $index . '.value')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
                                             <div class="col">
 
 
@@ -362,7 +373,8 @@ border-danger
                                     @endforeach
 
                                     <!-- Button to add new target -->
-                                    <button class="btn btn-warning" type="button" @click="addTarget()">
+                                    <button class="btn btn-warning" wire:loading.attr='disabled'
+                                        wire:loading.class='opacity-25' type="button" @click="addTarget()">
                                         Add Target
                                     </button>
 
@@ -371,6 +383,8 @@ border-danger
                                         <x-error>{{ $message }}</x-error>
                                     @enderror
                                 </div>
+
+
                             </div>
 
                             <div class="mb-3">
@@ -447,7 +461,7 @@ border-danger
                     <div class="card-header">
                         <h5 class="card-title">Submission Period Table</h5>
                     </div>
-                    <div class="card-body px-0">
+                    <div class="px-0 card-body">
                         @php
 
                             $route = Route::current()->getPrefix();

@@ -10,7 +10,7 @@ class BaselineDataMultiple extends Model
     use HasFactory;
 
     protected $table = 'baseline_data_multiple';
-    protected $guarded = ['id'];
+    protected $guarded = [];
     public function baseline()
     {
         return $this->belongsTo(Baseline::class, 'baseline_data_id');

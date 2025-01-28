@@ -10,7 +10,7 @@ class SystemReportDataDetail extends Model
     use HasFactory;
 
     protected $table = 'system_report_data_details';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function systemReport()
     {

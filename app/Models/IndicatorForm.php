@@ -9,5 +9,5 @@ class IndicatorForm extends Model
 {
     use HasFactory;
     protected $table = "indicator_form";
-    protected $guarded = ['id'];
+    protected $guarded = [];
 }

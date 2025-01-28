@@ -9,5 +9,5 @@ class Cgiar_Project extends Model
 {
     use HasFactory;
     protected $table = "cgiar_projects";
-    protected $guarded = ['id'];
+    protected $guarded = [];
 }

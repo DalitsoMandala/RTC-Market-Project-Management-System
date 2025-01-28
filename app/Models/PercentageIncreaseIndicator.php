@@ -9,7 +9,7 @@ class PercentageIncreaseIndicator extends Model
 {
     use HasFactory;
     protected $table = "percentage_increase_indicators";
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
 
     public function indicator()

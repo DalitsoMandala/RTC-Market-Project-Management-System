@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Organisation extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
     public function users()
     {
         return $this->hasMany(User::class, 'organisation_id');
@@ -24,5 +24,4 @@ class Organisation extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
-
 }

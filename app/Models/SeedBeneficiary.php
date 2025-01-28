@@ -10,7 +10,7 @@ class SeedBeneficiary extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
     /**
      * Get the user that owns the SeedBeneficiary
      *

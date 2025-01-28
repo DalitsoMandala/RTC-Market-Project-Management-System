@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RtcProductionFarmer extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
     protected $table = "rtc_production_farmers";
     public function followups()
     {

@@ -21,6 +21,7 @@ use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Bus;
 use App\Models\ReportingPeriodMonth;
 use App\Models\IndicatorDisaggregation;
+use App\Models\OrganisationTarget;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
 
@@ -59,6 +60,7 @@ class SubPeriod extends Component
     public $all;
 
     public $targets = []; // This will hold the dynamically added targets
+    public $cip_targets = []; // This will hold the dynamically added
     public $disableTarget = true;
 
 
@@ -66,6 +68,8 @@ class SubPeriod extends Component
         'targets.*' => 'required',
         'targets.*.name' => 'required|string|distinct',
         'targets.*.value' => 'required|numeric',
+        'cip_targets.*' => 'required',
+        'cip_targets.*.value' => 'required|numeric',
     ];
 
 
@@ -74,6 +78,9 @@ class SubPeriod extends Component
         'targets.*.value.required' => 'Target value required',
         'targets.*.value.numeric' => 'Target value must be numeric',
         'targets.*.name.distinct' => 'Target name must be unique',
+
+        'cip_targets.*.value.required' => 'Target value required',
+        'cip_targets.*.value.numeric' => 'Target value must be numeric',
 
     ];
 
@@ -92,6 +99,10 @@ class SubPeriod extends Component
             'name' => null,
             'value' => null
         ]);
+        $this->cip_targets->push([
+            'name' => null,
+            'value' => null
+        ]);
     }
 
     /**
@@ -102,6 +113,7 @@ class SubPeriod extends Component
         //  unset($this->targets[$index]);
         //  $this->targets = array_values($this->targets); // Reindex the array
         $this->targets = $this->targets->forget($index)->values();
+        $this->cip_targets = $this->cip_targets->forget($index)->values();
     }
     public function loadData()
     {
@@ -114,11 +126,17 @@ class SubPeriod extends Component
         $this->fill([
             'targets' => collect([
                 [
-                    'name' => '',
-                    'value' => ''
+                    'name' => null,
+                    'value' => null
                 ]
             ]),
-            'selectedProject' => 1
+            'selectedProject' => 1,
+            'cip_targets' => collect([
+                [
+                    'name' => null,
+                    'value' => null
+                ]
+            ])
         ]);
     }
 
@@ -176,6 +194,8 @@ class SubPeriod extends Component
 
     public function save()
     {
+
+
         try {
             $this->validate();
         } catch (Throwable $e) {
@@ -201,23 +221,35 @@ class SubPeriod extends Component
 
 
                     SubmissionPeriod::find($this->rowId)->update($data);
-                    $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-                        ->where('financial_year_id', $this->selectedFinancialYear)
-                        ->get();
-                    if ($checkTargets->isNotEmpty()) {
-                        foreach ($checkTargets as $target) {
-                            $target->delete();
-                        }
-                    }
 
-                    foreach ($this->targets as $target) {
-                        SubmissionTarget::create([
+                    $user = User::find(auth()->user()->id);
+                    $organisationId = $user->organisation->id;
+                    foreach ($this->targets as $key => $target) {
+                        // Update or create SubmissionTarget
+                        $subTarget = SubmissionTarget::updateOrCreate(
+                            [
+                                'financial_year_id' => $this->selectedFinancialYear,
+                                'indicator_id' => $this->selectedIndicator,
+                                'target_name' => $target['name'],
+                            ],
+                            [
+                                'target_value' => $target['value'],
+                            ]
+                        );
 
-                            'financial_year_id' => $this->selectedFinancialYear,
-                            'indicator_id' => $this->selectedIndicator,
-                            'target_name' => $target['name'],
-                            'target_value' => $target['value'],
-                        ]);
+
+                        $data  = [];
+                        // Update or create OrganisationTarget for each cip_target
+
+                        $data[] =  OrganisationTarget::updateOrCreate(
+                            [
+                                'submission_target_id' => $subTarget->id,
+                                'organisation_id' => $organisationId,
+                            ],
+                            [
+                                'value' => $this->cip_targets[$key]['value'],
+                            ]
+                        );
                     }
 
                     if ($this->status == false) {
@@ -260,24 +292,34 @@ class SubPeriod extends Component
                         SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
                     }
 
+                    $user = User::find(auth()->user()->id);
+                    $organisationId = $user->organisation->id;
+                    foreach ($this->targets as $key => $target) {
+                        // Update or create SubmissionTarget
+                        $subTarget = SubmissionTarget::updateOrCreate(
+                            [
+                                'financial_year_id' => $this->selectedFinancialYear,
+                                'indicator_id' => $this->selectedIndicator,
+                                'target_name' => $target['name'],
+                            ],
+                            [
+                                'target_value' => $target['value'],
+                            ]
+                        );
 
-                    $checkTargets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-                        ->where('financial_year_id', $this->selectedFinancialYear)
-                        ->get();
-                    if ($checkTargets->isNotEmpty()) {
-                        foreach ($checkTargets as $target) {
-                            $target->delete();
-                        }
-                    }
 
-                    foreach ($this->targets as $target) {
-                        SubmissionTarget::create([
+                        $data  = [];
+                        // Update or create OrganisationTarget for each cip_target
 
-                            'financial_year_id' => $this->selectedFinancialYear,
-                            'indicator_id' => $this->selectedIndicator,
-                            'target_name' => $target['name'],
-                            'target_value' => $target['value'],
-                        ]);
+                        $data[] =  OrganisationTarget::updateOrCreate(
+                            [
+                                'submission_target_id' => $subTarget->id,
+                                'organisation_id' => $organisationId,
+                            ],
+                            [
+                                'value' => $this->cip_targets[$key]['value'],
+                            ]
+                        );
                     }
                     session()->flash('success', 'Created Successfully');
 
@@ -398,8 +440,11 @@ class SubPeriod extends Component
         $targets = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
             ->where('financial_year_id', $this->selectedFinancialYear)
             ->get();
+        $user = User::find(auth()->user()->id);
+        $organisationId = $user->organisation->id;
+        $newTargets = [];
+        $newCipTargets = [];
         if ($targets->count() > 0) {
-            $newTargets = [];
 
             // Loop through $targets and populate $newTargets
             foreach ($targets as $target) {
@@ -407,12 +452,22 @@ class SubPeriod extends Component
                     'name' => $target->target_name,
                     'value' => $target->target_value,
                 ];
-            }
 
-            $this->fill([
-                'targets' => collect($newTargets)
-            ]);
+                $CipTargets = OrganisationTarget::where('submission_target_id', $target->id)
+                    ->where('organisation_id', $organisationId)
+                    ->get();
+                foreach ($CipTargets as $cipTarget) {
+                    $newCipTargets[] = [
+                        'value' => $cipTarget->value,
+                    ];
+                }
+            }
         }
+
+        $this->fill([
+            'targets' => collect($newTargets),
+            'cip_targets' => collect($newCipTargets),
+        ]);
     }
     public function updatedSelectedIndicator($value)
     {

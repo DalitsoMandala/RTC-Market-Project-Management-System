@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Form extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     protected $casts = [
         'responsible_people' => 'array',
@@ -21,9 +21,6 @@ class Form extends Model
     public function submissionPeriods()
     {
         return $this->hasMany(SubmissionPeriod::class, 'form_id');
-
-
-
     }
 
     public function indicators()
@@ -35,5 +32,4 @@ class Form extends Model
     {
         return $this->hasMany(Source::class, 'form_id');
     }
-
 }

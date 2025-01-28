@@ -9,7 +9,7 @@ class SchoolRtcConsumption extends Model
 {
     use HasFactory;
     protected $table = "school_rtc_consumption";
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function user()
     {

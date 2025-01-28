@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class RpmProcessorMarketSegment extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
     protected $table = 'rpmp_market_segment';
     public function processors()
     {
         return $this->belongsTo(RtcProductionProcessor::class, 'rpmp_id');
     }
-
 }

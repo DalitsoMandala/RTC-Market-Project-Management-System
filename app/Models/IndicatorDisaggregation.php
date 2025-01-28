@@ -11,7 +11,7 @@ class IndicatorDisaggregation extends Model
     use HasFactory;
     protected $table = 'indicator_disaggregations';
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function indicator()
     {

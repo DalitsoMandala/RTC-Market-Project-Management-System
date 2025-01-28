@@ -9,7 +9,7 @@ class RpmFarmerEmployees extends Model
 {
     use HasFactory;
     protected $table = 'rpmf_number_of_employees';
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public function farmers()
     {

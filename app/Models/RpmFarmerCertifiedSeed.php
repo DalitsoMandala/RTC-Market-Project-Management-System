@@ -8,12 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class RpmFarmerCertifiedSeed extends Model
 {
     use HasFactory;
-    protected $guarded = ['id'];
+    protected $guarded = [];
     protected $table = 'rpmf_certified_seed';
     public function farmers()
     {
         return $this->belongsTo(RtcProductionFarmer::class, 'rpmf_id');
     }
-
 }
-
