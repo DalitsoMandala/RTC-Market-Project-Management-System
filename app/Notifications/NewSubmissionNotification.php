@@ -65,7 +65,7 @@ class NewSubmissionNotification extends Notification implements ShouldQueue
     {
         return [
             'message' => 'A new submission has been made that requires your review.',
-            'url' => url($this->prefix . '/submissions'),
+            'link' => url($this->prefix . '/submissions'),
         ];
     }
 

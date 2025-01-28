@@ -51,6 +51,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
             'form',
             'financialYears',
             'reportingMonths'
+        ])->select([
+            '*',
+            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
     }
 
@@ -157,7 +160,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'rn')->sortable(),
             Column::make('indicator #', 'indicator_no')->headerAttribute(classAttr: 'table-sticky-col')
                 ->bodyAttribute(classAttr: 'table-sticky-col'),
             Column::make('Form', 'form_name')

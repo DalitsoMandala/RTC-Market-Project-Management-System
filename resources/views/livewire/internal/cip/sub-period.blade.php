@@ -22,7 +22,7 @@
         <!-- end page title -->
         <div class="row justify-content-center">
             <x-alerts />
-            <div class="col-8">
+            <div class="col-12">
                 <div class="card">
 
                     <div class="card-header fw-bold ">

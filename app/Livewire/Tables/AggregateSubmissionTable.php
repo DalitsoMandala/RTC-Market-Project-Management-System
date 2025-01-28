@@ -71,7 +71,10 @@ final class AggregateSubmissionTable extends PowerGridComponent
             return $query->where('user_id', $user->id);
         }
 
-        return $query;
+        return $query->select([
+            '*',
+            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
     }
 
     public function relationSearch(): array
@@ -221,7 +224,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            // Column::make('Id', 'id'),
+            Column::make('#', 'rn')->sortable(),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),

@@ -2,23 +2,24 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Cgiar_Project;
+use DB;
+use App\Models\User;
 use App\Models\Indicator;
 use App\Models\Organisation;
-use App\Models\User;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Builder as ModelBuilder;
+use App\Models\Cgiar_Project;
 use Illuminate\Support\Facades\Auth;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Illuminate\Database\Eloquent\Builder as ModelBuilder;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class IndicatorTable extends PowerGridComponent
 {
@@ -49,6 +50,9 @@ final class IndicatorTable extends PowerGridComponent
                 'disaggregations',
                 'responsiblePeopleforIndicators.organisation',
                 'forms'
+            ])->select([
+                'indicators.*',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
             ]);
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
@@ -63,7 +67,10 @@ final class IndicatorTable extends PowerGridComponent
             ])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
             });
-            return $data;
+            return $data->select([
+                'indicators.*',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            ]);
             // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
 
         }
@@ -98,6 +105,7 @@ final class IndicatorTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id', fn($model) => $this->count++)
+            ->add('rn')
             ->add('indicator_no')
             ->add('indicator_no_bold', function ($model) {
 
@@ -158,7 +166,7 @@ final class IndicatorTable extends PowerGridComponent
         $showActionColumn = false; // Set this variable based on your condition
 
         $columns = [
-            Column::make('#', 'id'),
+            Column::make('#', 'rn')->sortable(),
             Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
 
                 ->searchable(),

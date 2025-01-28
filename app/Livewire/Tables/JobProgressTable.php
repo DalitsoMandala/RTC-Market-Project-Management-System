@@ -6,7 +6,7 @@ use App\Models\JobProgress;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -51,12 +51,19 @@ final class JobProgressTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return DB::table('job_progress')->where('user_id', $this->userId)->orderBy('id', 'desc');
+        return JobProgress::query()->where('user_id', $this->userId)
+            ->select([
+                '*',
+                \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            ])
+
+        ;
     }
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
+
             ->add('row', fn($model) => $this->count++)
             ->add('id')
             ->add('cache_key')
@@ -114,7 +121,7 @@ final class JobProgressTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            //       Column::make('#', 'id'),
+            Column::make('#', 'rn')->sortable(),
             Column::make('UUID', 'cache_key')
 
                 ->searchable(),

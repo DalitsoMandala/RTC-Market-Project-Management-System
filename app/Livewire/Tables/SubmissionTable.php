@@ -72,7 +72,10 @@ final class SubmissionTable extends PowerGridComponent
             return $query->where('user_id', $user->id);
         }
 
-        return $query;
+        return $query->select([
+            '*',
+            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
     }
 
     public function filters(): array
@@ -239,7 +242,7 @@ final class SubmissionTable extends PowerGridComponent
     {
 
         return [
-            //        Column::make('Id', 'row_num'),
+            Column::make('#', 'rn')->sortable(),
             Column::make('File', 'file_link'),
 
             Column::make('Batch no', 'batch_no_formatted')

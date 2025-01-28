@@ -61,7 +61,10 @@ final class FormTable extends PowerGridComponent
 
 
 
-        return Form::query()->with('project', 'indicators');
+        return Form::query()->with('project', 'indicators')->select([
+            '*',
+            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
     }
     public function relationSearch(): array
     {
@@ -118,6 +121,7 @@ final class FormTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::make('#', 'rn')->sortable(),
 
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
