@@ -5,9 +5,9 @@ namespace App\Livewire\Internal\Cip;
 use App\Models\User;
 use Livewire\Component;
 use App\Models\Submission;
+use App\Models\JobProgress;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
-use App\Models\JobProgress;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\RpmFarmerFollowUp;
@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RpmProcessorFollowUp;
 use App\Models\RpmProcessorDomMarket;
+use Illuminate\Support\Facades\Route;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\RtcProductionProcessor;
 use App\Models\RpmProcessorInterMarket;
@@ -69,6 +70,25 @@ class Submissions extends Component
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
+    private function getLink($submission)
+    {
+        $link = '';
+        if (User::find(auth()->user()->id)->hasAnyRole('manager')) {
+            $link = route('cip-submissions', [
+                'batch' => $submission->batch_no
+            ]);
+        } else if (User::find(auth()->user()->id)->hasAnyRole('staff')) {
+            $link = route('cip-staff-submissions', [
+                'batch' => $submission->batch_no
+            ]);
+        } else {
+            $link = route('external-submissions', [
+                'batch' => $submission->batch_no
+            ]);
+        }
+
+        return $link;
+    }
     public function save()
     {
         try {
@@ -87,14 +107,29 @@ class Submissions extends Component
                 $this->approveSubmission($submission, [$this->tableName]);
                 // Dispatch notification using Bus::chain
                 $user = User::find($submission->user_id);
+
+                $routePrefix = Route::current()->getPrefix();
+
+                $link = $this->getLink($submission);
                 Bus::chain([
-                    fn() => $user->notify(new SubmissionNotification(status: $this->status, batchId: $submission->batch_no)),
+                    fn() => $user->notify(new SubmissionNotification(
+                        status: $this->status,
+                        batchId: $submission->batch_no,
+                        link: $link
+                    )),
                 ])->dispatch();
             } else {
                 $this->denySubmission($submission, [$this->tableName]);
                 $user = User::find($submission->user_id);
+
+                $link = $this->getLink($submission);
                 Bus::chain([
-                    fn() => $user->notify(new SubmissionNotification(status: 'denied', batchId: $submission->batch_no, denialMessage: $this->comment)),
+                    fn() => $user->notify(new SubmissionNotification(
+                        status: 'denied',
+                        batchId: $submission->batch_no,
+                        denialMessage: $this->comment,
+                        link: $link
+                    )),
                 ])->dispatch();
             }
 
@@ -210,8 +245,13 @@ class Submissions extends Component
             ]);
             session()->flash('success', 'Successfully approved aggregate submission');
             $user = User::find($submission->user_id);
+            $link = $this->getLink($submission);
             Bus::chain([
-                fn() => $user->notify(new SubmissionNotification(status: 'approved', batchId: $submission->batch_no)),
+                fn() => $user->notify(new SubmissionNotification(
+                    status: 'approved',
+                    batchId: $submission->batch_no,
+                    link: $link
+                )),
             ])->dispatch();
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
@@ -246,8 +286,15 @@ class Submissions extends Component
             ]);
             session()->flash('success', 'Successfully disapproved aggregate submission');
             $user = User::find($submission->user_id);
+
+            $link = $this->getLink($submission);
             Bus::chain([
-                fn() => $user->notify(new SubmissionNotification(status: 'denied', batchId: $submission->batch_no, denialMessage: $this->comment)),
+                fn() => $user->notify(new SubmissionNotification(
+                    status: 'denied',
+                    batchId: $submission->batch_no,
+                    denialMessage: $this->comment,
+                    link: $link,
+                )),
             ])->dispatch();
             $this->dispatch('hideModal');
             $this->dispatch('refresh');

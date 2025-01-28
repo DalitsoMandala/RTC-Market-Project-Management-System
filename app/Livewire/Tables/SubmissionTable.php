@@ -69,12 +69,15 @@ final class SubmissionTable extends PowerGridComponent
 
         if ($user->hasAnyRole('external')) {
 
-            return $query->where('user_id', $user->id);
+            return $query->where('user_id', $user->id)->select([
+                '*',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            ]);
         }
 
         return $query->select([
             '*',
-            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
     }
 

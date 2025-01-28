@@ -222,13 +222,12 @@
 
                     <div class="d-flex border-top-0 justify-content-center">
                         <form wire:submit="DisapproveAggregateSubmission">
-                            <button type="submit" wire:loading.attr="disabled"
-                                wire:target="DisapproveAggregateSubmission" class="btn btn-theme-red me-2"> <i
+                            <button type="submit" wire:loading.attr="disabled" class="btn btn-theme-red me-2"> <i
                                     class="bx bx-x-circle"></i> Disapprove</button>
                         </form>
                         <form wire:submit="ApproveAggregateSubmission">
-                            <button type="submit" wire:loading.attr="disabled" wire:target="ApproveAggregateSubmission"
-                                class="btn btn-success me-2"> <i class="bx bx-check-double"></i> Approve</button>
+                            <button type="submit" wire:loading.attr="disabled" class="btn btn-success me-2"> <i
+                                    class="bx bx-check-double"></i> Approve</button>
                         </form>
 
                     </div>
@@ -289,16 +288,16 @@
                 <div class="d-flex border-top-0 justify-content-center">
                     <form wire:submit.debounce.1000ms="disapproveBatchSubmission">
 
-                        <button type="submit" wire:loading.attr="disabled" wire:target="disapproveBatchSubmission"
-                            class="btn btn-theme-red me-2"> <i class="bx bx-x-circle"></i> Disapprove</button>
+                        <button type="submit" wire:loading.attr="disabled" class="btn btn-theme-red me-2"> <i
+                                class="bx bx-x-circle"></i> Disapprove</button>
 
                     </form>
 
 
                     <form wire:submit.debounce.1000ms="approveBatchSubmission">
 
-                        <button type="submit" wire:loading.attr="disabled" wire:target="approveBatchSubmission"
-                            class="btn btn-success me-2"> <i class="bx bx-check-double"></i> Approve</button>
+                        <button type="submit" wire:loading.attr="disabled" class="btn btn-success me-2"> <i
+                                class="bx bx-check-double"></i> Approve</button>
 
                     </form>
 

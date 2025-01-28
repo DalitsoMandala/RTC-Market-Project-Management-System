@@ -36,7 +36,7 @@
                                     </div>
                                     <div class="flex-grow-1">
 
-                                        <h6 class="mb-1">Submissions Closed! @if (is_null($notification->read_at))
+                                        <h6 class="mb-1">Submissions Notification! @if (is_null($notification->read_at))
                                                 <span class="badge bg-warning">New!</span>
                                             @endif
                                         </h6>
@@ -66,7 +66,7 @@
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-1">Submissions Open! @if (is_null($notification->read_at))
+                                        <h6 class="mb-1">Submission Notification! @if (is_null($notification->read_at))
                                                 <span class="badge bg-warning">New!</span>
                                             @endif
                                         </h6>
