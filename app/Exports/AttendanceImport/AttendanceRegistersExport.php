@@ -3,6 +3,7 @@
 namespace App\Exports\AttendanceImport;
 
 use App\Models\AttendanceRegister;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -22,7 +23,7 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
             return collect([]);
         }
         // Select only the necessary columns to be included in the export
-        return AttendanceRegister::select(
+        $data = AttendanceRegister::select(
 
             'meetingTitle',
             'meetingCategory',
@@ -44,6 +45,16 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
 
 
         )->get();
+
+        $data->transform(function ($row) {
+            $startDate = Carbon::parse($row['startDate'])->format('d-m-Y');
+            $endDate = Carbon::parse($row['endDate'])->format('d-m-Y');
+            $row['startDate'] = $startDate;
+            $row['endDate'] = $endDate;
+            return $row;
+        });
+
+        return $data;
     }
 
     public function headings(): array

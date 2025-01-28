@@ -33,8 +33,8 @@ class RpmfAreaCultivationImport implements ToModel, WithHeadingRow, WithValidati
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping_
-        $farmerId = Cache::get("farmer_id_mapping_{$this->cacheKey}_{$row['Farmer ID']}");
+        // Retrieve Farmer ID from cache using farmer_id_mapping1_
+        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
         if (!$farmerId) {
             Log::error("Farmer ID not found for Area Cultivation row: " . json_encode($row));
             return null; // Skip row if mapping is missing

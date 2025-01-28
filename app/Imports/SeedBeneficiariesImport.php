@@ -80,7 +80,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
 
                 foreach ($sheets as $key => $sheet) {
 
-                    if ($sheet <= 1 && $firstSheetName) {
+                    if ($sheet <= 1 && $key == $firstSheetName) {
 
                         Log::error("The sheet '{$firstSheetName}' is blank.");
                         throw new ExcelValidationException(

@@ -238,9 +238,11 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
                 $firstSheetName = $this->expectedSheetNames[0];
                 $sheets = $event->reader->getTotalRows();
 
+
+
                 foreach ($sheets as $key => $sheet) {
 
-                    if ($sheet <= 1 && $firstSheetName) {
+                    if ($sheet <= 1 && $key == $firstSheetName) {
 
                         Log::error("The sheet '{$firstSheetName}' is blank.");
                         throw new ExcelValidationException(
@@ -386,7 +388,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
                 Log::error($exception->getMessage());
 
                 RtcProductionFarmer::where('uuid', $this->cacheKey)->delete();
-                Submission::where('uuid', $this->cacheKey)->delete();
+                Submission::where('batch_no', $this->cacheKey)->delete();
 
 
                 // throw new ExcelValidationException($exception->getMessage());

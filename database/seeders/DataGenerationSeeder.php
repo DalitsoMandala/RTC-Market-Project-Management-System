@@ -94,7 +94,7 @@ class DataGenerationSeeder extends Seeder
                 ]) * 10,
                 'uuid' => $faker->uuid(),
                 'user_id' => 3,
-                'submission_period_id' => $faker->numberBetween(1, 3),
+                'submission_period_id' => 4,
                 'organisation_id' => 1,
                 'financial_year_id' => $faker->numberBetween(1, 4),
                 'period_month_id' => $faker->numberBetween(1, 4),
@@ -236,7 +236,7 @@ class DataGenerationSeeder extends Seeder
                     'uses_market_information_systems' => $faker->boolean, // Random boolean
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                    'submission_period_id' => 4, // Random submission period ID
                     'organisation_id' => 1, // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
@@ -689,7 +689,7 @@ class DataGenerationSeeder extends Seeder
                     'uses_market_information_systems' => $faker->boolean, // Random boolean
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                    'submission_period_id' => 4, // Random submission period ID
                     'organisation_id' => 1, // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
@@ -1049,7 +1049,7 @@ class DataGenerationSeeder extends Seeder
                     ]) * 10,
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                    'submission_period_id' => 4, // Random submission period ID
                     'organisation_id' => 1, // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
@@ -1118,7 +1118,7 @@ class DataGenerationSeeder extends Seeder
                     'email' => $faker->unique()->safeEmail, // Random unique email
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                    'submission_period_id' => 4, // Random submission period ID
                     'organisation_id' => 1, // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
@@ -1137,7 +1137,6 @@ class DataGenerationSeeder extends Seeder
             $data = att();
             AttendanceRegister::create(attributes: att()['main']);
         }
-
 
 
 
@@ -1162,7 +1161,7 @@ class DataGenerationSeeder extends Seeder
                     SubmissionReport::create([
                         'user_id' => $faker->numberBetween(4, 7), // Random user ID
                         'uuid' => $faker->uuid, // Random UUID
-                        'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                        'submission_period_id' => 4, // Random submission period ID
                         'organisation_id' => $faker->randomElement($organizations), // Random organisation ID
                         'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                         'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
@@ -1219,7 +1218,7 @@ class DataGenerationSeeder extends Seeder
                     'phone_or_national_id' => $faker->phoneNumber(),
                     'user_id' => $faker->numberBetween(4, 7), // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => $faker->numberBetween(1, 3), // Random submission period ID
+                    'submission_period_id' => 4, // Random submission period ID
                     'organisation_id' => $faker->randomElement([1, 2, 3]), // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID

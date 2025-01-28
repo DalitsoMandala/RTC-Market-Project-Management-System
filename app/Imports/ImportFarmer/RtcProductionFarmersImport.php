@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\JobProgress;
 use App\Models\RtcProductionFarmer;
+use App\Traits\excelDateFormat;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -118,8 +119,8 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
 
 
         // Cache the mapping of 'ID' to primary key
-        Cache::put("farmer_id_mapping_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id, now()->addMinutes(30));
 
+        Cache::put("farmer_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id, now()->addMinutes(30));
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
         if ($jobProgress) {
@@ -143,6 +144,17 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         }
     }
 
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date of Recruitment']);
+        $this->convertExcelDate($row['Registration Date']);
+        $this->convertExcelDate($row['Seed Producer Registration Date']);
+        $this->convertExcelDate($row['Production Value Date of Max Sales']);
+        $this->convertExcelDate($row['Irrigation Production Date of Max Sales']);
+        return $row;
+    }
+
 
     public function rules(): array
     {
@@ -151,7 +163,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
             'Enterprise' => 'required|string|max:255',
-            'Date of Recruitment' => 'nullable|date_format:Y-m-d',
+            'Date of Recruitment' => 'nullable|date|date_format:d-m-Y',
             'Name of Actor' => 'nullable|string|max:255',
             'Name of Representative' => 'nullable|string|max:255',
             'Phone Number' => 'nullable|max:255',
@@ -167,7 +179,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Is Registered' => 'nullable|boolean',
             'Registration Body' => 'nullable|string|max:255',
             'Registration Number' => 'nullable|string|max:255',
-            'Registration Date' => 'nullable|date_format:Y-m-d',
+            'Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Employees Formal Female 18-35' => 'nullable|integer|min:0',
             'Employees Formal Male 18-35' => 'nullable|integer|min:0',
             'Employees Formal Male 35+' => 'nullable|integer|min:0',
@@ -184,19 +196,19 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'SAH Plants Produced' => 'nullable|integer|min:0',
             'Is Registered Seed Producer' => 'nullable|boolean',
             'Seed Producer Registration Number' => 'nullable|string|max:255',
-            'Seed Producer Registration Date' => 'nullable|date_format:Y-m-d',
+            'Seed Producer Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Uses Certified Seed' => 'nullable|boolean',
             'Market Segment Fresh' => 'nullable|boolean',
             'Market Segment Processed' => 'nullable|boolean',
             'Has RTC Market Contract' => 'nullable|boolean',
             'Total Volume Production Previous Season' => 'nullable|numeric|min:0',
             'Production Value Previous Season Total' => 'nullable|numeric|min:0',
-            'Production Value Date of Max Sales' => 'nullable|date_format:Y-m-d',
+            'Production Value Date of Max Sales' => 'nullable|date|date_format:d-m-Y',
             'Production Value USD Rate' => 'nullable|numeric|min:0',
             'Production Value USD Value' => 'nullable|numeric|min:0',
             'Total Volume Irrigation Production Previous Season' => 'nullable|numeric|min:0',
             'Irrigation Production Value Total' => 'nullable|numeric|min:0',
-            'Irrigation Production Date of Max Sales' => 'nullable|date_format:Y-m-d',
+            'Irrigation Production Date of Max Sales' => 'nullable|date|date_format:d-m-Y',
             'Irrigation Production USD Rate' => 'nullable|numeric|min:0',
             'Irrigation Production USD Value' => 'nullable|numeric|min:0',
             'Sells to Domestic Markets' => 'nullable|boolean',

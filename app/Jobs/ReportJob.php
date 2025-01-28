@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use Log;
+
 use App\Models\Indicator;
 use App\Models\Organisation;
 use App\Models\ReportStatus;
@@ -14,6 +14,7 @@ use App\Models\IndicatorClass;
 use App\Models\SystemReportData;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;

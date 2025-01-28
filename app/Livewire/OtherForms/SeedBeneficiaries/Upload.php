@@ -118,7 +118,7 @@ class Upload extends Component
     public function downloadTemplate()
     {
         // Path to your template file
-        return Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries.xlsx');
+        return Excel::download(new SeedBeneficiariesExport(false), 'seed_beneficiaries.xlsx');
     }
     // public function checkProgress()
     // {

@@ -48,7 +48,12 @@ final class ReportTable extends PowerGridComponent
         $timestamp = Carbon::now();
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-component'),
+            Header::make()->showSearchInput()
+                ->includeViewOnTop('components.export-component')
+            //  ->includeViewOnBottom('components.import-button')
+
+            ,
+
             Footer::make()
                 ->showPerPage(10)
                 ->showRecordCount(),
@@ -62,7 +67,6 @@ final class ReportTable extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -214,8 +218,7 @@ final class ReportTable extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Indicator #', 'number', 'indicator_no')
-                ->searchable()
-            ,
+                ->searchable(),
 
             Column::make('Project', 'project'),
 

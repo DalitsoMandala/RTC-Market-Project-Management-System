@@ -2,6 +2,7 @@
 
 namespace App\Exports\ExportProcessor;
 
+use Carbon\Carbon;
 use App\Models\RpmProcessorDomMarket;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -24,7 +25,13 @@ class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, With
         if ($this->template) {
             return collect([]);  // Return an empty collection if the template is not provided.
         }
-        return RpmProcessorDomMarket::all();
+        $data = RpmProcessorDomMarket::get();
+        $data->transform(function ($row) {
+            $row->date_recorded = Carbon::parse($row['date_recorded'])->format('d-m-Y');
+            $row->date_of_maximum_sale = Carbon::parse($row['date_of_maximum_sale'])->format('d-m-Y');
+            return $row;
+        });
+        return $data;
     }
 
     public function headings(): array

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
 use App\Models\HouseholdRtcConsumption;
+use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -41,23 +42,13 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         $this->totalRows = $totalRows;
         $this->data = $data;
     }
+
+    use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        if (!empty($row['Date of Assessment']) && is_numeric($row['Date of Assessment'])) {
-            // Convert Excel serial date to d-m-Y before validation
-            $row['Date of Assessment'] = Carbon::instance(Date::excelToDateTimeObject($row['Date of Assessment']))->format('d-m-Y');
-        } elseif (!empty($row['Date of Assessment'])) {
-            try {
-                $row['Date of Assessment'] = Carbon::createFromFormat('d-m-Y', $row['Date of Assessment'])->format('d-m-Y');
-            } catch (\Exception $e) {
-                \Log::error('Date conversion failed', ['date' => $row['Date of Assessment'], 'error' => $e->getMessage()]);
-                // Set default value if the date is invalid
-                $row['Date of Assessment'] = Carbon::now()->format('d-m-Y');
-            }
-        } else {
-            // Set default value if the date is empty
-            $row['Date of Assessment'] = Carbon::now()->format('d-m-Y');
-        }
+        $this->convertExcelDate($row['Date of Assessment']);
+
+
 
         return $row;
     }
@@ -76,7 +67,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             $sex = match ($sex) {
                 1 => 'Male',
                 2 => 'Female',
-                3 => 'Other',
+
                 default => $sex
             };
         }
@@ -156,7 +147,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Producer Organisation' => 'nullable|string|max:255',
             'Actor Name' => 'nullable|string|max:255',
             'Age Group' => 'nullable|string|max:255', // Customize as needed based on expected age group values
-            'Sex' => 'nullable|in:Male,Female,Other,1,2,3', // Limit to specific options
+            'Sex' => 'nullable|in:Male,Female,1,2', // Limit to specific options
             'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
             'Household Size' => 'nullable|integer|min:0', // Minimum 1 household member
             'Under 5 in Household' => 'nullable|integer|min:0', // Minimum 0
