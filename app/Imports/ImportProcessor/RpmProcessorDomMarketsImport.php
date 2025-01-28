@@ -6,6 +6,7 @@ use App\Models\RpmProcessorDomMarket;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\JobProgress;
+use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -63,15 +64,22 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
         return $marketRecord;
     }
 
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date of Maximum Sale']);
+        $this->convertExcelDate($row['Date Recorded']);
+        return $row;
+    }
     public function rules(): array
     {
         return [
             'Processor ID' => 'exists:rtc_production_processors,id', // Ensure valid processor ID
-            'Date Recorded' => 'nullable|date_format:Y-m-d',
+            'Date Recorded' => 'nullable|date|date_format:d-m-Y',
             'Crop Type' => 'string|max:255',
             'Market Name' => 'nullable|string|max:255',
             'District' => 'nullable|string|max:255',
-            'Date of Maximum Sale' => 'nullable|date_format:Y-m-d',
+            'Date of Maximum Sale' => 'nullable|date|date_format:d-m-Y',
             'Product Type' => 'string|max:255',
             'Volume Sold Previous Period' => 'nullable|numeric|min:0',
             'Financial Value of Sales' => 'nullable|numeric|min:0',

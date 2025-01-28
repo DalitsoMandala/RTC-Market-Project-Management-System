@@ -34,7 +34,7 @@ class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     public function model(array $row)
     {
         // Retrieve Farmer ID from cache based on sheet ID mapping
-        $farmerId = Cache::get("farmer_id_mapping_{$this->cacheKey}_{$row['Farmer ID']}");
+        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
         if (!$farmerId) {
             Log::error("Farmer ID not found for MIS row: " . json_encode($row));
             return null; // Skip row if mapping is missing

@@ -106,7 +106,7 @@ class Upload extends Component
                         'is_complete' => 1,
                         'file_link' => $name,
                         'batch_no' => $this->importId,
-                        'route' => \illuminate\Routing\Route::current()
+                        'route' => $this->currentRoute,
 
 
                     ]), $path);

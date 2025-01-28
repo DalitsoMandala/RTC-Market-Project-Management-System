@@ -2,12 +2,13 @@
 
 namespace App\Exports\HouseholdExport;
 
-use App\Models\HouseholdRtcConsumption;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use App\Models\HouseholdRtcConsumption;
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
@@ -60,7 +61,7 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
         if ($this->template) {
             return collect([]);
         }
-        return HouseholdRtcConsumption::select([
+        $data = HouseholdRtcConsumption::select([
             'id',
             'epa',
             'section',
@@ -83,11 +84,13 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
             'rtc_consumption_frequency',
 
             // Exclude hidden fields and Household ID
-
-
         ])->get();
 
-
+        $data->transform(function ($row) {
+            $row->date_of_assessment = Carbon::parse($row->date_of_assessment)->format('d-m-Y');
+            return $row;
+        });
+        return $data;
     }
 
     public function title(): string

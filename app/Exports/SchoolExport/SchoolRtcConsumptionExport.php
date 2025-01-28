@@ -2,10 +2,11 @@
 
 namespace App\Exports\SchoolExport;
 
+use Carbon\Carbon;
 use App\Models\SchoolRtcConsumption;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
@@ -22,8 +23,8 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
             return collect([]);
         }
         // Select only the columns to be included in the export
-        return SchoolRtcConsumption::select(
-            'sc_id',
+        $data = SchoolRtcConsumption::select(
+
             'epa',
             'section',
             'district',
@@ -37,12 +38,19 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
             'female_count',
             //  'total'
         )->get();
+
+
+        $data->transform(function ($row) {
+            $row->date = Carbon::parse($row->date)->format('d-m-Y');
+            return $row;
+        });
+        return $data;
     }
 
     public function headings(): array
     {
         return [
-            'School ID',
+
             'EPA',
             'Section',
             'District',

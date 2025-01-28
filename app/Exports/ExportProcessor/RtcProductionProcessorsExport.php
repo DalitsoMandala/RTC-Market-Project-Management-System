@@ -2,6 +2,7 @@
 
 namespace App\Exports\ExportProcessor;
 
+use Carbon\Carbon;
 use App\Models\RtcProductionProcessor;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -25,7 +26,15 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
         if ($this->template) {
             return collect([]);  // Return an empty collection if the template is not provided.
         }
-        return RtcProductionProcessor::all();
+        $data = RtcProductionProcessor::get();
+        $data->transform(function ($row) {
+            $row->date_of_recruitment = Carbon::parse($row['date_of_recruitment'])->format('d-m-Y');
+            $row->registration_date = Carbon::parse($row['registration_date'])->format('d-m-Y');
+            $row->prod_value_previous_season_date_of_max_sales = Carbon::parse($row['prod_value_previous_season_date_of_max_sales'])->format('d-m-Y');
+            return $row;
+        });
+
+        return $data;
     }
 
     public function headings(): array
@@ -66,7 +75,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
             'Has RTC Market Contract',
             'Total Volume Production Previous Season',
             'Production Value Previous Season Total',
-            'Date of Max Sales',
+            'Production Value Date of Max Sales',
             'USD Rate',
             'USD Value',
             'Sells to Domestic Markets',

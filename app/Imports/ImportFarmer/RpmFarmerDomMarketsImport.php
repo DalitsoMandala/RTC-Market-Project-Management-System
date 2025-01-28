@@ -4,6 +4,7 @@ namespace App\Imports\ImportFarmer;
 
 use App\Models\JobProgress;
 use App\Models\RpmFarmerDomMarket;
+use App\Traits\excelDateFormat;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -37,8 +38,8 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping_
-        $farmerId = Cache::get("farmer_id_mapping_{$this->cacheKey}_{$row['Farmer ID']}");
+        // Retrieve Farmer ID from cache using farmer_id_mapping1_
+        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
         if (!$farmerId) {
             Log::error("Farmer ID not found for Domestic Market row: " . json_encode($row));
             return null; // Skip row if mapping is missing
@@ -66,15 +67,22 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
         ]);
     }
 
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date of Maximum Sale']);
+        $this->convertExcelDate($row['Date Recorded']);
+        return $row;
+    }
     public function rules(): array
     {
         return [
             'Farmer ID' => 'exists:rpm_farmer_dom_markets,rpm_farmer_id', // Validate Farmer ID
-            'Date Recorded' => 'nullable|date_format:Y-m-d',
+            'Date Recorded' => 'nullable|date|date_format:d-m-Y',
             'Crop Type' => 'required|string|max:255',
             'Market Name' => 'required|string|max:255',
             'District' => 'nullable|string|max:255',
-            'Date of Maximum Sale' => 'nullable|date_format:Y-m-d',
+            'Date of Maximum Sale' => 'nullable|date|date_format:d-m-Y',
             'Product Type' => 'nullable|string|max:255',
             'Volume Sold Previous Period' => 'nullable|numeric|min:0',
             'Financial Value of Sales' => 'nullable|numeric|min:0',

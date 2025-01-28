@@ -9,6 +9,7 @@ class ReportingPeriodMonth extends Model
 {
     use HasFactory;
     protected $table = 'reporting_period_months';
+    protected $guarded = [];
     public function reportingPeriod()
     {
         return $this->belongsTo(ReportingPeriod::class, 'period_id');

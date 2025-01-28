@@ -3,6 +3,7 @@
 namespace App\Exports\ExportFarmer;
 
 use App\Models\RpmFarmerConcAgreement;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -22,7 +23,7 @@ class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, Wit
             return collect([]);
         }
         // Select only the columns we want to include, excluding 'ID', 'Status', 'Created At', and 'Updated At'
-        return RpmFarmerConcAgreement::select(
+        $data = RpmFarmerConcAgreement::select(
             'rpm_farmer_id',
             'date_recorded',
             'partner_name',
@@ -32,6 +33,13 @@ class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, Wit
             'volume_sold_previous_period',
             'financial_value_of_sales'
         )->get();
+        $data->transform(function ($row) {
+            $row->date_recorded = Carbon::parse($row['date_recorded'])->format('d-m-Y');
+            $row->date_of_maximum_sale = Carbon::parse($row['date_of_maximum_sale'])->format('d-m-Y');
+            return $row;
+        });
+
+        return $data;
     }
 
     public function headings(): array

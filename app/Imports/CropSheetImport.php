@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
-
+use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -118,24 +118,11 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
             'Phone / National ID' => 'required|max:255',
         ];
     }
+
+    use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        if (!empty($row['Date']) && is_numeric($row['Date'])) {
-            // Convert Excel serial date to d-m-Y before validation
-            $row['Date'] = Carbon::instance(Date::excelToDateTimeObject($row['Date']))->format('d-m-Y');
-        } elseif (!empty($row['Date'])) {
-            try {
-                $row['Date'] = Carbon::createFromFormat('d-m-Y', $row['Date'])->format('d-m-Y');
-            } catch (\Exception $e) {
-                \Log::error('Date conversion failed', ['date' => $row['Date'], 'error' => $e->getMessage()]);
-                // Set default value if the date is invalid
-                $row['Date'] = Carbon::now()->format('d-m-Y');
-            }
-        } else {
-            // Set default value if the date is empty
-            $row['Date'] = Carbon::now()->format('d-m-Y');
-        }
-
+        $this->convertExcelDate($row['Date']);
         return $row;
     }
     public function onFailure(Failure ...$failures)

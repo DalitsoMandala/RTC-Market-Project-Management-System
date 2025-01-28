@@ -20,6 +20,7 @@ use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
+use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -53,7 +54,6 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
             'district' => $row['District'],
             'school_name' => $row['School Name'],
             'date' => \Carbon\Carbon::parse($row['Date'])->format('Y-m-d'),
-            // 'crop' => $row['Crop'],
             'crop_cassava' => $row['Cassava Crop'],
             'crop_potato' => $row['Potato Crop'],
             'crop_sweet_potato' => $row['Sweet Potato Crop'],
@@ -79,7 +79,12 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
         return $schoolRecord;
     }
 
-
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date']);
+        return $row;
+    }
 
     public function onFailure(Failure ...$failures)
     {
@@ -98,7 +103,7 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
             'School Name' => 'required|string|max:255',
-            'Date' => 'nullable|date_format:Y-m-d',
+            'Date' => 'nullable|date|date_format:d-m-Y',
             // 'Crop' => 'nullable|string|max:255',
             'Crop Cassava' => 'nullable|boolean',
             'Crop Potato' => 'nullable|boolean',

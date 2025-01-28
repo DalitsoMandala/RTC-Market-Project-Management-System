@@ -81,7 +81,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
             'Has RTC Market Contract',
             'Total Volume Production Previous Season',
             'Production Value Previous Season Total',
-            'Date of Max Sales',
+            'Production Value Date of Max Sales',
             'USD Rate',
             'USD Value',
             'Sells to Domestic Markets',
@@ -185,7 +185,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
 
                 foreach ($sheets as $key => $sheet) {
 
-                    if ($sheet <= 1 && $firstSheetName) {
+                    if ($sheet <= 1 && $key == $firstSheetName) {
 
                         Log::error("The sheet '{$firstSheetName}' is blank.");
                         throw new ExcelValidationException(
@@ -327,7 +327,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                 );
 
                 RtcProductionProcessor::where('uuid', $this->cacheKey)->delete();
-                Submission::where('uuid', $this->cacheKey)->delete();
+                Submission::where('batch_no', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

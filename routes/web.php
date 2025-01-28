@@ -65,19 +65,15 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $user = User::find(auth()->user()->id);
-    $uuid = Uuid::uuid4()->toString();
-    $user->notify(
-        new ImportSuccessNotification(
-            $uuid,
-            route('cip-submissions', [
-                'batch' => $uuid,
-            ]) . '#batch-submission'
+    $reportIds = SystemReport::where('financial_year_id', 1)
+        ->where('project_id', 1)
+        ->where('indicator_id', 2)
+        ->where('organisation_id', 1)
+        ->where('reporting_period_id', 4)
+        ->pluck('id');
 
-        )
-    );
+    dd($reportIds);
 });
-
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);
 })->name('session.check');

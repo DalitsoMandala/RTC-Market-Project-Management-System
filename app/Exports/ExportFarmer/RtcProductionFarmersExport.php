@@ -2,11 +2,12 @@
 
 namespace App\Exports\ExportFarmer;
 
+use Carbon\Carbon;
 use App\Models\RtcProductionFarmer;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMapping, WithTitle, WithStrictNullComparison
@@ -27,7 +28,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
         }
 
         // Select only the columns to be included in the export
-        return RtcProductionFarmer::select(
+        $data = RtcProductionFarmer::select(
             'epa',
             'section',
             'district',
@@ -86,6 +87,17 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
             'sells_to_aggregation_centers',
             'total_vol_aggregation_center_sales'
         )->get();
+
+        $data->transform(function ($row) {
+            $row->date_of_recruitment = Carbon::parse($row['date_of_recruitment'])->format('d-m-Y');
+            $row->registration_date = Carbon::parse($row['registration_date'])->format('d-m-Y');
+            $row->prod_value_previous_season_date_of_max_sales = Carbon::parse($row['prod_value_previous_season_date_of_max_sales'])->format('d-m-Y');
+            $row->irr_prod_value_previous_season_date_of_max_sales = Carbon::parse($row['irr_prod_value_previous_season_date_of_max_sales'])->format('d-m-Y');
+            $row->registration_date_seed_producer = Carbon::parse($row['registration_date_seed_producer'])->format('d-m-Y');
+            return $row;
+        });
+
+        return $data;
     }
 
     public function headings(): array

@@ -6,6 +6,7 @@ use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\RpmFarmerConcAgreement;
+use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -63,14 +64,22 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
         ]);
     }
 
+
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date of Maximum Sale']);
+        $this->convertExcelDate($row['Date Recorded']);
+        return $row;
+    }
     public function rules(): array
     {
         return [
             'Farmer ID' => 'exists:rpm_farmer_conc_agreements,rpm_farmer_id', // Validate Farmer ID
-            'Date Recorded' => 'nullable|date_format:Y-m-d',
+            'Date Recorded' => 'nullable|date|date_format:d-m-Y',
             'Partner Name' => 'required|string|max:255',
             'Country' => 'nullable|string|max:255',
-            'Date of Maximum Sale' => 'nullable|date_format:Y-m-d',
+            'Date of Maximum Sale' => 'nullable|date|date_format:d-m-Y',
             'Product Type' => 'nullable|string|max:255',
             'Volume Sold Previous Period' => 'nullable|numeric|min:0',
             'Financial Value of Sales' => 'nullable|numeric|min:0',

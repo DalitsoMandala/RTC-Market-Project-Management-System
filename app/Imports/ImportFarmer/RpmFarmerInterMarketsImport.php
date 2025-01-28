@@ -2,21 +2,23 @@
 
 namespace App\Imports\ImportFarmer;
 
+
 use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use App\Models\RpmFarmerInterMarket;
+use App\Traits\excelDateFormat;
 use Illuminate\Support\Facades\Cache;
-use Maatwebsite\Excel\Concerns\ToModel;
 
+
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
@@ -36,8 +38,8 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping_
-        $farmerId = Cache::get("farmer_id_mapping_{$this->cacheKey}_{$row['Farmer ID']}");
+        // Retrieve Farmer ID from cache using farmer_id_mapping1_
+        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
         if (!$farmerId) {
             Log::error("Farmer ID not found for Inter Market row: " . json_encode($row));
             return null; // Skip row if mapping is missing
@@ -64,6 +66,15 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
             'financial_value_of_sales' => $row['Financial Value of Sales'],
         ]);
     }
+
+
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date of Maximum Sale']);
+        $this->convertExcelDate($row['Date Recorded']);
+        return $row;
+    }
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
@@ -77,11 +88,11 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
     {
         return [
             'Farmer ID' => 'exists:rpm_farmer_inter_markets,rpm_farmer_id', // Validate Farmer ID
-            'Date Recorded' => 'nullable|date_format:Y-m-d',
+            'Date Recorded' => 'nullable|date|date_format:d-m-Y',
             'Crop Type' => 'required|string|max:255',
             'Market Name' => 'required|string|max:255',
             'Country' => 'nullable|string|max:255',
-            'Date of Maximum Sale' => 'nullable|date_format:Y-m-d',
+            'Date of Maximum Sale' => 'nullable|date|date_format:d-m-Y',
             'Product Type' => 'nullable|string|max:255',
             'Volume Sold Previous Period' => 'nullable|numeric|min:0',
             'Financial Value of Sales' => 'nullable|numeric|min:0',

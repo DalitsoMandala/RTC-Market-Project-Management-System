@@ -22,11 +22,11 @@ class DatabaseSeeder extends Seeder
         $this->call(IndicatorSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
-        $this->call(PeriodSeeder::class); //edit this
+        $this->call(PeriodSeeder::class); //edit this (test)
         $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
-        $this->call(DataGenerationSeeder::class); //edit this
+        $this->call(DataGenerationSeeder::class); //edit this (test)
         Artisan::call('update:information');
     }
 }

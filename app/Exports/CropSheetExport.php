@@ -2,10 +2,11 @@
 
 namespace App\Exports;
 
+use Carbon\Carbon;
 use App\Models\SeedBeneficiary;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class CropSheetExport implements FromCollection, WithHeadings, WithTitle
 {
@@ -24,7 +25,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
         if ($this->template) {
             return collect([]);
         }
-        return SeedBeneficiary::where('crop', $this->cropType)->select(
+        $data = SeedBeneficiary::where('crop', $this->cropType)->select(
             'crop',
             'district',
             'epa',
@@ -44,6 +45,13 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
             'bundles_received',
             'phone_or_national_id'
         )->get();
+
+
+        $data->transform(function ($row) {
+            $row->date = Carbon::parse($row->date)->format('d-m-Y');
+            return $row;
+        });
+        return $data;
     }
 
     public function headings(): array

@@ -7,6 +7,7 @@ use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\RtcProductionProcessor;
+use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -81,7 +82,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'has_rtc_market_contract' => $row['Has RTC Market Contract'],
             'total_vol_production_previous_season' => $row['Total Volume Production Previous Season'],
             'prod_value_previous_season_total' => $row['Production Value Previous Season Total'],
-            'prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Date of Max Sales'])->format('Y-m-d'),
+            'prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Production Value Date of Max Sales'])->format('Y-m-d'),
             'prod_value_previous_season_usd_rate' => $row['USD Rate'],
             'prod_value_previous_season_usd_value' => $row['USD Value'],
             'sells_to_domestic_markets' => $row['Sells to Domestic Markets'],
@@ -112,6 +113,18 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         return $processorRecord;
     }
 
+
+    use excelDateFormat;
+
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Date of Recruitment']);
+        $this->convertExcelDate($row['Registration Date']);
+        $this->convertExcelDate($row['Production Value Date of Max Sales']);
+        return $row;
+    }
+
+
     public function rules(): array
     {
         return [
@@ -119,7 +132,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
             'Enterprise' => 'required|string|max:255',
-            'Date of Recruitment' => 'nullable|date_format:Y-m-d',
+            'Date of Recruitment' => 'nullable|date|date_format:d-m-Y',
             'Name of Actor' => 'nullable|string|max:255',
             'Name of Representative' => 'nullable|string|max:255',
             'Phone Number' => 'nullable|max:255',
@@ -135,7 +148,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Is Registered' => 'nullable|boolean',
             'Registration Body' => 'nullable|string|max:255',
             'Registration Number' => 'nullable|string|max:255',
-            'Registration Date' => 'nullable|date_format:Y-m-d',
+            'Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Employees Formal Female 18-35' => 'nullable|integer|min:0',
             'Employees Formal Male 18-35' => 'nullable|integer|min:0',
             'Employees Formal Male 35+' => 'nullable|integer|min:0',
@@ -149,7 +162,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Has RTC Market Contract' => 'nullable|boolean',
             'Total Volume Production Previous Season' => 'nullable|numeric|min:0',
             'Production Value Previous Season Total' => 'nullable|numeric|min:0',
-            'Date of Max Sales' => 'nullable|date_format:Y-m-d',
+            'Production Value Date of Max Sales' => 'nullable|date|date_format:d-m-Y',
             'USD Rate' => 'nullable|numeric|min:0',
             'USD Value' => 'nullable|numeric|min:0',
             'Sells to Domestic Markets' => 'nullable|boolean',

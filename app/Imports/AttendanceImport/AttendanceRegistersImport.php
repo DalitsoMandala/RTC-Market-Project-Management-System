@@ -2,15 +2,17 @@
 
 namespace App\Imports\AttendanceImport;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\JobProgress;
+use App\Traits\excelDateFormat;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
+
 use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Validators\Failure;
-
 use Maatwebsite\Excel\Concerns\WithEvents;
 use App\Exceptions\ExcelValidationException;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -48,8 +50,8 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'rtcCrop_sweet_potato' => $row['RTC Crop Sweet Potato'],
             'venue' => $row['Venue'],
             'district' => $row['District'],
-            'startDate' => $row['Start Date'],
-            'endDate' => $row['End Date'],
+            'startDate' => Carbon::parse($row['Start Date'])->format('Y-m-d'),
+            'endDate' => Carbon::parse($row['End Date'])->format('Y-m-d'),
             'totalDays' => $row['Total Days'],
             'name' => $row['Name'],
             'sex' => $row['Sex'],
@@ -77,6 +79,14 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
         return $attendanceRecord;
     }
 
+
+    use excelDateFormat;
+    public function prepareForValidation(array $row)
+    {
+        $this->convertExcelDate($row['Start Date']);
+        $this->convertExcelDate($row['End Date']);
+        return $row;
+    }
     public function rules(): array
     {
         return [
@@ -87,8 +97,8 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'RTC Crop Sweet Potato' => 'boolean',
             'Venue' => 'required|string|max:255',
             'District' => 'required|string|max:255',
-            'Start Date' => 'required|date',
-            'End Date' => 'required|date|after_or_equal:Start Date',
+            'Start Date' => 'required|date|date_format:d-m-Y',
+            'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
             'Total Days' => 'required|integer|min:1',
             'Name' => 'required|string|max:255',
             'Sex' => 'required|string|in:Male,Female,Other',

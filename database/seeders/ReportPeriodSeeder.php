@@ -56,6 +56,13 @@ class ReportPeriodSeeder extends Seeder
                     'end_month' => 'DECEMBER',
                     'type' => 'QUARTER 4'
                 ]);
+
+                ReportingPeriodMonth::create([
+                    'period_id' => $reportingPeriod->id,
+                    'start_month' => 'UNSPECIFIED',
+                    'end_month' => 'UNSPECIFIED',
+                    'type' => 'UNSPECIFIED'
+                ]);
             }
         }
     }

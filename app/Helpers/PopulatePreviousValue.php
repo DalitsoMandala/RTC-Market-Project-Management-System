@@ -133,8 +133,56 @@ class PopulatePreviousValue
         return round((($annualValue - $baseline) / $annualValue) * 100, 2);
     }
 
+    // protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
+    // {
+    //     PercentageIncreaseIndicator::updateOrCreate(
+    //         [
+    //             'financial_year_id' => $financialYear->id,
+    //             'indicator_id' => $indicator->id,
+    //             'organisation_id' => $organisation->id,
+    //             'name' => $disaggregation_name
+    //         ],
+    //         [
+    //             'total_value' => $annualValue,
+    //             'growth_percentage' => $growthPercentage,
+    //         ]
+    //     );
+
+    //     $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
+    //         ->where('project_id', 1)
+    //         ->where('indicator_id', $indicator->id)
+    //         ->where('organisation_id', $organisation->id)
+
+    //         ->pluck('id');
+
+
+
+    //     $data =  SystemReportData::whereIn('system_report_id', $reportIds)
+    //         ->where('name', $disaggregation_name)->get();
+
+    //     foreach ($data as $item) {
+    //         $item->update([
+    //             'value' => $growthPercentage
+    //         ]);
+    //     }
+    // }
+
     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
     {
+        // Identify the last reporting period for the financial year
+        $lastReportingPeriod = SystemReport::where('financial_year_id', $financialYear->id)
+            ->where('project_id', 1)
+            ->where('indicator_id', $indicator->id)
+            ->where('organisation_id', $organisation->id)
+            ->orderByDesc('reporting_period_id') // Get the latest reporting period
+            ->pluck('reporting_period_id')
+            ->first(); // Get only the last period
+
+        if (!$lastReportingPeriod) {
+            return; // No report exists, exit early
+        }
+
+        // Update PercentageIncreaseIndicator
         PercentageIncreaseIndicator::updateOrCreate(
             [
                 'financial_year_id' => $financialYear->id,
@@ -148,16 +196,18 @@ class PopulatePreviousValue
             ]
         );
 
+        // Get reports only for the last reporting period
         $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
             ->where('project_id', 1)
             ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
+            ->where('reporting_period_id', $lastReportingPeriod) // Filter for last period only
             ->pluck('id');
 
-
-
-        $data =  SystemReportData::whereIn('system_report_id', $reportIds)
-            ->where('name', $disaggregation_name)->get();
+        // Update SystemReportData only for last reporting period
+        $data = SystemReportData::whereIn('system_report_id', $reportIds)
+            ->where('name', $disaggregation_name)
+            ->get();
 
         foreach ($data as $item) {
             $item->update([
