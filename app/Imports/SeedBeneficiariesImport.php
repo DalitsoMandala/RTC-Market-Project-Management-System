@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\User;
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Helpers\ExcelValidator;
 use App\Models\SeedBeneficiary;
 use App\Imports\CropSheetImport;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,28 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
         'OFSP',
         'Cassava'
     ];
+
+    protected $expectedHeaders = [
+        'Crop',
+        'District',
+        'EPA',
+        'Section',
+        'Name of AEDO',
+        'AEDO Phone Number',
+        'Date',
+        'Name of Recipient',
+        'Village',
+        'Sex',
+        'Age',
+        'Marital Status',
+        'Household Head',
+        'Household Size',
+        'Children Under 5 in HH',
+        'Variety Received',
+        'Bundles Received',
+        'Phone / National ID',
+    ];
+
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails = [];
@@ -87,6 +110,18 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                             "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
                         );
                     }
+                }
+
+
+                $filePath = $this->filePath;
+                $expectedSheetNames = $this->expectedSheetNames;
+                $expectedHeaders = $this->expectedHeaders;
+
+                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
+                $message = $validator->validateHeaders();
+
+                if ($message) {
+                    throw new ExcelValidationException($message->getMessage());
                 }
 
                 // Get total rows from all sheets and initialize JobProgress
