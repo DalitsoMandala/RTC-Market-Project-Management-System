@@ -133,39 +133,6 @@ class PopulatePreviousValue
         return round((($annualValue - $baseline) / $annualValue) * 100, 2);
     }
 
-    // protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
-    // {
-    //     PercentageIncreaseIndicator::updateOrCreate(
-    //         [
-    //             'financial_year_id' => $financialYear->id,
-    //             'indicator_id' => $indicator->id,
-    //             'organisation_id' => $organisation->id,
-    //             'name' => $disaggregation_name
-    //         ],
-    //         [
-    //             'total_value' => $annualValue,
-    //             'growth_percentage' => $growthPercentage,
-    //         ]
-    //     );
-
-    //     $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
-    //         ->where('project_id', 1)
-    //         ->where('indicator_id', $indicator->id)
-    //         ->where('organisation_id', $organisation->id)
-
-    //         ->pluck('id');
-
-
-
-    //     $data =  SystemReportData::whereIn('system_report_id', $reportIds)
-    //         ->where('name', $disaggregation_name)->get();
-
-    //     foreach ($data as $item) {
-    //         $item->update([
-    //             'value' => $growthPercentage
-    //         ]);
-    //     }
-    // }
 
     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
     {

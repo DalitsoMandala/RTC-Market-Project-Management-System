@@ -26,7 +26,10 @@ use App\Helpers\ExchangeRateHelper;
 use App\Notifications\SendReminder;
 use App\Livewire\Internal\Cip\Forms;
 use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ProgresSummaryImport;
 use Illuminate\Support\Facades\Route;
 use App\Helpers\PopulatePreviousValue;
 use App\Livewire\Internal\Cip\Reports;
@@ -65,14 +68,12 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $reportIds = SystemReport::where('financial_year_id', 1)
-        ->where('project_id', 1)
-        ->where('indicator_id', 2)
-        ->where('organisation_id', 1)
-        ->where('reporting_period_id', 4)
-        ->pluck('id');
 
-    dd($reportIds);
+    $filePath = public_path('Progress summary template.xlsx');
+
+
+
+    Excel::import(new ProgresSummaryImport($filePath), $filePath);
 });
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);

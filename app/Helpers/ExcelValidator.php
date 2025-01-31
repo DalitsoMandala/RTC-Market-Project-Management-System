@@ -30,6 +30,8 @@ class ExcelValidator
         $spreadsheet = IOFactory::load($this->filePath);
         $sheetNames = $spreadsheet->getSheetNames();
 
+
+
         foreach ($this->expectedSheetNames as $sheetName) {
             $sheetIndex = array_search($sheetName, $sheetNames);
 
@@ -48,6 +50,8 @@ class ExcelValidator
             foreach ($headerRow as $header) {
                 $headers[] = $header;
             }
+
+
 
             // Validate headers
             $expectedSheetHeaders = $this->expectedHeaders[$sheetName];
