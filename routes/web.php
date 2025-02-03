@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\ProgresSummaryExport;
 use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
@@ -69,11 +70,11 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
-    $filePath = public_path('Progress summary template.xlsx');
+    //  $filePath = public_path('Progress summary template.xlsx');
 
 
 
-    Excel::import(new ProgresSummaryImport($filePath), $filePath);
+    return  Excel::download(new ProgresSummaryExport(true), 'missing_report_template.xlsx');
 });
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);

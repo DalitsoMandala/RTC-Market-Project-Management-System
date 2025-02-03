@@ -19,6 +19,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -26,9 +27,6 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, WithEvents
 {
-    /**
-     * @param Collection $collection
-     */
 
     public $filePath;
     public $expectedSheetNames = [
@@ -38,34 +36,45 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
     protected $totalRows = 0;
     protected $expectedHeaders = [
         'Progress summary' => [
-            "Indicator No.",
+            "Indicator Number",
             "Indicator",
             "Disaggregation",
-            "Y1 target",
             "Y1 Achieved",
-            "Y2 target",
+            "Y2 Target",
             "Y2 Achieved",
-
         ]
 
     ];
 
-    public function __construct($filePath = null)
+    public $organisation_id;
+    public $user_id;
+    public $financial_year_id;
+    public $uuid;
+    public $file_link;
+
+    public function __construct($filePath = null, $financial_year_id, $user_id, $organisation_id, $uuid, $file_link)
     {
         $this->filePath = $filePath;
+        $this->financial_year_id = $financial_year_id;
+        $this->user_id = $user_id;
+        $this->organisation_id = $organisation_id;
+        $this->uuid = $uuid;
+        $this->file_link = $file_link;
     }
 
     public function sheets(): array
     {
         return [
-            'Progress summary' => new ProgresSummaryImportSheet(),  // Import only "Sheet1"
+            'Progress summary' => new ProgresSummaryImportSheet(
+                $this->financial_year_id,
+                $this->user_id,
+                $this->organisation_id,
+                $this->uuid
+            )
         ];
     }
 
-    public function chunkSize(): int
-    {
-        return 1000;
-    }
+
 
     public function registerEvents(): array
     {
@@ -119,7 +128,10 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
                 }, 0);
             },
 
-            AfterImport::class => function (AfterImport $event) {},
+            AfterImport::class => function (AfterImport $event) {
+
+                session()->flash('success', 'Importing was successful. The report will be updated shortly.');
+            },
 
             ImportFailed::class => function (ImportFailed $event) {
 
@@ -128,8 +140,15 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
                 $errorMessage = $exception->getMessage();
 
 
+
                 Log::error($exception->getMessage());
+                session()->flash('error', $errorMessage);
             }
         ];
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 }

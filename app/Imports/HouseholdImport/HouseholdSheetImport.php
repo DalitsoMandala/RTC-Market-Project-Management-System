@@ -52,6 +52,8 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
 
         return $row;
     }
+
+
     public function model(array $row)
     {
         // Create HouseholdRtcConsumption record without storing the 'ID' column in the database

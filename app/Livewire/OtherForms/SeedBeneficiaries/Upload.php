@@ -120,46 +120,7 @@ class Upload extends Component
         // Path to your template file
         return Excel::download(new SeedBeneficiariesExport(false), 'seed_beneficiaries.xlsx');
     }
-    // public function checkProgress()
-    // {
-    //     $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
 
-    //     $this->progress = $jobProgress ? $jobProgress->progress : 0;
-    //     $this->importing = true;
-    //     $this->importingFinished = false;
-
-
-    //     if ($this->progress == 100) {
-
-
-
-    //         if ($jobProgress->status == 'failed') {
-
-    //             session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-    //             Cache::forget($this->importId);
-    //             return redirect()->to(url()->previous());
-    //         } else if ($jobProgress->status == 'completed') {
-
-    //             $user = User::find(auth()->user()->id);
-    //             Cache::forget($this->importId);
-    //             if ($user->hasAnyRole('external')) {
-    //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('external-submissions') . '#batch-submission');
-    //             } else if ($user->hasAnyRole('staff')) {
-    //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('cip-staff-submissions') . '#batch-submission');
-    //             } else {
-    //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('cip-submissions') . '#batch-submission');
-    //             }
-    //         }
-
-    //         // $this->importing = false;
-    //         // $this->importingFinished = true;
-
-    //         $this->importId = Uuid::uuid4()->toString(); // change key
-    //     }
-    // }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
     {
 

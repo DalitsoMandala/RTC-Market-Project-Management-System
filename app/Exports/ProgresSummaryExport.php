@@ -5,29 +5,21 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class ProgresSummaryExport implements FromCollection, WithHeadings, WithTitle
+class ProgresSummaryExport implements WithMultipleSheets
 {
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
-    {
-        //
-    }
 
-    public function headings(): array
+    public $template = false;
+
+    public function __construct($template = false)
+    {
+        $this->template = $template;
+    }
+    public function sheets(): array
     {
         return [
-            '#',
-            'Name',
-            'Date',
-            'Status',
+            'Progress summary' => new ProgressSummaryExportSheet($this->template),  // Import only "Sheet1"
         ];
-    }
-
-    public function title(): string
-    {
-        return 'Progress Summary';
     }
 }
