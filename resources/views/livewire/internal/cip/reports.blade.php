@@ -46,14 +46,18 @@
                     <div class="px-0 card-body">
                         <div class="my-3 row">
                             <div class="col-md-12">
-                                <ul class="mx-1 nav nav-tabs">
+                                <ul class="mx-1 my-2 nav nav-tabs">
                                     <li class="nav-item">
-                                        <a href="{{ $routePrefix }}/reports" class="nav-link active"
+                                        <a href="{{ $routePrefix }}/reports" class="nav-link active "
                                             aria-current="page">Reporting</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Standard
+                                            Targets</a>
                                     </li>
 
                                     <li class="nav-item">
-                                        <a href="{{ $routePrefix }}/targets" class="nav-link">Targets</a>
+                                        <a href="{{ $routePrefix }}/targets" class="nav-link ">Targets</a>
                                     </li>
 
                                 </ul>

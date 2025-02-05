@@ -189,7 +189,7 @@ final class UserTable extends PowerGridComponent
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red btn-sm goUp  custom-tooltip')
                 ->tooltip('Delete')

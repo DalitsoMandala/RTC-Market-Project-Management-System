@@ -12,7 +12,7 @@
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="{{ $routePrefix }}/reports">Reporting</a></li>
 
-                            <li class="breadcrumb-item active">Targets</li>
+                            <li class="breadcrumb-item active"> Targets</li>
                         </ol>
                     </div>
 
@@ -33,6 +33,10 @@
                             <li class="nav-item">
                                 <a href="{{ $routePrefix }}/reports" class="nav-link "
                                     aria-current="page">Reporting</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Standard
+                                    Targets</a>
                             </li>
 
                             <li class="nav-item">

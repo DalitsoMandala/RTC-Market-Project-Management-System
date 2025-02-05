@@ -1,6 +1,5 @@
 <?php
 
-use App\Exports\ProgresSummaryExport;
 use Carbon\Carbon;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
@@ -20,6 +19,7 @@ use App\Helpers\AmountSplitter;
 use App\Models\IndicatorTarget;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
+use App\Models\SubmissionTarget;
 use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
@@ -30,6 +30,7 @@ use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProgresSummaryExport;
 use App\Imports\ProgresSummaryImport;
 use Illuminate\Support\Facades\Route;
 use App\Helpers\PopulatePreviousValue;
@@ -71,10 +72,14 @@ Route::get('/', fn() => redirect()->route('login'));
 Route::get('/test', function () {
 
     //  $filePath = public_path('Progress summary template.xlsx');
+    // $targets = SubmissionTarget::selectRaw("financial_year_id, target_name")
+    //     ->groupBy('financial_year_id', 'target_name')
+    //     ->get();
+
+    // dd($targets);
 
 
-
-    return  Excel::download(new ProgresSummaryExport(true), 'missing_report_template.xlsx');
+    //return  Excel::download(new ProgresSummaryExport(true), 'missing_report_template.xlsx');
 });
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);
@@ -165,6 +170,7 @@ Route::middleware([
     Route::get('/reports', Reports::class)->name('cip-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
     Route::get('/targets', App\Livewire\Targets\View::class);
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
@@ -223,6 +229,7 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Internal\Staff\Forms::class)->name('cip-staff-forms');
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Staff\Submissions::class)->name('cip-staff-submissions');
     Route::get('/targets', App\Livewire\Targets\View::class);
+
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
 
@@ -274,6 +281,7 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');
     Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
     Route::get('/targets', App\Livewire\Targets\View::class);
+
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();
@@ -298,6 +306,7 @@ Route::middleware([
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();
