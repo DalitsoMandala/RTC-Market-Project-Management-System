@@ -11,9 +11,9 @@
 </div>
 
 @if ($this->exporting && !$this->exportFinished)
-    <div class="mx-2 d-inline" wire:poll.5s="exportProgress">Exporting...please wait.</div>
+    <span class="mx-2 text-center d-block " wire:poll.5s="exportProgress">Exporting...please wait.</span>
 
-    <div class="mx-2 my-2 progress">
+    <div class="mx-2 my-2 progress progress-sm">
         <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar"
             style="width: 100%;" aria-valuenow="{{ $this->progress }}" aria-valuemin="0" aria-valuemax="100">
 

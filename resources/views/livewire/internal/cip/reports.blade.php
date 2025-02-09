@@ -35,7 +35,8 @@
                     @role('admin')
                         <div class="card-header d-flex justify-content-between">
                             <div class="col">
-                                <button type="button" class="btn btn-success btn-sm" wire:click='load'
+                                <button type="button" class="btn btn-soft-warning btn-sm" wire:click='load'
+                                    wire:target='load' wire:loading.attr='disabled'
                                     @if ($loadingData) disabled @endif>
                                     <i class="bx bx-recycle"></i> Update
                                 </button> <br>
@@ -228,21 +229,10 @@
 
 
                                 @if ($loadingData)
-                                    <div class="p-2 my-2 border row rounded-2">
-                                        <div class="col-9">
-                                            <div class="my-2 progress">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                                    role="progressbar" style="width: {{ $progress }}%;"
-                                                    aria-valuenow="{{ $progress }}" aria-valuemin="0"
-                                                    aria-valuemax="100">
+                                    <div class="p-2 my-2 roow">
 
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                        <div class="col-3 d-flex ">
-                                            <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
+                                        <div class="col-12 d-flex justify-content-center ">
+                                            <span class="fw-bold me-2"> Updating data...Please wait</span>
 
                                             <div x-data wire:poll.5000ms='readCache()'
                                                 class="d-flex justify-content-center align-items-center">
@@ -254,33 +244,6 @@
                                         </div>
                                     </div>
                                 @endif
-
-
-                                <!-- <div class="table-responsive" wire:ignore x-data="{ show: $wire.entangle('loadingData') }"
-                                    :class="{ 'pe-none opacity-25': show === true }">
-                                    <table class="table table-striped table-bordered " id="reports">
-                                        <thead class="text-uppercase table-primary">
-                                            <tr style="font-size: 12px;" class="text-uppercase">
-                                                <th scope="col" style="color: #6b6a6a;">ID</th>
-                                                <th scope="col" style="color: #6b6a6a;">Dissagregation</th>
-                                                <th scope="col" style="color: #6b6a6a;">Value</th>
-                                                <th style="color: #6b6a6a;">Indicator Name</th>
-                                                <th style="color: #6b6a6a;">Indicator Number</th>
-                                                <th style="color: #6b6a6a;">Project</th>
-                                                <th style="color: #6b6a6a;">Reporting Period</th>
-                                                <th style="color: #6b6a6a;">Project Year</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody style="font-size: 12px">
-
-                                        </tbody>
-                                    </table>
-                                </div>
- -->
-
-
-
-
 
 
 
@@ -309,76 +272,8 @@
 
 
 
-</div>
 
 
-@script
-    <script>
-        Alpine.store('loadData', {
-            indicators: @json($indicators),
-
-        });
-
-        $(document).ready(function() {
-
-            //  $wire.load();
-
-
-            // $('#reports').DataTable();
-        });
-        $wire.on('loaded-data', (e) => {
-
-
-            loadData(e.data);
-        });
-
-        function loadData(data) {
-            if ($.fn.DataTable.isDataTable('#reports')) {
-                $('#reports').DataTable().clear().destroy();
-            }
-            let tbody = $('#reports tbody');
-            tbody.empty(); // Clear any existing data
-
-            data.forEach(function(row) {
-                let tr = $('<tr>');
-                tr.append($('<td>').text(row.id));
-                tr.append($('<td>').text(row.name));
-                tr.append($('<td>').text(row.value));
-                tr.append($('<td>').text(row.indicator_name));
-                tr.append($('<td>').text(row.number));
-                tr.append($('<td>').text(row.project));
-                tr.append($('<td>').text(row.reporting_period));
-                tr.append($('<td>').text(row.financial_year));
-                tbody.append(tr);
-            });
-
-            //             // Initialize or reinitialize DataTable
-
-            let today = new Date();
-            let dd = String(today.getDate()).padStart(2, '0');
-            let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-            let yyyy = today.getFullYear();
-            today = mm + '_' + dd + '_' + yyyy;
-            $('#reports').DataTable({
-                // Your DataTable options here
-                dom: 'Bfrtip',
-                buttons: [{
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i> Export',
-                    titleAttr: 'Excel',
-                    title: 'Report ' + today,
-                    className: 'btn btn-soft-dark waves-effect waves-light'
-                }],
-                paging: true,
-                searching: true,
-                ordering: true,
-                info: true,
-                scroller: true
-            });
-
-        }
-    </script>
-@endscript
 
 
 </div>

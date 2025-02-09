@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Tables\ReportingTable;
 use App\Models\IndicatorDisaggregation;
+use Illuminate\Support\Facades\Artisan;
 
 class Reports extends Component
 {
@@ -127,32 +128,17 @@ class Reports extends Component
 
         $this->loadingData = true;
 
-        $completed = ReportStatus::where('status', 'completed')->exists();
-        $pending = ReportStatus::where('status', 'pending')->exists();
-        $processing = ReportStatus::where('status', 'processing')->exists();
+
+        $pending = ReportStatus::where('status', 'pending')->first();
+        $completed = ReportStatus::where('status', 'completed')->first();
+        $processing = ReportStatus::where('status', 'processing')->first();
 
 
 
 
         if ($pending || $completed) {
 
-            Bus::batch([
-                new ReportJob([])
-            ])->before(function (Batch $batch) {
-                // The batch has been created but no jobs have been added...
-
-            })->progress(function (Batch $batch) {
-                // A single job has completed successfully...
-            })->then(function (Batch $batch) {
-                // All jobs completed successfully...
-            })->catch(function (Batch $batch, Throwable $e) {
-                // First batch job failure detected...
-            })->finally(function (Batch $batch) {
-                // The batch has finished executing...
-
-            })
-
-                ->dispatch();
+            Artisan::call('update:information');
         } else if ($processing) {
             $this->readCache();
         }
