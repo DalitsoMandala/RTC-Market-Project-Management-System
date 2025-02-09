@@ -307,7 +307,7 @@ final class SubmissionTable extends PowerGridComponent
 
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red my-1 custom-tooltip btn-sm')
                 ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin')) || User::find(auth()->user()->id)->hasAnyRole('admin'))

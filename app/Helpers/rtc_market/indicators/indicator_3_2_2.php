@@ -2,6 +2,8 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Traits\FilterableQuery;
+
 use App\Models\AttendanceRegister;
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class indicator_3_2_2
 {
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
     protected $target_year_id;
@@ -65,34 +68,12 @@ class indicator_3_2_2
 
         $query = AttendanceRegister::query()->where('status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
 
 
 
 
-        return $query;
 
+        return $this->applyFilters($query);
     }
 
     public function getCropType()
@@ -123,7 +104,6 @@ class indicator_3_2_2
             'Partners' => $partners,
             'Staff' => $staff
         ];
-
     }
 
     // public function getTotals()
@@ -157,8 +137,8 @@ class indicator_3_2_2
 
     //     return $data;
     // }
-    public function getDisaggregations(
-    ) {
+    public function getDisaggregations()
+    {
         $cassava = $this->getCropType()['Cassava'];
         $potato = $this->getCropType()['Potato'];
         $sweetPotato = $this->getCropType()['Sweet potato'];

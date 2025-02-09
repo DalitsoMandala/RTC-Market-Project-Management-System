@@ -7,4 +7,6 @@
     <button type="button" class="btn btn-warning" {{ $attributes }}>
         <i class='bx bx-download'></i> Download
     </button>
+    <button type="button" class="btn-close ms-2 custom-tooltip" data-bs-dismiss="alert" aria-label="Close"
+        title="Close"></button>
 </div>

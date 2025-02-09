@@ -169,7 +169,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('cip|manager')
+                @hasallroles('manager')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -316,7 +316,7 @@
                     </nav>
                 @endhasallroles
 
-                @hasallroles('cip|staff')
+                @hasallroles('staff')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
@@ -387,7 +387,7 @@
                 @endhasallroles
 
 
-                @hasallroles('cip|project_manager')
+                @hasallroles('project_manager')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                         <div class="collapse navbar-collapse" id="topnav-menu-content">

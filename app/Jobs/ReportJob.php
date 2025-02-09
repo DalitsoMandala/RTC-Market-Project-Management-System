@@ -11,14 +11,17 @@ use App\Models\FinancialYear;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use App\Models\IndicatorClass;
+use App\Models\AdditionalReport;
 use App\Models\SystemReportData;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;
 use Illuminate\Queue\SerializesModels;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\PercentageIncreaseIndicator;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -73,6 +76,8 @@ class ReportJob implements ShouldQueue
                             foreach ($organisations as $organisationChunk) {
                                 foreach ($organisationChunk as $organisation) {
                                     try {
+
+                                        //its class is \App\Helpers\rtcmarket\indicators
                                         $class = new $Indicator_class->class(
                                             reporting_period: $period,
                                             financial_year: $financialYear,
@@ -92,15 +97,18 @@ class ReportJob implements ShouldQueue
                                                     'project_id' => $project->id,
                                                     'indicator_id' => $Indicator_class->indicator_id,
                                                 ],
-                                                [] // No additional fields to update
+                                                [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id' => $financialYear,
+                                                    'organisation_id' => $organisation,
+                                                    'project_id' => $project->id,
+                                                    'indicator_id' => $Indicator_class->indicator_id
+                                                ] // No additional fields to update
                                             );
 
                                             foreach ($class->getDisaggregations() as $key => $value) {
                                                 // Update or create data entries
-                                                $report->data()->updateOrCreate(
-                                                    ['name' => $key],
-                                                    ['value' => $value]
-                                                );
+                                                $this->updateDisaggregations($report, $key, $value);
                                             }
                                         }
 
@@ -115,7 +123,7 @@ class ReportJob implements ShouldQueue
                                             ]);
                                         }
                                     } catch (\Exception $e) {
-                                        Log::error("Error processing report for organisation: $organisation", ['error' => $e->getMessage()]);
+                                        Log::error($e->getMessage());
                                     }
                                 }
                             }
@@ -124,16 +132,19 @@ class ReportJob implements ShouldQueue
                 }
             }
         }
-        $class = new PopulatePreviousValue();
-
-        $class->start(); // percentages
+    }
 
 
-        ReportStatus::find(1)->update([
-            'status' => 'completed',
-            'progress' => 100
-        ]);
-        Cache::put('report_progress', 100);
-        Cache::put('report_', 'completed');
+
+
+
+    public function updateDisaggregations($report, $key, $value)
+    {
+        $reportData =  $report->data()->updateOrCreate(
+            ['name' => $key],
+            ['value' => $value]
+        );
+
+        return $reportData;
     }
 }

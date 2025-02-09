@@ -2,78 +2,105 @@
     <div class="col">
         <div class="mx-2 my-2 border shadow-none card border-light">
             <div class="card-body">
-                <div class="my-2 border shadow-none card card-body " x-data="{
-                    selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
-                    selectedMonth: $wire.entangle('selectedMonth'),
-                    selectedIndicator: $wire.entangle('selectedIndicator'),
-                }">
+                <div class="my-2 border shadow-none card card-body ">
                     <h5> Instructions</h5>
-                    <p class="alert bg-secondary-subtle text-uppercase">Download the Report template
+                    <p class="alert bg-secondary-subtle text-uppercase">Use the Report template
                         &
                         upload your
                         data.</p>
 
                     <form wire:submit='submitUpload'>
                         <div x-data>
-                            <a class="btn btn-soft-warning" href="#" data-toggle="modal" role="button"
-                                @click="$wire.downloadTemplate()">
-                                Download template <i class="bx bx-download"></i> </a>
+                            <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
+                                wire:loading.attr='disabled' wire:target='downloadTemplate'>
+                                Download template <i class="bx bx-download"></i> </button>
                             <hr>
                         </div>
 
-                        <div id="table-form">
-                            <div class="row">
-                                <div class="col">
 
+                        <div id="table-form">
+
+
+                            <div class="row">
+                                <div class="col-12 col-md-4">
+                                    <div class="mb-3">
+                                        <label for="" class="form-label">Organisation</label>
+                                        <select
+                                            class="form-select @error('selectedOrganisation')
+                                            is-invalid
+                                        @enderror"
+                                            name="" id="" wire:model="selectedOrganisation">
+                                            <option value="">Select one</option>
+                                            @foreach ($organisations as $organisation)
+                                                <option value="{{ $organisation->id }}">{{ $organisation->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @error('selectedOrganisation')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
 
                                 </div>
-                                @if ($importing && !$importingFinished)
-                                    <div class="alert alert-warning d-flex justify-content-between"
-                                        wire:poll.5000ms='checkProgress()'>Importing your
-                                        file
-                                        Please wait....
+                                <div class="col-12 col-md-4 d-none">
 
-                                        <div class=" d-flex align-content-center">
-                                            <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
+                                    <div class="mb-1">
+                                        <label for="" class="form-label">Reporting Period</label>
+                                        {{-- <x-flatpickr x-model="starting_period" /> --}}
 
 
-                                            <div class="spinner-border text-warning spinner-border-sm" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
+                                        <select disabled
+                                            class="form-select @error('selectedReportingPeriod')
+                                            is-invalid
+                                        @enderror"
+                                            name="" id="" wire:model="selectedReportingPeriod"
+                                            wire:loading.attr='disabled' wire:target='selectedReportingPeriod'>
+                                            <option value="">Select one</option>
+                                            @foreach ($reportingPeriod as $month)
+                                                <option value="{{ $month->id }}">{{ $month->type }}
 
-                                        </div>
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+
                                     </div>
+                                    @error('selectedReportingPeriod')
+                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                    @enderror
+                                </div>
 
+                            </div>
+                            <div class="row">
 
-
-
-
-                                    <div x-data class="my-2 progress progress-sm">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                                            role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
-                                            aria-valuemin="0" aria-valuemax="100">
-
-                                        </div>
-                                    </div>
-                                @endif
+                                <x-alerts />
 
 
                             </div>
                         </div>
                         <div class="row justify-content-center">
 
-                            <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
-                                <x-filepond-single instantUpload="true" wire:model='upload' />
+                            <div class="col-12 ">
+
+                                <div x-data="{
+                                    showInput: $wire.entangle('showInput').live,
+                                }"
+                                    :class="{
+                                        'pe-none opacity-25': showInput === false
+                                    }">
+                                    <x-filepond-single instantUpload="true" wire:model='upload' />
+
+                                </div>
+
                                 @error('upload')
                                     <div class="d-flex justify-content-center">
                                         <x-error class="text-center ">{{ $message }}</x-error>
                                     </div>
                                 @enderror
-                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                                <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false }">
                                     <button type="submit" @uploading-files.window="disableButton = true"
                                         @finished-uploading.window="disableButton = false"
-                                        :disabled="disableButton === true || openSubmission === false"
-                                        class="px-5 btn btn-warning ">
+                                        :disabled="disableButton === true" class="px-5 btn btn-warning ">
                                         Submit data
                                     </button>
 

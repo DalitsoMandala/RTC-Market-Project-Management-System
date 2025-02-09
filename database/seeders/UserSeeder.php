@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-            'cip',
+            //   'cip',
             'manager'
         ]);
 
@@ -61,7 +61,7 @@ class UserSeeder extends Seeder
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
 
-            'cip',
+            //    'cip',
             'project_manager'
         ]);
 
@@ -74,7 +74,7 @@ class UserSeeder extends Seeder
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
 
-            'cip',
+            //    'cip',
             'staff'
         ]);
 

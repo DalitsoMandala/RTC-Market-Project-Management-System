@@ -138,7 +138,7 @@ class Upload extends Component
 
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
-                    return redirect()->to(url()->previous());
+                    $this->redirect(url()->previous());
                 }
             }
         } catch (\Exception $th) {
@@ -146,7 +146,7 @@ class Upload extends Component
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th);
-            return redirect()->to(url()->previous());
+            $this->redirect(url()->previous());
         }
 
         $this->removeTemporaryFile();

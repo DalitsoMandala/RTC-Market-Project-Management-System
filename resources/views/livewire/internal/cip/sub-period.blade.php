@@ -1,7 +1,18 @@
 <div>
 
 
-    <div class="container-fluid">
+    <div class="container-fluid" id="load-app" x-data="{
+        showPage: false,
+    
+        init() {
+            $wire.dispatch('timeout');
+            setTimeout(() => {
+    
+                this.showPage = true;
+            }, 3000);
+        }
+    }" :class="{ 'pe-none opacity-25': !showPage }">
+
 
         <!-- start page title -->
         <div class="row">
@@ -312,8 +323,8 @@ border-danger
                                             <!-- Target Name Input -->
                                             <div class="col">
                                                 <label for="targets" class="form-label">Target Name</label>
-                                                <select
-                                                    class="form-select @error('targets.' . $index . '.name') is-invalid @enderror"
+                                                <select disabled
+                                                    class="form-select bg-light @error('targets.' . $index . '.name') is-invalid @enderror"
                                                     wire:model="targets.{{ $index }}.name"
                                                     wire:loading.attr='disabled' wire:loading.class='opacity-25'>
                                                     <option value="">Select one</option>
@@ -332,8 +343,8 @@ border-danger
                                             <!-- Target Value Input -->
                                             <div class="col">
                                                 <label for="targets" class="form-label">Target Value</label>
-                                                <input type="number"
-                                                    class="form-control me-2  @error('targets.' . $index . '.value') is-invalid @enderror"
+                                                <input type="number" disabled
+                                                    class="form-control me-2 bg-light  @error('targets.' . $index . '.value') is-invalid @enderror"
                                                     placeholder="Target Value"
                                                     wire:model="targets.{{ $index }}.value" />
                                                 @error('targets.' . $index . '.value')
@@ -341,17 +352,7 @@ border-danger
                                                 @enderror
                                             </div>
                                             <!-- Your Target Value Input -->
-                                            <div class="col">
-                                                <label for="targets" class="form-label text-uppercase">CIP Target
-                                                    Value</label>
-                                                <input type="number"
-                                                    class="form-control me-2  @error('cip_targets.' . $index . '.value') is-invalid @enderror"
-                                                    placeholder="Target Value"
-                                                    wire:model="cip_targets.{{ $index }}.value" />
-                                                @error('cip_targets.' . $index . '.value')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
+
                                             <div class="col">
 
 
@@ -363,20 +364,32 @@ border-danger
                                                     @endif
                                                 @endforeach
                                             </div>
+
+                                            <div class="col-12 mt-1">
+                                                <label for="targets" class="form-label text-uppercase">CIP Target
+                                                    Value</label>
+                                                <input type="number"
+                                                    class="form-control me-2   @error('cip_targets.' . $index . '.value') is-invalid @enderror"
+                                                    placeholder="Target Value"
+                                                    wire:model="cip_targets.{{ $index }}.value" />
+                                                @error('cip_targets.' . $index . '.value')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
+                                            </div>
                                             <!-- Remove Button -->
-                                            <div class="col-1">
+                                            {{-- <div class="col-1">
                                                 <label for="targets" class="form-label"></label>
                                                 <button class="btn btn-theme-red"
                                                     wire:click.prevent="removeTarget({{ $index }})">Remove</button>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     @endforeach
 
                                     <!-- Button to add new target -->
-                                    <button class="btn btn-warning" wire:loading.attr='disabled'
+                                    {{-- <button class="btn btn-warning" wire:loading.attr='disabled'
                                         wire:loading.class='opacity-25' type="button" @click="addTarget()">
                                         Add Target
-                                    </button>
+                                    </button> --}}
 
                                     <!-- General error for the targets array -->
                                     @error('targets')
@@ -484,10 +497,5 @@ border-danger
                         behavior: 'smooth'
                     })
                 });
-
-                setTimeout(() => {
-                    $wire.dispatch('timeout');
-
-                }, 1000);
             </script>
         @endscript

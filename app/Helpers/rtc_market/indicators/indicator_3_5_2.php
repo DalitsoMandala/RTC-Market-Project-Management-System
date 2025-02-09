@@ -2,7 +2,9 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use Log;
+use App\Traits\FilterableQuery;
+
+use Illuminate\Support\Facades\Log;
 use App\Models\Indicator;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\IncreasePercentage;
@@ -20,6 +22,7 @@ class indicator_3_5_2
 
 
 
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -39,28 +42,7 @@ class indicator_3_5_2
     {
         $query = HouseholdRtcConsumption::query()->where('status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
 
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
 
 
         // if ($this->organisation_id && $this->target_year_id) {
@@ -75,7 +57,7 @@ class indicator_3_5_2
         //     }
 
 
-        return $query;
+        return $this->applyFilters($query);
     }
 
 
@@ -83,28 +65,7 @@ class indicator_3_5_2
     {
         $query = SchoolRtcConsumption::query()->where('status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
 
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
 
 
         // if ($this->organisation_id && $this->target_year_id) {

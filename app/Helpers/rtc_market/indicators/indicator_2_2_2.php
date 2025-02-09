@@ -2,6 +2,8 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Traits\FilterableQuery;
+
 use App\Models\RpmFarmerFollowUp;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class indicator_2_2_2
 {
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -33,25 +36,14 @@ class indicator_2_2_2
                 'certifiedSeed'
             ]);
 
-        // Apply filters for reporting period and financial year if they are set
-        if ($this->reporting_period) {
-            $query->where('period_month_id', $this->reporting_period);
-        }
-        if ($this->financial_year) {
-            $query->where('financial_year_id', $this->financial_year);
-        }
 
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
 
         // Filter by crop type if provided
         if ($crop) {
             $query->where('enterprise', $crop);
         }
 
-        return $query;
+        return $this->applyFilters($query);
     }
 
     public function getBasicSeed($crop = null)

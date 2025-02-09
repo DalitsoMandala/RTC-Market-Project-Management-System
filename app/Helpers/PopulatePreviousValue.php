@@ -141,7 +141,8 @@ class PopulatePreviousValue
             ->where('project_id', 1)
             ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
-            ->orderByDesc('reporting_period_id') // Get the latest reporting period
+            ->where('reporting_period_id', 4)
+            //      ->orderByDesc('reporting_period_id') // Get the latest reporting period
             ->pluck('reporting_period_id')
             ->first(); // Get only the last period
 

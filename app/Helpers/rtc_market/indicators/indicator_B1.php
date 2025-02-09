@@ -2,7 +2,9 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use Log;
+use App\Traits\FilterableQuery;
+
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\Project;
 use App\Models\Indicator;
@@ -26,6 +28,7 @@ class indicator_B1
     protected $disaggregations = [];
     protected $start_date;
     protected $end_date;
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -48,36 +51,10 @@ class indicator_B1
     public function Farmerbuilder(): Builder
     {
 
-        $query = RtcProductionFarmer::query()->with('followups')
-            ->where('rtc_production_farmers.status', 'approved');
 
 
-
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-
-        return $query;
+        return $this->applyFilters(RtcProductionFarmer::query()->with('followups')
+            ->where('rtc_production_farmers.status', 'approved'));
     }
 
 
@@ -85,52 +62,21 @@ class indicator_B1
     {
 
 
-
-        $query = RpmFarmerFollowUp::query();
-
-
-
-        return $query;
+        return $this->applyFilters(RpmFarmerFollowUp::query());
     }
 
     public function Processorbuilder(): Builder
     {
 
-        $query = RtcProductionProcessor::query()->with('followups')
-            ->where('rtc_production_processors.status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-        return $query;
+        return $this->applyFilters(RtcProductionProcessor::query()->with('followups')
+            ->where('rtc_production_processors.status', 'approved'));
     }
 
     public function ProcessorFollowupbuilder(): Builder
     {
 
-        $query = RpmProcessorFollowUp::query();
-
-        return $query;
+        return $this->applyFilters(RpmProcessorFollowUp::query());
     }
 
     public function findCropCount()
@@ -201,28 +147,7 @@ class indicator_B1
 
     public function findTotal()
     {
-        // $previousValue = 0;
-        // //  $currentDate = Carbon::today()->toDateString();
-        // $currentDate = '2026-01-01 00:00:00';
 
-        // // Query to find the record where the current date is on or after start_date and on or before end_date
-        // $record = FinancialYear::query()
-        //     ->whereDate('start_date', '<=', $currentDate)  // Current date is on or after start_date
-        //     ->whereDate('end_date', '>=', $currentDate)    // Current date is on or before end_date
-        //     ->where('project_id', 1)
-        //     ->select('id', 'number', 'start_date', 'end_date', 'project_id')
-        //     ->first();
-        // $previousYear = $record->number - 1;
-        // if ($previousYear == 1) {
-        //     $indicator = $this->findIndicator();
-        //     $baseline = $indicator->baseline->baseline_value ?? 0;
-        //     $previousValue = $baseline;
-
-        // } else {
-
-
-
-        // }
 
         $crop = $this->findCropCount();
         $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];

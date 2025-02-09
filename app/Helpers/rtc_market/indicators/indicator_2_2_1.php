@@ -2,6 +2,8 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Traits\FilterableQuery;
+
 use App\Models\Indicator;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
@@ -14,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class indicator_2_2_1
 {
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -36,32 +39,7 @@ class indicator_2_2_1
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-
-
-        return $query;
+        return $this->applyFilters($query);
     }
 
 
@@ -69,49 +47,13 @@ class indicator_2_2_1
     {
         $query = RtcProductionFarmer::query()->with('followups')->where('rtc_production_farmers.status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-        return $query;
+        return $this->applyFilters($query);
     }
 
     public function builderProcessor(): Builder
     {
         $query = RtcProductionProcessor::query()->with('followups')->where('rtc_production_processors.status', 'approved');
-
-        if ($this->reporting_period && $this->financial_year) {
-            $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)
-                ->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
-            if (!empty($submissionPeriod)) {
-                $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
-                if (!empty($batchUuids)) {
-                    $query->orWhereIn('uuid', $batchUuids);
-                } else {
-                    return $query->whereIn('uuid', []); // Empty result if no valid batch UUIDs
-                }
-            }
-        }
-
-        return $query;
+        return $this->applyFilters($query);
     }
     public function getTotals()
     {

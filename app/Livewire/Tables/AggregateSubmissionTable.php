@@ -292,7 +292,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash"></i>')
+                ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red btn-sm my-1 custom-tooltip')
                 ->tooltip('Delete Data')
