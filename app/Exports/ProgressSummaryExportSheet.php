@@ -27,29 +27,34 @@ class ProgressSummaryExportSheet implements FromCollection, WithHeadings, WithTi
         if ($this->template) {
             $data = [];
             $indiccatorDisaggregation = IndicatorDisaggregation::with(['indicator'])->get();
+            $submissionTargetsDisaggregations = SubmissionTarget::all();
+            $collectDisaggregations = collect();
             foreach ($indiccatorDisaggregation as $disaggregation) {
-                $year1 = FinancialYear::where('number', 1)->where('project_id', 1)->first();
+                foreach ($submissionTargetsDisaggregations as $subTarget) {
+                    if ($subTarget->indicator_id == $disaggregation->indicator_id && $subTarget->target_name == $disaggregation->name) {
 
 
-                $findSubmissionTargeForYearOne = SubmissionTarget::where('financial_year_id', $year1->id)
-                    ->where('indicator_id', $disaggregation->indicator->id)
-                    ->where('target_name', $disaggregation->name)->first();
-                $target = null;
-                if ($findSubmissionTargeForYearOne) {
-                    $target = $findSubmissionTargeForYearOne->target_value;
+                        $exists = $collectDisaggregations->contains(function ($item) use ($disaggregation) {
+                            return $item['Indicator'] === $disaggregation->indicator->indicator_name &&
+                                $item['Disaggregation'] === $disaggregation->name;
+                        });
+
+                        if (!$exists) {
+                            $collectDisaggregations->push([
+                                "Indicator Number" => $disaggregation->indicator->indicator_no,
+                                "Indicator" => $disaggregation->indicator->indicator_name,
+                                "Disaggregation" => $disaggregation->name,
+                                "Y1 Achieved" => null,
+                                "Y2 Target" => null,
+                                "Y2 Achieved" =>  null,
+                            ]);
+                        }
+                    }
                 }
-
-                $data[] = [
-                    "Indicator Number" =>  $disaggregation->indicator->indicator_no,
-                    "Indicator" =>  $disaggregation->indicator->indicator_name,
-                    "Disaggregation" => $disaggregation->name,
-                    //  "Y1 Target" => $target,
-                    "Y1 Achieved" => null,
-                    "Y2 Target" => null,
-                    "Y2 Achieved" =>  null,
-                ];
             }
-            return collect([$data]);
+
+
+            return collect([$collectDisaggregations]);
         }
     }
     public function headings(): array

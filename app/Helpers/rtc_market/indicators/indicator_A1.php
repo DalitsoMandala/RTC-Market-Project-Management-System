@@ -5,6 +5,7 @@ namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Submission;
 use App\Models\Organisation;
+use App\Traits\FilterableQuery;
 use App\Models\SubmissionPeriod;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use App\Livewire\Internal\Cip\Submissions;
 
 class indicator_A1
 {
+    use FilterableQuery;
 
     protected $disaggregations = [];
     protected $start_date;

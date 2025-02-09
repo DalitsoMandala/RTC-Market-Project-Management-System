@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Imports;
 
+use Exception;
 use Throwable;
+use Ramsey\Uuid\Uuid;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use App\Models\Organisation;
@@ -12,12 +14,11 @@ use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProgresSummaryExport;
 use App\Imports\ProgresSummaryImport;
 use App\Exceptions\ExcelValidationException;
-use Exception;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
-use Ramsey\Uuid\Uuid;
 
 class ImportData extends Component
 {
@@ -38,21 +39,36 @@ class ImportData extends Component
     public $organisations;
     public $financialYears;
     public $reportingPeriod;
+    public $showInput = true;
 
+    public function downloadTemplate()
+    {
+        $time = \Carbon\Carbon::parse(now())->format('d_m_Y_H_i_s');
 
+        return Excel::download(new ProgresSummaryExport(true), 'progress_summary_report_template.xlsx');
+    }
     public function submitUpload()
     {
-
+        $this->showInput = false;
         try {
-
             $this->validate([
                 'upload' => 'required|file|mimes:xlsx,csv',
-                'selectedFinancialYear' => 'required',
+
                 'selectedReportingPeriod' => 'required',
                 'selectedOrganisation' => 'required',
             ], attributes: [
                 'selectedFinancialYear' => 'Project Year',
             ]);
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            $this->showInput = true;
+            throw $e;
+        }
+
+
+        try {
+
+            $this->showInput = false;
             $name = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
             $this->upload->storeAs('public/imports', $name);
 
@@ -66,27 +82,28 @@ class ImportData extends Component
                 $this->importId = Uuid::uuid4()->toString();
                 Excel::import(new ProgresSummaryImport(
                     filePath: $path,
-                    financial_year_id: $this->selectedFinancialYear,
+
                     user_id: Auth::user()->id,
-                    organisation_id: Auth::user()->organisation->id,
+                    organisation_id: $this->selectedOrganisation,
                     uuid: $this->importId,
                     file_link: $name
                 ), $path);
-                $this->reset('upload'); // Clear the file input after upload
+                // Clear the file input after upload
+
             } catch (Exception $th) {
 
-
+                $this->showInput = true;
                 session()->flash('error', $th->getMessage());
                 Log::error($th);
             }
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
-            dd($e);
+            $this->showInput = true;
             throw $e;
         }
 
-
-
+        $this->dispatch('removeUploadedFile');
+        $this->showInput = true;
         // Use Excel import (Assumes you have set up an Import for SeedBeneficiaries)
 
 

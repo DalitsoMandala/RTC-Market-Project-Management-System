@@ -11,14 +11,17 @@ use App\Models\FinancialYear;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use App\Models\IndicatorClass;
+use App\Models\AdditionalReport;
 use App\Models\SystemReportData;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;
 use Illuminate\Queue\SerializesModels;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\PercentageIncreaseIndicator;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -97,10 +100,7 @@ class ReportJob implements ShouldQueue
 
                                             foreach ($class->getDisaggregations() as $key => $value) {
                                                 // Update or create data entries
-                                                $report->data()->updateOrCreate(
-                                                    ['name' => $key],
-                                                    ['value' => $value]
-                                                );
+                                                $this->updateDisaggregations($report, $key, $value);
                                             }
                                         }
 
@@ -124,16 +124,61 @@ class ReportJob implements ShouldQueue
                 }
             }
         }
-        $class = new PopulatePreviousValue();
-
-        $class->start(); // percentages
+    }
 
 
-        ReportStatus::find(1)->update([
-            'status' => 'completed',
-            'progress' => 100
-        ]);
-        Cache::put('report_progress', 100);
-        Cache::put('report_', 'completed');
+
+    public function getAditionalReport($reporting_period_id, $indicator_id, $disag_name, $organisation_id)
+    {
+        // for year 2 and year 1
+        $indicator_disaggregation_id = IndicatorDisaggregation::where('name', $disag_name)->where('indicator_id', $indicator_id)->first()->id;
+
+        $getData = AdditionalReport::where('period_month_id', $reporting_period_id)
+            ->where('indicator_id', $indicator_id)
+            ->where('indicator_disaggregation_id', $indicator_disaggregation_id)
+            ->where('organisation_id', $organisation_id)
+            ->first();
+
+        if ($getData) {
+            $reportIDforYear1 = SystemReport::where('financial_year_id', 1)
+                ->where('reporting_period_id', $reporting_period_id)
+                ->where('indicator_id', $indicator_id)
+                ->where('organisation_id', $organisation_id)
+                ->where('project_id', 1)
+                ->first();
+
+            if ($reportIDforYear1) {
+                $oldData = SystemReportData::where('system_report_id', $reportIDforYear1->id)->first();
+
+                $sumValue = $oldData->value + $getData->year_1;
+                $this->updateDisaggregations($reportIDforYear1, $disag_name, $sumValue);
+            }
+
+
+
+            $reportIDforYear2 = SystemReport::where('financial_year_id', 2)
+                ->where('reporting_period_id', $reporting_period_id)
+                ->where('indicator_id', $indicator_id)
+                ->where('organisation_id', $organisation_id)
+                ->where('project_id', 1)
+                ->first();
+
+            if ($reportIDforYear2) {
+                $oldData = SystemReportData::where('system_report_id', $reportIDforYear2->id)->first();
+
+                $sumValue = $oldData->value + $getData->year_2;
+                $this->updateDisaggregations($reportIDforYear2, $disag_name, $sumValue);
+            }
+        }
+    }
+
+    public function updateDisaggregations($report, $key, $value)
+    {
+        $reportData =  $report->data()->updateOrCreate(
+            ['name' => $key],
+            ['value' => $value]
+        );
+
+        return $reportData;
     }
 }

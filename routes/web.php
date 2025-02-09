@@ -45,6 +45,7 @@ use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Http\Controllers\TestingController;
+use Database\Seeders\SubmissionTargetSeeder;
 use App\Livewire\Internal\Cip\SubPeriodStaff;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Jobs\SendExpiredPeriodNotificationJob;
@@ -65,21 +66,14 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
+use App\Models\AdditionalReport;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-
-    //  $filePath = public_path('Progress summary template.xlsx');
-    // $targets = SubmissionTarget::selectRaw("financial_year_id, target_name")
-    //     ->groupBy('financial_year_id', 'target_name')
-    //     ->get();
-
-    // dd($targets);
-
-
-    //return  Excel::download(new ProgresSummaryExport(true), 'missing_report_template.xlsx');
+    $indicator = new \App\Helpers\rtc_market\indicators\indicator_A1(1, 1, 1);
+    dd($indicator->builder());
 });
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);

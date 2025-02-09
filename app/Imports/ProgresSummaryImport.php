@@ -48,14 +48,14 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
 
     public $organisation_id;
     public $user_id;
-    public $financial_year_id;
+
     public $uuid;
     public $file_link;
 
-    public function __construct($filePath = null, $financial_year_id, $user_id, $organisation_id, $uuid, $file_link)
+    public function __construct($filePath = null, $user_id, $organisation_id, $uuid, $file_link)
     {
         $this->filePath = $filePath;
-        $this->financial_year_id = $financial_year_id;
+
         $this->user_id = $user_id;
         $this->organisation_id = $organisation_id;
         $this->uuid = $uuid;
@@ -66,7 +66,7 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
     {
         return [
             'Progress summary' => new ProgresSummaryImportSheet(
-                $this->financial_year_id,
+
                 $this->user_id,
                 $this->organisation_id,
                 $this->uuid

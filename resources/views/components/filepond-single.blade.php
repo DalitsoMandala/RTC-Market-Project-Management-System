@@ -36,9 +36,9 @@ pond = FilePond.create($refs.input, {
 
 $wire.on('removeUploadedFile', function() {
 
-    //  myTimeout = setTimeout(() => {
-    pond.removeFiles({ revert: true });
-    //  }, 5000);
+    myTimeout = setTimeout(() => {
+        pond.removeFiles({ revert: true });
+    }, 5000);
 
 
 });

@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Concerns\Importable;
 
 use Maatwebsite\Excel\Concerns\WithEvents;
 use App\Exceptions\ExcelValidationException;
+use App\Models\FinancialYear;
 use App\Models\OrganisationTarget;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -33,12 +34,12 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
 
     public $organisation_id;
     public $user_id;
-    public $financial_year_id;
+
     public $uuid;
 
-    public function __construct($financial_year_id, $user_id, $organisation_id, $uuid)
+    public function __construct($user_id, $organisation_id, $uuid)
     {
-        $this->financial_year_id = $financial_year_id;
+
         $this->user_id = $user_id;
         $this->organisation_id = $organisation_id;
         $this->uuid = $uuid;
@@ -58,6 +59,26 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
             foreach ($disaggregations as $disaggregation) {
                 if ($disaggregation->name == $row['Disaggregation']) {
                     try {
+
+                        // targets if available for year 2
+                        $y2Target = $row['Y2 Target'];
+                        if ($y2Target != null && $y2Target > 0 && $y2Target) {
+
+                            $target = SubmissionTarget::where('financial_year_id', FinancialYear::where('number', 2)->first()->id)
+                                ->where('indicator_id', $indicator->id)
+                                ->where('target_name', $disaggregation->name)
+                                ->first();
+
+                            if ($target) {
+                                OrganisationTarget::updateOrCreate([
+                                    'submission_target_id' => $target->id,
+                                    'organisation_id' => $this->organisation_id,
+                                    'value' => $y2Target
+                                ]);
+                            }
+                        }
+
+
                         $data = [
                             'uuid' => $this->uuid,
                             'indicator_id' => $indicator->id,
@@ -68,6 +89,8 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
                             'year_1' => $row['Y1 Achieved'] ?? 0,
                             'year_2' => $row['Y2 Achieved'] ?? 0,
                         ];
+
+
 
                         return AdditionalReport::updateOrCreate([
                             'indicator_id' => $indicator->id,
