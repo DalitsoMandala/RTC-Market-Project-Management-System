@@ -590,7 +590,7 @@ class Add extends Component
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-processors/view">View Submission here</a>');
                 session()->flash('info', 'Your ID is: <b>' . substr($recruit->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
-                return redirect()->to(url()->previous());
+                $this->redirect(url()->previous());
             } catch (UserErrorException $e) {
                 // Log the actual error for debugging purposes
                 Log::error('Submission error: ' . $e->getMessage());

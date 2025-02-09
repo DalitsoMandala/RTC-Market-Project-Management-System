@@ -28,9 +28,7 @@ class AddFollowUp extends Component
 
     public $location_data = [];
     public $date_of_follow_up;
-    public $market_segment = [
-
-    ];
+    public $market_segment = [];
     public $has_rtc_market_contract = false;
     public $total_vol_production_previous_season;
     public $total_production_value_previous_season = [
@@ -106,8 +104,6 @@ class AddFollowUp extends Component
         try {
 
             $this->validate();
-
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -145,7 +141,7 @@ class AddFollowUp extends Component
 
                     'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
 
-                    'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,// Previous season volume in metric tonnes
+                    'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
                     'user_id' => auth()->user()->id,
                     'status' => 'approved'
 
@@ -158,9 +154,7 @@ class AddFollowUp extends Component
                             $secondTable[$key] = null;
                         } else {
                             $secondTable[$key] = json_encode($value);
-
                         }
-
                     }
                 }
 
@@ -180,23 +174,18 @@ class AddFollowUp extends Component
                 $this->addMoreData($processor);
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-processors/view#followup">View Submission here</a>');
-                return redirect()->to(url()->previous());
-
+                $this->redirect(url()->previous());
             } catch (UserErrorException $e) {
                 // Log the actual error for debugging purposes
                 Log::error('Submission error: ' . $e->getMessage());
 
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
-
-
             }
-
         } catch (Throwable $th) {
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
-
         }
     }
 
@@ -205,8 +194,6 @@ class AddFollowUp extends Component
     {
 
         $this->reset($name);
-
-
     }
 
 
@@ -360,17 +347,11 @@ class AddFollowUp extends Component
             try {
 
                 $this->validate($rules, [], $attributes);
-
-
             } catch (Throwable $e) {
                 session()->flash('validation_error', 'There are errors in the dynamic forms.');
                 throw $e;
             }
-
-
         }
-
-
     }
     public function addMoreData($recruit)
     {
@@ -424,7 +405,6 @@ class AddFollowUp extends Component
 
             if ($this->sells_to_domestic_markets) {
                 RpmProcessorDomMarket::insert($fourthTable);
-
             }
 
 
@@ -448,14 +428,11 @@ class AddFollowUp extends Component
             if ($this->sells_to_international_markets) {
                 RpmProcessorInterMarket::insert($fifthTable);
             }
-
-
         } catch (UserErrorException $e) {
             # code...
 
             session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
         }
-
     }
 
 
@@ -498,9 +475,6 @@ class AddFollowUp extends Component
             $this->show = true;
             $this->date_of_follow_up = date('Y-m-d');
             $this->f_name = $recruit->name_of_actor;
-
-
-
         } else {
             $this->reset();
         }
@@ -556,57 +530,51 @@ class AddFollowUp extends Component
         $this->fill(
             [
                 'inputOne' =>
-                    collect([
-                        [
-                            'conc_date_recorded' => null,
-                            'conc_partner_name' => null,
-                            'conc_country' => null,
-                            'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => 'SEED',
-                            'conc_volume_sold_previous_period' => null,
-                            'conc_financial_value_of_sales' => null,
-                        ],
+                collect([
+                    [
+                        'conc_date_recorded' => null,
+                        'conc_partner_name' => null,
+                        'conc_country' => null,
+                        'conc_date_of_maximum_sale' => null,
+                        'conc_product_type' => 'SEED',
+                        'conc_volume_sold_previous_period' => null,
+                        'conc_financial_value_of_sales' => null,
+                    ],
 
-                    ]),
+                ]),
 
                 'inputTwo' =>
-                    collect([
-                        [
-                            'dom_date_recorded' => null,
-                            'dom_crop_type' => 'CASSAVA',
-                            'dom_market_name' => null,
-                            'dom_district' => null,
-                            'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => 'SEED',
-                            'dom_volume_sold_previous_period' => null,
-                            'dom_financial_value_of_sales' => null,
-                        ],
-                    ]),
+                collect([
+                    [
+                        'dom_date_recorded' => null,
+                        'dom_crop_type' => 'CASSAVA',
+                        'dom_market_name' => null,
+                        'dom_district' => null,
+                        'dom_date_of_maximum_sale' => null,
+                        'dom_product_type' => 'SEED',
+                        'dom_volume_sold_previous_period' => null,
+                        'dom_financial_value_of_sales' => null,
+                    ],
+                ]),
 
                 'inputThree' =>
-                    collect([
-                        [
-                            'inter_date_recorded' => null,
-                            'inter_crop_type' => 'CASSAVA',
-                            'inter_market_name' => null,
-                            'inter_country' => null,
-                            'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => 'SEED',
-                            'inter_volume_sold_previous_period' => null,
-                            'inter_financial_value_of_sales' => null,
-                        ],
-                    ]),
-                'aggregation_center_sales' => collect([
+                collect([
                     [
-
-
-                    ]
+                        'inter_date_recorded' => null,
+                        'inter_crop_type' => 'CASSAVA',
+                        'inter_market_name' => null,
+                        'inter_country' => null,
+                        'inter_date_of_maximum_sale' => null,
+                        'inter_product_type' => 'SEED',
+                        'inter_volume_sold_previous_period' => null,
+                        'inter_financial_value_of_sales' => null,
+                    ],
+                ]),
+                'aggregation_center_sales' => collect([
+                    []
                 ]),
                 'market_information_systems' => collect([
-                    [
-
-
-                    ]
+                    []
                 ]),
 
             ]
@@ -617,8 +585,6 @@ class AddFollowUp extends Component
 
         $this->routePrefix = Route::current()->getPrefix();
         $this->total_production_value_previous_season['rate'] = $this->rate;
-
-
     }
 
     public function render()

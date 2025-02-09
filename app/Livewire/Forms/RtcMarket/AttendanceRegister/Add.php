@@ -62,7 +62,7 @@ class Add extends Component
     public $selectedFinancialYear;
 
     public $selectedProject, $selectedIndicator,
-    $submissionPeriodId;
+        $submissionPeriodId;
     public $routePrefix;
     public $openSubmission = true;
 
@@ -98,9 +98,6 @@ class Add extends Component
         try {
 
             $this->validate();
-
-
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -162,9 +159,7 @@ class Add extends Component
 
                 session()->flash('success', 'Successfully submitted!  <a href="' . $this->routePrefix . '/forms/rtc_market/attendance-register/view">View Submission here</a>');
                 session()->flash('info', 'Your ID is: <b>' . $insert->att_id . '</b>' . '<br><br> Please keep this ID for future reference.');
-                return redirect()->to(url()->previous());
-
-
+                 $this->redirect(url()->previous());
             } catch (UserErrorException $e) {
                 # code...
                 Log::error('Submission error: ' . $e->getMessage());
@@ -172,14 +167,12 @@ class Add extends Component
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
             }
-
         } catch (Throwable $th) {
             # code...
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th->getMessage());
         }
-
     }
 
     // public function mount()
@@ -194,7 +187,6 @@ class Add extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -205,7 +197,6 @@ class Add extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -267,8 +258,6 @@ class Add extends Component
 
 
             $this->routePrefix = Route::current()->getPrefix();
-
-
         }
     }
     #[On('open-submission')]

@@ -89,7 +89,8 @@ class ImportData extends Component
                     file_link: $name
                 ), $path);
                 // Clear the file input after upload
-
+                session()->flash('success', 'File uploaded successfully. Report will be updated very soon!');
+                $this->redirect(url()->previous());
             } catch (Exception $th) {
 
                 $this->showInput = true;

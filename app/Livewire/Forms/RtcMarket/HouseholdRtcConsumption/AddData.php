@@ -270,7 +270,7 @@ class AddData extends Component
 
 
                 session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/household-consumption-form/view">View Submission here</a>');
-                return redirect()->to(url()->previous());
+                $this->redirect(url()->previous());
             } catch (UserErrorException $e) {
 
                 // Log the actual error for debugging purposes

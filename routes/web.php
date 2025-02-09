@@ -71,75 +71,7 @@ use App\Models\AdditionalReport;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test', function () {
-    function handle()
-    {
-
-        //This is to add additional report
-        // Fetch all indicators with their disaggregations
-        $indicators = Indicator::with('disaggregations')->get();
-        $reportingPeriodId = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->pluck(
-            'id'
-        );
-
-        // Process system reports in chunks to avoid memory overload
-        SystemReport::with(['data'])->where('reporting_period_id', $reportingPeriodId)->chunk(100, function ($systemReports) use ($indicators) {
-            foreach ($systemReports as $systemReport) {
-                $projectId = $systemReport->project_id;
-                $indicatorId = $systemReport->indicator_id;
-                $reportingPeriodId = $systemReport->reporting_period_id;
-                $financialYearId = $systemReport->financial_year_id;
-                $organisationId = $systemReport->organisation_id;
-
-                // Find the indicator for this report
-                $indicator = $indicators->where('id', $indicatorId)->first();
-
-                if (!$indicator) {
-                    continue; // Skip if the indicator is not found
-                }
-
-                // Get all disaggregations for this indicator
-                $disaggregations = $indicator->disaggregations;
-
-                // Process the system report data
-                $systemReport->data->each(function ($item) use (
-                    $indicatorId,
-                    $reportingPeriodId,
-                    $organisationId,
-                    $disaggregations,
-                    $financialYearId
-                ) {
-                    // Find the matching disaggregation
-                    $indicatorDisaggregate = $disaggregations->where('name', $item->name)->first();
-
-                    if (!$indicatorDisaggregate) {
-                        Log::info("Indicator with name '{$item->name}' not found");
-                        return; // Skip if no matching disaggregation
-                    }
-
-                    // Fetch additional report data in chunks
-                    AdditionalReport::where('indicator_id', $indicatorId)
-                        ->where('period_month_id', $reportingPeriodId)
-                        ->where('organisation_id', $organisationId)
-                        ->where('indicator_disaggregation_id', $indicatorDisaggregate->id)
-                        ->chunk(50, function ($additionalReports) use ($item, $financialYearId) {
-                            foreach ($additionalReports as $additionalData) {
-
-                                // Update value based on financial year
-                                if (FinancialYear::find($financialYearId)->number == 1) {
-                                    $item->update(['value' => $additionalData->year_1]);
-                                } elseif (FinancialYear::find($financialYearId)->number == 2) {
-                                    $item->update(['value' => $additionalData->year_2]);
-                                }
-                            }
-                        });
-                });
-            }
-        });
-    }
-
-    handle();
-});
+Route::get('/test', function () {});
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);
 })->name('session.check');

@@ -49,8 +49,8 @@ final class ReportTable extends PowerGridComponent
         return [
 
             Header::make()->showSearchInput()
-                ->includeViewOnTop('components.export-component')
-                ->includeViewOnBottom('components.import-button'),
+                ->includeViewOnTop('components.export-component'),
+               // ->includeViewOnBottom('components.import-button'),
 
             Footer::make()
                 ->showPerPage(10)

@@ -125,7 +125,7 @@ class Upload extends Component
 
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
-                    return redirect()->to(url()->previous());
+                    $this->redirect(url()->previous());
                 }
             }
         } catch (\Exception $th) {
@@ -133,7 +133,7 @@ class Upload extends Component
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th);
-            return redirect()->to(url()->previous());
+            $this->redirect(url()->previous());
         }
 
         $this->removeTemporaryFile();
@@ -158,7 +158,7 @@ class Upload extends Component
 
     //             session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
     //             Cache::forget($this->importId);
-    //             return redirect()->to(url()->previous());
+    //              $this->redirect(url()->previous());
     //         } else if ($jobProgress->status == 'completed') {
 
     //             $user = User::find(auth()->user()->id);

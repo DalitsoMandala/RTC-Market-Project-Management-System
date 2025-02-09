@@ -11,7 +11,8 @@
 
                     <form wire:submit='submitUpload'>
                         <div x-data>
-                            <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()">
+                            <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
+                                wire:loading.attr='disabled' wire:target='downloadTemplate'>
                                 Download template <i class="bx bx-download"></i> </button>
                             <hr>
                         </div>
