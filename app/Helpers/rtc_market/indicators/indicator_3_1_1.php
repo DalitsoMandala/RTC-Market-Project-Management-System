@@ -2,6 +2,8 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Traits\FilterableQuery;
+
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\RpmFarmerFollowUp;
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 class indicator_3_1_1
 {
 
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -41,48 +44,18 @@ class indicator_3_1_1
     public function builderFarmer(): Builder
     {
         $query = RtcProductionFarmer::query()->where('status', 'approved')
-            ->where('type', 'Producer organization (PO)')
-            ->where('type', 'Large scale farm')
-            ->where('sector', 'Private');
+
+            ->where(function ($model) {
+
+                $model->where('type', 'Producer organization (PO)')
+                    ->OrWhere('type', 'Large scale farm');
+            })->where('sector', 'Private');;
 
 
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-        return $query;
+        return $this->applyFilters($query);
     }
 
 
@@ -93,39 +66,9 @@ class indicator_3_1_1
             $query->where('type', 'PRODUCER ORGANIZATION (PO)')->orWhere('type', 'LARGE SCALE FARM');
         })->where('sector', 'PRIVATE');;
 
-        if ($this->reporting_period && $this->financial_year) {
-            $hasValidBatchUuids = false;
 
-            $query->where(function ($query) use (&$hasValidBatchUuids) {
 
-                $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
-                if (!empty($submissionPeriod)) {
-                    $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
-                    if (!empty($batchUuids)) {
-                        $query->orWhereIn('uuid', $batchUuids);
-                        $hasValidBatchUuids = true;
-                    }
-                }
-            });
-
-            if (!$hasValidBatchUuids) {
-                // No valid batch UUIDs found, return an empty collection
-                return $query->whereIn('uuid', []);
-            }
-        }
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-        return $query;
+        return $this->applyFilters($query);
     }
 
     public function getFarmerContractual()

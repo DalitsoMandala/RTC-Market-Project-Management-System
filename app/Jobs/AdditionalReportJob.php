@@ -39,9 +39,14 @@ class AdditionalReportJob implements ShouldQueue
         //This is to add additional report
         // Fetch all indicators with their disaggregations
         $indicators = Indicator::with('disaggregations')->get();
+        $indicators = Indicator::with('disaggregations')->get();
+        $reportingPeriodId = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->pluck(
+            'id'
+        );
 
         // Process system reports in chunks to avoid memory overload
-        SystemReport::with(['data'])->chunk(100, function ($systemReports) use ($indicators) {
+        SystemReport::with(['data'])->where('reporting_period_id', $reportingPeriodId)->chunk(100, function ($systemReports) use ($indicators) {
+
             foreach ($systemReports as $systemReport) {
                 $projectId = $systemReport->project_id;
                 $indicatorId = $systemReport->indicator_id;
@@ -84,9 +89,9 @@ class AdditionalReportJob implements ShouldQueue
                             foreach ($additionalReports as $additionalData) {
                                 // Update value based on financial year
                                 if (FinancialYear::find($financialYearId)->number == 1) {
-                                    $item->update(['value' => $item->value + $additionalData->year_1]);
+                                    $item->update(['value' => $additionalData->year_1]);
                                 } elseif (FinancialYear::find($financialYearId)->number == 2) {
-                                    $item->update(['value' => $item->value + $additionalData->year_2]);
+                                    $item->update(['value' => $additionalData->year_2]);
                                 }
                             }
                         });

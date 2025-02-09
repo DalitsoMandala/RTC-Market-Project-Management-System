@@ -2,6 +2,8 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Traits\FilterableQuery;
+
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
 use App\Helpers\IncreasePercentage;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class indicator_2_2_3
 {
+    use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -37,28 +40,7 @@ class indicator_2_2_3
                 'certifiedSeed'
             ])->where('is_registered_seed_producer', true);
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
 
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        // Filter by organization if set
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
 
 
         if ($crop) {
@@ -67,7 +49,7 @@ class indicator_2_2_3
             return $query;
         }
 
-        return $query;
+        return $this->applyFilters($query);
     }
 
 

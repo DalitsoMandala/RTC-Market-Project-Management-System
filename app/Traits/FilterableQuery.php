@@ -13,7 +13,7 @@ trait FilterableQuery
 
     public function applyFilters(Builder $query): Builder
     {
-        return $query->where('status', 'approved')
+        return $query
             ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));

@@ -2,10 +2,12 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Traits\FilterableQuery;
+
 
 use App\Models\Submission;
 use App\Models\Organisation;
-use App\Traits\FilterableQuery;
+
 use App\Models\SubmissionPeriod;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +26,6 @@ class indicator_A1
     protected $end_date;
 
 
-
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
@@ -39,80 +40,19 @@ class indicator_A1
 
     public function builder(): Builder
     {
-        $query = HouseholdRtcConsumption::query()->where('status', 'approved');
 
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
 
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-        return $query;
+        return $this->applyFilters(HouseholdRtcConsumption::query()->where('status', 'approved'));
     }
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query()->with('followups')->where('status', 'approved');
-
-        // Check if both reporting period and financial year are set
-        if ($this->reporting_period || $this->financial_year) {
-            // Apply filter for reporting period if it's set
-            if ($this->reporting_period) {
-                $query->where('period_month_id', $this->reporting_period);
-            }
-
-            // Apply filter for financial year if it's set
-            if ($this->financial_year) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            // If no data is found, return an empty result
-            if (!$query->exists()) {
-                $query->whereIn('id', []); // Empty result filter
-            }
-        }
-
-        if ($this->organisation_id) {
-            $query->where('organisation_id', $this->organisation_id);
-        }
-
-        return $query;
+        return $this->applyFilters(RtcProductionFarmer::query()->where('status', 'approved'));
     }
 
     public function builderProcessor(): Builder
     {
-        $query = RtcProductionProcessor::query()->with('followups')->where('status', 'approved');
-
-        if ($this->reporting_period && $this->financial_year) {
-            $submissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->reporting_period)
-                ->where('financial_year_id', $this->financial_year)->pluck('id')->toArray();
-            if (!empty($submissionPeriod)) {
-                $batchUuids = Submission::whereIn('period_id', $submissionPeriod)->pluck('batch_no')->toArray();
-                if (!empty($batchUuids)) {
-                    $query->orWhereIn('uuid', $batchUuids);
-                } else {
-                    return $query->whereIn('uuid', []); // Empty result if no valid batch UUIDs
-                }
-            }
-        }
-
-        return $query;
+        return $this->applyFilters(RtcProductionProcessor::query()->where('status', 'approved'));
     }
 
     // Example of chunking data in `findTotalFarmerEmployees` method
@@ -293,26 +233,6 @@ class indicator_A1
         ])->first()->toArray();
     }
 
-    public function getCurrentTargets($financial_year_ids, $organisation_ids)
-    {
-        $builder = $this->builder()->select([
-            'organisation_id',
-            DB::raw('COUNT(*) AS Total'),
-        ])
-            ->where('actor_name', '!=', null)
-            ->whereIn('organisation_id', $organisation_ids)
-            ->whereIn('financial_year_id', $financial_year_ids)
-            ->groupBy('organisation_id');
-
-        $final = $builder->get()->map(function ($query) {
-            $model = Organisation::find($query->organisation_id);
-            $query->organisation = $model->name;
-            return $query;
-        });
-
-
-        return $final->toArray();
-    }
 
     public function getDisaggregations()
     {

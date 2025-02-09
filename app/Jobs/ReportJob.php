@@ -76,6 +76,8 @@ class ReportJob implements ShouldQueue
                             foreach ($organisations as $organisationChunk) {
                                 foreach ($organisationChunk as $organisation) {
                                     try {
+
+                                        //its class is \App\Helpers\rtcmarket\indicators
                                         $class = new $Indicator_class->class(
                                             reporting_period: $period,
                                             financial_year: $financialYear,
@@ -95,7 +97,13 @@ class ReportJob implements ShouldQueue
                                                     'project_id' => $project->id,
                                                     'indicator_id' => $Indicator_class->indicator_id,
                                                 ],
-                                                [] // No additional fields to update
+                                                [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id' => $financialYear,
+                                                    'organisation_id' => $organisation,
+                                                    'project_id' => $project->id,
+                                                    'indicator_id' => $Indicator_class->indicator_id
+                                                ] // No additional fields to update
                                             );
 
                                             foreach ($class->getDisaggregations() as $key => $value) {
@@ -115,7 +123,7 @@ class ReportJob implements ShouldQueue
                                             ]);
                                         }
                                     } catch (\Exception $e) {
-                                        Log::error("Error processing report for organisation: $organisation", ['error' => $e->getMessage()]);
+                                        Log::error($e->getMessage());
                                     }
                                 }
                             }
@@ -128,49 +136,7 @@ class ReportJob implements ShouldQueue
 
 
 
-    public function getAditionalReport($reporting_period_id, $indicator_id, $disag_name, $organisation_id)
-    {
-        // for year 2 and year 1
-        $indicator_disaggregation_id = IndicatorDisaggregation::where('name', $disag_name)->where('indicator_id', $indicator_id)->first()->id;
 
-        $getData = AdditionalReport::where('period_month_id', $reporting_period_id)
-            ->where('indicator_id', $indicator_id)
-            ->where('indicator_disaggregation_id', $indicator_disaggregation_id)
-            ->where('organisation_id', $organisation_id)
-            ->first();
-
-        if ($getData) {
-            $reportIDforYear1 = SystemReport::where('financial_year_id', 1)
-                ->where('reporting_period_id', $reporting_period_id)
-                ->where('indicator_id', $indicator_id)
-                ->where('organisation_id', $organisation_id)
-                ->where('project_id', 1)
-                ->first();
-
-            if ($reportIDforYear1) {
-                $oldData = SystemReportData::where('system_report_id', $reportIDforYear1->id)->first();
-
-                $sumValue = $oldData->value + $getData->year_1;
-                $this->updateDisaggregations($reportIDforYear1, $disag_name, $sumValue);
-            }
-
-
-
-            $reportIDforYear2 = SystemReport::where('financial_year_id', 2)
-                ->where('reporting_period_id', $reporting_period_id)
-                ->where('indicator_id', $indicator_id)
-                ->where('organisation_id', $organisation_id)
-                ->where('project_id', 1)
-                ->first();
-
-            if ($reportIDforYear2) {
-                $oldData = SystemReportData::where('system_report_id', $reportIDforYear2->id)->first();
-
-                $sumValue = $oldData->value + $getData->year_2;
-                $this->updateDisaggregations($reportIDforYear2, $disag_name, $sumValue);
-            }
-        }
-    }
 
     public function updateDisaggregations($report, $key, $value)
     {
