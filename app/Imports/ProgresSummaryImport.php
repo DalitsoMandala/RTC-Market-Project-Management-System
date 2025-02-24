@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\JobProgress;
 use App\Helpers\ExcelValidator;
+use App\Models\AdditionalReport;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
@@ -14,12 +15,12 @@ use App\Imports\ProgresSummaryImportSheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -139,7 +140,11 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
 
                 $errorMessage = $exception->getMessage();
 
+                AdditionalReport::where('uuid', $this->uuid)->update([
 
+                    'year_1' =>  0,
+                    'year_2' => 0,
+                ]);
 
                 Log::error($exception->getMessage());
                 session()->flash('error', $errorMessage);

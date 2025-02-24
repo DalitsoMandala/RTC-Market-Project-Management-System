@@ -98,7 +98,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
     public function rules(): array
     {
         return [
-            'Crop' => 'required|string|in:Potato,OFSP,Cassava',
+            // 'Crop' => 'required|string|in:Potato,OFSP,Cassava',
             'District' => 'required|string|max:255',
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
@@ -106,15 +106,15 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
             'AEDO Phone Number' => 'nullable|max:255',
             'Date' => 'nullable|date|date_format:d-m-Y',
             'Name of Recipient' => 'required|string|max:255',
-            'Village' => 'required|string|max:255',
-            'Sex' => 'required|integer|in:Male,Female,Other,1,2,3',
+            'Village' => 'nullable|string|max:255',
+            'Sex' => 'required|integer|in:Male,Female,1,2',
             'Age' => 'required|integer|min:1',
-            'Marital Status' => 'required|integer|in:1,2,3,4',
-            'Household Head' => 'required|integer|in:1,2,3',
-            'Household Size' => 'required|integer|min:1',
+            'Marital Status' => 'nullable|integer',
+            'Household Head' => 'nullable|integer|min:1',
+            'Household Size' => 'nullable|integer|min:1',
             'Children Under 5 in HH' => 'nullable|integer|min:0',
-            'Variety Received' => 'required|string|max:255',
-            'Bundles Received' => 'required|integer|min:1',
+            'Variety Received' => ['required', 'regex:/^[\p{L}\p{N}\p{P}\p{S}]+$/u'],
+            'Bundles Received' => 'required|integer|min:0',
             'Phone / National ID' => 'required|max:255',
         ];
     }
@@ -123,6 +123,63 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
     public function prepareForValidation(array $row)
     {
         $this->convertExcelDate($row['Date']);
+        if (!$row['Age']) {
+
+            $row['Age'] = 1;
+        }
+
+        if (!$row['Phone / National ID']) {
+            $row['Phone / National ID'] = 'NA';
+        }
+
+        if (!$row['Household Size']) {
+            $row['Household Size'] = 1;
+        }
+
+        if (!$row['Sex']) {
+            $row['Sex'] = 'Male';
+        }
+        if (!$row['Marital Status']) {
+            $row['Marital Status'] = 1;
+        }
+        if (!$row['Household Head']) {
+            $row['Household Head'] = 1;
+        }
+        if (!$row['Children Under 5 in HH']) {
+            $row['Children Under 5 in HH'] = 0;
+        }
+        if (!$row['Village']) {
+            $row['Village'] = 'NA';
+        }
+
+        if (!$row['AEDO Phone Number']) {
+            $row['AEDO Phone Number'] = 'NA';
+        }
+
+        if (!$row['Section']) {
+            $row['Section'] = 'NA';
+        }
+        if (!$row['EPA']) {
+            $row['EPA'] = 'NA';
+        }
+        if (!$row['Name of AEDO']) {
+            $row['Name of AEDO'] = 'NA';
+        }
+        if (!$row['Name of Recipient']) {
+            $row['Name of Recipient'] = 'NA';
+        }
+        if (!$row['District']) {
+            $row['District'] = 'NA';
+        }
+        if (!$row['Variety Received']) {
+            $row['Variety Received'] = 'NA';
+        }
+        if (!$row['Bundles Received']) {
+            $row['Bundles Received'] = 0;
+        }
+
+
+
         return $row;
     }
     public function onFailure(Failure ...$failures)

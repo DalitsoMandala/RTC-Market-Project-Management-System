@@ -58,8 +58,10 @@ class AdditionalReportJob implements ShouldQueue
                 $indicator = $indicators->where('id', $indicatorId)->first();
 
                 if (!$indicator) {
+
                     continue; // Skip if the indicator is not found
                 }
+
 
                 // Get all disaggregations for this indicator
                 $disaggregations = $indicator->disaggregations;
@@ -73,12 +75,14 @@ class AdditionalReportJob implements ShouldQueue
                     $financialYearId
                 ) {
                     // Find the matching disaggregation
-                    $indicatorDisaggregate = $disaggregations->where('name', $item->name)->first();
+                    $indicatorDisaggregate = $disaggregations->where('name', $item->name)
+                        ->where('indicator_id', $indicatorId)
+                        ->first();
 
                     if (!$indicatorDisaggregate) {
-                        Log::info("Indicator with name '{$item->name}' not found");
-                        return; // Skip if no matching disaggregation
+                        return; // Skip if the disaggregation is not found
                     }
+
 
                     // Fetch additional report data in chunks
                     AdditionalReport::where('indicator_id', $indicatorId)

@@ -69,12 +69,9 @@ class ImportData extends Component
         try {
 
             $this->showInput = false;
-            $name = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
+            $name = 'progress_summary_' . time() . '.' . $this->upload->getClientOriginalExtension();
             $this->upload->storeAs('public/imports', $name);
-
-            // Use storage_path to get the absolute path
             $path = storage_path('app/public/imports/' . $name);
-
             $this->importing = true;
             $this->importingFinished = false;
             try {
@@ -103,7 +100,7 @@ class ImportData extends Component
             throw $e;
         }
 
-        $this->dispatch('removeUploadedFile');
+        // $this->dispatch('removeUploadedFile');
         $this->showInput = true;
         // Use Excel import (Assumes you have set up an Import for SeedBeneficiaries)
 

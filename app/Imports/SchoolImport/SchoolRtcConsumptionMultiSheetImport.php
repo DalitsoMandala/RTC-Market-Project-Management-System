@@ -144,7 +144,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
@@ -166,7 +166,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
@@ -185,7 +185,7 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'pending',
                         'batch_type' => 'batch',

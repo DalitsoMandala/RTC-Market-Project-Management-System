@@ -33,24 +33,66 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     ];
 
     protected $expectedHeaders = [
-        'Crop',
-        'District',
-        'EPA',
-        'Section',
-        'Name of AEDO',
-        'AEDO Phone Number',
-        'Date',
-        'Name of Recipient',
-        'Village',
-        'Sex',
-        'Age',
-        'Marital Status',
-        'Household Head',
-        'Household Size',
-        'Children Under 5 in HH',
-        'Variety Received',
-        'Bundles Received',
-        'Phone / National ID',
+        'Potato' => [
+            //   'Crop',
+            'District',
+            'EPA',
+            'Section',
+            'Name of AEDO',
+            'AEDO Phone Number',
+            'Date',
+            'Name of Recipient',
+            'Village',
+            'Sex',
+            'Age',
+            'Marital Status',
+            'Household Head',
+            'Household Size',
+            'Children Under 5 in HH',
+            'Variety Received',
+            'Bundles Received',
+            'Phone / National ID',
+        ],
+        'OFSP' => [
+            //   'Crop',
+            'District',
+            'EPA',
+            'Section',
+            'Name of AEDO',
+            'AEDO Phone Number',
+            'Date',
+            'Name of Recipient',
+            'Village',
+            'Sex',
+            'Age',
+            'Marital Status',
+            'Household Head',
+            'Household Size',
+            'Children Under 5 in HH',
+            'Variety Received',
+            'Bundles Received',
+            'Phone / National ID',
+        ],
+        'Cassava' => [
+            //   'Crop',
+            'District',
+            'EPA',
+            'Section',
+            'Name of AEDO',
+            'AEDO Phone Number',
+            'Date',
+            'Name of Recipient',
+            'Village',
+            'Sex',
+            'Age',
+            'Marital Status',
+            'Household Head',
+            'Household Size',
+            'Children Under 5 in HH',
+            'Variety Received',
+            'Bundles Received',
+            'Phone / National ID',
+        ],
     ];
 
     protected $cacheKey;
@@ -98,18 +140,26 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
 
 
                 // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
+                $sheetNames = $this->expectedSheetNames;
                 $sheets = $event->reader->getTotalRows();
 
+                $countBlanks = 0;
+
                 foreach ($sheets as $key => $sheet) {
-
-                    if ($sheet <= 1 && $key == $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
+                    if (
+                        ($key == $sheetNames[0] && $sheet <= 1) ||
+                        ($key == $sheetNames[1] && $sheet <= 2) ||
+                        ($key == $sheetNames[2] && $sheet <= 3)
+                    ) {
+                        $countBlanks++;
                     }
+                }
+
+                if ($countBlanks == 3) {
+                    Log::error("The sheets are all blank.");
+                    throw new ExcelValidationException(
+                        "The sheets are all blank. Please ensure your file contains data before importing."
+                    );
                 }
 
 
@@ -151,7 +201,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
@@ -173,7 +223,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
@@ -193,7 +243,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
-                        'period_id' => $this->submissionDetails['period_month_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'pending',
                         'batch_type' => 'batch',
@@ -244,7 +294,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     ]
                 );
 
-                SeedBeneficiary::where('cache_key', $this->cacheKey)->delete();
+                SeedBeneficiary::where('uuid', $this->cacheKey)->delete();
 
                 Log::error($exception->getMessage());
             }

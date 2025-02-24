@@ -16,18 +16,18 @@ return new class extends Migration {
             $table->string('epa');
             $table->string('section');
             $table->string('name_of_aedo');
-            $table->string('aedo_phone_number');
+            $table->string('aedo_phone_number')->nullable();
             $table->date('date');
             $table->string('name_of_recipient');
-            $table->string('village');
-            $table->tinyInteger('sex'); // 1=Male, 2=Female
-            $table->integer('age');
-            $table->tinyInteger('marital_status'); // 1=Married, 2=Single, 3=Divorced, 4=Widow/er
-            $table->tinyInteger('hh_head'); // 1=MHH, 2=FHH, 3=CHH
-            $table->integer('household_size');
-            $table->integer('children_under_5');
+            $table->string('village')->nullable();
+            $table->tinyInteger('sex')->default(1)->nullable(); // 1=Male, 2=Female
+            $table->integer('age')->default(0)->nullable();
+            $table->tinyInteger('marital_status')->default(1)->nullable(); // 1=Married, 2=Single, 3=Divorced, 4=Widow/er
+            $table->tinyInteger('hh_head')->default(1)->nullable(); // 1=MHH, 2=FHH, 3=CHH
+            $table->integer('household_size')->default(1)->nullable();
+            $table->integer('children_under_5')->default(0)->nullable();
             $table->string('variety_received');
-            $table->integer('bundles_received');
+            $table->integer('bundles_received')->default(0)->nullable();
             $table->string('phone_or_national_id');
             $table->enum('crop', ['OFSP', 'Potato', 'Cassava']); // Can be "OFSP" or "Potato" or "Cassava"
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');

@@ -167,9 +167,14 @@
                                             wire:loading.attr='disabled' wire:target='selectedProject'>
                                             <option value="">Select one</option>
                                             @foreach ($reportingPeriod as $month)
-                                                <option value="{{ $month->id }}">{{ $month->start_month }} -
-                                                    {{ $month->end_month }}
-                                                </option>
+                                                @if ($month->type === 'UNSPECIFIED')
+                                                    <option value="{{ $month->id }}">{{ $month->type }}
+                                                    </option>
+                                                @else
+                                                    <option value="{{ $month->id }}">{{ $month->start_month }} -
+                                                        {{ $month->end_month }}
+                                                    </option>
+                                                @endif
                                             @endforeach
                                         </select>
 

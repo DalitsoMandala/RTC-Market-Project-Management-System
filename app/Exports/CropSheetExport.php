@@ -26,7 +26,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
             return collect([]);
         }
         $data = SeedBeneficiary::where('crop', $this->cropType)->select(
-            'crop',
+            //  'crop',
             'district',
             'epa',
             'section',
@@ -57,7 +57,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
-            'Crop',
+            //     'Crop',
             'District',
             'EPA',
             'Section',

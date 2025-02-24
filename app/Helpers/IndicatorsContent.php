@@ -415,7 +415,7 @@ class IndicatorsContent
             ],
             "Percentage of value ($) of formal RTC imports substituted through local production" => [
                 'Total (% Percentage)',
-                'Volume(Metric Tonnes)',
+                'Volume (Metric Tonnes)',
                 'Financial value ($)',
                 '(Formal) Cassava',
                 '(Formal) Potato',
