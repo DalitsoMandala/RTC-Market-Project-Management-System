@@ -56,27 +56,34 @@
 
 
 
-                    <div class="card-body px-0">
+                    <div class="px-0 card-body">
 
-                        <ul class="nav nav-tabs mx-2" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
+                        <ul class="mx-2 nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="potato-tab" data-bs-toggle="tab"
                                     data-bs-target="#potato" type="button" role="tab" aria-controls="potato"
-                                    aria-selected="true">Potato</button>
+                                    aria-selected="true">Potato Beneficiaries</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="ofsp-tab" data-bs-toggle="tab" data-bs-target="#ofsp"
-                                    type="button" role="tab" aria-controls="ofsp"
-                                    aria-selected="false">OFSP</button>
+                                    type="button" role="tab" aria-controls="ofsp" aria-selected="false">OFSP
+                                    Beneficiaries</button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="motherplot-tab" data-bs-toggle="tab"
+                                    data-bs-target="#motherplot" type="button" role="tab"
+                                    aria-controls="motherplot" aria-selected="false">Mother Plot Hosts</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="cassava-tab" data-bs-toggle="tab" data-bs-target="#cassava"
-                                    type="button" role="tab" aria-controls="cassava"
-                                    aria-selected="false">Cassava</button>
+                                    type="button" role="tab" aria-controls="cassava" aria-selected="false">Cassava
+                                    Tots</button>
                             </li>
+
                         </ul>
                         <!-- Tab Content for Livewire tables -->
-                        <div class="tab-content mt-3" id="seedBeneficiaryTabsContent">
+                        <div class="mt-3 tab-content" id="seedBeneficiaryTabsContent">
                             <!-- Potato Table -->
                             <div class="tab-pane fade show active" id="potato" role="tabpanel"
                                 aria-labelledby="potato-tab" wire:ignore.self>
@@ -139,7 +146,7 @@
 
 
 
-                    <div class="d-flex border-top-0 justify-content-center mt-5" x-data>
+                    <div class="mt-5 d-flex border-top-0 justify-content-center" x-data>
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteDetail"

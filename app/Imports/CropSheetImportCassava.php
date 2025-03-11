@@ -23,7 +23,7 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
-class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
 {
     use Importable;
 
@@ -115,30 +115,30 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
                 };
                 $row[$variety] = 1;
             }
+        } else
+        if ($this->cropType == 'OFSP') {
+            $explode = explode(',', $row['Variety Received']);
+
+            foreach ($explode as $item) {
+                $variety = match (trim($item)) {
+                    '1' => 'royal_choice',
+                    '2' => 'kaphulira',
+                    '3' => 'chipika',
+                    '4' => 'mathuthu',
+                    '5' => 'kadyaubwelere',
+                    '6' => 'sungani',
+                    '7' => 'kajiyani',
+                    '8' => 'mugamba',
+                    '9' => 'kenya',
+                    '10' => 'nyamoyo',
+                    '11' => 'anaakwanire',
+                    default => 'other',
+                };
+
+                // Set the corresponding variety to 1
+                $row[$variety] = 1;
+            }
         }
-        // if ($this->cropType == 'OFSP') {
-        //     $explode = explode(',', $row['Variety Received']);
-
-        //     foreach ($explode as $item) {
-        //         $variety = match (trim($item)) {
-        //             '1' => 'royal_choice',
-        //             '2' => 'kaphulira',
-        //             '3' => 'chipika',
-        //             '4' => 'mathuthu',
-        //             '5' => 'kadyaubwelere',
-        //             '6' => 'sungani',
-        //             '7' => 'kajiyani',
-        //             '8' => 'mugamba',
-        //             '9' => 'kenya',
-        //             '10' => 'nyamoyo',
-        //             '11' => 'anaakwanire',
-        //             default => 'other',
-        //         };
-
-        //         // Set the corresponding variety to 1
-        //         $row[$variety] = 1;
-        //     }
-        // }
 
 
 

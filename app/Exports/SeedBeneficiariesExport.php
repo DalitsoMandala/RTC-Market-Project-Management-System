@@ -17,13 +17,11 @@ class SeedBeneficiariesExport implements WithMultipleSheets
     {
         return [
             'Potato' => new CropSheetExport('Potato', $this->template),
-            'OFSP' => new CropSheetExport('OFSP', $this->template),
+            'OFSP' => new CropSheetExportOFSP('OFSP', $this->template),
             //       'Trainings' => new AttendanceTrainingExport($this->template, 'Trainings'),
-            'Mother Plot Hosts' => new MotherPlotsExport($this->template),
-            'Cassava Tots' => new CassavaTotExport($this->template),
-
-
-            // 'Cassava' => new CropSheetExport('Cassava', $this->template),
+            // 'Mother Plot Hosts' => new MotherPlotsExport($this->template),
+            // 'Cassava Tots' => new CassavaTotExport($this->template),
+            'Cassava' => new CropSheetExportCassava('Cassava', $this->template),
         ];
     }
 }
