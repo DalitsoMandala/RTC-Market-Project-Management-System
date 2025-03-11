@@ -34,9 +34,13 @@ class CheckSubmissionDeadlines extends Command
 
             $indicator = Indicator::find($submissionPeriod->indicator_id);
             $organisations = $indicator->responsiblePeopleforIndicators()->pluck('organisation_id');
-            $users = User::with('organisation')->whereHas('organisation', function ($query) use ($organisations) {
-                $query->whereIn('id', $organisations);
-            })->get();
+            $users = User::with(['organisation', 'roles'])
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
+                })
+                ->whereHas('organisation', function ($query) use ($organisations) {
+                    $query->whereIn('id', $organisations);
+                })->get();
 
 
 

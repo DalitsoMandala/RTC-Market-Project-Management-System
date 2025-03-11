@@ -57,22 +57,24 @@
                     <div class="card-body">
                         <form wire:submit.prevent="save">
                             <!-- Crop Radio Buttons -->
-                            <div class="mb-3">
+                            <div class="mb-3" x-data="{
+                                selectedCrop: $wire.entangle('crop')
+                            }">
                                 <label class="form-label">Crop</label>
                                 <div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input @error('crop') is-invalid @enderror"
-                                            type="radio" wire:model="crop" id="crop_ofsp" value="OFSP">
+                                            type="radio" wire:model.live="crop" id="crop_ofsp" value="OFSP">
                                         <label class="form-check-label text-uppercase" for="crop_ofsp">OFSP</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input @error('crop') is-invalid @enderror"
-                                            type="radio" wire:model="crop" id="crop_potato" value="Potato">
+                                            type="radio" wire:model.live="crop" id="crop_potato" value="Potato">
                                         <label class="form-check-label" for="crop_potato">Potato</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input @error('crop') is-invalid @enderror"
-                                            type="radio" wire:model="crop" id="crop_cassava" value="Cassava">
+                                            type="radio" wire:model.live="crop" id="crop_cassava" value="Cassava">
                                         <label class="form-check-label" for="crop_cassava">Cassava</label>
                                     </div>
                                 </div>
@@ -245,20 +247,103 @@
                                 @enderror
                             </div>
 
-                            <!-- Variety Received -->
-                            <div class="mb-3">
-                                <label class="form-label">Variety Received</label>
-                                <input type="text"
-                                    class="form-control @error('variety_received') is-invalid @enderror"
-                                    wire:model="variety_received">
+
+
+                            <div class="varieties ">
+
+                                <div class="">
+
+
+                                    <div class="mb-3 " wire:ignore x-data="{
+                                    
+                                        selectedVarieties: $wire.entangle('selectedVarieties'),
+                                        variety_received: $wire.entangle('variety_received'),
+                                    }" x-init="() => {
+                                    
+                                        $('#select-crop').select2({
+                                            width: '100%',
+                                            theme: 'bootstrap-5',
+                                            containerCssClass: 'select2--small',
+                                            dropdownCssClass: 'select2--small',
+                                        });
+                                    
+                                        $wire.on('get-varieties', (e) => {
+                                            const selectElement = $('#select-crop');
+                                            const arrayOfObjects = e.data;
+                                    
+                                            selectElement.empty();
+                                    
+                                    
+                                    
+                                            arrayOfObjects.forEach(data => {
+                                    
+                                                let newOption = new Option(data.name, data.id, false, false);
+                                                selectElement.append(newOption);
+                                            });
+                                            // Refresh Select2 to reflect changes
+                                            selectElement.trigger('change');
+                                    
+                                        })
+                                    
+                                        $('#select-crop').on('select2:select', function(e) {
+                                            const data = $(this).val();
+                                            let joinedData = data.join(',');
+                                            variety_received = joinedData;
+                                    
+                                            var selectedData = $(this).select2('data');
+                                            var selectedNames = selectedData.map(item => item.text); // Get selected names (text)
+                                            selectedVarieties = selectedNames;
+                                    
+                                        });
+                                    
+                                        $('#select-crop').on('select2:unselect', function(e) {
+                                            const data = $(this).val();
+                                    
+                                            if (data.length === 0) {
+                                                variety_received = null;
+                                                selectedVarieties = [];
+                                    
+                                            } else {
+                                    
+                                                let joinedData = data.join(',');
+                                                variety_received = joinedData;
+                                    
+                                                var selectedData = $(this).select2('data');
+                                                var selectedNames = selectedData.map(item => item.text); // Get selected names (text)
+                                                selectedVarieties = selectedNames;
+                                            }
+                                    
+                                    
+                                    
+                                    
+                                    
+                                        });
+                                    
+                                    }">
+                                        <label for="" class="form-label">Variety recieved</label>
+
+                                        <select x-ref="select" class="form-select" id="select-crop" multiple>
+
+                                            @foreach ($varieties as $variety)
+                                                <option value="{{ $variety['name'] }}" class="text-capitalize">
+                                                    {{ str_replace('_', ' ', $variety['name']) }}
+
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+
                                 @error('variety_received')
-                                    <span class="text-danger">{{ $message }}</span>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                             </div>
 
+
                             <!-- Bundles Received -->
                             <div class="mb-3">
-                                <label class="form-label">Bundles Received</label>
+                                <label class="form-label">Bundles Received (Tons/KGs)</label>
                                 <input type="number"
                                     class="form-control @error('bundles_received') is-invalid @enderror"
                                     wire:model="bundles_received" min="1">
@@ -269,14 +354,25 @@
 
                             <!-- Phone / National ID -->
                             <div class="mb-3">
-                                <label class="form-label">Phone / National ID</label>
+                                <label class="form-label">Phone Number</label>
                                 <input type="text"
-                                    class="form-control @error('phone_or_national_id') is-invalid @enderror"
-                                    wire:model="phone_or_national_id">
-                                @error('phone_or_national_id')
+                                    class="form-control @error('phone_number') is-invalid @enderror"
+                                    wire:model="phone_number">
+                                @error('phone_number')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+
+                            <!-- Phone / National ID -->
+                            <div class="mb-3">
+                                <label class="form-label">National ID</label>
+                                <input type="text" class="form-control @error('national_id') is-invalid @enderror"
+                                    wire:model="national_id">
+                                @error('national_id')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
 
                             <!-- Submit Button -->
                             <div class="d-grid col-12 justify-content-center" x-data>

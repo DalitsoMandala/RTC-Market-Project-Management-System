@@ -110,15 +110,15 @@
                                         });
                                     
                                     
-                                        $('#select-indicators').on('select2:select', function(e) {
-                                            let data = e.params.data;
-                                    
-                                            setTimeout(() => {
-                                                $wire.set('selectedIndicator', data.id);
-                                            }, 500)
-                                    
-                                    
-                                        });
+                                            $('#select-indicators').on('select2:select', function(e) {
+                                                let data = e.params.data;
+                                        
+                                                setTimeout(() => {
+                                                    $wire.set('selectedIndicator', data.id);
+                                                }, 500)
+                                        
+                                        
+                                            });
                                     
                                     
                                         $wire.on('update-indicator', (e) => {

@@ -38,8 +38,18 @@ class SendExpiredPeriodNotifications extends Command
             $indicator = $period->indicator_id;
             $indicatorName = Indicator::find($indicator)->indicator_name;
             $people = ResponsiblePerson::where('indicator_id', $indicator)->pluck('organisation_id');
-            $organisations = Organisation::with('users')->whereIn('id', $people)->get()->pluck('users');
-            $users = $organisations->flatten();
+            $users = Organisation::whereIn('id', $people)
+                ->whereHas('users.roles', function ($role) {
+                    $role->whereNotIn('name', ['admin', 'project_manager']);
+                })
+                ->with(['users' => function ($user) {
+                    $user->whereHas('roles', function ($role) {
+                        $role->whereNotIn('name', ['admin', 'project_manager']);
+                    });
+                }])
+                ->get()
+                ->pluck('users')
+                ->flatten(); // Flatten the collection of collections into a single collection
 
             SendExpiredPeriodNotificationJob::dispatch($users, $indicatorName);
 

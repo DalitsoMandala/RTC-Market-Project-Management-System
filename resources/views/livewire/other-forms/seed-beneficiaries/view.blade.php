@@ -43,22 +43,13 @@
                         @endphp
 
                     </div>
-                    <div class="card-header text-muted">
-                        <strong>Column Information:</strong>
-                        <ul class="mb-0">
-                            <li><strong>Sex:</strong> 1 = Male, 2 = Female</li>
-                            <li><strong>Marital Status:</strong> 1 = Married, 2 = Single, 3 = Divorced, 4 = Widow/er
-                            </li>
-                            <li><strong>HH Head:</strong> 1 = MHH, 2 = FHH, 3 = CHH</li>
-
-                        </ul>
-                    </div>
 
 
 
                     <div class="px-0 card-body">
 
-                        <ul class="mx-2 nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
+                        <ul class="mx-2 nav nav-tabs justify-content-center" id="seedBeneficiaryTabs" role="tablist"
+                            wire:ignore>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="potato-tab" data-bs-toggle="tab"
                                     data-bs-target="#potato" type="button" role="tab" aria-controls="potato"
@@ -71,14 +62,9 @@
                             </li>
 
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="motherplot-tab" data-bs-toggle="tab"
-                                    data-bs-target="#motherplot" type="button" role="tab"
-                                    aria-controls="motherplot" aria-selected="false">Mother Plot Hosts</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="cassava-tab" data-bs-toggle="tab" data-bs-target="#cassava"
                                     type="button" role="tab" aria-controls="cassava" aria-selected="false">Cassava
-                                    Tots</button>
+                                    Beneficiaries</button>
                             </li>
 
                         </ul>

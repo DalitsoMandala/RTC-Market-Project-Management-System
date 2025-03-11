@@ -41,6 +41,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
+                ->pageName("{$this->crop}_page")
                 ->showRecordCount(),
         ];
     }
@@ -69,11 +70,11 @@ final class SeedBeneficiaryTable extends PowerGridComponent
                 ->where('seed_beneficiaries.organisation_id', $organisation_id)
                 ->where('crop', $this->crop)->join('users', function ($user) {
                     $user->on('users.id', '=', 'seed_beneficiaries.user_id');
-                })->select('seed_beneficiaries.*', 'users.name as user_name');
+                })->select('seed_beneficiaries.*', 'users.name as user_name',  DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'));
         }
         return SeedBeneficiary::query()->with('user')->where('crop', $this->crop)->join('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
-        })->select('seed_beneficiaries.*', 'users.name as user_name');
+        })->select('seed_beneficiaries.*', 'users.name as user_name',   DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'));
     }
 
     public function fields(): PowerGridFields
@@ -88,13 +89,82 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             ->add('date_formatted', fn($model) => Carbon::parse($model->date)->format('d/m/Y'))
             ->add('name_of_recipient')
             ->add('village')
-            ->add('sex')
+            ->add('sex', function ($model) {
+                return $model->sex === 1 ? 'Male' : 'Female';
+            })
             ->add('age')
-            ->add('marital_status')
-            ->add('hh_head')
+            ->add('marital_status', function ($model) {
+                $status = match ($model->marital_status) {
+                    1 => 'Single',
+                    2 => 'Married',
+                    3 => 'Widowed',
+                    4 => 'Separated',
+                    5 => 'Polygamy',
+                    default => 'Single'
+                };
+
+
+                return $status;
+            })
+            ->add('hh_head', function ($model) {
+                $head = match ($model->hh_head) {
+                    1 => 'MHH',
+                    2 => 'FHH',
+                    3 => 'CHH',
+                    default => 'MHH'
+                };
+                return $head;
+            })
             ->add('household_size')
             ->add('children_under_5')
             ->add('variety_received')
+            ->add('variety', function ($model) {
+                $varieties = [];
+                if ($model->crop == 'Potato') {
+                    $explode = explode(',', $model->variety_received);
+
+                    // Initialize all possible varieties to 0
+
+
+                    foreach ($explode as $item) {
+                        $variety = match (trim($item)) {
+                            '1' => 'violet',
+                            '2' => 'rosita',
+                            '3' => 'chuma',
+                            '4' => 'mwai',
+                            '5' => 'zikomo',
+                            '6' => 'thandizo',
+                            default => 'other'
+                        };
+                        array_push($varieties, $variety);
+                    }
+                    return implode(',', $varieties);
+                } else
+                if ($this->crop == 'OFSP') {
+                    $explode = explode(',', $model->variety_received);
+
+                    foreach ($explode as $item) {
+                        $variety = match (trim($item)) {
+                            '1' => 'royal choice',
+                            '2' => 'kaphulira',
+                            '3' => 'chipika',
+                            '4' => 'mathuthu',
+                            '5' => 'kadyaubwelere',
+                            '6' => 'sungani',
+                            '7' => 'kajiyani',
+                            '8' => 'mugamba',
+                            '9' => 'kenya',
+                            '10' => 'nyamoyo',
+                            '11' => 'anaakwanire',
+                            default => 'other',
+                        };
+
+
+                        array_push($varieties, $variety);
+                    }
+                    return implode(',', $varieties);
+                }
+            })
             ->add('bundles_received')
             ->add('phone_or_national_id')
             ->add('crop')
@@ -107,7 +177,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')->bodyAttribute('table-sticky-col ')->headerAttribute('table-sticky-col'),
+            Column::make('Id', 'rn'),
             Column::make('District', 'district', 'district')
                 ->sortable()
 
@@ -165,21 +235,23 @@ final class SeedBeneficiaryTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Variety received', 'variety_received')
-                ->sortable()
-                ->searchable(),
+            Column::make('Variety received', 'variety'),
 
             Column::make('Bundles received', 'bundles_received')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Phone or national id', 'phone_or_national_id')
-                ->sortable()
+            Column::make('Phone', 'phone_number')
+                // ->sortable()
+                ->searchable(),
+            Column::make('National id', 'national_id')
+                //  ->sortable()
                 ->searchable(),
 
-            Column::make('Crop', 'crop')
-                ->sortable()
-                ->searchable(),
+
+            // Column::make('Crop', 'crop')
+            //     ->sortable()
+            //     ->searchable(),
 
             Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
             Column::action('Action')
@@ -202,19 +274,21 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i> Edit')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('my-2 btn btn-warning')
+                ->class('my-2 btn btn-warning btn-sm custom-tooltip')
+                ->tooltip('Edit')
                 ->dispatch('edit-showModal', [
                     'id' => $row->id,
                     'name' => 'view-detail-modal'
                 ]),
 
             Button::add('delete')
-                ->slot('<i class="bx bx-trash-alt"></i> Delete')
+                ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
-                ->class('btn btn-theme-red my-1')
+                ->class('btn btn-theme-red my-1 btn-sm custom-tooltip')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
+                ->tooltip('Delete')
                 ->dispatch('deleteRecord', [
                     'id' => $row->id,
                     'name' => 'delete-detail-modal'

@@ -46,8 +46,9 @@ class Add extends Component
     public $children_under_5;
     public $variety_received;
     public $bundles_received;
-    public $phone_or_national_id;
-    public $crop = 'OFSP';
+    public $national_id;
+    public $phone_number;
+    public $crop;
     public $upload;
 
     public $progress = 0;
@@ -87,15 +88,19 @@ class Add extends Component
         'children_under_5' => 'required|integer|min:0',
         'variety_received' => 'required|string|max:255',
         'bundles_received' => 'required|integer|min:1',
-        'phone_or_national_id' => 'required|string|max:20',
+        'national_id' => 'nullable|string|max:20',
+        'phone_number' => 'nullable|max:255',
         'crop' => 'required|string|in:OFSP,Potato,Cassava',
     ];
 
-
+    public $varieties = [];
+    public $selectedVarieties = [];
 
 
     public function save()
     {
+
+        $collect = collect($this->selectedVarieties);
 
         try {
 
@@ -108,6 +113,7 @@ class Add extends Component
 
         try {
             $uuid = Uuid::uuid4()->toString();
+
             SeedBeneficiary::create([
                 'district' => $this->district,
                 'epa' => $this->epa,
@@ -124,8 +130,27 @@ class Add extends Component
                 'household_size' => $this->household_size,
                 'children_under_5' => $this->children_under_5,
                 'variety_received' => $this->variety_received,
+                'violet' => $collect->contains('violet'),
+                'rosita' =>  $collect->contains('rosita'),
+                'chuma' => $collect->contains('chuma'),
+                'mwai' => $collect->contains('mwai'),
+                'zikomo' =>  $collect->contains('zikomo'),
+                'thandizo' =>  $collect->contains('thandizo'),
+                'royal_choice' => $collect->contains('royal_choice'),
+                'kaphulira' => $collect->contains('kaphulira'),
+                'chipika' => $collect->contains('chipika'),
+                'mathuthu' => $collect->contains('mathuthu'),
+                'kadyaubwelere' => $collect->contains('kadyaubwelere'),
+                'sungani' => $collect->contains('sungani'),
+                'kajiyani' => $collect->contains('kajiyani'),
+                'mugamba' => $collect->contains('mugamba'),
+                'kenya' => $collect->contains('kenya'),
+                'nyamoyo' => $collect->contains('nyamoyo'),
+                'anaakwanire' => $collect->contains('anaakwanire'),
+                'other' => $collect->contains('other'),
                 'bundles_received' => $this->bundles_received,
-                'phone_or_national_id' => $this->phone_or_national_id,
+                'phone_number' => $this->phone_number ?? 'NA',
+                'national_id' => $this->national_id ?? 'NA',
                 'crop' => $this->crop,
                 'uuid' => $uuid,
                 'user_id' => auth()->user()->id,
@@ -137,6 +162,7 @@ class Add extends Component
             ]);
 
             session()->flash('success', 'Seed Beneficiary added successfully.');
+            $this->reset();
         } catch (\Throwable $th) {
 
 
@@ -211,7 +237,47 @@ class Add extends Component
         }
 
         $this->routePrefix = Route::current()->getPrefix();
+        $this->getVarieties($this->crop);
     }
+    public function getVarieties($crop)
+    {
+        if ($crop === 'OFSP') {
+            $this->varieties = [
+                ['id' => 1, 'name' => 'royal_choice'],
+                ['id' => 2, 'name' => 'kaphulira'],
+                ['id' => 3, 'name' => 'chipika'],
+                ['id' => 4, 'name' => 'mathuthu'],
+                ['id' => 5, 'name' => 'kadyaubwelere'],
+                ['id' => 6, 'name' => 'sungani'],
+                ['id' => 7, 'name' => 'kajiyani'],
+                ['id' => 8, 'name' => 'mugamba'],
+                ['id' => 9, 'name' => 'kenya'],
+                ['id' => 10, 'name' => 'nyamoyo'],
+                ['id' => 11, 'name' => 'anaakwanire'],
+                ['id' => 12, 'name' => 'other'],
+            ];
+        } else if ($crop === 'Potato') {
+            $this->varieties = [
+                ['id' => 1, 'name' => 'violet'],
+                ['id' => 2, 'name' => 'rosita'],
+                ['id' => 3, 'name' => 'chuma'],
+                ['id' => 4, 'name' => 'mwai'],
+                ['id' => 5, 'name' => 'zikomo'],
+                ['id' => 6, 'name' => 'thandizo'],
+                ['id' => 7, 'name' => 'other'],
+            ];
+        } else {
+            $this->varieties = [];
+        }
+    }
+    public function updatedCrop($value)
+    {
+        $this->getVarieties($value);
+        $this->dispatch('get-varieties', data: $this->varieties);
+    }
+
+
+
 
     public function render()
     {

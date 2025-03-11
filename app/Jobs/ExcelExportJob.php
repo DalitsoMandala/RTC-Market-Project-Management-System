@@ -1199,9 +1199,6 @@ class ExcelExportJob implements ShouldQueue
                                 $end_month = $record->systemReport->reportingPeriod->end_month;
                                 $report_period = $start_month . ' - ' . $end_month;
                                 $type_of_period = $record->systemReport->reportingPeriod->type;
-
-
-
                             }
 
                             $writer->addRow([
@@ -1289,7 +1286,8 @@ class ExcelExportJob implements ShouldQueue
                             'children_under_5',
                             'variety_received',
                             'bundles_received',
-                            'phone_or_national_id',
+                            'phone_number',
+                            'national_id',
                         ])
                         ->chunk(2000, function ($seedBeneficiaries) use ($writer) {
                             foreach ($seedBeneficiaries as $record) {
@@ -1311,7 +1309,8 @@ class ExcelExportJob implements ShouldQueue
                                     $record->children_under_5,
                                     $record->variety_received,
                                     $record->bundles_received,
-                                    $record->phone_or_national_id,
+                                    $record->phone_number,
+                                    $record->national_id,
                                 ]);
                             }
                         });
@@ -1326,7 +1325,5 @@ class ExcelExportJob implements ShouldQueue
                 return;
                 break;
         }
-
-
     }
 }
