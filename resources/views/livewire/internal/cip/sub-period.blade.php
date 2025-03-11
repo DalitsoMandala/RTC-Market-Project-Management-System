@@ -1,17 +1,40 @@
 <div>
 
+    <div class="container-fluid">
+        <x-alerts />
+    </div>
+    <div class="container-fluid " x-data="{
+        showLoadingIndicator: true,
+        init() {
+    
+    
+            setTimeout(() => {
+    
+                this.showLoadingIndicator = false;
+    
+            }, 5000);
+        }
+    
+    }" x-show="showLoadingIndicator">
 
+        <div class="d-flex justify-content-center align-items-center vh-100">
+            <div class="spinner-border text-warning spinner-border-lg" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+    </div>
     <div class="container-fluid" id="load-app" x-data="{
         showPage: false,
     
         init() {
-            $wire.dispatch('timeout');
+    
             setTimeout(() => {
     
                 this.showPage = true;
-            }, 3000);
+            }, 5000);
         }
-    }" :class="{ 'pe-none opacity-25': !showPage }">
+    }" x-show="showPage">
 
 
         <!-- start page title -->
@@ -32,7 +55,7 @@
         </div>
         <!-- end page title -->
         <div class="row justify-content-center">
-            <x-alerts />
+
             <div class="col-12">
                 <div class="card">
 
@@ -365,7 +388,7 @@ border-danger
                                                 @endforeach
                                             </div>
 
-                                            <div class="col-12 mt-1">
+                                            <div class="mt-1 col-12">
                                                 <label for="targets" class="form-label text-uppercase">CIP Target
                                                     Value</label>
                                                 <input type="number"

@@ -156,4 +156,9 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
     {
         return 1000;
     }
+
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 }

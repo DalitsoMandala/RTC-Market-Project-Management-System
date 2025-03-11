@@ -258,4 +258,9 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
     {
         return 1000;
     }
+
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 }

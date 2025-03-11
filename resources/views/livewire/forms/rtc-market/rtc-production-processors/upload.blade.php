@@ -41,6 +41,8 @@
                 <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING FORM (PROCESSORS)</h3>
 
                 <x-alerts />
+                <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
+
                 @if (!$targetSet)
                     <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
                 @endif

@@ -42,7 +42,7 @@
                                         </h6>
 
                                         <div class="text-muted">
-                                            <p class="mb-1 font-size-13">{{ $notification->data['message'] }}</p>
+                                            <p class="mb-1 font-size-13">{!! $notification->data['message'] !!}</p>
 
 
                                             <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
@@ -71,7 +71,7 @@
                                             @endif
                                         </h6>
                                         <div class="text-muted">
-                                            <p class="mb-1 font-size-13">{{ $notification->data['message'] }}</p>
+                                            <p class="mb-1 font-size-13">{!! $notification->data['message'] !!}</p>
 
 
                                             <p class="mb-0 font-size-10 text-uppercase fw-bold"><i
@@ -101,7 +101,7 @@
                                             @endif
                                         </h6>
                                         <div class="text-muted">
-                                            <p class="mb-1 font-size-13">{{ $notification->data['message'] }}</p>
+                                            <p class="mb-1 font-size-13">{!! $notification->data['message'] !!}</p>
 
 
                                             <p class="mb-0 font-size-10 text-uppercase fw-bold"><i

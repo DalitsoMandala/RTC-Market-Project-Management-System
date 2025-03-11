@@ -248,4 +248,9 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
     {
         return 1000;
     }
+
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 }

@@ -45,6 +45,8 @@
                  <x-alerts />
 
 
+                 <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
+
                  @if (!$targetSet)
                      <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
                  @endif
@@ -125,7 +127,7 @@
                                      <button type="submit" @uploading-files.window="disableButton = true"
                                          @finished-uploading.window="disableButton = false"
                                          :disabled="disableButton === true || openSubmission === false"
-                                         class="px-5 btn btn-warning ">
+                                         wire:loading.attr='disabled' class="px-5 btn btn-warning ">
                                          Submit data
                                      </button>
 

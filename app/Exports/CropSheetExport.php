@@ -43,7 +43,11 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
             'children_under_5',
             'variety_received',
             'bundles_received',
-            'phone_or_national_id'
+            'national_id',
+            'phone_number',
+            'signed',
+            'year'
+
         )->get();
 
 
@@ -63,7 +67,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
             'Section',
             'Name of AEDO',
             'AEDO Phone Number',
-            'Date',
+            'Date of Distribution',
             'Name of Recipient',
             'Village',
             'Sex',
@@ -74,7 +78,10 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle
             'Children Under 5 in HH',
             'Variety Received',
             'Bundles Received',
-            'Phone / National ID',
+            'National ID',
+            'Phone Number',
+            'Signed',
+            'Year'
         ];
     }
 

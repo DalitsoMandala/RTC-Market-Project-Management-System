@@ -75,8 +75,8 @@ class RpmProcessorInterMarketsImport implements ToModel, WithHeadingRow, WithVal
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $this->convertExcelDate($row['Date of Maximum Sale']);
-        $this->convertExcelDate($row['Date Recorded']);
+        $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale']);
+        $row['Date Recorded'] =    $this->convertExcelDate($row['Date Recorded']);
         return $row;
     }
     public function rules(): array

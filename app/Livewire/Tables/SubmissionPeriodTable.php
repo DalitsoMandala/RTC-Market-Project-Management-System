@@ -32,6 +32,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function setUp(): array
     {
         //  $this->showCheckBox();
+        $this->timeout();
 
         return [
             // Exportable::make('export')
@@ -43,6 +44,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
+
 
     public function datasource(): Builder
     {
@@ -163,9 +165,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Column::make('#', 'rn')->sortable(),
             Column::make('indicator #', 'indicator_no')->headerAttribute(classAttr: 'table-sticky-col')
                 ->bodyAttribute(classAttr: 'table-sticky-col'),
-            Column::make('Form', 'form_name')
-                ->headerAttribute(classAttr: 'table-sticky-col')
+
+
+
+            Column::action('Action')->headerAttribute(classAttr: 'table-sticky-col')
                 ->bodyAttribute(classAttr: 'table-sticky-col'),
+            Column::make('Form', 'form_name'),
+
 
             Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
                 ->sortable(),
@@ -208,7 +214,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
                 ->searchable(),
 
-            Column::action('Action'),
+
 
         ];
     }

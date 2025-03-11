@@ -118,9 +118,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
     public function prepareForValidation(array $row)
     {
-        $this->convertExcelDate($row['Date of Recruitment']);
-        $this->convertExcelDate($row['Registration Date']);
-        $this->convertExcelDate($row['Production Value Date of Max Sales']);
+        $row['Date of Recruitment'] = $this->convertExcelDate($row['Date of Recruitment']);
+        $row['Registration Date'] =  $this->convertExcelDate($row['Registration Date']);
+        $row['Production Value Date of Max Sales'] = $this->convertExcelDate($row['Production Value Date of Max Sales']);
         return $row;
     }
 
@@ -174,6 +174,11 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     }
 
     public function chunkSize(): int
+    {
+        return 1000;
+    }
+
+    public function batchSize(): int
     {
         return 1000;
     }

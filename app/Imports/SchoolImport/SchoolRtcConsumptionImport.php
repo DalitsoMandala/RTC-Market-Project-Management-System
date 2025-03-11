@@ -82,7 +82,7 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $this->convertExcelDate($row['Date']);
+        $row['Date'] =  $this->convertExcelDate($row['Date']);
         return $row;
     }
 

@@ -42,6 +42,27 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
         }
+
+
+        $sex = $row['Sex'];
+        if (is_numeric($sex)) {
+            $sex = match ($sex) {
+                1 => 'Male',
+                2 => 'Female',
+
+                default => 'Male',
+            };
+        } elseif (is_string($sex)) {
+            $sex = strtolower($sex);
+            $sex = match ($sex) {
+                'm' => 'Male',
+                'f' => 'Female',
+
+                default => 'Male',
+            };
+        }
+
+
         $attendanceRecord = AttendanceRegister::create([
             'meetingTitle' => $row['Meeting Title'],
             'meetingCategory' => $row['Meeting Category'],
@@ -54,7 +75,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'endDate' => Carbon::parse($row['End Date'])->format('Y-m-d'),
             'totalDays' => $row['Total Days'],
             'name' => $row['Name'],
-            'sex' => $row['Sex'],
+            'sex' => $sex,
             'organization' => $row['Organization'],
             'designation' => $row['Designation'],
             'phone_number' => $row['Phone Number'],
@@ -83,8 +104,29 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $this->convertExcelDate($row['Start Date']);
-        $this->convertExcelDate($row['End Date']);
+        $row['Start Date'] =   $this->convertExcelDate($row['Start Date']);
+        $row['End Date'] =  $this->convertExcelDate($row['End Date']);
+
+        if (is_string($row['Meeting Category'])) {
+            $split = explode(',', $row['Meeting Category']);
+            $row['Meeting Category'] = trim($split[0]);
+        } else {
+            $category = $row['Meeting Category'];
+            $row['Meeting Category'] = match ($category) {
+                1 => 'Training',
+                2 => 'Meeting',
+                3 => 'Workshop',
+                default => 'Other',
+            };
+        }
+
+        if (!$row['Total Days']) {
+            $row['Total Days'] = 1;
+        }
+
+        if (!$row['Sex']) {
+            $row['Sex'] = 1;
+        }
         return $row;
     }
     public function rules(): array
@@ -101,11 +143,11 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
             'Total Days' => 'required|integer|min:1',
             'Name' => 'required|string|max:255',
-            'Sex' => 'required|string|in:Male,Female,Other',
+            'Sex' => 'required|in:Male,Female,1,2,M,F',
             'Organization' => 'nullable|string|max:255',
             'Designation' => 'nullable|string|max:255',
             'Phone Number' => 'nullable|max:255',
-            'Email' => 'nullable|email|max:255',
+            'Email' => 'nullable|max:255',
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Exports\AttendanceImport\AttendanceRegistersExport;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Models\SeedBeneficiary;
 
@@ -17,7 +18,12 @@ class SeedBeneficiariesExport implements WithMultipleSheets
         return [
             'Potato' => new CropSheetExport('Potato', $this->template),
             'OFSP' => new CropSheetExport('OFSP', $this->template),
-            'Cassava' => new CropSheetExport('Cassava', $this->template),
+            //       'Trainings' => new AttendanceTrainingExport($this->template, 'Trainings'),
+            'Mother Plot Hosts' => new MotherPlotsExport($this->template),
+            'Cassava Tots' => new CassavaTotExport($this->template),
+
+
+            // 'Cassava' => new CropSheetExport('Cassava', $this->template),
         ];
     }
 }

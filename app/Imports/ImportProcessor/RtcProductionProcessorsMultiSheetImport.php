@@ -338,4 +338,9 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
     {
         return 1000;
     }
+
+    public function batchSize(): int
+    {
+        return 1000;
+    }
 }

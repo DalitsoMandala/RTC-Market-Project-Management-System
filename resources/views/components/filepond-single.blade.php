@@ -67,5 +67,5 @@ pond.on('processfiles', () => {
 
 
     <!-- An unexamined life is not worth living. - Socrates -->
-    <input type="file" class="form-control" x-ref="input" />
+    <input type="file" class="form-control" x-ref="input" wire:loading.attr='disabled' />
 </div>

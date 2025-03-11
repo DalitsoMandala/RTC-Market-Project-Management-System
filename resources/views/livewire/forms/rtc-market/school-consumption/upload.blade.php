@@ -43,6 +43,7 @@
                 <h3 class="mb-5 text-center text-warning">SCHOOL CONSUMPTION</h3>
 
                 <x-alerts />
+                <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
 
                 @if (!$targetSet)
                     <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />

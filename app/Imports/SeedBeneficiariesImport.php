@@ -29,7 +29,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     protected $expectedSheetNames = [
         'Potato',
         'OFSP',
-        'Cassava'
+        'Mother Plot Hosts',
+        'Cassava Tots'
     ];
 
     protected $expectedHeaders = [
@@ -40,7 +41,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'Section',
             'Name of AEDO',
             'AEDO Phone Number',
-            'Date',
+            'Date of Distribution',
             'Name of Recipient',
             'Village',
             'Sex',
@@ -51,7 +52,10 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'Children Under 5 in HH',
             'Variety Received',
             'Bundles Received',
-            'Phone / National ID',
+            'National ID',
+            'Phone Number',
+            'Signed',
+            'Year'
         ],
         'OFSP' => [
             //   'Crop',
@@ -60,7 +64,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'Section',
             'Name of AEDO',
             'AEDO Phone Number',
-            'Date',
+            'Date of Distribution',
             'Name of Recipient',
             'Village',
             'Sex',
@@ -71,28 +75,38 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'Children Under 5 in HH',
             'Variety Received',
             'Bundles Received',
-            'Phone / National ID',
+            'National ID',
+            'Phone Number',
+            'Signed',
+            'Year'
         ],
-        'Cassava' => [
-            //   'Crop',
+
+
+        'Mother Plot Hosts' => [
             'District',
             'EPA',
             'Section',
-            'Name of AEDO',
-            'AEDO Phone Number',
-            'Date',
-            'Name of Recipient',
             'Village',
+            'GPS S',
+            'GPS E',
+            'Elevation',
+            'Season',
+            'Date of Planting',
+            'Name of Farmer',
             'Sex',
-            'Age',
-            'Marital Status',
-            'Household Head',
-            'Household Size',
-            'Children Under 5 in HH',
-            'Variety Received',
-            'Bundles Received',
-            'Phone / National ID',
+            'Nat ID / Phone #',
+            'Variety Received'
         ],
+        'Cassava Tots' => [
+            'Name',
+            'Gender',
+            'Age Group',
+            'District',
+            'EPA',
+            'Position',
+            'Phone Number',
+            'Email Address'
+        ]
     ];
 
     protected $cacheKey;
@@ -112,7 +126,10 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
         return [
             'Potato' => new CropSheetImport('Potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
             'OFSP' => new CropSheetImport('OFSP', $this->submissionDetails, $this->cacheKey, $this->totalRows),
-            'Cassava' => new CropSheetImport('Cassava', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            //  'Cassava' => new CropSheetImport('Cassava', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            //  'Trainings' => new TrainingsImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Mother Plot Hosts' => new MotherPlotImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Cassava Tots' => new CassavaTotImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
 
@@ -302,6 +319,11 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     }
 
     public function chunkSize(): int
+    {
+        return 1000;
+    }
+
+    public function batchSize(): int
     {
         return 1000;
     }

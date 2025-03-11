@@ -43,7 +43,7 @@
                 <h3 class="mb-5 text-center text-warning">HOUSEHOLD RTC CONSUMPTION</h3>
 
                 <x-alerts />
-
+                <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
 
 
 

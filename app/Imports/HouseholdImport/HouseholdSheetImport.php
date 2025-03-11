@@ -46,7 +46,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $this->convertExcelDate($row['Date of Assessment']);
+        $row['Date of Assessment'] =  $this->convertExcelDate($row['Date of Assessment']);
 
 
 
