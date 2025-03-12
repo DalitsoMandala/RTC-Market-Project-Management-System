@@ -44,6 +44,15 @@ class UserSeeder extends Seeder
 
         User::create([
             'name' => 'Dalitso Mandala',
+            'email' => 'dalitso.mandala.prince@gmail.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+265997496637',
+            'organisation_id' => 1,
+        ])->assignRole(['admin']);
+
+
+        User::create([
+            'name' => 'Dalitso Mandala',
             'email' => 'cip@example.com',
             'password' => Hash::make('password'),
             'phone_number' => '+9999999999',
@@ -179,6 +188,17 @@ class UserSeeder extends Seeder
             'manager',
 
         ]);
+        User::create([
+            'name' => 'Dalie',
+            'email' => 'cip-rtcmarketconsultant@cgiar.org',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('CIP'),
+        ])->assignRole([
+            'manager',
+
+        ]);
+
         //roletype,project,position
     }
 }
