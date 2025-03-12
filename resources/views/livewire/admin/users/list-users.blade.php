@@ -24,11 +24,12 @@
                     showForm: false,
                     resetForm() {
                         $wire.dispatch('resetForm');
+                
                     }
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title">User Table</h4>
-                        <button class="btn btn-soft-warning px-3" @click="showForm= !showForm; resetForm()">Add new user
+                        <button class="px-3 btn btn-soft-warning" @click="showForm= !showForm; resetForm()">Add new user
                             <i class="bx bx-plus"></i></button>
                     </div>
 
@@ -62,27 +63,15 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="organisation" class="form-label">Organisation</label>
-                                <select class="form-select @error('organisation') is-invalid @enderror"
-                                    id="organisation" wire:model="organisation">
-                                    <option value="" disabled>Select an organisation</option>
-                                    @foreach ($organisations as $org)
-                                        <option value="{{ $org->id }}">{{ $org->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('organisation')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+
 
                             <div class="mb-3" x-data="{
                                 //  role: $wire.entangle('role').live
                             }">
                                 <label for="role" class="form-label">Roles</label>
-                                <select class="form-select @error('role') is-invalid @enderror" multiple id="role"
-                                    wire:model="role">
-                                    <option value="" disabled>Select a role</option>
+                                <select class="form-select @error('role') is-invalid @enderror" id="role"
+                                    wire:model.live.debounce.600ms="role">
+                                    <option value="">Select a role</option>
                                     @foreach ($roles as $role)
                                         <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}
                                         </option>
@@ -92,9 +81,34 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div x-data="{ changePassword: $wire.entangle('changePassword') }">
+
+                            <div class="mb-3 @if (!$role) opacity-25 pe-none @endif">
+                                <label for="organisation" class="form-label">Organisation</label>
+                                <select class="form-select @error('organisation') is-invalid @enderror"
+                                    id="organisation" wire:model.live.debounce.200ms="organisation">
+                                    <option value="">Select an organisation</option>
+                                    @foreach ($organisations as $org)
+                                        @if ($disableAll)
+                                            <option value="{{ $org->id }}"
+                                                @if ($org->name != 'CIP') disabled @endif>{{ $org->name }}
+                                            </option>
+                                        @else
+                                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                                @error('organisation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div x-data="{
+                                changePassword: $wire.entangle('changePassword'),
+                                edit: $wire.entangle('rowId'),
+                            }">
+
+
                                 <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between" x-show="edit">
                                         <label for="password" class="form-label">Password</label>
                                         <a href="#" data-bs-toggle="modal" x-show="!changePassword"
                                             @click="changePassword = true">Change

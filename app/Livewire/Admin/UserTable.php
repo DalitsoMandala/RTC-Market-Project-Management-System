@@ -61,8 +61,8 @@ final class UserTable extends PowerGridComponent
                     $image = asset('storage/profiles/' . $image);
                 }
                 return '<div class="d-flex align-items-center">
-                                                    <div class="p-1 rounded avatar-sm bg-light me-2">
-                                                        <img src="' . $image . '" alt="" class="img-fluid d-block">
+                                                    <div class="mx-2">
+                                                        <img src="' . $image . '" alt="" class="avatar-sm rounded-circle">
                                                     </div>
                                                     <div>
                                                      ' . $model->name . '
@@ -86,7 +86,7 @@ final class UserTable extends PowerGridComponent
 
                     if ($role->name == 'external') {
 
-                        $role->name = '<span class="badge bg-warning-subtle text-warning" >External user</span>';
+                        $role->name = '<span class="badge bg-secondary-subtle text-secondary" >External user</span>';
                     }
 
 
@@ -95,7 +95,7 @@ final class UserTable extends PowerGridComponent
 
 
                     if ($role->name == 'manager') {
-                        $role->name = '<span class="badge bg-warning-subtle text-warning" >Manager</span>';
+                        $role->name = '<span class="badge bg-info-subtle text-info" >Manager</span>';
                     }
 
 

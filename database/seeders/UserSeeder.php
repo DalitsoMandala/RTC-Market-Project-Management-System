@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         Role::create(['name' => 'staff']); // LIMITED FUNCTIONALITY
         Role::create(['name' => 'admin']); // FULL FUNCTIONALITY
         Role::create(['name' => 'project_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS
-        Role::create(['name' => 'cip']); // PROJECT
+        // Role::create(['name' => 'cip']); // PROJECT
 
         User::create([
             'name' => 'admin',
@@ -166,6 +166,17 @@ class UserSeeder extends Seeder
             'organisation_id' => getOrganisationId('RTCDT'),
         ])->assignRole([
             'external',
+
+        ]);
+
+        User::create([
+            'name' => 'PJ',
+            'email' => 'CIP-RTCMPConsultant@cgiar.org',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('CIP'),
+        ])->assignRole([
+            'manager',
 
         ]);
         //roletype,project,position

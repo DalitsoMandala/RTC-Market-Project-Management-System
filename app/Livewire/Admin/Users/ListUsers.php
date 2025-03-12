@@ -12,6 +12,8 @@ use Livewire\Attributes\Validate;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\NewUserNotification;
+use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class ListUsers extends Component
@@ -32,6 +34,7 @@ class ListUsers extends Component
     public $password_confirmation;
     public $changePassword = false;
     public $disableValue;
+    public $disableAll = false;
     public function rules()
     {
         $rules = [
@@ -50,7 +53,7 @@ class ListUsers extends Component
         return $rules;
     }
 
-    public function updatedRole($value) {}
+
     public function mount()
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
@@ -106,17 +109,17 @@ class ListUsers extends Component
         $this->rowId = null;
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::get();
-        $this->organisation = 1;
+        $this->organisation = "";
         $this->role = null;
         $this->password = null;
         $this->password_confirmation = null;
-        $this->changePassword = false;
+        $this->changePassword = true;
     }
 
     public function save()
     {
         $this->validate();
-
+        DB::beginTransaction();
         // Handle form submission logic, e.g., saving to database or sending an email
 
         try {
@@ -145,12 +148,13 @@ class ListUsers extends Component
 
                 User::find($this->rowId)->syncRoles($this->role);
 
-                $this->resetForm();
+
                 $this->dispatch('refresh');
                 session()->flash('success', 'User successfully updated!');
+                $this->resetForm();
             } else {
 
-                User::create([
+                $user = User::create([
                     'name' => $this->name,
                     'email' => $this->email,
                     'phone_number' => $this->phone,
@@ -159,17 +163,31 @@ class ListUsers extends Component
 
                 ])->assignRole($this->role);
 
-                $this->resetForm();
+
                 $this->dispatch('refresh');
                 session()->flash('success', 'User successfully added!');
+                $user->notify(new NewUserNotification($this->email, $this->password));
+                $this->resetForm();
             }
+
+            DB::commit();
         } catch (\Throwable $th) {
-            Log::error($th);
+
             session()->flash('error', 'An error occurred while adding the user.');
+            DB::rollBack();
             throw $th;
         }
     }
 
+    public function updatedRole($value)
+    {
+
+        if ($value == 'external') {
+            $this->organisations = Organisation::where('name', '!=', 'CIP')->get();
+        } else {
+            $this->organisations = Organisation::where('name', 'CIP')->get();
+        }
+    }
     public function render()
     {
         return view('livewire.admin.users.list-users');
