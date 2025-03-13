@@ -53,7 +53,7 @@ class ReportJob implements ShouldQueue
 
         $currentProgress = 0;
         $updateInterval = 10; // Update progress every 10 iterations
-        Cache::put('report_progress', 0);
+
         ReportStatus::find(1)->update([
             'status' => 'pending',
             'progress' => 0
@@ -113,15 +113,15 @@ class ReportJob implements ShouldQueue
                                         }
 
                                         // Update progress
-                                        $currentProgress++;
-                                        if ($currentProgress % $updateInterval === 0 || $currentProgress === $totalIterations) {
-                                            $progressPercentage = ($currentProgress / $totalIterations) * 100;
-                                            Cache::put('report_progress', round($progressPercentage));
-                                            ReportStatus::find(1)->update([
-                                                'status' => 'processing',
-                                                'progress' => round($progressPercentage)
-                                            ]);
-                                        }
+                                        // $currentProgress++;
+                                        // if ($currentProgress % $updateInterval === 0 || $currentProgress === $totalIterations) {
+                                        //     $progressPercentage = ($currentProgress / $totalIterations) * 100;
+                                        //     Cache::put('report_progress', round($progressPercentage));
+                                        //     ReportStatus::find(1)->update([
+                                        //         'status' => 'processing',
+                                        //         'progress' => round($progressPercentage)
+                                        //     ]);
+                                        // }
                                     } catch (\Exception $e) {
                                         Log::error($e->getMessage());
                                     }
@@ -132,6 +132,8 @@ class ReportJob implements ShouldQueue
                 }
             }
         }
+
+        Cache::put('report_progress', 33);
     }
 
 

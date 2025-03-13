@@ -117,6 +117,9 @@ final class IndicatorTable extends PowerGridComponent
                 if ($user->hasAnyRole('manager')) {
 
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator" href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                } else if ($user->hasAnyRole('admin')) {
+
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator" href="' . route('admin-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('project_manager')) {
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
@@ -175,7 +178,8 @@ final class IndicatorTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Project name', 'project_name'),
             Column::make('Lead partner', 'lead_partner'),
-            Column::make('Disaggregations', 'disaggregations')
+            Column::make('Disaggregations', 'disaggregations')->headerAttribute(styleAttr: "min-width:350px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap")
         ];
 
         $user = Auth::user();

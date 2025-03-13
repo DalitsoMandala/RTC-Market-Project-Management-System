@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -31,5 +32,6 @@ class PopulatePreviousValueJob implements ShouldQueue
 
         $class = new PopulatePreviousValue();
         $class->start(); // percentages
+        Cache::put('report_progress', 66);
     }
 }

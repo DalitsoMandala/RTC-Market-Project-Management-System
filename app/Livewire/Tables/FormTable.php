@@ -6,6 +6,7 @@ use App\Models\Form;
 use App\Models\User;
 use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,7 +56,10 @@ final class FormTable extends PowerGridComponent
             })->unique();
 
             $formIds = $forms->pluck('id');
-            return Form::query()->with('project', 'indicators')->where('name', '!=', 'SEED DISTRIBUTION REGISTER')->whereIn('id', $formIds);
+            return Form::query()->with('project', 'indicators')->whereIn('id', $formIds)->select([
+                '*',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            ]);
         }
 
 
@@ -63,7 +67,7 @@ final class FormTable extends PowerGridComponent
 
         return Form::query()->with('project', 'indicators')->select([
             '*',
-            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
     }
     public function relationSearch(): array

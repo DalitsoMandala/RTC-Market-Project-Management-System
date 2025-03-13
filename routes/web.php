@@ -17,6 +17,7 @@ use App\Models\AssignedTarget;
 use App\Models\IndicatorClass;
 use App\Helpers\AmountSplitter;
 use App\Models\IndicatorTarget;
+use App\Models\AdditionalReport;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\SubmissionTarget;
@@ -51,6 +52,7 @@ use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Jobs\SendExpiredPeriodNotificationJob;
 use App\Livewire\Internal\Cip\ViewSubmissions;
 use App\Notifications\ImportSuccessNotification;
+use App\Notifications\NewSubmissionNotification;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
@@ -66,12 +68,14 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-use App\Models\AdditionalReport;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test', function () {});
+// Route::get('/test', function () {
+//     $user =  User::find(2);
+//     $user->notify(new NewSubmissionNotification($user));
+// });
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);
 })->name('session.check');
@@ -112,6 +116,7 @@ Route::middleware([
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->name('admin-baseline');
     Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('admin-submission-period');
     Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('admin-jobs');
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
     // Form routes
     $formPrefix = '/forms/{project}';
     $randId = Uuid::uuid4()->toString();

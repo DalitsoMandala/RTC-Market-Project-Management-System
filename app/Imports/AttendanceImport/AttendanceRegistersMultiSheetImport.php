@@ -38,9 +38,9 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
         'Attendance Registers' => [
             'Meeting Title',
             'Meeting Category',
-            'RTC Crop Cassava',
-            'RTC Crop Potato',
-            'RTC Crop Sweet Potato',
+            'Cassava',
+            'Potato',
+            'Sweet Potato',
             'Venue',
             'District',
             'Start Date',

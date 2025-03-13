@@ -33,7 +33,7 @@
                     <div class="px-0 card-body">
                         <!-- Nav tabs -->
 
-                        <ul class="nav nav-tabs mx-1" id="myTab" role="tablist">
+                        <ul class="mx-1 nav nav-tabs" id="myTab" role="tablist">
 
                             <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
                                 data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
@@ -47,7 +47,7 @@
                             <button class="nav-link" id="people-tab" data-bs-toggle="tab"
                                 data-bs-target="#aggregate-submission" type="button" role="tab"
                                 aria-controls="profile" aria-selected="false" wire:ignore.self>
-                                Aggregate Submission <span
+                                Aggregate Submission (Reports) <span
                                     class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
                             </button>
 

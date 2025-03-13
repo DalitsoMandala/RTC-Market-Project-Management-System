@@ -20,13 +20,10 @@ class NewSubmissionNotification extends Notification implements ShouldQueue
      *
      * @param array $submissionDetails
      */
-    public function __construct($user)
+    public function __construct($prefix)
     {
-        if (User::find($user->id)->hasAnyRole('admin')) {
-            $this->prefix = '/admin';
-        } else {
-            $this->prefix = '/cip';
-        }
+
+        $this->prefix;
     }
 
     /**
@@ -49,6 +46,7 @@ class NewSubmissionNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
+            ->greeting('Hello ' . $notifiable->name . ',')
             ->subject('New Submission for Review')
             ->line('A new submission has been made that requires your review.')
             ->action('Review Submission', url($this->prefix . '/submissions'))

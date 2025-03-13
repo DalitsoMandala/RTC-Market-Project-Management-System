@@ -35,18 +35,25 @@ class UpdateInformation extends Command
     {
         //
         $this->info('Updating information...');
-        Bus::batch([
+        Cache::put('report_progress', 0);
+
+        // Chain the jobs
+        Bus::chain([
             new ReportJob(),
             new PopulatePreviousValueJob(),
-            new AdditionalReportJob()
+            new AdditionalReportJob(),
+            function () {
+                ReportStatus::find(1)->update([
+                    'status' => 'completed',
+                    'progress' => 100
+                ]);
+                Cache::put('report_progress', 100);
+                Cache::put('report_', 'completed');
+            }
+        ])->catch(function (\Throwable $e) {
+            // Handle any exceptions that occur during the chain
+            logger()->error('Job chain failed: ' . $e->getMessage());
 
-        ])->before(function (Batch $batch) {
-            // The batch has been create        d but no jobs have been added...
-
-        })->progress(function (Batch $batch) {
-            // A single job has completed successfully...
-        })->then(function (Batch $batch) {
-            // All jobs completed successfully...
 
             ReportStatus::find(1)->update([
                 'status' => 'completed',
@@ -54,13 +61,6 @@ class UpdateInformation extends Command
             ]);
             Cache::put('report_progress', 100);
             Cache::put('report_', 'completed');
-        })->catch(function (Batch $batch, \Throwable $e) {
-            // First batch job failure detected...
-        })->finally(function (Batch $batch) {
-            // The batch has finished executing...
-
-        })
-
-            ->dispatch();
+        })->dispatch();
     }
 }

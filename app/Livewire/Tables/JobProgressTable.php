@@ -139,7 +139,7 @@ final class JobProgressTable extends PowerGridComponent
 
                 ->searchable(),
 
-            Column::make('Created at', 'updated_at_formatted')
+            Column::make('Uploaded at', 'updated_at_formatted')
                 ->searchable(),
 
 

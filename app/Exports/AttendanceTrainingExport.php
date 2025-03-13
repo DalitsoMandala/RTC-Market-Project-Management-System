@@ -64,9 +64,9 @@ class AttendanceTrainingExport implements FromCollection, WithHeadings, WithTitl
 
             'Meeting Title',
             'Meeting Category',
-            'RTC Cassava',
-            'RTC Potato',
-            'RTC Sweet Potato',
+            'Cassava',
+            'Potato',
+            'Sweet Potato',
             'Venue',
             'District',
             'Start Date',

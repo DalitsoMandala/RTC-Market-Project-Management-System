@@ -178,16 +178,16 @@ class UserSeeder extends Seeder
 
         ]);
 
-        // User::create([
-        //     'name' => 'PJ',
-        //     'email' => 'CIP-RTCMPConsultant@cgiar.org',
-        //     'password' => Hash::make('password'),
-        //     'phone_number' => '+9999999999',
-        //     'organisation_id' => getOrganisationId('CIP'),
-        // ])->assignRole([
-        //     'manager',
+        User::create([
+            'name' => 'PJ',
+            'email' => 'CIP-RTCMPConsultant@cgiar.org',
+            'password' => Hash::make('p@ssword'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('CIP'),
+        ])->assignRole([
+            'manager',
 
-        // ]);
+        ]);
         User::create([
             'name' => 'Dalie',
             'email' => 'cip-rtcmarketconsultant@cgiar.org',

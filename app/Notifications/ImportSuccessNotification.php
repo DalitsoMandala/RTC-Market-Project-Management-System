@@ -59,10 +59,18 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
 
 
         $users = User::with('roles')->whereHas('roles', function ($role) {
-            $role->where('name', 'admin')->orWhere('name', 'manager');
+            $role->where('name', 'admin')
+                //->orWhere('name', 'manager')
+            ;
         })->get();
         foreach ($users as $user) {
-            $user->notify(new NewSubmissionNotification($user));
+            $prefix = '';
+            if (User::find($user->id)->hasAnyRole('admin')) {
+                $prefix = '/admin';
+            } else {
+                $prefix = '/cip';
+            }
+            $user->notify(new NewSubmissionNotification($prefix));
         }
     }
     public function databaseType(object $notifiable): string

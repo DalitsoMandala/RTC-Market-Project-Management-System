@@ -90,7 +90,9 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('district')
             ->add('startDate_formatted', fn($model) => Carbon::parse($model->startDate)->format('d/m/Y'))
             ->add('endDate_formatted', fn($model) => Carbon::parse($model->endDate)->format('d/m/Y'))
-            ->add('totalDays')
+            ->add('totalDays', function ($model) {
+                return Carbon::parse($model->endDate)->diffInDays(Carbon::parse($model->startDate));
+            })
             ->add('name', function ($model) {
                 return '
                 <div class="d-flex">
@@ -165,14 +167,14 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Rtc Crop (Cassava)', 'rtcCrop_cassava')
+            Column::make('Cassava', 'rtcCrop_cassava')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Rtc Crop (Potato)', 'rtcCrop_potato')
+            Column::make('Potato', 'rtcCrop_potato')
                 ->sortable()
                 ->searchable(),
-            Column::make('Rtc Crop (Sweet potato)', 'rtcCrop_sweet_potato')
+            Column::make('Sweet potato', 'rtcCrop_sweet_potato')
                 ->sortable()
                 ->searchable(),
 

@@ -8,11 +8,12 @@ use App\Models\Indicator;
 use App\Models\Organisation;
 use App\Models\SystemReport;
 use App\Models\FinancialYear;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use App\Models\AdditionalReport;
 use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
-use Illuminate\Bus\Batchable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -102,5 +103,7 @@ class AdditionalReportJob implements ShouldQueue
                 });
             }
         });
+
+        Cache::put('report_progress', 100);
     }
 }
