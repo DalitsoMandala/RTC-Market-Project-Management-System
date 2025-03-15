@@ -23,11 +23,13 @@ use App\Exceptions\ExcelValidationException;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
 use App\Imports\AttendanceImport\AttendanceRegistersImport;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 
-class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
+class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue, WithBatchInserts
 {
     protected $expectedSheetNames = [
         'Attendance Registers',
@@ -50,6 +52,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
             'Sex',
             'Organization',
             'Designation',
+            'Category',
             'Phone Number',
             'Email',
         ],
@@ -76,54 +79,64 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
         ];
     }
 
+    private function getSheetHeaders(Worksheet $sheet): array
+    {
+        $highestColumn = $sheet->getHighestColumn();
+        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        return $headerCells[0] ?? [];
+    }
+
+    private function validateHeaders(array $actualHeaders, array $expectedHeaders): bool
+    {
+        return array_values(array_map('trim', $actualHeaders)) === array_values(array_map('trim', $expectedHeaders));
+    }
+
+
     public function registerEvents(): array
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
+                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
+                $reader = IOFactory::createReaderForFile($this->filePath);
+                $spreadsheet = $reader->load($this->filePath);
+                $sheetNames = $spreadsheet->getSheetNames();
 
-                // Validate expected sheet names
-                foreach ($this->expectedSheetNames as $expectedSheetName) {
-                    if (!in_array($expectedSheetName, $sheetNames)) {
-                        Log::error("Missing expected sheet: {$expectedSheetName}");
-                        throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing. Please ensure the file contains all required sheets.");
+
+                $workBook = $event->reader->getTotalRows();
+
+                foreach ($workBook as $sheetName => $totalRows) {
+                    // Check if the sheet is blank
+                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
+                        if ($sheetName === $firstSheetName) {
+                            // Log error if the first sheet is blank
+                            Log::error("The sheet '{$firstSheetName}' is blank.");
+                            throw new ExcelValidationException(
+                                "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                            );
+                        }
                     }
                 }
 
-                // Check for unexpected sheets
-                foreach ($sheetNames as $sheetName) {
-                    if (!in_array($sheetName, $this->expectedSheetNames)) {
-                        Log::error("Unexpected sheet name: {$sheetName}");
-                        throw new ExcelValidationException("Unexpected sheet: '{$sheetName}' in file.");
+
+
+
+                // Validate headers and missing sheet names
+                foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
+                    // Check if sheet exists
+                    if (!in_array($sheetName, $sheetNames)) {
+                        throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
+                    }
+
+                    // Get the sheet by name
+                    $sheet = $spreadsheet->getSheetByName($sheetName);
+
+                    // Validate headers
+                    $actualHeaders = $this->getSheetHeaders($sheet);
+                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
+                        throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
                     }
                 }
 
-
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
-
-                foreach ($sheets as $key => $sheet) {
-
-                    if ($sheet <= 1 && $key == $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-                    }
-                }
-
-                $filePath = $this->filePath;
-                $expectedSheetNames = $this->expectedSheetNames;
-                $expectedHeaders = $this->expectedHeaders;
-
-                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
-                $message = $validator->validateHeaders();
-
-                if ($message) {
-                    throw new ExcelValidationException($message->getMessage());
-                }
 
 
                 $rowCounts = $event->reader->getTotalRows();
@@ -254,12 +267,12 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
         ];
     }
 
-    public function chunkSize(): int
+    public function batchSize(): int
     {
         return 1000;
     }
 
-    public function batchSize(): int
+    public function chunkSize(): int
     {
         return 1000;
     }

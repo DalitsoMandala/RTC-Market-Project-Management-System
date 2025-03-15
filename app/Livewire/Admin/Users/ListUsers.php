@@ -70,8 +70,7 @@ class ListUsers extends Component
         $this->email = $user->email;
         $this->phone = $user->phone_number;
         $this->organisation = $user->organisation_id;
-        $this->role = $user->getRoleNames();
-
+        $this->role = $user->getRoleNames()->first();
         $this->changePassword = false;
     }
 
@@ -109,7 +108,7 @@ class ListUsers extends Component
         $this->rowId = null;
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::get();
-        $this->organisation = "";
+
         $this->role = null;
         $this->password = null;
         $this->password_confirmation = null;

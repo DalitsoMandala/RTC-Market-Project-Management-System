@@ -25,9 +25,11 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
 HeadingRowFormatter::default('none');
-class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, WithEvents, SkipsOnFailure
+class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, WithEvents, SkipsOnFailure, WithStartRow
 {
     use Importable, RegistersEventListeners;
 
@@ -46,8 +48,11 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Assessment'] =  $this->convertExcelDate($row['Date of Assessment']);
 
+
+        if (isset($row['Date of Assessment'])) {
+            $row['Date of Assessment'] = $this->convertExcelDate($row['Date of Assessment']);
+        }
 
 
         return $row;
@@ -122,7 +127,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            \Log::info('Validation Error', [
+            Log::info('Validation Error', [
                 'row_number' => $failure->row(),
                 'failed_field' => $failure->attribute(),
                 'error_message' => $failure->errors(),
@@ -163,8 +168,9 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         ];
     }
 
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }

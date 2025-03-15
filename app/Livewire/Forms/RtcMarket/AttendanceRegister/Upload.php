@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
-use App\Exports\AttendanceImport\AttendanceRegistersExport;
+use App\Exports\AttendanceExport\AttendanceRegistersExport;
 use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
 use App\Imports\SchoolImport\SchoolRtcConsumptionMultiSheetImport;
 use App\Imports\AttendanceImport\AttendanceRegistersMultiSheetImport;
@@ -124,7 +124,7 @@ class Upload extends Component
 
             session()->flash('error', 'Something went wrong!');
             Log::error($th);
-             $this->redirect(url()->previous());
+            $this->redirect(url()->previous());
         }
 
         $this->removeTemporaryFile();

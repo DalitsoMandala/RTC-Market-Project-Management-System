@@ -4,16 +4,88 @@ namespace App\Exports\ExportFarmer;
 
 use Carbon\Carbon;
 use App\Models\RtcProductionFarmer;
+use App\Traits\ExportStylingTrait;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMapping, WithTitle, WithStrictNullComparison
+class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMapping, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
 {
+
+
+
+    use ExportStylingTrait;
+
+
+
+
     protected $rowNumber = 0; // Start counting from 1
     public $template;
+    protected $validationTypes = [
+        'ID' => 'Required, Unique,  Number',
+        'EPA' => 'Required, Text',
+        'Section' => 'Required, Text',
+        'District' => 'Required, Text',
+        'Enterprise' => 'Required, Text',
+        'Date of Recruitment' => 'Date (dd-mm-yyyy)',
+        'Name of Actor' => 'Text',
+        'Name of Representative' => 'Text',
+        'Phone Number' => 'Text',
+        'Type' => 'Text, (Choose one option)',
+        'Approach' => 'Text, (Choose one option)',
+        'Sector' => 'Text, (Choose one option)',
+        'Members Female 18-35' => 'Number (>=0)',
+        'Members Male 18-35' => 'Number (>=0)',
+        'Members Male 35+' => 'Number (>=0)',
+        'Members Female 35+' => 'Number (>=0)',
+        'Group' => 'Text, (Choose one option)',
+        'Establishment Status' => 'New/Old, (Choose one option)',
+        'Is Registered' => 'Boolean (1/0, true/false)',
+        'Registration Body' => 'Text',
+        'Registration Number' => 'Text',
+        'Registration Date' => 'Date (dd-mm-yyyy)',
+        'Employees Formal Female 18-35' => 'Number (>=0)',
+        'Employees Formal Male 18-35' => 'Number (>=0)',
+        'Employees Formal Male 35+' => 'Number (>=0)',
+        'Employees Formal Female 35+' => 'Number (>=0)',
+        'Employees Informal Female 18-35' => 'Number (>=0)',
+        'Employees Informal Male 18-35' => 'Number (>=0)',
+        'Employees Informal Male 35+' => 'Number (>=0)',
+        'Employees Informal Female 35+' => 'Number (>=0)',
+        'Number of Plantlets Produced Cassava' => 'Number (>=0)',
+        'Number of Plantlets Produced Potato' => 'Number (>=0)',
+        'Number of Plantlets Produced Sweet Potato' => 'Number (>=0)',
+        'Screen House Vines Harvested' => 'Number (>=0)',
+        'Screen House Min Tubers Harvested' => 'Number (>=0)',
+        'SAH Plants Produced' => 'Number (>=0)',
+        'Is Registered Seed Producer' => 'Boolean (1/0, true/false)',
+        'Seed Producer Registration Number' => 'Text',
+        'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
+        'Uses Certified Seed' => 'Boolean (1/0, true/false)',
+        'Market Segment Fresh' => 'Boolean (1/0, true/false)',
+        'Market Segment Processed' => 'Boolean (1/0, true/false)',
+        'Has RTC Market Contract' => 'Boolean (1/0, true/false)',
+        'Total Volume Production Previous Season' => 'Number (>=0)',
+        'Production Value Previous Season Total' => 'Number (>=0)',
+        'Production Value Date of Max Sales' => 'Date (dd-mm-yyyy)',
+        'Production Value USD Rate' => 'Number (>=0)',
+        'Production Value USD Value' => 'Number (>=0)',
+        'Total Volume Irrigation Production Previous Season' => 'Number (>=0)',
+        'Irrigation Production Value Total' => 'Number (>=0)',
+        'Irrigation Production Date of Max Sales' => 'Date (dd-mm-yyyy)',
+        'Irrigation Production USD Rate' => 'Number (>=0)',
+        'Irrigation Production USD Value' => 'Number (>=0)',
+        'Sells to Domestic Markets' => 'Boolean (1/0, true/false)',
+        'Sells to International Markets' => 'Boolean (1/0, true/false)',
+        'Uses Market Information Systems' => 'Boolean (1/0, true/false)',
+        'Sells to Aggregation Centers' => 'Boolean (1/0, true/false)',
+        'Total Volume Aggregation Center Sales' => 'Number (>=0)',
+    ];
 
     public function __construct($template)
     {
@@ -29,6 +101,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
 
         // Select only the columns to be included in the export
         $data = RtcProductionFarmer::select(
+            'id',
             'epa',
             'section',
             'district',
@@ -103,64 +176,67 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
     public function headings(): array
     {
         return [
-            'ID', // Add ID as the first column heading
-            'EPA',
-            'Section',
-            'District',
-            'Enterprise',
-            'Date of Recruitment',
-            'Name of Actor',
-            'Name of Representative',
-            'Phone Number',
-            'Type',
-            'Approach',
-            'Sector',
-            'Members Female 18-35',
-            'Members Male 18-35',
-            'Members Male 35+',
-            'Members Female 35+',
-            'Group',
-            'Establishment Status',
-            'Is Registered',
-            'Registration Body',
-            'Registration Number',
-            'Registration Date',
-            'Employees Formal Female 18-35',
-            'Employees Formal Male 18-35',
-            'Employees Formal Male 35+',
-            'Employees Formal Female 35+',
-            'Employees Informal Female 18-35',
-            'Employees Informal Male 18-35',
-            'Employees Informal Male 35+',
-            'Employees Informal Female 35+',
-            'Number of Plantlets Produced Cassava',
-            'Number of Plantlets Produced Potato',
-            'Number of Plantlets Produced Sweet Potato',
-            'Screen House Vines Harvested',
-            'Screen House Min Tubers Harvested',
-            'SAH Plants Produced',
-            'Is Registered Seed Producer',
-            'Seed Producer Registration Number',
-            'Seed Producer Registration Date',
-            'Uses Certified Seed',
-            'Market Segment Fresh',
-            'Market Segment Processed',
-            'Has RTC Market Contract',
-            'Total Volume Production Previous Season',
-            'Production Value Previous Season Total',
-            'Production Value Date of Max Sales',
-            'Production Value USD Rate',
-            'Production Value USD Value',
-            'Total Volume Irrigation Production Previous Season',
-            'Irrigation Production Value Total',
-            'Irrigation Production Date of Max Sales',
-            'Irrigation Production USD Rate',
-            'Irrigation Production USD Value',
-            'Sells to Domestic Markets',
-            'Sells to International Markets',
-            'Uses Market Information Systems',
-            'Sells to Aggregation Centers',
-            'Total Volume Aggregation Center Sales'
+            [
+                'ID', // Add ID as the first column heading
+                'EPA',
+                'Section',
+                'District',
+                'Enterprise',
+                'Date of Recruitment',
+                'Name of Actor',
+                'Name of Representative',
+                'Phone Number',
+                'Type',
+                'Approach',
+                'Sector',
+                'Members Female 18-35',
+                'Members Male 18-35',
+                'Members Male 35+',
+                'Members Female 35+',
+                'Group',
+                'Establishment Status',
+                'Is Registered',
+                'Registration Body',
+                'Registration Number',
+                'Registration Date',
+                'Employees Formal Female 18-35',
+                'Employees Formal Male 18-35',
+                'Employees Formal Male 35+',
+                'Employees Formal Female 35+',
+                'Employees Informal Female 18-35',
+                'Employees Informal Male 18-35',
+                'Employees Informal Male 35+',
+                'Employees Informal Female 35+',
+                'Number of Plantlets Produced Cassava',
+                'Number of Plantlets Produced Potato',
+                'Number of Plantlets Produced Sweet Potato',
+                'Screen House Vines Harvested',
+                'Screen House Min Tubers Harvested',
+                'SAH Plants Produced',
+                'Is Registered Seed Producer',
+                'Seed Producer Registration Number',
+                'Seed Producer Registration Date',
+                'Uses Certified Seed',
+                'Market Segment Fresh',
+                'Market Segment Processed',
+                'Has RTC Market Contract',
+                'Total Volume Production Previous Season',
+                'Production Value Previous Season Total',
+                'Production Value Date of Max Sales',
+                'Production Value USD Rate',
+                'Production Value USD Value',
+                'Total Volume Irrigation Production Previous Season',
+                'Irrigation Production Value Total',
+                'Irrigation Production Date of Max Sales',
+                'Irrigation Production USD Rate',
+                'Irrigation Production USD Value',
+                'Sells to Domestic Markets',
+                'Sells to International Markets',
+                'Uses Market Information Systems',
+                'Sells to Aggregation Centers',
+                'Total Volume Aggregation Center Sales'
+            ],
+            array_values($this->validationTypes)
         ];
     }
 
@@ -173,6 +249,88 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
             array_values($row->toArray()) // Map remaining row values
         );
     }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $highestColumn = $sheet->getHighestColumn();
+                // Make the first row (header) bold
+                $sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 14,
+                    ],
+                ]);
+
+                // Set background color for the second row (A2:ZZ2)
+                $sheet->getStyle("A2:{$highestColumn}2")->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => 'FF0000'], // Red text
+                        'bold' => true,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFFFC5'], // Pink background
+                    ],
+
+                ]);
+
+                $sheet = $event->sheet->getDelegate();
+
+                // Define the dropdown options
+                $dropdownOptions = [
+                    '',
+                    'Producer Organization (PO)',
+                    'Large scale farm',
+
+
+                ]; // Includes an empty option
+
+
+                $this->setDataValidations($dropdownOptions, 'J3', $sheet);
+
+                $dropdownOptions = [
+                    '',
+                    'Collective production only',
+                    'Collective marketing only',
+                    'Knowledge Sharing only',
+                    'Collective producing, marketing and knowledge sharing',
+                    'NA'
+
+                ];
+
+                $this->setDataValidations($dropdownOptions, 'K3', $sheet);
+
+                $dropdownOptions = [
+                    'Private',
+                    'Public'
+                ];
+
+
+                $this->setDataValidations($dropdownOptions, 'L3', $sheet);
+
+                $dropdownOptions = [
+                    'Early generation seed producer',
+                    'Seed multiplier',
+                    'RTC producer'
+
+                ];
+
+                $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
+
+
+                $dropdownOptions = [
+                    'New',
+                    'Old'
+                ];
+
+                $this->setDataValidations($dropdownOptions, 'R3', $sheet);
+            },
+        ];
+    }
+
 
     public function title(): string
     {

@@ -66,11 +66,11 @@
 
 
                             <div class="mb-3" x-data="{
-                                //  role: $wire.entangle('role').live
+                                role: $wire.entangle('role').live
                             }">
                                 <label for="role" class="form-label">Roles</label>
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
-                                    wire:model.live.debounce.600ms="role">
+                                    x-model="role">
                                     <option value="">Select a role</option>
                                     @foreach ($roles as $role)
                                         <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}
@@ -82,7 +82,7 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3 @if (!$role) opacity-25 pe-none @endif">
+                            <div class="mb-3 ">
                                 <label for="organisation" class="form-label">Organisation</label>
                                 <select class="form-select @error('organisation') is-invalid @enderror"
                                     id="organisation" wire:model.live.debounce.200ms="organisation">

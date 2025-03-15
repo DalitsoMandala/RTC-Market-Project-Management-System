@@ -10,15 +10,17 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
 
+use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
+
 HeadingRowFormatter::default('none');
-class MainFoodSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class MainFoodSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading, WithStartRow
 {
 
     protected $data;
@@ -33,7 +35,10 @@ class MainFoodSheetImport implements ToModel, WithHeadingRow, WithValidation, Sk
         $this->data = $data;
     }
 
-
+    public function startRow(): int
+    {
+        return 3;
+    }
     public function model(array $row)
     {
         // Retrieve actual Household ID using the sheet's 'ID' from Household Data
