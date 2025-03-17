@@ -7,17 +7,19 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\JobProgress;
 use App\Traits\excelDateFormat;
+use App\Traits\newIDTrait;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -32,16 +34,11 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
 
     public function model(array $row)
     {
-        // Retrieve the actual Processor ID using the sheet's 'ID'
-        $processorId = Cache::get("processor_id_mapping_{$this->cacheKey}_{$row['Processor ID']}");
-        if (!$processorId) {
-            Log::error("Processor ID not found for Domestic Market row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
+
 
         // Create the RpmProcessorDomMarket record
         $marketRecord = RpmProcessorDomMarket::create([
-            'rpm_processor_id' => $processorId,
+            'rpm_processor_id' => $row['Processor ID'],
             'date_recorded' => \Carbon\Carbon::parse($row['Date Recorded'])->format('Y-m-d'),
             'crop_type' => $row['Crop Type'],
             'market_name' => $row['Market Name'],
@@ -65,10 +62,12 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
     }
 
     use excelDateFormat;
+    use newIDTrait;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Maximum Sale'] = $this->convertExcelDate($row['Date of Maximum Sale']);
-        $row['Date Recorded'] =  $this->convertExcelDate($row['Date Recorded']);
+        $row['Date of Maximum Sale'] = $this->convertExcelDate($row['Date of Maximum Sale'], $row);
+        $row['Date Recorded'] =  $this->convertExcelDate($row['Date Recorded'], $row);
+        $row['Processor ID'] = $this->validateNewIdForProcessors("processor_id_mapping", $this->cacheKey, $row, "Processor ID");
         return $row;
     }
     public function rules(): array
@@ -86,10 +85,7 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
         ];
     }
 
-    public function chunkSize(): int
-    {
-        return 1000; // Process 1000 rows at a time
-    }
+
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
@@ -99,5 +95,10 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
             Log::error($errorMessage);
             throw new \Exception($errorMessage);
         }
+    }
+
+    public function startRow(): int
+    {
+        return 3; // Skip the first row (header)
     }
 }

@@ -161,27 +161,49 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
 
 
             AfterImport::class => function (AfterImport $event) {
-                $user = User::find($this->submissionDetails['user_id']);
+                // Finalize Submission record after import completes
 
-                // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
-                if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
+                $user = User::find($this->submissionDetails['user_id']);
+                //    $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
+                if ($user->hasAnyRole('manager')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
+                        'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
                         'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'attendance_registers',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
-
 
                     $user->notify(
                         new ImportSuccessNotification(
                             $this->cacheKey,
                             route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
+
+                        )
+                    );
+                } else if ($user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('admin-submissions', [
                                 'batch' => $this->cacheKey,
                             ], true) . '#batch-submission'
 
@@ -196,7 +218,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'attendance_registers',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -209,31 +231,33 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
+                        'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
                         'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'attendance_registers',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
-
-                    $user->notify(new ImportSuccessNotification(
-                        $this->cacheKey,
-                        route('external-submissions', [
-                            'batch' => $this->cacheKey,
-                        ], true) . '#batch-submission'
-
-
-                    ));
                 }
+                $user->notify(new ImportSuccessNotification(
+                    $this->cacheKey,
+                    route('external-submissions', [
+                        'batch' => $this->cacheKey,
+                    ], true) . '#batch-submission'
+
+
+                ));
+
+
+
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'completed',
-                        'progress' => 100
+                        'progress' => 100,
                     ]
                 );
             },

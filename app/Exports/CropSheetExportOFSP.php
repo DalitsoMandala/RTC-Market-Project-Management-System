@@ -4,14 +4,40 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\SeedBeneficiary;
+use App\Traits\ExportStylingTrait;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 
-class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle
+class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
 {
+    use ExportStylingTrait;
     protected $cropType;
     public $template = false;
+    public $validationTypes = [
+        'District' => 'Required, Text',
+        'EPA' => 'Required, Text',
+        'Section' => 'Required, Text',
+        'Name of AEDO' => 'Required, Text',
+        'AEDO Phone Number' => 'Text',
+        'Date of Distribution' => 'Date (dd-mm-yyyy)',
+        'Name of Recipient' => 'Required, Text',
+        'Village' => 'Text',
+        'Sex' => 'Required, Male/Female',
+        'Age' => 'Required, Number (>=1)',
+        'Marital Status' => 'Number',
+        'Household Head' => 'Number (>=1)',
+        'Household Size' => 'Number (>=1)',
+        'Children Under 5 in HH' => 'Number (>=0)',
+        'Variety Received' => 'Text, (IF Multiple separate by commas)',
+        'Bundles Received' => 'Number(>=0)',
+        'National ID' => 'Text',
+        'Phone Number' => 'Text',
+        'Signed' => 'Number (>=0)',
+        'Year' => 'Number',
+    ];
     public function __construct(string $cropType, $template = false)
     {
         $this->cropType = $cropType;
@@ -61,30 +87,32 @@ class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
-            //     'Crop',
-            'District',
-            'EPA',
-            'Section',
-            'Name of AEDO',
-            'AEDO Phone Number',
-            'Date of Distribution',
-            'Name of Recipient',
-            'Village',
-            'Sex',
-            'Age',
-            'Marital Status',
-            'Household Head',
-            'Household Size',
-            'Children Under 5 in HH',
-            'Variety Received',
-            'Bundles Received',
-            'National ID',
-            'Phone Number',
-            'Signed',
-            'Year'
+
+            [
+                'District',
+                'EPA',
+                'Section',
+                'Name of AEDO',
+                'AEDO Phone Number',
+                'Date of Distribution',
+                'Name of Recipient',
+                'Village',
+                'Sex',
+                'Age',
+                'Marital Status',
+                'Household Head',
+                'Household Size',
+                'Children Under 5 in HH',
+                'Variety Received',
+                'Bundles Received',
+                'National ID',
+                'Phone Number',
+                'Signed',
+                'Year'
+            ],
+            array_values($this->validationTypes)
         ];
     }
-
     public function title(): string
     {
         return $this->cropType;

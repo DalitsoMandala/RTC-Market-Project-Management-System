@@ -8,12 +8,20 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Livewire\tables\RtcMarket\RpmProcessorMIS;
 use App\Models\RpmProcessorMarketInformationSystem;
+use App\Traits\ExportStylingTrait;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
+class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
+    use ExportStylingTrait;
     public $template;
+    public $validationTypes = [
 
+        'Name' => 'Text',
+        'Processor ID' => 'Exists in Production Processors Sheet',
+    ];
     public function __construct($template)
     {
         $this->template = $template;
@@ -32,8 +40,11 @@ class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
     public function headings(): array
     {
         return [
-            'MIS Name',
-            'Processor ID'
+            [
+                'MIS Name',
+                'Processor ID'
+            ],
+            array_values($this->validationTypes)
         ];
     }
 

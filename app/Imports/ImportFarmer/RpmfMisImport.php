@@ -2,22 +2,24 @@
 
 namespace App\Imports\ImportFarmer;
 
+use App\Traits\newIDTrait;
 use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use App\Models\RpmFarmerMarketInformationSystem;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -34,11 +36,6 @@ class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     public function model(array $row)
     {
         // Retrieve Farmer ID from cache based on sheet ID mapping
-        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
-        if (!$farmerId) {
-            Log::error("Farmer ID not found for MIS row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
 
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
@@ -51,10 +48,16 @@ class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         // Create the RpmFarmerMarketInformationSystem record with the actual Farmer ID
         return new RpmFarmerMarketInformationSystem([
             'name' => $row['Name'],
-            'rpmf_id' => $farmerId,
+            'rpmf_id' => $row['Farmer ID'],
         ]);
     }
+    use newIDTrait;
+    public function prepareForValidation(array $row)
+    {
+        $row['Farmer ID'] = $this->validateNewIdForFarmers("farmer_id_mapping1", $this->cacheKey, $row, "Farmer ID");
 
+        return $row;
+    }
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
@@ -66,13 +69,14 @@ class RpmfMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'exists:rpmf_mis,id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rtc_production_farmers,id', // Validate Farmer ID
             'Name' => 'string|max:255',
         ];
     }
 
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }

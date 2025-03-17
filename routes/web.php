@@ -39,6 +39,7 @@ use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Targets;
 use App\Notifications\JobNotification;
 use App\Models\IndicatorDisaggregation;
+use App\Exports\SeedBeneficiariesExport;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\SubPeriod;
@@ -63,7 +64,12 @@ use App\Helpers\rtc_market\indicators\indicator_1_1_1;
 use App\Helpers\rtc_market\indicators\indicator_2_2_2;
 use App\Helpers\rtc_market\indicators\indicator_3_1_1;
 use App\Helpers\rtc_market\indicators\indicator_3_5_4;
+use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
 use App\Livewire\External\Dashboard as ExternalDashboard;
+use App\Exports\AttendanceExport\AttendanceRegistersExport;
+use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
+use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
+use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
@@ -85,7 +91,40 @@ Route::get('/logout', function () {
 });
 
 
+// Route::get('/download-templates', function () {
+//     Excel::download(new AttendanceRegistersExport(true), 'attendance_register_template.xlsx');
+//     Excel::download(new HouseholdRtcConsumptionTemplateExport(true), 'household_rtc_consumption_template.xlsx');
+//     Excel::download(new RtcProductionFarmersMultiSheetExport(true), 'rtc_production_marketing_farmers_template.xlsx');
+//     Excel::download(new RtcProductionProcessorsMultiSheetExport(true), 'rtc_production_marketing_processors_template.xlsx');
+//     Excel::download(new SchoolRtcConsumptionExport(true), 'school_consumption_template.xlsx');
+//     Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries_template.xlsx');
+// });
 
+Route::get('/download-templates', function () {
+    $files = [
+        'attendance_register_template.xlsx' => new AttendanceRegistersExport(true),
+        'household_rtc_consumption_template.xlsx' => new HouseholdRtcConsumptionTemplateExport(true),
+        'rtc_production_marketing_farmers_template.xlsx' => new RtcProductionFarmersMultiSheetExport(true),
+        'rtc_production_marketing_processors_template.xlsx' => new RtcProductionProcessorsMultiSheetExport(true),
+        'school_consumption_template.xlsx' => new SchoolRtcConsumptionExport(true),
+        'seed_beneficiaries_template.xlsx' => new SeedBeneficiariesExport(true),
+    ];
+
+    $zipFileName = 'templates.zip';
+    $zipPath = storage_path('app/public/exports/' . $zipFileName);
+    $zip = new ZipArchive;
+
+    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+        foreach ($files as $fileName => $export) {
+            $filePath = storage_path("app/temp/{$fileName}");
+            Excel::store($export, "temp/{$fileName}");
+            $zip->addFile($filePath, $fileName);
+        }
+        $zip->close();
+    }
+
+    return response()->download($zipPath)->deleteFileAfterSend(true);
+});
 // Profile route
 Route::get('/profile', \App\Livewire\Profile\Details::class)
     ->middleware(['auth'])
@@ -111,7 +150,7 @@ Route::middleware([
     Route::get('/indicators-targets', \App\Livewire\Admin\Data\IndicatorTargets::class)->name('admin-indicators-targets');
     Route::get('/assigned-targets', \App\Livewire\Admin\Data\AssignedTargets::class)->name('admin-assigned-targets');
     Route::get('/forms', \App\Livewire\Admin\Operations\Forms::class)->name('admin-forms');
-    Route::get('/submissions', \App\Livewire\Admin\Operations\Submissions::class)->name('admin-submissions');
+    Route::get('/submissions/{batch?}', \App\Livewire\Admin\Operations\Submissions::class)->name('admin-submissions');
     Route::get('/reports', \App\Livewire\Admin\Operations\Reports::class)->name('admin-reports');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->name('admin-baseline');
     Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('admin-submission-period');

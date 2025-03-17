@@ -169,6 +169,14 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
                 ]; // Includes an empty option
 
                 $this->setDataValidations($dropdownOptions, 'G3', $sheet);
+
+                $dropdownOptions = [
+                    '',
+                    'Potato',
+                    'Sweet potato',
+                    'Cassava'
+                ];
+                $this->setDataValidations($dropdownOptions, 'E3', $sheet);
             },
         ];
     }

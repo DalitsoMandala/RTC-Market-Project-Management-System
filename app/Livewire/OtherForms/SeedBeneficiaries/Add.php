@@ -100,7 +100,13 @@ class Add extends Component
     public function save()
     {
 
+
         $collect = collect($this->selectedVarieties);
+        if ($collect->isNotEmpty()) {
+            $this->variety_received = implode(',', $collect->pluck('id')->toArray());
+        } else {
+            $this->variety_received = null;
+        }
 
         try {
 
@@ -113,6 +119,8 @@ class Add extends Component
 
         try {
             $uuid = Uuid::uuid4()->toString();
+
+
 
             SeedBeneficiary::create([
                 'district' => $this->district,
@@ -130,24 +138,24 @@ class Add extends Component
                 'household_size' => $this->household_size,
                 'children_under_5' => $this->children_under_5,
                 'variety_received' => $this->variety_received,
-                'violet' => $collect->contains('violet'),
-                'rosita' =>  $collect->contains('rosita'),
-                'chuma' => $collect->contains('chuma'),
-                'mwai' => $collect->contains('mwai'),
-                'zikomo' =>  $collect->contains('zikomo'),
-                'thandizo' =>  $collect->contains('thandizo'),
-                'royal_choice' => $collect->contains('royal_choice'),
-                'kaphulira' => $collect->contains('kaphulira'),
-                'chipika' => $collect->contains('chipika'),
-                'mathuthu' => $collect->contains('mathuthu'),
-                'kadyaubwelere' => $collect->contains('kadyaubwelere'),
-                'sungani' => $collect->contains('sungani'),
-                'kajiyani' => $collect->contains('kajiyani'),
-                'mugamba' => $collect->contains('mugamba'),
-                'kenya' => $collect->contains('kenya'),
-                'nyamoyo' => $collect->contains('nyamoyo'),
-                'anaakwanire' => $collect->contains('anaakwanire'),
-                'other' => $collect->contains('other'),
+                'violet' => $collect->contains('name', 'violet'),
+                'rosita' =>  $collect->contains('name', 'rosita'),
+                'chuma' => $collect->contains('name', 'chuma'),
+                'mwai' => $collect->contains('name', 'mwai'),
+                'zikomo' =>  $collect->contains('name', 'zikomo'),
+                'thandizo' =>  $collect->contains('name', 'thandizo'),
+                'royal_choice' => $collect->contains('name', 'royal choice'),
+                'kaphulira' => $collect->contains('name', 'kaphulira'),
+                'chipika' => $collect->contains('name', 'chipika'),
+                'mathuthu' => $collect->contains('name', 'mathuthu'),
+                'kadyaubwelere' => $collect->contains('name', 'kadyaubwelere'),
+                'sungani' => $collect->contains('name', 'sungani'),
+                'kajiyani' => $collect->contains('name', 'kajiyani'),
+                'mugamba' => $collect->contains('name', 'mugamba'),
+                'kenya' => $collect->contains('name', 'kenya'),
+                'nyamoyo' => $collect->contains('name', 'nyamoyo'),
+                'anaakwanire' => $collect->contains('name', 'anaakwanire'),
+                'other' => $collect->contains('name', 'other'),
                 'bundles_received' => $this->bundles_received,
                 'phone_number' => $this->phone_number ?? 'NA',
                 'national_id' => $this->national_id ?? 'NA',
@@ -162,7 +170,7 @@ class Add extends Component
             ]);
 
             session()->flash('success', 'Seed Beneficiary added successfully.');
-            $this->reset();
+            $this->redirect(url()->previous());
         } catch (\Throwable $th) {
 
 
@@ -236,6 +244,7 @@ class Add extends Component
             }
         }
 
+        $this->crop = 'Potato';
         $this->routePrefix = Route::current()->getPrefix();
         $this->getVarieties($this->crop);
     }

@@ -2,21 +2,23 @@
 
 namespace App\Imports\ImportProcessor;
 
-use App\Models\RpmProcessorMarketInformationSystem;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use App\Traits\newIDTrait;
 use App\Models\JobProgress;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
+use App\Models\RpmProcessorMarketInformationSystem;
 
 HeadingRowFormatter::default('none');
 
-class RpmpMisImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class RpmpMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -31,18 +33,11 @@ class RpmpMisImport implements ToModel, WithHeadingRow, WithValidation, WithChun
 
     public function model(array $row)
     {
-        // Retrieve the actual Processor ID using the sheet's 'ID'
-        $processorId = Cache::get("processor_id_mapping_{$this->cacheKey}_{$row['Processor ID']}");
-        if (!$processorId) {
-            Log::error("Processor ID not found for MIS row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
-
 
 
         // Create the RpmProcessorMarketInformationSystem record
         $misRecord = RpmProcessorMarketInformationSystem::create([
-            'rpmp_id' => $processorId,
+            'rpmp_id' => $row['Processor ID'],
             'name' => $row['MIS Name'], // assuming "MIS Name" is a column in the import sheet
         ]);
 
@@ -73,8 +68,14 @@ class RpmpMisImport implements ToModel, WithHeadingRow, WithValidation, WithChun
         ];
     }
 
-    public function chunkSize(): int
+    use newIDTrait;
+    public function prepareForValidation(array $row)
     {
-        return 1000; // Process 1000 rows at a time
+        $row['Processor ID'] = $this->validateNewIdForProcessors("processor_id_mapping", $this->cacheKey, $row, "Processor ID");
+        return $row;
+    }
+    public function startRow(): int
+    {
+        return 3; // Start reading data from the 3rd row
     }
 }

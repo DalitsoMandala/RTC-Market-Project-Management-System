@@ -21,14 +21,14 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
     protected $validationTypes = [
         'Meeting Title' => 'Required, Text',
         'Meeting Category' => 'Required, Text, (Choose one option)',
-        'Cassava' => 'Boolean (1/0, true/false)',
-        'Potato' => 'Boolean (1/0, true/false)',
-        'Sweet Potato' => 'Boolean (1/0, true/false)',
+        'Cassava' => 'Boolean (1/0)',
+        'Potato' => 'Boolean (1/0)',
+        'Sweet Potato' => 'Boolean (1/0)',
         'Venue' => 'Required, Text',
         'District' => 'Required, Text',
         'Start Date' => 'Required, Date (dd-mm-yyyy)',
         'End Date' => 'Required, Date (dd-mm-yyyy), After or equal to Start Date',
-        'Total Days' => 'Required, Number (>=1)',
+        'Total Days' => 'Number (>=1)',
         'Name' => 'Required, Text',
         'Sex' => 'Required, Male/Female',
         'Organization' => 'Text',
@@ -128,7 +128,8 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
                     'Processor',
                     'Trader',
                     'Partner',
-                    'Staff'
+                    'Staff',
+                    'Other'
 
                 ]; // Includes an empty option
                 $this->setDataValidations($dropdownOptions, 'O3', $sheet);

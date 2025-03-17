@@ -25,11 +25,12 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\ValidationException;
 
 HeadingRowFormatter::default('none');
-class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
 
@@ -113,8 +114,9 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
             // 'Total' => 'nullable|integer|min:0',
         ];
     }
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows per chunk
+        return 3;
     }
 }

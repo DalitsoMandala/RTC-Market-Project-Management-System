@@ -63,19 +63,22 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
                 ->orWhere('name', 'manager')
             ;
         })->get();
+        $prefix = '';
         foreach ($users as $user) {
-            $prefix = '';
+
             if (User::find($user->id)->hasAnyRole('admin')) {
                 $prefix = '/admin';
             } else if (User::find($user->id)->hasAnyRole('manager')) {
                 $prefix = '/cip';
-            } else if (User::find($user->id)->hasAnyRole('staff')) {
-                $prefix = '/staff';
-            } else if (User::find($user->id)->hasAnyRole('project_manager')) {
-                $prefix = '/cip/project-manager';
-            } else {
-                $prefix = '/external';
             }
+
+            // else if (User::find($user->id)->hasAnyRole('staff')) {
+            //     $prefix = '/staff';
+            // } else if (User::find($user->id)->hasAnyRole('project_manager')) {
+            //     $prefix = '/cip/project-manager';
+            // } else {
+            //     $prefix = '/external';
+            // }
 
             $user->notify(new NewSubmissionNotification($prefix));
         }

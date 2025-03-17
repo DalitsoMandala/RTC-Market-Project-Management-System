@@ -45,7 +45,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
         'Members Female 35+' => 'Number (>=0)',
         'Group' => 'Text, (Choose one option)',
         'Establishment Status' => 'New/Old, (Choose one option)',
-        'Is Registered' => 'Boolean (1/0, true/false)',
+        'Is Registered' => 'Boolean (1/0)',
         'Registration Body' => 'Text',
         'Registration Number' => 'Text',
         'Registration Date' => 'Date (dd-mm-yyyy)',
@@ -63,13 +63,13 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
         'Screen House Vines Harvested' => 'Number (>=0)',
         'Screen House Min Tubers Harvested' => 'Number (>=0)',
         'SAH Plants Produced' => 'Number (>=0)',
-        'Is Registered Seed Producer' => 'Boolean (1/0, true/false)',
+        'Is Registered Seed Producer' => 'Boolean (1/0)',
         'Seed Producer Registration Number' => 'Text',
         'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
-        'Uses Certified Seed' => 'Boolean (1/0, true/false)',
-        'Market Segment Fresh' => 'Boolean (1/0, true/false)',
-        'Market Segment Processed' => 'Boolean (1/0, true/false)',
-        'Has RTC Market Contract' => 'Boolean (1/0, true/false)',
+        'Uses Certified Seed' => 'Boolean (1/0)',
+        'Market Segment Fresh' => 'Boolean (1/0)',
+        'Market Segment Processed' => 'Boolean (1/0)',
+        'Has RTC Market Contract' => 'Boolean (1/0)',
         'Total Volume Production Previous Season' => 'Number (>=0)',
         'Production Value Previous Season Total' => 'Number (>=0)',
         'Production Value Date of Max Sales' => 'Date (dd-mm-yyyy)',
@@ -80,10 +80,10 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
         'Irrigation Production Date of Max Sales' => 'Date (dd-mm-yyyy)',
         'Irrigation Production USD Rate' => 'Number (>=0)',
         'Irrigation Production USD Value' => 'Number (>=0)',
-        'Sells to Domestic Markets' => 'Boolean (1/0, true/false)',
-        'Sells to International Markets' => 'Boolean (1/0, true/false)',
-        'Uses Market Information Systems' => 'Boolean (1/0, true/false)',
-        'Sells to Aggregation Centers' => 'Boolean (1/0, true/false)',
+        'Sells to Domestic Markets' => 'Boolean (1/0)',
+        'Sells to International Markets' => 'Boolean (1/0)',
+        'Uses Market Information Systems' => 'Boolean (1/0)',
+        'Sells to Aggregation Centers' => 'Boolean (1/0)',
         'Total Volume Aggregation Center Sales' => 'Number (>=0)',
     ];
 
@@ -327,6 +327,14 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
                 ];
 
                 $this->setDataValidations($dropdownOptions, 'R3', $sheet);
+
+                $dropdownOptions = [
+                    '',
+                    'Potato',
+                    'Sweet potato',
+                    'Cassava'
+                ];
+                $this->setDataValidations($dropdownOptions, 'E3', $sheet);
             },
         ];
     }

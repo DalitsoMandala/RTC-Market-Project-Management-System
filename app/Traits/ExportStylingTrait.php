@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 trait ExportStylingTrait
 {
     //
-
+    public function styles($sheet, $highestColumn) {}
     public function registerEvents(): array
     {
         return [

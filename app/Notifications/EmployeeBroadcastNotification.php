@@ -52,7 +52,7 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
     {
         if ($this->link) {
             return [
-                'message' => $this->messageContent,
+                'message' => "New submission period has been scheduled. Please check your submission period page for details.",
                 'link' => $this->link
             ];
         }

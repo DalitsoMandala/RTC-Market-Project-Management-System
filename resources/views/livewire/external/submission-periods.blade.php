@@ -21,8 +21,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header ">
+                    <div class="card-header d-flex justify-content-between ">
                         <h4 class="card-title">Submission Period Table</h4>
+
                     </div>
                     <div class="px-0 card-body">
                         @php

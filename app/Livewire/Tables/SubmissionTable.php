@@ -310,7 +310,10 @@ final class SubmissionTable extends PowerGridComponent
                 ->slot('<i class="bx bx-trash-alt"></i>')
                 ->id()
                 ->class('btn btn-theme-red my-1 custom-tooltip btn-sm')
-                ->can(allowed: (User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin')) || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->can(
+                    allowed: (User::find(auth()->user()->id)->hasAnyRole('manager') ||
+                        User::find(auth()->user()->id)->hasAnyRole('admin'))
+                )
                 ->tooltip('Delete Data')
                 ->dispatch('deleteBatch', [
                     'id' => $row->id,
@@ -321,7 +324,7 @@ final class SubmissionTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
-
+        $user = User::find(auth()->user()->id);
 
         return [
             //  Hide button edit for ID 1
@@ -330,12 +333,12 @@ final class SubmissionTable extends PowerGridComponent
                 ->when(fn($row) => $row->status !== 'pending')
                 ->disable(),
 
-            Rule::button('delete')
-                ->when(fn($row) => !($row->status === 'pending'))
-                ->disable(),
+            // Rule::button('delete')
+            //     ->when(fn($row) => !($row->status === 'pending'))
+            //     ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => !($row->user_id === auth()->user()->id))
+                ->when(fn($row) => !($user->hasAnyRole('manager')))
                 ->disable(),
 
             Rule::rows()

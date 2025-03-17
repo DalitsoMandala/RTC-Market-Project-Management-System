@@ -175,19 +175,20 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                 Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
             },
             AfterImport::class => function (AfterImport $event) {
+                // Finalize Submission record after import completes
+
                 $user = User::find($this->submissionDetails['user_id']);
-
-
+                //     $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
+                        'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
                         'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -195,6 +196,28 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         new ImportSuccessNotification(
                             $this->cacheKey,
                             route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
+
+                        )
+                    );
+                } else if ($user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('admin-submissions', [
                                 'batch' => $this->cacheKey,
                             ], true) . '#batch-submission'
 
@@ -209,7 +232,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -222,25 +245,27 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
+                        'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
                         'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
-                    $user->notify(new ImportSuccessNotification(
-                        $this->cacheKey,
-                        route('external-submissions', [
-                            'batch' => $this->cacheKey,
-                        ], true) . '#batch-submission'
-
-
-                    ));
                 }
+                $user->notify(new ImportSuccessNotification(
+                    $this->cacheKey,
+                    route('external-submissions', [
+                        'batch' => $this->cacheKey,
+                    ], true) . '#batch-submission'
+
+
+                ));
+
+
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -250,7 +275,6 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     ]
                 );
             },
-
             ImportFailed::class => function (ImportFailed $event) {
 
                 $exception = $event->getException();

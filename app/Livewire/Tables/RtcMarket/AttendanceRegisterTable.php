@@ -91,7 +91,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('startDate_formatted', fn($model) => Carbon::parse($model->startDate)->format('d/m/Y'))
             ->add('endDate_formatted', fn($model) => Carbon::parse($model->endDate)->format('d/m/Y'))
             ->add('totalDays', function ($model) {
-                return Carbon::parse($model->endDate)->diffInDays(Carbon::parse($model->startDate));
+                return $model->totalDays;
             })
             ->add('name', function ($model) {
                 return '

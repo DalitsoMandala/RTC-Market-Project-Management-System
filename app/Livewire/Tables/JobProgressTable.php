@@ -5,6 +5,7 @@ namespace App\Livewire\tables;
 use App\Models\JobProgress;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -40,6 +41,10 @@ final class JobProgressTable extends PowerGridComponent
             $this->batch = $collection->get('batch');
         }
 
+
+
+
+
         return [
 
             Header::make(),
@@ -66,7 +71,20 @@ final class JobProgressTable extends PowerGridComponent
 
             ->add('row', fn($model) => $this->count++)
             ->add('id')
-            ->add('cache_key')
+            ->add('cache_key', function ($model) {
+                $cacheKey = $model->cache_key;
+                $checkQueue = Cache::get($cacheKey);
+                if (!$checkQueue) {
+
+                    $job =  JobProgress::where('cache_key', $cacheKey)->where('status', 'processing')->first();
+                    $job?->update(['status' => 'completed']);
+                }
+
+
+
+
+                return $cacheKey;
+            })
             ->add('form_name_formatted', function ($model) {
                 $form = strtolower($model->form_name);
 

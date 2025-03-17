@@ -111,30 +111,44 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
         }
 
         if (!$row['Sex']) {
-            $row['Sex'] = 1;
+            $row['Sex'] = "NA";
+        }
+
+        if ($row['Sex']) {
+            $sex = $row['Sex'];
+            if (is_numeric($sex)) {
+                $sex = match ($sex) {
+                    1 => 'Male',
+                    2 => 'Female',
+
+                    default => 'Male',
+                };
+            } elseif (is_string($sex)) {
+                $sex = strtolower($sex);
+                $sex = match ($sex) {
+                    'm' => 'Male',
+                    'f' => 'Female',
+
+                    default => 'Male',
+                };
+            }
         }
 
 
-        $sex = $row['Sex'];
-        if (is_numeric($sex)) {
-            $sex = match ($sex) {
-                1 => 'Male',
-                2 => 'Female',
-
-                default => 'Male',
-            };
-        } elseif (is_string($sex)) {
-            $sex = strtolower($sex);
-            $sex = match ($sex) {
-                'm' => 'Male',
-                'f' => 'Female',
-
-                default => 'Male',
+        if ($row['Category']) {
+            $category = $row['Category'];
+            $row['Category'] = match ($category) {
+                1 => 'Partner',
+                2 => 'Processor',
+                3 => 'Trader',
+                4 => 'Staff',
+                default => 'Other',
             };
         }
+
 
         if (!$row['Category']) {
-            $row['Category'] = 'Partner';
+            $row['Category'] = 'Other';
         }
         return $row;
     }
@@ -150,12 +164,12 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'District' => 'required|string|max:255',
             'Start Date' => 'required|date|date_format:d-m-Y',
             'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
-            'Total Days' => 'required|integer|min:1',
+            'Total Days' => 'integer|min:1',
             'Name' => 'required|string|max:255',
-            'Sex' => 'required|in:Male,Female',
+            'Sex' => 'required|in:Male,Female,NA',
             'Organization' => 'nullable|string|max:255',
             'Designation' => 'nullable|string|max:255',
-            'Category' => 'required|string|max:255|in:Farmer,Processor,Trader,Partner,Staff',
+            'Category' => 'required|string|max:255|in:Farmer,Processor,Trader,Partner,Staff,Other',
             'Phone Number' => 'nullable|max:255',
             'Email' => 'nullable|max:255',
         ];

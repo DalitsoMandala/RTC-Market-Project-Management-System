@@ -2,24 +2,26 @@
 
 namespace App\Imports\ImportFarmer;
 
+use App\Traits\newIDTrait;
 use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\RpmFarmerCertifiedSeed;
-use Maatwebsite\Excel\Concerns\ToModel;
 
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Contracts\Queue\ShouldQueue;
+
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -35,12 +37,6 @@ class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping1_
-        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
-        if (!$farmerId) {
-            Log::error("Farmer ID not found for Certified Seed row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
 
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
@@ -52,10 +48,18 @@ class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation
 
         // Create the RpmFarmerCertifiedSeed record with the actual Farmer ID
         return new RpmFarmerCertifiedSeed([
-            'rpmf_id' => $farmerId,
+            'rpmf_id' => $row['Farmer ID'],
             'variety' => $row['Variety'],
             'area' => $row['Area'],
         ]);
+    }
+
+    use newIDTrait;
+    public function prepareForValidation(array $row)
+    {
+        $row['Farmer ID'] = $this->validateNewIdForFarmers("farmer_id_mapping1", $this->cacheKey, $row, "Farmer ID");
+
+        return $row;
     }
     public function onFailure(Failure ...$failures)
     {
@@ -69,14 +73,15 @@ class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'exists:rpmf_certified_seed,rpmf_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rtc_production_farmers,id', // Validate Farmer ID
             'Variety' => 'string|max:255',
             'Area' => 'numeric|min:0',
         ];
     }
 
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }

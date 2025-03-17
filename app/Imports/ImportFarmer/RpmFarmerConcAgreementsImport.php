@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\RpmFarmerConcAgreement;
 use App\Traits\excelDateFormat;
+use App\Traits\newIDTrait;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,12 +15,13 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
     protected $data;
@@ -36,12 +38,6 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping_
-        $farmerId = Cache::get("farmer_id_mapping_{$this->cacheKey}_{$row['Farmer ID']}");
-        if (!$farmerId) {
-            Log::error("Farmer ID not found for Conc Agreement row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
 
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
@@ -53,7 +49,7 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
 
         // Create the RpmFarmerConcAgreement record with the actual Farmer ID
         return new RpmFarmerConcAgreement([
-            'rpm_farmer_id' => $farmerId,
+            'rpm_farmer_id' => $row['Farmer ID'],
             'date_recorded' => \Carbon\Carbon::parse($row['Date Recorded'])->format('Y-m-d'),
             'partner_name' => $row['Partner Name'],
             'country' => $row['Country'],
@@ -66,16 +62,20 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
 
 
     use excelDateFormat;
+    use newIDTrait;
+
     public function prepareForValidation(array $row)
     {
         $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale']);
         $row['Date Recorded'] =  $this->convertExcelDate($row['Date Recorded']);
+        $row['Farmer ID'] = $this->validateNewIdForFarmers("farmer_id_mapping1", $this->cacheKey, $row, "Farmer ID");
+
         return $row;
     }
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'exists:rpm_farmer_conc_agreements,rpm_farmer_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rtc_production_farmers,id', // Validate Farmer ID
             'Date Recorded' => 'nullable|date|date_format:d-m-Y',
             'Partner Name' => 'required|string|max:255',
             'Country' => 'nullable|string|max:255',
@@ -94,8 +94,9 @@ class RpmFarmerConcAgreementsImport implements ToModel, WithHeadingRow, WithVali
             throw new \Exception($errorMessage);
         }
     }
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }
