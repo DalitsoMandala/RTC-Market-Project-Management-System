@@ -12,6 +12,7 @@ use App\Helpers\SheetNamesValidator;
 use App\Models\SchoolRtcConsumption;
 use Illuminate\Support\Facades\Cache;
 use App\Notifications\JobNotification;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
@@ -23,6 +24,7 @@ use App\Imports\ImportProcessor\RpmpMisImport;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
 use App\Imports\SchoolImport\SchoolRtcConsumptionImport;
@@ -68,53 +70,60 @@ class SchoolRtcConsumptionMultiSheetImport implements WithMultipleSheets, WithCh
             'School RTC Consumption' => new SchoolRtcConsumptionImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
+    private function getSheetHeaders(Worksheet $sheet): array
+    {
+        $highestColumn = $sheet->getHighestColumn();
+        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        return $headerCells[0] ?? [];
+    }
 
+    private function validateHeaders(array $actualHeaders, array $expectedHeaders): bool
+    {
+        return array_values(array_map('trim', $actualHeaders)) === array_values(array_map('trim', $expectedHeaders));
+    }
     public function registerEvents(): array
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
-
-                // Validate missing sheet names
-                foreach ($this->expectedSheetNames as $expectedSheetName) {
-                    if (!in_array($expectedSheetName, $sheetNames)) {
-                        Log::error("Missing expected sheet: {$expectedSheetName}");
-                        throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing. Please ensure the file contains all required sheets.");
-                    }
-                }
-                // Validate unexpected sheet names
-                foreach ($sheetNames as $sheetName) {
-                    if (!in_array($sheetName, $this->expectedSheetNames)) {
-                        Log::error("Unexpected sheet name: {$sheetName}");
-                        throw new ExcelValidationException("Unexpected sheet: '{$sheetName}' in file.");
-                    }
-                }
+                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
+                $reader = IOFactory::createReaderForFile($this->filePath);
+                $spreadsheet = $reader->load($this->filePath);
+                $sheetNames = $spreadsheet->getSheetNames();
 
 
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
+                $workBook = $event->reader->getTotalRows();
 
-                foreach ($sheets as $key => $sheet) {
-
-                    if ($sheet <= 1 && $key == $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
+                foreach ($workBook as $sheetName => $totalRows) {
+                    // Check if the sheet is blank
+                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
+                        if ($sheetName === $firstSheetName) {
+                            // Log error if the first sheet is blank
+                            Log::error("The sheet '{$firstSheetName}' is blank.");
+                            throw new ExcelValidationException(
+                                "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                            );
+                        }
                     }
                 }
 
-                $filePath = $this->filePath;
-                $expectedSheetNames = $this->expectedSheetNames;
-                $expectedHeaders = $this->expectedHeaders;
 
-                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
-                $message = $validator->validateHeaders();
 
-                if ($message) {
-                    throw new ExcelValidationException($message->getMessage());
+
+                // Validate headers and missing sheet names
+                foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
+                    // Check if sheet exists
+                    if (!in_array($sheetName, $sheetNames)) {
+                        throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
+                    }
+
+                    // Get the sheet by name
+                    $sheet = $spreadsheet->getSheetByName($sheetName);
+
+                    // Validate headers
+                    $actualHeaders = $this->getSheetHeaders($sheet);
+                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
+                        throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
+                    }
                 }
 
                 // Get total rows from all sheets and initialize JobProgress

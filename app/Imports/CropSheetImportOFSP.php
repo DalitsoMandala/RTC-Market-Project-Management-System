@@ -19,11 +19,12 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
-class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
 
@@ -269,7 +270,27 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Wi
         }
 
         if (!$row['Sex']) {
-            $row['Sex'] = 'Male';
+            $row['Sex'] = 'NA';
+        }
+
+        if ($row['Sex']) {
+            $sex = $row['Sex'];
+            if (is_numeric($sex)) {
+                $sex = match ($sex) {
+                    1 => 'Male',
+                    2 => 'Female',
+
+                    default => 'Male',
+                };
+            } elseif (is_string($sex)) {
+                $sex = strtolower($sex);
+                $sex = match ($sex) {
+                    'm' => 'Male',
+                    'f' => 'Female',
+
+                    default => 'Male',
+                };
+            }
         }
         if (!$row['Marital Status'] || is_string($row['Marital Status'])) {
             $row['Marital Status'] = 1;
@@ -368,13 +389,8 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Wi
         }
     }
 
-    public function chunkSize(): int
+    public function startRow(): int
     {
-        return 1000;
-    }
-
-    public function batchSize(): int
-    {
-        return 1000;
+        return 3;
     }
 }

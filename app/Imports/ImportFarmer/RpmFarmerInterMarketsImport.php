@@ -7,6 +7,7 @@ use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use App\Models\RpmFarmerInterMarket;
 use App\Traits\excelDateFormat;
+use App\Traits\newIDTrait;
 use Illuminate\Support\Facades\Cache;
 
 
@@ -18,11 +19,12 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
-class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -38,12 +40,7 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping1_
-        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
-        if (!$farmerId) {
-            Log::error("Farmer ID not found for Inter Market row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
+
 
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
@@ -55,7 +52,7 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
 
         // Create the RpmFarmerInterMarket record with the actual Farmer ID
         return new RpmFarmerInterMarket([
-            'rpm_farmer_id' => $farmerId,
+            'rpm_farmer_id' => $row['Farmer ID'],
             'date_recorded' => \Carbon\Carbon::parse($row['Date Recorded'])->format('Y-m-d'),
             'crop_type' => $row['Crop Type'],
             'market_name' => $row['Market Name'],
@@ -69,10 +66,13 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
 
 
     use excelDateFormat;
+    use newIDTrait;
     public function prepareForValidation(array $row)
     {
         $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale']);
         $row['Date Recorded'] =   $this->convertExcelDate($row['Date Recorded']);
+        $row['Farmer ID'] = $this->validateNewIdForFarmers("farmer_id_mapping1", $this->cacheKey, $row, "Farmer ID");
+
         return $row;
     }
     public function onFailure(Failure ...$failures)
@@ -87,7 +87,7 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'exists:rpm_farmer_inter_markets,rpm_farmer_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rtc_production_farmers,id', // Validate Farmer ID
             'Date Recorded' => 'nullable|date|date_format:d-m-Y',
             'Crop Type' => 'required|string|max:255',
             'Market Name' => 'required|string|max:255',
@@ -99,8 +99,9 @@ class RpmFarmerInterMarketsImport implements ToModel, WithHeadingRow, WithValida
         ];
     }
 
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }

@@ -3,17 +3,26 @@
 namespace App\Exports\ExportProcessor;
 
 
+use App\Traits\ExportStylingTrait;
 use App\Models\RpmpAggregationCenter;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use App\Models\RpmProcessorAggregationCenter;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RpmpAggregationCentersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
+class RpmpAggregationCentersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
-    public $template;
 
+    use ExportStylingTrait;
+    public $template;
+    public $validationTypes = [
+
+        'Name' => 'Text',
+        'Processor ID' => 'Exists in Production Processors Sheet',
+    ];
     public function __construct($template)
     {
         $this->template = $template;
@@ -33,8 +42,9 @@ class RpmpAggregationCentersExport implements FromCollection, WithHeadings, With
     public function headings(): array
     {
         return [
-            'Aggregation Center Name',
-            'Processor ID'
+           [ 'Aggregation Center Name',
+            'Processor ID'],
+            array_values($this->validationTypes)
         ];
     }
 

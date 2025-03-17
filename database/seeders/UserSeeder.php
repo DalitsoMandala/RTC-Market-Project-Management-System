@@ -185,7 +185,7 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-            'manager',
+            'project_manager',
 
         ]);
         User::create([
@@ -195,7 +195,7 @@ class UserSeeder extends Seeder
             'phone_number' => '+9999999999',
             'organisation_id' => getOrganisationId('CIP'),
         ])->assignRole([
-            'manager',
+            'staff',
 
         ]);
 

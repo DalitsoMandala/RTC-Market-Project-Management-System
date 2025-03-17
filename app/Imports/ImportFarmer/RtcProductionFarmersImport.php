@@ -24,9 +24,10 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
 HeadingRowFormatter::default('none');
-class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use RegistersEventListeners;
     use Importable, SkipsFailures;
@@ -128,7 +129,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             $progress = ($jobProgress->processed_rows / $jobProgress->total_rows) * 100;
             $jobProgress->update(['progress' => round($progress)]);
         }
-
+        Log::info("Processed Farmer : " . Cache::put("farmer_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id));
         return $farmerRecord;
     }
 
@@ -221,13 +222,9 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
 
 
 
-    public function chunkSize(): int
-    {
-        return 1000;
-    }
 
-    public function batchSize(): int
+    public function startRow(): int
     {
-        return 1000;
+        return 3;
     }
 }

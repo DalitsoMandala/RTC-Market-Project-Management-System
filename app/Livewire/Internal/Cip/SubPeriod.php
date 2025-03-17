@@ -21,6 +21,7 @@ use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Bus;
 use App\Models\ReportingPeriodMonth;
 use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
 use App\Models\OrganisationTarget;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
@@ -53,6 +54,8 @@ class SubPeriod extends Component
     public $expired;
     public $disaggregations = [];
     public $indicators = [];
+    public $organisations = [];
+    public $selectedOrganisation;
 
     #[Validate('required')]
     public $selectedIndicator;
@@ -70,6 +73,7 @@ class SubPeriod extends Component
         'targets.*.value' => 'required|numeric',
         'cip_targets.*' => 'required',
         'cip_targets.*.value' => 'required|numeric',
+        'selectedOrganisation' => 'required',
     ];
 
 
@@ -81,6 +85,7 @@ class SubPeriod extends Component
 
         'cip_targets.*.value.required' => 'Target value required',
         'cip_targets.*.value.numeric' => 'Target value must be numeric',
+
 
     ];
 
@@ -138,6 +143,8 @@ class SubPeriod extends Component
                 ]
             ])
         ]);
+        $this->organisations = Organisation::get();
+        $this->selectedOrganisation = 0;
     }
 
     #[On('editData')]
@@ -265,6 +272,7 @@ class SubPeriod extends Component
 
                     $this->dispatch('timeout');
                     session()->flash('success', 'Updated Successfully');
+                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
                 } else {
 
                     $this->dispatch('timeout');
@@ -338,65 +346,62 @@ class SubPeriod extends Component
     {
 
 
+        if ($this->selectedOrganisation == 0) {
+            $users = User::with(['roles', 'organisation'])->whereHas('roles', function ($query) {
+                $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
+            })
 
-        $users = User::with('roles')->whereHas('roles', function ($query) {
-            $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
-        })->get();
+                ->get();
+        } else {
 
-        $indicatorFound = Indicator::find($Indicator);
+            $users = User::with(['roles', 'organisation'])->whereHas('roles', function ($query) {
+                $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
+            })->whereHas('organisation', function ($query) {
+                $query->where('id', $this->selectedOrganisation);
+            })
+
+                ->get();
+        }
+
+
+
+
         foreach ($users as $user) {
 
 
-            $organisationId = $user->organisation->id;
+
+            $link = match (true) {
+                User::find($user->id)->hasAnyRole('manager') => route('cip-submission-period'),
+                User::find($user->id)->hasAnyRole('staff') => route('cip-staff-submission-period'),
+                default => route('external-submission-period')
+            };
+
+            if ($errorMessage) {
 
 
-            $responsiblePeople = ResponsiblePerson::where('indicator_id', $indicatorFound->id)
-                ->where('organisation_id', $organisationId)
-                ->first();
+                Bus::chain([
+                    new SendNotificationJob($user, $errorMessage, $link, true)
+                ])->dispatch();
+            } else {
 
 
-            // Check if the organisation has responsible people
-            $hasResponsiblePeople = $responsiblePeople !== null;
-
-            // Check if the responsible person has the required form
-            $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->whereIn('form_id', $forms)->isNotEmpty() : false;
-
-            if ($hasFormAccess) {
-
-
-                $link = match (true) {
-                    User::find($user->id)->hasAnyRole('manager') => route('cip-submission-period'),
-                    User::find($user->id)->hasAnyRole('staff') => route('cip-staff-submission-period'),
-                    default => route('external-submission-period')
-                };
-
-                if ($errorMessage) {
-
-
-                    Bus::chain([
-                        new SendNotificationJob($user, $errorMessage, $link, true)
-                    ])->dispatch();
-                } else {
-
-
-                    $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
-                    $htmlForms = "</br><ol>";
-                    foreach ($formNames as $formName) {
-                        $htmlForms .= "<li>
+                $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
+                $htmlForms = "</br><ol>";
+                foreach ($formNames as $formName) {
+                    $htmlForms .= "<li>
                         <b>{$formName}</b>
                         </li>";
-                    }
-                    $htmlForms .= "</ol></br>";
-                    $messageContent = "";
-                    $messageContent .= "<p> Submissions are now open for: </p>";
-                    $messageContent .= $htmlForms;
-                    $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
-
-
-                    Bus::chain([
-                        new SendNotificationJob($user, $messageContent, $link, false)
-                    ])->dispatch();
                 }
+                $htmlForms .= "</ol></br>";
+                $messageContent = "";
+                $messageContent .= "<p> Submissions are now open for: </p>";
+                $messageContent .= $htmlForms;
+                $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
+
+
+                Bus::chain([
+                    new SendNotificationJob($user, $messageContent, $link, false)
+                ])->dispatch();
             }
         }
     }
@@ -421,6 +426,9 @@ class SubPeriod extends Component
                 $formIds = $indicator->forms->pluck('id');
                 $this->all = $formIds;
                 $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
+                $organisationIds = ResponsiblePerson::where('indicator_id', $indicator->id)->pluck('organisation_id')->toArray();
+                $this->organisations = Organisation::whereIn('id', $organisationIds)->get();
+
                 $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
             }
         }

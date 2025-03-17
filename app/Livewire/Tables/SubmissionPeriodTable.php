@@ -163,13 +163,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
     {
         return [
             Column::make('#', 'rn')->sortable(),
-            Column::make('indicator #', 'indicator_no')->headerAttribute(classAttr: 'table-sticky-col')
-                ->bodyAttribute(classAttr: 'table-sticky-col'),
-
-
 
             Column::action('Action')->headerAttribute(classAttr: 'table-sticky-col')
                 ->bodyAttribute(classAttr: 'table-sticky-col'),
+            Column::make('indicator #', 'indicator_no'),
+
             Column::make('Form', 'form_name'),
 
 

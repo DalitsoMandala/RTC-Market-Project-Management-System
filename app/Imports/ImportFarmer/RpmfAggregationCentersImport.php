@@ -2,25 +2,28 @@
 
 namespace App\Imports\ImportFarmer;
 
+use App\Traits\newIDTrait;
 use App\Models\JobProgress;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Validators\Failure;
 use App\Models\RpmFarmerAggregationCenter;
 use Maatwebsite\Excel\Concerns\Importable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithChunkReading
+class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
+
     protected $data;
     protected $cacheKey;
     protected $totalRows = 0;
@@ -35,12 +38,7 @@ class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
 
     public function model(array $row)
     {
-        // Retrieve Farmer ID from cache using farmer_id_mapping1_
-        $farmerId = Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['Farmer ID']}");
-        if (!$farmerId) {
-            Log::error("Farmer ID not found for Aggregation Center row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
+
 
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
@@ -52,9 +50,17 @@ class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
 
         // Create the RpmFarmerAggregationCenter record with the actual Farmer ID
         return new RpmFarmerAggregationCenter([
-            'rpmf_id' => $farmerId,
+            'rpmf_id' => $row['Farmer ID'],
             'name' => $row['Name'],
         ]);
+    }
+
+    use newIDTrait;
+    public function prepareForValidation(array $row)
+    {
+        $row['Farmer ID'] = $this->validateNewIdForFarmers("farmer_id_mapping1", $this->cacheKey, $row, "Farmer ID");
+
+        return $row;
     }
     public function onFailure(Failure ...$failures)
     {
@@ -67,13 +73,13 @@ class RpmfAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
     public function rules(): array
     {
         return [
-            'Farmer ID' => 'exists:rpmf_aggregation_centers,rpmf_id', // Validate Farmer ID
+            'Farmer ID' => 'exists:rtc_production_farmers,id', // Validate Farmer ID
             'Name' => 'string|max:255',
         ];
     }
 
-    public function chunkSize(): int
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }

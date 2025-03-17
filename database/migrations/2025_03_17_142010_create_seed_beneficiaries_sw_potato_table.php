@@ -4,13 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('seed_beneficiaries', function (Blueprint $table) {
+        Schema::create('seed_beneficiaries_sw_potato', function (Blueprint $table) {
             $table->id();
             $table->string('district');
             $table->string('epa');
@@ -26,13 +27,6 @@ return new class extends Migration {
             $table->tinyInteger('hh_head')->default(1)->nullable(); // 1=MHH, 2=FHH, 3=CHH
             $table->integer('household_size')->default(1)->nullable();
             $table->integer('children_under_5')->default(0)->nullable();
-            $table->string('variety_received')->nullable();
-            $table->boolean('violet')->default(false)->nullable();
-            $table->boolean('rosita')->default(false)->nullable();
-            $table->boolean('chuma')->default(false)->nullable();
-            $table->boolean('mwai')->default(false)->nullable();
-            $table->boolean('zikomo')->default(false)->nullable();
-            $table->boolean('thandizo')->default(false)->nullable();
             $table->boolean('royal_choice')->default(false)->nullable();
             $table->boolean('kaphulira')->default(false)->nullable();
             $table->boolean('chipika')->default(false)->nullable();
@@ -58,7 +52,7 @@ return new class extends Migration {
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->json('more_info')->nullable();
-            $table->string('season_type')->default('NA');
+            $table->string('type')->default('NA')->comment('rainfed/winter');
             $table->string('uuid');
             $table->timestamps();
         });
@@ -69,6 +63,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('seed_beneficiaries');
+        Schema::dropIfExists('seed_beneficiaries_sw_potato');
     }
 };

@@ -19,11 +19,12 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
-class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
 
@@ -174,7 +175,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
                 'household_size' => $row['Household Size'],
                 'children_under_5' => $row['Children Under 5 in HH'],
                 'variety_received' => $row['Variety Received'],
-                'bundles_received' => $row['Bundles Received'],
+                'bundles_received' => $row['Amount Of Seed Received'],
                 'phone_number' => $row['Phone Number'],
                 'user_id' =>    $this->submissionDetails['user_id'],
                 'signed' => $row['Signed'],
@@ -222,7 +223,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
     public function rules(): array
     {
         return [
-            // 'Crop' => 'required|string|in:Potato,OFSP,Cassava',
+
             'District' => 'required|string|max:255',
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
@@ -238,7 +239,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
             'Household Size' => 'nullable|integer|min:1',
             'Children Under 5 in HH' => 'nullable|integer|min:0',
             'Variety Received' => ['nullable', 'max:255'],
-            'Bundles Received' => ['nullable', 'max:255'],
+            'Amount Of Seed Received' => ['nullable', 'max:255'],
             'National ID' => 'nullable|max:255',
             'Phone Number' => 'nullable|max:255',
             'Signed' => 'nullable|integer:min:0',
@@ -269,7 +270,27 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
         }
 
         if (!$row['Sex']) {
-            $row['Sex'] = 'Male';
+            $row['Sex'] = 'NA';
+        }
+
+        if ($row['Sex']) {
+            $sex = $row['Sex'];
+            if (is_numeric($sex)) {
+                $sex = match ($sex) {
+                    1 => 'Male',
+                    2 => 'Female',
+
+                    default => 'Male',
+                };
+            } elseif (is_string($sex)) {
+                $sex = strtolower($sex);
+                $sex = match ($sex) {
+                    'm' => 'Male',
+                    'f' => 'Female',
+
+                    default => 'Male',
+                };
+            }
         }
         if (!$row['Marital Status'] || is_string($row['Marital Status'])) {
             $row['Marital Status'] = 1;
@@ -315,15 +336,15 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
         }
 
 
-        if (!$row['Bundles Received']) {
+        if (!$row['Amount Of Seed Received']) {
 
 
 
-            $row['Bundles Received'] = 0;
+            $row['Amount Of Seed Received'] = 0;
         }
 
-        if (is_string($row['Bundles Received'])) {
-            $row['Bundles Received'] = 1;
+        if (is_string($row['Amount Of Seed Received'])) {
+            $row['Amount Of Seed Received'] = 1;
         }
 
         if (!$row['Signed']) {
@@ -368,13 +389,8 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, WithCh
         }
     }
 
-    public function chunkSize(): int
+    public function startRow(): int
     {
-        return 1000;
-    }
-
-    public function batchSize(): int
-    {
-        return 1000;
+        return 3;
     }
 }

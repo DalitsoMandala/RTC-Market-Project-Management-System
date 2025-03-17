@@ -62,15 +62,16 @@
                             }">
                                 <label class="form-label">Crop</label>
                                 <div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input @error('crop') is-invalid @enderror"
-                                            type="radio" wire:model.live="crop" id="crop_ofsp" value="OFSP">
-                                        <label class="form-check-label text-uppercase" for="crop_ofsp">OFSP</label>
-                                    </div>
+
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input @error('crop') is-invalid @enderror"
                                             type="radio" wire:model.live="crop" id="crop_potato" value="Potato">
                                         <label class="form-check-label" for="crop_potato">Potato</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input @error('crop') is-invalid @enderror"
+                                            type="radio" wire:model.live="crop" id="crop_ofsp" value="OFSP">
+                                        <label class="form-check-label text-uppercase" for="crop_ofsp">OFSP</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input @error('crop') is-invalid @enderror"
@@ -178,7 +179,7 @@
                                 @error('sex')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                                <div class="form-text text-muted">1 = Male, 2 = Female</div>
+
                             </div>
 
                             <!-- Age -->
@@ -205,8 +206,7 @@
                                 @error('marital_status')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                                <div class="form-text text-muted">1 = Married, 2 = Single, 3 = Divorced, 4 =
-                                    Widow/er</div>
+
                             </div>
 
                             <!-- Household Head -->
@@ -222,7 +222,7 @@
                                 @error('hh_head')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                                <div class="form-text text-muted">1 = MHH, 2 = FHH, 3 = CHH</div>
+
                             </div>
 
                             <!-- Household Size -->
@@ -255,81 +255,85 @@
 
 
                                     <div class="mb-3 " wire:ignore x-data="{
-                                    
+
                                         selectedVarieties: $wire.entangle('selectedVarieties'),
                                         variety_received: $wire.entangle('variety_received'),
+                                        varieties: $wire.entangle('varieties'),
                                     }" x-init="() => {
-                                    
+
                                         $('#select-crop').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-                                    
+
                                         $wire.on('get-varieties', (e) => {
                                             const selectElement = $('#select-crop');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
-                                    
+
+
+
                                             arrayOfObjects.forEach(data => {
-                                    
-                                                let newOption = new Option(data.name, data.id, false, false);
+                                                let name = data.name;
+                                                let newOption = new Option(name.replace('_', ' '), data.id, false, false);
                                                 selectElement.append(newOption);
                                             });
                                             // Refresh Select2 to reflect changes
                                             selectElement.trigger('change');
-                                    
+
                                         })
-                                    
+
                                         $('#select-crop').on('select2:select', function(e) {
-                                            const data = $(this).val();
-                                            let joinedData = data.join(',');
-                                            variety_received = joinedData;
-                                    
-                                            var selectedData = $(this).select2('data');
-                                            var selectedNames = selectedData.map(item => item.text); // Get selected names (text)
-                                            selectedVarieties = selectedNames;
-                                    
+                                            const data = $(this).select2('data');
+                                            selectedVarieties = data.map((item) => {
+                                                return {
+                                                    id: item.id,
+                                                    name: item.text
+                                                }
+                                            });
+
+
+
+
                                         });
-                                    
+
                                         $('#select-crop').on('select2:unselect', function(e) {
-                                            const data = $(this).val();
-                                    
+                                            const data = $(this).select2('data');
                                             if (data.length === 0) {
-                                                variety_received = null;
+
                                                 selectedVarieties = [];
-                                    
+
                                             } else {
-                                    
-                                                let joinedData = data.join(',');
-                                                variety_received = joinedData;
-                                    
-                                                var selectedData = $(this).select2('data');
-                                                var selectedNames = selectedData.map(item => item.text); // Get selected names (text)
-                                                selectedVarieties = selectedNames;
+
+                                                selectedVarieties = data.map((item) => {
+                                                    return {
+                                                        id: item.id,
+                                                        name: item.text
+                                                    }
+                                                });
+
                                             }
-                                    
-                                    
-                                    
-                                    
-                                    
+
+
+
+
+
                                         });
-                                    
+
                                     }">
                                         <label for="" class="form-label">Variety recieved</label>
 
                                         <select x-ref="select" class="form-select" id="select-crop" multiple>
-
-                                            @foreach ($varieties as $variety)
-                                                <option value="{{ $variety['name'] }}" class="text-capitalize">
-                                                    {{ str_replace('_', ' ', $variety['name']) }}
-
-                                                </option>
-                                            @endforeach
+                                            <template x-for="variety in varieties">
+                                                <option :value="variety.id" x-text="variety.name"></option>
+                                            </template>
+                                            {{-- @foreach ($varieties as $variety)
+                                                <option value="{{ $variety['id'] }}" class="text-capitalize">
+                                                    {{ str_replace('_', ' ', $variety['name']) }}</option>
+                                            @endforeach --}}
                                         </select>
                                     </div>
                                 </div>
@@ -342,8 +346,21 @@
 
 
                             <!-- Bundles Received -->
-                            <div class="mb-3">
-                                <label class="form-label">Bundles Received (Tons/KGs)</label>
+                            <div class="mb-3" x-data="{
+                                seed_type: 'Ton/KG',
+                                selectedCrop: $wire.entangle('crop')
+                            }" x-init="() => {
+                                $watch('selectedCrop', (value) => {
+                                    if (value === 'Potato') {
+                                        seed_type = 'Tons/KG';
+                                    } else {
+                                        seed_type = 'Bundles'
+                                    }
+                                })
+
+                            }">
+                                <label class="form-label">Amount Of Seed Received <span class="fw-bold"
+                                        x-text="'('+seed_type+')'"></span></label>
                                 <input type="number"
                                     class="form-control @error('bundles_received') is-invalid @enderror"
                                     wire:model="bundles_received" min="1">

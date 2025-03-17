@@ -27,6 +27,7 @@ return new class extends Migration {
             $table->string('sex');
             $table->string('organization')->nullable();
             $table->string('designation')->nullable();
+            $table->string('category')->default('partner');
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade')->onUpdate('cascade');

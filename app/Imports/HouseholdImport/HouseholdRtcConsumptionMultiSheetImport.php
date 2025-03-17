@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Notifications\JobNotification;
 use App\Models\HouseholdRtcConsumption;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+
 use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Validators\Failure;
@@ -22,13 +23,16 @@ use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Events\ImportFailed;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
+use App\Helpers\PriorImportValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use App\Notifications\ImportFailureNotification;
+use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Imports\HouseholdImport\MainFoodSheetImport;
 use App\Imports\HouseholdImport\HouseholdSheetImport;
-use App\Notifications\ImportFailureNotification;
-use App\Notifications\ImportSuccessNotification;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 
@@ -87,60 +91,68 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
         ];
     }
 
+
+    private function getSheetHeaders(Worksheet $sheet): array
+    {
+        $highestColumn = $sheet->getHighestColumn();
+        $headerCells = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, false);
+        return $headerCells[0] ?? [];
+    }
+
+    private function validateHeaders(array $actualHeaders, array $expectedHeaders): bool
+    {
+        return array_values(array_map('trim', $actualHeaders)) === array_values(array_map('trim', $expectedHeaders));
+    }
+
     public function registerEvents(): array
     {
         return [
             // Handle by a closure.
             BeforeImport::class => function (BeforeImport $event) {
-                $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
 
-                // Check if all expected sheets are present
-                foreach ($this->expectedSheetNames as $expectedSheetName) {
-                    if (!in_array($expectedSheetName, $sheetNames)) {
-                        Log::error("Missing expected sheet: {$expectedSheetName}");
-                        throw new ExcelValidationException(
-                            "The sheet '{$expectedSheetName}' is missing. Please ensure the file contains all required sheets."
-                        );
+
+                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
+                $reader = IOFactory::createReaderForFile($this->filePath);
+                $spreadsheet = $reader->load($this->filePath);
+                $sheetNames = $spreadsheet->getSheetNames();
+
+
+                $workBook = $event->reader->getTotalRows();
+
+                foreach ($workBook as $sheetName => $totalRows) {
+                    // Check if the sheet is blank
+                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
+                        if ($sheetName === $firstSheetName) {
+                            // Log error if the first sheet is blank
+                            Log::error("The sheet '{$firstSheetName}' is blank.");
+                            throw new ExcelValidationException(
+                                "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
+                            );
+                        }
                     }
                 }
 
-                // Check for any unexpected sheets
-                foreach ($sheetNames as $sheetName) {
-                    if (!in_array($sheetName, $this->expectedSheetNames)) {
-                        Log::error("Unexpected sheet name: {$sheetName}");
 
-                        throw new ExcelValidationException(
-                            "Unexpected sheet: '{$sheetName}' in file."
-                        );
+
+
+                // Validate headers and missing sheet names
+                foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
+                    // Check if sheet exists
+                    if (!in_array($sheetName, $sheetNames)) {
+                        throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
+                    }
+
+                    // Get the sheet by name
+                    $sheet = $spreadsheet->getSheetByName($sheetName);
+
+                    // Validate headers
+                    $actualHeaders = $this->getSheetHeaders($sheet);
+                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
+                        throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
                     }
                 }
 
 
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
-
-                foreach ($sheets as $key => $sheet) {
-
-                    if ($sheet <= 1 && $key == $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-                    }
-                }
-
-                $filePath = $this->filePath;
-                $expectedSheetNames = $this->expectedSheetNames;
-                $expectedHeaders = $this->expectedHeaders;
-
-                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
-                $message = $validator->validateHeaders();
-
-                if ($message) {
-                    throw new ExcelValidationException($message->getMessage());
-                }
 
                 // Get total rows from both sheets
                 $rowCounts = $event->reader->getTotalRows();
@@ -163,19 +175,20 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                 Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
             },
             AfterImport::class => function (AfterImport $event) {
+                // Finalize Submission record after import completes
+
                 $user = User::find($this->submissionDetails['user_id']);
-
-
+                //     $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
                 if ($user->hasAnyRole('manager')) {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
+                        'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
                         'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -183,6 +196,28 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         new ImportSuccessNotification(
                             $this->cacheKey,
                             route('cip-submissions', [
+                                'batch' => $this->cacheKey,
+                            ], true) . '#batch-submission'
+
+                        )
+                    );
+                } else if ($user->hasAnyRole('admin')) {
+                    Submission::create([
+                        'batch_no' => $this->submissionDetails['batch_no'],
+                        'form_id' => $this->submissionDetails['form_id'],
+                        'period_id' => $this->submissionDetails['submission_period_id'],
+                        'user_id' => $this->submissionDetails['user_id'],
+                        'status' => 'approved',
+                        'batch_type' => 'batch',
+                        'is_complete' => 1,
+                        'table_name' => 'rtc_production_farmers',
+                        'file_link' => $this->submissionDetails['file_link']
+                    ]);
+
+                    $user->notify(
+                        new ImportSuccessNotification(
+                            $this->cacheKey,
+                            route('admin-submissions', [
                                 'batch' => $this->cacheKey,
                             ], true) . '#batch-submission'
 
@@ -197,7 +232,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -210,25 +245,27 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     ));
                 } else {
                     Submission::create([
-                        'batch_no' => $this->cacheKey,
+                        'batch_no' => $this->submissionDetails['batch_no'],
                         'form_id' => $this->submissionDetails['form_id'],
                         'period_id' => $this->submissionDetails['submission_period_id'],
                         'user_id' => $this->submissionDetails['user_id'],
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'household_rtc_consumption',
+                        'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
-                    $user->notify(new ImportSuccessNotification(
-                        $this->cacheKey,
-                        route('external-submissions', [
-                            'batch' => $this->cacheKey,
-                        ], true) . '#batch-submission'
-
-
-                    ));
                 }
+                $user->notify(new ImportSuccessNotification(
+                    $this->cacheKey,
+                    route('external-submissions', [
+                        'batch' => $this->cacheKey,
+                    ], true) . '#batch-submission'
+
+
+                ));
+
+
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -238,7 +275,6 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
                     ]
                 );
             },
-
             ImportFailed::class => function (ImportFailed $event) {
 
                 $exception = $event->getException();
@@ -266,8 +302,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
 
 
                 Log::error($exception->getMessage());
-            }
-
+            },
 
 
 
@@ -279,5 +314,10 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
     public function chunkSize(): int
     {
         return 1000; // Process 1000 rows per chunk
+    }
+
+    public function batchSize(): int
+    {
+        return 1000;
     }
 }

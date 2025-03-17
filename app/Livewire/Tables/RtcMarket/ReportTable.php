@@ -50,7 +50,7 @@ final class ReportTable extends PowerGridComponent
 
             Header::make()->showSearchInput()
                 ->includeViewOnTop('components.export-component'),
-               // ->includeViewOnBottom('components.import-button'),
+            // ->includeViewOnBottom('components.import-button'),
 
             Footer::make()
                 ->showPerPage(10)
@@ -75,13 +75,79 @@ final class ReportTable extends PowerGridComponent
     }
 
 
+    // public function datasource(): Builder
+    // {
+    //     // Start building the query for SystemReportData and eager load systemReport
+    //     $query = SystemReportData::query()->with('systemReport')
+    //         ->join('system_reports', function ($join) {
+    //             $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
+    //         })
+    //         ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
+    //         ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
+    //         ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
+    //         ->select([
+    //             'system_report_data.*',
+    //             'indicators.indicator_name as indicator_name',
+    //             'indicators.indicator_no as indicator_no',
+    //             'organisations.name as organisation_name',
+    //             'financial_years.number as financial_year',
+    //         ]);
+
+
+
+    //     // If any of the filters are provided, apply them
+    //     if (
+    //         !is_null($this->organisation_id) || !is_null($this->reporting_period) || !is_null($this->financial_year) ||
+    //         !is_null($this->disaggregation) || !is_null($this->indicator)
+    //     ) {
+
+    //         if (!is_null($this->disaggregation)) {
+    //             // Assuming disaggregations is a column you want to filter by
+    //             $query->where('system_report_data.name', $this->disaggregation);
+    //         }
+
+    //         // Get the indicators associated with the organisation if organisation_id is set
+    //         $indicators = [];
+    //         if (!is_null($this->organisation_id)) {
+    //             $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)->pluck('indicator_id')->toArray();
+    //         }
+
+
+    //         // Apply the filters to the query based on the available conditions
+    //         $query->whereHas('systemReport', function ($query) use ($indicators) {
+    //             if (!is_null($this->organisation_id)) {
+    //                 $query->where('organisation_id', $this->organisation_id);
+    //             }
+    //             if (!is_null($indicators)) {
+    //                 if (!is_null($this->indicator)) {
+
+    //                     $valueToKeep = intval($this->indicator);
+
+    //                     // Filter the array to keep only the element(s) with the specified value
+    //                     $result = array_filter($indicators, fn($value) => $value === $valueToKeep);
+
+    //                     $query->whereIn('indicator_id', $result);
+    //                 } else {
+    //                     $query->whereIn('indicator_id', $indicators);
+    //                 }
+    //             }
+    //             if (!is_null($this->financial_year)) {
+    //                 $query->where('financial_year_id', $this->financial_year);
+    //             }
+    //             if (!is_null($this->reporting_period)) {
+    //                 $query->where('reporting_period_id', $this->reporting_period);
+    //             }
+    //         });
+    //     }
+
+    //     return $query;
+    // }
+
     public function datasource(): Builder
     {
         // Start building the query for SystemReportData and eager load systemReport
         $query = SystemReportData::query()->with('systemReport')
-            ->join('system_reports', function ($join) {
-                $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
-            })
+            ->join('system_reports', 'system_reports.id', '=', 'system_report_data.system_report_id')
             ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
             ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
             ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
@@ -93,54 +159,76 @@ final class ReportTable extends PowerGridComponent
                 'financial_years.number as financial_year',
             ]);
 
-
-
-        // If any of the filters are provided, apply them
-        if (
-            !is_null($this->organisation_id) || !is_null($this->reporting_period) || !is_null($this->financial_year) ||
-            !is_null($this->disaggregation) || !is_null($this->indicator)
-        ) {
-
-            if (!is_null($this->disaggregation)) {
-                // Assuming disaggregations is a column you want to filter by
-                $query->where('system_report_data.name', $this->disaggregation);
-            }
-
-            // Get the indicators associated with the organisation if organisation_id is set
-            $indicators = [];
-            if (!is_null($this->organisation_id)) {
-                $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)->pluck('indicator_id')->toArray();
-            }
-
-
-            // Apply the filters to the query based on the available conditions
-            $query->whereHas('systemReport', function ($query) use ($indicators) {
-                if (!is_null($this->organisation_id)) {
-                    $query->where('organisation_id', $this->organisation_id);
-                }
-                if (!is_null($indicators)) {
-                    if (!is_null($this->indicator)) {
-
-                        $valueToKeep = intval($this->indicator);
-
-                        // Filter the array to keep only the element(s) with the specified value
-                        $result = array_filter($indicators, fn($value) => $value === $valueToKeep);
-
-                        $query->whereIn('indicator_id', $result);
-                    } else {
-                        $query->whereIn('indicator_id', $indicators);
-                    }
-                }
-                if (!is_null($this->financial_year)) {
-                    $query->where('financial_year_id', $this->financial_year);
-                }
-                if (!is_null($this->reporting_period)) {
-                    $query->where('reporting_period_id', $this->reporting_period);
-                }
-            });
+        // Apply filters if any are provided
+        if ($this->hasFilters()) {
+            $this->applyFilters($query);
         }
 
         return $query;
+    }
+
+    /**
+     * Check if any filters are set.
+     */
+    private function hasFilters(): bool
+    {
+        return !is_null($this->organisation_id) ||
+            !is_null($this->reporting_period) ||
+            !is_null($this->financial_year) ||
+            !is_null($this->disaggregation) ||
+            !is_null($this->indicator);
+    }
+
+    /**
+     * Apply filters to the query.
+     */
+    private function applyFilters(Builder $query): void
+    {
+        // Filter by disaggregation if set
+        if (!is_null($this->disaggregation)) {
+            $query->where('system_report_data.name', $this->disaggregation);
+        }
+
+        // Get indicators associated with the organisation if organisation_id is set
+        $indicators = [];
+        if (!is_null($this->organisation_id)) {
+            $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)
+                ->pluck('indicator_id')
+                ->toArray();
+        }
+
+        // Apply filters to the systemReport relationship
+        $query->whereHas('systemReport', function ($query) use ($indicators) {
+            if (!is_null($this->organisation_id)) {
+                $query->where('organisation_id', $this->organisation_id);
+            }
+
+            if (!is_null($this->financial_year)) {
+                $query->where('financial_year_id', $this->financial_year);
+            }
+
+            if (!is_null($this->reporting_period)) {
+                $query->where('reporting_period_id', $this->reporting_period);
+            }
+
+            if (!empty($indicators)) {
+                $this->applyIndicatorFilter($query, $indicators);
+            }
+        });
+    }
+
+    /**
+     * Apply indicator filter to the query.
+     */
+    private function applyIndicatorFilter(Builder $query, array $indicators): void
+    {
+        if (!is_null($this->indicator)) {
+            // Filter indicators to match the specific indicator if provided
+            $query->whereIn('indicator_id', array_filter($indicators, fn($value) => $value === intval($this->indicator)));
+        } else {
+            // Otherwise, filter by all indicators associated with the organisation
+            $query->whereIn('indicator_id', $indicators);
+        }
     }
     public function relationSearch(): array
     {

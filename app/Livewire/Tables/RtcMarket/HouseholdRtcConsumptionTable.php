@@ -70,7 +70,7 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
             return HouseholdRtcConsumption::query()->where('organisation_id', $organisation_id);
         }
 
-        return HouseholdRtcConsumption::query()->join('hrc_rtc_main_food', function ($join) {
+        return HouseholdRtcConsumption::query()->leftJoin('hrc_rtc_main_food', function ($join) {
             $join->on('hrc_rtc_main_food.hrc_id', '=', 'household_rtc_consumption.id');
         })->with([
             'mainFoods',
@@ -123,22 +123,22 @@ final class HouseholdRtcConsumptionTable extends PowerGridComponent
 
 
                 return $model->mainFoods->pluck('name')->contains('Potato') ?
-                    '<div class="badge bg-success-subtle"><i class="bx bx-check text-success fs-4"></i></div>'
-                    : '<div class="badge bg-danger-subtle"><i class="bx bx-x text-danger fs-4"></i></div>';
+                    '<div class="badge bg-success-subtle"  ><i title="Yes" class=" custom-tooltip bx bx-check text-success fs-4"></i></div>'
+                    : '<div class="badge bg-danger-subtle" >   <i title="No" class="custom-tooltip bx bx-x text-danger fs-4"></i></div>';
             })
             ->add('rtc_main_food_sw_potato', function ($model) {
                 return $model->mainFoods->pluck('name')->contains('Sweet potato') ?
 
-                    '<div class="badge bg-success-subtle"><i class="bx bx-check text-success fs-4"></i></div>'
-                    : '<div class="badge bg-danger-subtle"><i class="bx bx-x text-danger fs-4"></i></div>';
+                    '<div class="badge bg-success-subtle"  ><i title="Yes" class=" custom-tooltip bx bx-check text-success fs-4"></i></div>'
+                    : '<div class="badge bg-danger-subtle"  ><i title="No" class="custom-tooltip bx bx-x text-danger fs-4"></i></div>';
             })
 
 
             ->add('rtc_main_food_cassava', function ($model) {
                 return $model->mainFoods->pluck('name')->contains('Cassava') ?
 
-                    '<div class="badge bg-success-subtle"><i class="bx bx-check text-success fs-4"></i></div>'
-                    : '<div class="badge bg-danger-subtle"><i class="bx bx-x text-danger fs-4"></i></div>';
+                    '<div class="badge bg-success-subtle"  ><i title="Yes" class=" custom-tooltip bx bx-check text-success fs-4"></i></div>'
+                    : '<div class="badge bg-danger-subtle"  ><i title="No" class="custom-tooltip bx bx-x text-danger fs-4"></i></div>';
             })
             ->add('rtc_consumption_frequency')
             ->add('submitted_by', function ($model) {

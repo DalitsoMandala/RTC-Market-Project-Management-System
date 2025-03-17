@@ -6,11 +6,20 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\RpmFarmerMarketInformationSystem;
+use App\Traits\ExportStylingTrait;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison
+class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
+    use ExportStylingTrait;
     public $template;
+    public $validationTypes = [
+
+        'Name' => 'Text',
+        'Farmer ID' => 'Exists in Production Farmers Sheet',
+    ];
 
     public function __construct($template)
     {
@@ -29,8 +38,11 @@ class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
     {
         // Exclude 'ID' from the headings
         return [
-            'Name',
-            'Farmer ID'
+            [
+                'Name',
+                'Farmer ID'
+            ],
+            array_values($this->validationTypes)
         ];
     }
 

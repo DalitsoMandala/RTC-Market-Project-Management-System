@@ -25,9 +25,11 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
 HeadingRowFormatter::default('none');
-class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, WithEvents, SkipsOnFailure
+class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, WithEvents, SkipsOnFailure, WithStartRow
 {
     use Importable, RegistersEventListeners;
 
@@ -46,9 +48,30 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Assessment'] =  $this->convertExcelDate($row['Date of Assessment']);
 
 
+        if (isset($row['Date of Assessment'])) {
+            $row['Date of Assessment'] = $this->convertExcelDate($row['Date of Assessment']);
+        }
+        if ($row['Sex']) {
+            $sex = $row['Sex'];
+            if (is_numeric($sex)) {
+                $sex = match ($sex) {
+                    1 => 'Male',
+                    2 => 'Female',
+
+                    default => 'Male',
+                };
+            } elseif (is_string($sex)) {
+                $sex = strtolower($sex);
+                $sex = match ($sex) {
+                    'm' => 'Male',
+                    'f' => 'Female',
+
+                    default => 'Male',
+                };
+            }
+        }
 
         return $row;
     }
@@ -64,15 +87,6 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             $status = 'approved';
         }
 
-        $sex = $row['Sex'];
-        if (is_numeric($sex)) {
-            $sex = match ($sex) {
-                1 => 'Male',
-                2 => 'Female',
-
-                default => $sex
-            };
-        }
         $dateOfAssessment = Carbon::parse($row['Date of Assessment'])->format('Y-m-d');
 
 
@@ -87,7 +101,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'producer_organisation' => $row['Producer Organisation'],
             'actor_name' => $row['Actor Name'],
             'age_group' => $row['Age Group'],
-            'sex' => $sex,
+            'sex' => $row['Sex'],
             'phone_number' => $row['Phone Number'],
             'household_size' => $row['Household Size'],
             'under_5_in_household' => $row['Under 5 in Household'],
@@ -122,7 +136,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            \Log::info('Validation Error', [
+            Log::info('Validation Error', [
                 'row_number' => $failure->row(),
                 'failed_field' => $failure->attribute(),
                 'error_message' => $failure->errors(),
@@ -149,7 +163,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Producer Organisation' => 'nullable|string|max:255',
             'Actor Name' => 'nullable|string|max:255',
             'Age Group' => 'nullable|string|max:255', // Customize as needed based on expected age group values
-            'Sex' => 'nullable|in:Male,Female,1,2', // Limit to specific options
+            'Sex' => 'nullable|in:Male,Female', // Limit to specific options
             'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
             'Household Size' => 'nullable|integer|min:0', // Minimum 1 household member
             'Under 5 in Household' => 'nullable|integer|min:0', // Minimum 0
@@ -163,8 +177,9 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         ];
     }
 
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3;
     }
 }

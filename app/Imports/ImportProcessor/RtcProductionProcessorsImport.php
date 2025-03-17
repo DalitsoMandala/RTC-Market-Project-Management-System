@@ -14,15 +14,18 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
-class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
     protected $totalRows = 0;
+
+
 
     public function __construct($data, $cacheKey, $totalRows)
     {
@@ -118,9 +121,10 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
     public function prepareForValidation(array $row)
     {
-        $row['Date of Recruitment'] = $this->convertExcelDate($row['Date of Recruitment']);
-        $row['Registration Date'] =  $this->convertExcelDate($row['Registration Date']);
-        $row['Production Value Date of Max Sales'] = $this->convertExcelDate($row['Production Value Date of Max Sales']);
+        $row['Date of Recruitment'] = $this->convertExcelDate($row['Date of Recruitment'], $row);
+        $row['Registration Date'] =  $this->convertExcelDate($row['Registration Date'], $row);
+        $row['Production Value Date of Max Sales'] = $this->convertExcelDate($row['Production Value Date of Max Sales'], $row);
+
         return $row;
     }
 
@@ -173,13 +177,8 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         ];
     }
 
-    public function chunkSize(): int
+    public function startRow(): int
     {
-        return 1000;
-    }
-
-    public function batchSize(): int
-    {
-        return 1000;
+        return 3;
     }
 }

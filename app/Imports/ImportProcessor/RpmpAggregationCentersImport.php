@@ -8,16 +8,18 @@ use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToModel;
 
 use App\Models\RpmProcessorAggregationCenter;
+use App\Traits\newIDTrait;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -32,16 +34,11 @@ class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
 
     public function model(array $row)
     {
-        // Retrieve the actual Processor ID using the sheet's 'ID'
-        $processorId = Cache::get("processor_id_mapping_{$this->cacheKey}_{$row['Processor ID']}");
-        if (!$processorId) {
-            Log::error("Processor ID not found for Aggregation Center row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
+
 
         // Create the RpmProcessorAggregationCenter record
         $aggregationCenterRecord = RpmProcessorAggregationCenter::create([
-            'rpmp_id' => $processorId,
+            'rpmp_id' => $row['Processor ID'],
             'name' => $row['Aggregation Center Name'], // assuming "Name" is a column in the import sheet
         ]);
 
@@ -54,6 +51,13 @@ class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
         }
 
         return $aggregationCenterRecord;
+    }
+
+    use newIDTrait;
+    public function prepareForValidation(array $row)
+    {
+        $row['Processor ID'] = $this->validateNewIdForProcessors("processor_id_mapping", $this->cacheKey, $row, "Processor ID");
+        return $row;
     }
     public function onFailure(Failure ...$failures)
     {
@@ -72,8 +76,9 @@ class RpmpAggregationCentersImport implements ToModel, WithHeadingRow, WithValid
         ];
     }
 
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3; // Start reading data from row 2
     }
 }

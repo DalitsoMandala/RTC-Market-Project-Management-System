@@ -19,11 +19,12 @@ use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
-class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
 
@@ -174,7 +175,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
                 'household_size' => $row['Household Size'],
                 'children_under_5' => $row['Children Under 5 in HH'],
                 'variety_received' => $row['Variety Received'],
-                'bundles_received' => $row['Bundles Received'],
+                'bundles_received' => $row['Amount Received'],
                 'phone_number' => $row['Phone Number'],
                 'user_id' =>    $this->submissionDetails['user_id'],
                 'signed' => $row['Signed'],
@@ -238,7 +239,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
             'Household Size' => 'nullable|integer|min:1',
             'Children Under 5 in HH' => 'nullable|integer|min:0',
             'Variety Received' => ['nullable', 'max:255'],
-            'Bundles Received' => ['nullable', 'max:255'],
+            'Amount Received' => ['nullable', 'max:255'],
             'National ID' => 'nullable|max:255',
             'Phone Number' => 'nullable|max:255',
             'Signed' => 'nullable|integer:min:0',
@@ -269,7 +270,27 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
         }
 
         if (!$row['Sex']) {
-            $row['Sex'] = 'Male';
+            $row['Sex'] = 'NA';
+        }
+
+        if ($row['Sex']) {
+            $sex = $row['Sex'];
+            if (is_numeric($sex)) {
+                $sex = match ($sex) {
+                    1 => 'Male',
+                    2 => 'Female',
+
+                    default => 'Male',
+                };
+            } elseif (is_string($sex)) {
+                $sex = strtolower($sex);
+                $sex = match ($sex) {
+                    'm' => 'Male',
+                    'f' => 'Female',
+
+                    default => 'Male',
+                };
+            }
         }
         if (!$row['Marital Status'] || is_string($row['Marital Status'])) {
             $row['Marital Status'] = 1;
@@ -315,15 +336,15 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
         }
 
 
-        if (!$row['Bundles Received']) {
+        if (!$row['Amount Received']) {
 
 
 
-            $row['Bundles Received'] = 0;
+            $row['Amount Received'] = 0;
         }
 
-        if (is_string($row['Bundles Received'])) {
-            $row['Bundles Received'] = 1;
+        if (is_string($row['Amount Received'])) {
+            $row['Amount Received'] = 1;
         }
 
         if (!$row['Signed']) {
@@ -368,13 +389,8 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
         }
     }
 
-    public function chunkSize(): int
+    public function startRow(): int
     {
-        return 1000;
-    }
-
-    public function batchSize(): int
-    {
-        return 1000;
+        return 3;
     }
 }

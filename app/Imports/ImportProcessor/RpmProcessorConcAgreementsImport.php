@@ -7,17 +7,19 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\JobProgress;
 use App\Traits\excelDateFormat;
+use App\Traits\newIDTrait;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
-class RpmProcessorConcAgreementsImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading, SkipsOnFailure
+class RpmProcessorConcAgreementsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -32,16 +34,11 @@ class RpmProcessorConcAgreementsImport implements ToModel, WithHeadingRow, WithV
 
     public function model(array $row)
     {
-        // Retrieve the actual Processor ID using the sheet's 'ID'
-        $processorId = Cache::get("processor_id_mapping_{$this->cacheKey}_{$row['Processor ID']}");
-        if (!$processorId) {
-            Log::error("Processor ID not found for Contractual Agreement row: " . json_encode($row));
-            return null; // Skip row if mapping is missing
-        }
+
 
         // Create the RpmProcessorConcAgreement record
         $agreementRecord = RpmProcessorConcAgreement::create([
-            'rpm_processor_id' => $processorId,
+            'rpm_processor_id' => $row['Processor ID'],
             'date_recorded' => \Carbon\Carbon::parse($row['Date Recorded'])->format('Y-m-d'),
             'partner_name' => $row['Partner Name'],
             'country' => $row['Country'],
@@ -65,10 +62,13 @@ class RpmProcessorConcAgreementsImport implements ToModel, WithHeadingRow, WithV
 
 
     use excelDateFormat;
+    use newIDTrait;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale']);
-        $row['Date Recorded'] =  $this->convertExcelDate($row['Date Recorded']);
+        $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale'], $row);
+        $row['Date Recorded'] =  $this->convertExcelDate($row['Date Recorded'], $row);
+        $row['Processor ID'] = $this->validateNewIdForProcessors("processor_id_mapping", $this->cacheKey, $row, "Processor ID");
+
         return $row;
     }
 
@@ -95,8 +95,9 @@ class RpmProcessorConcAgreementsImport implements ToModel, WithHeadingRow, WithV
             throw new \Exception($errorMessage);
         }
     }
-    public function chunkSize(): int
+
+    public function startRow(): int
     {
-        return 1000; // Process 1000 rows at a time
+        return 3; // Skip the header row
     }
 }

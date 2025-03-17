@@ -3,18 +3,35 @@
 namespace App\Exports\ExportProcessor;
 
 use Carbon\Carbon;
+use App\Traits\ExportStylingTrait;
 use App\Models\RpmProcessorDomMarket;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, WithTitle, WithMapping, WithStrictNullComparison
+class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, WithTitle, WithMapping, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
+    use ExportStylingTrait;
     protected $rowNumber = 0;
 
     public $template;
+
+    public $validationTypes = [
+        'Processor ID' => 'Exists in Production Processors Sheet',
+        'Date Recorded' => 'Date (dd-mm-yyyy)',
+        'Crop Type' => 'Required, Text, (Choose One)',
+        'Market Name' => 'Required, Text',
+        'District' => 'Text',
+        'Date of Maximum Sale' => 'Date (dd-mm-yyyy)',
+        'Product Type' => 'Text, (Choose One)',
+        'Volume Sold Previous Period' => 'Number (>=0)',
+        'Financial Value of Sales' => 'Number (>=0)',
+    ];
 
     public function __construct($template)
     {
@@ -33,20 +50,68 @@ class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, With
         });
         return $data;
     }
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $highestColumn = $sheet->getHighestColumn();
+                // Make the first row (header) bold
+                $sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 14,
+                    ],
+                ]);
 
+                // Set background color for the second row (A2:ZZ2)
+                $sheet->getStyle("A2:{$highestColumn}2")->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => 'FF0000'], // Red text
+                        'bold' => true,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFFFC5'], // Pink background
+                    ],
+
+                ]);
+
+                $options = [
+                    '',
+                    'Seed',
+                    'Ware',
+                    'Value added products'
+                ];
+
+                $this->setDataValidations($options, 'G3', $sheet);
+
+                $options = [
+                    '',
+                    'Cassava',
+                    'Sweet potato',
+                    'Potato'
+                ];
+                $this->setDataValidations($options, 'C3', $sheet);
+            },
+        ];
+    }
     public function headings(): array
     {
         return [
 
-            'Processor ID',
-            'Date Recorded',
-            'Crop Type',
-            'Market Name',
-            'District',
-            'Date of Maximum Sale',
-            'Product Type',
-            'Volume Sold Previous Period',
-            'Financial Value of Sales'
+            [
+                'Processor ID',
+                'Date Recorded',
+                'Crop Type',
+                'Market Name',
+                'District',
+                'Date of Maximum Sale',
+                'Product Type',
+                'Volume Sold Previous Period',
+                'Financial Value of Sales'
+            ],
+            array_values($this->validationTypes)
         ];
     }
 

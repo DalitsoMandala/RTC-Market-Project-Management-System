@@ -35,6 +35,9 @@ trait CheckProgressTrait
             } else if ($user->hasAnyRole('staff')) {
                 session()->flash('success', 'Successfully submitted!');
                 $this->redirect(route('cip-staff-submissions') . '#batch-submission');
+            } else if ($user->hasAnyRole('admin')) {
+                session()->flash('success', 'Successfully submitted!');
+                $this->redirect(route('admin-submissions') . '#batch-submission');
             } else {
                 session()->flash('success', 'Successfully submitted!');
                 $this->redirect(route('cip-submissions') . '#batch-submission');
