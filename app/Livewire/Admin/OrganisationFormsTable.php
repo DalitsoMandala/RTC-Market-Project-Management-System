@@ -46,7 +46,7 @@ final class OrganisationFormsTable extends PowerGridComponent
             'organisation',
             'forms',
             'responsiblePeopleforIndicators',
-            'responsiblePeopleforIndicators.sources'
+            // 'responsiblePeopleforIndicators.sources'
         ]);
     }
 
@@ -63,35 +63,35 @@ final class OrganisationFormsTable extends PowerGridComponent
             ->add('indicator_id')
             ->add('indicator_no', fn($model) => $model->indicator_no)
             ->add('indicator', fn($model) => $model->indicator_name)
-            ->add('forms', function ($model) {
-                $sources = $model->responsiblePeopleforIndicators->pluck('id');
+            // ->add('forms', function ($model) {
+            //     $sources = $model->responsiblePeopleforIndicators->pluck('id');
 
-                $assigned = Source::whereIn('person_id', $sources)->get();
+            //     $assigned = Source::whereIn('person_id', $sources)->get();
 
-                $arrayMap = [];
+            //     $arrayMap = [];
 
-                foreach ($assigned as $source) {
-                    $form = Form::find($source->form_id)->name;
-                    $person = ResponsiblePerson::where('id', $source->person_id)
-                        ->where('indicator_id', $model->id)
-                        ->first();
-                    $organisation = $person->organisation->name;
+            //     foreach ($assigned as $source) {
+            //         $form = Form::find($source->form_id)->name;
+            //         $person = ResponsiblePerson::where('id', $source->person_id)
+            //             ->where('indicator_id', $model->id)
+            //             ->first();
+            //         $organisation = $person->organisation->name;
 
-                    // Append the form name to the corresponding organisation in the array map
-                    $arrayMap[$organisation][] = $form;
-                }
+            //         // Append the form name to the corresponding organisation in the array map
+            //         $arrayMap[$organisation][] = $form;
+            //     }
 
-                // Generate the HTML for the Bootstrap list group
-                $html = '<ul class="list-group">';
+            //     // Generate the HTML for the Bootstrap list group
+            //     $html = '<ul class="list-group">';
 
-                foreach ($arrayMap as $organisation => $forms) {
-                    $html .= '<li class="list-group-item"><b>' . $organisation . '</b> (' . implode(', ', $forms) . ')</li>';
-                }
+            //     foreach ($arrayMap as $organisation => $forms) {
+            //         $html .= '<li class="list-group-item"><b>' . $organisation . '</b> (' . implode(', ', $forms) . ')</li>';
+            //     }
 
-                $html .= '</ul>';
+            //     $html .= '</ul>';
 
-                return $html;
-            })
+            //     return $html;
+            // })
 
 
             ->add('type_of_submission')
@@ -109,7 +109,7 @@ final class OrganisationFormsTable extends PowerGridComponent
             Column::make('Indicator', 'indicator', 'indicator_name')->searchable(),
             Column::make('Organisation', 'organisation')->searchable(),
 
-            Column::make('Assigned Forms', 'forms')->searchable(),
+            //  Column::make('Assigned Forms', 'forms')->searchable(),
 
 
 

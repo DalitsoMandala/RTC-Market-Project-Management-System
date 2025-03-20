@@ -33,7 +33,7 @@ use App\Notifications\ManualDataAddedNotification;
 class Add extends Component
 {
     use LivewireAlert;
-    public $form_name = 'RTC PRODUCTION AND MARKETING FORM PROCESSORS';
+    public $form_name = 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS';
     public $selectedIndicator, $submissionPeriodId;
     public $location_data = [
         'enterprise' => 'Cassava',

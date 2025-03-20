@@ -60,7 +60,7 @@ final class FormTable extends PowerGridComponent
 
 
         $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
-            ->whereHas('sources')  // Ensure that the relationship 'sources' exists
+            // Ensure that the relationship 'sources' exists
             ->pluck('indicator_id')
             ->toArray();
 
@@ -72,7 +72,7 @@ final class FormTable extends PowerGridComponent
         ])->whereIn('indicator_id', $myIndicators)
             ->select([
                 '*',
-                \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
             ]);
 
 
@@ -311,12 +311,6 @@ final class FormTable extends PowerGridComponent
         // Check if the organisation has responsible people
         $hasResponsiblePeople = $responsiblePeople !== null;
 
-        // Check if the responsible person has the required form
-        $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->where('form_id', $row->form_id)->isNotEmpty() : false;
-
-        // Check if the organisation is responsible for the indicator
-        $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
-
 
         $currentDate = Carbon::now();
         $establishedDate = $row->date_established;
@@ -336,12 +330,12 @@ final class FormTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople  || !$withinDateRange)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople ||
                     ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
                 ->disable(),
         ];

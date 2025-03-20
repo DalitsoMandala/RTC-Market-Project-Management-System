@@ -11,6 +11,7 @@ use App\Models\Organisation;
 use Illuminate\Support\Carbon;
 use App\Models\SubmissionPeriod;
 use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -52,10 +53,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return SubmissionPeriod::query()->with([
             'form',
             'financialYears',
-            'reportingMonths'
+            'reportingMonths',
         ])->select([
             '*',
-            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
     }
 
@@ -91,12 +92,9 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('assigned', function ($model) {
                 $indicator = Indicator::find($model->indicator_id);
 
-                $checkIds = $indicator->responsiblePeopleforIndicators->pluck('id');
+                $checkIds = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
 
-
-                $sources = Source::whereIn('person_id', $checkIds)->where('form_id', $model->form_id)->pluck('person_id');
-                $responsiblePeople = $indicator->responsiblePeopleforIndicators->whereIn('id', $sources)->pluck('organisation_id');
-                $oganisations = Organisation::whereIn('id', $responsiblePeople)->pluck('name');
+                $oganisations = Organisation::whereIn('id', $checkIds)->pluck('name');
                 return implode(', ', $oganisations->toArray());
             })
 
@@ -372,13 +370,6 @@ final class SubmissionPeriodTable extends PowerGridComponent
         // Check if the organisation has responsible people
         $hasResponsiblePeople = $responsiblePeople !== null;
 
-        // Check if the responsible person has the required form
-        $hasFormAccess = $hasResponsiblePeople ? $responsiblePeople->sources->where('form_id', $row->form_id)->isNotEmpty() : false;
-
-        // Check if the organisation is responsible for the indicator
-        $isOrganisationResponsible = $indicator->responsiblePeopleforIndicators->pluck('organisation_id')->contains($organisationId);
-
-
         $currentDate = Carbon::now();
         $establishedDate = $row->date_established;
         $endDate = $row->end_date;
@@ -399,12 +390,12 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$hasFormAccess || !$withinDateRange)
+                ->when(fn() => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople || !$withinDateRange)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$isOrganisationResponsible ||
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople ||
                     ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
                 ->disable(),
         ];

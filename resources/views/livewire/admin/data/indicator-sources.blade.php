@@ -1,7 +1,7 @@
 <div>
     @section('title')
         Organisation forms
-@endsection
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -81,15 +81,15 @@
                         </div>
 
 
-
+                        
 
                     </div>
 
                     <div class="mb-3">
-                        <label for="" class="form-label">Select partner</label>
-                        <select class="form-select" name="" id=""
-                            wire:model.live.debounce.600ms='selectedLeadPartner'>
-                            <option selected>Select one</option>
+                        <label for="" class="form-label">Select partner for this indicator</label>
+                        <select class="form-select  @error('selectedLeadPartner') is-invalid @enderror" name=""
+                            id="" wire:model='selectedLeadPartner' multiple>
+
                             @foreach ($leadPartners as $organisation)
                                 <option value="{{ $organisation->id }}">{{ $organisation->name }}</option>
                             @endforeach
@@ -100,8 +100,20 @@
                         @enderror
                     </div>
 
+                    <!-- Some borders are removed -->
+                    <h5>Forms for this indicator</h5>
+                    <ul class="list-group list-group-flush">
 
-                    <div class="mb-3">
+                        @foreach ($forms as $form)
+                            <li class="italic list-group-item">
+                                <i class="bx bx-check text-success"></i> {{ $form->name }}
+                            </li>
+                        @endforeach
+
+                    </ul>
+
+
+                    {{-- <div class="mb-3">
                         <label for="" class="form-label">Select forms</label>
                         <select
                             class="form-select form-select @if (!$selectedLeadPartner) pe-none opacity-25 @endif"
@@ -117,7 +129,7 @@
                         @error('selectedForms')
                             <x-error>{{ $message }}</x-error>
                         @enderror
-                    </div>
+                    </div> --}}
 
 
                     <div class="modal-footer border-top-0">

@@ -112,7 +112,7 @@ final class FormTable extends PowerGridComponent
                 $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
                 $projectManager = User::find(auth()->user()->id)->hasAllRoles(['manager', 'project_manager']) ? 'disabled' : '';
 
-                if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS') {
+                if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS') {
                     return '<a class="btn btn-warning btn-sm custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i> </a>';
                 }
 

@@ -41,7 +41,7 @@ class Dashboard extends Component
 
         // Fetch indicator IDs associated with the user's organisation
         $myIndicators = ResponsiblePerson::where('organisation_id', $organisationId)
-            ->whereHas('sources')  // Ensure 'sources' relationship exists
+            // Ensure 'sources' relationship exists
             ->pluck('indicator_id')
             ->toArray();
 
