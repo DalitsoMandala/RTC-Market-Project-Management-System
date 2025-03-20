@@ -10,16 +10,16 @@ use App\Console\Commands\FetchExchangeRates;
 
 //Schedule::command('update:information')->dailyAt('00:01');
 Schedule::command('update:information')->dailyAt('00:00');
-//Schedule::command('notify:send-reminder')->dailyAt('00:00');
-Schedule::call(function () {
-    $files = glob(public_path('exports/*')); // Get all files in the exports directory
+// //Schedule::command('notify:send-reminder')->dailyAt('00:00');
+// Schedule::call(function () {
+//     $files = glob(public_path('exports/*')); // Get all files in the exports directory
 
-    foreach ($files as $file) {
-        if (is_file($file)) {
-            unlink($file); // Delete each file
-        }
-    }
-})->daily()->at('00:00');
+//     foreach ($files as $file) {
+//         if (is_file($file)) {
+//             unlink($file); // Delete each file
+//         }
+//     }
+// })->daily()->at('00:00');
 
 Schedule::command('check:submission-deadlines')->dailyAt('00:00');
 Schedule::command('send:expired-period-notifications')->dailyAt('00:00');

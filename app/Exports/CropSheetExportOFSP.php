@@ -11,11 +11,9 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 
-class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
+class CropSheetExportOFSP extends CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
 {
-    use ExportStylingTrait;
-    protected $cropType;
-    public $template = false;
+
     public $validationTypes = [
         'District' => 'Required, Text',
         'EPA' => 'Required, Text',
@@ -24,6 +22,7 @@ class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle, Wi
         'AEDO Phone Number' => 'Text',
         'Date of Distribution' => 'Date (dd-mm-yyyy)',
         'Name of Recipient' => 'Required, Text',
+        'Group Name' => 'Text',
         'Village' => 'Text',
         'Sex' => 'Required, Male/Female',
         'Age' => 'Required, Number (>=1)',
@@ -37,52 +36,11 @@ class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle, Wi
         'Phone Number' => 'Text',
         'Signed' => 'Number (>=0)',
         'Year' => 'Number',
+        'Season Type' => 'Text, (Choose One)'
     ];
-    public function __construct(string $cropType, $template = false)
-    {
-        $this->cropType = $cropType;
-        $this->template = $template;
-    }
 
 
 
-    public function collection()
-    {
-        if ($this->template) {
-            return collect([]);
-        }
-        $data = SeedBeneficiary::where('crop', $this->cropType)->select(
-            //  'crop',
-            'district',
-            'epa',
-            'section',
-            'name_of_aedo',
-            'aedo_phone_number',
-            'date',
-            'name_of_recipient',
-            'village',
-            'sex',
-            'age',
-            'marital_status',
-            'hh_head',
-            'household_size',
-            'children_under_5',
-            'variety_received',
-            'bundles_received',
-            'national_id',
-            'phone_number',
-            'signed',
-            'year'
-
-        )->get();
-
-
-        $data->transform(function ($row) {
-            $row->date = Carbon::parse($row->date)->format('d-m-Y');
-            return $row;
-        });
-        return $data;
-    }
 
     public function headings(): array
     {
@@ -96,6 +54,7 @@ class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle, Wi
                 'AEDO Phone Number',
                 'Date of Distribution',
                 'Name of Recipient',
+                'Group Name',
                 'Village',
                 'Sex',
                 'Age',
@@ -108,13 +67,10 @@ class CropSheetExportOFSP implements FromCollection, WithHeadings, WithTitle, Wi
                 'National ID',
                 'Phone Number',
                 'Signed',
-                'Year'
+                'Year',
+                'Season Type'
             ],
             array_values($this->validationTypes)
         ];
-    }
-    public function title(): string
-    {
-        return $this->cropType;
     }
 }

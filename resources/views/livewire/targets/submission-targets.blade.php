@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Standard Targets
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

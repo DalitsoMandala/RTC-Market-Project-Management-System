@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Add Seed Beneficiaries Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -255,27 +258,27 @@
 
 
                                     <div class="mb-3 " wire:ignore x-data="{
-
+                                    
                                         selectedVarieties: $wire.entangle('selectedVarieties'),
                                         variety_received: $wire.entangle('variety_received'),
                                         varieties: $wire.entangle('varieties'),
                                     }" x-init="() => {
-
+                                    
                                         $('#select-crop').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-
+                                    
                                         $wire.on('get-varieties', (e) => {
                                             const selectElement = $('#select-crop');
                                             const arrayOfObjects = e.data;
-
+                                    
                                             selectElement.empty();
-
-
-
+                                    
+                                    
+                                    
                                             arrayOfObjects.forEach(data => {
                                                 let name = data.name;
                                                 let newOption = new Option(name.replace('_', ' '), data.id, false, false);
@@ -283,9 +286,9 @@
                                             });
                                             // Refresh Select2 to reflect changes
                                             selectElement.trigger('change');
-
+                                    
                                         })
-
+                                    
                                         $('#select-crop').on('select2:select', function(e) {
                                             const data = $(this).select2('data');
                                             selectedVarieties = data.map((item) => {
@@ -294,35 +297,35 @@
                                                     name: item.text
                                                 }
                                             });
-
-
-
-
+                                    
+                                    
+                                    
+                                    
                                         });
-
+                                    
                                         $('#select-crop').on('select2:unselect', function(e) {
                                             const data = $(this).select2('data');
                                             if (data.length === 0) {
-
+                                    
                                                 selectedVarieties = [];
-
+                                    
                                             } else {
-
+                                    
                                                 selectedVarieties = data.map((item) => {
                                                     return {
                                                         id: item.id,
                                                         name: item.text
                                                     }
                                                 });
-
+                                    
                                             }
-
-
-
-
-
+                                    
+                                    
+                                    
+                                    
+                                    
                                         });
-
+                                    
                                     }">
                                         <label for="" class="form-label">Variety recieved</label>
 
@@ -357,7 +360,7 @@
                                         seed_type = 'Bundles'
                                     }
                                 })
-
+                            
                             }">
                                 <label class="form-label">Amount Of Seed Received <span class="fw-bold"
                                         x-text="'('+seed_type+')'"></span></label>

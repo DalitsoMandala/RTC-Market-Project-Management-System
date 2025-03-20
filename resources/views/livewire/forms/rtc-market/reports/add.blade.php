@@ -1,4 +1,8 @@
 <div>
+
+    @section('title')
+        Add Aggregates (Report) Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

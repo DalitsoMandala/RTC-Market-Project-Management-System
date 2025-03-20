@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Upload Household Consumption Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

@@ -241,15 +241,15 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'table_name' => 'rtc_production_farmers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
+                    $user->notify(new ImportSuccessNotification(
+                        $this->cacheKey,
+                        route('external-submissions', [
+                            'batch' => $this->cacheKey,
+                        ], true) . '#batch-submission'
+
+
+                    ));
                 }
-                $user->notify(new ImportSuccessNotification(
-                    $this->cacheKey,
-                    route('external-submissions', [
-                        'batch' => $this->cacheKey,
-                    ], true) . '#batch-submission'
-
-
-                ));
 
 
 

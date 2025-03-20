@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Dashboard
+    @endsection
     <div class="container-fluid">
 
         @include('layouts.dashboard-layout')
@@ -17,7 +20,7 @@
                     </div>
                     <div class="card-body" x-data="{
                         init() {
-
+                    
                             let chartData = @js($submissions); // Data from the backend
                             const months = [
                                 'January', 'February', 'March', 'April', 'May', 'June',
@@ -25,36 +28,36 @@
                             ];
                             let seriesData = [];
                             const serieArray = {};
-
+                    
                             // Process chartData
                             chartData.forEach((item) => {
                                 // Initialize the type array if not already initialized
                                 if (!serieArray[item.type]) {
                                     serieArray[item.type] = Array(months.length).fill(0);
                                 }
-
+                    
                                 // Find the correct index for the month (1-indexed to 0-indexed)
                                 const monthIndex = item.month - 1;
-
+                    
                                 // Update the total for the specific type and month
                                 if (monthIndex >= 0 && monthIndex < months.length) {
                                     serieArray[item.type][monthIndex] += item.total; // Sum totals for the same type and month
                                 }
                             });
-
+                    
                             // Destructure series data
                             const { batch = [], manual = [], aggregate = [] } = serieArray;
-
+                    
                             // Output the series data for debugging
                             console.log('Batch:', batch);
                             console.log('Manual:', manual);
                             console.log('Aggregate:', aggregate);
-
-
-
-
-
-
+                    
+                    
+                    
+                    
+                    
+                    
                             options = {
                                 chart: {
                                     type: 'area',
@@ -72,7 +75,7 @@
                                         name: 'Aggregate Submission',
                                         data: aggregate
                                     },
-
+                    
                                 ],
                                 dataLabels: {
                                     enabled: false
@@ -90,7 +93,7 @@
                                     },
                                 },
                             };
-
+                    
                             let chart = new ApexCharts($refs.chart, options);
                             chart.render();
                         }
@@ -174,7 +177,7 @@
                         </div>
                     </div>
 
-                    <div class="p-0 card-body overflow-scroll" style="max-height: 250px;">
+                    <div class="p-0 overflow-scroll card-body" style="max-height: 250px;">
                         <div class="table-responsive">
                             <table class="table align-middle table-striped table-hover table-borderless">
                                 <thead class="table-warning">

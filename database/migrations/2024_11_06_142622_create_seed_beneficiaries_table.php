@@ -15,10 +15,11 @@ return new class extends Migration {
             $table->string('district');
             $table->string('epa');
             $table->string('section');
-            $table->string('name_of_aedo');
+            $table->string('name_of_aedo')->nullable();
             $table->string('aedo_phone_number')->nullable();
-            $table->date('date');
-            $table->string('name_of_recipient');
+            $table->date('date')->nullable();
+            $table->string('name_of_recipient')->nullable();
+            $table->string('group_name')->nullable();
             $table->string('village')->nullable();
             $table->tinyInteger('sex')->default(1)->nullable(); // 1=Male, 2=Female
             $table->integer('age')->default(0)->nullable();

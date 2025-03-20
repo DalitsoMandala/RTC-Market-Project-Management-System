@@ -1224,9 +1224,13 @@ class ExcelExportJob implements ShouldQueue
                 break;
             case 'seedBeneficiaries':
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-
+                $cropTypes = [
+                    'Cassava',
+                    'OFSP',
+                    'Potato'
+                ];
                 // Define the headers
-                $headers = [
+                $OFSPHeaders = [
                     'Crop',
                     'District',
                     'EPA',
@@ -1235,6 +1239,7 @@ class ExcelExportJob implements ShouldQueue
                     'AEDO Phone Number',
                     'Date',
                     'Name of Recipient',
+                    'Group Name',
                     'Village',
                     'Sex',
                     'Age',
@@ -1245,13 +1250,52 @@ class ExcelExportJob implements ShouldQueue
                     'Variety Received',
                     'Bundles Received',
                     'Phone / National ID',
+                    'Season Type'
                 ];
-
+                $PotatoHeaders = [
+                    'Crop',
+                    'District',
+                    'EPA',
+                    'Section',
+                    'Name of AEDO',
+                    'AEDO Phone Number',
+                    'Date',
+                    'Name of Recipient',
+                    'Group Name',
+                    'Village',
+                    'Sex',
+                    'Age',
+                    'Marital Status',
+                    'Household Head',
+                    'Household Size',
+                    'Children Under 5 in HH',
+                    'Variety Received',
+                    'Amount Of Seed Received',
+                    'Phone / National ID',
+                    'Season Type'
+                ];
                 // Define crop types
-                $cropTypes = [
-                    'Cassava',
-                    'OFSP',
-                    'Potato'
+                $CassavaHeaders = [
+                    'Crop',
+                    'District',
+                    'EPA',
+                    'Section',
+                    'Name of AEDO',
+                    'AEDO Phone Number',
+                    'Date',
+                    'Name of Recipient',
+                    'Group Name',
+                    'Village',
+                    'Sex',
+                    'Age',
+                    'Marital Status',
+                    'Household Head',
+                    'Household Size',
+                    'Children Under 5 in HH',
+                    'Variety Received',
+                    'Amount Received',
+                    'Phone / National ID',
+                    'Season Type'
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -1264,31 +1308,46 @@ class ExcelExportJob implements ShouldQueue
                     }
 
                     // Name the current sheet with the crop type and add headers
-                    $writer->nameCurrentSheet($crop)->addHeader($headers);
+                    if ($crop == 'OFSP') {
+                        $writer->nameCurrentSheet($crop)->addHeader($OFSPHeaders);
+                    } else if ($crop == 'Potato') {
+                        $writer->nameCurrentSheet($crop)->addHeader($PotatoHeaders);
+                    } else {
+                        $writer->nameCurrentSheet($crop)->addHeader($CassavaHeaders);
+                    }
+
 
                     // Process data in chunks for the current crop
-                    SeedBeneficiary::where('crop', $crop)
+                    SeedBeneficiary::with(['user', 'user.organisation'])
+                        ->where('crop', $crop)
                         ->select([
-                            'crop',
-                            'district',
-                            'epa',
-                            'section',
-                            'name_of_aedo',
-                            'aedo_phone_number',
-                            'date',
-                            'name_of_recipient',
-                            'village',
-                            'sex',
-                            'age',
-                            'marital_status',
-                            'hh_head',
-                            'household_size',
-                            'children_under_5',
-                            'variety_received',
-                            'bundles_received',
-                            'phone_number',
-                            'national_id',
+                            'seed_beneficiaries.crop',
+                            'seed_beneficiaries.district',
+                            'seed_beneficiaries.epa',
+                            'seed_beneficiaries.section',
+                            'seed_beneficiaries.name_of_aedo',
+                            'seed_beneficiaries.aedo_phone_number',
+                            'seed_beneficiaries.date',
+                            'seed_beneficiaries.name_of_recipient',
+                            'seed_beneficiaries.group_name',
+                            'seed_beneficiaries.village',
+                            'seed_beneficiaries.sex',
+                            'seed_beneficiaries.age',
+                            'seed_beneficiaries.marital_status',
+                            'seed_beneficiaries.hh_head',
+                            'seed_beneficiaries.household_size',
+                            'seed_beneficiaries.children_under_5',
+                            'seed_beneficiaries.variety_received',
+                            'seed_beneficiaries.bundles_received',
+                            'seed_beneficiaries.phone_number',
+                            'seed_beneficiaries.national_id',
+                            'seed_beneficiaries.season_type',
+                            'users.name as user_name', // Assuming the table name for the user model is 'users'
+                            'organisations.name as organisation_name' // Assuming the table name for the organisation model is 'organisations'
                         ])
+                        ->join('users', 'seed_beneficiaries.user_id', '=', 'users.id') // Assuming the foreign key is 'user_id'
+                        ->join('organisations', 'users.organisation_id', '=', 'organisations.id') // Assuming the foreign key is 'organisation_id'
+
                         ->chunk(2000, function ($seedBeneficiaries) use ($writer) {
                             foreach ($seedBeneficiaries as $record) {
                                 $writer->addRow([
@@ -1300,6 +1359,7 @@ class ExcelExportJob implements ShouldQueue
                                     $record->aedo_phone_number,
                                     $record->date,
                                     $record->name_of_recipient,
+                                    $record->group_name,
                                     $record->village,
                                     $record->sex,
                                     $record->age,
@@ -1311,6 +1371,9 @@ class ExcelExportJob implements ShouldQueue
                                     $record->bundles_received,
                                     $record->phone_number,
                                     $record->national_id,
+                                    $record->season_type,
+                                    $record->user_name,
+                                    $record->organisation_name,
                                 ]);
                             }
                         });

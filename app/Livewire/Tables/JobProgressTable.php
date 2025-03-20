@@ -73,12 +73,6 @@ final class JobProgressTable extends PowerGridComponent
             ->add('id')
             ->add('cache_key', function ($model) {
                 $cacheKey = $model->cache_key;
-                $checkQueue = Cache::get($cacheKey);
-                if (!$checkQueue) {
-
-                    $job =  JobProgress::where('cache_key', $cacheKey)->where('status', 'processing')->first();
-                    $job?->update(['status' => 'completed']);
-                }
 
 
 

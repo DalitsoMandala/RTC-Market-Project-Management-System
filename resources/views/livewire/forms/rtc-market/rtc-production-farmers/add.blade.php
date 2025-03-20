@@ -1,4 +1,8 @@
 <div>
+
+    @section('title')
+        Add Farmers Data
+    @endsection
     <style>
         .sticky-side {
             position: sticky;

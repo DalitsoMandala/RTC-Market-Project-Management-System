@@ -88,6 +88,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             ->add('aedo_phone_number')
             ->add('date_formatted', fn($model) => Carbon::parse($model->date)->format('d/m/Y'))
             ->add('name_of_recipient')
+            ->add('group_name')
             ->add('village')
             ->add('sex', function ($model) {
                 return $model->sex === 1 ? 'Male' : 'Female';
@@ -167,6 +168,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             })
             ->add('bundles_received')
             ->add('phone_or_national_id')
+            ->add('season_type')
             ->add('crop')
             ->add('user_id')
             ->add('user', fn($model) => $model->user->name)
@@ -204,6 +206,11 @@ final class SeedBeneficiaryTable extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Name of recipient', 'name_of_recipient')
+                ->sortable()
+                ->searchable(),
+
+
+            Column::make('Group Name', 'group_name')
                 ->sortable()
                 ->searchable(),
 
@@ -247,7 +254,9 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             Column::make('National id', 'national_id')
                 //  ->sortable()
                 ->searchable(),
-
+            Column::make('Season Type', 'season_type')
+                //  ->sortable()
+                ->searchable(),
 
             // Column::make('Crop', 'crop')
             //     ->sortable()

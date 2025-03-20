@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        View Seed Beneficiaries Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

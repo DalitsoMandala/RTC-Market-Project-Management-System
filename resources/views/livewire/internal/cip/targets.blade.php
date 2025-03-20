@@ -1,4 +1,8 @@
 <div>
+    @section('title')
+        Targets
+    @endsection
+
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -28,21 +32,22 @@
 
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="targets" data-bs-toggle="tab" data-bs-target="#main"
-                                    type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">LOP
+                                <button class="nav-link active" id="targets" data-bs-toggle="tab"
+                                    data-bs-target="#main" type="button" role="tab" aria-controls="home-tab-pane"
+                                    aria-selected="true">LOP
                                     Targets</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="assigned-targets" data-bs-toggle="tab"
-                                    data-bs-target="#assigned" type="button" role="tab" aria-controls="profile-tab-pane"
-                                    aria-selected="false">Assigned Targets</button>
+                                    data-bs-target="#assigned" type="button" role="tab"
+                                    aria-controls="profile-tab-pane" aria-selected="false">Assigned Targets</button>
                             </li>
 
                         </ul>
 
-                        <div class="tab-content py-2">
-                            <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="home-tab"
-                                tabindex="0">
+                        <div class="py-2 tab-content">
+                            <div class="tab-pane fade show active" id="main" role="tabpanel"
+                                aria-labelledby="home-tab" tabindex="0">
 
                                 <livewire:tables.indicator-targets-table />
                             </div>

@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        View Household Consumption Data
+    @endsection
     <div class="container-fluid">
         <style>
             td {

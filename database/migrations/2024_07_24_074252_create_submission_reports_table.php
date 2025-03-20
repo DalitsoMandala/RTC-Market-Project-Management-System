@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->string('uuid');
+            $table->text('file_name')->nullable();
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');
             $table->timestamps();
         });

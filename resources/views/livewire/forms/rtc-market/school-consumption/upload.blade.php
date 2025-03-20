@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Upload School Consumption Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

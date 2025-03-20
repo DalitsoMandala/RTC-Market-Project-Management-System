@@ -88,11 +88,11 @@ final class FormTable extends PowerGridComponent
 
                 $form_name = str_replace(' ', '-', strtolower($model->name));
                 $project = str_replace(' ', '-', strtolower($model->project->name));
-                if ($model->name == 'REPORT FORM') {
-                    return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
-                } else
+                // if ($model->name == 'REPORT FORM') {
+                //     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
+                // }
 
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Form"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
+                return '<a class="text-decoration-underline custom-tooltip" title="View Form"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
             })
             ->add('type')
             ->add('project_id')

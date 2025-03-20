@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Upload Processors Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

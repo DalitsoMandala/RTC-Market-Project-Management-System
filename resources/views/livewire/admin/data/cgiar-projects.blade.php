@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Cgiar Projects
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

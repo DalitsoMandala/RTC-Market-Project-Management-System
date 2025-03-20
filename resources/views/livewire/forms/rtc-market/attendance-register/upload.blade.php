@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Upload Attendance Register Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

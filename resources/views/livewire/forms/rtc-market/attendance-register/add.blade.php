@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Add Attendance Register Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

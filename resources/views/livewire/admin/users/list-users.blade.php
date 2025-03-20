@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Users
+@endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -24,7 +27,7 @@
                     showForm: false,
                     resetForm() {
                         $wire.dispatch('resetForm');
-                
+
                     }
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -155,7 +158,7 @@
 
 
             <div x-data x-init="$wire.on('showModal-delete', (e) => {
-            
+
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })">
@@ -178,15 +181,15 @@
             </div>
 
             <div x-data x-init="$wire.on('showModal-restore', (e) => {
-            
+
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })
-            
-            
+
+
             $wire.on('refresh', (e) => {
                 const modals = document.querySelectorAll('.modal.show');
-            
+
                 // Iterate over each modal and hide it using Bootstrap's modal hide method
                 modals.forEach(modal => {
                     const modalInstance = bootstrap.Modal.getInstance(modal);

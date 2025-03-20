@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Organisation forms
+@endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -24,7 +27,7 @@
                     <div class="card-header">
                         <h5 class="card-title text-capitalize">Forms & Organisations</h5>
                     </div>
-                    <div class="card-body px-0">
+                    <div class="px-0 card-body">
                         <livewire:admin.organisation-forms-table />
                     </div>
                 </div>
@@ -34,7 +37,7 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })">

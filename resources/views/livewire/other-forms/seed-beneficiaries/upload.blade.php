@@ -1,4 +1,9 @@
  <div>
+     @section('title')
+         Upload Seed Distribution Register
+     @endsection
+
+
      <div class="container-fluid">
 
          <!-- start page title -->

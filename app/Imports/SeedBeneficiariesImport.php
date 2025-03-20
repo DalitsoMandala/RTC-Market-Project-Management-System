@@ -44,6 +44,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'AEDO Phone Number',
             'Date of Distribution',
             'Name of Recipient',
+            'Group Name',
             'Village',
             'Sex',
             'Age',
@@ -56,7 +57,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'National ID',
             'Phone Number',
             'Signed',
-            'Year'
+            'Year',
+            'Season Type'
         ],
         'OFSP' => [
             //   'Crop',
@@ -67,6 +69,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'AEDO Phone Number',
             'Date of Distribution',
             'Name of Recipient',
+            'Group Name',
             'Village',
             'Sex',
             'Age',
@@ -79,7 +82,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'National ID',
             'Phone Number',
             'Signed',
-            'Year'
+            'Year',
+            'Season Type'
         ],
         'Cassava' => [
             //   'Crop',
@@ -90,6 +94,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'AEDO Phone Number',
             'Date of Distribution',
             'Name of Recipient',
+            'Group Name',
             'Village',
             'Sex',
             'Age',
@@ -102,7 +107,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             'National ID',
             'Phone Number',
             'Signed',
-            'Year'
+            'Year',
+            'Season Type'
         ],
 
 

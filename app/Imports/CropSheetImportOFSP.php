@@ -147,17 +147,8 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
 
         $dateOfAssessment = Carbon::parse($row['Date of Distribution'])->format('Y-m-d');
         // Create SeedBeneficiary record
-        $beneficiary = SeedBeneficiary::updateOrCreate(
-            [
-                'national_id' => $row['National ID'], // Unique identifier to check existence
-                'district' => $row['District'],
-                'epa' => $row['EPA'],
-                'section' => $row['Section'],
-                'name_of_aedo' => $row['Name of AEDO'],
-                'aedo_phone_number' => $row['AEDO Phone Number'],
-                'date' => $dateOfAssessment,
-                'name_of_recipient' => $row['Name of Recipient'],
-            ],
+        $beneficiary = SeedBeneficiary::create(
+
             [
                 'crop' => $this->cropType,
                 'district' => $row['District'],
@@ -167,6 +158,7 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
                 'aedo_phone_number' => $row['AEDO Phone Number'],
                 'date' => $dateOfAssessment,
                 'name_of_recipient' => $row['Name of Recipient'],
+                'group_name' => $row['Group Name'],
                 'village' => $row['Village'],
                 'sex' => $row['Sex'],
                 'age' => $row['Age'],
@@ -177,6 +169,7 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
                 'variety_received' => $row['Variety Received'],
                 'bundles_received' => $row['Bundles Received'],
                 'phone_number' => $row['Phone Number'],
+                'national_id' => $row['National ID'],
                 'user_id' =>    $this->submissionDetails['user_id'],
                 'signed' => $row['Signed'],
                 'year' => $row['Year'],
@@ -204,6 +197,7 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
                 'nyamoyo' => $row['nyamoyo'],
                 'anaakwanire' => $row['anaakwanire'],
                 'other' => $row['other'],
+                'season_type' => $row['Season Type'],
             ]
         );
 
@@ -227,13 +221,14 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
             'District' => 'required|string|max:255',
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
-            'Name of AEDO' => 'required|string|max:255',
+            'Name of AEDO' => 'nullable|string|max:255',
             'AEDO Phone Number' => 'nullable|max:255',
             'Date of Distribution' => 'nullable|date|date_format:d-m-Y',
-            'Name of Recipient' => 'required|string|max:255',
+            'Name of Recipient' => 'nullable|string|max:255',
+            'Group Name' => 'nullable|max:255',
             'Village' => 'nullable|string|max:255',
-            'Sex' => 'required|integer|in:Male,Female,1,2',
-            'Age' => 'required|integer|min:1',
+            'Sex' => 'nullable|integer|in:Male,Female,1,2',
+            'Age' => 'nullable|integer|min:1',
             'Marital Status' => 'nullable|integer',
             'Household Head' => 'nullable|integer|min:1',
             'Household Size' => 'nullable|integer|min:1',
@@ -243,7 +238,8 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
             'National ID' => 'nullable|max:255',
             'Phone Number' => 'nullable|max:255',
             'Signed' => 'nullable|integer:min:0',
-            'Year' => 'nullable|integer'
+            'Year' => 'nullable|integer',
+            'Season Type' => 'nullable|max:255',
 
         ];
     }
@@ -328,7 +324,9 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
         }
 
 
-
+        if (!$row['Season Type']) {
+            $row['Season Type'] = 'NA';
+        }
 
 
         if (!$row['Variety Received']) {

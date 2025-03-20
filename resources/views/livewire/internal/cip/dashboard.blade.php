@@ -1,5 +1,7 @@
 <div>
-
+    @section('title')
+        Dashboard
+    @endsection
 
     <div class="container-fluid">
 

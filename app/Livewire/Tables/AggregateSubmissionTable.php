@@ -182,10 +182,34 @@ final class AggregateSubmissionTable extends PowerGridComponent
             })
             ->add('comments')
             ->add('comments_truncated', function ($model) {
+
+                if (!$model->comments) {
+                    return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
+                }
                 $text = $model->comments;
                 $trunc = new TruncateText($text, 30);
+                $html = '';
+                $html .= '
 
-                return $trunc->truncate();
+<!-- Base Example -->
+<div class="accordion" id="default-accordion-example">
+    <div class="accordion-item shadow">
+        <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed  p-2 " style="font-size:0.75rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                View comment
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example">
+            <div class="accordion-body">
+                ' . $text . '
+            </div>
+        </div>
+        </div>
+
+</div>
+
+';
+                return $html;
             })
             ->add('financial_year', function ($model) {
 
@@ -247,7 +271,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
 
-            Column::make('Comments', 'comments_truncated')->hidden(),
+            Column::make('Comments', 'comments_truncated'),
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
@@ -308,6 +332,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
     public function actionRules($row): array
     {
+        $user = User::find(auth()->user()->id);
 
 
         return [
@@ -318,7 +343,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
 
 
-
             Rule::button('edit')
                 ->when(fn($row) => !($row->status === 'pending'))
                 ->disable(),
@@ -330,11 +354,9 @@ final class AggregateSubmissionTable extends PowerGridComponent
             Rule::button('delete')
                 ->when(fn($row) => !($row->status === 'pending'))
                 ->disable(),
-
             Rule::button('delete')
-                ->when(fn($row) => !($row->user_id === auth()->user()->id))
+                ->when(fn($row) => !($user->hasAnyRole('manager')))
                 ->disable(),
-
 
 
             Rule::rows()

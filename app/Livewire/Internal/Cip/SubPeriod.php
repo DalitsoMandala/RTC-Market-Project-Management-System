@@ -199,10 +199,152 @@ class SubPeriod extends Component
         $this->dispatch('update-indicator', data: $this->indicators, selected: $this->selectedIndicator);
     }
 
+    // public function save()
+    // {
+
+
+    //     try {
+    //         $this->validate();
+    //     } catch (Throwable $e) {
+    //         session()->flash('validation_error', 'There are errors in the form.');
+    //         throw $e;
+    //     }
+
+
+
+    //     try {
+    //         $data = [
+    //             'date_established' => $this->start_period,
+    //             'date_ending' => $this->end_period,
+    //             'is_open' => $this->status,
+    //             'form_id' => $this->selectedForm[0],
+    //             'is_expired' => $this->expired ?? false,
+    //             'month_range_period_id' => $this->selectedMonth,
+    //             'financial_year_id' => $this->selectedFinancialYear,
+    //             'indicator_id' => $this->selectedIndicator,
+    //         ];
+    //         if ($this->rowId) {
+    //             $submissions = Submission::where('period_id', $this->rowId)->count();
+    //             if ($submissions === 0) {
+
+
+    //                 SubmissionPeriod::find($this->rowId)->update($data);
+
+    //                 $user = User::find(auth()->user()->id);
+    //                 $organisationId = $user->organisation->id;
+    //                 foreach ($this->targets as $key => $target) {
+    //                     // Update or create SubmissionTarget
+    //                     $subTarget = SubmissionTarget::updateOrCreate(
+    //                         [
+    //                             'financial_year_id' => $this->selectedFinancialYear,
+    //                             'indicator_id' => $this->selectedIndicator,
+    //                             'target_name' => $target['name'],
+    //                         ],
+    //                         [
+    //                             'target_value' => $target['value'],
+    //                         ]
+    //                     );
+
+
+    //                     $data  = [];
+    //                     // Update or create OrganisationTarget for each cip_target
+
+    //                     $data[] =  OrganisationTarget::updateOrCreate(
+    //                         [
+    //                             'submission_target_id' => $subTarget->id,
+    //                             'organisation_id' => $organisationId,
+    //                         ],
+    //                         [
+    //                             'value' => $this->cip_targets[$key]['value'],
+    //                         ]
+    //                     );
+    //                 }
+
+    //                 if ($this->status == false) {
+
+    //                     $form = Form::find($this->selectedForm[0]);
+    //                     $period = ReportingPeriodMonth::find($this->selectedMonth);
+    //                     session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
+    //                     $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for {$form->name} for the period of ({$period->start_month} - {$period->end_month}).");
+    //                     $this->resetData();
+
+    //                     return;
+    //                 }
+
+    //                 $this->dispatch('timeout');
+    //                 session()->flash('success', 'Updated Successfully');
+    //                 $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
+    //             } else {
+
+    //                 $this->dispatch('timeout');
+    //                 session()->flash('error', 'Cannot update this record because it has submissions.');
+    //             }
+    //         } else {
+    //             // Check if any existing records have the same criteria and are not expired
+    //             $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
+    //                 ->where('financial_year_id', $this->selectedFinancialYear)
+    //                 ->where('indicator_id', $this->selectedIndicator)
+    //                 ->whereIn('form_id', $this->selectedForm)
+    //                 ->where('is_expired', false)
+    //                 ->exists();
+
+
+
+    //             if ($exists) {
+
+    //                 $this->dispatch('timeout');
+    //                 session()->flash('error', 'This record already exists.');
+
+    //                 return;
+    //             } else {
+    //                 foreach ($this->selectedForm as $formId) {
+    //                     SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
+    //                 }
+
+    //                 $user = User::find(auth()->user()->id);
+    //                 $organisationId = $user->organisation->id;
+    //                 foreach ($this->targets as $key => $target) {
+    //                     // Update or create SubmissionTarget
+    //                     $subTarget = SubmissionTarget::updateOrCreate(
+    //                         [
+    //                             'financial_year_id' => $this->selectedFinancialYear,
+    //                             'indicator_id' => $this->selectedIndicator,
+    //                             'target_name' => $target['name'],
+    //                         ],
+    //                         [
+    //                             'target_value' => $target['value'],
+    //                         ]
+    //                     );
+
+
+    //                     $data  = [];
+    //                     // Update or create OrganisationTarget for each cip_target
+
+    //                     $data[] =  OrganisationTarget::updateOrCreate(
+    //                         [
+    //                             'submission_target_id' => $subTarget->id,
+    //                             'organisation_id' => $organisationId,
+    //                         ],
+    //                         [
+    //                             'value' => $this->cip_targets[$key]['value'],
+    //                         ]
+    //                     );
+    //                 }
+    //                 session()->flash('success', 'Created Successfully');
+
+
+    //                 $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
+    //                 return redirect()->to(url()->previous());
+    //             }
+    //         }
+    //     } catch (Throwable $th) {
+
+    //         session()->flash('error', 'Something went wrong');
+    //     }
+    // }
+
     public function save()
     {
-
-
         try {
             $this->validate();
         } catch (Throwable $e) {
@@ -210,135 +352,150 @@ class SubPeriod extends Component
             throw $e;
         }
 
-
         try {
-            $data = [
-                'date_established' => $this->start_period,
-                'date_ending' => $this->end_period,
-                'is_open' => $this->status,
-                'form_id' => $this->selectedForm[0],
-                'is_expired' => $this->expired ?? false,
-                'month_range_period_id' => $this->selectedMonth,
-                'financial_year_id' => $this->selectedFinancialYear,
-                'indicator_id' => $this->selectedIndicator,
-            ];
+            $data = $this->prepareSubmissionData();
+
             if ($this->rowId) {
-                $submissions = Submission::where('period_id', $this->rowId)->count();
-                if ($submissions === 0) {
-
-
-                    SubmissionPeriod::find($this->rowId)->update($data);
-
-                    $user = User::find(auth()->user()->id);
-                    $organisationId = $user->organisation->id;
-                    foreach ($this->targets as $key => $target) {
-                        // Update or create SubmissionTarget
-                        $subTarget = SubmissionTarget::updateOrCreate(
-                            [
-                                'financial_year_id' => $this->selectedFinancialYear,
-                                'indicator_id' => $this->selectedIndicator,
-                                'target_name' => $target['name'],
-                            ],
-                            [
-                                'target_value' => $target['value'],
-                            ]
-                        );
-
-
-                        $data  = [];
-                        // Update or create OrganisationTarget for each cip_target
-
-                        $data[] =  OrganisationTarget::updateOrCreate(
-                            [
-                                'submission_target_id' => $subTarget->id,
-                                'organisation_id' => $organisationId,
-                            ],
-                            [
-                                'value' => $this->cip_targets[$key]['value'],
-                            ]
-                        );
-                    }
-
-                    if ($this->status == false) {
-
-                        $form = Form::find($this->selectedForm[0]);
-                        $period = ReportingPeriodMonth::find($this->selectedMonth);
-                        session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
-                        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for {$form->name} for the period of ({$period->start_month} - {$period->end_month}).");
-                        $this->resetData();
-
-                        return;
-                    }
-
-                    $this->dispatch('timeout');
-                    session()->flash('success', 'Updated Successfully');
-                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
-                } else {
-
-                    $this->dispatch('timeout');
-                    session()->flash('error', 'Cannot update this record because it has submissions.');
-                }
+                $this->handleUpdate($data);
             } else {
-                // Check if any existing records have the same criteria and are not expired
-                $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
-                    ->where('financial_year_id', $this->selectedFinancialYear)
-                    ->where('indicator_id', $this->selectedIndicator)
-                    ->whereIn('form_id', $this->selectedForm)
-                    ->where('is_expired', false)
-                    ->exists();
-
-
-
-                if ($exists) {
-
-                    $this->dispatch('timeout');
-                    session()->flash('error', 'This record already exists.');
-
-                    return;
-                } else {
-                    foreach ($this->selectedForm as $formId) {
-                        SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
-                    }
-
-                    $user = User::find(auth()->user()->id);
-                    $organisationId = $user->organisation->id;
-                    foreach ($this->targets as $key => $target) {
-                        // Update or create SubmissionTarget
-                        $subTarget = SubmissionTarget::updateOrCreate(
-                            [
-                                'financial_year_id' => $this->selectedFinancialYear,
-                                'indicator_id' => $this->selectedIndicator,
-                                'target_name' => $target['name'],
-                            ],
-                            [
-                                'target_value' => $target['value'],
-                            ]
-                        );
-
-
-                        $data  = [];
-                        // Update or create OrganisationTarget for each cip_target
-
-                        $data[] =  OrganisationTarget::updateOrCreate(
-                            [
-                                'submission_target_id' => $subTarget->id,
-                                'organisation_id' => $organisationId,
-                            ],
-                            [
-                                'value' => $this->cip_targets[$key]['value'],
-                            ]
-                        );
-                    }
-                    session()->flash('success', 'Created Successfully');
-
-
-                    $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
-                    return redirect()->to(url()->previous());
-                }
+                $this->handleCreate($data);
             }
         } catch (Throwable $th) {
+            session()->flash('error', 'Something went wrong.');
+        }
+    }
 
-            session()->flash('error', 'Something went wrong');
+    private function prepareSubmissionData(): array
+    {
+        return [
+            'date_established' => $this->start_period,
+            'date_ending' => $this->end_period,
+            'is_open' => $this->status,
+            'form_id' => $this->selectedForm[0],
+            'is_expired' => $this->expired ?? false,
+            'month_range_period_id' => $this->selectedMonth,
+            'financial_year_id' => $this->selectedFinancialYear,
+            'indicator_id' => $this->selectedIndicator,
+        ];
+    }
+
+    private function handleUpdate(array $data): void
+    {
+        $submissions = Submission::where('period_id', $this->rowId)->count();
+
+        if ($submissions === 0) {
+            SubmissionPeriod::find($this->rowId)->update($data);
+            $this->updateTargets();
+
+            if ($this->status == false) {
+                $this->handleClosedSubmission();
+            } else {
+                $this->dispatch('timeout');
+                session()->flash('success', 'Updated Successfully');
+                $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
+            }
+        } else {
+            $this->dispatch('timeout');
+            session()->flash('error', 'Cannot update this record because it has submissions.');
+        }
+    }
+
+    private function handleCreate(array $data)
+    {
+        $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
+            ->where('financial_year_id', $this->selectedFinancialYear)
+            ->where('indicator_id', $this->selectedIndicator)
+            ->whereIn('form_id', $this->selectedForm)
+            ->where('is_expired', false)
+            ->exists();
+
+        if ($exists) {
+            $this->dispatch('timeout');
+            session()->flash('error', 'This record already exists.');
+        } else {
+            foreach ($this->selectedForm as $formId) {
+                SubmissionPeriod::create(array_merge($data, ['form_id' => $formId]));
+            }
+
+            $this->updateTargets();
+            session()->flash('success', 'Created Successfully');
+            $this->sendBroadcast($this->selectedIndicator, $this->selectedForm);
+            return redirect()->to(url()->previous());
+        }
+    }
+
+    private function updateTargets(): void
+    {
+        $user = User::find(auth()->user()->id);
+        $organisationId = $user->organisation->id;
+
+        foreach ($this->targets as $key => $target) {
+            $subTarget = SubmissionTarget::updateOrCreate(
+                [
+                    'financial_year_id' => $this->selectedFinancialYear,
+                    'indicator_id' => $this->selectedIndicator,
+                    'target_name' => $target['name'],
+                ],
+                [
+                    'target_value' => $target['value'],
+                ]
+            );
+
+            OrganisationTarget::updateOrCreate(
+                [
+                    'submission_target_id' => $subTarget->id,
+                    'organisation_id' => $organisationId,
+                ],
+                [
+                    'value' => $this->cip_targets[$key]['value'],
+                ]
+            );
+        }
+    }
+
+    private function handleClosedSubmission(): void
+    {
+        $form = Form::find($this->selectedForm[0]);
+        $period = ReportingPeriodMonth::find($this->selectedMonth);
+        session()->flash('success', 'Updated Successfully. You have closed the submission for this form and period.');
+        $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, "Unfortunately, submissions have been closed for {$form->name} for the period of ({$period->start_month} - {$period->end_month}).");
+        $this->resetData();
+    }
+
+    public function filterUsers($user, $Indicator, $forms, $errorMessage = null)
+    {
+        $link = match (true) {
+            User::find($user->id)->hasAnyRole('manager') => route('cip-submission-period'),
+            User::find($user->id)->hasAnyRole('staff') => route('cip-staff-submission-period'),
+            default => route('external-submission-period')
+        };
+
+        if ($errorMessage) {
+
+
+            Bus::chain([
+                new SendNotificationJob($user, $errorMessage, $link, true)
+            ])->dispatch();
+        } else {
+
+
+            $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
+            $htmlForms = "</br><ol>";
+            foreach ($formNames as $formName) {
+                $htmlForms .= "<li>
+                        <b>{$formName}</b>
+                        </li>";
+            }
+            $htmlForms .= "</ol></br>";
+            $messageContent = "";
+            $messageContent .= "<p> Submissions are now open for: </p>";
+            $messageContent .= $htmlForms;
+            $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
+
+
+            Bus::chain([
+                new SendNotificationJob($user, $messageContent, $link, false)
+            ])->dispatch();
         }
     }
 
@@ -346,63 +503,35 @@ class SubPeriod extends Component
     {
 
 
-        if ($this->selectedOrganisation == 0) {
-            $users = User::with(['roles', 'organisation'])->whereHas('roles', function ($query) {
-                $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
-            })
 
-                ->get();
+        $organisations = Organisation::query()->with([
+            'indicatorResponsiblePeople',
+            'users',
+        ])
+            ->whereHas('indicatorResponsiblePeople', function ($query) {
+                $query->where('indicator_id', $this->selectedIndicator);
+            });
+        if ($this->selectedOrganisation == 0) {
+
+            $organisations->each(function ($organisation) use ($errorMessage) {
+                $users = $organisation->users;
+                $users->each(function ($user) use ($errorMessage) {
+                    if (!($user->hasAnyRole('admin') || $user->hasAnyRole('project_manager'))) {
+                        $this->filterUsers($user, $this->selectedIndicator, $this->selectedForm, $errorMessage);
+                    }
+                });
+            });
         } else {
 
-            $users = User::with(['roles', 'organisation'])->whereHas('roles', function ($query) {
-                $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
-            })->whereHas('organisation', function ($query) {
-                $query->where('id', $this->selectedOrganisation);
-            })
 
-                ->get();
-        }
-
-
-
-
-        foreach ($users as $user) {
-
-
-
-            $link = match (true) {
-                User::find($user->id)->hasAnyRole('manager') => route('cip-submission-period'),
-                User::find($user->id)->hasAnyRole('staff') => route('cip-staff-submission-period'),
-                default => route('external-submission-period')
-            };
-
-            if ($errorMessage) {
-
-
-                Bus::chain([
-                    new SendNotificationJob($user, $errorMessage, $link, true)
-                ])->dispatch();
-            } else {
-
-
-                $formNames = Form::whereIn('id', $forms)->pluck('name')->toArray();
-                $htmlForms = "</br><ol>";
-                foreach ($formNames as $formName) {
-                    $htmlForms .= "<li>
-                        <b>{$formName}</b>
-                        </li>";
-                }
-                $htmlForms .= "</ol></br>";
-                $messageContent = "";
-                $messageContent .= "<p> Submissions are now open for: </p>";
-                $messageContent .= $htmlForms;
-                $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
-
-
-                Bus::chain([
-                    new SendNotificationJob($user, $messageContent, $link, false)
-                ])->dispatch();
-            }
+            $organisations->where('id', $this->selectedOrganisation)->get()->each(function ($organisation) use ($errorMessage) {
+                $users = $organisation->users;
+                $users->each(function ($user) use ($errorMessage) {
+                    if (!($user->hasAnyRole('admin') || $user->hasAnyRole('project_manager'))) {
+                        $this->filterUsers($user, $this->selectedIndicator, $this->selectedForm, $errorMessage);
+                    }
+                });
+            });
         }
     }
 

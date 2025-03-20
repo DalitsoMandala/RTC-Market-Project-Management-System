@@ -1,5 +1,7 @@
 <div>
-
+    @section('title')
+        Add School Consumption Data
+    @endsection
     <style>
         input,
         select,
@@ -17,12 +19,12 @@
 
                     <div class="page-title-right" wire:ignore>
                         @php
-                        use Ramsey\Uuid\Uuid;
-                        $uuid = Uuid::uuid4()->toString();
-                        $currentUrl = url()->current();
-                        $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
+                            use Ramsey\Uuid\Uuid;
+                            $uuid = Uuid::uuid4()->toString();
+                            $currentUrl = url()->current();
+                            $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
 
-                    @endphp
+                        @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Add Data</li>

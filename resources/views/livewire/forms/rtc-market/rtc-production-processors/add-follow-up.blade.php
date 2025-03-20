@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Add Processors (Follow up) Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -192,7 +195,7 @@
 
 
                                 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
-                                <div class="mb-3 card card-body shadow-none border" x-data="{
+                                <div class="mb-3 border shadow-none card card-body" x-data="{
                                 
                                 
                                 
@@ -352,7 +355,7 @@
 
                                         <div class="row">
 
-                                            <div class="card card-body shadow-none border">
+                                            <div class="border shadow-none card card-body">
                                                 <label for="" class="form-label">Specify Market Information
                                                     System</label>
                                                 @foreach ($market_information_systems as $index => $value)
@@ -460,7 +463,7 @@
 
                                         <div class="row">
 
-                                            <div class="card card-body shadow-none border">
+                                            <div class="border shadow-none card card-body">
                                                 <label for="totalVolumeSoldThroughAggregation"
                                                     class="form-label">Specify Aggregation Center</label>
                                                 @foreach ($aggregation_center_sales as $index => $value)

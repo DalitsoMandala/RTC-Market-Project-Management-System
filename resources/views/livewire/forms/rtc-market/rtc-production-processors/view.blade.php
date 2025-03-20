@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        View Processors Data
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -34,7 +37,8 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">RTC PRODUCTION AND MARKETING (PROCESSORS) Table
+                        <h4 class="text-center text-warning text-uppercase">RTC PRODUCTION AND MARKETING (PROCESSORS)
+                            Table
                             @if ($batch_no)
                                 [Batch : {{ $batch_no }}]
                             @endif

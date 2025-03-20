@@ -170,7 +170,7 @@ class IndicatorB2 extends Component
         ];
 
         $this->notifyAdminsAndManagers();
-        
+
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,

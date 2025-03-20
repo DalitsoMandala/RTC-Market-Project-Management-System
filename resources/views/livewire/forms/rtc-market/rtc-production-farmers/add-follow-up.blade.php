@@ -1,4 +1,9 @@
 <div>
+
+    @section('title')
+        Add Farmers (Follow up) Data
+    @endsection
+
     <div class="container-fluid">
         <!-- start page title -->
         <div class="row">

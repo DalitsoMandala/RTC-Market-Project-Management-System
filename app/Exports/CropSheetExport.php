@@ -5,11 +5,12 @@ namespace App\Exports;
 use Carbon\Carbon;
 use App\Models\SeedBeneficiary;
 use App\Traits\ExportStylingTrait;
+use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
 
 class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
 {
@@ -24,6 +25,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
         'AEDO Phone Number' => 'Text',
         'Date of Distribution' => 'Date (dd-mm-yyyy)',
         'Name of Recipient' => 'Required, Text',
+        'Group Name' => 'Text',
         'Village' => 'Text',
         'Sex' => 'Required, Male/Female',
         'Age' => 'Required, Number (>=1)',
@@ -37,6 +39,8 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
         'Phone Number' => 'Text',
         'Signed' => 'Number (>=0)',
         'Year' => 'Number',
+        'Season Type' => 'Text, (Choose One)'
+
     ];
     public function __construct(string $cropType, $template = false)
     {
@@ -60,6 +64,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
             'aedo_phone_number',
             'date',
             'name_of_recipient',
+            'group_name',
             'village',
             'sex',
             'age',
@@ -72,7 +77,8 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
             'national_id',
             'phone_number',
             'signed',
-            'year'
+            'year',
+            'season_type'
 
         )->get();
 
@@ -96,6 +102,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
                 'AEDO Phone Number',
                 'Date of Distribution',
                 'Name of Recipient',
+                'Group Name',
                 'Village',
                 'Sex',
                 'Age',
@@ -108,9 +115,52 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
                 'National ID',
                 'Phone Number',
                 'Signed',
-                'Year'
+                'Year',
+                'Season Type'
             ],
             array_values($this->validationTypes)
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $highestColumn = $sheet->getHighestColumn();
+                // Make the first row (header) bold
+                $sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 14,
+                    ],
+                ]);
+
+                // Set background color for the second row (A2:ZZ2)
+                $sheet->getStyle("A2:{$highestColumn}2")->applyFromArray([
+                    'font' => [
+                        'color' => ['rgb' => 'FF0000'], // Red text
+                        'bold' => true,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFFFC5'], // Pink background
+                    ],
+
+                ]);
+
+                $sheet = $event->sheet->getDelegate();
+
+
+
+                $dropdownOptions = [
+                    '',
+                    'Rainfed',
+                    'Winter',
+
+                ];
+                $this->setDataValidations($dropdownOptions, 'V3', $sheet);
+            },
         ];
     }
 

@@ -70,21 +70,25 @@ class Submissions extends Component
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
-    private function getLink($submission)
+    private function getLink($submission, $type = '#batch-submission')
     {
         $link = '';
-        if (User::find(auth()->user()->id)->hasAnyRole('manager')) {
+        if (User::find($submission->user_id)->hasAnyRole('manager')) {
             $link = route('cip-submissions', [
                 'batch' => $submission->batch_no
-            ]);
-        } else if (User::find(auth()->user()->id)->hasAnyRole('staff')) {
+            ]) . $type;
+        } else if (User::find($submission->user_id)->hasAnyRole('staff')) {
             $link = route('cip-staff-submissions', [
                 'batch' => $submission->batch_no
-            ]);
+            ]) . $type;
+        } else if (User::find($submission->user_id)->hasAnyrole('admin')) {
+            $link = route('admin-submissions', [
+                'batch' => $submission->batch_no
+            ]) . $type;
         } else {
             $link = route('external-submissions', [
                 'batch' => $submission->batch_no
-            ]);
+            ]) . $type;
         }
 
         return $link;
@@ -114,6 +118,7 @@ class Submissions extends Component
                 Bus::chain([
                     fn() => $user->notify(new SubmissionNotification(
                         status: $this->status,
+                        denialMessage: null,
                         batchId: $submission->batch_no,
                         link: $link
                     )),
@@ -126,8 +131,9 @@ class Submissions extends Component
                 Bus::chain([
                     fn() => $user->notify(new SubmissionNotification(
                         status: 'denied',
-                        batchId: $submission->batch_no,
                         denialMessage: $this->comment,
+                        batchId: $submission->batch_no,
+
                         link: $link
                     )),
                 ])->dispatch();
@@ -245,7 +251,7 @@ class Submissions extends Component
             ]);
             session()->flash('success', 'Successfully approved aggregate submission');
             $user = User::find($submission->user_id);
-            $link = $this->getLink($submission);
+            $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(
                     status: 'approved',
@@ -287,7 +293,7 @@ class Submissions extends Component
             session()->flash('success', 'Successfully disapproved aggregate submission');
             $user = User::find($submission->user_id);
 
-            $link = $this->getLink($submission);
+            $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(
                     status: 'denied',

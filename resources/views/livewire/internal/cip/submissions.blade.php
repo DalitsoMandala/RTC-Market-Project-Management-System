@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Submissions
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

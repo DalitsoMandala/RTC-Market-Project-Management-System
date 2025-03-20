@@ -1,10 +1,13 @@
 <div>
-
     @section('title')
-        View School Consumption Data
+        View Aggregates (Reports) Data
     @endsection
     <div class="container-fluid">
-
+        <style>
+            td {
+                color: red;
+            }
+        </style>
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
@@ -22,13 +25,10 @@
                         </ol>
                     </div>
 
-
                 </div>
             </div>
         </div>
         <!-- end page title -->
-
-
         <div class="row">
 
 
@@ -39,15 +39,15 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">School consumption table
-                            @if ($batch_no)
+                        <h4 class="text-center text-warning text-uppercase">Submitted Reports Table @if ($batch_no)
                                 [Batch : {{ $batch_no }}]
                             @endif
                         </h4>
                     </div>
 
-                    <div class="px-0 card-body" id="#datatable">
-                        <livewire:tables.rtc-market.school-consumption-table />
+                    <div class="px-0 card-body">
+
+                        <livewire:tables.submission-report-table />
 
                     </div>
                 </div>
@@ -58,8 +58,8 @@
 
 
 
-
-
     </div>
+
+
 
 </div>

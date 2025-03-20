@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Reporting periods
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->

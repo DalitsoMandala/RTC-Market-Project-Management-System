@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -54,6 +55,7 @@ class SubmissionNotification extends Notification
                 ->line('Congratulations! Your submission has been accepted. Batch No. ' . $this->batchId)
 
                 ->action('Go to website', $this->link);
+            Artisan::call('update:information');
         } else {
             $mailMessage
 
@@ -65,6 +67,7 @@ class SubmissionNotification extends Notification
                 ->action('Go to website', $this->link)
             ;
         }
+
 
 
         return $mailMessage;

@@ -23,7 +23,7 @@ class NewSubmissionNotification extends Notification implements ShouldQueue
     public function __construct($prefix)
     {
 
-        $this->prefix;
+        $this->prefix = $prefix;
     }
 
     /**

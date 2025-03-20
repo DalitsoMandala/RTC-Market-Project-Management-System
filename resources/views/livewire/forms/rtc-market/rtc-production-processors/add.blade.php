@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Add Processors Data
+    @endsection
     <style>
         .sticky-side {
             position: sticky;

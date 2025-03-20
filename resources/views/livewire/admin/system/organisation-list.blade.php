@@ -1,4 +1,7 @@
 <div>
+    @section('title')
+        Organisation List
+@endsection
     <div class="container-fluid">
 
         <!-- start page title -->
