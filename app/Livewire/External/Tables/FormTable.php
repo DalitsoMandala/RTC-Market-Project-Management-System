@@ -41,7 +41,7 @@ final class FormTable extends PowerGridComponent
     public function setUp(): array
     {
         //  $this->showCheckBox();
-
+        $this->timeout();
         return [
             // Exportable::make('export')
             //     ->striped()
@@ -326,8 +326,6 @@ final class FormTable extends PowerGridComponent
         $endDate = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
-
-
 
 
         return [

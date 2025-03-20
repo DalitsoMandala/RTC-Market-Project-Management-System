@@ -210,12 +210,12 @@
 
                                     <div class="d-grid justify-content-center">
 
-                                        <button class="btn btn-success "
+                                        <button class="px-5 mt-2 btn btn-warning "
                                             @click="window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
                                         })"
-                                            type="submit">Submit</button>
+                                            type="submit">Submit Data</button>
                                     </div>
                                 </div>
                             </div>
