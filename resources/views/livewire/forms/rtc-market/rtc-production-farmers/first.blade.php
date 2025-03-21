@@ -411,7 +411,7 @@ $watch('number_of_members', (v) => {
 
 
     <div class="row">
-        <div class="card card-body shadow-none border">
+        <div class="border shadow-none card card-body">
             @foreach ($area_under_cultivation as $index => $value)
                 <div class="row">
                     <label for="variety" class="my-3 form-label fw-bold">vARIETY
@@ -614,7 +614,7 @@ $watch('number_of_members', (v) => {
 
 
     <div class="row">
-        <div class="card card-body shadow-none border">
+        <div class="border shadow-none card card-body">
             @foreach ($area_under_basic_seed_multiplication as $index => $value)
                 <div class="row">
                     <label for="variety" class="my-3 form-label fw-bold">vARIETY
@@ -678,7 +678,7 @@ $watch('number_of_members', (v) => {
         Certified
         Seed Multiplication</label>
     <div class="row">
-        <div class="card card-body shadow-none border">
+        <div class="border shadow-none card card-body">
             @foreach ($area_under_certified_seed_multiplication as $index => $value)
                 <div class="row">
                     <label for="variety" class="my-3 form-label fw-bold">vARIETY
@@ -882,7 +882,7 @@ $watch('number_of_members', (v) => {
 </div>
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
-<div class="mb-3 card card-body shadow-none border" x-data="{
+<div class="mb-3 border shadow-none card card-body" x-data="{
 
 
 
@@ -948,7 +948,7 @@ $watch('number_of_members', (v) => {
 </div>
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
-<div class="mb-3 card card-body shadow-none border" x-data="{
+<div class="mb-3 border shadow-none card card-body" x-data="{
 
 
 
@@ -1093,7 +1093,7 @@ $watch('number_of_members', (v) => {
 
         <div class="row">
 
-            <div class="card card-body shadow-none border">
+            <div class="border shadow-none card card-body">
                 <label for="" class="form-label">Specify Market Information System</label>
                 @foreach ($market_information_systems as $index => $value)
                     <div class="row">
@@ -1194,7 +1194,7 @@ $watch('number_of_members', (v) => {
 
         <div class="row">
 
-            <div class="card card-body shadow-none border">
+            <div class="border shadow-none card card-body">
                 <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
                 @foreach ($aggregation_center_sales as $index => $value)
                     <div class="row">

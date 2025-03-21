@@ -68,6 +68,7 @@ class Add extends Component
 
     public function save()
     {
+
         try {
             $this->validate();
         } catch (\Throwable $e) {
@@ -91,10 +92,7 @@ class Add extends Component
             'crop_cassava' => $cropCollection->contains('cassava') ? 1 : 0,
             'crop_potato' => $cropCollection->contains('potato') ? 1 : 0,
             'crop_sweet_potato' => $cropCollection->contains('sweet_potato') ? 1 : 0,
-            'submission_period_id' => $this->submissionPeriodId,
-            'period_month_id' => $this->selectedMonth,
-            'organisation_id' => $user->organisation->id,
-            'financial_year_id' => $this->selectedFinancialYear,
+
         ];
 
         // Prepare submission data
@@ -111,7 +109,7 @@ class Add extends Component
             SchoolRtcConsumption::class, // Model class
             $modelData, // Data for the model
             $submissionData, // Data for the Submission table
-            'school_rtc_consumption', // Table name for submission
+            'rtc_a', // Table name for submission
             $this->routePrefix // Route prefix for the success message
         );
     }

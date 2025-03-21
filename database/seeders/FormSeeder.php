@@ -43,7 +43,8 @@ class FormSeeder extends Seeder
             $indicators['Number of actors profitability engaged in commercialization of RTC'] => [
                 'HOUSEHOLD CONSUMPTION FORM',
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',

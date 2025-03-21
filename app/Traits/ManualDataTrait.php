@@ -27,7 +27,7 @@ trait ManualDataTrait
 
     public $variable;
     public $rowId;
-    public $location_data = [];
+    // public $location_data = [];
     public $submissionPeriodId;
     public $period;
     public $forms = [];
@@ -184,6 +184,12 @@ trait ManualDataTrait
             // Create the submission record
             $submissionData['batch_no'] = $uuid;
             $submissionData['table_name'] = $tableName;
+
+            $data['submission_period_id'] = $this->submissionPeriodId;
+            $data['period_month_id'] = $this->selectedMonth;
+            $data['organisation_id'] = $user->organisation->id;
+            $data['financial_year_id'] = $this->selectedFinancialYear;
+
             Submission::create($submissionData);
 
             // Create the model record
@@ -201,6 +207,7 @@ trait ManualDataTrait
 
             $this->redirect(url()->previous());
         } catch (\Exception $e) {
+            dd($e);
             session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
         }
     }
