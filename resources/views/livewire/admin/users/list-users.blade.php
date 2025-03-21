@@ -1,7 +1,7 @@
 <div>
     @section('title')
         Users
-@endsection
+    @endsection
     <div class="container-fluid">
 
         <!-- start page title -->
@@ -28,12 +28,20 @@
                     resetForm() {
                         $wire.dispatch('resetForm');
 
-                    }
+                    },
+                    showUploadForm: false,
+
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title">User Table</h4>
-                        <button class="px-3 btn btn-soft-warning" @click="showForm= !showForm; resetForm()">Add new user
-                            <i class="bx bx-plus"></i></button>
+                        <div>
+                            <button class="px-3 btn btn-soft-warning" @click="showForm= !showForm; resetForm()">Add new
+                                user
+                                <i class="bx bx-plus"></i></button>
+                            <button class="px-3 btn btn-soft-secondary" @click="showUploadForm= !showUploadForm;">Upload
+                                new users
+                                <i class="bx bx-upload"></i></button>
+                        </div>
                     </div>
 
                     <div class="card-header" x-show="showForm">
@@ -149,6 +157,21 @@
 
                         </form>
                     </div>
+
+                    <div class="card-header" x-show="showUploadForm" x-data="uploadUsers">
+                        <form id="uploadForm" @submit.prevent="uploadData()">
+                            <div class="mb-3">
+                                <label for="fileInput" class="form-label">Upload Excel File</label>
+                                <input class="form-control" type="file" id="fileInput" accept=".xlsx, .xls"
+                                    required>
+                            </div>
+                            <button type="button" @click="downloadTemplate()" id="downloadTemplate"
+                                class="btn btn-secondary">Download
+                                Template</button>
+                            <button type="submit" class="btn btn-warning">Upload and Parse</button>
+
+                        </form>
+                    </div>
                     <div class="px-0 card-body">
                         <livewire:admin.user-table />
                     </div>
@@ -219,6 +242,10 @@
         </div>
 
     </div>
+
+    @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    @endpush
     @script
         <script>
             $('.goUp').on('click', () => {
@@ -227,5 +254,63 @@
                     behavior: 'smooth'
                 })
             });
+
+            Alpine.data('uploadUsers', () => ({
+                open: false,
+
+                downloadTemplate() {
+                    const templateData = [
+                        ['email', 'name', 'random_password', 'organisation', 'role'], // Header row
+                        //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
+                        //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
+                    ];
+
+                    const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+
+                    // Create a workbook and add the worksheet
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+                    // Generate Excel file and trigger download
+                    XLSX.writeFile(workbook, 'user_template.xlsx');
+                },
+                uploadData() {
+                    const fileInput = document.getElementById('fileInput');
+                    const file = fileInput.files[0];
+
+                    if (!file) {
+                        alert('Please select a file.');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {
+                            type: 'array'
+                        });
+                        const sheetName = workbook.SheetNames[0]; // Get the first sheet
+                        const sheet = workbook.Sheets[sheetName];
+
+                        // Convert the sheet to JSON
+                        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+                        // Map the data to the desired format
+                        const users = jsonData.map(row => ({
+                            email: row.email,
+                            name: row.name,
+                            random_password: row.random_password,
+                            organisation: row.organisation,
+                            role: row.role,
+                        }));
+
+                        $wire.sendData(users);
+                    };
+
+                    reader.readAsArrayBuffer(file);
+
+
+                }
+            }))
         </script>
     @endscript
