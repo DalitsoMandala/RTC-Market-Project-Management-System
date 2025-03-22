@@ -17,7 +17,7 @@ class FormSeeder extends Seeder
         //
 
         $forms = [
-            'HOUSEHOLD CONSUMPTION FORM',
+            //'HOUSEHOLD CONSUMPTION FORM',
             'RTC PRODUCTION AND MARKETING FORM FARMERS',
             'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
             'RTC CONSUMPTION FORM',
@@ -41,7 +41,7 @@ class FormSeeder extends Seeder
         // Mappings using the indicator names directly
         $indicatorMappings = [
             $indicators['Number of actors profitability engaged in commercialization of RTC'] => [
-                'HOUSEHOLD CONSUMPTION FORM',
+                'RTC CONSUMPTION FORM',
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
                 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
                 'RTC ACTOR RECRUITMENT FORM',
@@ -54,7 +54,7 @@ class FormSeeder extends Seeder
             $indicators['Percentage increase in value of formal RTC exports'] => ['REPORT FORM'],
             $indicators['Percentage of value ($) of formal RTC imports substituted through local production'] => ['REPORT FORM'],
             $indicators['Number of people consuming RTC and processed products'] => [
-                'HOUSEHOLD CONSUMPTION FORM',
+                //  'HOUSEHOLD CONSUMPTION FORM',
                 'RTC CONSUMPTION FORM'
             ],
             $indicators['Percentage Increase in the volume of RTC produced'] => [

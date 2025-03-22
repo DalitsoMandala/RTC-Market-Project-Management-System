@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Exports\SchoolExport;
+namespace App\Exports\RtcConsumption;
 
 use Carbon\Carbon;
-use App\Models\SchoolRtcConsumption;
+use App\Models\RtcConsumption;
 use App\Traits\ExportStylingTrait;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
+class RtcConsumptionExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
 {
     use ExportStylingTrait;
     public $template = false;
@@ -20,7 +20,8 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
         'EPA' => 'Required, Text',
         'Section' => 'Required, Text',
         'District' => 'Required, Text',
-        'School Name' => 'Required, Text',
+        'Entity Name' => 'Required, Text',
+        'Entity Type' => 'Required, Text',
         'Date' => 'Date (dd-mm-yyyy)',
         'Cassava Crop' => 'Boolean (1/0)',
         'Potato Crop' => 'Boolean (1/0)',
@@ -39,12 +40,13 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
             return collect([]);
         }
         // Select only the columns to be included in the export
-        $data = SchoolRtcConsumption::select(
+        $data = RtcConsumption::select(
 
             'epa',
             'section',
             'district',
-            'school_name',
+            'entity_name',
+            'entity_type',
             'date',
             'crop_cassava',
             'crop_potato',
@@ -66,18 +68,7 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
     {
         return [
 
-            [
-                'EPA',
-                'Section',
-                'District',
-                'School Name',
-                'Date',
-                'Cassava Crop',
-                'Potato Crop',
-                'Sweet Potato Crop',
-                'Male Count',
-                'Female Count'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
 
         ];
@@ -85,6 +76,6 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
 
     public function title(): string
     {
-        return 'School RTC Consumption';
+        return 'RTC Consumption';
     }
 }

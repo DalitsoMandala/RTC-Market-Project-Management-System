@@ -1,36 +1,23 @@
 <?php
 
-namespace App\Imports\SchoolImport;
+namespace App\Imports\RtcConsumption;
 
-use App\Models\User;
-use App\Models\Submission;
 use App\Models\JobProgress;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\SchoolRtcConsumption;
-use Illuminate\Support\Facades\Cache;
-use App\Notifications\JobNotification;
-
+use App\Models\RtcConsumption;
+use App\Traits\excelDateFormat;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Exceptions\ExcelValidationException;
-use App\Traits\excelDateFormat;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\ValidationException;
 
 HeadingRowFormatter::default('none');
-class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
+class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     use Importable;
 
@@ -49,11 +36,12 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
     public function model(array $row)
     {
         // Create SchoolRtcConsumption record
-        $schoolRecord = SchoolRtcConsumption::create([
+        $schoolRecord = RtcConsumption::create([
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],
-            'school_name' => $row['School Name'],
+            'entity_name' => $row['Entity Name'],
+            'entity_type' => $row['Entity Type'],
             'date' => \Carbon\Carbon::parse($row['Date'])->format('Y-m-d'),
             'crop_cassava' => $row['Cassava Crop'],
             'crop_potato' => $row['Potato Crop'],
@@ -103,7 +91,8 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
-            'School Name' => 'required|string|max:255',
+            'Entity Name' => 'required|string|max:255',
+            'Entity Type' => 'required|string|max:255',
             'Date' => 'nullable|date|date_format:d-m-Y',
             // 'Crop' => 'nullable|string|max:255',
             'Cassava Crop' => 'nullable|boolean',

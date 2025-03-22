@@ -179,10 +179,10 @@ trait UploadDataTrait
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
-    public function uploadFile($file, $importId,  $importClass)
+    public function uploadFile($file, $importId,  $importClass, $name_prefix = null)
     {
 
-        $name = 'src' . time() . '.' . $file->getClientOriginalExtension();
+        $name = $name_prefix . time() . '.' . $file->getClientOriginalExtension();
         $file->storeAs('public/imports', $name);
         $path = storage_path('app/public/imports/' . $name);
 
