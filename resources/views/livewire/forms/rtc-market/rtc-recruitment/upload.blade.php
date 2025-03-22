@@ -1,6 +1,6 @@
 <div>
     @section('title')
-        Upload Farmers Data
+        Upload Actors Data
     @endsection
     <div class="container-fluid">
 
@@ -39,7 +39,7 @@
             <div class="col-12 col-md-8">
 
 
-                <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING FORM (FARMERS)</h3>
+                <h3 class="mb-5 text-center text-warning">RTC ACTOR RECRUITMENT FORM</h3>
 
                 <x-alerts />
                 <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
@@ -64,7 +64,7 @@
                 <div
                     class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif">
                     <h5> Instructions</h5>
-                    <p class="alert bg-secondary-subtle text-uppercase">Download the Rtc production Farmers template &
+                    <p class="alert bg-secondary-subtle text-uppercase">Download the Rtc Actor Recruitment template &
                         upload your
                         data.</p>
 

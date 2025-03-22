@@ -114,7 +114,7 @@ class Add extends Component
                 'phone_number' => 'required',
                 'type' => 'required',
                 'group' => 'required',
-                'approach' => 'required_if:group,Producer organization',
+                'approach' => 'required_if:group,Producer Organization (PO)',
                 'sector' => 'required',
                 'number_of_members.*' => 'required',
                 'category' => 'required_if:type,Farmers',

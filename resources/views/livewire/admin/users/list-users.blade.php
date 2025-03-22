@@ -260,7 +260,7 @@
 
                 downloadTemplate() {
                     const templateData = [
-                        ['email', 'name', 'random_password', 'organisation', 'role'], // Header row
+                        ['email', 'name', 'organisation', 'role'], // Header row
                         //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
                         //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
                     ];
@@ -299,7 +299,7 @@
                         const users = jsonData.map(row => ({
                             email: row.email,
                             name: row.name,
-                            random_password: row.random_password,
+
                             organisation: row.organisation,
                             role: row.role,
                         }));

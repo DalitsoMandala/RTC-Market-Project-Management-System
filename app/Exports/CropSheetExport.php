@@ -154,7 +154,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
 
 
                 $dropdownOptions = [
-                    '',
+
                     'Rainfed',
                     'Winter',
 

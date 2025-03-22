@@ -193,7 +193,7 @@
                                         <label for="type" class="form-label">Type</label>
 
                                         <select class="form-select form-select-md @error('type') is-invalid @enderror"
-                                            wire:model='type'>
+                                            x-model='type'>
                                             <option selected value="">Select one</option>
                                             <option value="Farmers">Farmers</option>
                                             <option value="Processors">Processors</option>
@@ -209,20 +209,68 @@
                                     </div>
 
                                     <!-- Group -->
-                                    <div class="mb-3" x-data="{ group: $wire.entangle('group') }">
+                                    <div class="mb-3" x-data="{ group: $wire.entangle('group'), type: $wire.entangle('type') }" x-init="() => {
+
+
+                                    }">
                                         <label for="group" class="form-label">Group</label>
                                         <select class="form-select @error('group') is-invalid @enderror"
                                             x-model="group">
                                             <option value="">Select One</option>
-                                            <option value="Producer organization">Producer organization (PO)</option>
-                                            <option value="Large scale farm">Large scale farm</option>
-                                            <option value="Small scale individual farms">Small scale individual farms
-                                            </option>
-                                            <option value="Care groups">Care groups</option>
-                                            <option value="Large scale Processor">Large scale Processor</option>
-                                            <option value="Small medium enterprise (SME)">Small medium enterprise (SME)
-                                            </option>
-                                            <option value="Other">Other</option>
+
+                                            <!-- Options for Farmers -->
+                                            <template x-if="type === 'Farmers'">
+                                                <option value="Producer organization (PO)">Producer organization (PO)
+                                                </option>
+                                            </template>
+                                            <template x-if="type === 'Farmers'">
+                                                <option value="Large scale farm">Large scale farm</option>
+                                            </template>
+                                            <template x-if="type === 'Farmers'">
+                                                <option value="Small scale individual farms">Small scale individual
+                                                    farms</option>
+                                            </template>
+                                            <template x-if="type === 'Farmers'">
+                                                <option value="Care groups">Care groups</option>
+                                            </template>
+
+                                            <!-- Options for Processors -->
+                                            <template x-if="type === 'Processors'">
+                                                <option value="Large scale processor">Large scale Processor</option>
+                                            </template>
+                                            <template x-if="type === 'Processors'">
+                                                <option value="Small medium enterprise (SME)">Small medium enterprise
+                                                    (SME)</option>
+                                            </template>
+                                            <template x-if="type === 'Processors'">
+                                                <option value="Other">Other</option>
+                                            </template>
+
+                                            <!-- Options for Others (Traders, Aggregators, Transporters, etc.) -->
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Producer organization (PO)">Producer organization (PO)
+                                                </option>
+                                            </template>
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Large scale farm">Large scale farm</option>
+                                            </template>
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Small scale individual farms">Small scale individual
+                                                    farms</option>
+                                            </template>
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Care groups">Care groups</option>
+                                            </template>
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Large scale processor">Large scale Processor</option>
+                                            </template>
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Small medium enterprise (SME)">Small medium enterprise
+                                                    (SME)</option>
+                                            </template>
+                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
+                                                <option value="Other">Other</option>
+                                            </template>
                                         </select>
 
                                         @error('group')

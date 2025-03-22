@@ -96,7 +96,7 @@ class RpmProcessorConcAgreementsExport implements FromCollection, WithHeadings, 
                 ]);
 
                 $options = [
-                    '',
+
                     'Seed',
                     'Ware',
                     'Value added products'

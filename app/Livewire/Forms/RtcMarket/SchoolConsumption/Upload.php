@@ -68,12 +68,14 @@ class Upload extends Component
 
                 $this->checkProgress();
             }
-        } catch (ValidationException $e) {
-            session()->flash('error', $e->getMessage());
+        } catch (ExcelValidationException $th) {
+
+            session()->flash('error', $th->getMessage());
+            Log::error($th);
             $this->redirect(url()->previous());
         } catch (\Exception $e) {
-            session()->flash('error', 'Something went wrong!');
             Log::error($e);
+            session()->flash('error', 'Something went wrong!');
             $this->redirect(url()->previous());
         } finally {
             if (isset($fileName)) {

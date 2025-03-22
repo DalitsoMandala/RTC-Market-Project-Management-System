@@ -172,7 +172,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
 
                 // Define the dropdown options
                 $dropdownOptions = [
-                    '',
+
                     'Producer Organization (PO)',
                     'Large scale farm',
                     'Small medium enterprise (SME)'
@@ -184,7 +184,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
                 $this->setDataValidations($dropdownOptions, 'J3', $sheet);
 
                 $dropdownOptions = [
-                    '',
+
                     'Collective production only',
                     'Collective marketing only',
                     'Knowledge Sharing only',
@@ -219,7 +219,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
                 $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
                 $dropdownOptions = [
-                    '',
+
                     'Potato',
                     'Sweet potato',
                     'Cassava'

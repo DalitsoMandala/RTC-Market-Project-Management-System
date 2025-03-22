@@ -158,7 +158,7 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
 
                 // Define the dropdown options
                 $dropdownOptions = [
-                    '',
+
                     'Farmer',
                     'Aggregator',
                     'Transporter',
@@ -171,7 +171,7 @@ class HouseholdSheetExport implements FromCollection, WithHeadings, WithTitle, W
                 $this->setDataValidations($dropdownOptions, 'G3', $sheet);
 
                 $dropdownOptions = [
-                    '',
+
                     'Potato',
                     'Sweet potato',
                     'Cassava'

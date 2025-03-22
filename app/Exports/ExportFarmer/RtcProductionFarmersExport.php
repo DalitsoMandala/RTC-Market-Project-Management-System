@@ -281,7 +281,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
 
                 // Define the dropdown options
                 $dropdownOptions = [
-                    '',
+
                     'Producer Organization (PO)',
                     'Large scale farm',
 
@@ -292,7 +292,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
                 $this->setDataValidations($dropdownOptions, 'J3', $sheet);
 
                 $dropdownOptions = [
-                    '',
+
                     'Collective production only',
                     'Collective marketing only',
                     'Knowledge Sharing only',
@@ -301,7 +301,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
 
                 ];
 
-                $this->setDataValidations($dropdownOptions, 'K3', $sheet);
+                //    $this->setDataValidations($dropdownOptions, 'K3', $sheet);
 
                 $dropdownOptions = [
                     'Private',
@@ -329,7 +329,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
                 $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
                 $dropdownOptions = [
-                    '',
+
                     'Potato',
                     'Sweet potato',
                     'Cassava'

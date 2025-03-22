@@ -108,7 +108,7 @@ class RpmFarmerInterMarketsExport implements FromCollection, WithHeadings, WithT
                 ]);
 
                 $options = [
-                    '',
+
                     'Seed',
                     'Ware',
                     'Value added products'
@@ -117,7 +117,7 @@ class RpmFarmerInterMarketsExport implements FromCollection, WithHeadings, WithT
                 $this->setDataValidations($options, 'G3', $sheet);
 
                 $options = [
-                    '',
+
                     'Cassava',
                     'Sweet potato',
                     'Potato'

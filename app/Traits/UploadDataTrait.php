@@ -181,41 +181,35 @@ trait UploadDataTrait
 
     public function uploadFile($file, $importId,  $importClass)
     {
-        try {
-            $name = 'src' . time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/imports', $name);
-            $path = storage_path('app/public/imports/' . $name);
 
-            // Use the provided import class dynamically
-            Excel::import(
-                new $importClass(
-                    cacheKey: $importId,
-                    filePath: $path,
-                    submissionDetails: [
-                        'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id' => Auth::user()->organisation->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'period_month_id' => $this->selectedMonth,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => Auth::user()->id,
-                        'batch_type' => 'batch',
-                        'is_complete' => 1,
-                        'file_link' => $name,
-                        'batch_no' => $this->importId,
-                        'route' => $this->currentRoute,
-                    ]
-                ),
-                $path
-            );
+        $name = 'src' . time() . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('public/imports', $name);
+        $path = storage_path('app/public/imports/' . $name);
 
-            return $name; // Return the file name for further use
-        } catch (ValidationException $e) {
-            Log::error($e);
-            throw $e;
-        } catch (\Exception $e) {
-            Log::error($e);
-            throw new \Exception('Something went wrong during file upload. Please try again');
-        }
+        // Use the provided import class dynamically
+        Excel::import(
+            new $importClass(
+                cacheKey: $importId,
+                filePath: $path,
+                submissionDetails: [
+                    'submission_period_id' => $this->submissionPeriodId,
+                    'organisation_id' => Auth::user()->organisation->id,
+                    'financial_year_id' => $this->selectedFinancialYear,
+                    'period_month_id' => $this->selectedMonth,
+                    'form_id' => $this->selectedForm,
+                    'user_id' => Auth::user()->id,
+                    'batch_type' => 'batch',
+                    'is_complete' => 1,
+                    'file_link' => $name,
+                    'batch_no' => $this->importId,
+                    'route' => $this->currentRoute,
+                ]
+            ),
+            $path
+        );
+
+        return $name; // Return the file name for further use
+
     }
 
     public function removeTemporaryFile()

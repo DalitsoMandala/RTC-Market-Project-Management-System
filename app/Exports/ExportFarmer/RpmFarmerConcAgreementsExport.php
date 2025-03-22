@@ -85,7 +85,7 @@ class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, Wit
                 ]);
 
                 $options = [
-                    '',
+
                     'Seed',
                     'Ware',
                     'Value added products'
