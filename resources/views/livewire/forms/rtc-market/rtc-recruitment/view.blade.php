@@ -1,6 +1,6 @@
 <div>
     @section('title')
-        View Farmers Data
+        View Recruits Data
     @endsection
     <div class="container-fluid">
 

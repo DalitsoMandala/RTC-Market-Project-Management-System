@@ -36,6 +36,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\RpmProcessorAggregationCenter;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
+use App\Models\Recruitment;
 use Illuminate\Support\Facades\Cache; // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
@@ -1391,6 +1392,113 @@ class ExcelExportJob implements ShouldQueue
                         });
                 }
 
+                $writer->close(); // Finalize the file
+
+                break;
+
+
+            case 'recruits':
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headerFromExports = [
+                    //  'ID' => 'Required, Unique,  Number',
+                    'EPA' => 'Required, Text',
+                    'Section' => 'Required, Text',
+                    'District' => 'Required, Text',
+                    'Enterprise' => 'Required, Text',
+                    'Date of Recruitment' => 'Date (dd-mm-yyyy)',
+                    'Name of Actor' => 'Text',
+                    'Name of Representative' => 'Text',
+                    'Phone Number' => 'Text',
+                    'Type' => 'Text, (Choose one option)',
+                    'Group' => 'Text, (Choose one option)',
+                    'Approach' => 'Text, (Choose one option)',
+                    'Sector' => 'Text, (Choose one option)',
+                    'Members Female 18-35' => 'Number (>=0)',
+                    'Members Male 18-35' => 'Number (>=0)',
+                    'Members Male 35+' => 'Number (>=0)',
+                    'Members Female 35+' => 'Number (>=0)',
+                    'Category' => 'Text, (Choose one option)',
+                    'Establishment Status' => 'New/Old, (Choose one option)',
+                    'Is Registered' => 'Boolean (1/0)',
+                    'Registration Body' => 'Text',
+                    'Registration Number' => 'Text',
+                    'Registration Date' => 'Date (dd-mm-yyyy)',
+                    'Employees Formal Female 18-35' => 'Number (>=0)',
+                    'Employees Formal Male 18-35' => 'Number (>=0)',
+                    'Employees Formal Male 35+' => 'Number (>=0)',
+                    'Employees Formal Female 35+' => 'Number (>=0)',
+                    'Employees Informal Female 18-35' => 'Number (>=0)',
+                    'Employees Informal Male 18-35' => 'Number (>=0)',
+                    'Employees Informal Male 35+' => 'Number (>=0)',
+                    'Employees Informal Female 35+' => 'Number (>=0)',
+                    'Area Under Cultivation' => 'Number (>=0)',
+                    'Is Registered Seed Producer' => 'Boolean (1/0)',
+                    'Seed Producer Registration Number' => 'Text',
+                    'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
+                    'Uses Certified Seed' => 'Boolean (1/0)',
+                    'Submitted By' => true
+
+                ];
+                $headers = array_keys($headerFromExports);
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                // Process data in chunks
+                Recruitment::with('user')->chunk(2000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $record) {
+
+                        $submittedBy = '';
+                        $user = User::find($record->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . " (" . $organisation . ")";
+                        }
+                        $writer->addRow([
+
+                            $record->epa,
+                            $record->section,
+                            $record->district,
+                            $record->enterprise,
+                            $record->date_of_recruitment,
+                            $record->name_of_actor,
+                            $record->name_of_representative,
+                            $record->phone_number,
+                            $record->type,
+                            $record->group,
+                            $record->approach,
+                            $record->sector,
+                            $record->mem_female_18_35,
+                            $record->mem_male_18_35,
+                            $record->mem_male_35_plus,
+                            $record->mem_female_35_plus,
+                            $record->category,
+                            $record->establishment_status,
+                            $record->is_registered,
+                            $record->registration_body,
+                            $record->registration_number,
+                            $record->registration_date,
+                            $record->emp_formal_female_18_35,
+                            $record->emp_formal_male_18_35,
+                            $record->emp_formal_male_35_plus,
+                            $record->emp_formal_female_35_plus,
+                            $record->emp_informal_female_18_35,
+                            $record->emp_informal_male_18_35,
+                            $record->emp_informal_male_35_plus,
+                            $record->emp_informal_female_35_plus,
+                            $record->area_under_cultivation,
+                            $record->is_registered_seed_producer,
+                            $record->registration_number_seed_producer,
+                            $record->registration_date_seed_producer,
+                            $record->uses_certified_seed,
+                            $submittedBy,
+
+                        ]);
+                    }
+                });
                 $writer->close(); // Finalize the file
 
                 break;

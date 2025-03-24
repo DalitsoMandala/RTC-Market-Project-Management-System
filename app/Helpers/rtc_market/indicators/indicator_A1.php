@@ -180,14 +180,17 @@ class indicator_A1
 
     public function countActor(): Collection
     {
-        $totalActor = collect(['Total' => 0, 'farmer' => 0, 'processor' => 0, 'trader' => 0]);
 
+        $totalActor = collect(['Total' => 0, 'Farmer' => 0, 'Processor' => 0, 'Trader' => 0]);
+        $data =  $this->builder()->get();
         $this->builder()->chunk(100, function ($data) use (&$totalActor) {
+
             foreach ($data as $model) {
+
                 $totalActor['Total'] += 1;
-                $totalActor['farmer'] += $model->actor_type == 'Farmer' ? 1 : 0;
-                $totalActor['processor'] += $model->actor_type == 'Processor' ? 1 : 0;
-                $totalActor['trader'] += $model->actor_type == 'Trader' ? 1 : 0;
+                $totalActor['Farmer'] += $model->actor_type == 'Farmer' ? 1 : 0;
+                $totalActor['Processor'] += $model->actor_type == 'Processor' ? 1 : 0;
+                $totalActor['Trader'] += $model->actor_type == 'Trader' ? 1 : 0;
             }
         });
 
@@ -255,9 +258,9 @@ class indicator_A1
             'Male' => (int) $gender['MaleCount'],
             'Youth (18-35 yrs)' => (int) $age['youth'],
             'Not youth (35yrs+)' => (int) $age['not_youth'],
-            'Farmers' => (int) $actorType['farmer'],
-            'Processors' => (int) $actorType['processor'],
-            'Traders' => (int) $actorType['trader'],
+            'Farmers' => (int) $actorType['Farmer'],
+            'Processors' => (int) $actorType['Processor'],
+            'Traders' => (int) $actorType['Trader'],
             'Cassava' => (int) $crop['cassava'],
             'Potato' => (int) $crop['potato'],
             'Sweet potato' => (int) $crop['sweet_potato'],

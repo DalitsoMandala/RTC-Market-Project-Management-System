@@ -2,12 +2,13 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use App\Models\Recruitment;
 use App\Models\User;
+use App\Models\Recruitment;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -108,6 +109,9 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('uses_certified_seed')
             ->add('uuid')
             ->add('user_id')
+            ->add('submitted_by', function ($model) {
+                return $model->user->name . '(' . $model->user->organisation->name . ')';
+            })
             ->add('submission_period_id')
             ->add('organisation_id')
             ->add('financial_year_id')
@@ -116,7 +120,10 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('created_at')
             ->add('updated_at');
     }
-
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
     public function columns(): array
     {
         return [
@@ -262,15 +269,10 @@ final class RecruitmentsTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Uuid', 'uuid')
-                ->sortable()
+            Column::make('Submitted by', 'submitted_by')
+
                 ->searchable(),
 
-            Column::make('User id', 'user_id'),
-            Column::make('Submission period id', 'submission_period_id'),
-            Column::make('Organisation id', 'organisation_id'),
-            Column::make('Financial year id', 'financial_year_id'),
-            Column::make('Period month id', 'period_month_id'),
 
 
 

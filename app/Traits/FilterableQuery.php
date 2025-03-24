@@ -10,7 +10,7 @@ trait FilterableQuery
     protected  $financial_year = null;
     protected  $organisation_id = null;
     protected  $target_year_id = null;
-
+    
     public function applyFilters(Builder $query): Builder
     {
         return $query

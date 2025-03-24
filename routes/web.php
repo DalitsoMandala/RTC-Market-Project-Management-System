@@ -78,10 +78,11 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-// Route::get('/test', function () {
-//     $user =  User::find(2);
-//     $user->notify(new NewSubmissionNotification($user));
-// });
+Route::get('/test', function () {
+    $prev = new PopulatePreviousValue();
+    $prev->start();
+    //dd($prev->start());
+});
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);
 })->name('session.check');
@@ -135,7 +136,7 @@ function registerFormRoutes($prefix, $role)
     // Route::get($prefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
     // Route::get($prefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
     // Route::get($prefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
-    // Route::get($prefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
+    Route::get($prefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
 
     Route::get($prefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
     Route::get($prefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);

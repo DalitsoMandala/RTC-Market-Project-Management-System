@@ -40,14 +40,14 @@ final class SubmissionReportTable extends PowerGridComponent
     public function datasource(): Collection
     {
         if (auth()->user()->organisation->name == 'CIP') {
-            return SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->get();
+            return SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->where('status', 'approved')->get();
         }
         return SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->whereHas(
             'organisation',
             function ($model) {
                 $model->where('id', auth()->user()->organisation->id);
             }
-        )->get();
+        )->where('status', 'approved')->get();
     }
 
     public function fields(): PowerGridFields
@@ -97,6 +97,18 @@ final class SubmissionReportTable extends PowerGridComponent
             })
             ->add('status')
             ->add('created_at')
+            ->add('date_of_submission', function ($model) {
+                return Carbon::parse($model->created_at)->format('d/m/Y');
+            })
+
+            ->add('file_link', function ($model) {
+
+                if ($model->file_link) {
+                    return '<a  data-bs-toggle="tooltip" data-bs-title="download file" download="' . $model->file_link . '" href="' . asset('/storage/imports') . '/' . $model->file_link . '"><i class="fas fa-file-excel"></i>' . $model->file_link . '</a>';
+                }
+
+                return '<a href="#" data-bs-toggle="tooltip" data-bs-title="no file" class="disabled text-muted" ><i class="fas fa-file-excel"></i></a>';
+            })
             ->add('updated_at');
     }
 
@@ -105,20 +117,13 @@ final class SubmissionReportTable extends PowerGridComponent
         return [
             Column::make('Id', 'id'),
             Column::make('Indicator id', 'indicator_id'),
-            Column::make('User id', 'user_id'),
+            Column::make('Project year', 'financial_year_id'),
 
+            Column::make('File', 'file_link'),
 
-            Column::make('Submission period id', 'submission_period_id'),
-            Column::make('Organisation id', 'organisation_id'),
-            Column::make('Project year id', 'financial_year_id'),
+            Column::make('Submitted By', 'user_id'),
 
-            Column::make('Uuid', 'uuid')
-
-                ->searchable(),
-
-            Column::make('Files', 'file'),
-
-
+            Column::make('Date of Submission', 'date_of_submission'),
         ];
     }
 
