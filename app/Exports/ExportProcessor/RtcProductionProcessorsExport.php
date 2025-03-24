@@ -23,35 +23,37 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
 
     public $validationTypes = [
         'ID' => 'Required, Number',
+        'Group Name' => 'Required, Text',
+        'Date Of Follow Up' => 'Required, Date (dd-mm-yyyy)',
         'EPA' => 'Required, Text',
         'Section' => 'Required, Text',
         'District' => 'Required, Text',
         'Enterprise' => 'Required, Text',
-        'Date of Recruitment' => 'Date (dd-mm-yyyy)',
-        'Name of Actor' => 'Text',
-        'Name of Representative' => 'Text',
-        'Phone Number' => 'Text',
-        'Type' => 'Text, (Choose One)',
-        'Approach' => 'Text, (Choose One)',
-        'Sector' => 'Text, (Choose One)',
-        'Members Female 18-35' => 'Number (>=0)',
-        'Members Male 18-35' => 'Number (>=0)',
-        'Members Male 35+' => 'Number (>=0)',
-        'Members Female 35+' => 'Number (>=0)',
-        'Group' => 'Text',
-        'Establishment Status' => 'New/Old (Choose One)',
-        'Is Registered' => 'Boolean (1/0)',
-        'Registration Body' => 'Text',
-        'Registration Number' => 'Text',
-        'Registration Date' => 'Date (dd-mm-yyyy)',
-        'Employees Formal Female 18-35' => 'Number (>=0)',
-        'Employees Formal Male 18-35' => 'Number (>=0)',
-        'Employees Formal Male 35+' => 'Number (>=0)',
-        'Employees Formal Female 35+' => 'Number (>=0)',
-        'Employees Informal Female 18-35' => 'Number (>=0)',
-        'Employees Informal Male 18-35' => 'Number (>=0)',
-        'Employees Informal Male 35+' => 'Number (>=0)',
-        'Employees Informal Female 35+' => 'Number (>=0)',
+        // 'Date of Recruitment' => 'Date (dd-mm-yyyy)',
+        // 'Name of Actor' => 'Text',
+        // 'Name of Representative' => 'Text',
+        // 'Phone Number' => 'Text',
+        // 'Type' => 'Text, (Choose One)',
+        // 'Approach' => 'Text, (Choose One)',
+        // 'Sector' => 'Text, (Choose One)',
+        // 'Members Female 18-35' => 'Number (>=0)',
+        // 'Members Male 18-35' => 'Number (>=0)',
+        // 'Members Male 35+' => 'Number (>=0)',
+        // 'Members Female 35+' => 'Number (>=0)',
+        // 'Group' => 'Text',
+        // 'Establishment Status' => 'New/Old (Choose One)',
+        // 'Is Registered' => 'Boolean (1/0)',
+        // 'Registration Body' => 'Text',
+        // 'Registration Number' => 'Text',
+        // 'Registration Date' => 'Date (dd-mm-yyyy)',
+        // 'Employees Formal Female 18-35' => 'Number (>=0)',
+        // 'Employees Formal Male 18-35' => 'Number (>=0)',
+        // 'Employees Formal Male 35+' => 'Number (>=0)',
+        // 'Employees Formal Female 35+' => 'Number (>=0)',
+        // 'Employees Informal Female 18-35' => 'Number (>=0)',
+        // 'Employees Informal Male 18-35' => 'Number (>=0)',
+        // 'Employees Informal Male 35+' => 'Number (>=0)',
+        // 'Employees Informal Female 35+' => 'Number (>=0)',
         'Market Segment Fresh' => 'Boolean (1/0)',
         'Market Segment Processed' => 'Boolean (1/0)',
         'Has RTC Market Contract' => 'Boolean (1/0)',
@@ -91,51 +93,52 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
     public function headings(): array
     {
         return [
-            [
-                'ID',
-                'EPA',
-                'Section',
-                'District',
-                'Enterprise',
-                'Date of Recruitment',
-                'Name of Actor',
-                'Name of Representative',
-                'Phone Number',
-                'Type',
-                'Approach',
-                'Sector',
-                'Members Female 18-35',
-                'Members Male 18-35',
-                'Members Male 35+',
-                'Members Female 35+',
-                'Group',
-                'Establishment Status',
-                'Is Registered',
-                'Registration Body',
-                'Registration Number',
-                'Registration Date',
-                'Employees Formal Female 18-35',
-                'Employees Formal Male 18-35',
-                'Employees Formal Male 35+',
-                'Employees Formal Female 35+',
-                'Employees Informal Female 18-35',
-                'Employees Informal Male 18-35',
-                'Employees Informal Male 35+',
-                'Employees Informal Female 35+',
-                'Market Segment Fresh',
-                'Market Segment Processed',
-                'Has RTC Market Contract',
-                'Total Volume Production Previous Season',
-                'Production Value Previous Season Total',
-                'Production Value Date of Max Sales',
-                'USD Rate',
-                'USD Value',
-                'Sells to Domestic Markets',
-                'Sells to International Markets',
-                'Uses Market Info Systems',
-                'Sells to Aggregation Centers',
-                'Total Volume Aggregation Center Sales'
-            ],
+            // [
+            //     'ID',
+            //     'EPA',
+            //     'Section',
+            //     'District',
+            //     'Enterprise',
+            //     'Date of Recruitment',
+            //     'Name of Actor',
+            //     'Name of Representative',
+            //     'Phone Number',
+            //     'Type',
+            //     'Approach',
+            //     'Sector',
+            //     'Members Female 18-35',
+            //     'Members Male 18-35',
+            //     'Members Male 35+',
+            //     'Members Female 35+',
+            //     'Group',
+            //     'Establishment Status',
+            //     'Is Registered',
+            //     'Registration Body',
+            //     'Registration Number',
+            //     'Registration Date',
+            //     'Employees Formal Female 18-35',
+            //     'Employees Formal Male 18-35',
+            //     'Employees Formal Male 35+',
+            //     'Employees Formal Female 35+',
+            //     'Employees Informal Female 18-35',
+            //     'Employees Informal Male 18-35',
+            //     'Employees Informal Male 35+',
+            //     'Employees Informal Female 35+',
+            //     'Market Segment Fresh',
+            //     'Market Segment Processed',
+            //     'Has RTC Market Contract',
+            //     'Total Volume Production Previous Season',
+            //     'Production Value Previous Season Total',
+            //     'Production Value Date of Max Sales',
+            //     'USD Rate',
+            //     'USD Value',
+            //     'Sells to Domestic Markets',
+            //     'Sells to International Markets',
+            //     'Uses Market Info Systems',
+            //     'Sells to Aggregation Centers',
+            //     'Total Volume Aggregation Center Sales'
+            // ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
 
         ];
@@ -170,53 +173,53 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
 
                 $sheet = $event->sheet->getDelegate();
 
-                // Define the dropdown options
-                $dropdownOptions = [
+                // // Define the dropdown options
+                // $dropdownOptions = [
 
-                    'Producer Organization (PO)',
-                    'Large scale farm',
-                    'Small medium enterprise (SME)'
-
-
-                ]; // Includes an empty option
+                //     'Producer Organization (PO)',
+                //     'Large scale farm',
+                //     'Small medium enterprise (SME)'
 
 
-                $this->setDataValidations($dropdownOptions, 'J3', $sheet);
-
-                $dropdownOptions = [
-
-                    'Collective production only',
-                    'Collective marketing only',
-                    'Knowledge Sharing only',
-                    'Collective producing, marketing and knowledge sharing',
-                    'NA'
-
-                ];
-
-                $this->setDataValidations($dropdownOptions, 'K3', $sheet);
-
-                $dropdownOptions = [
-                    'Private',
-                    'Public'
-                ];
+                // ]; // Includes an empty option
 
 
-                $this->setDataValidations($dropdownOptions, 'L3', $sheet);
+                // $this->setDataValidations($dropdownOptions, 'J3', $sheet);
 
-                $dropdownOptions = [
-                    'Other',
+                // $dropdownOptions = [
 
-                ];
+                //     'Collective production only',
+                //     'Collective marketing only',
+                //     'Knowledge Sharing only',
+                //     'Collective producing, marketing and knowledge sharing',
+                //     'NA'
 
-                $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
+                // ];
+
+                // $this->setDataValidations($dropdownOptions, 'K3', $sheet);
+
+                // $dropdownOptions = [
+                //     'Private',
+                //     'Public'
+                // ];
 
 
-                $dropdownOptions = [
-                    'New',
-                    'Old'
-                ];
+                // $this->setDataValidations($dropdownOptions, 'L3', $sheet);
 
-                $this->setDataValidations($dropdownOptions, 'R3', $sheet);
+                // $dropdownOptions = [
+                //     'Other',
+
+                // ];
+
+                // $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
+
+
+                // $dropdownOptions = [
+                //     'New',
+                //     'Old'
+                // ];
+
+                // $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
                 $dropdownOptions = [
 
@@ -224,7 +227,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
                     'Sweet potato',
                     'Cassava'
                 ];
-                $this->setDataValidations($dropdownOptions, 'E3', $sheet);
+                $this->setDataValidations($dropdownOptions, 'G3', $sheet);
             },
         ];
     }

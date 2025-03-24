@@ -10,6 +10,11 @@ class Recruitment extends Model
     use HasFactory;
     protected $guarded = [];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

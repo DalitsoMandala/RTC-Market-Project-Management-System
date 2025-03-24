@@ -13,12 +13,14 @@ return new class extends Migration {
         Schema::create('rtc_production_processors', function (Blueprint $table) {
             $table->id();
             $table->string('pp_id')->unique();
-            $table->string('epa');
-            $table->string('section');
-            $table->string('district');
-            $table->string('enterprise');
+            //         $table->foreignId('recruitment_id')->constrained('recruitments')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->date('date_of_recruitment')->nullable();
+            $table->string('epa')->nullable();
+            $table->string('section')->nullable();
+            $table->string('district')->nullable();
+            $table->string('enterprise')->nullable();
+            $table->string('group_name')->nullable();
+            $table->date('date_of_followup')->nullable();
             $table->string('name_of_actor')->nullable();
             $table->string('name_of_representative')->nullable();
             $table->string('phone_number')->nullable();

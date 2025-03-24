@@ -159,6 +159,7 @@
                     </div>
 
                     <div class="card-header" x-show="showUploadForm" x-data="uploadUsers">
+                        <x-alerts />
                         <form id="uploadForm" @submit.prevent="uploadData()">
                             <div class="mb-3">
                                 <label for="fileInput" class="form-label">Upload Excel File</label>
@@ -260,7 +261,7 @@
 
                 downloadTemplate() {
                     const templateData = [
-                        ['email', 'name', 'organisation', 'role'], // Header row
+                        ['email', 'name', 'organisation', 'role', 'active'], // Header row
                         //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
                         //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
                     ];
@@ -304,7 +305,9 @@
                             role: row.role,
                         }));
 
-                        $wire.sendData(users);
+                        $wire.dispatch('send-users', {
+                            users: users
+                        });
                     };
 
                     reader.readAsArrayBuffer(file);

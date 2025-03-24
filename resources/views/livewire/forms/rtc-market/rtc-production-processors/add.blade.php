@@ -45,8 +45,8 @@
             </div>
         </div>
 
-        <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING (PROCESSORS)</h3>
-
+        <h3 class="mb-5 text-center text-warning">RTC PRODUCTION AND MARKETING (PROCESSORS & TRADERS)</h3>
+        <x-alerts />
 
         @if (!$targetSet)
             <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
@@ -69,8 +69,20 @@
             <div class="col-md-8">
                 <form wire:submit.debounce.1000ms='save'>
                     <div class="card col-12 col-md-12">
-                        <div class="card-header fw-bold" id="section-0">Location</div>
+                        <div class="card-header fw-bold" id="section-0">FOLLOW UP SECTION</div>
                         <div class="card-body">
+                            <!-- Group Name -->
+                            <div class="mb-3">
+                                <label for="groupName" class="form-label">Group Name</label>
+                                <input type="text"
+                                    class="form-control @error('location_data.group_name') is-invalid
+
+                                @enderror"
+                                    id="groupName" wire:model='location_data.group_name'>
+                                @error('location_data.group_name')
+                                    <x-error>{{ $message }}</x-error>
+                                @enderror
+                            </div>
                             <div class="mb-3">
                                 <label for="" class="form-label ">ENTERPRISE</label>
                                 <div class="form-group">
@@ -141,7 +153,7 @@
                                     top: 0,
                                     behavior: 'smooth'
                                 })"
-                                    type="submit">Submit</button>
+                                    type="submit">Submit Data</button>
                             </div>
                         </div>
                     </div>
@@ -157,11 +169,10 @@
                 <div class="card sticky-side">
                     <div class="card-body">
                         <nav class="nav nav-pills flex-column nav-fill ">
-                            <a class="nav-link " aria-current="page" href="#section-0">LOCATION</a>
-                            <a class="nav-link" href="#section-a" href="#">SECTION A: RTC
-                                ACTOR PROFILE</a>
+                            <a class="nav-link disabled " href="#">Navigation</a>
+                            <a class="nav-link " aria-current="page" href="#section-0">FOLLOW UP SECTION</a>
 
-                            <a class="nav-link" href="#section-b" href="#">SECTION B: RTC
+                            <a class="nav-link" href="#section-b" href="#">SECTION A: RTC
                                 MARKETING</a>
 
 
@@ -174,7 +185,7 @@
                                 href="#section-g" href="#">DOMESTIC
                                 MARKETS</a>
                             <a x-show="sells_to_international_markets == 1" x-data="{
-                            
+
                                 sells_to_international_markets: $wire.entangle('sells_to_international_markets'),
                             }" class="nav-link"
                                 href="#section-h" href="#">INTERNATIONAL
