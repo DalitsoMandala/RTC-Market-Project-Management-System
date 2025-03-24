@@ -78,7 +78,7 @@ class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, With
                 ]);
 
                 $options = [
-                    '',
+
                     'Seed',
                     'Ware',
                     'Value added products'
@@ -87,7 +87,7 @@ class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, With
                 $this->setDataValidations($options, 'G3', $sheet);
 
                 $options = [
-                    '',
+
                     'Cassava',
                     'Sweet potato',
                     'Potato'

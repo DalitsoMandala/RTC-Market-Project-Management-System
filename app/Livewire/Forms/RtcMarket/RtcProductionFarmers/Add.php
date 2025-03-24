@@ -94,19 +94,15 @@ class Add extends Component
     public $number_of_screen_house_vines_harvested; // Sweet potatoes
     public $number_of_screen_house_min_tubers_harvested; // Potatoes
     public $number_of_sah_plants_produced; // Cassava
-    public $area_under_basic_seed_multiplication = [
-    ]; // Acres
-    public $area_under_certified_seed_multiplication = [
-    ]; // Acres
+    public $area_under_basic_seed_multiplication = []; // Acres
+    public $area_under_certified_seed_multiplication = []; // Acres
     public $is_registered_seed_producer = false;
     public $seed_service_unit_registration_details = [
         'registration_number' => null,
         'registration_date' => null,
     ];
     public $uses_certified_seed = false;
-    public $market_segment = [
-
-    ]; // Multiple market segments (array of strings)
+    public $market_segment = []; // Multiple market segments (array of strings)
     public $has_rtc_market_contract = false;
     public $total_vol_production_previous_season;
     public $total_production_value_previous_season = [
@@ -163,46 +159,32 @@ class Add extends Component
 
     public $targetSet = false;
     public $targetIds = [];
+    public $date_of_followup;
     public function rules()
     {
 
         $rules =
             [
                 //first table
+                'location_data.group_name' => 'required',
+                'location_data.enterprise' => 'required',
                 'location_data.district' => 'required',
                 'location_data.epa' => 'required',
-                'location_data.enterprise' => 'required',
                 'location_data.section' => 'required',
-                'date_of_recruitment' => 'required|date',
-                'name_of_actor' => 'required',
-                'name_of_representative' => 'required',
-                'phone_number' => 'required',
-                'type' => 'required',
-                'sector' => 'required',
-                // Multiple market segments (array of strings)
-                'group' => 'required',
-                'registration_details.*' => 'required_if_accepted:is_registered',
-                'number_of_members.*' => 'required_if:type,Producer organization',
-                'approach' => 'required_if:type,Producer organization',
-                'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
-                'total_vol_aggregation_center_sales' => 'required|numeric',
-                'number_of_plantlets_produced.cassava' => 'required_if:group,Early generation seed producer',
-                'number_of_plantlets_produced.potato' => 'required_if:group,Early generation seed producer',
-                'number_of_plantlets_produced.sweet_potato' => 'required_if:group,Early generation seed producer',
-                'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
-                'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
+                'date_of_followup' => 'required|date',
                 'area_under_cultivation.*.variety' => 'required|distinct',
                 'area_under_cultivation.*.area' => 'required|numeric',
+                // 'number_of_plantlets_produced.cassava' => 'required_if:group,Early generation seed producer',
+                // 'number_of_plantlets_produced.potato' => 'required_if:group,Early generation seed producer',
+                // 'number_of_plantlets_produced.sweet_potato' => 'required_if:group,Early generation seed producer',
+                // 'number_of_screen_house_vines_harvested' => 'required_if:group,Early generation seed producer',
+                // 'number_of_screen_house_min_tubers_harvested' => 'required_if:group,Early generation seed producer',
+                // 'number_of_sah_plants_produced' => 'required_if:group,Early generation seed producer',
+                'area_under_basic_seed_multiplication.*.variety' => 'required|required_if:group,Early generation seed producer|distinct',
+                'area_under_basic_seed_multiplication.*.area' => 'required|required_if:group,Early generation seed producer',
                 'area_under_certified_seed_multiplication.*.variety' => 'required|distinct',
                 'area_under_certified_seed_multiplication.*.area' => 'required|numeric',
-                'number_of_employees.formal.female_18_35' => 'required|numeric',
-                'number_of_employees.formal.female_35_plus' => 'required|numeric',
-                'number_of_employees.formal.male_18_35' => 'required|numeric',
-                'number_of_employees.formal.male_35_plus' => 'required|numeric',
-                'number_of_employees.informal.female_18_35' => 'required|numeric',
-                'number_of_employees.informal.female_35_plus' => 'required|numeric',
-                'number_of_employees.informal.male_18_35' => 'required|numeric',
-                'number_of_employees.informal.male_35_plus' => 'required|numeric',
+                'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
                 'market_segment' => 'required',
                 'total_vol_production_previous_season' => 'required|numeric',
                 'total_vol_irrigation_production_previous_season' => 'required|numeric',
@@ -210,13 +192,29 @@ class Add extends Component
                 'total_production_value_previous_season.date_of_maximum_sales' => 'required|date',
                 'total_irrigation_production_value_previous_season.value' => 'required|numeric',
                 'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'required|date',
-                'area_under_basic_seed_multiplication.*.variety' => 'required_if:group,Early generation seed producer|distinct',
-                'area_under_basic_seed_multiplication.*.area' => 'required_if:group,Early generation seed producer',
-                'establishment_status' => 'required',
-
-                'number_of_screen_house_vines_harvested' => 'required_if:group,Early generation seed producer',
-                'number_of_screen_house_min_tubers_harvested' => 'required_if:group,Early generation seed producer',
-                'number_of_sah_plants_produced' => 'required_if:group,Early generation seed producer',
+                'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
+                'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
+                'total_vol_aggregation_center_sales' => 'required|numeric',
+                // 'registration_details.*' => 'required_if_accepted:is_registered',
+                // 'date_of_recruitment' => 'required|date',
+                // 'name_of_actor' => 'required',
+                // 'name_of_representative' => 'required',
+                // 'phone_number' => 'required',
+                // 'type' => 'required',
+                // 'sector' => 'required',
+                // Multiple market segments (array of strings)
+                //      'group' => 'required',
+                //'number_of_members.*' => 'required_if:type,Producer organization',
+                //     'approach' => 'required_if:type,Producer organization',
+                // 'number_of_employees.formal.female_18_35' => 'required|numeric',
+                // 'number_of_employees.formal.female_35_plus' => 'required|numeric',
+                // 'number_of_employees.formal.male_18_35' => 'required|numeric',
+                // 'number_of_employees.formal.male_35_plus' => 'required|numeric',
+                // 'number_of_employees.informal.female_18_35' => 'required|numeric',
+                // 'number_of_employees.informal.female_35_plus' => 'required|numeric',
+                // 'number_of_employees.informal.male_18_35' => 'required|numeric',
+                // 'number_of_employees.informal.male_35_plus' => 'required|numeric',
+                //  'establishment_status' => 'required',
 
             ];
 
@@ -232,6 +230,8 @@ class Add extends Component
             'location_data.epa' => 'epa',
             'location_data.enterprise' => 'enterprise',
             'location_data.section' => 'section',
+            'location_data.group_name' => 'group name',
+
             'registration_details.registration_body' => 'registration body',
             'registration_details.registration_number' => 'registration number',
             'registration_details.registration_date' => 'registration date',
@@ -245,8 +245,10 @@ class Add extends Component
             'number_of_employees.informal.female_35_plus' => 'Informal Employees Female 35+',
             'number_of_employees.informal.male_18_35' => 'Informal Employees Male 18-35',
             'number_of_employees.informal.male_35_plus' => 'Informal Employees Male 35+',
+
             'is_registered' => 'formally registered entity',
             'is_registered_seed_producer' => 'registered seed producer',
+
             'seed_service_unit_registration_details.registration_number' => 'registration number',
             'seed_service_unit_registration_details.registration_date' => 'registration date',
 
@@ -254,18 +256,22 @@ class Add extends Component
             'number_of_members.female_35_plus' => 'Female Members 35+',
             'number_of_members.male_18_35' => 'Male Members 18-35',
             'number_of_members.male_35_plus' => 'Male Members 35+',
+
             'aggregation_center_sales.*.name' => 'aggregation center sales name',
             'total_vol_aggregation_center_sales' => 'total aggregation center sales previous season',
             'market_information_systems.*.name' => 'market information systems name',
             'uses_market_information_systems' => 'sell your products through market information systems',
+
             'number_of_plantlets_produced.cassava' => 'number of plantlets produced (cassava)',
             'number_of_plantlets_produced.potato' => 'number of plantlets produced (potato)',
             'number_of_plantlets_produced.sweet_potato' => 'number of plantlets produced (sweet potato)',
 
             'area_under_cultivation.*.variety' => 'area under cultivation (variety)',
             'area_under_cultivation.*.area' => 'area under cultivation (area)',
+
             'area_under_certified_seed_multiplication.*.variety' => 'certified seed (variety)',
             'area_under_certified_seed_multiplication.*.area' => 'certified seed (area)',
+
             'total_vol_production_previous_season' => 'total volume of production previous season',
             'total_vol_irrigation_production_previous_season' => 'total volume of irrigation production previous season',
             'total_production_value_previous_season.value' => 'total value of production previous season',
@@ -286,8 +292,6 @@ class Add extends Component
     {
 
         $this->reset($name);
-
-
     }
 
 
@@ -377,6 +381,7 @@ class Add extends Component
 
     public function removeBasicSeed($index)
     {
+
         unset($this->area_under_basic_seed_multiplication[$index]);
     }
 
@@ -511,17 +516,11 @@ class Add extends Component
             try {
 
                 $this->validate($rules, [], $attributes);
-
-
             } catch (Throwable $e) {
                 session()->flash('validation_error', 'There are errors in the dynamic forms.');
                 throw $e;
             }
-
-
         }
-
-
     }
 
 
@@ -576,8 +575,6 @@ class Add extends Component
         try {
 
             $this->validate();
-
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -625,61 +622,46 @@ class Add extends Component
                 'district' => $this->location_data['district'],
                 'section' => $this->location_data['section'],
                 'enterprise' => $this->location_data['enterprise'],
-                'date_of_recruitment' => $this->date_of_recruitment,
-                'name_of_actor' => $this->name_of_actor,
-                'name_of_representative' => $this->name_of_representative,
-                'phone_number' => $this->phone_number,
-                'type' => $this->type,
-                'approach' => $this->approach, // For producer organizations only
-                'sector' => $this->sector,
-                //   'number_of_members' => $this->number_of_members, // For producer organizations only
-                'group' => $this->group,
-                'establishment_status' => $this->establishment_status,
-                'is_registered' => $this->is_registered,
-                'registration_body' => $this->registration_details['registration_body'],
-                'registration_number' => $this->registration_details['registration_number'],
-                'registration_date' => $this->registration_details['registration_date'],
-                //  'registration_details' => $this->is_registered ? $this->registration_details : null,
-                //  'number_of_employees' => $this->number_of_employees,
-                // 'area_under_cultivation' => $this->area_under_cultivation, // Stores area by variety (key-value pairs)
-                //  'number_of_plantlets_produced' => $this->group == 'Early generation seed producer' ? $this->number_of_plantlets_produced : 0,
-                'number_of_plantlets_produced_cassava' => $this->group == 'Early generation seed producer' ? $this->number_of_plantlets_produced['cassava'] : 0,
-                'number_of_plantlets_produced_potato' => $this->group == 'Early generation seed producer' ? $this->number_of_plantlets_produced['potato'] : 0,
-                'number_of_plantlets_produced_sweet_potato' => $this->group == 'Early generation seed producer' ? $this->number_of_plantlets_produced['sweet_potato'] : 0,
-
-                'number_of_screen_house_vines_harvested' => $this->group == 'Early generation seed producer' ? $this->number_of_screen_house_vines_harvested : 0, // Sweet potatoes
-                'number_of_screen_house_min_tubers_harvested' => $this->group == 'Early generation seed producer' ? $this->number_of_screen_house_min_tubers_harvested : 0, // Potatoes
-                'number_of_sah_plants_produced' => $this->group == 'Early generation seed producer' ? $this->number_of_sah_plants_produced : 0, // Cassava
-                //  'area_under_basic_seed_multiplication' => $this->area_under_basic_seed_multiplication, // Acres
-                // 'area_under_certified_seed_multiplication' => $this->area_under_certified_seed_multiplication, // Acres
+                'group_name' => $this->location_data['group_name'],
+                'date_of_followup' => $this->date_of_followup,
+                // 'name_of_actor' => $this->name_of_actor,
+                // 'name_of_representative' => $this->name_of_representative,
+                // 'phone_number' => $this->phone_number,
+                // 'type' => $this->type,
+                // 'approach' => $this->approach, // For producer organizations only
+                // 'sector' => $this->sector,
+                // 'group' => $this->group,
+                // 'establishment_status' => $this->establishment_status,
+                // 'is_registered' => $this->is_registered,
+                // 'registration_body' => $this->registration_details['registration_body'],
+                // 'registration_number' => $this->registration_details['registration_number'],
+                // 'registration_date' => $this->registration_details['registration_date'],
+                'number_of_plantlets_produced_cassava' =>  $this->number_of_plantlets_produced['cassava'] ?? 0,
+                'number_of_plantlets_produced_potato' =>  $this->number_of_plantlets_produced['potato'] ?? 0,
+                'number_of_plantlets_produced_sweet_potato' =>  $this->number_of_plantlets_produced['sweet_potato'] ?? 0,
+                'number_of_screen_house_vines_harvested' =>  $this->number_of_screen_house_vines_harvested ?? 0, // Sweet potatoes
+                'number_of_screen_house_min_tubers_harvested' =>  $this->number_of_screen_house_min_tubers_harvested ?? 0, // Potatoes
+                'number_of_sah_plants_produced' =>  $this->number_of_sah_plants_produced ?? 0, // Cassava
                 'is_registered_seed_producer' => $this->is_registered_seed_producer,
-
                 'registration_number_seed_producer' => $this->seed_service_unit_registration_details['registration_number'],
                 'registration_date_seed_producer' => $this->seed_service_unit_registration_details['registration_date'],
-                //  'seed_service_unit_registration_details' => $this->is_registered_seed_producer ? $this->seed_service_unit_registration_details : null,
                 'uses_certified_seed' => $this->uses_certified_seed,
-                //  'market_segment' => $this->market_segment, // Multiple market segments (array of strings)
                 'market_segment_fresh' => $segment->contains('Fresh') ? 1 : 0,
                 'market_segment_processed' => $segment->contains('Processed') ? 1 : 0,
                 'has_rtc_market_contract' => $this->has_rtc_market_contract,
-
                 'total_vol_production_previous_season' => $this->total_vol_production_previous_season, // Metric tonnes
                 'prod_value_previous_season_total' => $this->total_production_value_previous_season['value'],
                 'prod_value_previous_season_date_of_max_sales' => $this->total_production_value_previous_season['date_of_maximum_sales'],
                 'prod_value_previous_season_usd_rate' => $this->total_production_value_previous_season['rate'],
                 'prod_value_previous_season_usd_value' => $this->total_production_value_previous_season['total'],
-
                 'total_vol_irrigation_production_previous_season' => $this->total_vol_irrigation_production_previous_season, // Metric tonnes
                 'irr_prod_value_previous_season_total' => $this->total_irrigation_production_value_previous_season['value'],
                 'irr_prod_value_previous_season_date_of_max_sales' => $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'],
                 'irr_prod_value_previous_season_usd_rate' => $this->total_irrigation_production_value_previous_season['rate'],
                 'irr_prod_value_previous_season_usd_value' => $this->total_irrigation_production_value_previous_season['total'],
-
-
                 'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                 'sells_to_international_markets' => $this->sells_to_international_markets,
                 'uses_market_information_systems' => $this->uses_market_information_systems,
-                //     'market_information_systems' => $this->market_information_systems,
                 'user_id' => auth()->user()->id,
                 'uuid' => $uuid,
                 'submission_period_id' => $this->submissionPeriodId,
@@ -688,20 +670,19 @@ class Add extends Component
                 'period_month_id' => $this->selectedMonth,
                 'status' => 'approved',
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
-                //    'aggregation_centers' => $this->aggregation_center_sales, // Stores aggregation center details (array of objects with name and volume sold)
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales, // Previous season volume in metric tonnes
-                'emp_formal_female_18_35' => $this->number_of_employees['formal']['female_18_35'],
-                'emp_formal_male_18_35' => $this->number_of_employees['formal']['male_18_35'],
-                'emp_formal_male_35_plus' => $this->number_of_employees['formal']['male_35_plus'],
-                'emp_formal_female_35_plus' => $this->number_of_employees['formal']['female_35_plus'],
-                'emp_informal_female_18_35' => $this->number_of_employees['informal']['female_18_35'],
-                'emp_informal_male_18_35' => $this->number_of_employees['informal']['male_18_35'],
-                'emp_informal_male_35_plus' => $this->number_of_employees['informal']['male_35_plus'],
-                'emp_informal_female_35_plus' => $this->number_of_employees['informal']['female_35_plus'],
-                'mem_female_18_35' => $this->number_of_members['female_18_35'],
-                'mem_male_18_35' => $this->number_of_members['male_18_35'],
-                'mem_male_35_plus' => $this->number_of_members['male_35_plus'],
-                'mem_female_35_plus' => $this->number_of_members['female_35_plus'],
+                // 'emp_formal_female_18_35' => $this->number_of_employees['formal']['female_18_35'],
+                // 'emp_formal_male_18_35' => $this->number_of_employees['formal']['male_18_35'],
+                // 'emp_formal_male_35_plus' => $this->number_of_employees['formal']['male_35_plus'],
+                // 'emp_formal_female_35_plus' => $this->number_of_employees['formal']['female_35_plus'],
+                // 'emp_informal_female_18_35' => $this->number_of_employees['informal']['female_18_35'],
+                // 'emp_informal_male_18_35' => $this->number_of_employees['informal']['male_18_35'],
+                // 'emp_informal_male_35_plus' => $this->number_of_employees['informal']['male_35_plus'],
+                // 'emp_informal_female_35_plus' => $this->number_of_employees['informal']['female_35_plus'],
+                // 'mem_female_18_35' => $this->number_of_members['female_18_35'],
+                // 'mem_male_18_35' => $this->number_of_members['male_18_35'],
+                // 'mem_male_35_plus' => $this->number_of_members['male_35_plus'],
+                // 'mem_female_35_plus' => $this->number_of_members['female_35_plus'],
 
             ];
 
@@ -766,7 +747,6 @@ class Add extends Component
                 session()->flash('info', 'Your ID is: <b>' . substr($recruit->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
 
                 $this->redirect(url()->previous());
-
             } catch (UserErrorException $e) {
                 // Log the actual error for debugging purposes
                 Log::error('Submission error: ' . $e->getMessage());
@@ -774,9 +754,6 @@ class Add extends Component
                 // Provide a generic error message to the user
                 session()->flash('error', $e->getMessage());
             }
-
-
-
         } catch (Throwable $th) {
 
             session()->flash('error', 'Something went wrong!');
@@ -837,7 +814,6 @@ class Add extends Component
 
             if ($this->sells_to_domestic_markets) {
                 RpmFarmerDomMarket::insert($fourthTable);
-
             }
 
 
@@ -869,14 +845,11 @@ class Add extends Component
                 "intermarket" => $fifthTable,
 
             ];
-
-
         } catch (UserErrorException $e) {
             # code...
 
             session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
         }
-
     }
     public function resetall()
     {
@@ -885,46 +858,46 @@ class Add extends Component
         $this->fill(
             [
                 'inputOne' =>
-                    collect([
-                        [
-                            'conc_date_recorded' => null,
-                            'conc_partner_name' => null,
-                            'conc_country' => null,
-                            'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => 'Seed',
-                            'conc_volume_sold_previous_period' => null,
-                            'conc_financial_value_of_sales' => null,
-                        ],
+                collect([
+                    [
+                        'conc_date_recorded' => null,
+                        'conc_partner_name' => null,
+                        'conc_country' => null,
+                        'conc_date_of_maximum_sale' => null,
+                        'conc_product_type' => 'Seed',
+                        'conc_volume_sold_previous_period' => null,
+                        'conc_financial_value_of_sales' => null,
+                    ],
 
-                    ]),
+                ]),
 
                 'inputTwo' =>
-                    collect([
-                        [
-                            'dom_date_recorded' => null,
-                            'dom_crop_type' => 'Cassava',
-                            'dom_market_name' => null,
-                            'dom_district' => null,
-                            'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => 'Seed',
-                            'dom_volume_sold_previous_period' => null,
-                            'dom_financial_value_of_sales' => null,
-                        ],
-                    ]),
+                collect([
+                    [
+                        'dom_date_recorded' => null,
+                        'dom_crop_type' => 'Cassava',
+                        'dom_market_name' => null,
+                        'dom_district' => null,
+                        'dom_date_of_maximum_sale' => null,
+                        'dom_product_type' => 'Seed',
+                        'dom_volume_sold_previous_period' => null,
+                        'dom_financial_value_of_sales' => null,
+                    ],
+                ]),
 
                 'inputThree' =>
-                    collect([
-                        [
-                            'inter_date_recorded' => null,
-                            'inter_crop_type' => 'Cassava',
-                            'inter_market_name' => null,
-                            'inter_country' => null,
-                            'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => 'Seed',
-                            'inter_volume_sold_previous_period' => null,
-                            'inter_financial_value_of_sales' => null,
-                        ],
-                    ]),
+                collect([
+                    [
+                        'inter_date_recorded' => null,
+                        'inter_crop_type' => 'Cassava',
+                        'inter_market_name' => null,
+                        'inter_country' => null,
+                        'inter_date_of_maximum_sale' => null,
+                        'inter_product_type' => 'Seed',
+                        'inter_volume_sold_previous_period' => null,
+                        'inter_financial_value_of_sales' => null,
+                    ],
+                ]),
             ]
         );
     }
@@ -942,7 +915,6 @@ class Add extends Component
         if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
 
             abort(404);
-
         }
 
         $findForm = Form::find($form_id);
@@ -953,7 +925,6 @@ class Add extends Component
         if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
 
             abort(404);
-
         } else {
             $this->selectedForm = $findForm->id;
             $this->selectedIndicator = $findIndicator->id;
@@ -996,46 +967,46 @@ class Add extends Component
         $this->fill(
             [
                 'inputOne' =>
-                    collect([
-                        [
-                            'conc_date_recorded' => null,
-                            'conc_partner_name' => null,
-                            'conc_country' => 'Malawi',
-                            'conc_date_of_maximum_sale' => null,
-                            'conc_product_type' => 'Seed',
-                            'conc_volume_sold_previous_period' => null,
-                            'conc_financial_value_of_sales' => null,
-                        ],
+                collect([
+                    [
+                        'conc_date_recorded' => null,
+                        'conc_partner_name' => null,
+                        'conc_country' => 'Malawi',
+                        'conc_date_of_maximum_sale' => null,
+                        'conc_product_type' => 'Seed',
+                        'conc_volume_sold_previous_period' => null,
+                        'conc_financial_value_of_sales' => null,
+                    ],
 
-                    ]),
+                ]),
 
                 'inputTwo' =>
-                    collect([
-                        [
-                            'dom_date_recorded' => null,
-                            'dom_crop_type' => 'Cassava',
-                            'dom_market_name' => null,
-                            'dom_district' => null,
-                            'dom_date_of_maximum_sale' => null,
-                            'dom_product_type' => 'Seed',
-                            'dom_volume_sold_previous_period' => null,
-                            'dom_financial_value_of_sales' => null,
-                        ],
-                    ]),
+                collect([
+                    [
+                        'dom_date_recorded' => null,
+                        'dom_crop_type' => 'Cassava',
+                        'dom_market_name' => null,
+                        'dom_district' => null,
+                        'dom_date_of_maximum_sale' => null,
+                        'dom_product_type' => 'Seed',
+                        'dom_volume_sold_previous_period' => null,
+                        'dom_financial_value_of_sales' => null,
+                    ],
+                ]),
 
                 'inputThree' =>
-                    collect([
-                        [
-                            'inter_date_recorded' => null,
-                            'inter_crop_type' => 'Cassava',
-                            'inter_market_name' => null,
-                            'inter_country' => 'Malawi',
-                            'inter_date_of_maximum_sale' => null,
-                            'inter_product_type' => 'Seed',
-                            'inter_volume_sold_previous_period' => null,
-                            'inter_financial_value_of_sales' => null,
-                        ],
-                    ]),
+                collect([
+                    [
+                        'inter_date_recorded' => null,
+                        'inter_crop_type' => 'Cassava',
+                        'inter_market_name' => null,
+                        'inter_country' => 'Malawi',
+                        'inter_date_of_maximum_sale' => null,
+                        'inter_product_type' => 'Seed',
+                        'inter_volume_sold_previous_period' => null,
+                        'inter_financial_value_of_sales' => null,
+                    ],
+                ]),
 
 
                 'area_under_cultivation' => collect([
@@ -1044,21 +1015,15 @@ class Add extends Component
                         'area' => null
                     ]
                 ]),
-                'area_under_basic_seed_multiplication' => collect([
-
-                ]),
+                'area_under_basic_seed_multiplication' => collect([]),
                 'area_under_certified_seed_multiplication' => collect([
                     [
                         'variety' => null,
                         'area' => null
                     ]
                 ]),
-                'aggregation_center_sales' => collect([
-
-                ]),
-                'market_information_systems' => collect([
-
-                ]),
+                'aggregation_center_sales' => collect([]),
+                'market_information_systems' => collect([]),
 
 
 
@@ -1069,7 +1034,6 @@ class Add extends Component
         $this->routePrefix = Route::current()->getPrefix();
         $this->total_production_value_previous_season['rate'] = $this->rate;
         $this->total_irrigation_production_value_previous_season['rate'] = $this->rate;
-
     }
 
     public function render()

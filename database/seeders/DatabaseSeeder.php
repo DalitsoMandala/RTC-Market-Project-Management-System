@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
         //     $this->call(PeriodSeeder::class); //edit this (test)
-        $this->call(SourceSeeder::class);
+        //  $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
 

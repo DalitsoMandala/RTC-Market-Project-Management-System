@@ -9,11 +9,12 @@ use App\Models\Organisation;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use App\Notifications\NewUserNotification;
-use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class ListUsers extends Component
@@ -115,6 +116,46 @@ class ListUsers extends Component
         $this->changePassword = true;
     }
 
+
+    #[On('send-users')]
+    public function usersData($users)
+    {
+
+        $rules = [
+            '*.email' => 'required|email|unique:users,email', // Validate email format and uniqueness
+            '*.name' => 'required|string|max:255', // Validate name
+            '*.organisation' => 'required|string|max:255', // Validate organisation
+            '*.role' => 'required|string|in:staff,admin', // Validate role (only allow 'staff' or 'admin')
+        ];
+
+        // Validate the array
+        $validator = Validator::make($users, $rules);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            // Flash validation errors to the session
+            session()->flash('error', $validator->errors());
+
+            // Redirect back or to a specific route
+
+        } else {
+            // Flash a success message to the session
+            foreach ($users as $user) {
+                $organisation = Organisation::where('name', $user['organisation'])->first();
+                $addedUser =  User::create([
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'phone_number' => '+9999999999',
+                    'organisation_id' => $organisation->id,
+                    'password' => Hash::make('password'),
+
+                ])->assignRole($user['role']);
+                $addedUser->delete();
+            }
+            $this->dispatch('refresh');
+            session()->flash('success', 'All users have been validated successfully!');
+        }
+    }
     public function save()
     {
         $this->validate();

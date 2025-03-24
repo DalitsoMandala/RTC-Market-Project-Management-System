@@ -46,14 +46,16 @@ class ExcelExportJob implements ShouldQueue
     public $uniqueID;
     public $progressKey;
     public $statusKey;
+    public $user;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($name, $uniqueID)
+    public function __construct($name, $uniqueID, $user = null)
     {
         $this->name = $name;
         $this->uniqueID = $uniqueID;
+        $this->user = $user;
     }
 
     /**
@@ -210,8 +212,16 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+
+                $query = RtcProductionFarmer::query();
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
+
                 // Process data in chunks
-                RtcProductionFarmer::chunk(2000, function ($households) use ($writer) {
+                $query->chunk(2000, function ($households) use ($writer) {
                     foreach ($households as $household) {
                         $submittedBy = '';
                         $user = User::find($household->user_id); {
@@ -220,6 +230,8 @@ class ExcelExportJob implements ShouldQueue
 
                             $submittedBy = $name . " (" . $organisation . ")";
                         }
+
+
                         $writer->addRow([
 
                             $household->pf_id,

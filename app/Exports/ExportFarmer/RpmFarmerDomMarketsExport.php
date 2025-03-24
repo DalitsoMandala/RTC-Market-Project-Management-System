@@ -109,7 +109,7 @@ class RpmFarmerDomMarketsExport implements FromCollection, WithHeadings, WithTit
                 ]);
 
                 $options = [
-                    '',
+
                     'Seed',
                     'Ware',
                     'Value added products'
@@ -118,7 +118,7 @@ class RpmFarmerDomMarketsExport implements FromCollection, WithHeadings, WithTit
                 $this->setDataValidations($options, 'G3', $sheet);
 
                 $options = [
-                    '',
+
                     'Cassava',
                     'Sweet potato',
                     'Potato'

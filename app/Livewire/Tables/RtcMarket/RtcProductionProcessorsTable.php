@@ -60,7 +60,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
                 'user',
                 'user.organisation'
             ])->where('organisation_id', $organisation_id);
-
         }
         return RtcProductionProcessor::query()->with([
 
@@ -76,7 +75,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -239,7 +237,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
 
             ->add('submitted_by', function ($model) {
@@ -250,7 +247,6 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             // ->add('aggregation_centers_specify', function ($model) {
             //     $aggregation_centers = json_decode($model->aggregation_centers);
@@ -421,8 +417,8 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             Column::make('Name of actor', 'name_of_actor')
                 ->sortable()
                 ->searchable(),
-            Column::make('Enterprise', 'enterprise', )->searchable()->sortable(),
-            Column::make('District', 'district', )->sortable()->searchable(),
+            Column::make('Enterprise', 'enterprise',)->searchable()->sortable(),
+            Column::make('District', 'district',)->sortable()->searchable(),
             Column::make('EPA', 'epa')->sortable()->searchable(),
             Column::make('Section', 'section')->sortable()->searchable(),
             Column::make('Name of representative', 'name_of_representative')
@@ -589,9 +585,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
 
@@ -603,7 +597,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     // public function actions($row): array
     // {
-    //     $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS')->first();
+    //     $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS')->first();
 
     //     $form_name = str_replace(' ', '-', strtolower($form->name));
     //     $project = str_replace(' ', '-', strtolower($form->project->name));

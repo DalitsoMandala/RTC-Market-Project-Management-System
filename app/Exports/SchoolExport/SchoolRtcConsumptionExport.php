@@ -22,9 +22,9 @@ class SchoolRtcConsumptionExport implements FromCollection, WithHeadings, WithTi
         'District' => 'Required, Text',
         'School Name' => 'Required, Text',
         'Date' => 'Date (dd-mm-yyyy)',
-        'Crop Cassava' => 'Boolean (1/0)',
-        'Crop Potato' => 'Boolean (1/0)',
-        'Crop Sweet Potato' => 'Boolean (1/0)',
+        'Cassava Crop' => 'Boolean (1/0)',
+        'Potato Crop' => 'Boolean (1/0)',
+        'Sweet Potato Crop' => 'Boolean (1/0)',
         'Male Count' => 'Number (>=0)',
         'Female Count' => 'Number (>=0)',
     ];

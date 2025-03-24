@@ -1,8 +1,8 @@
-<div class="mb-5 alert alert-warning" role="alert" id="section-a">
+{{-- <div class="mb-5 alert alert-warning" role="alert" id="section-a">
     <strong>SECTION A: RTC ACTOR PROFILE</strong>
-</div>
+</div> --}}
 
-<!-- Date of Recruitment -->
+{{-- <!-- Date of Recruitment -->
 <div class="mb-3">
     <label for="dateOfRecruitment" class="form-label">Date of Recruitment</label>
     <input type="date" class="form-control @error('date_of_recruitment') is-invalid @enderror" id="dateOfRecruitment"
@@ -393,13 +393,18 @@ $watch('number_of_members', (v) => {
         </div>
     </div>
 </div>
-
+ --}}
 
 
 
 
 <div class="alert alert-warning" id="section-b" role="alert">
-    <strong>SECTION B: RTC PRODUCTION </strong>
+    <strong>SECTION A: RTC PRODUCTION </strong>
+</div>
+<!-- Date of Follow Up -->
+<div class="mb-3">
+    <label for="dateOfFollowUp" class="form-label">Date of Follow Up</label>
+    <input type="date" class="form-control" id="dateOfFollowUp" wire:model='date_of_followup'>
 </div>
 
 <!-- Area Under Cultivation (Number of Acres) by Variety -->
@@ -411,7 +416,7 @@ $watch('number_of_members', (v) => {
 
 
     <div class="row">
-        <div class="card card-body shadow-none border">
+        <div class="border shadow-none card card-body">
             @foreach ($area_under_cultivation as $index => $value)
                 <div class="row">
                     <label for="variety" class="my-3 form-label fw-bold">vARIETY
@@ -424,8 +429,7 @@ $watch('number_of_members', (v) => {
                             <x-text-input :class="$errors->has('area_under_cultivation.' . $index . '.variety')
                                 ? 'is-invalid'
                                 : ''"
-                                wire:model='area_under_cultivation.{{ $index }}.variety'
-                                placeholder="variety" />
+                                wire:model='area_under_cultivation.{{ $index }}.variety' placeholder="variety" />
                             @error('area_under_cultivation.' . $index . '.variety')
                                 <x-error>{{ $message }}</x-error>
                             @enderror
@@ -434,7 +438,8 @@ $watch('number_of_members', (v) => {
                     <div class="col">
                         <div class="mb-3">
                             <x-text-input type="number" min="0" step="any" :class="$errors->has('area_under_cultivation.' . $index . '.area') ? 'is-invalid' : ''"
-                                wire:model='area_under_cultivation.{{ $index }}.area' placeholder="area" />
+                                wire:model='area_under_cultivation.{{ $index }}.area'
+                                placeholder="area in acres" />
                             @error('area_under_cultivation.' . $index . '.area')
                                 <x-error>{{ $message }}</x-error>
                             @enderror
@@ -477,8 +482,7 @@ $watch('number_of_members', (v) => {
 
         $wire.resetValues('number_of_plantlets_produced');
     }
-});"
-    x-show="group=='Early generation seed producer'">
+});" x-show="group=='Early generation seed producer'">
 
     <label for="numberOfPlantlets" class="my-3 form-label fw-bold">Number of
         Plantlets
@@ -606,7 +610,7 @@ $watch('number_of_members', (v) => {
 
 
     }
-}" x-show="group=='Early generation seed producer'">
+}">
     <label for="areaUnderBasicSeed" class="my-3 form-label fw-bold">Area Under
         Basic Seed
         Multiplication (Number of Acres)</label>
@@ -614,7 +618,7 @@ $watch('number_of_members', (v) => {
 
 
     <div class="row">
-        <div class="card card-body shadow-none border">
+        <div class="border shadow-none card card-body">
             @foreach ($area_under_basic_seed_multiplication as $index => $value)
                 <div class="row">
                     <label for="variety" class="my-3 form-label fw-bold">vARIETY
@@ -640,7 +644,7 @@ $watch('number_of_members', (v) => {
                                 ? 'is-invalid'
                                 : ''"
                                 wire:model='area_under_basic_seed_multiplication.{{ $index }}.area'
-                                placeholder="area" />
+                                placeholder="area in acres" />
                             @error('area_under_basic_seed_multiplication.' . $index . '.area')
                                 <x-error>{{ $message }}</x-error>
                             @enderror
@@ -648,8 +652,7 @@ $watch('number_of_members', (v) => {
                     </div>
                     <div class="col-2" x-data>
                         <button type="button" class="btn btn-theme-red"
-                            @click="$wire.removeBasicSeed({{ $index }})"
-                            @if ($index == 0) disabled @endif>
+                            @click="$wire.removeBasicSeed({{ $index }})">
                             -
                         </button>
                     </div>
@@ -678,7 +681,7 @@ $watch('number_of_members', (v) => {
         Certified
         Seed Multiplication</label>
     <div class="row">
-        <div class="card card-body shadow-none border">
+        <div class="border shadow-none card card-body">
             @foreach ($area_under_certified_seed_multiplication as $index => $value)
                 <div class="row">
                     <label for="variety" class="my-3 form-label fw-bold">vARIETY
@@ -822,7 +825,7 @@ $watch('number_of_members', (v) => {
 
 
 <div class="mb-5 alert alert-warning" id="section-c" role="alert">
-    <strong>SECTION C: RTC MARKETING </strong>
+    <strong>SECTION B: RTC MARKETING </strong>
 </div>
 <!-- Market Segment (Multiple Responses) -->
 <div class="mb-3">
@@ -882,7 +885,7 @@ $watch('number_of_members', (v) => {
 </div>
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
-<div class="mb-3 card card-body shadow-none border" x-data="{
+<div class="mb-3 border shadow-none card card-body" x-data="{
 
 
 
@@ -948,7 +951,7 @@ $watch('number_of_members', (v) => {
 </div>
 
 <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
-<div class="mb-3 card card-body shadow-none border" x-data="{
+<div class="mb-3 border shadow-none card card-body" x-data="{
 
 
 
@@ -1093,7 +1096,7 @@ $watch('number_of_members', (v) => {
 
         <div class="row">
 
-            <div class="card card-body shadow-none border">
+            <div class="border shadow-none card card-body">
                 <label for="" class="form-label">Specify Market Information System</label>
                 @foreach ($market_information_systems as $index => $value)
                     <div class="row">
@@ -1194,7 +1197,7 @@ $watch('number_of_members', (v) => {
 
         <div class="row">
 
-            <div class="card card-body shadow-none border">
+            <div class="border shadow-none card card-body">
                 <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
                 @foreach ($aggregation_center_sales as $index => $value)
                     <div class="row">

@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Jobs\ExcelExportJob;
+use App\Models\User;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -30,18 +31,17 @@ trait ExportTrait
     public function performExport()
     {
 
-
+        $user = User::find(auth()->user()->id);
         $this->exporting = true;
         $this->exportFinished = false;
         $this->exportFailed = false;
         $id = Str::random();
         $this->exportUniqueId = $id;
         $batch = Bus::batch([
-            new ExcelExportJob($this->Modelname, $id),
+            new ExcelExportJob($this->Modelname, $id, $user),
         ])->dispatch();
 
         $this->batchID = $batch->id;
-
     }
 
 
@@ -68,6 +68,5 @@ trait ExportTrait
                 $this->exportFailed = $batch->failedJobs > 0;
             }
         }
-
     }
 }

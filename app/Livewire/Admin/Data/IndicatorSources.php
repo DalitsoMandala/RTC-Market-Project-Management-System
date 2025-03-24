@@ -21,7 +21,7 @@ class IndicatorSources extends Component
 
     public $selectedLeadPartners = [];
     #[Validate('required', 'lead partner')]
-    public $selectedLeadPartner;
+    public $selectedLeadPartner = [];
     public $indicators = [];
 
     public $forms = [];
@@ -37,62 +37,60 @@ class IndicatorSources extends Component
 
         try {
 
-            $responsible = ResponsiblePerson::where('indicator_id', $this->rowId)->where('organisation_id', $this->selectedLeadPartner)->first();
-            $id = $responsible->id;
+            $responsible = ResponsiblePerson::where('indicator_id', $this->rowId)->whereIn('organisation_id', $this->selectedLeadPartner);
+            $responsible->delete();
 
-            Source::where('person_id', $id)->delete();
-            foreach ($this->selectedForms as $form) {
-                # code...
-                Source::create([
-                    'form_id' => $form,
-                    'person_id' => $id
+            foreach ($this->selectedLeadPartner as $partner) {
+
+                $organisation = Organisation::find($partner);
+                ResponsiblePerson::create([
+                    'indicator_id' => $this->rowId,
+                    'organisation_id' => $organisation->id,
+
                 ]);
             }
-
-
             $this->dispatch('refresh');
             $this->alert('success', 'Indicator updated successfully');
-
         } catch (\Throwable $th) {
 
             $this->alert('error', 'Something went wrong');
             Log::error($th);
         }
-
-
     }
 
     #[On('showModal')]
     public function setData($rowId)
     {
         $this->selectedForms = [];
-        $this->selectedLeadPartner = null;
+
         $row = Indicator::find($rowId);
         $organisations = $row->organisation->pluck('id');
-        $this->leadPartners = Organisation::whereIn('id', $organisations)->get();
-        $this->indicators = Indicator::where('id', $rowId)->get();
         $forms = $row->forms->pluck('id');
         $this->forms = Form::whereIn('id', $forms)->get();
-
+        $this->leadPartners = Organisation::all();
+        //$this->selectedLeadPartner  = $organisations->toArray();
+        $this->indicators = Indicator::where('id', $rowId)->get();
         $this->rowId = $rowId;
-
     }
 
-    public function updated($property)
-    {
-        if ($property == 'selectedLeadPartner') {
-            $this->selectedForms = [];
-            $response = ResponsiblePerson::where('indicator_id', $this->rowId)->where('organisation_id', $this->selectedLeadPartner)->first();
-
-            $sources = Source::where('person_id', $response->id)->pluck('form_id')->toArray();
-
-            $this->selectedForms = $sources;
 
 
 
+    // public function updated($property)
+    // {
+    //     if ($property == 'selectedLeadPartner') {
+    //         $this->selectedForms = [];
+    //         // $response = ResponsiblePerson::where('indicator_id', $this->rowId)->where('organisation_id', $this->selectedLeadPartner)->first();
 
-        }
-    }
+    //         // $sources = Source::where('person_id', $response->id)->pluck('form_id')->toArray();
+
+    //         // $this->selectedForms = $sources;
+
+
+
+
+    //     }
+    // }
 
 
     public function mount()

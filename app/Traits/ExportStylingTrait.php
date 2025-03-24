@@ -41,8 +41,22 @@ trait ExportStylingTrait
 
     public function setDataValidations($options, $cell, $sheet)
     {
-        $dropdownValues = '"' . implode(',', $options) . '"';
+        // $string = '"';
 
+        // foreach ($options as $key => $value) {
+        //     if ($key !== count($options) - 1) {
+        //         $string .= "$value" . ",";
+        //     } else {
+        //         $string .= "$value" . "\"";
+        //     }
+        // }
+
+
+
+        $dropdownValues = '"' . implode(',', $options) . '"';
+        // dd($dropdownValues, $string);
+        //  $dropdownValues = $string;
+        // dd($dropdownValues);
         // Apply validation to the specified cell
         $validation = $sheet->getCell($cell)->getDataValidation();
         $validation->setType(DataValidation::TYPE_LIST)

@@ -114,7 +114,7 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
 
                 // Define the dropdown options
                 $dropdownOptions = [
-                    '',
+
                     'Training',
                     'Meeting',
                     'Workshop',
@@ -123,7 +123,7 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
 
                 $this->setDataValidations($dropdownOptions, 'B3', $sheet);
                 $dropdownOptions = [
-                    '',
+
                     'Farmer',
                     'Processor',
                     'Trader',

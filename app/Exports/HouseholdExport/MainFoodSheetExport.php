@@ -81,7 +81,7 @@ class MainFoodSheetExport implements FromCollection, WithHeadings, WithTitle, Wi
 
                 // Define the dropdown options
                 $dropdownOptions = [
-                    '',
+
                     'Cassava',
                     'Sweet potato',
                     'Potato',

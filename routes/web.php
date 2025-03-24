@@ -110,7 +110,7 @@ Route::get('/download-templates', function () {
         'seed_beneficiaries_template.xlsx' => new SeedBeneficiariesExport(true),
     ];
 
-    $zipFileName = 'templates.zip';
+    $zipFileName = 'form_templates.zip';
     $zipPath = storage_path('app/public/exports/' . $zipFileName);
     $zip = new ZipArchive;
 
@@ -125,6 +125,49 @@ Route::get('/download-templates', function () {
 
     return response()->download($zipPath)->deleteFileAfterSend(true);
 });
+
+
+
+function registerFormRoutes($prefix, $role)
+{
+    // Route::get($prefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
+    // Route::get($prefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
+    // Route::get($prefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
+    // Route::get($prefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
+    // Route::get($prefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
+    // Route::get($prefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
+
+    Route::get($prefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
+
+    Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+    Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
+
+    // Route::get($prefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
+    // Route::get($prefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    // Route::get($prefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
+    // Route::get($prefix . '/school-rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Upload::class);
+
+
+    Route::get($prefix . '/rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcConsumption\Add::class);
+    Route::get($prefix . '/rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\RtcConsumption\View::class);
+    Route::get($prefix . '/rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\RtcConsumption\View::class);
+    Route::get($prefix . '/rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcConsumption\Upload::class);
+
+    Route::get($prefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
+    Route::get($prefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+    Route::get($prefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+
+    Route::get($prefix . '/rtc-actor-recruitment-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcRecruitment\Add::class);
+    Route::get($prefix . '/rtc-actor-recruitment-form/view', App\Livewire\Forms\RtcMarket\RtcRecruitment\View::class);
+    Route::get($prefix . '/rtc-actor-recruitment-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcRecruitment\Upload::class);
+}
 // Profile route
 Route::get('/profile', \App\Livewire\Profile\Details::class)
     ->middleware(['auth'])
@@ -139,7 +182,6 @@ Route::middleware([
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
-    //   Route::get('/organisation-list', \App\Livewire\Admin\System\OrganisationList::class)->name('admin-organisation-list');
     Route::get('/cgiar-projects', \App\Livewire\Admin\Data\CgiarProjects::class)->name('admin-cgiar-projects');
     Route::get('/projects', \App\Livewire\Admin\Data\Projects::class)->name('admin-projects');
     Route::get('/reporting-periods', \App\Livewire\Admin\Data\ReportingPeriod::class)->name('admin-period');
@@ -157,38 +199,7 @@ Route::middleware([
     Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('admin-jobs');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
     // Form routes
-    $formPrefix = '/forms/{project}';
-    $randId = Uuid::uuid4()->toString();
-    Route::get($formPrefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
-    Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
-    Route::get($formPrefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
-
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
-
-
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
-
-    Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-
-
-    Route::get($formPrefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}',  App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
-    Route::get($formPrefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}',  App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
-    Route::get($formPrefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
-
-    Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+    registerFormRoutes('/forms/{project}', 'admin');
 });
 
 // CIP Internal routes
@@ -209,48 +220,7 @@ Route::middleware([
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
-
-
-    // Form routes
-    $formPrefix = '/forms/{project}';
-    $randId = Uuid::uuid4()->toString();
-    Route::get($formPrefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
-    Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
-    Route::get($formPrefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
-    Route::get($formPrefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
-
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
-
-
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
-
-
-
-
-    Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Upload::class);
-
-
-    Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
-    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
-
-
-    Route::get($formPrefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}',  App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
-    Route::get($formPrefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}',  App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
-    Route::get($formPrefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
+    registerFormRoutes('/forms/{project}', 'manager');
 });
 
 // CIP Internal routes
@@ -269,41 +239,8 @@ Route::middleware([
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
 
-    // Form routes
-    $formPrefix = '/forms/{project}';
-    $randId = Uuid::uuid4()->toString();
-    Route::get($formPrefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
-    Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
-    Route::get($formPrefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
-    Route::get($formPrefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
 
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
-
-
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
-
-
-
-
-    Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Upload::class);
-
-
-    Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
-    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+    registerFormRoutes('/forms/{project}', 'staff');
 });
 
 
@@ -319,16 +256,7 @@ Route::middleware([
     Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
     Route::get('/targets', App\Livewire\Targets\View::class);
 
-    // Form routes
-    $formPrefix = '/forms/{project}';
-    $randId = Uuid::uuid4()->toString();
-    Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
-
-    Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+    registerFormRoutes('/forms/{project}', 'project_manager');
 });
 // External routes
 Route::middleware([
@@ -345,44 +273,8 @@ Route::middleware([
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
-    // Form routes
-    $formPrefix = '/forms/{project}';
-    $randId = Uuid::uuid4()->toString();
-    Route::get($formPrefix . '/household-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData::class);
-    Route::get($formPrefix . '/household-consumption-form/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData::class);
-    Route::get($formPrefix . '/household-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Upload::class);
-    Route::get($formPrefix . '/aggregate/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\Reports\Add::class);
-    Route::get($formPrefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
 
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
-
-
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-    Route::get($formPrefix . '/rtc-production-and-marketing-form-processors/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
-
-
-    Route::get($formPrefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}',  App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
-    Route::get($formPrefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}',  App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
-    Route::get($formPrefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
-
-
-    Route::get($formPrefix . '/school-rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Add::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\SchoolConsumption\View::class);
-    Route::get($formPrefix . '/school-rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\SchoolConsumption\Upload::class);
-
-
-    Route::get($formPrefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-    Route::get($formPrefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
-    Route::get($formPrefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
+    registerFormRoutes('/forms/{project}', 'external');
 });
 
 

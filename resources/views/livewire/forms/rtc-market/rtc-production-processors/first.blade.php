@@ -1,406 +1,13 @@
-<div class="mb-5 alert alert-warning" role="alert" id="section-a">
-    <strong>SECTION A: RTC ACTOR PROFILE</strong>
-</div>
-
-<!-- Date of Recruitment -->
-<div class="mb-3">
-    <label for="dateOfRecruitment" class="form-label">Date of Recruitment</label>
-    <input type="date" class="form-control @error('date_of_recruitment') is-invalid @enderror" id="dateOfRecruitment"
-        wire:model='date_of_recruitment' />
-
-    @error('date_of_recruitment')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-<!-- Name of Actor -->
-<div class="mb-3">
-    <label for="nameOfActor" class="form-label">Name of Actor</label>
-    <input type="text" class="form-control @error('name_of_actor') is-invalid @enderror" id="nameOfActor"
-        wire:model='name_of_actor'>
-    @error('name_of_actor')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-<!-- Name of Representative -->
-<div class="mb-3">
-    <label for="nameOfRepresentative" class="form-label">Name of Representative</label>
-    <input type="text" class="form-control @error('name_of_representative') is-invalid @enderror"
-        id="nameOfRepresentative" wire:model='name_of_representative'>
-    @error('name_of_representative')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-<!-- Phone Number -->
-<div class="mb-3">
-    <label for="phoneNumber" class="form-label">Phone Number</label>
-    <x-phone type="tel" class="form-control " :class="$errors->has('phone_number') ? 'is-invalid' : ''" wire:model="phone_number" />
-    @error('phone_number')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-<!-- Type -->
-<div class="mb-3" x-data="{ type: $wire.entangle('type') }">
-    <label for="type" class="form-label">Type</label>
-
-    <select class="form-select form-select-md @error('type') is-invalid @enderror" wire:model='type'>
-        <option selected value="">Select One</option>
-        <option value="Producer organization">Producer organization (PO)</option>
-        <option value="Large scale processor">Large scale processor</option>
-        <option value="Small medium entrprise (SME)">Small medium entrprise (SME)</option>
-    </select>
-
-    @error('type')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-
-</div>
-
-<!-- Approach (For Producer Organizations Only) -->
-<div class="mb-3" x-data="{ type: $wire.entangle('type'), approach: $wire.entangle('approach') }" x-init="$watch('type', (v) => {
-    if (v != 'Producer organization') {
-
-        $wire.resetValues('approach');
-    }
-});" x-show="type=='Producer organization'">
-    <label for="approach" class="form-label">What Approach Does Your Group Follow (For Producer Organizations
-        Only)</label>
-    <select class="form-select @error('approach') is-invalid @enderror" wire:model="approach">
-        <option value="">Select One</option>
-        <option value="Collective production only">Collective production only</option>
-        <option value="Collective marketing only">Collective marketing only</option>
-        <option value="Knowledge sharing only">Knowledge sharing only</option>
-        <option value="Collective production, marketing and knowledge sharing">Collective production, marketing and
-            knowledge sharing</option>
-        <option value="N/A">N/A</option>
-    </select>
-
-    @error('approach')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-
-<!-- Sector -->
-<div class="mb-3">
-    <label for="sector" class="form-label">Sector</label>
-    <select class="form-select @error('sector') is-invalid @enderror" wire:model="sector">
-        <option value="">Select One</option>
-        <option value="Private">Private</option>
-        <option value="Public">Public</option>
-    </select>
-    @error('sector')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-<!-- Number of Members (For Producer Organizations Only) -->
-<div class="mb-3" x-data="{
-    type: $wire.entangle('type'),
-    number_of_members: $wire.entangle('number_of_members'),
-
-
-}" x-init="$watch('type', (v) => {
-    if (v != 'Producer organization') {
-
-        $wire.resetValues('number_of_members');
-    }
-
-
-});
-
-$watch('number_of_members', (v) => {
-    v.total = parseInt(v.female_18_35 || 0) + parseInt(v.female_35_plus || 0) + parseInt(v.male_18_35 || 0) + parseInt(v.male_35_plus || 0);
-});" x-show="type=='Producer organization'">
-    <label for="numberOfMembers" class="form-label">Number of Members (For Producer Organizations Only)</label>
-
-    <div class="mb-3">
-
-        <div class="row">
-
-            <div class="col">
-                <label for="female1835">FEMALE 18-35YRS:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_members.female_18_35') is-invalid @enderror" id="female1835"
-                    x-model="number_of_members.female_18_35">
-                @error('number_of_members.female_18_35')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-            <div class="col">
-                <label for="female35plus">FEMALE 35YRS+:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_members.female_35_plus') is-invalid @enderror"
-                    id="female35plus" x-model="number_of_members.female_35_plus">
-                @error('number_of_members.female_35_plus')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <label for="male1835">MALE 18-35YRS:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_members.male_18_35') is-invalid @enderror" id="male1835"
-                    x-model="number_of_members.male_18_35">
-                @error('number_of_members.male_18_35')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-            <div class="col">
-                <label for="male35plus">MALE 35YRS +:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror" id="male35plus"
-                    x-model="number_of_members.male_35_plus">
-                @error('number_of_members.male_35_plus')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-
-            <div class="col-12">
-                <label for="female1835">Total Members:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control bg-light @error('number_of_members.total') is-invalid @enderror"
-                    id="female1835" readonly x-model="number_of_members.total">
-                @error('number_of_members.total')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Group -->
-<div class="mb-3" x-data="{ group: $wire.entangle('group') }">
-    <label for="group" class="form-label">Group</label>
-    <select class="form-select @error('group') is-invalid @enderror" x-model="group">
-        <option value="">Select One</option>
-        <option value="Other">Other</option>
-
-    </select>
-
-    @error('group')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-
-<!-- New or Old Establishment -->
-<div class="mb-3">
-    <label for="establishment" class="form-label">Is this a New or Old Establishment</label>
-    <select class="form-select @error('establishment_status') is-invalid @enderror" id="establishment"
-        wire:model='establishment_status'>
-        <option value="">Select One</option>
-        <option value="New">New (1-5 Years)</option>
-        <option value="Old">Old (Over 5 Years)</option>
-    </select>
-    @error('establishment_status')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-<!-- Formally Registered Entity -->
-<div class="mb-3" x-data="{ is_registered: $wire.entangle('is_registered') }">
-    <label class="form-label">Is this a Formally Registered Entity</label>
-    <div class="@error('is_registered')
-        border border-danger
-    @enderror">
-        <div class="form-check">
-            <input class="form-check-input @error('is_registered') is-invalid @enderror" type="radio"
-                id="registeredYes" value="1" x-model="is_registered">
-            <label class="form-check-label" for="registeredYes">Yes</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input @error('is_registered') is-invalid @enderror" type="radio"
-                id="registeredNo" value="0" x-model="is_registered">
-            <label class="form-check-label" for="registeredNo">No</label>
-        </div>
-    </div>
-    @error('is_registered')
-        <x-error>{{ $message }}</x-error>
-    @enderror
-</div>
-<!-- Registration Details -->
-<div class="mb-3" x-data="{
-    is_registered: $wire.entangle('is_registered'),
-    registration_details: $wire.entangle('registration_details')
-}" x-init="$watch('is_registered', (v) => {
-
-    if (v != 1) {
-        registration_details = {};
-        $wire.resetValues('registration_details');
-    }
-});" x-show='is_registered == 1'>
-    <label for="registrationDetails" class="form-label">Registration
-        Details</label>
-
-    <div class="mb-3">
-        <label for="registrationBody">REGISTRATION BODY:</label>
-        <input type="text"
-            class="form-control @error('registration_details.registration_body') is-invalid @enderror"
-            id="registrationBody" x-model="registration_details.registration_body">
-        @error('registration_details.registration_body')
-            <x-error>{{ $message }}</x-error>
-        @enderror
-    </div>
-    <div class="mb-3">
-        <label for="registrationNumber">REGISTRATION NUMBER:</label>
-        <input type="text"
-            class="form-control @error('registration_details.registration_number') is-invalid @enderror"
-            id="registrationNumber" x-model="registration_details.registration_number">
-        @error('registration_details.registration_number')
-            <x-error>{{ $message }}</x-error>
-        @enderror
-    </div>
-    <div class="mb-3">
-        <label for="registrationDate">REGISTRATION DATE:</label>
-        <input type="date"
-            class="form-control @error('registration_details.registration_date') is-invalid @enderror"
-            id="registrationDate" x-model="registration_details.registration_date">
-        @error('registration_details.registration_date')
-            <x-error>{{ $message }}</x-error>
-        @enderror
-    </div>
-
-</div>
-
-<!-- Number of Employees on RTC Establishment -->
-<div class="mb-3" x-data="{
-    number_of_employees: $wire.entangle('number_of_employees')
-}" x-init="$watch('number_of_employees', (v) => {
-
-    v.formal.total = parseInt(v.formal.female_18_35 || 0) + parseInt(v.formal.female_35_plus || 0) + parseInt(v.formal.male_18_35 || 0) + parseInt(v.formal.male_35_plus || 0);
-    v.informal.total = parseInt(v.informal.female_18_35 || 0) + parseInt(v.informal.female_35_plus || 0) + parseInt(v.informal.male_18_35 || 0) + parseInt(v.informal.male_35_plus || 0);
-});">
-
-    <label for="numberOfEmployees" class="form-label">Number of Employees on RTC
-        Establishment</label>
-    <div class="row">
-        <strong class="my-3">Formal Employees</strong>
-
-        <div class="col">
-
-
-            <div class="mb-3">
-                <label for="formalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.formal.female_18_35') is-invalid @enderror"
-                    id="formalFemale1835" x-model="number_of_employees.formal.female_18_35">
-                @error('number_of_employees.formal.female_18_35')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="formalFemale35">FEMALE 35YRS+:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.formal.female_35_plus') is-invalid @enderror"
-                    id="formalFemale35" x-model="number_of_employees.formal.female_35_plus">
-                @error('number_of_employees.formal.female_35_plus')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-        </div>
-
-
-        <div class="col">
-            <div class="mb-3">
-                <label for="formalMale1835">MALE 18-35YRS:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.formal.male_18_35') is-invalid @enderror"
-                    id="formalMale1835" x-model="number_of_employees.formal.male_18_35">
-                @error('number_of_employees.formal.male_18_35')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="formalMale35">MALE 35YRS+:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.formal.male_35_plus') is-invalid @enderror"
-                    id="formalMale35" x-model="number_of_employees.formal.male_35_plus">
-                @error('number_of_employees.formal.male_35_plus')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-        </div>
-
-        <div class="col-12">
-
-            <div class="mb-3">
-                <label for="formalFemale1835">Total Formal Employees:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control bg-light @error('number_of_employees.formal.total') is-invalid @enderror"
-                    readonly id="formalFemale1835" x-model="number_of_employees.formal.total">
-
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <strong class="my-3">Informal Employees</strong>
-        <div class="col">
-
-
-            <div class="mb-3">
-                <label for="informalFemale1835">FEMALE 18-35YRS:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.informal.female_18_35') is-invalid @enderror"
-                    id="informalFemale1835" x-model="number_of_employees.informal.female_18_35">
-                @error('number_of_employees.informal.female_18_35')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="informalFemale35">FEMALE 35YRS+:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.informal.female_35_plus') is-invalid @enderror"
-                    id="informalFemale35" x-model="number_of_employees.informal.female_35_plus">
-                @error('number_of_employees.informal.female_35_plus')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label for="informalMale1835">MALE 18-35YRS: </label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.informal.male_18_35') is-invalid @enderror"
-                    id="informalMale1835" x-model="number_of_employees.informal.male_18_35">
-                @error('number_of_employees.informal.male_18_35')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="informalMale35">MALE 35YRS+:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control @error('number_of_employees.informal.male_35_plus') is-invalid @enderror"
-                    id="informalMale35" x-model="number_of_employees.informal.male_35_plus">
-                @error('number_of_employees.informal.male_35_plus')
-                    <x-error>{{ $message }}</x-error>
-                @enderror
-            </div>
-        </div>
-
-        <div class="col-12">
-
-            <div class="mb-3">
-                <label for="formalFemale1835">Total Informal Employees:</label>
-                <input type="number" min="0" step="any"
-                    class="form-control bg-light @error('number_of_employees.informal.total') is-invalid @enderror"
-                    readonly id="formalFemale1835" x-model="number_of_employees.informal.total">
-
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
 <div class="mb-5 alert alert-warning" id="section-b" role="alert">
-    <strong>SECTION B: RTC MARKETING </strong>
+    <strong>SECTION A: RTC MARKETING </strong>
 </div>
+
+<!-- Date of Follow Up -->
+<div class="mb-3">
+    <label for="dateOfFollowUp" class="form-label">Date of Follow Up</label>
+    <input type="date" class="form-control" id="dateOfFollowUp" wire:model='date_of_followup'>
+</div>
+
 <!-- Market Segment (Multiple Responses) -->
 <div class="mb-3">
     <label for="marketSegment" class="form-label">Market Segment (Multiple
@@ -460,7 +67,7 @@ $watch('number_of_members', (v) => {
 
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
-<div class="mb-3 card card-body shadow-none border" x-data="{
+<div class="mb-3 border shadow-none card card-body" x-data="{
 
 
 
@@ -513,7 +120,7 @@ $watch('number_of_members', (v) => {
 </div>
 
 <!-- Total Volume of Production in Previous Season from Irrigation Farming (Metric Tonnes) -->
-<div class="mb-3">
+{{-- <div class="mb-3">
     <label for="totalVolumeIrrigation" class="form-label">Total Volume of
         Production in Previous Season from Irrigation Farming (Metric
         Tonnes)</label>
@@ -523,10 +130,10 @@ $watch('number_of_members', (v) => {
     @error('total_vol_irrigation_production_previous_season')
         <x-error>{{ $message }}</x-error>
     @enderror
-</div>
+</div> --}}
 
-<!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
-<div class="mb-3 card card-body shadow-none border" x-data="{
+{{-- <!-- Total Value of Irrigation Production in Previous Season (Financial Value-MWK) -->
+<div class="mb-3 border shadow-none card card-body" x-data="{
 
 
 
@@ -581,7 +188,7 @@ $watch('number_of_members', (v) => {
 
 
 
-</div>
+</div> --}}
 
 
 <!-- Sell RTC Products to Domestic Markets -->
@@ -672,7 +279,7 @@ $watch('number_of_members', (v) => {
 
         <div class="row">
 
-            <div class="card card-body shadow-none border">
+            <div class="border shadow-none card card-body">
                 <label for="" class="form-label">Specify Market Information System</label>
                 @foreach ($market_information_systems as $index => $value)
                     <div class="row">
@@ -772,7 +379,7 @@ $watch('number_of_members', (v) => {
 
         <div class="row">
 
-            <div class="card card-body shadow-none border">
+            <div class="border shadow-none card card-body">
                 <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
                 @foreach ($aggregation_center_sales as $index => $value)
                     <div class="row">

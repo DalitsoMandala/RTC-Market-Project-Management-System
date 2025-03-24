@@ -13,10 +13,12 @@ return new class extends Migration {
         Schema::create('rtc_production_farmers', function (Blueprint $table) {
             $table->id();
             $table->string('pf_id')->unique();
-            $table->string('epa');
-            $table->string('section');
-            $table->string('district');
-            $table->string('enterprise');
+            //   $table->foreignId('recruitment_id')->constrained('recruitments')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('group_name')->nullable();
+            $table->string('epa')->nullable();
+            $table->string('section')->nullable();
+            $table->string('district')->nullable();
+            $table->string('enterprise')->nullable();
             //  $table->json('location_data')->nullable();
             $table->date('date_of_recruitment')->nullable();
             $table->string('name_of_actor')->nullable();
@@ -25,6 +27,7 @@ return new class extends Migration {
             $table->string('type')->nullable();
             $table->string('approach')->nullable(); // For producer organizations only
             $table->string('sector')->nullable();
+            $table->date('date_of_followup')->nullable();
             //  $table->json('number_of_members')->nullable(); // For producer organizations only
             $table->integer('mem_female_18_35')->default(0);
             $table->integer('mem_male_18_35')->default(0);
@@ -46,16 +49,14 @@ return new class extends Migration {
             $table->integer('emp_informal_male_18_35')->default(0);
             $table->integer('emp_informal_male_35_plus')->default(0);
             $table->integer('emp_informal_female_35_plus')->default(0);
-            //    $table->json('area_under_cultivation')->nullable(); // Stores area by variety (key-value pairs)
-            //    $table->json('number_of_plantlets_produced')->nullable();
+
             $table->integer('number_of_plantlets_produced_cassava')->default(0);
             $table->integer('number_of_plantlets_produced_potato')->default(0);
             $table->integer('number_of_plantlets_produced_sweet_potato')->default(0);
             $table->integer('number_of_screen_house_vines_harvested')->default(0); // Sweet potatoes
             $table->integer('number_of_screen_house_min_tubers_harvested')->default(0); // Potatoes
             $table->integer('number_of_sah_plants_produced')->default(0); // Cassava
-            //    $table->json('area_under_basic_seed_multiplication')->nullable(); // Acres
-            //    $table->json('area_under_certified_seed_multiplication')->nullable(); // Acres
+
             $table->boolean('is_registered_seed_producer')->default(false);
             $table->string('registration_number_seed_producer')->nullable();
             $table->date('registration_date_seed_producer')->nullable();

@@ -540,8 +540,8 @@
 
 <div class="mb-3">
     <label for="" class="form-label">Specify MIS</label>
-    <input type="text" class="form-control" name="" id="" aria-describedby="helpId" placeholder=""
-        wire:model='f_market_information_systems' />
+    <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
+        placeholder="" wire:model='f_market_information_systems' />
 
 </div>
 

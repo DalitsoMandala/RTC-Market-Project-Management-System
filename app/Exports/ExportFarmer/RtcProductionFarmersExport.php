@@ -28,35 +28,37 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
     public $template;
     protected $validationTypes = [
         'ID' => 'Required, Unique,  Number',
+        'Group Name' => 'Required, Text',
+        'Date Of Follow Up' => 'Required, Date (dd-mm-yyyy)',
         'EPA' => 'Required, Text',
         'Section' => 'Required, Text',
         'District' => 'Required, Text',
         'Enterprise' => 'Required, Text',
-        'Date of Recruitment' => 'Date (dd-mm-yyyy)',
-        'Name of Actor' => 'Text',
-        'Name of Representative' => 'Text',
-        'Phone Number' => 'Text',
-        'Type' => 'Text, (Choose one option)',
-        'Approach' => 'Text, (Choose one option)',
-        'Sector' => 'Text, (Choose one option)',
-        'Members Female 18-35' => 'Number (>=0)',
-        'Members Male 18-35' => 'Number (>=0)',
-        'Members Male 35+' => 'Number (>=0)',
-        'Members Female 35+' => 'Number (>=0)',
-        'Group' => 'Text, (Choose one option)',
-        'Establishment Status' => 'New/Old, (Choose one option)',
-        'Is Registered' => 'Boolean (1/0)',
-        'Registration Body' => 'Text',
-        'Registration Number' => 'Text',
-        'Registration Date' => 'Date (dd-mm-yyyy)',
-        'Employees Formal Female 18-35' => 'Number (>=0)',
-        'Employees Formal Male 18-35' => 'Number (>=0)',
-        'Employees Formal Male 35+' => 'Number (>=0)',
-        'Employees Formal Female 35+' => 'Number (>=0)',
-        'Employees Informal Female 18-35' => 'Number (>=0)',
-        'Employees Informal Male 18-35' => 'Number (>=0)',
-        'Employees Informal Male 35+' => 'Number (>=0)',
-        'Employees Informal Female 35+' => 'Number (>=0)',
+        // 'Date of Recruitment' => 'Date (dd-mm-yyyy)',
+        // 'Name of Actor' => 'Text',
+        // 'Name of Representative' => 'Text',
+        // 'Phone Number' => 'Text',
+        // 'Type' => 'Text, (Choose one option)',
+        // 'Approach' => 'Text, (Choose one option)',
+        // 'Sector' => 'Text, (Choose one option)',
+        // 'Members Female 18-35' => 'Number (>=0)',
+        // 'Members Male 18-35' => 'Number (>=0)',
+        // 'Members Male 35+' => 'Number (>=0)',
+        // 'Members Female 35+' => 'Number (>=0)',
+        // 'Group' => 'Text, (Choose one option)',
+        // 'Establishment Status' => 'New/Old, (Choose one option)',
+        // 'Is Registered' => 'Boolean (1/0)',
+        // 'Registration Body' => 'Text',
+        // 'Registration Number' => 'Text',
+        // 'Registration Date' => 'Date (dd-mm-yyyy)',
+        // 'Employees Formal Female 18-35' => 'Number (>=0)',
+        // 'Employees Formal Male 18-35' => 'Number (>=0)',
+        // 'Employees Formal Male 35+' => 'Number (>=0)',
+        // 'Employees Formal Female 35+' => 'Number (>=0)',
+        // 'Employees Informal Female 18-35' => 'Number (>=0)',
+        // 'Employees Informal Male 18-35' => 'Number (>=0)',
+        // 'Employees Informal Male 35+' => 'Number (>=0)',
+        // 'Employees Informal Female 35+' => 'Number (>=0)',
         'Number of Plantlets Produced Cassava' => 'Number (>=0)',
         'Number of Plantlets Produced Potato' => 'Number (>=0)',
         'Number of Plantlets Produced Sweet Potato' => 'Number (>=0)',
@@ -176,66 +178,67 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
     public function headings(): array
     {
         return [
-            [
-                'ID', // Add ID as the first column heading
-                'EPA',
-                'Section',
-                'District',
-                'Enterprise',
-                'Date of Recruitment',
-                'Name of Actor',
-                'Name of Representative',
-                'Phone Number',
-                'Type',
-                'Approach',
-                'Sector',
-                'Members Female 18-35',
-                'Members Male 18-35',
-                'Members Male 35+',
-                'Members Female 35+',
-                'Group',
-                'Establishment Status',
-                'Is Registered',
-                'Registration Body',
-                'Registration Number',
-                'Registration Date',
-                'Employees Formal Female 18-35',
-                'Employees Formal Male 18-35',
-                'Employees Formal Male 35+',
-                'Employees Formal Female 35+',
-                'Employees Informal Female 18-35',
-                'Employees Informal Male 18-35',
-                'Employees Informal Male 35+',
-                'Employees Informal Female 35+',
-                'Number of Plantlets Produced Cassava',
-                'Number of Plantlets Produced Potato',
-                'Number of Plantlets Produced Sweet Potato',
-                'Screen House Vines Harvested',
-                'Screen House Min Tubers Harvested',
-                'SAH Plants Produced',
-                'Is Registered Seed Producer',
-                'Seed Producer Registration Number',
-                'Seed Producer Registration Date',
-                'Uses Certified Seed',
-                'Market Segment Fresh',
-                'Market Segment Processed',
-                'Has RTC Market Contract',
-                'Total Volume Production Previous Season',
-                'Production Value Previous Season Total',
-                'Production Value Date of Max Sales',
-                'Production Value USD Rate',
-                'Production Value USD Value',
-                'Total Volume Irrigation Production Previous Season',
-                'Irrigation Production Value Total',
-                'Irrigation Production Date of Max Sales',
-                'Irrigation Production USD Rate',
-                'Irrigation Production USD Value',
-                'Sells to Domestic Markets',
-                'Sells to International Markets',
-                'Uses Market Information Systems',
-                'Sells to Aggregation Centers',
-                'Total Volume Aggregation Center Sales'
-            ],
+            // [
+            //     'ID', // Add ID as the first column heading
+            //     'EPA',
+            //     'Section',
+            //     'District',
+            //     'Enterprise',
+            //     'Date of Recruitment',
+            //     'Name of Actor',
+            //     'Name of Representative',
+            //     'Phone Number',
+            //     'Type',
+            //     'Approach',
+            //     'Sector',
+            //     'Members Female 18-35',
+            //     'Members Male 18-35',
+            //     'Members Male 35+',
+            //     'Members Female 35+',
+            //     'Group',
+            //     'Establishment Status',
+            //     'Is Registered',
+            //     'Registration Body',
+            //     'Registration Number',
+            //     'Registration Date',
+            //     'Employees Formal Female 18-35',
+            //     'Employees Formal Male 18-35',
+            //     'Employees Formal Male 35+',
+            //     'Employees Formal Female 35+',
+            //     'Employees Informal Female 18-35',
+            //     'Employees Informal Male 18-35',
+            //     'Employees Informal Male 35+',
+            //     'Employees Informal Female 35+',
+            //     'Number of Plantlets Produced Cassava',
+            //     'Number of Plantlets Produced Potato',
+            //     'Number of Plantlets Produced Sweet Potato',
+            //     'Screen House Vines Harvested',
+            //     'Screen House Min Tubers Harvested',
+            //     'SAH Plants Produced',
+            //     'Is Registered Seed Producer',
+            //     'Seed Producer Registration Number',
+            //     'Seed Producer Registration Date',
+            //     'Uses Certified Seed',
+            //     'Market Segment Fresh',
+            //     'Market Segment Processed',
+            //     'Has RTC Market Contract',
+            //     'Total Volume Production Previous Season',
+            //     'Production Value Previous Season Total',
+            //     'Production Value Date of Max Sales',
+            //     'Production Value USD Rate',
+            //     'Production Value USD Value',
+            //     'Total Volume Irrigation Production Previous Season',
+            //     'Irrigation Production Value Total',
+            //     'Irrigation Production Date of Max Sales',
+            //     'Irrigation Production USD Rate',
+            //     'Irrigation Production USD Value',
+            //     'Sells to Domestic Markets',
+            //     'Sells to International Markets',
+            //     'Uses Market Information Systems',
+            //     'Sells to Aggregation Centers',
+            //     'Total Volume Aggregation Center Sales'
+            // ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }
@@ -279,62 +282,62 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
 
                 $sheet = $event->sheet->getDelegate();
 
-                // Define the dropdown options
+                // // Define the dropdown options
+                // $dropdownOptions = [
+
+                //     'Producer Organization (PO)',
+                //     'Large scale farm',
+
+
+                // ]; // Includes an empty option
+
+
+                // $this->setDataValidations($dropdownOptions, 'J3', $sheet);
+
+                // $dropdownOptions = [
+
+                //     'Collective production only',
+                //     'Collective marketing only',
+                //     'Knowledge Sharing only',
+                //     'Collective producing, marketing and knowledge sharing',
+                //     'NA'
+
+                // ];
+
+                // //    $this->setDataValidations($dropdownOptions, 'K3', $sheet);
+
+                // $dropdownOptions = [
+                //     'Private',
+                //     'Public'
+                // ];
+
+
+                // $this->setDataValidations($dropdownOptions, 'L3', $sheet);
+
+                // $dropdownOptions = [
+                //     'Early generation seed producer',
+                //     'Seed multiplier',
+                //     'RTC producer'
+
+                // ];
+
+                // $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
+
+
+                // $dropdownOptions = [
+                //     'New',
+                //     'Old'
+                // ];
+
+                // $this->setDataValidations($dropdownOptions, 'R3', $sheet);
+
                 $dropdownOptions = [
-                    '',
-                    'Producer Organization (PO)',
-                    'Large scale farm',
 
-
-                ]; // Includes an empty option
-
-
-                $this->setDataValidations($dropdownOptions, 'J3', $sheet);
-
-                $dropdownOptions = [
-                    '',
-                    'Collective production only',
-                    'Collective marketing only',
-                    'Knowledge Sharing only',
-                    'Collective producing, marketing and knowledge sharing',
-                    'NA'
-
-                ];
-
-                $this->setDataValidations($dropdownOptions, 'K3', $sheet);
-
-                $dropdownOptions = [
-                    'Private',
-                    'Public'
-                ];
-
-
-                $this->setDataValidations($dropdownOptions, 'L3', $sheet);
-
-                $dropdownOptions = [
-                    'Early generation seed producer',
-                    'Seed multiplier',
-                    'RTC producer'
-
-                ];
-
-                $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
-
-
-                $dropdownOptions = [
-                    'New',
-                    'Old'
-                ];
-
-                $this->setDataValidations($dropdownOptions, 'R3', $sheet);
-
-                $dropdownOptions = [
-                    '',
                     'Potato',
                     'Sweet potato',
                     'Cassava'
                 ];
-                $this->setDataValidations($dropdownOptions, 'E3', $sheet);
+                $this->setDataValidations($dropdownOptions, 'G3', $sheet);
             },
         ];
     }
