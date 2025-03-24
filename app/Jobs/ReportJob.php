@@ -111,17 +111,6 @@ class ReportJob implements ShouldQueue
                                                 $this->updateDisaggregations($report, $key, $value);
                                             }
                                         }
-
-                                        // Update progress
-                                        // $currentProgress++;
-                                        // if ($currentProgress % $updateInterval === 0 || $currentProgress === $totalIterations) {
-                                        //     $progressPercentage = ($currentProgress / $totalIterations) * 100;
-                                        //     Cache::put('report_progress', round($progressPercentage));
-                                        //     ReportStatus::find(1)->update([
-                                        //         'status' => 'processing',
-                                        //         'progress' => round($progressPercentage)
-                                        //     ]);
-                                        // }
                                     } catch (\Exception $e) {
                                         Log::error($e->getMessage());
                                     }

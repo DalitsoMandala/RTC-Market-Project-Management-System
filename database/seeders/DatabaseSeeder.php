@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
 
-        //    $this->call(DataGenerationSeeder::class); //edit this (test)
+        $this->call(DataGenerationSeeder::class); //edit this (test)
         $this->call(SubmissionTargetSeeder::class);
         Artisan::call('update:information');
     }

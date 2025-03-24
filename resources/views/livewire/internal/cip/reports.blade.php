@@ -35,7 +35,7 @@
                         <h5 class="card-title">Report Table</h5>
                     </div>
 
-                    @role('admin')
+                    @hasanyrole('admin|manager')
                         <div class="card-header d-flex justify-content-between">
                             <div class="col">
                                 <button type="button" class="btn btn-soft-warning btn-sm" wire:click='load'

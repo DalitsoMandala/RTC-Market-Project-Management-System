@@ -46,22 +46,17 @@ final class FormTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
 
-        // if ($user->hasAnyRole('external')) {
-        //     $responsiblePeople = ResponsiblePerson::with('indicator')->where('organisation_id', $user->organisation->id)
 
-        //         ->get();
-
-        //     foreach ($responsiblePeople as $responsiblePerson) {
-        //         $indicatorForms = $responsiblePerson->indicator->forms;
-        //         dd($indicatorForms);
-        //     }
-
-        //     $formIds = $forms->pluck('id');
-        //     return Form::query()->with('project', 'indicators')->whereIn('id', $formIds)->select([
-        //         '*',
-        //         DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-        //     ]);
-        // }
+        if ($user->hasAnyRole('external')) {
+            return  Form::query()->with('project', 'indicators', 'indicators.responsiblePeopleforIndicators')
+                ->whereHas('indicators.responsiblePeopleforIndicators', function ($query) use ($user) {
+                    $query->where('organisation_id', $user->organisation->id);
+                })
+                ->select([
+                    '*',
+                    DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                ]);
+        }
 
 
 

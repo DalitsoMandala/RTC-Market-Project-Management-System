@@ -7,6 +7,7 @@ use App\Models\SystemReport;
 use App\Models\FinancialYear;
 use App\Models\SystemReportData;
 use App\Models\PercentageIncreaseIndicator;
+use App\Models\ReportingPeriodMonth;
 
 class PopulatePreviousValue
 {
@@ -27,6 +28,8 @@ class PopulatePreviousValue
             }
 
 
+
+
             foreach ($financialYears as $financialYear) {
                 foreach ($indicator->organisation as $organisation) {
                     // Retrieve the previous value specific to this organization
@@ -35,6 +38,7 @@ class PopulatePreviousValue
                     // Calculate annual value for this financial year and organization
                     $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)');
                     $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
+
 
                     // Save or update previous value and growth percentage for the organization
                     $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)');
@@ -63,9 +67,13 @@ class PopulatePreviousValue
 
         $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
 
+
         // Calculate the annual value based on the indicator's type
         switch ($indicator->indicator_name) {
             case 'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities':
+
+
+
                 return $this->sumDisaggregations($data, $disaggregation_name, [
                     'Cassava',
                     'Potato',
@@ -73,13 +81,31 @@ class PopulatePreviousValue
                 ]);
 
             case 'Percentage increase in value of formal RTC exports':
+
+                $temp = $this->sumDisaggregations($data, $disaggregation_name, [
+                    '(Formal) Cassava',
+                    '(Formal) Potato',
+                    '(Formal) Sweet potato',
+                    // '(Informal) Cassava',
+                    //  '(Informal) Potato',
+                    //   '(Informal) Sweet potato'
+
+                ]);
+
+
+                // if ($indicator->indicator_no == 'B2') {
+                //     dd($temp, $data, $disaggregation_name);
+                // }
+
+                // dd($test);
+
                 return $this->sumDisaggregations($data, $disaggregation_name, [
                     '(Formal) Cassava',
                     '(Formal) Potato',
                     '(Formal) Sweet potato',
-                    '(Informal) Cassava',
-                    '(Informal) Potato',
-                    '(Informal) Sweet potato'
+                    // '(Informal) Cassava',
+                    //  '(Informal) Potato',
+                    //   '(Informal) Sweet potato'
                 ]);
 
             case 'Percentage of value ($) of formal RTC imports substituted through local production':
@@ -136,12 +162,13 @@ class PopulatePreviousValue
 
     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
     {
+        $unspecified = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first();
         // Identify the last reporting period for the financial year
         $lastReportingPeriod = SystemReport::where('financial_year_id', $financialYear->id)
             ->where('project_id', 1)
             ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
-            ->where('reporting_period_id', 4)
+            ->where('reporting_period_id', $unspecified->id) // unspecified
             //      ->orderByDesc('reporting_period_id') // Get the latest reporting period
             ->pluck('reporting_period_id')
             ->first(); // Get only the last period
