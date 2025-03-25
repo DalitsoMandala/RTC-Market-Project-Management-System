@@ -6,9 +6,8 @@ use App\Models\User;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
-use App\Models\RpmprocessorFollowUp;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\RpmProcessorFollowUp;
 use App\Models\RtcProductionProcessor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
@@ -56,24 +55,22 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
                 ->whereHas('user.organisation', function ($model) use ($organisation_id) {
 
                     $model->where('id', $organisation_id);
-
                 })
                 ->join('rtc_production_processors', function ($model) {
                     $model->on('rtc_production_processors.id', '=', 'rpm_processor_follow_ups.rpm_processor_id');
                 })->select([
-                        'rpm_processor_follow_ups.*',
-                        'rtc_production_processors.pp_id'
-                    ]);
-
+                    'rpm_processor_follow_ups.*',
+                    'rtc_production_processors.pp_id'
+                ]);
         }
         return RpmProcessorFollowUp::query()->with('processors', 'user', 'user.organisation')
 
             ->join('rtc_production_processors', function ($model) {
                 $model->on('rtc_production_processors.id', '=', 'rpm_processor_follow_ups.rpm_processor_id');
             })->select([
-                    'rpm_processor_follow_ups.*',
-                    'rtc_production_processors.pp_id'
-                ]);
+                'rpm_processor_follow_ups.*',
+                'rtc_production_processors.pp_id'
+            ]);
     }
 
     public $namedExport = 'rpmpFU';
@@ -82,7 +79,6 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -106,11 +102,8 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
                 if ($row) {
                     return $row->name_of_actor;
-
                 }
                 return null;
-
-
             })
 
             ->add('date_of_follow_up')
@@ -163,7 +156,6 @@ final class RtcProductionProcessorsFollowU extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
         ;
     }
