@@ -79,9 +79,50 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $prev = new PopulatePreviousValue();
-    $prev->start();
-    //dd($prev->start());
+    $dateEstablished = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');  // Today's date
+    $dateEnding = Carbon::now()->addMonth()->startOfDay()->format('Y-m-d H:i:s');  // Date one month from today
+
+
+
+
+    foreach (Indicator::with('forms', 'disaggregations')->where('indicator_no', 'A1')->get() as $index => $indicator) {
+        $indicatorDis = $indicator->disaggregations->first();
+        foreach (FinancialYear::all() as $financialYear) {
+            if ($indicator->forms->count() > 0) {
+                foreach ($indicator->forms as $form) {
+                    SubmissionPeriod::create([
+                        'form_id' => $form->id,
+                        'date_established' => $dateEstablished,
+                        'date_ending' => $dateEnding,
+                        'month_range_period_id' => 1,
+                        'financial_year_id' => $financialYear->id,
+                        'indicator_id' => $indicator->id,
+                        'is_open' => true,
+                        'is_expired' => false,
+                    ]);
+                }
+
+
+
+                //    dd($indicatorDis);
+                SubmissionTarget::create([
+                    //     'month_range_period_id' => 1,
+                    'financial_year_id' => $financialYear->id,
+                    'indicator_id' => $indicator->id,
+                    'target_name' => $indicatorDis->name,
+                    'target_value' => rand(50, 100) * 10,
+                ]);
+
+                // $array[] = [
+                //     //     //     'month_range_period_id' => 1,
+                //     'financial_year_id' => $financialYear->id,
+                //     'indicator_id' => $indicator->id,
+                //     'target_name' => $indicatorDis->name,
+                //     'target_value' => rand(50, 100) * 10,
+                // ];
+            }
+        }
+    }
 });
 Route::get('/session-check', function () {
     return response()->json(['active' => auth()->check()]);

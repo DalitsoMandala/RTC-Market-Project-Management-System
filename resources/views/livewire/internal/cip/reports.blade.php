@@ -52,7 +52,7 @@
 
 
                         </div>
-                    @endrole
+                    @endhasanyrole
                     <div class="px-0 card-body">
                         <div class="my-3 row">
                             <div class="col-md-12">

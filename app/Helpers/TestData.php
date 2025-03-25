@@ -30,7 +30,8 @@ class TestData
 
 
 
-        foreach (Indicator::with('forms', 'disaggregations')->get() as $index => $indicator) {
+        foreach (Indicator::with('forms', 'disaggregations')->where('indicator_no', 'A1')->get() as $index => $indicator) {
+            $indicatorDis = $indicator->disaggregations->first();
             foreach (FinancialYear::all() as $financialYear) {
                 if ($indicator->forms->count() > 0) {
                     foreach ($indicator->forms as $form) {
@@ -46,22 +47,25 @@ class TestData
                         ]);
                     }
 
-                    $indicatorDis = $indicator->disaggregations->first();
 
 
+                    //    dd($indicatorDis);
+                    // SubmissionTarget::create([
+                    //     //     'month_range_period_id' => 1,
+                    //     'financial_year_id' => $financialYear->id,
+                    //     'indicator_id' => $indicator->id,
+                    //     'target_name' => $indicatorDis->name,
+                    //     'target_value' => rand(50, 100) * 10,
+                    // ]);
 
-                    SubmissionTarget::create([
-                        //     'month_range_period_id' => 1,
-                        'financial_year_id' => $financialYear->id,
-                        'indicator_id' => $indicator->id,
-                        'target_name' => $indicatorDis->name,
-                        'target_value' => rand(50, 100) * 10,
-                    ]);
+                    // $array[] = [
+                    //     //     //     'month_range_period_id' => 1,
+                    //     'financial_year_id' => $financialYear->id,
+                    //     'indicator_id' => $indicator->id,
+                    //     'target_name' => $indicatorDis->name,
+                    //     'target_value' => rand(50, 100) * 10,
+                    // ];
                 }
-            }
-
-            if ($index === 3) {
-                break; // Stop after 4 indicators to save time. You can remove this line if you want to create all indicators.
             }
         }
 
