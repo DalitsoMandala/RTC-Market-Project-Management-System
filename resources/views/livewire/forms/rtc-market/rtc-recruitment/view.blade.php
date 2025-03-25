@@ -45,7 +45,7 @@
                         </h4>
                     </div>
                     <div class="px-0 card-body" id="#datatable">
-                        <livewire:tables.rtcmarket.recruitments-table />
+                        <livewire:tables.rtc-market.recruitments-table />
                     </div>
 
                 </div>
