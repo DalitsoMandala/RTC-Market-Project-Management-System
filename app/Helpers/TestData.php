@@ -132,7 +132,7 @@ class TestData
                 'uuid' => $faker->uuid(),
                 'user_id' => 3,
                 'submission_period_id' => 4,
-                'organisation_id' => 1,
+                'organisation_id' => $faker->randomElement([1, 2]),
                 'financial_year_id' => $faker->numberBetween(1, 4),
                 'period_month_id' => $faker->numberBetween(1, 4),
                 'status' => $faker->randomElement(['approved']),
@@ -276,7 +276,7 @@ class TestData
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
                     'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => 1, // Random organisation ID
+                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
@@ -731,7 +731,7 @@ class TestData
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
                     'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => 1, // Random organisation ID
+                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
@@ -1091,7 +1091,7 @@ class TestData
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
                     'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => 1, // Random organisation ID
+                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
@@ -1160,7 +1160,7 @@ class TestData
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
                     'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => 1, // Random organisation ID
+                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
@@ -1341,7 +1341,7 @@ class TestData
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID
                     'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => 1, // Random organisation ID
+                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
                     'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
                     'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
                     'status' => 'approved', // Fixed value
