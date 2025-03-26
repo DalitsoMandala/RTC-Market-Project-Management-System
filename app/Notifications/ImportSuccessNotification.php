@@ -64,7 +64,7 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
         // Notify each user
         foreach ($users as $user) {
             // Determine the prefix based on the user's role
-            $prefix = $user->roles->contains('name', 'admin') ? '/admin' : '/cip';
+            $prefix = $user->hasAnyRole('admin') ? '/admin' : '/cip';
 
             // Send notification
             $user->notify(new NewSubmissionNotification($prefix));
