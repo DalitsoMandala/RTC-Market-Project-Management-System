@@ -26,25 +26,35 @@ class TestData
         $dateEstablished = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');  // Today's date
         $dateEnding = Carbon::now()->addMonth()->startOfDay()->format('Y-m-d H:i:s');  // Date one month from today
 
+        foreach (
+            Indicator::with('forms', 'disaggregations')->where(
+                function ($query) {
+                    $query->where('indicator_no', 'A1')
+                        ->orWhere('indicator_no', 'B2')
+                        ->orWhere('indicator_no', 'B4');
+                }
+            )->get()
 
 
-
-
-        foreach (Indicator::with('forms', 'disaggregations')->where('indicator_no', 'A1')->get() as $index => $indicator) {
+            as $index => $indicator
+        ) {
             $indicatorDis = $indicator->disaggregations->first();
             foreach (FinancialYear::all() as $financialYear) {
                 if ($indicator->forms->count() > 0) {
                     foreach ($indicator->forms as $form) {
-                        SubmissionPeriod::create([
-                            'form_id' => $form->id,
-                            'date_established' => $dateEstablished,
-                            'date_ending' => $dateEnding,
-                            'month_range_period_id' => 1,
-                            'financial_year_id' => $financialYear->id,
-                            'indicator_id' => $indicator->id,
-                            'is_open' => true,
-                            'is_expired' => false,
-                        ]);
+                        if ($financialYear->id == 3) {
+
+                            SubmissionPeriod::create([
+                                'form_id' => $form->id,
+                                'date_established' => $dateEstablished,
+                                'date_ending' => $dateEnding,
+                                'month_range_period_id' => 1,
+                                'financial_year_id' => $financialYear->id,
+                                'indicator_id' => $indicator->id,
+                                'is_open' => true,
+                                'is_expired' => false,
+                            ]);
+                        }
                     }
 
 

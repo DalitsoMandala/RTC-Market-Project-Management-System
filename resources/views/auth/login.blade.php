@@ -13,7 +13,7 @@
                             <a href="/">
                                 <x-application-logo width="150" />
                                 <br>
-                                <span class="logo-txt mt-5">{{ config('app.name') }}</span>
+                                <span class="mt-5 logo-txt">{{ config('app.name') }}</span>
                             </a>
                         </div>
 
@@ -30,8 +30,8 @@
                                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                         <div class="mb-3">
                                             <x-input-label for="email" :value="__('Email')" />
-                                            <x-text-input id="email" class="" type="email" name="email" required
-                                                autofocus placeholder="Enter your email" />
+                                            <x-text-input id="email" class="" type="text" name="email"
+                                                required autofocus placeholder="Enter your email" />
 
 
                                         </div>
@@ -64,7 +64,7 @@
                                         </div>
 
                                         <div class="mt-5 mb-5 text-center">
-                                            <x-primary-button class="btn btn-warning w-sm waves-effect waves-light mx-5"
+                                            <x-primary-button class="mx-5 btn btn-warning w-sm waves-effect waves-light"
                                                 type="submit">Log In</x-primary-button>
                                         </div>
 

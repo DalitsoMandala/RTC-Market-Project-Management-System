@@ -125,7 +125,7 @@ class ListUsers extends Component
             '*.email' => 'required|email|unique:users,email', // Validate email format and uniqueness
             '*.name' => 'required|string|max:255', // Validate name
             '*.organisation' => 'required|string|max:255', // Validate organisation
-            '*.role' => 'required|string|in:staff,admin', // Validate role (only allow 'staff' or 'admin')
+            '*.role' => 'required|string', // Validate role (only allow 'staff' or 'admin')
         ];
 
         // Validate the array
@@ -140,17 +140,18 @@ class ListUsers extends Component
 
         } else {
             // Flash a success message to the session
+
             foreach ($users as $user) {
                 $organisation = Organisation::where('name', $user['organisation'])->first();
                 $addedUser =  User::create([
-                    'name' => $user['name'],
+                    'name' => strtolower($user['name']),
                     'email' => $user['email'],
                     'phone_number' => '+9999999999',
                     'organisation_id' => $organisation->id,
                     'password' => Hash::make('password'),
 
                 ])->assignRole($user['role']);
-                $addedUser->delete();
+                //   $addedUser->delete();
             }
             $this->dispatch('refresh');
             session()->flash('success', 'All users have been validated successfully!');
