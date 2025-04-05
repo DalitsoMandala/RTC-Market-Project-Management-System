@@ -37,6 +37,7 @@ use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
+use App\Exports\RtcRecruitment\RtcRecruitmentMultiSheetExport;
 use App\Traits\UploadDataTrait;
 
 class Upload extends Component
@@ -92,7 +93,7 @@ class Upload extends Component
     {
         $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
 
-        return Excel::download(new RtcRecruitmentExport(true), 'rtc_actor_recruitment_template.xlsx');
+        return Excel::download(new RtcRecruitmentMultiSheetExport(true), 'rtc_actor_recruitment_template.xlsx');
     }
 
 

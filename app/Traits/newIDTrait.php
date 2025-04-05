@@ -32,4 +32,15 @@ trait newIDTrait
             return $mappedId;
         }
     }
+
+    public function validateNewIdForRecruits($prefix = "recruitment_id_mapping1_", $cacheKey, $row, $rowKey = "Recruitment ID")
+    {
+        $mappedId = Cache::get($prefix . '_' . $cacheKey . '_' . $row[$rowKey]);
+        if (!$mappedId) {
+            Log::error("ID not found row: " . json_encode($row));
+            return 0;
+        } else {
+            return $mappedId;
+        }
+    }
 }

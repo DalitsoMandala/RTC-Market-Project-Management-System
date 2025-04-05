@@ -75,55 +75,6 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
         if ($this->template) {
             return collect([]);
         }
-
-        // // Select only the columns to be included in the export
-        // $data = Recruitment::select(
-        //     'id',
-        //     'epa',
-        //     'section',
-        //     'district',
-        //     'enterprise',
-        //     'date_of_recruitment',
-        //     'name_of_actor',
-        //     'name_of_representative',
-        //     'phone_number',
-        //     'type',
-        //     'group',
-        //     'approach',
-        //     'sector',
-        //     'mem_female_18_35',
-        //     'mem_male_18_35',
-        //     'mem_male_35_plus',
-        //     'mem_female_35_plus',
-        //    'category',
-        //     'establishment_status',
-        //     'is_registered',
-        //     'registration_body',
-        //     'registration_number',
-        //     'registration_date',
-        //     'emp_formal_female_18_35',
-        //     'emp_formal_male_18_35',
-        //     'emp_formal_male_35_plus',
-        //     'emp_formal_female_35_plus',
-        //     'emp_informal_female_18_35',
-        //     'emp_informal_male_18_35',
-        //     'emp_informal_male_35_plus',
-        //     'emp_informal_female_35_plus',
-        //    'area_under_cultivation',
-        //     'is_registered_seed_producer',
-        //     'registration_number_seed_producer',
-        //     'registration_date_seed_producer',
-        //     'uses_certified_seed',
-
-        // )->get();
-
-        // $data->transform(function ($row) {
-        //     $row->date_of_recruitment = Carbon::parse($row['date_of_recruitment'])->format('d-m-Y');
-        //     $row->registration_date = Carbon::parse($row['registration_date'])->format('d-m-Y');
-        // return $row;
-        // });
-
-        // return $data;
     }
 
     public function headings(): array

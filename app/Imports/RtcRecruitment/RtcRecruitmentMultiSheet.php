@@ -85,6 +85,12 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
             'Uses Certified Seed',
 
         ],
+        'Seed Services Unit' => [
+            'Rectruitment ID',
+            'Registration Date',
+            'Registration Number',
+            'Variety',
+        ]
 
 
     ];
@@ -116,6 +122,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
     {
         return [
             'RTC Actor Recruitment' => new RtcRecruitmentImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Seed Services Unit' => new SeedServicesUnitImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
 
