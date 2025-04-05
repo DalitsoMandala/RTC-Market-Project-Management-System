@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\RtcMarket\RtcRecruitment;
 use App\Exceptions\UserErrorException;
 use App\Helpers\ExchangeRateHelper;
 use App\Models\ExchangeRate;
+use App\Models\FarmerSeedRegistration;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\HouseholdRtcConsumption;
@@ -12,6 +13,7 @@ use App\Models\Indicator;
 use App\Models\OrganisationTarget;
 use App\Models\Project;
 use App\Models\Recruitment;
+use App\Models\RecruitSeedRegistration;
 use App\Models\ReportingPeriodMonth;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\RpmFarmerDomMarket;
@@ -97,7 +99,7 @@ class Add extends Component
     ];
     public $uses_certified_seed = false;
     public $category;
-
+    public $registrations = [];
     public function rules()
     {
 
@@ -120,7 +122,7 @@ class Add extends Component
                 'category' => 'required_if:type,Farmers',
                 'establishment_status' => 'required',
                 'is_registered' => 'required',
-                'registration_details.*' => 'required_if_accepted:is_registered',
+
                 'number_of_employees.formal.female_18_35' => 'required|numeric',
                 'number_of_employees.formal.female_35_plus' => 'required|numeric',
                 'number_of_employees.formal.male_18_35' => 'required|numeric',
@@ -131,7 +133,11 @@ class Add extends Component
                 'number_of_employees.informal.male_35_plus' => 'required|numeric',
                 'area_under_cultivation' => 'required_if:type,Farmers',
                 'is_registered_seed_producer' => 'required_if:type,Farmers',
-                'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
+                'registrations.*' => 'required_if_accepted:is_registered_seed_producer',
+                'registrations.*.variety' => 'required',
+                'registrations.*.reg_date' => 'required|date',
+                'registrations.*.reg_no' => 'required',
+                //   'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
                 'uses_certified_seed' => 'required_if:type,Farmers',
 
             ];
@@ -168,6 +174,12 @@ class Add extends Component
 
             'seed_service_unit_registration_details.registration_number' => 'registration number',
             'seed_service_unit_registration_details.registration_date' => 'registration date',
+            'registrations.*.variety' => 'variety',
+            'registrations.*.reg_date' => 'registration date',
+            'registrations.*.reg_no' => 'registration number',
+
+
+
 
             'number_of_members.female_18_35' => 'Female Members 18-35',
             'number_of_members.female_35_plus' => 'Female Members 35+',
@@ -178,6 +190,16 @@ class Add extends Component
         ];
     }
 
+    public function addRegistration()
+    {
+        $this->registrations[] = ['variety' => '', 'reg_date' => '', 'reg_no' => ''];
+    }
+
+    public function removeRegistration($index)
+    {
+        unset($this->registrations[$index]);
+        $this->registrations = array_values($this->registrations); // Reindex
+    }
 
 
     public function resetValues($name) // be careful dont delete it will destroy alpinejs
@@ -282,7 +304,65 @@ class Add extends Component
     }
 
 
+    public function saveManualSubmission($modelClass, $data, $submissionData, $tableName, $routePrefix)
+    {
 
+
+        try {
+            $uuid = Uuid::uuid4()->toString();
+            $user = User::find(auth()->user()->id); // Get the authenticated user using Auth::user();
+            $data['uuid'] = $uuid;
+            $data['user_id'] = $user->id;
+
+            // Add role-specific logic
+            if ($user->hasAnyRole(['manager', 'admin'])) {
+                $data['status'] = 'approved';
+            } else {
+                $data['status'] = 'pending'; // Default status for non-manager/admin users
+            }
+
+            // Create the submission record
+            $submissionData['batch_no'] = $uuid;
+            $submissionData['table_name'] = $tableName;
+
+            $data['submission_period_id'] = $this->submissionPeriodId;
+            $data['period_month_id'] = $this->selectedMonth;
+            $data['organisation_id'] = $user->organisation->id;
+            $data['financial_year_id'] = $this->selectedFinancialYear;
+
+            Submission::create($submissionData);
+
+            // Create the model record
+            $model = new $modelClass;
+            $latest = $model->create($data);
+
+            if ($this->is_registered_seed_producer == 1) {
+                foreach ($this->registrations as $reg) {
+
+                    RecruitSeedRegistration::create([
+                        'recruitment_id' => $latest->id, // Replace with real parent ID
+                        'variety' => $reg['variety'],
+                        'reg_date' => $reg['reg_date'],
+                        'reg_no' => $reg['reg_no'],
+                    ]);
+                }
+            }
+
+            $project = Project::where('is_active', true)->first();
+            $project_name = strtolower(str_replace(' ', '_', $project->name));
+            $form = Form::find($this->selectedForm);
+            $formName = strtolower(str_replace(' ', '-', $form->name));
+
+            // Flash success messages
+            session()->flash('success', 'Successfully submitted! <a href="' . $routePrefix . '/forms/' . $project_name . '/' . $formName . '/view">View Submission here</a>');
+            //    session()->flash('info', 'Your ID is: <b>' . substr($latest->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+
+            $this->redirect(url()->previous());
+        } catch (\Exception $e) {
+            dd($e);
+            session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+        }
+    }
 
 
     public function render()

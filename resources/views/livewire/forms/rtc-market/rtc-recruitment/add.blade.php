@@ -210,67 +210,28 @@
 
                                     <!-- Group -->
                                     <div class="mb-3" x-data="{ group: $wire.entangle('group'), type: $wire.entangle('type') }" x-init="() => {
-
-
+                                    
+                                    
                                     }">
                                         <label for="group" class="form-label">Group</label>
                                         <select class="form-select @error('group') is-invalid @enderror"
                                             x-model="group">
                                             <option value="">Select One</option>
 
-                                            <!-- Options for Farmers -->
-                                            <template x-if="type === 'Farmers'">
-                                                <option value="Producer organization (PO)">Producer organization (PO)
-                                                </option>
-                                            </template>
-                                            <template x-if="type === 'Farmers'">
-                                                <option value="Large scale farm">Large scale farm</option>
-                                            </template>
-                                            <template x-if="type === 'Farmers'">
-                                                <option value="Small scale individual farms">Small scale individual
-                                                    farms</option>
-                                            </template>
-                                            <template x-if="type === 'Farmers'">
-                                                <option value="Care groups">Care groups</option>
-                                            </template>
 
-                                            <!-- Options for Processors -->
-                                            <template x-if="type === 'Processors'">
-                                                <option value="Large scale processor">Large scale Processor</option>
-                                            </template>
-                                            <template x-if="type === 'Processors'">
-                                                <option value="Small medium enterprise (SME)">Small medium enterprise
-                                                    (SME)</option>
-                                            </template>
-                                            <template x-if="type === 'Processors'">
-                                                <option value="Other">Other</option>
-                                            </template>
+                                            <option value="Producer organization (PO)">Producer organization (PO)
+                                            </option>
 
-                                            <!-- Options for Others (Traders, Aggregators, Transporters, etc.) -->
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Producer organization (PO)">Producer organization (PO)
-                                                </option>
-                                            </template>
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Large scale farm">Large scale farm</option>
-                                            </template>
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Small scale individual farms">Small scale individual
-                                                    farms</option>
-                                            </template>
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Care groups">Care groups</option>
-                                            </template>
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Large scale processor">Large scale Processor</option>
-                                            </template>
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Small medium enterprise (SME)">Small medium enterprise
-                                                    (SME)</option>
-                                            </template>
-                                            <template x-if="type !== 'Farmers' && type !== 'Processors'">
-                                                <option value="Other">Other</option>
-                                            </template>
+                                            <option value="Large scale farm">Large scale farm</option>
+
+                                            <option value="Small scale individual farms">Small scale individual
+                                                farms</option>
+
+                                            <option value="Large scale processor">Large scale processor</option>
+
+                                            <option value="Other">Other</option>
+
+
                                         </select>
 
                                         @error('group')
@@ -326,8 +287,8 @@
                                     <div class="mb-3" x-data="{
                                         type: $wire.entangle('type'),
                                         number_of_members: $wire.entangle('number_of_members'),
-
-
+                                    
+                                    
                                     }" x-init="$watch('number_of_members', (v) => {
                                         v.total = parseInt(v.female_18_35 || 0) + parseInt(v.female_35_plus || 0) + parseInt(v.male_18_35 || 0) + parseInt(v.male_35_plus || 0);
                                     });">
@@ -397,7 +358,7 @@
                                     }"
                                         x-init="$watch('type', (v) => {
                                             if (v != 'Farmers') {
-
+                                        
                                                 $wire.resetValues('category');
                                             }
                                         });">
@@ -457,11 +418,14 @@
                                         @enderror
                                     </div>
                                     <!-- Registration Details -->
+
+
+
                                     <div class="mb-3" x-data="{
                                         is_registered: $wire.entangle('is_registered'),
                                         registration_details: $wire.entangle('registration_details')
                                     }" x-init="$watch('is_registered', (v) => {
-
+                                    
                                         if (v != 1) {
                                             registration_details = {};
                                             $wire.resetValues('registration_details');
@@ -508,7 +472,7 @@
                                     <div class="mb-3" x-data="{
                                         number_of_employees: $wire.entangle('number_of_employees')
                                     }" x-init="$watch('number_of_employees', (v) => {
-
+                                    
                                         v.formal.total = parseInt(v.formal.female_18_35 || 0) + parseInt(v.formal.female_35_plus || 0) + parseInt(v.formal.male_18_35 || 0) + parseInt(v.formal.male_35_plus || 0);
                                         v.informal.total = parseInt(v.informal.female_18_35 || 0) + parseInt(v.informal.female_35_plus || 0) + parseInt(v.informal.male_18_35 || 0) + parseInt(v.informal.male_35_plus || 0);
                                     });">
@@ -647,14 +611,14 @@
                                     <div x-show="type==='Farmers'" class="mb-3" x-data="{
                                         area_under_cultivation: $wire.entangle('area_under_cultivation'),
                                         type: $wire.entangle('type'),
-
+                                    
                                         init() {
                                             this.$watch('type', (v) => {
                                                 if (v != 'Farmers') {
                                                     $wire.resetValues('area_under_cultivation')
                                                 }
                                             })
-
+                                    
                                         }
                                     }">
                                         <label for="areaUnderCultivation" class="my-3 form-label fw-bold">Area Under
@@ -675,14 +639,14 @@
                                     <div x-show="type==='Farmers'" class="mb-3" x-data="{
                                         is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
                                         type: $wire.entangle('type'),
-
+                                    
                                         init() {
                                             this.$watch('type', (v) => {
                                                 if (v != 'Farmers') {
                                                     $wire.resetValues('is_registered_seed_producer')
                                                 }
                                             })
-
+                                    
                                         }
                                     }">
 
@@ -712,13 +676,76 @@
 
 
                                     <!-- Registration Details (Seed Services Unit) -->
-                                    <div class="mb-3" x-data="{
+                                    <div x-data="{ is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'), }" x-show="is_registered_seed_producer==1"
+                                        x-init="$watch('is_registered_seed_producer', (v) => {
+                                            if (v != 1) { $wire.resetValues('registrations'); } else {
+                                                $wire.addRegistration();
+                                            }
+                                        })">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Variety</th>
+                                                    <th>Reg. Date</th>
+                                                    <th>Reg. No.</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($registrations as $index => $reg)
+                                                    <tr>
+                                                        <td><input type="text"
+                                                                wire:model="registrations.{{ $index }}.variety"
+                                                                class="form-control form-control-sm @error('registrations.' . $index . '.variety') is-invalid @enderror" />
+
+                                                            @error('registrations.' . $index . '.variety')
+                                                                <x-error>{{ $message }}</x-error>
+                                                            @enderror
+                                                        </td>
+                                                        <td><input type="date"
+                                                                wire:model="registrations.{{ $index }}.reg_date"
+                                                                class="form-control form-control-sm @error('registrations.' . $index . '.reg_date') is-invalid @enderror" />
+
+                                                            @error('registrations.' . $index . '.reg_date')
+                                                                <x-error>{{ $message }}</x-error>
+                                                            @enderror
+                                                        </td>
+                                                        <td><input type="text"
+                                                                wire:model="registrations.{{ $index }}.reg_no"
+                                                                class="form-control form-control-sm @error('registrations.' . $index . '.reg_no') is-invalid @enderror" />
+
+                                                            @error('registrations.' . $index . '.reg_no')
+                                                                <x-error>{{ $message }}</x-error>
+                                                            @enderror
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                wire:click.debounce.1000ms="removeRegistration({{ $index }})"
+                                                                @if (count($registrations) <= 1) disabled @endif
+                                                                class="btn btn-danger btn-sm">Remove <i
+                                                                    class="bx bx-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+
+                                        <div class="mt-4 mb-3 ">
+
+                                            <button wire:click.debounce.1000ms="addRegistration"
+                                                class="btn btn-warning btn-sm">Add Row <i
+                                                    class="bx bx-plus"></i></button>
+
+                                        </div>
+
+                                    </div>
+                                    {{-- <div class="mb-3" x-data="{
                                         is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
                                         registration_details: $wire.entangle('seed_service_unit_registration_details')
                                     }" x-init="$watch('is_registered_seed_producer', (v) => {
-
+                                    
                                         if (v != 1) {
-
+                                    
                                             $wire.resetValues('seed_service_unit_registration_details');
                                         }
                                     });"
@@ -749,20 +776,20 @@
                                             @enderror
                                         </div>
 
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Do You Use Certified Seed -->
                                     <div x-show="type==='Farmers'" class="mb-3" x-data="{
                                         uses_certified_seed: $wire.entangle('uses_certified_seed'),
                                         type: $wire.entangle('type'),
-
+                                    
                                         init() {
                                             this.$watch('type', (v) => {
                                                 if (v != 'Farmers') {
                                                     $wire.resetValues('uses_certified_seed')
                                                 }
                                             })
-
+                                    
                                         }
                                     }">
                                         <label class="form-label">Do You Use Certified Seed</label>
