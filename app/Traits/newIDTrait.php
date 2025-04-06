@@ -33,7 +33,7 @@ trait newIDTrait
         }
     }
 
-    public function validateNewIdForRecruits($prefix = "recruitment_id_mapping1_", $cacheKey, $row, $rowKey = "Recruitment ID")
+    public function validateNewIdForRecruits($prefix, $cacheKey, $row, $rowKey)
     {
         $mappedId = Cache::get($prefix . '_' . $cacheKey . '_' . $row[$rowKey]);
         if (!$mappedId) {

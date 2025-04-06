@@ -13,10 +13,12 @@ use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\SubmissionTarget;
 use App\Models\AttendanceRegister;
+use App\Models\FarmerSeedRegistration;
 use App\Models\RtcProductionFarmer;
 use App\Models\SchoolRtcConsumption;
 use App\Models\RtcProductionProcessor;
 use App\Models\HouseholdRtcConsumption;
+use App\Models\RecruitSeedRegistration;
 
 class TestData
 {
@@ -464,6 +466,12 @@ class TestData
             $farmer->intermarkets()->create($data['inter']);
             $farmer->agreements()->create($data['conc_aggrement']);
             $faker = Faker::create();
+            FarmerSeedRegistration::create([
+                'farmer_id' => $index,
+                'reg_no' => "reg_" . now(),
+                'reg_date' => now(),
+                'variety' => $faker->randomElement(['Chuma', 'Thandizo', 'Mathutu'])
+            ]);
         }
 
 
@@ -1368,6 +1376,12 @@ class TestData
         foreach (range(1, 10) as $index) {
             $data = recruits();
             Recruitment::create(attributes: $data['main']);
+            RecruitSeedRegistration::create([
+                'recruitment_id' => $index,
+                'reg_no' => "reg_" . now(),
+                'reg_date' => now(),
+                'variety' => $faker->randomElement(['Chuma', 'Thandizo', 'Mathutu'])
+            ]);
         }
     }
 }

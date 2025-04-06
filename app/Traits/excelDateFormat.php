@@ -21,7 +21,7 @@ trait excelDateFormat
         } catch (\Exception $e) {
             Log::error('Excel Time Object Error ' . $e->getMessage() . implode(', ', $row));
             //throw new ExcelValidationException('Invalid date format: ' . json_encode($value));
-            return null;
+            return 0;
         }
 
         try {
@@ -32,7 +32,7 @@ trait excelDateFormat
         } catch (\Exception $e) {
             Log::error('CreateFromFormat Error ' . $e->getMessage() . implode(', ', $row));
             //  throw new ExcelValidationException('Invalid date format: ' . json_encode($value));
-            return null;
+            return 0;
         }
 
 
@@ -40,6 +40,6 @@ trait excelDateFormat
         // throw new ExcelValidationException('Invalid date format: ' . json_encode($value));
 
         // Default to current date if conversion fails
-        return null;
+        return 0;
     }
 }

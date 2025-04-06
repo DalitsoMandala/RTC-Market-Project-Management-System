@@ -4,14 +4,20 @@ namespace App\Imports\RtcRecruitment;
 
 use App\Traits\newIDTrait;
 use App\Models\JobProgress;
+use App\Traits\excelDateFormat;
 use Illuminate\Support\Collection;
 use App\Models\RecruitSeedRegistration;
-use App\Traits\excelDateFormat;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
-class SeedServicesUnitImport implements ToModel
+HeadingRowFormatter::default('none');
+class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
     protected $cacheKey;
@@ -40,7 +46,7 @@ class SeedServicesUnitImport implements ToModel
         // Create the RpmFarmerMarketInformationSystem record with the actual Farmer ID
         return new RecruitSeedRegistration([
             'recruitment_id' => $row['Recruitment ID'],
-            'reg_date' => $row['Registration Date'],
+            'reg_date' => \Carbon\Carbon::parse($row['Registration Date'])->format('Y-m-d'),
             'reg_no' => $row['Registration Number'],
             'variety' => $row['Variety'],
         ]);
@@ -49,7 +55,8 @@ class SeedServicesUnitImport implements ToModel
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $row['Recruitment ID'] = $this->validateNewIdForFarmers("recruitment_id_mapping1_", $this->cacheKey, $row, "Recruitment ID");
+
+        $row['Recruitment ID'] = $this->validateNewIdForRecruits("recruitment_id_mapping", $this->cacheKey, $row, "Recruitment ID");
         $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
         return $row;
     }
@@ -65,7 +72,7 @@ class SeedServicesUnitImport implements ToModel
     {
         return [
 
-            'Rectruitment ID' => 'exists:recruit_seed_registrations,id',
+            'Recruitment ID' => 'exists:recruitments,id',
             'Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Registration Number' => 'nullable|max:255',
             'Variety' => 'nullable|max:255',

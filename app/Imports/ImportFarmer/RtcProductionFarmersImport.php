@@ -131,7 +131,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             $progress = ($jobProgress->processed_rows / $jobProgress->total_rows) * 100;
             $jobProgress->update(['progress' => round($progress)]);
         }
-        Log::info("Processed Farmer : " . Cache::put("farmer_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id));
+        Log::info("Processed Farmer : " . Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id));
         return $farmerRecord;
     }
 

@@ -20,7 +20,7 @@ class SeedServicesUnitExport implements WithHeadings, WithTitle, WithStrictNullC
     protected $rowNumber = 0; // Start counting from 1
     public $template;
     protected $validationTypes = [
-        'Rectruitment ID' => 'Number, Exists in Production Farmers Sheet',
+        'Recruitment ID' => 'Number, Exists in Production Farmers Sheet',
         'Registration Date' => 'Date (dd-mm-yyyy)',
         'Registration Number' => 'Text',
         'Variety' => 'Text',

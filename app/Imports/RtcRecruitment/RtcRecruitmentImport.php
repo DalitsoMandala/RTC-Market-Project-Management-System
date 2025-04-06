@@ -48,6 +48,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             $status = 'approved';
         }
         $farmerRecord = Recruitment::create([
+
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],
@@ -95,7 +96,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
 
         // Cache the mapping of 'ID' to primary key
 
-        Cache::put("recruitment_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id, now()->addMinutes(30));
+        Cache::put("recruitment_id_mapping_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id, now()->addMinutes(30));
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
         if ($jobProgress) {
@@ -103,7 +104,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             $progress = ($jobProgress->processed_rows / $jobProgress->total_rows) * 100;
             $jobProgress->update(['progress' => round($progress)]);
         }
-        Log::info("Processed Farmer : " . Cache::put("recruitment_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id));
+        Log::info("Processed Recruit : " . Cache::get("recruitment_id_mapping_{$this->cacheKey}_{$row['ID']}") . "- {$farmerRecord->id} here");
         return $farmerRecord;
     }
 
@@ -111,7 +112,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            $errorMessage = "Validation Error on sheet 'Production Farmers' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
+            $errorMessage = "Validation Error on sheet 'RTC Actor Recruitment' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
 
@@ -132,6 +133,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
     public function rules(): array
     {
         return [
+            'ID' => 'required|numeric',
             'EPA' => 'required|string|max:255',
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',

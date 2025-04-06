@@ -36,7 +36,7 @@ use App\Imports\ImportFarmer\RpmfAggregationCentersImport;
 use App\Imports\ImportFarmer\RpmFarmerConcAgreementsImport;
 use App\Models\Recruitment;
 
-class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue, WithBatchInserts
+class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable, RegistersEventListeners;
 
@@ -86,7 +86,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
 
         ],
         'Seed Services Unit' => [
-            'Rectruitment ID',
+            'Recruitment ID',
             'Registration Date',
             'Registration Number',
             'Variety',
@@ -130,6 +130,8 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
+
+
                 $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
                 $reader = IOFactory::createReaderForFile($this->filePath);
                 $spreadsheet = $reader->load($this->filePath);
@@ -334,15 +336,5 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
     public function chunkSize(): int
     {
         return 1000; // Process 1000 rows per chunk
-    }
-
-    public function batchSize(): int
-    {
-        return 1000;
-    }
-
-    public function startRow(): int
-    {
-        return 3;
     }
 }
