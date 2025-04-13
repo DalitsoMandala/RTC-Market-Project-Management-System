@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Livewire\tables\RtcMarket\RpmFarmerMarketSegment;
 
 class RtcProductionFarmer extends Model
 {
@@ -76,6 +77,10 @@ class RtcProductionFarmer extends Model
         return $this->hasMany(RpmFarmerAggregationCenter::class, 'rpmf_id');
     }
 
+    public function registeredSeed()
+    {
+        return $this->hasMany(FarmerSeedRegistration::class, 'farmer_id');
+    }
 
     protected static function booted()
     {

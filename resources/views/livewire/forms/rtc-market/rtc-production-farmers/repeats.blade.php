@@ -5,11 +5,8 @@
     inputOne: $wire.entangle('inputOne')
 }" x-init="$watch('has_rtc_market_contract', (v) => {
 
-    if (v == 0) {
+    if (v != 1) {
         $wire.resetValues('inputOne');
-    } else {
-        $wire.resetValues('inputOne');
-        $wire.addInputOne();
     }
 });" x-show='has_rtc_market_contract == 1'>
     <div class="alert alert-warning" id="section-f" role="alert">
@@ -117,13 +114,14 @@
         <div class="my-2">
 
             <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
-                @if ($index > 0)
-                    <button type="button" class="btn btn-theme-red" wire:click='removeInputOne({{ $index }})'>
-                        <i class="bx bx-minus fs-6"></i>
+                @if (count($inputOne) > 1)
+                    <button type="button" class="btn btn-danger btn-sm"
+                        wire:click='removeInputOne({{ $index }})'>
+                        Delete Record <i class="bx bx-trash"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-secondary" @click='$wire.addInputOne()'>
-                    <i class="bx bx-plus"></i>
+                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputOne()'>
+                    Add Record <i class="bx bx-plus"></i>
                 </button>
 
             </div>
@@ -141,11 +139,8 @@
     inputTwo: $wire.entangle('inputTwo')
 }" x-init="$watch('sells_to_domestic_markets', (v) => {
 
-    if (v == 0) {
+    if (v != 1) {
         $wire.resetValues('inputTwo');
-    } else {
-        $wire.resetValues('inputTwo');
-        $wire.addInputTwo();
     }
 });" x-show='sells_to_domestic_markets == 1'>
     {{-- DO YOU SELL YOUR RTC PRODUCTS TO DOMESTIC MARKETS? –SPECIFY PARTNER --}}
@@ -269,14 +264,14 @@
         <div class="my-2">
 
             <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
-                @if ($index > 0)
-                    <button type="button" class="btn btn-theme-red"
+                @if (count($inputTwo) > 1)
+                    <button type="button" class="btn btn-danger btn-sm"
                         wire:click='removeInputTwo({{ $index }})'>
-                        <i class="bx bx-minus fs-6"></i>
+                        Delete Record <i class="bx bx-minus"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-secondary" @click='$wire.addInputTwo()'>
-                    <i class="bx bx-plus"></i>
+                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputTwo()'>
+                    Add Record <i class="bx bx-plus"></i>
                 </button>
 
             </div>
@@ -292,11 +287,8 @@
     inputThree: $wire.entangle('inputThree')
 }" x-init="$watch('sells_to_international_markets', (v) => {
 
-    if (v == 0) {
+    if (v != 1) {
         $wire.resetValues('inputThree');
-    } else {
-        $wire.resetValues('inputThree');
-        $wire.addInputThree();
     }
 });" x-show='sells_to_international_markets == 1'>
 
@@ -422,14 +414,14 @@
         <div class="my-2">
 
             <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
-                @if ($index > 0)
-                    <button type="button" class="btn btn-theme-red"
+                @if (count($inputThree) > 1)
+                    <button type="button" class="btn btn-danger btn-sm"
                         wire:click='removeInputThree({{ $index }})'>
-                        <i class="bx bx-minus fs-6"></i>
+                        Delete Record <i class="bx bx-minus"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-secondary" @click='$wire.addInputThree()'>
-                    <i class="bx bx-plus"></i>
+                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputThree()'>
+                    Add Record <i class="bx bx-plus"></i>
                 </button>
 
             </div>

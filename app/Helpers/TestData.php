@@ -201,44 +201,8 @@ class TestData
                         'Sweet potato',
                         'Potato'
                     ]),
-                    'group_name' => $faker->word, //
+
                     'date_of_followup' => $faker->date, // Random date
-                    //   'date_of_recruitment' => $faker->date, // Random date
-                    'name_of_actor' => $faker->name, // Random name
-                    'name_of_representative' => $faker->name, // Random name
-                    'phone_number' => $faker->phoneNumber, // Random phone number
-                    'type' => $faker->randomElement([
-                        'Producer organization (PO)',
-                        'Large scale farm'
-                    ]),
-
-                    'approach' => $faker->optional()->randomElement([
-                        'Collective production only',
-                        'Collective marketing only',
-                        'Knowledge sharing only',
-                        'Collective production, marketing and knowledge sharing',
-                        'N/A'
-                    ]),
-
-                    'sector' => $faker->randomElement([
-                        'Public',
-                        'Private'
-                    ]), // Random sector
-                    'group' => $faker->randomElement([
-                        'Early generation seed producer',
-                        'Seed multiplier',
-                        'Rtc producer'
-                    ]),
-
-                    'establishment_status' => $faker->randomElement([
-                        'New',
-                        'Old'
-                    ]),
-
-                    'is_registered' => $faker->boolean, // Random boolean
-                    'registration_body' => $faker->company, // Random company for registration body
-                    'registration_number' => $faker->unique()->numerify('REG-####'), // Random unique registration number
-                    'registration_date' => $faker->date, // Random registration date
                     'number_of_plantlets_produced_cassava' => $faker->randomElement([
                         10,
                         20
@@ -264,8 +228,6 @@ class TestData
                         20
                     ]) * 10, // Random number for SAH plants produced
                     'is_registered_seed_producer' => $faker->boolean, // Random boolean for registered seed producer
-                    'registration_number_seed_producer' => $faker->unique()->numerify('SEED-####'), // Random seed registration number
-                    'registration_date_seed_producer' => $faker->date, // Random date for seed producer registration
                     'uses_certified_seed' => $faker->boolean, // Random boolean
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
@@ -274,18 +236,35 @@ class TestData
                         10,
                         20
                     ]) * 10, // Random volume for production (metric tonnes)
-                    'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
-                    'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
-                    'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
-                    'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value
-                    'total_vol_irrigation_production_previous_season' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random volume for irrigation production
-                    'irr_prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random total value for irrigation production
-                    'irr_prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales (irrigation)
-                    'irr_prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate for irrigation
-                    'irr_prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value for irrigation
+
+                    'total_vol_production_previous_season' => $faker->numberBetween(1, 10),
+                    'total_vol_production_previous_season_produce' => $faker->numberBetween(1, 10),
+                    'total_vol_production_previous_season_seed' => $faker->numberBetween(1, 10),
+                    'total_vol_production_previous_season_cuttings' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_total' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_produce' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_seed' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_cuttings' => $faker->numberBetween(1, 10),
+                    'prod_value_produce_prevailing_price' => $faker->numberBetween(1, 10),
+                    'prod_value_seed_prevailing_price' => $faker->numberBetween(1, 10),
+                    'prod_value_cuttings_prevailing_price' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_date_of_max_sales' => $faker->date,
+                    'prod_value_previous_season_usd_rate' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_usd_value' => $faker->numberBetween(1, 10),
+                    'total_vol_irrigation_production_previous_season' => $faker->numberBetween(1, 10),
+                    'total_vol_irrigation_production_previous_season_produce' => $faker->numberBetween(1, 10),
+                    'total_vol_irrigation_production_previous_season_seed' => $faker->numberBetween(1, 10),
+                    'total_vol_irrigation_production_previous_season_cuttings' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_previous_season_total' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_previous_season_produce' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_previous_season_seed' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_previous_season_cuttings' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_produce_prevailing_price' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_seed_prevailing_price' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_cuttings_prevailing_price' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_previous_season_date_of_max_sales' =>  $faker->date,
+                    'irr_prod_value_previous_season_usd_rate' => $faker->numberBetween(1, 10),
+                    'irr_prod_value_previous_season_usd_value' => $faker->numberBetween(1, 10),
                     'sells_to_domestic_markets' => $faker->boolean, // Random boolean
                     'sells_to_international_markets' => $faker->boolean, // Random boolean
                     'uses_market_information_systems' => $faker->boolean, // Random boolean
@@ -444,6 +423,9 @@ class TestData
                     'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
                     ...$dates
                 ],
+
+
+
 
 
             ];
@@ -528,6 +510,8 @@ class TestData
                     'uses_certified_seed' => $faker->boolean, // Random boolean
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
+                    'market_segment_seed' => $faker->boolean, // Random boolean for seed market segment
+                    'market_segment_cuttings' => $faker->boolean, // Random boolean for fertilizer market segmen
                     'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
                     'total_vol_production_previous_season' => $faker->randomElement([
                         10,
@@ -655,20 +639,20 @@ class TestData
             ];
         }
 
-        foreach (range(1, 10) as $index) {
-            $data = rpmfFU();
-            $farmer = RtcProductionFarmer::inRandomOrder()->first();
-            $farmer->followups()->create($data['main']);
-            $farmer->cultivatedArea()->create($data['cultivation']);
-            $farmer->basicSeed()->create($data['area_under_basic_seed_multiplication']);
-            $farmer->certifiedSeed()->create($data['area_under_certified_seed_multiplication']);
-            $farmer->marketInformationSystems()->create($data['market_information_systems']);
-            $farmer->aggregationCenters()->create($data['aggregation_center_sales']);
-            $farmer->doms()->create($data['domestic']);
-            $farmer->intermarkets()->create($data['inter']);
-            $farmer->agreements()->create($data['conc_aggrement']);
-            $faker = Faker::create();
-        }
+        // foreach (range(1, 10) as $index) {
+        //     $data = rpmfFU();
+        //     $farmer = RtcProductionFarmer::inRandomOrder()->first();
+        //     $farmer->followups()->create($data['main']);
+        //     $farmer->cultivatedArea()->create($data['cultivation']);
+        //     $farmer->basicSeed()->create($data['area_under_basic_seed_multiplication']);
+        //     $farmer->certifiedSeed()->create($data['area_under_certified_seed_multiplication']);
+        //     $farmer->marketInformationSystems()->create($data['market_information_systems']);
+        //     $farmer->aggregationCenters()->create($data['aggregation_center_sales']);
+        //     $farmer->doms()->create($data['domestic']);
+        //     $farmer->intermarkets()->create($data['inter']);
+        //     $farmer->agreements()->create($data['conc_aggrement']);
+        //     $faker = Faker::create();
+        // }
 
 
 
@@ -697,56 +681,25 @@ class TestData
                         'Sweet potato',
                         'Potato'
                     ]),
-                    'group_name' => $faker->word, //
+
                     'date_of_followup' => $faker->date, // Random date
-                    //   'date_of_recruitment' => $faker->date, // Random date
-                    'name_of_actor' => $faker->name, // Random name
-                    'name_of_representative' => $faker->name, // Random name
-                    'phone_number' => $faker->phoneNumber, // Random phone number
-                    'type' => $faker->randomElement([
-                        'Producer organization (PO)',
-                        'Large scale processor',
-                        'Small medium enterprise (SME)'
-                    ]),
-
-                    'approach' => $faker->optional()->randomElement([
-                        'Collective production only',
-                        'Collective marketing only',
-                        'Knowledge sharing only',
-                        'Collective production, marketing and knowledge sharing',
-                        'N/A'
-                    ]),
-
-                    'sector' => $faker->randomElement([
-                        'Public',
-                        'Private'
-                    ]), // Random sector
-                    'group' => $faker->randomElement([
-
-                        'Other'
-                    ]),
-
-                    'establishment_status' => $faker->randomElement([
-                        'New',
-                        'Old'
-                    ]),
-
-                    'is_registered' => $faker->boolean, // Random boolean
-                    'registration_body' => $faker->company, // Random company for registration body
-                    'registration_number' => $faker->unique()->numerify('REG-####'), // Random unique registration number
-                    'registration_date' => $faker->date, // Random registration date
                     'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
                     'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
                     'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
-                    'total_vol_production_previous_season' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random volume for production (metric tonnes)
-                    'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
-                    'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
-                    'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
-                    'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value
-
+                    'total_vol_production_previous_season' => $faker->numberBetween(1, 10),
+                    'total_vol_production_previous_season_produce' => $faker->numberBetween(1, 10),
+                    'total_vol_production_previous_season_seed' => $faker->numberBetween(1, 10),
+                    'total_vol_production_previous_season_cuttings' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_total' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_produce' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_seed' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_cuttings' => $faker->numberBetween(1, 10),
+                    'prod_value_produce_prevailing_price' => $faker->numberBetween(1, 10),
+                    'prod_value_seed_prevailing_price' => $faker->numberBetween(1, 10),
+                    'prod_value_cuttings_prevailing_price' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_date_of_max_sales' => $faker->date,
+                    'prod_value_previous_season_usd_rate' => $faker->numberBetween(1, 10),
+                    'prod_value_previous_season_usd_value' => $faker->numberBetween(1, 10),
                     'sells_to_domestic_markets' => $faker->boolean, // Random boolean
                     'sells_to_international_markets' => $faker->boolean, // Random boolean
                     'uses_market_information_systems' => $faker->boolean, // Random boolean
@@ -762,54 +715,7 @@ class TestData
                         10,
                         20
                     ]) * 10, // Random volume for aggregation center sales
-                    'emp_formal_female_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal female employees 18-35
-                    'emp_formal_male_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal male employees 18-35
-                    'emp_formal_male_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal male employees 35+
-                    'emp_formal_female_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal female employees 35+
-                    'emp_informal_female_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal female employees 18-35
-                    'emp_informal_male_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal male employees 18-35
-                    'emp_informal_male_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal male employees 35+
-                    'emp_informal_female_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal female employees 35+
-                    'mem_female_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for female members 18-35
-                    'mem_male_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for male members 18-35
-                    'mem_male_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for male members 35+
-                    'mem_female_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for female members 35+
+
                 ],
 
 
@@ -899,7 +805,7 @@ class TestData
             $farmer->aggregationCenters()->create($data['aggregation_center_sales']);
             $farmer->doms()->create($data['domestic']);
             $farmer->intermarkets()->create($data['inter']);
-            $farmer->agreements()->create($data['conc_aggrement']);
+            //   $farmer->agreements()->create($data['conc_aggrement']);
         }
 
 
@@ -1357,8 +1263,6 @@ class TestData
                     'emp_informal_female_35_plus' => $faker->numberBetween(0, 100), // Random number
                     'area_under_cultivation' => $faker->randomFloat(2, 0, 1000), // Random area
                     'is_registered_seed_producer' => $faker->boolean, // Random boolean
-                    'registration_number_seed_producer' => $faker->uuid, // Random registration number
-                    'registration_date_seed_producer' => $faker->date(), // Random registration date
                     'uses_certified_seed' => $faker->boolean, // Random boolean
                     'user_id' => 3, // Random user ID
                     'uuid' => $faker->uuid, // Random UUID

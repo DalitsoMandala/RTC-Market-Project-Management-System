@@ -1,135 +1,3 @@
-{{-- DO YOU HAVE ANY RTC MARKET CONTRACTUAL AGREEMENT? –SPECIFY PARTNER --}}
-
-<div x-data="{
-    has_rtc_market_contract: $wire.entangle('has_rtc_market_contract'),
-    inputOne: $wire.entangle('inputOne')
-}" x-init="$watch('has_rtc_market_contract', (v) => {
-
-    if (v != 1) {
-        $wire.resetValues('inputOne');
-    }
-});" x-show='has_rtc_market_contract == 1'>
-    <div class="alert alert-warning" id="section-f" role="alert">
-        <strong>DO YOU HAVE ANY RTC MARKET CONTRACTUAL AGREEMENT? –SPECIFY PARTNER</strong>
-    </div>
-
-
-    @php
-
-        $countOne = 1;
-    @endphp
-    @foreach ($inputOne as $index => $input)
-        <h3>{{ $countOne++ }}</h3>
-        <div class="mb-3">
-            <label for="conc_date_recorded_{{ $index }}" class="form-label">DATE RECORDED</label>
-            <input type="date"
-                class="form-control    @error('inputOne.' . $index . '.conc_date_recorded') is-invalid @enderror"
-                id="conc_date_recorded_{{ $index }}"
-                wire:model="inputOne.{{ $index }}.conc_date_recorded">
-
-            @error('inputOne.' . $index . '.conc_date_recorded')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="conc_partner_name_{{ $index }}" class="form-label">PARTNER NAME</label>
-            <input type="text"
-                class="form-control  @error('inputOne.' . $index . '.conc_partner_name') is-invalid @enderror"
-                id="conc_partner_name_{{ $index }}" wire:model="inputOne.{{ $index }}.conc_partner_name">
-            @error('inputOne.' . $index . '.conc_partner_name')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="conc_country_{{ $index }}" class="form-label">COUNTRY</label>
-            <input type="text"
-                class="form-control  @error('inputOne.' . $index . '.conc_country') is-invalid @enderror"
-                id="conc_country_{{ $index }}" wire:model="inputOne.{{ $index }}.conc_country">
-            @error('inputOne.' . $index . '.conc_country')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="conc_date_of_maximum_sale_{{ $index }}" class="form-label">DATE OF MAXIMUM
-                SALE</label>
-            <input type="date"
-                class="form-control  @error('inputOne.' . $index . '.conc_date_of_maximum_sale') is-invalid @enderror"
-                id="conc_date_of_maximum_sale_{{ $index }}"
-                wire:model="inputOne.{{ $index }}.conc_date_of_maximum_sale">
-            @error('inputOne.' . $index . '.conc_date_of_maximum_sale')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="conc_product_type_{{ $index }}" class="form-label">PRODUCT TYPE</label>
-
-
-            <select
-                class="form-select form-select-md  @error('inputOne.' . $index . '.conc_product_type') is-invalid @enderror"
-                wire:model="inputOne.{{ $index }}.conc_product_type">
-                <option value="">Select one</option>
-                <option>SEED</option>
-                <option>WARE</option>
-                <option>VALUE ADDED PRODUCTS</option>
-            </select>
-
-            @error('inputOne.' . $index . '.conc_product_type')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="conc_volume_sold_previous_period_{{ $index }}" class="form-label">VOLUME SOLD
-                PREVIOUS
-                PERIOD (METRIC TONNES)</label>
-            <input type="number" min="0" step="any" step="any"
-                class="form-control  @error('inputOne.' . $index . '.conc_volume_sold_previous_period') is-invalid @enderror"
-                id="conc_volume_sold_previous_period_{{ $index }}"
-                wire:model="inputOne.{{ $index }}.conc_volume_sold_previous_period">
-            @error('inputOne.' . $index . '.conc_volume_sold_previous_period')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-
-        <div class="mb-3">
-            <label for="conc_financial_value_of_sales_{{ $index }}" class="form-label">FINANCIAL VALUE OF
-                SALES
-                (MALAWI KWACHA)
-            </label>
-            <input type="number" min="0" step="any" step="any"
-                class="form-control  @error('inputOne.' . $index . '.conc_financial_value_of_sales') is-invalid @enderror "
-                id="conc_financial_value_of_sales_{{ $index }}"
-                wire:model="inputOne.{{ $index }}.conc_financial_value_of_sales">
-            @error('inputOne.' . $index . '.conc_financial_value_of_sales')
-                <x-error>{{ $message }}</x-error>
-            @enderror
-        </div>
-        <div class="my-2">
-
-            <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
-                @if ($index > 0)
-                    <button type="button" class="btn btn-theme-red" wire:click='removeInputOne({{ $index }})'>
-                        <i class="bx bx-minus fs-6"></i>
-                    </button>
-                @endif
-                <button type="button" class="btn btn-secondary" @click='$wire.addInputOne()'>
-                    <i class="bx bx-plus"></i>
-                </button>
-
-            </div>
-
-        </div>
-    @endforeach
-
-</div>
-
-
-
-
 <div x-data="{
     sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets'),
     inputTwo: $wire.entangle('inputTwo')
@@ -154,8 +22,7 @@
             <label for="dom_date_recorded_{{ $index }}" class="form-label">DATE RECORDED</label>
             <input type="date"
                 class="form-control    @error('inputTwo.' . $index . '.dom_date_recorded') is-invalid @enderror"
-                id="dom_date_recorded_{{ $index }}"
-                wire:model="inputTwo.{{ $index }}.dom_date_recorded">
+                id="dom_date_recorded_{{ $index }}" wire:model="inputTwo.{{ $index }}.dom_date_recorded">
             @error('inputTwo.' . $index . '.dom_date_recorded')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -169,9 +36,9 @@
                 class="form-select form-select-md  @error('inputTwo.' . $index . '.dom_crop_type') is-invalid @enderror"
                 wire:model="inputTwo.{{ $index }}.dom_crop_type">
                 <option value="">Select one</option>
-                <option>CASSAVA</option>
-                <option>POTATO</option>
-                <option>SWEET POTATO</option>
+                <option>Cassava</option>
+                <option>Potato</option>
+                <option>Sweet potato</option>
             </select>
             @error('inputTwo.' . $index . '.dom_crop_type')
                 <x-error>{{ $message }}</x-error>
@@ -190,9 +57,14 @@
 
         <div class="mb-3">
             <label for="dom_district_{{ $index }}" class="form-label">DISTRICT</label>
-            <input type="text"
-                class="form-control  @error('inputTwo.' . $index . '.dom_district') is-invalid @enderror"
-                id="dom_district_{{ $index }}" wire:model="inputTwo.{{ $index }}.dom_district">
+
+            <select class="form-select  @error('inputTwo.' . $index . '.dom_district') is-invalid @enderror"
+                wire:model="inputTwo.{{ $index }}.dom_district">
+                <option value="">Select one</option>
+                @include('layouts.district-options')
+            </select>
+
+
             @error('inputTwo.' . $index . '.dom_district')
                 <x-error>{{ $message }}</x-error>
             @enderror
@@ -218,9 +90,9 @@
                 class="form-select form-select-md  @error('inputTwo.' . $index . '.dom_product_type') is-invalid @enderror"
                 wire:model="inputTwo.{{ $index }}.dom_product_type">
 
-                <option>SEED</option>
-                <option>WARE</option>
-                <option>VALUE ADDED PRODUCTS</option>
+                <option>Seed</option>
+                <option>Ware</option>
+                <option>Value added products</option>
             </select>
             @error('inputTwo.' . $index . '.dom_product_type')
                 <x-error>{{ $message }}</x-error>
@@ -232,7 +104,7 @@
             <label for="dom_volume_sold_previous_period_{{ $index }}" class="form-label">VOLUME SOLD
                 PREVIOUS
                 PERIOD (METRIC TONNES)</label>
-            <input type="number" min="0" step="any" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control  @error('inputTwo.' . $index . '.dom_volume_sold_previous_period') is-invalid @enderror"
                 id="dom_volume_sold_previous_period_{{ $index }}"
                 wire:model="inputTwo.{{ $index }}.dom_volume_sold_previous_period">
@@ -244,7 +116,7 @@
         <div class="mb-3">
             <label for="dom_financial_value_of_sales_{{ $index }}" class="form-label">FINANCIAL VALUE OF
                 SALES</label>
-            <input type="number" min="0" step="any" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control  @error('inputTwo.' . $index . '.dom_financial_value_of_sales') is-invalid @enderror"
                 id="dom_financial_value_of_sales_{{ $index }}"
                 wire:model="inputTwo.{{ $index }}.dom_financial_value_of_sales">
@@ -255,14 +127,14 @@
         <div class="my-2">
 
             <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
-                @if ($index > 0)
-                    <button type="button" class="btn btn-theme-red"
+                @if (count($inputTwo) > 1)
+                    <button type="button" class="btn btn-danger btn-sm"
                         wire:click='removeInputTwo({{ $index }})'>
-                        <i class="bx bx-minus fs-6"></i>
+                        Delete Record <i class="bx bx-minus"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-secondary" @click='$wire.addInputTwo()'>
-                    <i class="bx bx-plus"></i>
+                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputTwo()'>
+                    Add Record <i class="bx bx-plus"></i>
                 </button>
 
             </div>
@@ -316,9 +188,9 @@
                 class="form-select form-select-md   @error('inputThree.' . $index . '.inter_crop_type') is-invalid @enderror"
                 wire:model="inputThree.{{ $index }}.inter_crop_type">
 
-                <option>CASSAVA</option>
-                <option>POTATO</option>
-                <option>SWEET POTATO</option>
+                <option>Cassava</option>
+                <option>Potato</option>
+                <option>Sweet potato</option>
             </select>
             @error('inputThree.' . $index . '.inter_crop_type')
                 <x-error>{{ $message }}</x-error>
@@ -339,12 +211,14 @@
 
         <div class="mb-3">
             <label for="inter_country_{{ $index }}" class="form-label">COUNTRY</label>
-            <input type="text"
-                class="form-control   @error('inputThree.' . $index . '.inter_country') is-invalid @enderror"
-                id="inter_country_{{ $index }}" wire:model="inputThree.{{ $index }}.inter_country">
-            @error('inputThree.' . $index . '.inter_country')
-                <x-error>{{ $message }}</x-error>
-            @enderror
+
+            <select class="form-select  @error('inputThree.' . $index . '.inter_country') is-invalid @enderror"
+                wire:model="inputThree.{{ $index }}.inter_country">
+                <option value="">Select one</option>
+                @include('layouts.countries-options')
+            </select>
+
+
         </div>
 
         <div class="mb-3">
@@ -367,9 +241,9 @@
                 wire:model="inputThree.{{ $index }}.inter_product_type">
 
 
-                <option>SEED</option>
-                <option>WARE</option>
-                <option>VALUE ADDED PRODUCTS</option>
+                <option>Seed</option>
+                <option>Ware</option>
+                <option>Value added products</option>
             </select>
             @error('inputThree.' . $index . '.inter_product_type')
                 <x-error>{{ $message }}</x-error>
@@ -380,7 +254,7 @@
         <div class="mb-3">
             <label for="inter_volume_sold_previous_period_{{ $index }}" class="form-label">VOLUME SOLD
                 PREVIOUS PERIOD (METRIC TONNES)</label>
-            <input type="number" min="0" step="any" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control   @error('inputThree.' . $index . '.inter_volume_sold_previous_period') is-invalid @enderror"
                 id="inter_volume_sold_previous_period_{{ $index }}"
                 wire:model="inputThree.{{ $index }}.inter_volume_sold_previous_period">
@@ -392,7 +266,7 @@
         <div class="mb-3">
             <label for="inter_financial_value_of_sales_{{ $index }}" class="form-label">FINANCIAL VALUE OF
                 SALES</label>
-            <input type="number" min="0" step="any" step="any"
+            <input type="number" step="any" min="0"
                 class="form-control   @error('inputThree.' . $index . '.inter_financial_value_of_sales') is-invalid @enderror"
                 id="inter_financial_value_of_sales_{{ $index }}"
                 wire:model="inputThree.{{ $index }}.inter_financial_value_of_sales">
@@ -403,14 +277,14 @@
         <div class="my-2">
 
             <div class="text-center btn-group" role="group" aria-label="Button group name" x-data>
-                @if ($index > 0)
-                    <button type="button" class="btn btn-theme-red"
+                @if (count($inputThree) > 1)
+                    <button type="button" class="btn btn-danger btn-sm"
                         wire:click='removeInputThree({{ $index }})'>
-                        <i class="bx bx-minus fs-6"></i>
+                        Delete Record <i class="bx bx-minus"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-secondary" @click='$wire.addInputThree()'>
-                    <i class="bx bx-plus"></i>
+                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputThree()'>
+                    Add Record <i class="bx bx-plus"></i>
                 </button>
 
             </div>

@@ -81,9 +81,19 @@
 
 
 
-
                     <div class="col-md-8">
-                        <form wire:submit.debounce.1000ms='save'>
+                        <form wire:submit.debounce.1000ms='save' id="mainForm" x-data="{
+
+
+                        }"
+                            x-init="() => {
+                                const form = document.getElementById('mainForm');
+
+                                form.addEventListener('input', (event) => {
+                                    console.log(event.target);
+                                });
+
+                            }">
                             <div class="card col-12 col-md-12">
                                 <div class="card-header fw-bold" id="section-0">FOLLOW UP SECTION</div>
                                 <div class="card-body">
@@ -160,7 +170,7 @@
 
                                     @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
 
-                                    <div class="d-grid col-12 justify-content-center" x-data>
+                                    <div class="mt-5 d-grid col-12 justify-content-center" x-data>
 
                                         <button class="px-5 btn btn-warning"
                                             @click="window.scrollTo({

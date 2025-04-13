@@ -84,7 +84,7 @@
 
 
                     <div class="col-md-8">
-                        <form wire:submit.debounce.1000ms='save'>
+                        <form wire:submit.debounce.1000ms='save' id="form">
                             <div class="card col-12 col-md-12">
 
                                 <div class="card-body">
@@ -210,8 +210,8 @@
 
                                     <!-- Group -->
                                     <div class="mb-3" x-data="{ group: $wire.entangle('group'), type: $wire.entangle('type') }" x-init="() => {
-                                    
-                                    
+
+
                                     }">
                                         <label for="group" class="form-label">Group</label>
                                         <select class="form-select @error('group') is-invalid @enderror"
@@ -287,8 +287,8 @@
                                     <div class="mb-3" x-data="{
                                         type: $wire.entangle('type'),
                                         number_of_members: $wire.entangle('number_of_members'),
-                                    
-                                    
+
+
                                     }" x-init="$watch('number_of_members', (v) => {
                                         v.total = parseInt(v.female_18_35 || 0) + parseInt(v.female_35_plus || 0) + parseInt(v.male_18_35 || 0) + parseInt(v.male_35_plus || 0);
                                     });">
@@ -358,7 +358,7 @@
                                     }"
                                         x-init="$watch('type', (v) => {
                                             if (v != 'Farmers') {
-                                        
+
                                                 $wire.resetValues('category');
                                             }
                                         });">
@@ -425,7 +425,7 @@
                                         is_registered: $wire.entangle('is_registered'),
                                         registration_details: $wire.entangle('registration_details')
                                     }" x-init="$watch('is_registered', (v) => {
-                                    
+
                                         if (v != 1) {
                                             registration_details = {};
                                             $wire.resetValues('registration_details');
@@ -472,7 +472,7 @@
                                     <div class="mb-3" x-data="{
                                         number_of_employees: $wire.entangle('number_of_employees')
                                     }" x-init="$watch('number_of_employees', (v) => {
-                                    
+
                                         v.formal.total = parseInt(v.formal.female_18_35 || 0) + parseInt(v.formal.female_35_plus || 0) + parseInt(v.formal.male_18_35 || 0) + parseInt(v.formal.male_35_plus || 0);
                                         v.informal.total = parseInt(v.informal.female_18_35 || 0) + parseInt(v.informal.female_35_plus || 0) + parseInt(v.informal.male_18_35 || 0) + parseInt(v.informal.male_35_plus || 0);
                                     });">
@@ -611,14 +611,14 @@
                                     <div x-show="type==='Farmers'" class="mb-3" x-data="{
                                         area_under_cultivation: $wire.entangle('area_under_cultivation'),
                                         type: $wire.entangle('type'),
-                                    
+
                                         init() {
                                             this.$watch('type', (v) => {
                                                 if (v != 'Farmers') {
                                                     $wire.resetValues('area_under_cultivation')
                                                 }
                                             })
-                                    
+
                                         }
                                     }">
                                         <label for="areaUnderCultivation" class="my-3 form-label fw-bold">Area Under
@@ -639,14 +639,14 @@
                                     <div x-show="type==='Farmers'" class="mb-3" x-data="{
                                         is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
                                         type: $wire.entangle('type'),
-                                    
+
                                         init() {
                                             this.$watch('type', (v) => {
                                                 if (v != 'Farmers') {
                                                     $wire.resetValues('is_registered_seed_producer')
                                                 }
                                             })
-                                    
+
                                         }
                                     }">
 
@@ -728,68 +728,37 @@
                                                     </tr>
                                                 @endforeach
                                             </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="3"></td>
+                                                    <td>
+                                                        <button @click="$wire.addRegistration()"
+                                                            @if (count($registrations) >= 10) disabled @endif
+                                                            class="btn btn-warning btn-sm">Add Row <i
+                                                                class="bx bx-plus"></i></button>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                            </tfoot>
                                         </table>
 
-                                        <div class="mt-4 mb-3 ">
 
-                                            <button wire:click.debounce.1000ms="addRegistration"
-                                                class="btn btn-warning btn-sm">Add Row <i
-                                                    class="bx bx-plus"></i></button>
-
-                                        </div>
 
                                     </div>
-                                    {{-- <div class="mb-3" x-data="{
-                                        is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
-                                        registration_details: $wire.entangle('seed_service_unit_registration_details')
-                                    }" x-init="$watch('is_registered_seed_producer', (v) => {
-                                    
-                                        if (v != 1) {
-                                    
-                                            $wire.resetValues('seed_service_unit_registration_details');
-                                        }
-                                    });"
-                                        x-show='is_registered_seed_producer == 1'>
-                                        <label for="seedRegistrationDetails" class="form-label">Registration Details
-                                            (Seed Services Unit)</label>
-                                        <div class="mb-3">
-                                            <label for="registrationNumber" class="form-label">Seed Service Unit
-                                                Registration Number:</label>
-                                            <input type="text"
-                                                class="form-control  @error('seed_service_unit_registration_details.registration_number') is-invalid @enderror"
-                                                id="registrationNumber"
-                                                wire:model="seed_service_unit_registration_details.registration_number">
-                                            @error('seed_service_unit_registration_details.registration_number')
-                                                <x-error>{{ $message }}</x-error>
-                                            @enderror
-                                        </div>
 
-                                        <div class="mb-3">
-                                            <label for="registrationDate" class="form-label">Seed Service Unit
-                                                Registration Date:</label>
-                                            <input type="date"
-                                                class="form-control @error('seed_service_unit_registration_details.registration_date') is-invalid @enderror "
-                                                id="registrationDate"
-                                                wire:model="seed_service_unit_registration_details.registration_date">
-                                            @error('seed_service_unit_registration_details.registration_date')
-                                                <x-error>{{ $message }}</x-error>
-                                            @enderror
-                                        </div>
-
-                                    </div> --}}
 
                                     <!-- Do You Use Certified Seed -->
                                     <div x-show="type==='Farmers'" class="mb-3" x-data="{
                                         uses_certified_seed: $wire.entangle('uses_certified_seed'),
                                         type: $wire.entangle('type'),
-                                    
+
                                         init() {
                                             this.$watch('type', (v) => {
                                                 if (v != 'Farmers') {
                                                     $wire.resetValues('uses_certified_seed')
                                                 }
                                             })
-                                    
+
                                         }
                                     }">
                                         <label class="form-label">Do You Use Certified Seed</label>

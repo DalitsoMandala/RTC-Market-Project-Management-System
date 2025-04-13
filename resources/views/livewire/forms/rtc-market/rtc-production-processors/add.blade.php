@@ -67,7 +67,8 @@
         }">
 
             <div class="col-md-8">
-                <form wire:submit.debounce.1000ms='save'>
+
+                <form wire:submit.debounce.1000ms='save' id="mainForm">
                     <div class="card col-12 col-md-12">
                         <div class="card-header fw-bold" id="section-0">FOLLOW UP SECTION</div>
                         <div class="card-body">
@@ -106,7 +107,7 @@
                                 @enderror
                             </div>
 
-                            <div class=<div class="mb-3">
+                            <div class="mb-3">
                                 <label for="" class="form-label">DISTRICT</label>
                                 <select
                                     class="form-select @error('location_data.district')
@@ -144,7 +145,7 @@
                         <div class="card-body">
                             @include('livewire.forms.rtc-market.rtc-production-processors.first')
 
-                            @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
+                            @include('livewire.forms.rtc-market.rtc-production-processors.repeats')
 
                             <div class="d-grid col-12 justify-content-center" x-data>
 

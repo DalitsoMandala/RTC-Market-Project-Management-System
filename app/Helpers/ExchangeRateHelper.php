@@ -12,15 +12,7 @@ class ExchangeRateHelper
 {
 
     protected $apiKey = null; // Store your API key in config/services.php
-    protected $baseCurrency = 'USD'; // or any other base currency
-
-    /**
-     * Get the exchange rate for a given date, with caching and error handling.
-     *
-     * @param float $totalValue
-     * @param string $date
-     * @return float|null
-     */
+    protected $baseCurrency = 'USD'; // or any other base currency you want to use
 
     public function __construct()
     {
@@ -47,7 +39,7 @@ class ExchangeRateHelper
         try {
 
             $url = "https://api.currencybeacon.com/v1/historical?api_key={$this->apiKey}&base={$this->baseCurrency}&date={$date}";
-            $response = Http::get($url);
+            $response = Http::withoutVerifying()->get($url);
 
             // Validate the response
             if ($response->successful() && isset($response['response']['rates']['MWK'])) {
@@ -72,6 +64,5 @@ class ExchangeRateHelper
             \Log::error('Exchange rate retrieval error: ' . $e->getMessage());
             return null; // Return null if an error occurs
         }
-
     }
 }
