@@ -3,5 +3,5 @@
     let object = $($refs.warningAlert);
     object.fadeTo(30000, 0).slideUp(500);
 }" class="alert alert-warning" role="alert">
-
+    {{ $slot }}
 </div>

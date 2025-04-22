@@ -99,7 +99,15 @@ class Add extends Component
     ];
     public $uses_certified_seed = false;
     public $category;
-    public $registrations = [];
+    public $registrations = [
+        [
+
+
+            'variety' => null,
+            'reg_no' => null,
+            'reg_date' => null
+        ]
+    ];
     public function rules()
     {
 
@@ -122,7 +130,7 @@ class Add extends Component
                 'category' => 'required_if:type,Farmers',
                 'establishment_status' => 'required',
                 'is_registered' => 'required',
-
+                'registration_details.*' => 'required_if_accepted:is_registered',
                 'number_of_employees.formal.female_18_35' => 'required|numeric',
                 'number_of_employees.formal.female_35_plus' => 'required|numeric',
                 'number_of_employees.formal.male_18_35' => 'required|numeric',
@@ -134,10 +142,6 @@ class Add extends Component
                 'area_under_cultivation' => 'required_if:type,Farmers',
                 'is_registered_seed_producer' => 'required_if:type,Farmers',
                 'registrations.*' => 'required_if_accepted:is_registered_seed_producer',
-                'registrations.*.variety' => 'required',
-                'registrations.*.reg_date' => 'required|date',
-                'registrations.*.reg_no' => 'required',
-                //   'seed_service_unit_registration_details.*' => 'required_if_accepted:is_registered_seed_producer',
                 'uses_certified_seed' => 'required_if:type,Farmers',
 
             ];
@@ -352,7 +356,7 @@ class Add extends Component
             $project_name = strtolower(str_replace(' ', '_', $project->name));
             $form = Form::find($this->selectedForm);
             $formName = strtolower(str_replace(' ', '-', $form->name));
-
+            $this->dispatch('clear-drafts');
             // Flash success messages
             session()->flash('success', 'Successfully submitted! <a href="' . $routePrefix . '/forms/' . $project_name . '/' . $formName . '/view">View Submission here</a>');
             //    session()->flash('info', 'Your ID is: <b>' . substr($latest->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');

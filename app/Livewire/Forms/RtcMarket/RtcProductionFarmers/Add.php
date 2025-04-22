@@ -138,7 +138,7 @@ class Add extends Component
     ];
 
     public $uses_certified_seed = false;
-    public $market_segment = [];  // Multiple market segments (array of strings)
+    public $market_segment = [];
     public $has_rtc_market_contract = false;
     public $total_vol_production_previous_season;
     public $total_vol_production_previous_season_seed = null;
@@ -147,19 +147,35 @@ class Add extends Component
 
     public $total_vol_production_previous_season_produce = null;
 
-    public $total_production_value_previous_season = [
-        'total' => null,
-        'date_of_maximum_sales' => null,
-        'rate' => 0,
-        'value' => 0,
-        'cuttings_value' => null,
-        'produce_value' => null,
-        'seed_value' => null,
-        'cuttings_prevailing_price' => null,
-        'produce_prevailing_price' => null,
-        'seed_prevailing_price' => null,
+    // public $total_production_value_previous_season = [
+    //     [
+    //         'total' => null,
+    //         'date_of_maximum_sales' => null,
+    //         'rate' => 0,
+    //         'value' => 0,
+    //         'cuttings_value' => null,
+    //         'produce_value' => null,
+    //         'seed_value' => null,
+    //         'cuttings_prevailing_price' => null,
+    //         'produce_prevailing_price' => null,
+    //         'seed_prevailing_price' => null,
+    //     ]
 
-    ];
+    // ];
+
+    public $total_production_value_previous_season_total = 0;
+    public $total_production_value_previous_season_date_of_maximum_sales = null;
+    public $total_production_value_previous_season_rate = 0;
+    public $total_production_value_previous_season_value = 0;
+    public $total_production_value_previous_season_cuttings_value = null;
+    public $total_production_value_previous_season_produce_value = null;
+    public $total_production_value_previous_season_seed_value = null;
+    public $total_irrigation_production_value_previous_season_seed_bundle = null;
+    public $total_production_value_previous_season_seed_prevailing_price = null;
+    public $total_production_value_previous_season_cuttings_prevailing_price = null;
+    public $total_production_value_previous_season_produce_prevailing_price = null;
+
+
 
     public $total_vol_irrigation_production_previous_season;
 
@@ -171,16 +187,19 @@ class Add extends Component
 
 
     public $total_irrigation_production_value_previous_season = [
-        'total' => null,
-        'date_of_maximum_sales' => null,
-        'rate' => 0,
-        'value' => 0,
-        'cuttings_value' => null,
-        'produce_value' => null,
-        'seed_value' => null,
-        'cuttings_prevailing_price' => null,
-        'produce_prevailing_price' => null,
-        'seed_prevailing_price' => null,
+        [
+            'total' => null,
+            'date_of_maximum_sales' => null,
+            'rate' => 0,
+            'value' => 0,
+            'cuttings_value' => null,
+            'produce_value' => null,
+            'seed_value' => null,
+            'cuttings_prevailing_price' => null,
+            'produce_prevailing_price' => null,
+            'seed_prevailing_price' => null,
+        ]
+
     ];
 
     public $sells_to_domestic_markets = false;
@@ -296,6 +315,12 @@ class Add extends Component
         return $rules;
     }
 
+
+    #[On('update-form')]
+    public function FooBar()
+    {
+        return;
+    }
     public function SellsToAggregationCenters($value)
     {
         if (!$value) {
@@ -608,8 +633,8 @@ class Add extends Component
 
         $this->processExchangeRate(
             'total_production_value_previous_season',
-            $this->total_production_value_previous_season['value'] ?? null,
-            $this->total_production_value_previous_season['date_of_maximum_sales'] ?? null
+            $this->total_production_value_previous_season_value ?? null,
+            $this->total_production_value_previous_season_date_of_maximum_sales ?? null
         );
     }
 
@@ -620,7 +645,7 @@ class Add extends Component
     {
 
 
-        $this->total_production_value_previous_season['date_of_maximum_sales'] = $value;
+        $this->total_production_value_previous_season_date_of_maximum_sales = $value;
         $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'] = $value;
     }
 
@@ -645,14 +670,26 @@ class Add extends Component
 
             if ($rate === null) {
 
-
-                $this->{$key}['rate'] = 0;
-                $this->{$key}['total'] = 0;
+                if ($key === 'total_production_value_previous_season') {
+                    $this->total_production_value_previous_season_rate = 0;
+                    $this->total_production_value_previous_season_total = 0;
+                } else {
+                    // $this->total_irrigation_production_value_previous_season_rate = 0;
+                    // $this->total_irrigation_production_value_previous_season_total = 0;
+                }
+                //  session()->flash('validation_error', 'Exchange rate not found for the given date.');
             } else {
 
                 $totalValue = round(((float) ($value ?? 0)) / (float) $rate, 2);
-                $this->{$key}['rate'] = $rate;
-                $this->{$key}['total'] = $totalValue;
+                if ($key === 'total_production_value_previous_season') {
+                    $this->total_production_value_previous_season_rate = $rate;
+                    $this->total_production_value_previous_season_total = $totalValue;
+                } else {
+                    // $this->total_irrigation_production_value_previous_season_rate = $rate;
+                    // $this->total_irrigation_production_value_previous_season_total = $totalValue;
+                }
+                //    $this->{$key}['rate'] = $rate;
+                //    $this->{$key}['total'] = $totalValue;
             }
         }
     }
@@ -823,6 +860,7 @@ class Add extends Component
 
             session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
             DB::commit();
+            $this->dispatch('clear-drafts');
             $this->redirect(url()->previous());
         } catch (Throwable $th) {
             DB::rollBack();

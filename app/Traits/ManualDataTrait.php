@@ -155,6 +155,13 @@ trait ManualDataTrait
             ->exists();
     }
 
+    #[On('clear-error-bag')]
+    public function clearErrorBag()
+    {
+        $this->resetErrorBag();
+        $this->resetValidation();
+        session()->flash('success', 'Form has been cleared!');
+    }
 
     #[On('open-submission')]
     public function clearTable()

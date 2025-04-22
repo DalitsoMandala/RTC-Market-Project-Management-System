@@ -314,6 +314,7 @@
         <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
         <script src="https://cdn.lordicon.com/lordicon.js"></script>
 
+
         @stack('scripts')
         <script>
             $(document).ready(function() {

@@ -2,11 +2,12 @@
 
 namespace App\Helpers;
 
+use Exception;
+use Carbon\Carbon;
 use App\Models\ExchangeRate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-use Carbon\Carbon;
-use Exception;
 
 class ExchangeRateHelper
 {
@@ -61,7 +62,7 @@ class ExchangeRateHelper
             }
         } catch (Exception $e) {
             // Log the exception for debugging
-            \Log::error('Exchange rate retrieval error: ' . $e->getMessage());
+            Log::error('Exchange rate retrieval error: ' . $e->getMessage());
             return null; // Return null if an error occurs
         }
     }

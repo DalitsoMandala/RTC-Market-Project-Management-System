@@ -11,9 +11,8 @@ import "./../../node_modules/flatpickr/dist/flatpickr.min.css";
 // resources/js/app.js
 // resources/js/app.js
 
-import './../../vendor/power-components/livewire-powergrid/dist/powergrid'
+import "./../../vendor/power-components/livewire-powergrid/dist/powergrid";
 // import './../../vendor/power-components/livewire-powergrid/dist/bootstrap5.css'
-
 
 import { Decimal } from "decimal.js";
 window.Decimal = Decimal;
@@ -28,4 +27,6 @@ import Choices from "choices.js";
 
 window.Choices = Choices;
 
+import draftObject from "./alpine/formDraft";
 
+window.draftObject = draftObject;
