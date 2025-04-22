@@ -1,6 +1,3 @@
-<div>
-
-</div>
 @php
     use Ramsey\Uuid\Uuid;
     $uuid = Uuid::uuid4()->toString();
