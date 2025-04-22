@@ -14,6 +14,19 @@
         <li class="breadcrumb-item">
             <a href="/">Dashboard</a>
         </li>
+
+        @role('admin|manager')
+            <li class="breadcrumb-item">
+                <a href="/cip/submission-period">Submission Periods</a>
+            </li>
+        @endrole
+
+        @role('external')
+            <li class="breadcrumb-item"></li>
+            <a href="/external/submission-periods">Submission Periods</a>
+            </li>
+        @endrole
+
         <li class="breadcrumb-item active">Add Data</li>
         <li class="breadcrumb-item">
             <a href="{{ $replaceUrl }}">Upload Data</a>
@@ -39,8 +52,8 @@
                 <option value="Sweet potato">Sweet potato</option>
             </select>
         </div>
-        {{-- <x-text-input wire:model='enterprise'
-        :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
+        {{--
+        <x-text-input wire:model='enterprise' :class="$errors->has('enterprise') ? 'is-invalid' : ''" /> --}}
         @error('location_data.enterprise')
             <x-error>{{ $message }}</x-error>
         @enderror
