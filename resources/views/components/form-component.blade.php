@@ -7,11 +7,11 @@
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">{{ $pageTitle ?? 'Add Data' }}</h4>
+                <div class="page-title-box d-block align-items-center justify-content-between">
+                    <h4 class="mb-2">{{ $pageTitle ?? 'Add Data' }}</h4>
 
                     <div class="page-title-right" wire:ignore>
-                      
+
                         @isset($breadcrumbs)
                             <ol class="m-0 breadcrumb">
                                 {{ $breadcrumbs }}
@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col-12">
                 @if (isset($formTitle))
-                    <h3 class="mb-5 text-center text-warning">{{ $formTitle }}</h3>
+                    <h3 class="my-5 text-center text-warning">{{ $formTitle }}</h3>
                 @endif
 
                 <x-alerts />
@@ -96,6 +96,34 @@
                 isLoading: false,
                 draftName: () => {
                     return 'formDraft' + this.formName + '-' + this.userId
+                },
+                extractNestedData(sourceData, prefix) {
+                    const indices = [];
+                    const structuredData = [];
+
+                    for (const key in sourceData) {
+                        if (key.startsWith(`${prefix}.`)) {
+                            const [_, index, property] = key.split('.');
+
+                            // Track unique indices
+                            if (!indices.includes(index)) {
+                                indices.push(index);
+                            }
+
+                            // Build structured object
+                            if (!structuredData[index]) {
+                                structuredData[index] = {};
+                            }
+                            structuredData[index][property] = sourceData[key];
+                        }
+                    }
+
+                    // Filter out empty slots (if any) and return
+                    const filteredData = structuredData.filter(Boolean);
+                    return {
+                        count: indices.length,
+                        data: filteredData,
+                    };
                 },
 
                 saveDraft(event) {

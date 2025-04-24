@@ -160,7 +160,8 @@ trait ManualDataTrait
     {
         $this->resetErrorBag();
         $this->resetValidation();
-        session()->flash('success', 'Form has been cleared!');
+        sleep(5);
+        session()->flash('notice', 'Form has been cleared!');
     }
 
     #[On('open-submission')]

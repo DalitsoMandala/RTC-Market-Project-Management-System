@@ -50,7 +50,7 @@ class Add extends Component
         $submissionPeriodId;
 
     public $location_data = [
-        'enterprise' => 'Cassava',
+        'enterprise' => null,
         'district' => null,
         'epa' => null,
         'section' => null,
@@ -163,18 +163,18 @@ class Add extends Component
 
     // ];
 
-    public $total_production_value_previous_season_total = 0;
+    public $total_production_value_previous_season_total = null;
     public $total_production_value_previous_season_date_of_maximum_sales = null;
     public $total_production_value_previous_season_rate = 0;
     public $total_production_value_previous_season_value = 0;
     public $total_production_value_previous_season_cuttings_value = null;
     public $total_production_value_previous_season_produce_value = null;
     public $total_production_value_previous_season_seed_value = null;
-    public $total_irrigation_production_value_previous_season_seed_bundle = null;
+    public $total_production_value_previous_season_seed_bundle = null;
     public $total_production_value_previous_season_seed_prevailing_price = null;
     public $total_production_value_previous_season_cuttings_prevailing_price = null;
     public $total_production_value_previous_season_produce_prevailing_price = null;
-
+    public $bundle_multiplier = 10;
 
 
     public $total_vol_irrigation_production_previous_season;
@@ -185,22 +185,18 @@ class Add extends Component
 
     public $total_vol_irrigation_production_previous_season_produce = null;
 
-
-    public $total_irrigation_production_value_previous_season = [
-        [
-            'total' => null,
-            'date_of_maximum_sales' => null,
-            'rate' => 0,
-            'value' => 0,
-            'cuttings_value' => null,
-            'produce_value' => null,
-            'seed_value' => null,
-            'cuttings_prevailing_price' => null,
-            'produce_prevailing_price' => null,
-            'seed_prevailing_price' => null,
-        ]
-
-    ];
+    public $total_irrigation_production_value_previous_season_total = null;
+    public $total_irrigation_production_value_previous_season_date_of_maximum_sales = null;
+    public $total_irrigation_production_value_previous_season_rate = 0;
+    public $total_irrigation_production_value_previous_season_value = 0;
+    public $total_irrigation_production_value_previous_season_cuttings_value = null;
+    public $total_irrigation_production_value_previous_season_produce_value = null;
+    public $total_irrigation_production_value_previous_season_seed_value = null;
+    public $total_irrigation_production_value_previous_season_seed_bundle = null;
+    public $total_irrigation_production_value_previous_season_seed_prevailing_price = null;
+    public $total_irrigation_production_value_previous_season_cuttings_prevailing_price = null;
+    public $total_irrigation_production_value_previous_season_produce_prevailing_price = null;
+    public $bundle_multiplier_irrigation = 10;
 
     public $sells_to_domestic_markets = false;
     public $sells_to_international_markets = false;
@@ -208,7 +204,7 @@ class Add extends Component
     public $market_information_systems = [
         ['name' => null]
     ];
-    public $sells_to_aggregation_centers = true;
+    public $sells_to_aggregation_centers = false;
     public $aggregation_center_sales = [
         ['name' => null]
     ];  // Previous season volume in metric tonnes
@@ -294,21 +290,39 @@ class Add extends Component
                 'total_vol_production_previous_season_produce' => 'required|numeric',
                 'total_vol_production_previous_season_seed' => 'required|numeric',
                 'total_vol_production_previous_season_cuttings' => 'required|numeric',
-                'total_production_value_previous_season.value' => 'required|numeric',
-                'total_production_value_previous_season.total' => 'required|numeric',
-                'total_production_value_previous_season.date_of_maximum_sales' => 'required|date',
-
+                'total_production_value_previous_season_total' => 'required|numeric',
+                //'total_production_value_previous_season_date_of_maximum_sales'=> 'required|date',
+                // 'total_production_value_previous_season_rate' => 'required|numeric',
+                // 'total_production_value_previous_season_value' => 'required|numeric',
+                // 'total_production_value_previous_season_cuttings_value' => 'required|numeric',
+                // 'total_production_value_previous_season_produce_value' => 'required|numeric',
+                // 'total_production_value_previous_season_seed_value' => 'required|numeric',
+                // 'total_production_value_previous_season_seed_bundle' => 'required|numeric',
+                // 'total_production_value_previous_season_seed_prevailing_price' => 'required|numeric',
+                // 'total_production_value_previous_season_cuttings_prevailing_price' => 'required|numeric',
+                // 'total_production_value_previous_season_produce_prevailing_price' => 'required|numeric',
                 'total_vol_irrigation_production_previous_season' => 'required|numeric',
                 'total_vol_irrigation_production_previous_season_produce' => 'required|numeric',
                 'total_vol_irrigation_production_previous_season_seed' => 'required|numeric',
                 'total_vol_irrigation_production_previous_season_cuttings' => 'required|numeric',
-                'total_irrigation_production_value_previous_season.total' => 'required|numeric',
-                'total_irrigation_production_value_previous_season.value' => 'required|numeric',
-                'total_irrigation_production_value_previous_season.date_of_maximum_sales' => 'required|date',
+                'total_irrigation_production_value_previous_season_total' => 'required_unless:location_data.enterprise,Cassava',
+                //  'total_irrigation_production_value_previous_season_date_of_maximum_sales'=> 'required|date',
+                // 'total_irrigation_production_value_previous_season_rate' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_value' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_cuttings_value' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_produce_value' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_seed_value' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_seed_bundle' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_seed_prevailing_price' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_cuttings_prevailing_price' => 'required|numeric',
+                // 'total_irrigation_production_value_previous_season_produce_prevailing_price' => 'required|numeric',
+
                 'market_information_systems.*.name' => 'required_if_accepted:uses_market_information_systems',
                 'aggregation_center_sales.*.name' => 'required_if_accepted:sells_to_aggregation_centers',
                 'total_vol_aggregation_center_sales' => 'required|numeric',
-                'registrations.*' => 'required_if_accepted:is_registered_seed_producer',
+                'registrations.*.variety' => 'required_if_accepted:is_registered_seed_producer',
+                'registrations.*.reg_date' => 'required_if_accepted:is_registered_seed_producer',
+                'registrations.*.reg_no' => 'required_if_accepted:is_registered_seed_producer',
 
             ];
 
@@ -646,7 +660,15 @@ class Add extends Component
 
 
         $this->total_production_value_previous_season_date_of_maximum_sales = $value;
-        $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'] = $value;
+        $this->total_irrigation_production_value_previous_season_date_of_maximum_sales = $value;
+    }
+
+
+    #[On('date-change')]
+    public function realTimeDateOfFollowUp()
+    {
+        $this->total_production_value_previous_season_date_of_maximum_sales = $this->total_production_value_previous_season_date_of_maximum_sales;
+        $this->total_irrigation_production_value_previous_season_date_of_maximum_sales = $this->total_irrigation_production_value_previous_season_date_of_maximum_sales;
     }
 
     public function exchangeRateCalculateIrrigation()
@@ -655,8 +677,8 @@ class Add extends Component
         // Process the second set of data
         $this->processExchangeRate(
             'total_irrigation_production_value_previous_season',
-            $this->total_irrigation_production_value_previous_season['value'] ?? null,
-            $this->total_production_value_previous_season['date_of_maximum_sales'] ?? null
+            $this->total_irrigation_production_value_previous_season_value ?? null,
+            $this->total_production_value_previous_season_date_of_maximum_sales ?? null
         );
     }
 
@@ -674,10 +696,10 @@ class Add extends Component
                     $this->total_production_value_previous_season_rate = 0;
                     $this->total_production_value_previous_season_total = 0;
                 } else {
-                    // $this->total_irrigation_production_value_previous_season_rate = 0;
-                    // $this->total_irrigation_production_value_previous_season_total = 0;
+                    $this->total_irrigation_production_value_previous_season_rate = 0;
+                    $this->total_irrigation_production_value_previous_season_total = 0;
                 }
-                //  session()->flash('validation_error', 'Exchange rate not found for the given date.');
+                session()->flash('error', 'Exchange rate not found for the given date.');
             } else {
 
                 $totalValue = round(((float) ($value ?? 0)) / (float) $rate, 2);
@@ -685,8 +707,8 @@ class Add extends Component
                     $this->total_production_value_previous_season_rate = $rate;
                     $this->total_production_value_previous_season_total = $totalValue;
                 } else {
-                    // $this->total_irrigation_production_value_previous_season_rate = $rate;
-                    // $this->total_irrigation_production_value_previous_season_total = $totalValue;
+                    $this->total_irrigation_production_value_previous_season_rate = $rate;
+                    $this->total_irrigation_production_value_previous_season_total = $totalValue;
                 }
                 //    $this->{$key}['rate'] = $rate;
                 //    $this->{$key}['total'] = $totalValue;
@@ -750,32 +772,34 @@ class Add extends Component
                 'total_vol_production_previous_season_seed' => $this->total_vol_production_previous_season_seed ?? 0,  // Metric tonnes
                 'total_vol_production_previous_season_cuttings' => $this->total_vol_production_previous_season_cuttings ?? 0,  // Metric tonnes
 
-                'prod_value_previous_season_total' => $this->total_production_value_previous_season['value'] ?? 0,
-                'prod_value_previous_season_produce' => $this->total_production_value_previous_season['produce_value'] ?? 0,
-                'prod_value_previous_season_seed' => $this->total_production_value_previous_season['seed_value'] ?? 0,
-                'prod_value_previous_season_cuttings' => $this->total_production_value_previous_season['cuttings_value'] ?? 0,
-                'prod_value_produce_prevailing_price' => $this->total_production_value_previous_season['cuttings_prevailing_price'] ?? 0,
-                'prod_value_seed_prevailing_price' => $this->total_production_value_previous_season['produce_prevailing_price'] ?? 0,
-                'prod_value_cuttings_prevailing_price' => $this->total_production_value_previous_season['seed_prevailing_price'] ?? 0,
-                'prod_value_previous_season_date_of_max_sales' => $this->total_production_value_previous_season['date_of_maximum_sales'],
-                'prod_value_previous_season_usd_rate' => $this->total_production_value_previous_season['rate'],
-                'prod_value_previous_season_usd_value' => $this->total_production_value_previous_season['total'],
+                'prod_value_previous_season_total' => $this->total_production_value_previous_season_value ?? 0,
+                'prod_value_previous_season_produce' => $this->total_production_value_previous_season_produce_value ?? 0,
+                'prod_value_previous_season_seed' => $this->total_production_value_previous_season_seed_value ?? 0,
+                'prod_value_previous_season_seed_bundle' => $this->total_production_value_previous_season_seed_bundle ?? 0,
+                'prod_value_previous_season_cuttings' => $this->total_production_value_previous_season_cuttings ?? 0,
+                'prod_value_produce_prevailing_price' => $this->total_production_value_previous_season_cuttings_prevailing_price ?? 0,
+                'prod_value_seed_prevailing_price' => $this->total_production_value_previous_season_produce_prevailing_price ?? 0,
+                'prod_value_cuttings_prevailing_price' => $this->total_production_value_previous_season_seed_prevailing_price ?? 0,
+                'prod_value_previous_season_date_of_max_sales' => $this->total_production_value_previous_season_date_of_maximum_sales,
+                'prod_value_previous_season_usd_rate' => $this->total_production_value_previous_season_rate ?? 0,
+                'prod_value_previous_season_usd_value' => $this->total_production_value_previous_season_total ?? 0,
 
                 'total_vol_irrigation_production_previous_season' => $this->total_vol_irrigation_production_previous_season ?? 0,  // Metric tonnes
                 'total_vol_irrigation_production_previous_season_produce' => $this->total_vol_irrigation_production_previous_season_produce ?? 0,  // Metric tonnes
                 'total_vol_irrigation_production_previous_season_seed' => $this->total_vol_irrigation_production_previous_season_seed ?? 0,  // Metric tonnes
                 'total_vol_irrigation_production_previous_season_cuttings' => $this->total_vol_irrigation_production_previous_season_cuttings ?? 0,  // Metric tonnes
 
-                'irr_prod_value_previous_season_total' => $this->total_irrigation_production_value_previous_season['value'] ?? 0,
-                'irr_prod_value_previous_season_produce' => $this->total_irrigation_production_value_previous_season['produce_value'] ?? 0,
-                'irr_prod_value_previous_season_seed' => $this->total_irrigation_production_value_previous_season['seed_value'] ?? 0,
-                'irr_prod_value_previous_season_cuttings' => $this->total_irrigation_production_value_previous_season['cuttings_value'] ?? 0,
-                'irr_prod_value_produce_prevailing_price' => $this->total_irrigation_production_value_previous_season['cuttings_prevailing_price'] ?? 0,
-                'irr_prod_value_seed_prevailing_price' => $this->total_irrigation_production_value_previous_season['produce_prevailing_price'] ?? 0,
-                'irr_prod_value_cuttings_prevailing_price' => $this->total_irrigation_production_value_previous_season['seed_prevailing_price'] ?? 0,
-                'irr_prod_value_previous_season_date_of_max_sales' => $this->total_irrigation_production_value_previous_season['date_of_maximum_sales'],
-                'irr_prod_value_previous_season_usd_rate' => $this->total_irrigation_production_value_previous_season['rate'],
-                'irr_prod_value_previous_season_usd_value' => $this->total_irrigation_production_value_previous_season['total'],
+                'irr_prod_value_previous_season_total' => $this->total_irrigation_production_value_previous_season_value ?? 0,
+                'irr_prod_value_previous_season_produce' => $this->total_irrigation_production_value_previous_season_produce_value ?? 0,
+                'irr_prod_value_previous_season_seed' => $this->total_irrigation_production_value_previous_season_seed_value ?? 0,
+                'irr_prod_value_previous_season_seed_bundle' => $this->total_irrigation_production_value_previous_season_seed_bundle ?? 0,
+                'irr_prod_value_previous_season_cuttings' => $this->total_irrigation_production_value_previous_season_cuttings_value ?? 0,
+                'irr_prod_value_produce_prevailing_price' => $this->total_irrigation_production_value_previous_season_cuttings_prevailing_price ?? 0,
+                'irr_prod_value_seed_prevailing_price' => $this->total_irrigation_production_value_previous_season_produce_prevailing_price ?? 0,
+                'irr_prod_value_cuttings_prevailing_price' => $this->total_irrigation_production_value_previous_season_seed_prevailing_price ?? 0,
+                'irr_prod_value_previous_season_date_of_max_sales' => $this->total_irrigation_production_value_previous_season_date_of_maximum_sales,
+                'irr_prod_value_previous_season_usd_rate' => $this->total_irrigation_production_value_previous_season_rate ?? 0,
+                'irr_prod_value_previous_season_usd_value' => $this->total_irrigation_production_value_previous_season_total ?? 0,
 
                 'sells_to_domestic_markets' => $this->sells_to_domestic_markets,
                 'sells_to_international_markets' => $this->sells_to_international_markets,
@@ -858,10 +882,12 @@ class Add extends Component
                 'table_name' => 'rtc_production_farmers',
             ]);
 
+            $this->clearErrorBag();
+
             session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
             DB::commit();
-            $this->dispatch('clear-drafts');
-            $this->redirect(url()->previous());
+
+            //  $this->redirect(url()->previous());
         } catch (Throwable $th) {
             DB::rollBack();
             session()->flash('error', 'Something went wrong!');

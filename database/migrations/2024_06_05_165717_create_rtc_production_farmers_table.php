@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('pf_id')->unique();
             $table->string('epa')->nullable();
+            $table->string('group_name')->nullable();
             $table->string('section')->nullable();
             $table->string('district')->nullable();
             $table->string('enterprise')->nullable();
@@ -25,24 +26,24 @@ return new class extends Migration {
             $table->string('approach')->nullable(); // For producer organizations only
             $table->string('sector')->nullable();
             $table->date('date_of_followup')->nullable();
-            $table->integer('mem_female_18_35')->default(0);
-            $table->integer('mem_male_18_35')->default(0);
-            $table->integer('mem_male_35_plus')->default(0);
-            $table->integer('mem_female_35_plus')->default(0);
-            $table->string('group')->nullable();
-            $table->enum('establishment_status', ['New', 'Old'])->nullable(); // Uppercase for enum values
-            $table->boolean('is_registered')->default(false);
-            $table->string('registration_body')->nullable();
-            $table->string('registration_number')->nullable();
-            $table->date('registration_date')->nullable();
-            $table->integer('emp_formal_female_18_35')->default(0);
-            $table->integer('emp_formal_male_18_35')->default(0);
-            $table->integer('emp_formal_male_35_plus')->default(0);
-            $table->integer('emp_formal_female_35_plus')->default(0);
-            $table->integer('emp_informal_female_18_35')->default(0);
-            $table->integer('emp_informal_male_18_35')->default(0);
-            $table->integer('emp_informal_male_35_plus')->default(0);
-            $table->integer('emp_informal_female_35_plus')->default(0);
+            // $table->integer('mem_female_18_35')->default(0);
+            // $table->integer('mem_male_18_35')->default(0);
+            // $table->integer('mem_male_35_plus')->default(0);
+            // $table->integer('mem_female_35_plus')->default(0);
+            // $table->string('group')->nullable();
+            // $table->enum('establishment_status', ['New', 'Old'])->nullable(); // Uppercase for enum values
+            // $table->boolean('is_registered')->default(false);
+            // $table->string('registration_body')->nullable();
+            // $table->string('registration_number')->nullable();
+            // $table->date('registration_date')->nullable();
+            // $table->integer('emp_formal_female_18_35')->default(0);
+            // $table->integer('emp_formal_male_18_35')->default(0);
+            // $table->integer('emp_formal_male_35_plus')->default(0);
+            // $table->integer('emp_formal_female_35_plus')->default(0);
+            // $table->integer('emp_informal_female_18_35')->default(0);
+            // $table->integer('emp_informal_male_18_35')->default(0);
+            // $table->integer('emp_informal_male_35_plus')->default(0);
+            // $table->integer('emp_informal_female_35_plus')->default(0);
             $table->integer('number_of_plantlets_produced_cassava')->default(0);
             $table->integer('number_of_plantlets_produced_potato')->default(0);
             $table->integer('number_of_plantlets_produced_sweet_potato')->default(0);
@@ -63,8 +64,10 @@ return new class extends Migration {
             $table->decimal('total_vol_production_previous_season_cuttings', 8, 2)->nullable(); // new
             //PRODUCTION IN MWK
             $table->decimal('prod_value_previous_season_total', 16, 2)->nullable();
+
             $table->decimal('prod_value_previous_season_produce', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_seed', 16, 2)->nullable();
+            $table->decimal('prod_value_previous_season_seed_bundle', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_cuttings', 16, 2)->nullable();
             $table->decimal('prod_value_produce_prevailing_price', 16, 2)->nullable();
             $table->decimal('prod_value_seed_prevailing_price', 16, 2)->nullable();
@@ -82,6 +85,7 @@ return new class extends Migration {
             $table->decimal('irr_prod_value_previous_season_total', 16, 2)->nullable();
             $table->decimal('irr_prod_value_previous_season_produce', 16, 2)->nullable();
             $table->decimal('irr_prod_value_previous_season_seed', 16, 2)->nullable();
+            $table->decimal('irr_prod_value_previous_season_seed_bundle', 16, 2)->nullable();
             $table->decimal('irr_prod_value_previous_season_cuttings', 16, 2)->nullable();
             $table->decimal('irr_prod_value_produce_prevailing_price', 16, 2)->nullable();
             $table->decimal('irr_prod_value_seed_prevailing_price', 16, 2)->nullable();

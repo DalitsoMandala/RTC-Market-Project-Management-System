@@ -56,6 +56,18 @@ class TestData
                                 'is_open' => true,
                                 'is_expired' => false,
                             ]);
+
+                            $target = SubmissionTarget::where('indicator_id', $indicator->id)->where('target_name', $indicatorDis->name)
+                                ->where('financial_year_id', $financialYear->id)
+                                ->first();
+                            if (!$target) {
+                                $target = SubmissionTarget::create([
+                                    'financial_year_id' => $financialYear->id,
+                                    'indicator_id' => $indicator->id,
+                                    'target_name' => $indicatorDis->name,
+                                    'target_value' => rand(50, 100) * 10,
+                                ]);
+                            }
                         }
                     }
 
@@ -280,54 +292,7 @@ class TestData
                         10,
                         20
                     ]) * 10, // Random volume for aggregation center sales
-                    'emp_formal_female_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal female employees 18-35
-                    'emp_formal_male_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal male employees 18-35
-                    'emp_formal_male_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal male employees 35+
-                    'emp_formal_female_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for formal female employees 35+
-                    'emp_informal_female_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal female employees 18-35
-                    'emp_informal_male_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal male employees 18-35
-                    'emp_informal_male_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal male employees 35+
-                    'emp_informal_female_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for informal female employees 35+
-                    'mem_female_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for female members 18-35
-                    'mem_male_18_35' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for male members 18-35
-                    'mem_male_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for male members 35+
-                    'mem_female_35_plus' => $faker->randomElement([
-                        10,
-                        20
-                    ]) * 10, // Random number for female members 35+
+
                 ],
 
                 'cultivation' => [

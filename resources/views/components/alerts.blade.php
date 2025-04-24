@@ -11,6 +11,18 @@
             <x-warning-alert> {!! session()->get('info') !!}</x-warning-alert>
         @endif
 
+
+        @if (session()->has('notice'))
+            <div class="alert alert-secondary" x-ref="warningAlert" x-data x-init="() => {
+            
+                let object = $($refs.warningAlert);
+                object.fadeTo(30000, 0).slideUp(500);
+            }">
+                <strong>Notice!</strong>
+                {!! session()->get('notice') !!}
+            </div>
+        @endif
+
         @if (session()->has('validation_error'))
             <x-error-alert>{!! session()->get('validation_error') !!}</x-error-alert>
         @endif
