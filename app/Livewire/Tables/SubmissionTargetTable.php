@@ -31,9 +31,7 @@ final class SubmissionTargetTable extends PowerGridComponent
         //$this->showCheckBox();
 
         return [
-            Exportable::make('submission_targets')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make(),
             Footer::make()
                 ->showPerPage()
@@ -45,7 +43,8 @@ final class SubmissionTargetTable extends PowerGridComponent
     {
         return SubmissionTarget::query()->with([
             'financialYear',
-            'indicator'
+            'indicator',
+            'organisationTargets'
         ])->join('financial_years', function ($join) {
             $join->on('submission_targets.financial_year_id', '=', 'financial_years.id');
         })->select([
@@ -88,12 +87,12 @@ final class SubmissionTargetTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn'),
+            Column::make('Id', 'rn')->sortable(),
             Column::make('Financial year', 'financial_year', 'financial_years.number')->sortable(),
             Column::make('Indicator', 'indicator'),
             Column::make('Disaggregation', 'target_name'),
             Column::make('Value', 'target_value'),
-
+            Column::action('Action')
 
 
         ];
@@ -110,22 +109,26 @@ final class SubmissionTargetTable extends PowerGridComponent
         return [];
     }
 
-    #[\Livewire\Attributes\On('edit')]
+    #[On('edit')]
     public function edit($rowId): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->dispatch('show-targets', rowId: $rowId);
     }
 
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: '.$row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id])
-    //     ];
-    // }
+
+
+
+    public function actions($row): array
+    {
+
+        return [
+            Button::add('edit')
+                ->slot('View Details <i class="fa fa-eye"></i>')
+                ->id()
+                ->class('btn btn-warning btn-sm')
+                ->dispatch('edit', ['rowId' => $row])
+        ];
+    }
 
     /*
     public function actionRules($row): array

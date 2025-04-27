@@ -19,10 +19,10 @@ return new class extends Migration {
             $table->string('enterprise')->nullable();
             $table->string('group_name')->nullable();
             $table->date('date_of_followup')->nullable();
-            $table->string('name_of_actor')->nullable();
-            $table->string('name_of_representative')->nullable();
-            $table->string('phone_number')->nullable();
-            $table->string('type')->nullable();
+            // $table->string('name_of_actor')->nullable();
+            // $table->string('name_of_representative')->nullable();
+            // $table->string('phone_number')->nullable();
+            // $table->string('type')->nullable();
             $table->boolean('market_segment_fresh')->default(false);
             $table->boolean('market_segment_processed')->default(false);
             $table->boolean('has_rtc_market_contract')->default(false);
@@ -33,8 +33,10 @@ return new class extends Migration {
             $table->decimal('total_vol_production_previous_season_cuttings', 8, 2)->nullable(); // new
             //PRODUCTION IN MWK
             $table->decimal('prod_value_previous_season_total', 16, 2)->nullable();
+
             $table->decimal('prod_value_previous_season_produce', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_seed', 16, 2)->nullable();
+            $table->decimal('prod_value_previous_season_seed_bundle', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_cuttings', 16, 2)->nullable();
             $table->decimal('prod_value_produce_prevailing_price', 16, 2)->nullable();
             $table->decimal('prod_value_seed_prevailing_price', 16, 2)->nullable();

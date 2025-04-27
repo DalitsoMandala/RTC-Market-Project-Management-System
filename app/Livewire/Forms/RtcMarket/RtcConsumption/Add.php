@@ -7,24 +7,27 @@ use Carbon\Carbon;
 use App\Models\Form;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
+use App\Models\Project;
 use Livewire\Component;
 use App\Models\Indicator;
 use App\Models\Submission;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Models\RtcConsumption;
+use App\Traits\ManualDataTrait;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use Livewire\Attributes\Validate;
 use App\Models\OrganisationTarget;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
-use App\Models\RtcConsumption;
 use App\Models\SchoolRtcConsumption;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Validation\ValidationException;
 use App\Notifications\ManualDataAddedNotification;
-use App\Traits\ManualDataTrait;
 
 class Add extends Component
 {
@@ -36,7 +39,13 @@ class Add extends Component
     public $male_count;
     public $female_count;
     public $total = 0;
-    public $location_data = [];
+    public $location_data = [
+        'entity_name' => null,
+        'district' => null,
+        'epa' => null,
+        'section' => null,
+        'entity_type' => null
+    ];
     public $entity_type;
 
     public $form_name = 'RTC CONSUMPTION FORM';
@@ -49,7 +58,7 @@ class Add extends Component
             'location_data.district' => 'required',
             'location_data.epa' => 'required',
             'location_data.section' => 'required',
-            'entity_type' => 'required',
+            'location_data.entity_type' => 'required',
             'date' => 'required|date',
             'crop' => 'required',
             'male_count' => 'required|numeric',
@@ -76,7 +85,11 @@ class Add extends Component
         try {
             $this->validate();
         } catch (\Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
+            $this->dispatch('show-alert', data: [
+                'type' => 'error', // success, error, info, warning
+                'message' => 'There are errors in the form.'
+            ]);
+
             throw $e;
         }
 
@@ -96,7 +109,7 @@ class Add extends Component
             'crop_cassava' => $cropCollection->contains('cassava') ? 1 : 0,
             'crop_potato' => $cropCollection->contains('potato') ? 1 : 0,
             'crop_sweet_potato' => $cropCollection->contains('sweet_potato') ? 1 : 0,
-            'entity_type' => $this->entity_type
+            'entity_type' => $this->location_data['entity_type'],
 
         ];
 
@@ -114,15 +127,68 @@ class Add extends Component
             RtcConsumption::class, // Model class
             $modelData, // Data for the model
             $submissionData, // Data for the Submission table
-            'rtc_a', // Table name for submission
+            'rtc_consumption_data', // Table name for submission
             $this->routePrefix // Route prefix for the success message
         );
     }
 
 
-    public function updated($property, $value)
+    public function saveManualSubmission($modelClass, $data, $submissionData, $tableName, $routePrefix)
     {
-        $this->total = ($this->male_count ?? 0) + ($this->female_count ?? 0);
+
+
+        try {
+            DB::beginTransaction();
+            $uuid = Uuid::uuid4()->toString();
+            $user = User::find(auth()->user()->id); // Get the authenticated user using Auth::user();
+            $data['uuid'] = $uuid;
+            $data['user_id'] = $user->id;
+
+            // Add role-specific logic
+            if ($user->hasAnyRole(['manager', 'admin'])) {
+                $data['status'] = 'approved';
+            } else {
+                $data['status'] = 'pending'; // Default status for non-manager/admin users
+            }
+
+            // Create the submission record
+            $submissionData['batch_no'] = $uuid;
+            $submissionData['table_name'] = $tableName;
+
+            $data['submission_period_id'] = $this->submissionPeriodId;
+            $data['period_month_id'] = $this->selectedMonth;
+            $data['organisation_id'] = $user->organisation->id;
+            $data['financial_year_id'] = $this->selectedFinancialYear;
+
+            Submission::create($submissionData);
+
+            // Create the model record
+            $model = new $modelClass;
+            $latest = $model->create($data);
+
+
+
+            $project = Project::where('is_active', true)->first();
+            $project_name = strtolower(str_replace(' ', '_', $project->name));
+            $form = Form::find($this->selectedForm);
+            $formName = strtolower(str_replace(' ', '-', $form->name));
+            $this->clearErrorBag();
+            $this->dispatch('show-alert', data: [
+                'type' => 'success',
+                'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/' . $formName . '/view">View Submission here</a>',
+            ]);
+            DB::commit();
+        } catch (\Exception $th) {
+            # code...
+            DB::rollBack();
+
+            $this->dispatch('show-alert', data: [
+                'type' => 'error',
+                'message' => 'Something went wrong!'
+            ]);
+
+            Log::error($th->getMessage());
+        }
     }
 
 

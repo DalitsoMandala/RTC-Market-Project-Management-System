@@ -2,42 +2,43 @@
 
 namespace App\Livewire\Forms\RtcMarket\RtcRecruitment;
 
-use App\Exceptions\UserErrorException;
-use App\Helpers\ExchangeRateHelper;
-use App\Models\ExchangeRate;
-use App\Models\FarmerSeedRegistration;
-use App\Models\FinancialYear;
+use Throwable;
+use Carbon\Carbon;
 use App\Models\Form;
-use App\Models\HouseholdRtcConsumption;
-use App\Models\Indicator;
-use App\Models\OrganisationTarget;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
 use App\Models\Project;
-use App\Models\Recruitment;
-use App\Models\RecruitSeedRegistration;
-use App\Models\ReportingPeriodMonth;
-use App\Models\RpmFarmerConcAgreement;
-use App\Models\RpmFarmerDomMarket;
-use App\Models\RpmFarmerFollowUp;
-use App\Models\RpmFarmerInterMarket;
-use App\Models\RtcProductionFarmer;
+use Livewire\Component;
+use App\Models\Indicator;
 use App\Models\Submission;
+use App\Models\Recruitment;
+use Illuminate\Support\Arr;
+use Livewire\Attributes\On;
+use App\Models\ExchangeRate;
+use App\Models\FinancialYear;
+use App\Traits\ManualDataTrait;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\User;
-use App\Notifications\ManualDataAddedNotification;
-use App\Traits\ManualDataTrait;
-use Carbon\Carbon;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\ValidationException;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
+use App\Models\RpmFarmerFollowUp;
 use Livewire\Attributes\Validate;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
-use Throwable;
+use App\Models\OrganisationTarget;
+use App\Models\RpmFarmerDomMarket;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\ExchangeRateHelper;
+use App\Models\RtcProductionFarmer;
+use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
+use App\Models\RpmFarmerInterMarket;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Exceptions\UserErrorException;
+use App\Models\FarmerSeedRegistration;
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\HouseholdRtcConsumption;
+use App\Models\RecruitSeedRegistration;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Illuminate\Validation\ValidationException;
+use App\Notifications\ManualDataAddedNotification;
 
 class Add extends Component
 {
@@ -223,7 +224,11 @@ class Add extends Component
 
             $this->validate();
         } catch (Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
+
+            $this->dispatch('show-alert', data: [
+                'type' => 'error', // success, error, info, warning
+                'message' => 'There are errors in the form.'
+            ]);
             throw $e;
         }
 
@@ -313,6 +318,7 @@ class Add extends Component
 
 
         try {
+            DB::beginTransaction();
             $uuid = Uuid::uuid4()->toString();
             $user = User::find(auth()->user()->id); // Get the authenticated user using Auth::user();
             $data['uuid'] = $uuid;
@@ -356,15 +362,22 @@ class Add extends Component
             $project_name = strtolower(str_replace(' ', '_', $project->name));
             $form = Form::find($this->selectedForm);
             $formName = strtolower(str_replace(' ', '-', $form->name));
-            $this->dispatch('clear-drafts');
-            // Flash success messages
-            session()->flash('success', 'Successfully submitted! <a href="' . $routePrefix . '/forms/' . $project_name . '/' . $formName . '/view">View Submission here</a>');
-            //    session()->flash('info', 'Your ID is: <b>' . substr($latest->id, 0, 8) . '</b>' . '<br><br> Please keep this ID for future reference.');
+            $this->clearErrorBag();
+            $this->dispatch('show-alert', data: [
+                'type' => 'success',
+                'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/' . $formName . '/view">View Submission here</a>',
+            ]);
+            DB::commit();
+        } catch (\Exception $th) {
+            # code...
+            DB::rollBack();
 
-            $this->redirect(url()->previous());
-        } catch (\Exception $e) {
-            dd($e);
-            session()->flash('error', 'An error occurred while submitting your data. Please try again later.');
+            $this->dispatch('show-alert', data: [
+                'type' => 'error',
+                'message' => 'Something went wrong!'
+            ]);
+
+            Log::error($th->getMessage());
         }
     }
 

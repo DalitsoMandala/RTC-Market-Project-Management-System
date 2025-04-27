@@ -1345,7 +1345,7 @@
 
 <div x-data="{
     sells_to_aggregation_centers: $wire.entangle('sells_to_aggregation_centers'),
-
+    total_vol_aggregation_center_sales: $wire.entangle('total_vol_aggregation_center_sales'),
 
 
 }" x-init="$watch('sells_to_aggregation_centers', (v) => {
@@ -1353,8 +1353,9 @@
     if (v != 1) {
 
         $wire.resetValues('aggregation_center_sales');
-        $wire.total_vol_aggregation_center_sales = 0
+        total_vol_aggregation_center_sales = 0
     }
+
 });">
     <div class="mb-3">
         <label for="sellThroughAggregationCenters" class="my-3 form-label ">Do
@@ -1442,13 +1443,15 @@
 </div>
 
 
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    total_vol_aggregation_center_sales: $wire.entangle('total_vol_aggregation_center_sales'),
+}">
     <label for="" class="form-label">Total Volume
         of RTC Sold Through Aggregation Centers in Previous Season (Metric
         Tonnes)</label>
     <input type="number" min="0" step="any"
         class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror"
-        wire:model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
+        x-model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
     @error('total_vol_aggregation_center_sales')
         <x-error>{{ $message }}</x-error>
     @enderror

@@ -4,16 +4,20 @@
 
 <!-- Date of Follow Up -->
 <div class="mb-3" x-data="{
-    date_of_followup: $wire.entangle('date_of_followup').live,
+    date_of_followup: $wire.entangle('date_of_followup'),
 
 
 
-}">
+}" x-effect="$dispatch('date-change')">
     <label for="dateOfFollowUp" class="form-label">Date of Follow Up</label>
-    <x-flatpickr x-model='date_of_followup' :max-date="'today'" />
+    <div class="@error('date_of_followup') border border-danger rounded p-0 @enderror">
+        <x-flatpickr x-model='date_of_followup' :max-date="'today'" />
+    </div>
 
+    @error('date_of_followup')
+        <x-error>{{ $message }}</x-error>
+    @enderror
 </div>
-
 
 <!-- Market Segment (Multiple Responses) -->
 <div class="mb-3">
@@ -50,7 +54,7 @@
             <label class="form-check-label" for="rtcMarketContractYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="rtcMarketContractNo" value="0"
+            <input class="form-check-input" checked type="radio" id="rtcMarketContractNo" value="0"
                 x-model="has_rtc_market_contract">
             <label class="form-check-label" for="rtcMarketContractNo">No</label>
         </div>
@@ -138,22 +142,57 @@
 
 <!-- Total Value Production Previous Season (Financial Value-MWK) -->
 <div class="px-2 mb-3" :class="{ 'border border-danger p-2': dateSet === false }" x-data="{
-    total_production_value_previous_season: $wire.entangle('total_production_value_previous_season'),
+    total_production_value_previous_season_total: $wire.entangle('total_production_value_previous_season_total'),
+    total_production_value_previous_season_cuttings_value: $wire.entangle('total_production_value_previous_season_cuttings_value'),
+    total_production_value_previous_season_seed_value: $wire.entangle('total_production_value_previous_season_seed_value'),
+    total_production_value_previous_season_seed_bundle: $wire.entangle('total_production_value_previous_season_seed_bundle'),
+    total_production_value_previous_season_produce_value: $wire.entangle('total_production_value_previous_season_produce_value'),
+    total_production_value_previous_season_seed_prevailing_price: $wire.entangle('total_production_value_previous_season_seed_prevailing_price'),
+    total_production_value_previous_season_cuttings_prevailing_price: $wire.entangle('total_production_value_previous_season_cuttings_prevailing_price'),
+    total_production_value_previous_season_produce_prevailing_price: $wire.entangle('total_production_value_previous_season_produce_prevailing_price'),
+    total_production_value_previous_season_value: $wire.entangle('total_production_value_previous_season_value'),
+    total_production_value_previous_season_rate: $wire.entangle('total_production_value_previous_season_rate'),
+    bundle_multiplier: $wire.entangle('bundle_multiplier'),
     cuttingsTotal: 0,
     seedTotal: 0,
     produceTotal: 0,
     subTotal: 0,
     lastCalculatedTotal: null, // Track the last calculated total
     dateSet: null,
-    init() {
-        this.$watch('total_production_value_previous_season', (value) => {
-            this.produceTotal = Number(value.produce_value || 0) * Number(value.produce_prevailing_price || 0);
-            this.seedTotal = Number(value.seed_value || 0) * Number(value.seed_prevailing_price || 0);
-            this.cuttingsTotal = Number(value.cuttings_value || 0) * Number(value.cuttings_prevailing_price || 0);
-            this.subTotal = this.produceTotal + this.seedTotal + this.cuttingsTotal;
-            this.total_production_value_previous_season.value = this.subTotal;
-        }, { deep: true });
+    seedInputType: 'metric tonnes',
+
+    getProduceTotal(value, price) {
+        return (parseFloat(value) || 0) * (parseFloat(price) || 0);
     },
+    getSeedTotal(value, price) {
+
+        if (this.seedInputType === 'metric tonnes') {
+            this.total_production_value_previous_season_seed_bundle = 0;
+            return (parseFloat(value) || 0) * (parseFloat(price) || 0);
+        }
+
+        multiplier = this.bundle_multiplier;
+        bundle = this.total_production_value_previous_season_seed_bundle;
+        total_value = (parseFloat(bundle) || 0) * (parseFloat(multiplier) || 0);
+        this.total_production_value_previous_season_seed_value = total_value;
+        return total_value * (parseFloat(price) || 0);
+
+    },
+    getCuttingsTotal(value, price) {
+        return (parseFloat(value) || 0) * (parseFloat(price) || 0);
+    },
+    getSubTotal() {
+        return this.produceTotal + this.seedTotal + this.cuttingsTotal;
+    },
+    calculateTotal() {
+        this.produceTotal = this.getProduceTotal(this.total_production_value_previous_season_produce_value, this.total_production_value_previous_season_produce_prevailing_price);
+        this.seedTotal = this.getSeedTotal(this.total_production_value_previous_season_seed_value, this.total_production_value_previous_season_seed_prevailing_price);
+        this.cuttingsTotal = this.getCuttingsTotal(this.total_production_value_previous_season_cuttings_value, this.total_production_value_previous_season_cuttings_prevailing_price);
+        this.subTotal = this.getSubTotal();
+        this.total_production_value_previous_season_value = this.subTotal;
+    },
+
+
 
     calculate() {
         // Only proceed if the total has changed since last calculation
@@ -165,7 +204,8 @@
             this.lastCalculatedTotal = this.subTotal; // Update the last calculated total
         }
     }
-}">
+}"
+    x-effect="calculateTotal()">
     <label for="totalValueProduction" class="my-3 form-label">Total Value
         Production
         Previous Season (Financial Value-MWK) *</label> <br>
@@ -186,78 +226,102 @@
         <thead>
             <tr class="">
                 <th></th>
-                <th>Value</th>
+                <th>Type (Choose One<sup class="text-danger">*</sup>)</th>
+                <th>Value (Metric Tonnes) </th>
                 <th>Prevailing Market Price per Kg/Bundle</th>
                 <th>Total</th>
             </tr>
         </thead>
         <tbody>
+
             <tr>
                 <td>Produce (MT)</td>
-                <td>
-                    <input type="number" min="0" step="any"
-                        class="form-control @error('total_production_value_previous_season.produce_value') is-invalid @enderror"
-                        x-model='total_production_value_previous_season.produce_value'>
-                </td>
-                <td>
-                    <input type="number" min="0" step="any"
-                        class="form-control @error('total_production_value_previous_season.produce_prevailing_price') is-invalid @enderror"
-                        x-model='total_production_value_previous_season.produce_prevailing_price'>
+                <td class="bundle">
+                    <select class="mb-2 form-select" disabled>
+                        <option value="">--Select Type--</option>
+                        <option value="bundles">Bundles</option>
+                        <option selected value="mt">Metric Tonnes</option>
+                    </select>
 
                 </td>
                 <td>
-                    <input type="number" min="0" step="any" readonly class="form-control bg-subtle-warning"
-                        x-model='produceTotal'>
+                    <input type="number" min="0" step="any" class="form-control"
+                        x-model="total_production_value_previous_season_produce_value">
                 </td>
-
+                <td>
+                    <input type="number" min="0" step="any" class="form-control"
+                        x-model="total_production_value_previous_season_produce_prevailing_price">
+                </td>
+                <td>
+                    <input type="number" readonly class="form-control bg-subtle-warning"
+                        :value="getProduceTotal(total_production_value_previous_season_produce_value,
+                            total_production_value_previous_season_produce_prevailing_price)">
+                </td>
             </tr>
+
+
             <tr>
-                <td>Seed (MT/Bundles)</td>
-                <td>
-                    <input type="number" min="0" step="any"
-                        class="form-control @error('total_production_value_previous_season.seed_value') is-invalid @enderror"
-                        x-model='total_production_value_previous_season.seed_value'>
+                <td>Seed </td>
+                <td class="bundle">
+                    <select class="mb-2 form-select" x-model="seedInputType">
+
+                        <option value="bundles">Bundles</option>
+                        <option value="metric tonnes">Metric Tonnes</option>
+                    </select>
+                    <input type="number" min="0" step="any" class="form-control"
+                        :readonly="seedInputType !== 'bundles'" x-show="seedInputType === 'bundles'"
+                        x-model="total_production_value_previous_season_seed_bundle">
+
                 </td>
-
                 <td>
-                    <input type="number" min="0" step="any"
-                        class="form-control @error('total_production_value_previous_season.seed_prevailing_price') is-invalid @enderror"
-                        x-model='total_production_value_previous_season.seed_prevailing_price'>
-
+                    <input type="number" min="0" step="any" class="form-control"
+                        :readonly="seedInputType === 'bundles'"
+                        x-model="total_production_value_previous_season_seed_value">
                 </td>
-
                 <td>
-                    <input type="number" min="0" step="any" readonly
-                        class="form-control bg-subtle-warning" x-model='seedTotal'>
+                    <input type="number" min="0" step="any" class="form-control"
+                        x-model="total_production_value_previous_season_seed_prevailing_price">
+                </td>
+                <td>
+                    <input type="number" readonly class="form-control bg-subtle-warning"
+                        :value="getSeedTotal(total_production_value_previous_season_seed_value,
+                            total_production_value_previous_season_seed_prevailing_price)">
                 </td>
             </tr>
+
 
             <tr>
                 <td>Cuttings (MT)</td>
-                <td>
-                    <input type="number" min="0" step="any"
-                        class="form-control @error('total_production_value_previous_season.cuttings_value') is-invalid @enderror"
-                        x-model='total_production_value_previous_season.cuttings_value'>
-                </td>
-
-                <td>
-                    <input type="number" min="0" step="any"
-                        class="form-control @error('total_production_value_previous_season.cuttings_prevailing_price') is-invalid @enderror"
-                        x-model='total_production_value_previous_season.cuttings_prevailing_price'>
+                <td class="bundle">
+                    <select class="mb-2 form-select" disabled>
+                        <option value="">--Select Type--</option>
+                        <option value="bundles">Bundles</option>
+                        <option selected value="mt">Metric Tonnes</option>
+                    </select>
 
                 </td>
                 <td>
-                    <input type="number" min="0" step="any" readonly
-                        class="form-control bg-subtle-warning" x-model='cuttingsTotal'>
+                    <input type="number" min="0" step="any" class="form-control"
+                        x-model="total_production_value_previous_season_cuttings_value">
                 </td>
-
+                <td>
+                    <input type="number" min="0" step="any" class="form-control"
+                        x-model="total_production_value_previous_season_cuttings_prevailing_price">
+                </td>
+                <td>
+                    <input type="number" readonly class="form-control bg-subtle-warning"
+                        :value="getCuttingsTotal(total_production_value_previous_season_cuttings_value,
+                            total_production_value_previous_season_cuttings_prevailing_price)">
+                </td>
             </tr>
 
         </tbody>
+
         <tfoot>
 
             <tr>
-                <td>
+
+                <td colspan="2">
                     <button wire:loading.attr='disabled' type="button" @click="calculate"
                         :class="{
                             'btn-warning': lastCalculatedTotal !== subTotal,
@@ -272,22 +336,22 @@
                 <td>
                     <label for="">Total (MWK)</label>
                     <input type="number" min="0" step="any" readonly
-                        class="form-control @error('total_production_value_previous_season.value') is-invalid @enderror bg-subtle-warning"
-                        x-model='total_production_value_previous_season.value'>
+                        class="form-control @error('total_production_value_previous_season_value') is-invalid @enderror bg-subtle-warning"
+                        x-model="total_production_value_previous_season_value" :value="subTotal">
                 </td>
                 <td class="fw-bold">
                     <label for="">USD Rate ($)</label>
                     <input type="number" min="0" step="any" readonly
-                        class="form-control @error('total_production_value_previous_season.rate') is-invalid @enderror bg-subtle-warning"
-                        x-model='total_production_value_previous_season.rate'>
+                        class="form-control @error('total_production_value_previous_season_rate') is-invalid @enderror bg-subtle-warning"
+                        x-model='total_production_value_previous_season_rate'>
                 </td>
 
                 <td>
                     <label for="">Financial Value (USD)</label>
-                    <input type="text" min="0" step="any" readonly
-                        class="form-control @error('total_production_value_previous_season.total') is-invalid @enderror bg-subtle-warning"
-                        x-model='total_production_value_previous_season.total'>
-                    @error('total_production_value_previous_season.total')
+                    <input type="number" min="0" step="any" readonly
+                        class="form-control @error('total_production_value_previous_season_total') is-invalid @enderror bg-subtle-warning"
+                        x-model='total_production_value_previous_season_total'>
+                    @error('total_production_value_previous_season_total')
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </td>
@@ -304,6 +368,7 @@
 
 </div>
 
+
 <!-- Sell RTC Products to Domestic Markets -->
 <div class="mb-3" x-data="{
     sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets')
@@ -316,7 +381,7 @@
             <label class="form-check-label" for="sellToDomesticMarketsYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellToDomesticMarketsNo" value="0"
+            <input class="form-check-input" checked type="radio" id="sellToDomesticMarketsNo" value="0"
                 x-model="sells_to_domestic_markets">
             <label class="form-check-label" for="sellToDomesticMarketsNo">No</label>
         </div>
@@ -339,7 +404,7 @@
             <label class="form-check-label" for="sellToInternationalMarketsYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellToInternationalMarketsNo" value="0"
+            <input class="form-check-input" checked type="radio" id="sellToInternationalMarketsNo" value="0"
                 x-model="sells_to_international_markets">
             <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
         </div>
@@ -362,7 +427,7 @@
             <label class="form-check-label" for="sellThroughMarketInfoYes">Yes</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="sellThroughMarketInfoNo" value="0"
+            <input class="form-check-input" checked type="radio" id="sellThroughMarketInfoNo" value="0"
                 x-model="uses_market_information_systems">
             <label class="form-check-label" for="sellThroughMarketInfoNo">No</label>
         </div>
@@ -454,7 +519,7 @@
 
 <div x-data="{
     sells_to_aggregation_centers: $wire.entangle('sells_to_aggregation_centers'),
-
+    total_vol_aggregation_center_sales: $wire.entangle('total_vol_aggregation_center_sales'),
 
 
 }" x-init="$watch('sells_to_aggregation_centers', (v) => {
@@ -462,9 +527,7 @@
     if (v != 1) {
 
         $wire.resetValues('aggregation_center_sales');
-        $wire.total_vol_aggregation_center_sales = 0
-    } else {
-        $wire.total_vol_aggregation_center_sales = null
+        total_vol_aggregation_center_sales = 0
     }
 });">
     <div class="mb-3">
@@ -479,8 +542,8 @@
                 <label class="form-check-label">Yes</label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" id="aggregationCenterResponseNo" value="0"
-                    wire:model='sells_to_aggregation_centers'>
+                <input class="form-check-input" checked type="radio" id="aggregationCenterResponseNo"
+                    value="0" wire:model='sells_to_aggregation_centers'>
                 <label class="form-check-label">No</label>
             </div>
         </div>
@@ -553,13 +616,15 @@
 </div>
 
 
-<div class="mb-3">
+<div class="mb-3" x-data="{
+    total_vol_aggregation_center_sales: $wire.entangle('total_vol_aggregation_center_sales'),
+}">
     <label for="" class="form-label">Total Volume
         of RTC Sold Through Aggregation Centers in Previous Season (Metric
         Tonnes)</label>
     <input type="number" min="0" step="any"
         class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror"
-        wire:model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
+        x-model='total_vol_aggregation_center_sales' id="" aria-describedby="helpId" placeholder="" />
     @error('total_vol_aggregation_center_sales')
         <x-error>{{ $message }}</x-error>
     @enderror

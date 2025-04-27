@@ -5,8 +5,8 @@
     $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
 
 @endphp
-<x-form-component title="Add Farmers Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission" :targetSet="$targetSet"
-    :targetIds="$targetIds" :showTargetForm="true" formName="rtc-production-and-marketing-form-farmers">
+<x-form-component :showAlpineAlerts="true" title="Add Farmers Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission"
+    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" formName="rtc-production-and-marketing-form-farmers">
 
     <x-slot name="breadcrumbs">
 

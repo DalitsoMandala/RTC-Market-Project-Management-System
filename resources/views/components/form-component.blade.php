@@ -29,7 +29,13 @@
                     <h3 class="my-5 text-center text-warning">{{ $formTitle }}</h3>
                 @endif
 
-                <x-alerts />
+                @if (isset($showAlpineAlerts) && $showAlpineAlerts)
+                    <x-alpine-alerts />
+                @else
+                    <x-alerts />
+                @endif
+
+
 
                 @if (!$targetSet && isset($showTargetForm) && $showTargetForm)
                     <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
@@ -59,12 +65,21 @@
                                     {{ $slot }}
 
                                     @if (!isset($hideSubmitButtons) || !$hideSubmitButtons)
-                                        <div class="d-flex col-12 justify-content-center" x-data>
-                                            <button class="mx-1 btn btn-secondary" type="reset"
-                                                @click="clearDrafts(); window.scrollTo({
+                                        <div class="mt-5 d-flex col-12 justify-content-center" x-data>
+                                            <button class="mx-1 btn btn-secondary" type="reset" id="resetForm"
+                                                @click="window.scrollTo({
                                                     top: 0,
                                                     behavior: 'smooth'
-                                                })">Reset
+                                                })
+                                                $wire.dispatch('show-alert',{
+                                                    data : {
+                                                        message : 'Form has been cleared.',
+                                                        type : 'notice',
+                                                    }
+                                                })
+
+                                                $dispatch('clear-drafts')
+                                                ">Reset
                                                 Form</button>
                                             <button class="px-5 btn btn-warning"
                                                 @click="window.scrollTo({
@@ -157,7 +172,7 @@
                 clearDrafts() {
                     localStorage.removeItem(this.draftName());
                     this.showInfo = false;
-                    $dispatch('clear-error-bag')
+                    document.getElementById('mainForm').reset();
                 },
 
                 loadingIndicator() {

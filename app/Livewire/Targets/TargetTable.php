@@ -6,10 +6,11 @@ use App\Models\User;
 use App\Models\SystemReport;
 use Illuminate\Support\Carbon;
 use App\Models\SystemReportData;
+use Livewire\Attributes\Computed;
 use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Attributes\Computed;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -52,7 +53,6 @@ final class TargetTable extends PowerGridComponent
             return OrganisationTarget::query()->with([
                 'submissionTarget',
                 'organisation',
-
                 'submissionTarget.financialYear',
                 'submissionTarget.Indicator',
                 'submissionTarget.Indicator.project',
@@ -62,11 +62,13 @@ final class TargetTable extends PowerGridComponent
         return OrganisationTarget::query()->with([
             'submissionTarget',
             'organisation',
-
             'submissionTarget.financialYear',
             'submissionTarget.Indicator',
             'submissionTarget.Indicator.project',
             'submissionTarget.Indicator.class'
+        ])->select([
+            'organisation_selected_targets.*',
+
         ]);
     }
 
@@ -106,6 +108,7 @@ final class TargetTable extends PowerGridComponent
 
                 $data = $this->calculateRow($model);
                 $setTarget = $model->submissionTarget->target_value;
+                // dd($data, $setTarget);
                 $progress = ($data / $setTarget) * 100;
                 $progressColor = match (true) {
                     $progress >= 0 && $progress <= 49 => 'bg-danger',
@@ -179,7 +182,8 @@ final class TargetTable extends PowerGridComponent
 
 
         if (count($reportIds) == 0) {
-            return '<span class="badge bg-warning-subtle">Not available!</span>';
+            Log::error("ReportId missing: No report found for this organisation");
+            return 0;
         }
 
         $data = SystemReportData::whereIn('system_report_id', $reportIds)->where('name', $model->submissionTarget->target_name)->sum('value');

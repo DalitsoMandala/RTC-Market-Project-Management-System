@@ -21,6 +21,7 @@ class formComponent extends Component
     public $skipDraftScript;
     public $formName;
     public $replaceUrl;
+    public $showAlpineAlerts;
 
     public function __construct(
         $title = null,
@@ -33,7 +34,8 @@ class formComponent extends Component
         $showTargetForm = false,
         $hideSubmitButtons = false,
         $skipDraftScript = false,
-        $formName = 'default'
+        $formName = 'default',
+        $showAlpineAlerts = false
     ) {
         $this->title = $title;
         $this->pageTitle = $pageTitle;
@@ -46,6 +48,7 @@ class formComponent extends Component
         $this->hideSubmitButtons = $hideSubmitButtons;
         $this->skipDraftScript = $skipDraftScript;
         $this->formName = $formName;
+        $this->showAlpineAlerts = $showAlpineAlerts;
 
 
 

@@ -298,39 +298,26 @@
                                 targets: $wire.entangle('targets'),
                                 disaggregations: $wire.entangle('disaggregations'),
                                 errors: @js($errors->toArray()),
-                            
+                                isCipTargets: $wire.entangle('isCipTargets'),
                                 checkValues() {
                                     if ((this.selectedIndicator && this.selectedFinancialYear)) {
+                            
                                         $wire.getTargets();
+                            
                                     }
                                 },
                             
-                                addTarget() {
                             
-                                    setTimeout(function() {
-                                        $wire.addTarget();
-                                    }, 1000);
-                            
-                            
-                            
-                                },
                             
                                 updateTargets() {
                                     $wire.getTargets();
                                 }
                             
-                            }" x-effect="
-checkValues();
-" @set-targets="updateTargets()"
+                            }" x-effect="checkValues();"
                                 x-bind:class="{
                                     'opacity-25 pe-none': !(selectedIndicator && selectedFinancialYear)
                                 }"
-                                wire:loading.attr='disabled'
-                                class="card card-body shadow-none border
-  @error('targets')
-border-danger
-@enderror
-  ">
+                                wire:loading.attr='disabled' @set-targets="updateTargets()">
 
 
 
@@ -339,83 +326,87 @@ border-danger
                                     <h5>Define
                                         Targets</h5>
 
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Target Name</th>
+                                                <th>Target Value</th>
+                                                <th>CIP Target Value (IF APPLICABLE)</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach ($targets as $index => $target)
+                                                <tr>
+                                                    <td scope="row"> <select
+                                                            class="form-select bg-light @error('targets.' . $index . '.name') is-invalid @enderror"
+                                                            wire:model="targets.{{ $index }}.name"
+                                                            wire:loading.attr='disabled'
+                                                            wire:loading.class='opacity-25'>
+                                                            <option value="">Select one</option>
+                                                            @foreach ($disaggregations as $dsg)
+                                                                <option
+                                                                    @if ($dsg == $targets[$index]['name']) selected @endif
+                                                                    value="{{ $dsg }}">{{ $dsg }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+
+                                                        @error('targets.' . $index . '.name')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </td>
+                                                    <td>
+                                                        <input type="number"
+                                                            class="form-control me-2 bg-light  @error('targets.' . $index . '.value') is-invalid @enderror"
+                                                            placeholder="Target Value"
+                                                            wire:model="targets.{{ $index }}.value" />
+                                                        @error('targets.' . $index . '.value')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" :readonly="!isCipTargets"
+                                                            class="form-control me-2   @error('cip_targets.' . $index . '.value') is-invalid @enderror"
+                                                            placeholder="Target Value"
+                                                            wire:model="cip_targets.{{ $index }}.value" />
+                                                        @error('cip_targets.' . $index . '.value')
+                                                            <x-error>{{ $message }}</x-error>
+                                                        @enderror
+                                                    </td>
+                                                    <td>
+                                                        <!-- Button to add new target -->
+                                                        <button class="btn btn-danger btn-sm"
+                                                            wire:loading.attr='disabled'
+                                                            wire:loading.class='opacity-25' type="button"
+                                                            @click="$wire.removeTarget({{ $index }})">
+                                                            Remove Target <span class="bx bx-trash"></span>
+                                                        </button>
+
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td>
+                                                    <!-- Button to add new target -->
+                                                    <button class="btn btn-warning btn-sm"
+                                                        wire:loading.attr='disabled' wire:loading.class='opacity-25'
+                                                        type="button" @click="$wire.addTarget()">
+                                                        Add Target <span class="bx bx-plus"></span>
+                                                    </button>
+                                                </td>
+                                            </tr>
 
 
-                                    @foreach ($targets as $index => $target)
-                                        <div class="mb-3 row align-items-end" x-init="() => {
-                                        
-                                        
-                                        }">
-                                            <!-- Target Name Input -->
-                                            <div class="col">
-                                                <label for="targets" class="form-label">Target Name</label>
-                                                <select disabled
-                                                    class="form-select bg-light @error('targets.' . $index . '.name') is-invalid @enderror"
-                                                    wire:model="targets.{{ $index }}.name"
-                                                    wire:loading.attr='disabled' wire:loading.class='opacity-25'>
-                                                    <option value="">Select one</option>
-                                                    @foreach ($disaggregations as $dsg)
-                                                        <option @if ($dsg == $targets[$index]['name']) selected @endif
-                                                            value="{{ $dsg }}">{{ $dsg }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-
-                                                @error('targets.' . $index . '.name')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-
-                                            <!-- Target Value Input -->
-                                            <div class="col">
-                                                <label for="targets" class="form-label">Target Value</label>
-                                                <input type="number" disabled
-                                                    class="form-control me-2 bg-light  @error('targets.' . $index . '.value') is-invalid @enderror"
-                                                    placeholder="Target Value"
-                                                    wire:model="targets.{{ $index }}.value" />
-                                                @error('targets.' . $index . '.value')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-                                            <!-- Your Target Value Input -->
-
-                                            <div class="col">
+                                        </tfoot>
+                                    </table>
 
 
-                                                @foreach ($financialYears as $projectYear)
-                                                    @if ($projectYear->id == $selectedFinancialYear)
-                                                        <label for="targets" class="form-label">Project Year</label>
-                                                        <input type="text" readonly class="form-control me-2"
-                                                            wire:model="selectedFinancialYear" />
-                                                    @endif
-                                                @endforeach
-                                            </div>
 
-                                            <div class="mt-1 col-12">
-                                                <label for="targets" class="form-label text-uppercase">CIP Target
-                                                    Value</label>
-                                                <input type="number"
-                                                    class="form-control me-2   @error('cip_targets.' . $index . '.value') is-invalid @enderror"
-                                                    placeholder="Target Value"
-                                                    wire:model="cip_targets.{{ $index }}.value" />
-                                                @error('cip_targets.' . $index . '.value')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-                                            <!-- Remove Button -->
-                                            {{-- <div class="col-1">
-                                                <label for="targets" class="form-label"></label>
-                                                <button class="btn btn-theme-red"
-                                                    wire:click.prevent="removeTarget({{ $index }})">Remove</button>
-                                            </div> --}}
-                                        </div>
-                                    @endforeach
-
-                                    <!-- Button to add new target -->
-                                    {{-- <button class="btn btn-warning" wire:loading.attr='disabled'
-                                        wire:loading.class='opacity-25' type="button" @click="addTarget()">
-                                        Add Target
-                                    </button> --}}
 
                                     <!-- General error for the targets array -->
                                     @error('targets')

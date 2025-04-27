@@ -29,7 +29,10 @@
         <!-- end page title -->
         @hasanyrole('admin|manager')
             <div class="row">
-                <div class="col-12">
+                <div class="col-12" x-data="{
+                    selectedIndicator: $wire.entangle('selectedIndicator'),
+                    selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
+                }">
 
                     <form wire:submit='save'>
                         <div class="card">
@@ -37,26 +40,19 @@
                                 <h5 class="card-title">Submission Targets Form</h5>
                             </div>
                             <div class="card-body" x-data="{
-                                selectedIndicator: $wire.entangle('selectedIndicator'),
-                                selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
+
                                 showButton: false,
-                            
-                            
-                            }" x-init="() => {
-                            
-                            
-                                $watch(() => [selectedIndicator, selectedFinancialYear], ([indicator, year]) => {
-                                    if (indicator && year) {
+
+
+                            }"
+                                x-effect="
+                              if (selectedIndicator && selectedFinancialYear) {
                                         showButton = true;
                                         $wire.dispatch('update-targets');
                                     } else {
                                         showButton = false;
                                     }
-                                });
-                            
-                            
-                            
-                            }">
+                            ">
 
                                 <x-alerts />
 
@@ -69,7 +65,7 @@
                                                 class="form-select @error('selectedIndicator')
                                     is-invalid
                                 @enderror"
-                                                x-model="selectedIndicator">
+                                                x-model="selectedIndicator" wire:loading.attr='disabled'>
                                                 <option value="">Select one</option>
                                                 @foreach ($indicators as $indicator)
                                                     <option value="{{ $indicator->id }}">
@@ -113,84 +109,117 @@
                                 </div>
 
 
-                                <div x-show="showButton" class="my-2 ">
-                                    <h5 class="card-title">Submission Targets</h5>
-                                    <div class="gap-1 d-flex justify-content-end">
-                                        <a wire:click='addTarget' title="Add input"
-                                            class="btn btn-warning btn-sm custom-tooltip " href="#" role="button"><i
-                                                class="bx bx-plus"></i></a>
-
-                                        <a wire:click="$dispatch('update-targets')" wire:loading.attr='disabled'
-                                            title="Refill targets" class="btn btn-success btn-sm custom-tooltip"
-                                            href="#" role="button"><i class="bx bx-recycle"></i></a>
-                                    </div>
-
-                                </div>
 
 
+                                <div class="row" x-data="{
+                                    targets: $wire.entangle('targets'),
+                                    selectedIndicator: $wire.entangle('selectedIndicator'),
+                                    selectedFinancialYear: $wire.entangle('selectedFinancialYear'),
+                                    organisationTargets: $wire.entangle('organisationTargets'),
+                                    getPreviousTargetValue(organisationTarget, mainTarget) {
+                                        if (!(mainTarget.name === null) && !(mainTarget.value === null)) {
+                                            const items = {
+                                                selectedIndicator: selectedIndicator,
+                                                selectedFinancialYear: selectedFinancialYear,
+                                                organisationTarget: organisationTarget,
+                                                mainTarget: mainTarget,
 
-                                <div class="row">
-                                    @foreach ($targets as $index => $target)
-                                        <hr>
-                                        <div class="col-xxl-4 ">
+                                            };
+                                            const oldValue = $wire.oldTargets(items);
+                                            return oldValue;
+                                        }
+                                    }
+
+                                }" wire:loading.class='opacity-25 pe-none'>
+                                    <table class="table table-bordered table-striped table-hover">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Target Name</th>
+                                                <th>Value</th>
+
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody x-show="targets.length ===0">
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted fw-bolder">
+                                                    No targets available
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tbody x-show="targets.length > 0">
+                                            @foreach ($targets as $index => $target)
+                                                <tr>
+                                                    <td scope="row"> <select
+                                                            class="form-select col-3 @error('targets.' . $index . '.name') is-invalid @enderror"
+                                                            wire:model="targets.{{ $index }}.name"
+                                                            wire:loading.attr='disabled' wire:loading.class='opacity-25'
+                                                            wire:target='selectedIndicator'>
+                                                            <option value="">Select one</option>
+                                                            @foreach ($disaggregations as $dsg)
+                                                                <option @if ($targets[$index]['name'] == $dsg->name) selected @endif
+                                                                    value="{{ $dsg->name }}">{{ $dsg->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('targets.' . $index . '.name')
+                                                            <x-error class="mb-1">{{ $message }}</x-error>
+                                                        @enderror
+                                                    </td>
+                                                    <td>
+
+                                                        <input type="text" id=""
+                                                            class="form-control @error('targets.' . $index . '.value') is-invalid @enderror"
+                                                            wire:model='targets.{{ $index }}.value'
+                                                            placeholder="Enter Value..." aria-describedby="helpId" />
+
+                                                        @error('targets.' . $index . '.value')
+                                                            <x-error class="mb-1">{{ $message }}</x-error>
+                                                        @enderror
+                                                    </td>
 
 
+                                                    <td>
+                                                        <button class="btn btn-danger btn-sm"
+                                                            @if ($targets[$index]['restricted'] == true) disabled @endif
+                                                            wire:click.prevent="removeTarget({{ $index }})">Delete
+                                                            Target <i class="bx bx-trash"></i></button>
 
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">Select Disaggregation <span
-                                                        class="count badge bg-warning-subtle text-warning">{{ $index + 1 }}</span></label>
-                                                <select
-                                                    class="form-select @error('targets.' . $index . '.name') is-invalid @enderror"
-                                                    wire:model="targets.{{ $index }}.name"
-                                                    wire:loading.attr='disabled' wire:loading.class='opacity-25'
-                                                    wire:target='selectedIndicator'>
-                                                    <option value="">Select one</option>
-                                                    @foreach ($disaggregations->unique('name') as $dsg)
-                                                        <option value="{{ $dsg->name }}">{{ $dsg->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            @error('targets.' . $index . '.name')
-                                                <x-error class="mb-1">{{ $message }}</x-error>
-                                            @enderror
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
 
+                                                <td colspan="3">
+                                                    <div class="gap-1 d-flex justify-content-start">
+                                                        <a wire:click='addTarget' title="Add input"
+                                                            x-show="selectedIndicator && selectedFinancialYear"
+                                                            class="btn btn-warning btn-sm custom-tooltip " href="#"
+                                                            role="button">Add Targets <i class="bx bx-plus"></i></a>
 
+                                                        <a wire:click="$dispatch('update-targets')"
+                                                            x-show="targets.length > 0" wire:loading.attr='disabled'
+                                                            title="Refill targets"
+                                                            class="btn btn-success btn-sm custom-tooltip" href="#"
+                                                            role="button">Restore Targets<i class="bx bx-recycle"></i></a>
+                                                    </div>
 
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
 
-
-                                        </div>
-                                        <div class="col-xxl-4">
-
-
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">Value</label>
-                                                <input type="text" id=""
-                                                    class="form-control @error('targets.' . $index . '.value') is-invalid @enderror"
-                                                    wire:model='targets.{{ $index }}.value'
-                                                    placeholder="Enter Value..." aria-describedby="helpId" />
-
-                                            </div>
-
-                                            @error('targets.' . $index . '.value')
-                                                <x-error class="mb-1">{{ $message }}</x-error>
-                                            @enderror
-
-                                        </div>
-                                        <div class=" col-xxl-2 d-flex align-items-center">
-                                            <button class="btn btn-theme-red"
-                                                wire:click.prevent="removeTarget({{ $index }})"> <i
-                                                    class="bx bx-trash-alt"></i></button>
-                                        </div>
-                                    @endforeach
                                 </div>
 
 
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer border-top-0">
                                 <div class="d-flex justify-content-center">
 
-                                    <button type="submit" class="btn btn-warning">
+                                    <button type="submit" class="px-5 btn btn-warning" wire:loading.attr='disabled'>
                                         Submit Data
                                     </button>
 
@@ -211,7 +240,7 @@
                     <div class="card-header">
                         <h5 class="card-title">Submission Targets Table</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="px-0 card-body">
                         <livewire:tables.submission-target-table />
                     </div>
                 </div>
@@ -219,43 +248,93 @@
         </div>
 
 
-
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
-
-            const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-            myModal.show();
-        })
-        $wire.on('hideModal', (e) => {
-            const modals = document.querySelectorAll('.modal.show');
-
-            // Iterate over each modal and hide it using Bootstrap's modal hide method
-            modals.forEach(modal => {
-                const modalInstance = bootstrap.Modal.getInstance(modal);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-            });
-        })
-        ">
+        <div x-data="{
+            row: $wire.entangle('rowId'),
+            showModal() {
+                $wire.getTargets(this.row);
+                $('#showTargetBtn').click();
 
 
-            <x-modal id="view-indicator-modal" title="edit">
-                <form>
-                    <div class="mb-3">
+            },
+            init() {
+                $wire.on('show-targets', (event) => {
+                    this.row = event.rowId;
+                    this.showModal();
+                })
+            }
+        }">
 
-                        <x-text-input placeholder="Name of indicator..." />
+
+            <!-- Button trigger modal -->
+            <button type="button" hidden id="showTargetBtn" class="btn btn-primary btn-lg" data-bs-toggle="modal"
+                data-bs-target="#showTargets">
+                Launch
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" wire:ignore.self data-bs-backdrop="static" id="showTargets" tabindex="-1"
+                role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalTitleId">
+                                Assigned Targets
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <x-alpine-alerts />
+                            <form wire:submit='saveTargets' wire:loading.class='opacity-25 pe-none'>
+                                <table class="table ">
+                                    <thead>
+                                        <tr>
+                                            <th>Partner</th>
+                                            <th>Value</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach ($organisationTargets as $index => $target)
+                                            <tr>
+                                                <td>
+                                                    <p>{{ $target['name'] }}</p>
+                                                    <input type="hidden" class="form-control"
+                                                        wire:model="organisationTargets.{{ $index }}.name" />
+
+                                                </td>
+                                                <td>
+
+                                                    <input type="number"
+                                                        class="form-control @error('organisationTargets.' . $index . '.value') is-invalid @enderror"
+                                                        wire:model="organisationTargets.{{ $index }}.value" />
+
+                                                    @error('organisationTargets.' . $index . '.value')
+                                                        <x-error class="mb-1">{{ $message }}</x-error>
+                                                    @enderror
+                                                </td>
+
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="2" class="text-center"> <button type="submit"
+                                                    class="px-5 btn btn-warning">Submit</button>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                            </form>
+                        </div>
+
                     </div>
+                </div>
+            </div>
 
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-
-                    </div>
-                </form>
-            </x-modal>
-
-        </div> --}}
-
+        </div>
 
 
 

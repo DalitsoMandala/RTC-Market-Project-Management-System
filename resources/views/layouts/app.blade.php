@@ -130,10 +130,6 @@
             border: 0;
         }
 
-        label {
-            text-transform: lowercase;
-            /* Ensure all text is lowercase */
-        }
 
         label::first-letter {
             text-transform: uppercase;

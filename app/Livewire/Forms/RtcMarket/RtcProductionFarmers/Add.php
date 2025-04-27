@@ -147,21 +147,6 @@ class Add extends Component
 
     public $total_vol_production_previous_season_produce = null;
 
-    // public $total_production_value_previous_season = [
-    //     [
-    //         'total' => null,
-    //         'date_of_maximum_sales' => null,
-    //         'rate' => 0,
-    //         'value' => 0,
-    //         'cuttings_value' => null,
-    //         'produce_value' => null,
-    //         'seed_value' => null,
-    //         'cuttings_prevailing_price' => null,
-    //         'produce_prevailing_price' => null,
-    //         'seed_prevailing_price' => null,
-    //     ]
-
-    // ];
 
     public $total_production_value_previous_season_total = null;
     public $total_production_value_previous_season_date_of_maximum_sales = null;
@@ -626,7 +611,7 @@ class Add extends Component
             try {
                 $this->validate($rules, [], $attributes);
             } catch (Throwable $e) {
-                session()->flash('validation_error', 'There are errors in the dynamic forms.');
+
                 throw $e;
             }
         }
@@ -699,7 +684,7 @@ class Add extends Component
                     $this->total_irrigation_production_value_previous_season_rate = 0;
                     $this->total_irrigation_production_value_previous_season_total = 0;
                 }
-                session()->flash('error', 'Exchange rate not found for the given date.');
+                //   session()->flash('error', 'Exchange rate not found for the given date.');
             } else {
 
                 $totalValue = round(((float) ($value ?? 0)) / (float) $rate, 2);
@@ -710,8 +695,6 @@ class Add extends Component
                     $this->total_irrigation_production_value_previous_season_rate = $rate;
                     $this->total_irrigation_production_value_previous_season_total = $totalValue;
                 }
-                //    $this->{$key}['rate'] = $rate;
-                //    $this->{$key}['total'] = $totalValue;
             }
         }
     }
@@ -721,9 +704,13 @@ class Add extends Component
         try {
             $this->validate();
         } catch (Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
+            $this->dispatch('show-alert', data: [
+                'type' => 'error', // success, error, info, warning
+                'message' => 'There are errors in the form.'
+            ]);
             throw $e;
         }
+
 
         $this->validateDynamicForms();
 
@@ -745,6 +732,19 @@ class Add extends Component
 
 
             $segment = collect($this->market_segment);
+            if ($this->location_data['enterprise'] == 'Cassava') {
+                $this->total_irrigation_production_value_previous_season_total = null;
+                $this->total_irrigation_production_value_previous_season_date_of_maximum_sales = null;
+                $this->total_irrigation_production_value_previous_season_rate = 0;
+                $this->total_irrigation_production_value_previous_season_value = 0;
+                $this->total_irrigation_production_value_previous_season_cuttings_value = null;
+                $this->total_irrigation_production_value_previous_season_produce_value = null;
+                $this->total_irrigation_production_value_previous_season_seed_value = null;
+                $this->total_irrigation_production_value_previous_season_seed_bundle = null;
+                $this->total_irrigation_production_value_previous_season_seed_prevailing_price = null;
+                $this->total_irrigation_production_value_previous_season_cuttings_prevailing_price = null;
+                $this->total_irrigation_production_value_previous_season_produce_prevailing_price = null;
+            }
 
             $firstTable = [
                 //   'location_data' => $this->location_data,
@@ -882,15 +882,24 @@ class Add extends Component
                 'table_name' => 'rtc_production_farmers',
             ]);
 
-            $this->clearErrorBag();
 
-            session()->flash('success', 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>');
+
+            $this->clearErrorBag();
+            $this->dispatch('show-alert', data: [
+                'type' => 'success',
+                'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-production-and-marketing-form-farmers/view">View Submission here</a>',
+            ]);
+
             DB::commit();
 
             //  $this->redirect(url()->previous());
         } catch (Throwable $th) {
             DB::rollBack();
-            session()->flash('error', 'Something went wrong!');
+            $this->dispatch('show-alert', data: [
+                'type' => 'error',
+                'message' => 'Something went wrong!'
+            ]);
+
             Log::error($th->getMessage());
         }
     }
@@ -977,13 +986,7 @@ class Add extends Component
         $this->reset();
     }
 
-    #[On('open-submission')]
-    public function clearTable()
-    {
-        $this->openSubmission = true;
-        $this->targetSet = true;
-        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
-    }
+
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
