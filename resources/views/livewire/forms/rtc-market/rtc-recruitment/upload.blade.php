@@ -71,7 +71,7 @@
                     <form wire:submit='submitUpload'>
                         <div x-data>
                             <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
-                                wire:loading.attr='disabled' wire:target='downloadTemplate'>
+                                wire:loading.attr='disabled'>
                                 <!-- Border spinner -->
                                 <div class="mx-2 opacity-30 spinner-border text-secondary"
                                     style="width: 1rem; height: 1rem;" wire:loading wire:target='downloadTemplate'

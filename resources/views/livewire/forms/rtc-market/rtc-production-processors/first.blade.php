@@ -153,6 +153,7 @@
     total_production_value_previous_season_value: $wire.entangle('total_production_value_previous_season_value'),
     total_production_value_previous_season_rate: $wire.entangle('total_production_value_previous_season_rate'),
     bundle_multiplier: $wire.entangle('bundle_multiplier'),
+    dateOfFollowUp: $wire.entangle('date_of_followup'),
     cuttingsTotal: 0,
     seedTotal: 0,
     produceTotal: 0,
@@ -185,11 +186,18 @@
         return this.produceTotal + this.seedTotal + this.cuttingsTotal;
     },
     calculateTotal() {
+
+
         this.produceTotal = this.getProduceTotal(this.total_production_value_previous_season_produce_value, this.total_production_value_previous_season_produce_prevailing_price);
         this.seedTotal = this.getSeedTotal(this.total_production_value_previous_season_seed_value, this.total_production_value_previous_season_seed_prevailing_price);
         this.cuttingsTotal = this.getCuttingsTotal(this.total_production_value_previous_season_cuttings_value, this.total_production_value_previous_season_cuttings_prevailing_price);
         this.subTotal = this.getSubTotal();
         this.total_production_value_previous_season_value = this.subTotal;
+        if (this.lastCalculatedTotal !== this.subTotal && this.dateOfFollowUp) {
+            this.total_production_value_previous_season_total = null;
+            this.total_production_value_previous_season_rate = 0;
+
+        }
     },
 
 
@@ -200,6 +208,7 @@
         this.dateSet = dateOfFollowUp ? true : false;
 
         if (this.lastCalculatedTotal !== this.subTotal && dateOfFollowUp) {
+
             this.$wire.exchangeRateCalculateProduction();
             this.lastCalculatedTotal = this.subTotal; // Update the last calculated total
         }

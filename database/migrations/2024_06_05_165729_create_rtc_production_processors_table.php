@@ -31,6 +31,7 @@ return new class extends Migration {
             $table->decimal('total_vol_production_previous_season_produce', 8, 2)->nullable(); // new
             $table->decimal('total_vol_production_previous_season_seed', 8, 2)->nullable(); // new
             $table->decimal('total_vol_production_previous_season_cuttings', 8, 2)->nullable(); // new
+            $table->decimal('total_vol_production_previous_season_seed_bundle', 16, 2)->nullable();
             //PRODUCTION IN MWK
             $table->decimal('prod_value_previous_season_total', 16, 2)->nullable();
 

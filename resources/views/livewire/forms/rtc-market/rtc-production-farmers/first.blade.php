@@ -39,8 +39,8 @@
             data.forEach((item, index) => {
                 this.area_under_cultivation[index] = item;
             })
-    
-    
+
+
         }
     }">
 
@@ -303,7 +303,7 @@
         Seed Multiplication</label>
     <div class="px-2 row" x-data="{
         area_under_certified_seed_multiplication: $wire.entangle('area_under_certified_seed_multiplication'),
-    
+
         init() {
             const indices = [];
             const structuredData = [];
@@ -654,6 +654,7 @@
     lastCalculatedTotal: null, // Track the last calculated total
     dateSet: null,
     seedInputType: 'metric tonnes',
+    dateOfFollowUp: $wire.entangle('date_of_followup'),
 
     getProduceTotal(value, price) {
         return (parseFloat(value) || 0) * (parseFloat(price) || 0);
@@ -684,6 +685,11 @@
         this.cuttingsTotal = this.getCuttingsTotal(this.total_production_value_previous_season_cuttings_value, this.total_production_value_previous_season_cuttings_prevailing_price);
         this.subTotal = this.getSubTotal();
         this.total_production_value_previous_season_value = this.subTotal;
+        if (this.lastCalculatedTotal !== this.subTotal && this.dateOfFollowUp) {
+            this.total_production_value_previous_season_total = null;
+            this.total_production_value_previous_season_rate = 0;
+
+        }
     },
 
 
@@ -952,6 +958,7 @@
     dateSet: null,
     seedInputType2: 'metric tonnes',
     enterprise: $wire.entangle('location_data.enterprise'),
+    dateOfFollowUp: $wire.entangle('date_of_followup'),
 
     getProduceTotal(value, price) {
         return (parseFloat(value) || 0) * (parseFloat(price) || 0);
@@ -1000,6 +1007,11 @@
         this.cuttingsTotal = this.getCuttingsTotal(this.total_irrigation_production_value_previous_season_cuttings_value, this.total_irrigation_production_value_previous_season_cuttings_prevailing_price);
         this.subTotal = this.getSubTotal();
         this.total_irrigation_production_value_previous_season_value = this.subTotal;
+        if (this.lastCalculatedTotal !== this.subTotal && this.dateOfFollowUp) {
+            this.total_production_value_previous_season_total = null;
+            this.total_production_value_previous_season_rate = 0;
+
+        }
     },
 
 

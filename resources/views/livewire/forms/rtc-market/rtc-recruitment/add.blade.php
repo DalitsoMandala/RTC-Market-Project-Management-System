@@ -166,10 +166,11 @@
 
             <option value="Large scale farm">Large scale farm</option>
 
-            <option value="Small scale individual farms">Small scale individual
-                farms</option>
-
             <option value="Large scale processor">Large scale processor</option>
+
+
+            <option value="Small medium enterprise (SME)">Small medium enterprise (SME)</option>
+
 
             <option value="Other">Other</option>
 
@@ -544,8 +545,8 @@
             Under
             Cultivation (Number of Acres)</label>
         <input type="number" min="0" step="any"
-            class="form-control bg-light @error('area_under_cultivation') is-invalid @enderror"
-            id="area_under_cultivation12" x-model="area_under_cultivation">
+            class="form-control @error('area_under_cultivation') is-invalid @enderror" id="area_under_cultivation12"
+            x-model="area_under_cultivation">
 
         @error('area_under_cultivation')
             <x-error>{{ $message }}</x-error>
@@ -644,7 +645,7 @@
                     </td>
                 </tr>
             </tfoot>
-            </tfoot>
+
         </table>
 
 

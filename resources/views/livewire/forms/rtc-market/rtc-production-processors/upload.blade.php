@@ -70,10 +70,19 @@
                     <form wire:submit='submitUpload'>
                         <div x-data>
                             <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
-                                wire:loading.attr='disabled' wire:target='downloadTemplate'>
-                                Download template <i class="bx bx-download"></i> </button>
+                                wire:loading.attr='disabled'>
+                                <!-- Border spinner -->
+                                <div class="mx-2 opacity-30 spinner-border text-secondary"
+                                    style="width: 1rem; height: 1rem;" wire:loading wire:target='downloadTemplate'
+                                    role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+
+                                Download template <i class="bx bx-download"></i>
+                            </button>
                             <hr>
                         </div>
+
 
                         <div id="table-form">
                             <div class="row">
@@ -116,7 +125,8 @@
                         </div>
                         <div class="row justify-content-center">
 
-                            <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
+                            <div class="col-12 @if ($importing) pe-none opacity-25 @endif"
+                                wire:loading.class='opacity-25 pe-none'>
                                 <x-filepond-single instantUpload="true" wire:model='upload' />
                                 @error('upload')
                                     <div class="d-flex justify-content-center">

@@ -34,31 +34,6 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
         'Section' => 'Required, Text',
         'District' => 'Required, Text',
         'Enterprise' => 'Required, Text',
-        // 'Date of Recruitment' => 'Date (dd-mm-yyyy)',
-        // 'Name of Actor' => 'Text',
-        // 'Name of Representative' => 'Text',
-        // 'Phone Number' => 'Text',
-        // 'Type' => 'Text, (Choose one option)',
-        // 'Approach' => 'Text, (Choose one option)',
-        // 'Sector' => 'Text, (Choose one option)',
-        // 'Members Female 18-35' => 'Number (>=0)',
-        // 'Members Male 18-35' => 'Number (>=0)',
-        // 'Members Male 35+' => 'Number (>=0)',
-        // 'Members Female 35+' => 'Number (>=0)',
-        // 'Group' => 'Text, (Choose one option)',
-        // 'Establishment Status' => 'New/Old, (Choose one option)',
-        // 'Is Registered' => 'Boolean (1/0)',
-        // 'Registration Body' => 'Text',
-        // 'Registration Number' => 'Text',
-        // 'Registration Date' => 'Date (dd-mm-yyyy)',
-        // 'Employees Formal Female 18-35' => 'Number (>=0)',
-        // 'Employees Formal Male 18-35' => 'Number (>=0)',
-        // 'Employees Formal Male 35+' => 'Number (>=0)',
-        // 'Employees Formal Female 35+' => 'Number (>=0)',
-        // 'Employees Informal Female 18-35' => 'Number (>=0)',
-        // 'Employees Informal Male 18-35' => 'Number (>=0)',
-        // 'Employees Informal Male 35+' => 'Number (>=0)',
-        // 'Employees Informal Female 35+' => 'Number (>=0)',
         'Number of Plantlets Produced Cassava' => 'Number (>=0)',
         'Number of Plantlets Produced Potato' => 'Number (>=0)',
         'Number of Plantlets Produced Sweet Potato' => 'Number (>=0)',
@@ -69,19 +44,58 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
         'Seed Producer Registration Number' => 'Text',
         'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
         'Uses Certified Seed' => 'Boolean (1/0)',
+
         'Market Segment Fresh' => 'Boolean (1/0)',
         'Market Segment Processed' => 'Boolean (1/0)',
+        'Market Segment Seed' => 'Boolean (1/0)',
+        'Market Segment Cuttings' => 'Boolean (1/0)',
         'Has RTC Market Contract' => 'Boolean (1/0)',
-        'Total Volume Production Previous Season' => 'Number (>=0)',
-        'Production Value Previous Season Total' => 'Number (>=0)',
-        'Production Value Date of Max Sales' => 'Date (dd-mm-yyyy)',
-        'Production Value USD Rate' => 'Number (>=0)',
-        'Production Value USD Value' => 'Number (>=0)',
-        'Total Volume Irrigation Production Previous Season' => 'Number (>=0)',
-        'Irrigation Production Value Total' => 'Number (>=0)',
-        'Irrigation Production Date of Max Sales' => 'Date (dd-mm-yyyy)',
-        'Irrigation Production USD Rate' => 'Number (>=0)',
-        'Irrigation Production USD Value' => 'Number (>=0)',
+
+        'Total Volume Production Produce' => 'Number (>=0), (in MT)',
+        'Total Volume Production Seed Type' => 'Required, Choose One (Metric Tonnes/Bundles)',
+        'Total Volume Production Seeed' => 'Number (>=0), (in MT or Bundles depending on Seed Type)',
+        'Total Volume Production Cuttings' => 'Number (>=0), (in MT)',
+        //'Total Volume Production' => 'Number (>=0)',
+
+        'Production Value Produce' => 'Number (>=0),(in MT)',
+        'Production Value Produce Prevailing Price' => 'Number (>=0)',
+        'Production Value Seed Type' => 'Required, Choose One (Metric Tonnes/Bundles)',
+        'Production Value Seed' => 'Number (>=0), (in MT or Bundles depending on Seed Type)',
+        'Production Value Seed Prevailing Price' => 'Number (>=0)',
+        'Production Value Cuttings' => 'Number (>=0), (in MT)',
+        'Production Value Cuttings Prevailing Price' => 'Number (>=0)',
+        // 'Production Value Total' => 'Number (>=0)',
+        // 'Production Value Date of Maximum Sales' => 'Date (dd-mm-yyyy)',
+
+        /**
+         * Production Value USD can be calculated or manually entered
+         */
+        // 'Production Value USD Rate' => 'Number (>=0)',
+        // 'Production Value USD Financial Value' => 'Number (>=0)',
+
+
+        'Total Volume Irrigation Production Produce' => 'Number (>=0), (in MT)',
+        'Total Volume Irrigation Production Seed Type' => 'Required, Choose One (Metric Tonnes/Bundles)',
+        'Total Volume Irrigation Production Seeed' => 'Number (>=0), (in MT or Bundles depending on Seed Type)',
+        'Total Volume Irrigation Production Cuttings' => 'Number (>=0), (in MT)',
+        //'Total Volume Irrigation Production' => 'Number (>=0)',
+
+        'Irrigation Production Value Produce' => 'Number (>=0),(in MT)',
+        'Irrigation Production Value Produce Prevailing Price' => 'Number (>=0)',
+        'Irrigation Production Value Seed Type' => 'Required, Choose One (Metric Tonnes/Bundles)',
+        'Irrigation Production Value Seed' => 'Number (>=0), (in MT or Bundles depending on Seed Type)',
+        'Irrigation Production Value Seed Prevailing Price' => 'Number (>=0)',
+        'Irrigation Production Value Cuttings' => 'Number (>=0), (in MT)',
+        'Irrigation Production Value Cuttings Prevailing Price' => 'Number (>=0)',
+        // 'Irrigation Production Value Total' => 'Number (>=0)',
+        // 'Irrigation Production Value Date of Maximum Sales' => 'Date (dd-mm-yyyy)',
+
+        /**
+         * Irrigation Production Value USD can be calculated or manually entered
+         */
+        // 'Irrigation Production Value USD Rate' => 'Number (>=0)',
+        // 'Irrigation Production Value USD Financial Value' => 'Number (>=0)',
+
         'Sells to Domestic Markets' => 'Boolean (1/0)',
         'Sells to International Markets' => 'Boolean (1/0)',
         'Uses Market Information Systems' => 'Boolean (1/0)',
@@ -178,66 +192,7 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
     public function headings(): array
     {
         return [
-            // [
-            //     'ID', // Add ID as the first column heading
-            //     'EPA',
-            //     'Section',
-            //     'District',
-            //     'Enterprise',
-            //     'Date of Recruitment',
-            //     'Name of Actor',
-            //     'Name of Representative',
-            //     'Phone Number',
-            //     'Type',
-            //     'Approach',
-            //     'Sector',
-            //     'Members Female 18-35',
-            //     'Members Male 18-35',
-            //     'Members Male 35+',
-            //     'Members Female 35+',
-            //     'Group',
-            //     'Establishment Status',
-            //     'Is Registered',
-            //     'Registration Body',
-            //     'Registration Number',
-            //     'Registration Date',
-            //     'Employees Formal Female 18-35',
-            //     'Employees Formal Male 18-35',
-            //     'Employees Formal Male 35+',
-            //     'Employees Formal Female 35+',
-            //     'Employees Informal Female 18-35',
-            //     'Employees Informal Male 18-35',
-            //     'Employees Informal Male 35+',
-            //     'Employees Informal Female 35+',
-            //     'Number of Plantlets Produced Cassava',
-            //     'Number of Plantlets Produced Potato',
-            //     'Number of Plantlets Produced Sweet Potato',
-            //     'Screen House Vines Harvested',
-            //     'Screen House Min Tubers Harvested',
-            //     'SAH Plants Produced',
-            //     'Is Registered Seed Producer',
-            //     'Seed Producer Registration Number',
-            //     'Seed Producer Registration Date',
-            //     'Uses Certified Seed',
-            //     'Market Segment Fresh',
-            //     'Market Segment Processed',
-            //     'Has RTC Market Contract',
-            //     'Total Volume Production Previous Season',
-            //     'Production Value Previous Season Total',
-            //     'Production Value Date of Max Sales',
-            //     'Production Value USD Rate',
-            //     'Production Value USD Value',
-            //     'Total Volume Irrigation Production Previous Season',
-            //     'Irrigation Production Value Total',
-            //     'Irrigation Production Date of Max Sales',
-            //     'Irrigation Production USD Rate',
-            //     'Irrigation Production USD Value',
-            //     'Sells to Domestic Markets',
-            //     'Sells to International Markets',
-            //     'Uses Market Information Systems',
-            //     'Sells to Aggregation Centers',
-            //     'Total Volume Aggregation Center Sales'
-            // ],
+
             array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
@@ -282,54 +237,6 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
 
                 $sheet = $event->sheet->getDelegate();
 
-                // // Define the dropdown options
-                // $dropdownOptions = [
-
-                //     'Producer Organization (PO)',
-                //     'Large scale farm',
-
-
-                // ]; // Includes an empty option
-
-
-                // $this->setDataValidations($dropdownOptions, 'J3', $sheet);
-
-                // $dropdownOptions = [
-
-                //     'Collective production only',
-                //     'Collective marketing only',
-                //     'Knowledge Sharing only',
-                //     'Collective producing, marketing and knowledge sharing',
-                //     'NA'
-
-                // ];
-
-                // //    $this->setDataValidations($dropdownOptions, 'K3', $sheet);
-
-                // $dropdownOptions = [
-                //     'Private',
-                //     'Public'
-                // ];
-
-
-                // $this->setDataValidations($dropdownOptions, 'L3', $sheet);
-
-                // $dropdownOptions = [
-                //     'Early generation seed producer',
-                //     'Seed multiplier',
-                //     'RTC producer'
-
-                // ];
-
-                // $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
-
-
-                // $dropdownOptions = [
-                //     'New',
-                //     'Old'
-                // ];
-
-                // $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
                 $dropdownOptions = [
 
@@ -338,6 +245,38 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
                     'Cassava'
                 ];
                 $this->setDataValidations($dropdownOptions, 'G3', $sheet);
+
+                $dropdownOptions = [
+
+                    'Metric Tonnes',
+                    'Bundles',
+
+                ];
+                $this->setDataValidations($dropdownOptions, 'X3', $sheet);
+
+                $dropdownOptions = [
+
+                    'Metric Tonnes',
+                    'Bundles',
+
+                ];
+                $this->setDataValidations($dropdownOptions, 'AC3', $sheet);
+
+                $dropdownOptions = [
+
+                    'Metric Tonnes',
+                    'Bundles',
+
+                ];
+                $this->setDataValidations($dropdownOptions, 'AK3', $sheet);
+
+                $dropdownOptions = [
+
+                    'Metric Tonnes',
+                    'Bundles',
+
+                ];
+                $this->setDataValidations($dropdownOptions, 'AP3', $sheet);
             },
         ];
     }

@@ -151,10 +151,10 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
                 // Define the dropdown options
                 $dropdownOptions = [
 
-                    'Producer Organization',
+                    'Producer organization (PO)',
                     'Large scale farm',
                     'Large scale processor',
-                    'Small Medium Enterprise (SME)',
+                    'Small medium enterprise (SME)',
                     'Other'
 
 
