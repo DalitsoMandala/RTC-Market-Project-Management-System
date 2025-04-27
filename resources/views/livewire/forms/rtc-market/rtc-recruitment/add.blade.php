@@ -153,8 +153,8 @@
 
     <!-- Group -->
     <div class="mb-3" x-data="{ group: $wire.entangle('group'), type: $wire.entangle('type') }" x-init="() => {
-    
-    
+
+
     }">
         <label for="group" class="form-label">Group</label>
         <select class="form-select @error('group') is-invalid @enderror" x-model="group">
@@ -198,7 +198,7 @@
             <option value="Collective marketing only">Collective marketing only
             </option>
             <option value="Knowledge sharing only">Knowledge sharing only</option>
-            <option value="Collective production, marketing and knowledge sharing">
+            <option value="Collective production; marketing and knowledge sharing">
                 Collective production, marketing and
                 knowledge sharing</option>
             <option value="N/A">N/A</option>
@@ -227,8 +227,8 @@
     <div class="mb-3" x-data="{
         type: $wire.entangle('type'),
         number_of_members: $wire.entangle('number_of_members'),
-    
-    
+
+
     }" x-init="$watch('number_of_members', (v) => {
         v.total = parseInt(v.female_18_35 || 0) + parseInt(v.female_35_plus || 0) + parseInt(v.male_18_35 || 0) + parseInt(v.male_35_plus || 0);
     });">
@@ -297,7 +297,7 @@
         category: $wire.entangle('category'),
     }" x-init="$watch('type', (v) => {
         if (v != 'Farmers') {
-    
+
             $wire.resetValues('category');
         }
     });">
@@ -357,9 +357,9 @@
         is_registered: $wire.entangle('is_registered'),
         registration_details: $wire.entangle('registration_details')
     }" x-init="$watch('is_registered', (v) => {
-    
+
         if (v != 1) {
-    
+
             $wire.resetValues('registration_details');
         }
     });" x-show='is_registered == 1'>
@@ -400,7 +400,7 @@
     <div class="mb-3" x-data="{
         number_of_employees: $wire.entangle('number_of_employees')
     }" x-init="$watch('number_of_employees', (v) => {
-    
+
         v.formal.total = parseInt(v.formal.female_18_35 || 0) + parseInt(v.formal.female_35_plus || 0) + parseInt(v.formal.male_18_35 || 0) + parseInt(v.formal.male_35_plus || 0);
         v.informal.total = parseInt(v.informal.female_18_35 || 0) + parseInt(v.informal.female_35_plus || 0) + parseInt(v.informal.male_18_35 || 0) + parseInt(v.informal.male_35_plus || 0);
     });">
@@ -530,14 +530,14 @@
     <div x-show="type==='Farmers'" class="mb-3" x-data="{
         area_under_cultivation: $wire.entangle('area_under_cultivation'),
         type: $wire.entangle('type'),
-    
+
         init() {
             this.$watch('type', (v) => {
                 if (v != 'Farmers') {
                     $wire.resetValues('area_under_cultivation')
                 }
             })
-    
+
         }
     }">
         <label for="areaUnderCultivation" class="my-3 form-label fw-bold">Area
@@ -559,14 +559,14 @@
     <div x-show="type==='Farmers'" class="mb-3" x-data="{
         is_registered_seed_producer: $wire.entangle('is_registered_seed_producer'),
         type: $wire.entangle('type'),
-    
+
         init() {
             this.$watch('type', (v) => {
                 if (v != 'Farmers') {
                     $wire.resetValues('is_registered_seed_producer')
                 }
             })
-    
+
         }
     }">
 
@@ -656,14 +656,14 @@
     <div x-show="type==='Farmers'" class="mb-3" x-data="{
         uses_certified_seed: $wire.entangle('uses_certified_seed'),
         type: $wire.entangle('type'),
-    
+
         init() {
             this.$watch('type', (v) => {
                 if (v != 'Farmers') {
                     $wire.resetValues('uses_certified_seed')
                 }
             })
-    
+
         }
     }">
         <label class="form-label">Do You Use Certified Seed</label>

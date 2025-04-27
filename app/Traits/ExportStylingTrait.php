@@ -39,27 +39,34 @@ trait ExportStylingTrait
         ];
     }
 
+    // public function setDataValidations($options, $cell, $sheet)
+    // {
+
+
+
+    //     $dropdownValues = '"' . implode(',', $options) . '"';
+
+    //     $validation = $sheet->getCell($cell)->getDataValidation();
+    //     $validation->setType(DataValidation::TYPE_LIST)
+    //         ->setFormula1($dropdownValues)
+    //         ->setAllowBlank(true)
+    //         ->setShowInputMessage(true)
+    //         ->setShowErrorMessage(true)
+    //         ->setErrorStyle(DataValidation::STYLE_STOP)
+    //         ->setShowDropDown(true);
+
+    //     // Apply the same validation to the specified cell
+    //     $cellLetter = substr($cell, 0, 1);
+    //     $sheet->setDataValidation("{$cell}:{$cellLetter}1048576", $validation);
+    // }
+
     public function setDataValidations($options, $cell, $sheet)
     {
-        // $string = '"';
-
-        // foreach ($options as $key => $value) {
-        //     if ($key !== count($options) - 1) {
-        //         $string .= "$value" . ",";
-        //     } else {
-        //         $string .= "$value" . "\"";
-        //     }
-        // }
-
-
-
         $dropdownValues = '"' . implode(',', $options) . '"';
-        // dd($dropdownValues, $string);
-        //  $dropdownValues = $string;
-        // dd($dropdownValues);
-        // Apply validation to the specified cell
-        $validation = $sheet->getCell($cell)->getDataValidation();
-        $validation->setType(DataValidation::TYPE_LIST)
+
+        // Create the base validation object
+        $baseValidation = new DataValidation();
+        $baseValidation->setType(DataValidation::TYPE_LIST)
             ->setFormula1($dropdownValues)
             ->setAllowBlank(true)
             ->setShowInputMessage(true)
@@ -67,8 +74,18 @@ trait ExportStylingTrait
             ->setErrorStyle(DataValidation::STYLE_STOP)
             ->setShowDropDown(true);
 
-        // Apply the same validation to the specified cell
-        $cellLetter = substr($cell, 0, 1);
-        $sheet->setDataValidation("{$cell}:{$cellLetter}1048576", $validation);
+        // Extract the column letter(s) and starting row number from the given cell
+        $cellLetter = preg_replace('/[0-9]/', '', $cell);
+        $startRow = (int) filter_var($cell, FILTER_SANITIZE_NUMBER_INT);
+
+        // Define how many rows you want to apply validation to
+        $endRow = 10000; // <-- You can change this number as needed
+
+        // Apply validation individually to each cell in the column
+        for ($row = $startRow; $row <= $endRow; $row++) {
+            $targetCell = $cellLetter . $row;
+            $validationClone = clone $baseValidation;
+            $sheet->getCell($targetCell)->setDataValidation($validationClone);
+        }
     }
 }

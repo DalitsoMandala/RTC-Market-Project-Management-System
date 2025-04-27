@@ -101,6 +101,7 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
+
                 $sheet = $event->sheet->getDelegate();
                 $highestColumn = $sheet->getHighestColumn();
                 // Make the first row (header) bold
@@ -131,7 +132,7 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
                     'Collective production only',
                     'Collective marketing only',
                     'Knowledge Sharing only',
-                    'Collective producing, marketing and knowledge sharing',
+                    'Collective producing; marketing and knowledge sharing',
                     'NA'
 
                 ];
@@ -152,16 +153,14 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
 
                     'Producer Organization',
                     'Large scale farm',
-                    'Small scale individual farms',
-                    'Care groups',
                     'Large scale processor',
-                    'Small Medium Enterprise',
+                    'Small Medium Enterprise (SME)',
                     'Other'
 
 
                 ]; // Includes an empty option
 
-
+                //Group
                 $this->setDataValidations($dropdownOptions, 'K3', $sheet);
 
 
@@ -171,7 +170,7 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
                     'Public'
                 ];
 
-
+                //Sector
                 $this->setDataValidations($dropdownOptions, 'M3', $sheet);
 
                 $dropdownOptions = [
@@ -181,6 +180,7 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
 
                 ];
 
+                //Category
                 $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
 
@@ -197,6 +197,8 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
                     'Sweet potato',
                     'Cassava'
                 ];
+
+                //Enterprise
                 $this->setDataValidations($dropdownOptions, 'E3', $sheet);
             },
         ];
