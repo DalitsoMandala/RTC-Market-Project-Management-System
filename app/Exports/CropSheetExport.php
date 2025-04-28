@@ -18,27 +18,28 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
     protected $cropType;
     public $template = false;
     public $validationTypes = [
-        'District' => 'Required, Text',
         'EPA' => 'Required, Text',
         'Section' => 'Required, Text',
         'Name of AEDO' => 'Required, Text',
         'AEDO Phone Number' => 'Text',
         'Date of Distribution' => 'Date (dd-mm-yyyy)',
+        'Year Of Distribution' => 'Number',
         'Name of Recipient' => 'Required, Text',
-        'Group Name' => 'Text',
         'Village' => 'Text',
-        'Sex' => 'Required, Male/Female',
+        'National ID' => 'Text',
+        'District' => 'Required, Text',
         'Age' => 'Required, Number (>=1)',
         'Marital Status' => 'Number',
         'Household Head' => 'Number (>=1)',
         'Household Size' => 'Number (>=1)',
         'Children Under 5 in HH' => 'Number (>=0)',
+        'Sex' => 'Required, Male/Female or 1/2',
+        'Group Name' => 'Text',
+        'Type of Actor' => 'Number',
+        'Name of Plot' => 'Number',
         'Variety Received' => 'Text, (IF Multiple separate by commas)',
-        'Bundles Received' => 'Number(>=0) (KG)',
-        'National ID' => 'Text',
+        'Amount of Seed Received' => 'Number(>=0)',
         'Phone Number' => 'Text',
-        'Signed' => 'Number (>=0)',
-        'Year' => 'Number',
         'Season Type' => 'Text, (Choose One)'
 
     ];
@@ -94,30 +95,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
     {
         return [
 
-            [
-                'District',
-                'EPA',
-                'Section',
-                'Name of AEDO',
-                'AEDO Phone Number',
-                'Date of Distribution',
-                'Name of Recipient',
-                'Group Name',
-                'Village',
-                'Sex',
-                'Age',
-                'Marital Status',
-                'Household Head',
-                'Household Size',
-                'Children Under 5 in HH',
-                'Variety Received',
-                'Amount Of Seed Received',
-                'National ID',
-                'Phone Number',
-                'Signed',
-                'Year',
-                'Season Type'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }
@@ -159,7 +137,7 @@ class CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEv
                     'Winter',
 
                 ];
-                $this->setDataValidations($dropdownOptions, 'V3', $sheet);
+                $this->setDataValidations($dropdownOptions, 'W3', $sheet);
             },
         ];
     }

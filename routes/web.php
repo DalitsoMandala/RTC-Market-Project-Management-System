@@ -70,6 +70,8 @@ use App\Exports\AttendanceExport\AttendanceRegistersExport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
+use App\Exports\RtcConsumption\RtcConsumptionExport;
+use App\Imports\RtcConsumption\RtcConsumptionMultiSheet;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
@@ -142,31 +144,7 @@ Route::get('/logout', function () {
 //     Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries_template.xlsx');
 // });
 
-Route::get('/download-templates', function () {
-    $files = [
-        'attendance_register_template.xlsx' => new AttendanceRegistersExport(true),
-        'household_rtc_consumption_template.xlsx' => new HouseholdRtcConsumptionTemplateExport(true),
-        'rtc_production_marketing_farmers_template.xlsx' => new RtcProductionFarmersMultiSheetExport(true),
-        'rtc_production_marketing_processors_template.xlsx' => new RtcProductionProcessorsMultiSheetExport(true),
-        'school_consumption_template.xlsx' => new SchoolRtcConsumptionExport(true),
-        'seed_beneficiaries_template.xlsx' => new SeedBeneficiariesExport(true),
-    ];
-
-    $zipFileName = 'form_templates.zip';
-    $zipPath = storage_path('app/public/exports/' . $zipFileName);
-    $zip = new ZipArchive;
-
-    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-        foreach ($files as $fileName => $export) {
-            $filePath = storage_path("app/temp/{$fileName}");
-            Excel::store($export, "temp/{$fileName}");
-            $zip->addFile($filePath, $fileName);
-        }
-        $zip->close();
-    }
-
-    return response()->download($zipPath)->deleteFileAfterSend(true);
-});
+Route::get('/download-templates', [App\Http\Controllers\FormsExportController::class, 'export'])->name('download-templates');
 
 
 

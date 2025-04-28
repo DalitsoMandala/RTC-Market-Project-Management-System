@@ -4,6 +4,7 @@ namespace App\Exports\RtcRecruitment;
 
 use App\Models\Recruitment;
 use App\Traits\ExportStylingTrait;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -18,55 +19,18 @@ class RtcRecruitmentExport implements WithHeadings, WithTitle, WithStrictNullCom
 
 
     use ExportStylingTrait;
-
+    use FormEssentials;
 
 
 
     protected $rowNumber = 0; // Start counting from 1
     public $template;
-    protected $validationTypes = [
-        'ID' => 'Required, Unique,  Number',
-        'EPA' => 'Required, Text',
-        'Section' => 'Required, Text',
-        'District' => 'Required, Text',
-        'Enterprise' => 'Required, Text',
-        'Date of Recruitment' => 'Date (dd-mm-yyyy)',
-        'Name of Actor' => 'Text',
-        'Name of Representative' => 'Text',
-        'Phone Number' => 'Text',
-        'Type' => 'Text, (Choose one option)',
-        'Group' => 'Text, (Choose one option)',
-        'Approach' => 'Text, (Choose one option)',
-        'Sector' => 'Text, (Choose one option)',
-        'Members Female 18-35' => 'Number (>=0)',
-        'Members Male 18-35' => 'Number (>=0)',
-        'Members Male 35+' => 'Number (>=0)',
-        'Members Female 35+' => 'Number (>=0)',
-        'Category' => 'Text, (Choose one option)',
-        'Establishment Status' => 'New/Old, (Choose one option)',
-        'Is Registered' => 'Boolean (1/0)',
-        'Registration Body' => 'Text',
-        'Registration Number' => 'Text',
-        'Registration Date' => 'Date (dd-mm-yyyy)',
-        'Employees Formal Female 18-35' => 'Number (>=0)',
-        'Employees Formal Male 18-35' => 'Number (>=0)',
-        'Employees Formal Male 35+' => 'Number (>=0)',
-        'Employees Formal Female 35+' => 'Number (>=0)',
-        'Employees Informal Female 18-35' => 'Number (>=0)',
-        'Employees Informal Male 18-35' => 'Number (>=0)',
-        'Employees Informal Male 35+' => 'Number (>=0)',
-        'Employees Informal Female 35+' => 'Number (>=0)',
-        'Area Under Cultivation' => 'Number (>=0)',
-        'Is Registered Seed Producer' => 'Boolean (1/0)',
-        'Seed Producer Registration Number' => 'Text',
-        'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
-        'Uses Certified Seed' => 'Boolean (1/0)',
-
-    ];
+    protected $validationTypes = [];
 
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Recruitment Form']['RTC Actor Recruitment'];
     }
 
     public function collection()

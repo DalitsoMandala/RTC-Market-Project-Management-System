@@ -60,8 +60,8 @@
             is-invalid
         @enderror"
                 wire:model='location_data.enterprise'>
-                <option selected value="">Select one</option>
-                <option value="Cassava">Cassava</option>
+                <option value="">Select one</option>
+                <option selected value="Cassava">Cassava</option>
                 <option value="Potato">Potato</option>
                 <option value="Sweet potato">Sweet potato</option>
             </select>

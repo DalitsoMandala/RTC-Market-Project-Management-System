@@ -4,6 +4,7 @@ namespace App\Exports\ExportFarmer;
 
 use App\Models\RpmFarmerAggregationCenter;
 use App\Traits\ExportStylingTrait;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -14,16 +15,14 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 class RpmfAggregationCentersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
     use ExportStylingTrait;
-
+    use FormEssentials;
     public $template;
-    public $validationTypes = [
+    protected $validationTypes = [];
 
-        'Name' => 'Text',
-        'Farmer ID' => 'Exists in Production Farmers Sheet',
-    ];
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Farmers Form']['Aggregation Centers'];
     }
     public function collection()
     {
@@ -38,10 +37,7 @@ class RpmfAggregationCentersExport implements FromCollection, WithHeadings, With
     {
         // Only include the specified columns in the headings
         return [
-            [
-                'Name',
-                'Farmer ID'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }

@@ -17,12 +17,12 @@ class RtcProductionProcessorsMultiSheetExport implements WithMultipleSheets
     public function sheets(): array
     {
         return [
-            new RtcProductionProcessorsExport($this->template),
-            new RpmProcessorConcAgreementsExport($this->template),
-            new RpmProcessorDomMarketsExport($this->template),
-            new RpmProcessorInterMarketsExport($this->template),
-            new RpmpMisExport($this->template),
-            new RpmpAggregationCentersExport($this->template),
+            'Production Processors' =>  new RtcProductionProcessorsExport($this->template),
+            'Contractual Agreements' =>  new RpmProcessorConcAgreementsExport($this->template),
+            'Domestic Markets'   =>    new RpmProcessorDomMarketsExport($this->template),
+            'International Markets' =>    new RpmProcessorInterMarketsExport($this->template),
+            'Market Information Systems' => new RpmpMisExport($this->template),
+            'Aggregation Centers' =>     new RpmpAggregationCentersExport($this->template),
         ];
     }
 }

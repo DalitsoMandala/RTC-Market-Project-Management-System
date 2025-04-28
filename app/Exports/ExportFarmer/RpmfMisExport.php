@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\RpmFarmerMarketInformationSystem;
 use App\Traits\ExportStylingTrait;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
@@ -14,16 +15,14 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
     use ExportStylingTrait;
+    use FormEssentials;
     public $template;
-    public $validationTypes = [
-
-        'Name' => 'Text',
-        'Farmer ID' => 'Exists in Production Farmers Sheet',
-    ];
+    protected $validationTypes = [];
 
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Farmers Form']['Market Information Systems'];
     }
     public function collection()
     {
@@ -38,10 +37,7 @@ class RpmfMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
     {
         // Exclude 'ID' from the headings
         return [
-            [
-                'Name',
-                'Farmer ID'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }

@@ -33,6 +33,8 @@ class TestData
                 function ($query) {
                     $query->where('indicator_no', 'A1')
                         ->orWhere('indicator_no', 'B2')
+                        ->orWhere('indicator_no', '2.2.4')
+                        ->orWhere('indicator_no', '3.2.2')
                         ->orWhere('indicator_no', 'B4');
                 }
             )->get()
@@ -44,7 +46,7 @@ class TestData
             foreach (FinancialYear::all() as $financialYear) {
                 if ($indicator->forms->count() > 0) {
                     foreach ($indicator->forms as $form) {
-                        if ($financialYear->id == 3) {
+                        if ($financialYear->id == 2) {
 
                             SubmissionPeriod::create([
                                 'form_id' => $form->id,

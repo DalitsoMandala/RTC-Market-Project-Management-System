@@ -1,6 +1,6 @@
 <div>
     @section('title')
-       Forms
+        Forms
     @endsection
     <div class="container-fluid">
 
@@ -26,7 +26,10 @@
                 <div class="card ">
                     <div class="card-header fw-bold d-flex justify-content-between">
                         Forms Table
+                        <div>
+                            <livewire:export-templates />
 
+                        </div>
                     </div>
                     <div class="px-0 card-body">
                         <livewire:tables.form-table />

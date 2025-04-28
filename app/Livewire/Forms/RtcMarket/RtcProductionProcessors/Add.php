@@ -40,7 +40,7 @@ class Add extends Component
     public $form_name = 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS';
     public $selectedIndicator, $submissionPeriodId;
     public $location_data = [
-        'enterprise' => null,
+        'enterprise' => 'Cassava',
         'district' => null,
         'epa' => null,
         'section' => null,
@@ -81,7 +81,7 @@ class Add extends Component
     public $total_production_value_previous_season_seed_prevailing_price = null;
     public $total_production_value_previous_season_cuttings_prevailing_price = null;
     public $total_production_value_previous_season_produce_prevailing_price = null;
-    public $bundle_multiplier = 10;
+    public $bundle_multiplier = 4;
     public $sells_to_domestic_markets = false;
     public $sells_to_international_markets = false;
     public $uses_market_information_systems = false;

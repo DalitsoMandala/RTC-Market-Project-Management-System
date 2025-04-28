@@ -49,8 +49,10 @@ return new class extends Migration {
             $table->integer('bundles_received')->default(0)->nullable();
             $table->string('national_id')->nullable();
             $table->string('phone_number')->nullable();
+            $table->string('type_of_actor')->nullable();
+            $table->string('type_of_plot')->nullable();
             $table->enum('crop', ['OFSP', 'Potato', 'Cassava']); // Can be "OFSP" or "Potato" or "Cassava"
-            $table->tinyInteger('signed')->default(0)->nullable();
+            // $table->tinyInteger('signed')->default(0)->nullable();
             $table->string('year')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('submission_period_id')->constrained('submission_periods', 'id')->onDelete('cascade')->onUpdate('cascade'); // to track changes

@@ -5,6 +5,7 @@ namespace App\Exports\ExportFarmer;
 use Carbon\Carbon;
 use App\Traits\ExportStylingTrait;
 use App\Models\RpmFarmerConcAgreement;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -16,21 +17,14 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, WithEvents, ShouldAutoSize
 {
     use ExportStylingTrait;
+    use FormEssentials;
     public $template;
-    public $validationTypes = [
-        'Farmer ID' => 'Number, Exists in Production Farmers Sheet',
-        'Date Recorded' => 'Date (dd-mm-yyyy)',
-        'Partner Name' => 'Required, Text',
-        'Country' => 'Text',
-        'Date of Maximum Sale' => 'Date (dd-mm-yyyy)',
-        'Product Type' => 'Text, (Choose One)',
-        'Volume Sold Previous Period' => 'Number (>=0)',
-        'Financial Value of Sales' => 'Number (>=0)',
-    ];
+    protected $validationTypes = [];
 
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Farmers Form']['Contractual Agreements'];
     }
     public function collection()
     {
@@ -100,16 +94,7 @@ class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, Wit
     {
         // Only include the specified columns in the headings
         return [
-            [
-                'Farmer ID',
-                'Date Recorded',
-                'Partner Name',
-                'Country',
-                'Date of Maximum Sale',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
 
         ];

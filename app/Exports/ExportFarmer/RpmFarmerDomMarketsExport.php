@@ -5,6 +5,7 @@ namespace App\Exports\ExportFarmer;
 use Carbon\Carbon;
 use App\Models\RpmFarmerDomMarket;
 use App\Traits\ExportStylingTrait;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -17,22 +18,14 @@ class RpmFarmerDomMarketsExport implements FromCollection, WithHeadings, WithTit
 {
 
     use ExportStylingTrait;
+    use FormEssentials;
     public $template;
-    public $validationTypes = [
-        'Farmer ID' => 'Exists in Production Farmers Sheet',
-        'Date Recorded' => 'Date (dd-mm-yyyy)',
-        'Crop Type' => 'Required, Text, (Choose One)',
-        'Market Name' => 'Required, Text',
-        'District' => 'Text',
-        'Date of Maximum Sale' => 'Date (dd-mm-yyyy)',
-        'Product Type' => 'Text, (Choose One)',
-        'Volume Sold Previous Period' => 'Number (>=0)',
-        'Financial Value of Sales' => 'Number (>=0)',
-    ];
+    protected $validationTypes = [];
 
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Farmers Form']['Domestic Markets'];
     }
     public function collection()
     {
@@ -65,17 +58,7 @@ class RpmFarmerDomMarketsExport implements FromCollection, WithHeadings, WithTit
     {
         // Only include the specified columns in the headings
         return [
-            [
-                'Farmer ID',
-                'Date Recorded',
-                'Crop Type',
-                'Market Name',
-                'District',
-                'Date of Maximum Sale',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }

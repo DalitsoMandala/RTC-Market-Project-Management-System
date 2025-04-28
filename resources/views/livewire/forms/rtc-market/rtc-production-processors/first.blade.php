@@ -66,19 +66,28 @@
 
 
 
-<!-- Total Volume of Production in Previous Season (Metric Tonnes) -->
+<!-- Total Volume of Production   (Metric Tonnes) -->
 <div class="px-2 mb-3" x-data="{
     total_vol_production_previous_season: $wire.entangle('total_vol_production_previous_season'),
     total_vol_production_previous_season_produce: $wire.entangle('total_vol_production_previous_season_produce'),
     total_vol_production_previous_season_seed: $wire.entangle('total_vol_production_previous_season_seed'),
     total_vol_production_previous_season_cuttings: $wire.entangle('total_vol_production_previous_season_cuttings'),
-
+    enterprise: $wire.entangle('location_data.enterprise'),
+    bundle_multiplier: $wire.entangle('bundle_multiplier'),
+    bundle_total: 0,
 }"
-    x-effect="total_vol_production_previous_season = Number(total_vol_production_previous_season_produce || 0)
-     + Number(total_vol_production_previous_season_seed || 0) +
+    x-effect="
+
+    if(enterprise !='Potato'){
+   bundle_total = Number(total_vol_production_previous_season_seed || 0) * bundle_multiplier;
+    }else{
+    bundle_total = Number(total_vol_production_previous_season_seed || 0);
+    }
+    total_vol_production_previous_season = Number(total_vol_production_previous_season_produce || 0)
+     + bundle_total +
       Number(total_vol_production_previous_season_cuttings || 0)">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
-        Production in Previous Season (Metric Tonnes)</label>
+        Production (Metric Tonnes)</label>
 
 
     <table class="table table-bordered table-striped table-hover table-responsive">
@@ -97,7 +106,7 @@
 
             </tr>
             <tr>
-                <td>Seed (MT/Bundles)</td>
+                <td>Seed (<span x-text="enterprise === 'Potato' ? 'MT': 'Bundles'"></span>)</td>
                 <td>
                     <input type="number" min="0" step="any"
                         class="form-control @error('total_vol_production_previous_season_seed') is-invalid @enderror"
@@ -153,7 +162,6 @@
     total_production_value_previous_season_value: $wire.entangle('total_production_value_previous_season_value'),
     total_production_value_previous_season_rate: $wire.entangle('total_production_value_previous_season_rate'),
     bundle_multiplier: $wire.entangle('bundle_multiplier'),
-    dateOfFollowUp: $wire.entangle('date_of_followup'),
     cuttingsTotal: 0,
     seedTotal: 0,
     produceTotal: 0,
@@ -161,6 +169,8 @@
     lastCalculatedTotal: null, // Track the last calculated total
     dateSet: null,
     seedInputType: 'metric tonnes',
+    dateOfFollowUp: $wire.entangle('date_of_followup'),
+    enterprise: $wire.entangle('location_data.enterprise'),
 
     getProduceTotal(value, price) {
         return (parseFloat(value) || 0) * (parseFloat(price) || 0);
@@ -186,8 +196,6 @@
         return this.produceTotal + this.seedTotal + this.cuttingsTotal;
     },
     calculateTotal() {
-
-
         this.produceTotal = this.getProduceTotal(this.total_production_value_previous_season_produce_value, this.total_production_value_previous_season_produce_prevailing_price);
         this.seedTotal = this.getSeedTotal(this.total_production_value_previous_season_seed_value, this.total_production_value_previous_season_seed_prevailing_price);
         this.cuttingsTotal = this.getCuttingsTotal(this.total_production_value_previous_season_cuttings_value, this.total_production_value_previous_season_cuttings_prevailing_price);
@@ -200,7 +208,19 @@
         }
     },
 
+    init() {
+        this.$watch('enterprise', (v) => {
 
+
+            if (v === 'Potato') {
+                this.seedInputType = 'metric tonnes';
+            } else {
+                this.seedInputType = 'bundles';
+            }
+
+        })
+
+    },
 
     calculate() {
         // Only proceed if the total has changed since last calculation
@@ -208,7 +228,6 @@
         this.dateSet = dateOfFollowUp ? true : false;
 
         if (this.lastCalculatedTotal !== this.subTotal && dateOfFollowUp) {
-
             this.$wire.exchangeRateCalculateProduction();
             this.lastCalculatedTotal = this.subTotal; // Update the last calculated total
         }
@@ -235,7 +254,7 @@
         <thead>
             <tr class="">
                 <th></th>
-                <th>Type (Choose One<sup class="text-danger">*</sup>)</th>
+                <th>Type</th>
                 <th>Value (Metric Tonnes) </th>
                 <th>Prevailing Market Price per Kg/Bundle</th>
                 <th>Total</th>
@@ -249,7 +268,7 @@
                     <select class="mb-2 form-select" disabled>
                         <option value="">--Select Type--</option>
                         <option value="bundles">Bundles</option>
-                        <option selected value="mt">Metric Tonnes</option>
+                        <option selected value="mt">MT</option>
                     </select>
 
                 </td>
@@ -272,10 +291,10 @@
             <tr>
                 <td>Seed </td>
                 <td class="bundle">
-                    <select class="mb-2 form-select" x-model="seedInputType">
+                    <select class="mb-2 form-select" disabled x-model="seedInputType">
 
                         <option value="bundles">Bundles</option>
-                        <option value="metric tonnes">Metric Tonnes</option>
+                        <option value="metric tonnes">MT</option>
                     </select>
                     <input type="number" min="0" step="any" class="form-control"
                         :readonly="seedInputType !== 'bundles'" x-show="seedInputType === 'bundles'"
@@ -305,7 +324,7 @@
                     <select class="mb-2 form-select" disabled>
                         <option value="">--Select Type--</option>
                         <option value="bundles">Bundles</option>
-                        <option selected value="mt">Metric Tonnes</option>
+                        <option selected value="mt">MT</option>
                     </select>
 
                 </td>
@@ -564,7 +583,7 @@
 
 
 
-    <!-- Total Volume of RTC Sold Through Aggregation Centers in Previous Season (Metric Tonnes) -->
+    <!-- Total Volume of RTC Sold Through Aggregation Centers   (Metric Tonnes) -->
     <div class="mb-3" x-show='sells_to_aggregation_centers == 1'>
 
 
@@ -629,7 +648,7 @@
     total_vol_aggregation_center_sales: $wire.entangle('total_vol_aggregation_center_sales'),
 }">
     <label for="" class="form-label">Total Volume
-        of RTC Sold Through Aggregation Centers in Previous Season (Metric
+        of RTC Sold Through Aggregation Centers (Metric
         Tonnes)</label>
     <input type="number" min="0" step="any"
         class="form-control @error('total_vol_aggregation_center_sales') is-invalid @enderror"

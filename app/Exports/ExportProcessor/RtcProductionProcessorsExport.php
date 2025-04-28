@@ -33,14 +33,14 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
         'Market Segment Processed' => 'Boolean (1/0)',
         'Has RTC Market Contract' => 'Boolean (1/0)',
         'Total Volume Production Produce' => 'Number (>=0), (in MT)',
-        'Total Volume Production Seed Type' => 'Choose One (Metric Tonnes/Bundles)',
-        'Total Volume Production Seeed' => 'Number (>=0), (in MT or Bundles depending on Seed Type)',
+        //'Total Volume Production Seed Type' => 'Choose One (Metric Tonnes/Bundles)',
+        'Total Volume Production Seeed' => 'Number (>=0), (in MT or Bundles depending on enterprise)',
         'Total Volume Production Cuttings' => 'Number (>=0), (in MT)',
         //'Total Volume Production' => 'Number (>=0)',
         'Production Value Produce' => 'Number (>=0), (in MT)',
         'Production Value Produce Prevailing Price' => 'Number (>=0)',
-        'Production Value Seed Type' => 'Required,Choose One (Metric Tonnes/Bundles)',
-        'Production Value Seed' => 'Number (>=0), (in MT or Bundles depending on Seed Type)',
+        //  'Production Value Seed Type' => 'Required,Choose One (Metric Tonnes/Bundles)',
+        'Production Value Seed' => 'Number (>=0), (in MT or Bundles depending on enterprise)',
         'Production Value Seed Prevailing Price' => 'Number (>=0)',
         'Production Value Cuttings' => 'Number (>=0), (in MT)',
         'Production Value Cuttings Prevailing Price' => 'Number (>=0)',
@@ -83,51 +83,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
     public function headings(): array
     {
         return [
-            // [
-            //     'ID',
-            //     'EPA',
-            //     'Section',
-            //     'District',
-            //     'Enterprise',
-            //     'Date of Recruitment',
-            //     'Name of Actor',
-            //     'Name of Representative',
-            //     'Phone Number',
-            //     'Type',
-            //     'Approach',
-            //     'Sector',
-            //     'Members Female 18-35',
-            //     'Members Male 18-35',
-            //     'Members Male 35+',
-            //     'Members Female 35+',
-            //     'Group',
-            //     'Establishment Status',
-            //     'Is Registered',
-            //     'Registration Body',
-            //     'Registration Number',
-            //     'Registration Date',
-            //     'Employees Formal Female 18-35',
-            //     'Employees Formal Male 18-35',
-            //     'Employees Formal Male 35+',
-            //     'Employees Formal Female 35+',
-            //     'Employees Informal Female 18-35',
-            //     'Employees Informal Male 18-35',
-            //     'Employees Informal Male 35+',
-            //     'Employees Informal Female 35+',
-            //     'Market Segment Fresh',
-            //     'Market Segment Processed',
-            //     'Has RTC Market Contract',
-            //     'Total Volume Production Previous Season',
-            //     'Production Value Previous Season Total',
-            //     'Production Value Date of Max Sales',
-            //     'USD Rate',
-            //     'USD Value',
-            //     'Sells to Domestic Markets',
-            //     'Sells to International Markets',
-            //     'Uses Market Info Systems',
-            //     'Sells to Aggregation Centers',
-            //     'Total Volume Aggregation Center Sales'
-            // ],
+
             array_keys($this->validationTypes),
             array_values($this->validationTypes)
 
@@ -163,53 +119,7 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
 
                 $sheet = $event->sheet->getDelegate();
 
-                // // Define the dropdown options
-                // $dropdownOptions = [
 
-                //     'Producer Organization (PO)',
-                //     'Large scale farm',
-                //     'Small medium enterprise (SME)'
-
-
-                // ]; // Includes an empty option
-
-
-                // $this->setDataValidations($dropdownOptions, 'J3', $sheet);
-
-                // $dropdownOptions = [
-
-                //     'Collective production only',
-                //     'Collective marketing only',
-                //     'Knowledge Sharing only',
-                //     'Collective producing, marketing and knowledge sharing',
-                //     'NA'
-
-                // ];
-
-                // $this->setDataValidations($dropdownOptions, 'K3', $sheet);
-
-                // $dropdownOptions = [
-                //     'Private',
-                //     'Public'
-                // ];
-
-
-                // $this->setDataValidations($dropdownOptions, 'L3', $sheet);
-
-                // $dropdownOptions = [
-                //     'Other',
-
-                // ];
-
-                // $this->setDataValidations($dropdownOptions, 'Q3', $sheet);
-
-
-                // $dropdownOptions = [
-                //     'New',
-                //     'Old'
-                // ];
-
-                // $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
                 $dropdownOptions = [
 
