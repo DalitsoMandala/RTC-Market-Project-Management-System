@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
+use App\Traits\FormEssentials;
 use App\Models\SeedBeneficiary;
 use App\Traits\ExportStylingTrait;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -14,32 +15,17 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class CropSheetExportCassava extends CropSheetExport implements FromCollection, WithHeadings, WithTitle, WithEvents, ShouldAutoSize
 {
-
-    public $validationTypes = [
-        'EPA' => 'Required, Text',
-        'Section' => 'Required, Text',
-        'Name of AEDO' => 'Required, Text',
-        'AEDO Phone Number' => 'Text',
-        'Date of Distribution' => 'Date (dd-mm-yyyy)',
-        'Year Of Distribution' => 'Number',
-        'Name of Recipient' => 'Required, Text',
-        'Village' => 'Text',
-        'National ID' => 'Text',
-        'District' => 'Required, Text',
-        'Age' => 'Required, Number (>=1)',
-        'Marital Status' => 'Number',
-        'Household Head' => 'Number (>=1)',
-        'Household Size' => 'Number (>=1)',
-        'Children Under 5 in HH' => 'Number (>=0)',
-        'Sex' => 'Required, Male/Female or 1/2',
-        'Group Name' => 'Text',
-        'Type of Actor' => 'Number',
-        'Name of Plot' => 'Number',
-        'Variety Received' => 'Text, (IF Multiple separate by commas)',
-        'Amount of Seed Received' => 'Number(>=0)',
-        'Phone Number' => 'Text',
-        'Season Type' => 'Text, (Choose One)'
-    ];
+    use ExportStylingTrait;
+    use FormEssentials;
+    protected $cropType;
+    public $template = false;
+    protected $validationTypes = [];
+    public function __construct(string $cropType, $template = false)
+    {
+        $this->cropType = $cropType;
+        $this->template = $template;
+        $this->validationTypes = $this->forms['Seed Beneficiaries Form']['Cassava'];
+    }
 
 
     public function headings(): array

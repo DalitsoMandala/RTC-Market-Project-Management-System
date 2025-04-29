@@ -3,6 +3,7 @@
 namespace App\Exports\ExportFarmer;
 
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use App\Exports\RtcRecruitment\SeedServicesUnitExport;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class RtcProductionFarmersMultiSheetExport implements WithMultipleSheets, WithStrictNullComparison
@@ -26,6 +27,7 @@ class RtcProductionFarmersMultiSheetExport implements WithMultipleSheets, WithSt
             'Basic Seed' => new RpmfBasicSeedExport($this->template),
             'Certified Seed' => new RpmfCertifiedSeedExport($this->template),
             'Area Cultivation' => new RpmfAreaCultivationExport($this->template),
+            'Seed Services Unit' => new SeedServicesUnitExport($this->template),
         ];
     }
 }

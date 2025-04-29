@@ -478,7 +478,6 @@ class Add extends Component
                 'prod_value_previous_season_total' => $this->total_production_value_previous_season_value ?? 0,
                 'prod_value_previous_season_produce' => $this->total_production_value_previous_season_produce_value ?? 0,
                 'prod_value_previous_season_seed' => $this->total_production_value_previous_season_seed_value ?? 0,
-                'prod_value_previous_season_seed_bundle' => $this->total_production_value_previous_season_seed_bundle ?? 0,
                 'prod_value_previous_season_cuttings' => $this->total_production_value_previous_season_cuttings ?? 0,
                 'prod_value_produce_prevailing_price' => $this->total_production_value_previous_season_cuttings_prevailing_price ?? 0,
                 'prod_value_seed_prevailing_price' => $this->total_production_value_previous_season_produce_prevailing_price ?? 0,

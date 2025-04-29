@@ -17,14 +17,13 @@ class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
 {
     use ExportStylingTrait;
     public $template;
-    public $validationTypes = [
+    use \App\Traits\FormEssentials;
+    protected $validationTypes = [];
 
-        'Name' => 'Text',
-        'Processor ID' => 'Exists in Production Processors Sheet',
-    ];
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Processors Form']['Market Information Systems'];
     }
     public function collection()
     {

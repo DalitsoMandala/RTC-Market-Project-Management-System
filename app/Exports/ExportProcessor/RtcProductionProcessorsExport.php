@@ -20,49 +20,13 @@ class RtcProductionProcessorsExport implements FromCollection, WithHeadings, Wit
     protected $rowNumber = 0;
 
     public $template;
-
-    public $validationTypes = [
-        'ID' => 'Required, Number',
-        'Group Name' => 'Required, Text',
-        'Date Of Follow Up' => 'Required, Date (dd-mm-yyyy)',
-        'EPA' => 'Required, Text',
-        'Section' => 'Required, Text',
-        'District' => 'Required, Text',
-        'Enterprise' => 'Required, Text',
-        'Market Segment Fresh' => 'Boolean (1/0)',
-        'Market Segment Processed' => 'Boolean (1/0)',
-        'Has RTC Market Contract' => 'Boolean (1/0)',
-        'Total Volume Production Produce' => 'Number (>=0), (in MT)',
-        //'Total Volume Production Seed Type' => 'Choose One (Metric Tonnes/Bundles)',
-        'Total Volume Production Seeed' => 'Number (>=0), (in MT or Bundles depending on enterprise)',
-        'Total Volume Production Cuttings' => 'Number (>=0), (in MT)',
-        //'Total Volume Production' => 'Number (>=0)',
-        'Production Value Produce' => 'Number (>=0), (in MT)',
-        'Production Value Produce Prevailing Price' => 'Number (>=0)',
-        //  'Production Value Seed Type' => 'Required,Choose One (Metric Tonnes/Bundles)',
-        'Production Value Seed' => 'Number (>=0), (in MT or Bundles depending on enterprise)',
-        'Production Value Seed Prevailing Price' => 'Number (>=0)',
-        'Production Value Cuttings' => 'Number (>=0), (in MT)',
-        'Production Value Cuttings Prevailing Price' => 'Number (>=0)',
-        // 'Production Value Total' => 'Number (>=0)',
-        // 'Production Value Date of Maximum Sales' => 'Date (dd-mm-yyyy)',
-        /**
-         * Production Value USD can be calculated or manually entered
-         */
-        //  'Production Value USD Rate' => 'Number (>=0)',
-        //  'Production Value USD Financial Value' => 'Number (>=0)',
-
-        'Sells to Domestic Markets' => 'Boolean (1/0)',
-        'Sells to International Markets' => 'Boolean (1/0)',
-        'Uses Market Info Systems' => 'Boolean (1/0)',
-        'Sells to Aggregation Centers' => 'Boolean (1/0)',
-        'Total Volume Aggregation Center Sales' => 'Number (>=0)',
-    ];
+    use \App\Traits\FormEssentials;
+    protected $validationTypes = [];
 
     public function __construct($template)
     {
-
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Processors Form']['Production Processors'];
     }
     public function collection()
     {

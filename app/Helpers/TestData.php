@@ -2,23 +2,23 @@
 
 namespace App\Helpers;
 
-use Carbon\Carbon;
+use App\Helpers\DistrictObject;
+use App\Models\AttendanceRegister;
+use App\Models\FarmerSeedRegistration;
+use App\Models\FinancialYear;
+use App\Models\HouseholdRtcConsumption;
 use App\Models\Indicator;
 use App\Models\Recruitment;
-use Faker\Factory as Faker;
-use App\Models\FinancialYear;
-use App\Helpers\DistrictObject;
+use App\Models\RecruitSeedRegistration;
+use App\Models\RtcProductionFarmer;
+use App\Models\RtcProductionProcessor;
+use App\Models\SchoolRtcConsumption;
 use App\Models\SeedBeneficiary;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\SubmissionTarget;
-use App\Models\AttendanceRegister;
-use App\Models\FarmerSeedRegistration;
-use App\Models\RtcProductionFarmer;
-use App\Models\SchoolRtcConsumption;
-use App\Models\RtcProductionProcessor;
-use App\Models\HouseholdRtcConsumption;
-use App\Models\RecruitSeedRegistration;
+use Carbon\Carbon;
+use Faker\Factory as Faker;
 
 class TestData
 {
@@ -27,27 +27,22 @@ class TestData
         //
         $dateEstablished = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');  // Today's date
         $dateEnding = Carbon::now()->addMonth()->startOfDay()->format('Y-m-d H:i:s');  // Date one month from today
-
-        foreach (
-            Indicator::with('forms', 'disaggregations')->where(
-                function ($query) {
-                    $query->where('indicator_no', 'A1')
-                        ->orWhere('indicator_no', 'B2')
-                        ->orWhere('indicator_no', '2.2.4')
-                        ->orWhere('indicator_no', '3.2.2')
-                        ->orWhere('indicator_no', 'B4');
-                }
-            )->get()
-
-
-            as $index => $indicator
-        ) {
+        $indicatorData = Indicator::with('forms', 'disaggregations')->where(
+            function ($query) {
+                $query
+                    ->where('indicator_no', 'A1')
+                    ->orWhere('indicator_no', 'B2')
+                    ->orWhere('indicator_no', '2.2.4')
+                    ->orWhere('indicator_no', '3.2.2')
+                    ->orWhere('indicator_no', 'B4');
+            }
+        )->get();
+        foreach ($indicatorData as $index => $indicator) {
             $indicatorDis = $indicator->disaggregations->first();
             foreach (FinancialYear::all() as $financialYear) {
                 if ($indicator->forms->count() > 0) {
                     foreach ($indicator->forms as $form) {
                         if ($financialYear->id == 2) {
-
                             SubmissionPeriod::create([
                                 'form_id' => $form->id,
                                 'date_established' => $dateEstablished,
@@ -59,11 +54,12 @@ class TestData
                                 'is_expired' => false,
                             ]);
 
-                            $target = SubmissionTarget::where('indicator_id', $indicator->id)->where('target_name', $indicatorDis->name)
+                            $target = SubmissionTarget::where('indicator_id', $indicator->id)
+                                ->where('target_name', $indicatorDis->name)
                                 ->where('financial_year_id', $financialYear->id)
                                 ->first();
                             if (!$target) {
-                                $target = SubmissionTarget::create([
+                                SubmissionTarget::create([
                                     'financial_year_id' => $financialYear->id,
                                     'indicator_id' => $indicator->id,
                                     'target_name' => $indicatorDis->name,
@@ -72,29 +68,9 @@ class TestData
                             }
                         }
                     }
-
-
-
-                    //    dd($indicatorDis);
-                    // SubmissionTarget::create([
-                    //     //     'month_range_period_id' => 1,
-                    //     'financial_year_id' => $financialYear->id,
-                    //     'indicator_id' => $indicator->id,
-                    //     'target_name' => $indicatorDis->name,
-                    //     'target_value' => rand(50, 100) * 10,
-                    // ]);
-
-                    // $array[] = [
-                    //     //     //     'month_range_period_id' => 1,
-                    //     'financial_year_id' => $financialYear->id,
-                    //     'indicator_id' => $indicator->id,
-                    //     'target_name' => $indicatorDis->name,
-                    //     'target_value' => rand(50, 100) * 10,
-                    // ];
                 }
             }
         }
-
 
         function hrc()
         {
@@ -171,12 +147,9 @@ class TestData
             ];
         }
 
-
         $data = [];
 
-
         foreach (range(1, 10) as $index) {
-
             $data = HouseholdRtcConsumption::create(hrc());
 
             $faker = Faker::create();
@@ -189,11 +162,8 @@ class TestData
             ]);
         }
 
-
         function rpmf()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -207,50 +177,48 @@ class TestData
             ];
             return [
                 'main' => [
-                    'epa' => $faker->word, // Random word for epa
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'section' => $faker->word, // Random word for section
+                    'epa' => $faker->word,  // Random word for epa
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'section' => $faker->word,  // Random word for section
                     'enterprise' => $faker->randomElement([
                         'Cassava',
                         'Sweet potato',
                         'Potato'
                     ]),
-
-                    'date_of_followup' => $faker->date, // Random date
+                    'date_of_followup' => $faker->date,  // Random date
                     'number_of_plantlets_produced_cassava' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for plantlets produced (cassava)
+                    ]) * 10,  // Random number for plantlets produced (cassava)
                     'number_of_plantlets_produced_potato' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for plantlets produced (potato)
+                    ]) * 10,  // Random number for plantlets produced (potato)
                     'number_of_plantlets_produced_sweet_potato' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for plantlets produced (sweet potato)
+                    ]) * 10,  // Random number for plantlets produced (sweet potato)
                     'number_of_screen_house_vines_harvested' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for vines harvested
+                    ]) * 10,  // Random number for vines harvested
                     'number_of_screen_house_min_tubers_harvested' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for tubers harvested
+                    ]) * 10,  // Random number for tubers harvested
                     'number_of_sah_plants_produced' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for SAH plants produced
-                    'is_registered_seed_producer' => $faker->boolean, // Random boolean for registered seed producer
-                    'uses_certified_seed' => $faker->boolean, // Random boolean
-                    'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
-                    'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
-                    'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
+                    ]) * 10,  // Random number for SAH plants produced
+                    'is_registered_seed_producer' => $faker->boolean,  // Random boolean for registered seed producer
+                    'uses_certified_seed' => $faker->boolean,  // Random boolean
+                    'market_segment_fresh' => $faker->boolean,  // Random boolean for fresh market segment
+                    'market_segment_processed' => $faker->boolean,  // Random boolean for processed market segment
+                    'has_rtc_market_contract' => $faker->boolean,  // Random boolean for market contract
                     'total_vol_production_previous_season' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for production (metric tonnes)
-
+                    ]) * 10,  // Random volume for production (metric tonnes)
                     'total_vol_production_previous_season' => $faker->numberBetween(1, 10),
                     'total_vol_production_previous_season_produce' => $faker->numberBetween(1, 10),
                     'total_vol_production_previous_season_seed' => $faker->numberBetween(1, 10),
@@ -276,27 +244,25 @@ class TestData
                     'irr_prod_value_produce_prevailing_price' => $faker->numberBetween(1, 10),
                     'irr_prod_value_seed_prevailing_price' => $faker->numberBetween(1, 10),
                     'irr_prod_value_cuttings_prevailing_price' => $faker->numberBetween(1, 10),
-                    'irr_prod_value_previous_season_date_of_max_sales' =>  $faker->date,
+                    'irr_prod_value_previous_season_date_of_max_sales' => $faker->date,
                     'irr_prod_value_previous_season_usd_rate' => $faker->numberBetween(1, 10),
                     'irr_prod_value_previous_season_usd_value' => $faker->numberBetween(1, 10),
-                    'sells_to_domestic_markets' => $faker->boolean, // Random boolean
-                    'sells_to_international_markets' => $faker->boolean, // Random boolean
-                    'uses_market_information_systems' => $faker->boolean, // Random boolean
-                    'user_id' => 3, // Random user ID
-                    'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
-                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                    'status' => 'approved', // Fixed value
-                    'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
+                    'sells_to_domestic_markets' => $faker->boolean,  // Random boolean
+                    'sells_to_international_markets' => $faker->boolean,  // Random boolean
+                    'uses_market_information_systems' => $faker->boolean,  // Random boolean
+                    'user_id' => 3,  // Random user ID
+                    'uuid' => $faker->uuid,  // Random UUID
+                    'submission_period_id' => 4,  // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2]),  // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                    'status' => 'approved',  // Fixed value
+                    'sells_to_aggregation_centers' => $faker->boolean,  // Random boolean for selling to aggregation centers
                     'total_vol_aggregation_center_sales' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for aggregation center sales
-
+                    ]) * 10,  // Random volume for aggregation center sales
                 ],
-
                 'cultivation' => [
                     'variety' => $faker->word(),
                     'area' => $faker->randomElement([
@@ -311,7 +277,6 @@ class TestData
                         20
                     ]) * 10
                 ],
-
                 'area_under_certified_seed_multiplication' => [
                     'variety' => $faker->word(),
                     'area' => $faker->randomElement([
@@ -319,88 +284,69 @@ class TestData
                         20
                     ]) * 10
                 ],
-
                 'aggregation_center_sales' => [
                     'name' => $faker->word(),
-
                 ],
-
                 'market_information_systems' => [
                     'name' => $faker->word(),
                 ],
-
                 'conc_aggrement' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'partner_name' => $faker->company, // Random company name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'partner_name' => $faker->company,  // Random company name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'domestic' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'inter' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
-
-
-
-
             ];
         }
 
-
         $data = [];
-
 
         foreach (range(1, 10) as $index) {
             $data = rpmf();
@@ -417,17 +363,14 @@ class TestData
             $faker = Faker::create();
             FarmerSeedRegistration::create([
                 'farmer_id' => $index,
-                'reg_no' => "reg_" . now(),
+                'reg_no' => 'reg_' . now(),
                 'reg_date' => now(),
                 'variety' => $faker->randomElement(['Chuma', 'Thandizo', 'Mathutu'])
             ]);
         }
 
-
         function rpmfFU()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -445,69 +388,67 @@ class TestData
                     // 'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
                     // 'section' => $faker->word, // Random word for section
                     // 'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),
-                    'date_of_follow_up' => $faker->date, // Random date
-
+                    'date_of_follow_up' => $faker->date,  // Random date
                     'number_of_plantlets_produced_cassava' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for plantlets produced (cassava)
+                    ]) * 10,  // Random number for plantlets produced (cassava)
                     'number_of_plantlets_produced_potato' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for plantlets produced (potato)
+                    ]) * 10,  // Random number for plantlets produced (potato)
                     'number_of_plantlets_produced_sweet_potato' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for plantlets produced (sweet potato)
+                    ]) * 10,  // Random number for plantlets produced (sweet potato)
                     'number_of_screen_house_vines_harvested' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for vines harvested
+                    ]) * 10,  // Random number for vines harvested
                     'number_of_screen_house_min_tubers_harvested' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for tubers harvested
+                    ]) * 10,  // Random number for tubers harvested
                     'number_of_sah_plants_produced' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random number for SAH plants produced
-                    'is_registered_seed_producer' => $faker->boolean, // Random boolean for registered seed producer
-                    'registration_number_seed_producer' => $faker->unique()->numerify('SEED-####'), // Random seed registration number
-                    'registration_date_seed_producer' => $faker->date, // Random date for seed producer registration
-                    'uses_certified_seed' => $faker->boolean, // Random boolean
-                    'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
-                    'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
-                    'market_segment_seed' => $faker->boolean, // Random boolean for seed market segment
-                    'market_segment_cuttings' => $faker->boolean, // Random boolean for fertilizer market segmen
-                    'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
+                    ]) * 10,  // Random number for SAH plants produced
+                    'is_registered_seed_producer' => $faker->boolean,  // Random boolean for registered seed producer
+                    'registration_number_seed_producer' => $faker->unique()->numerify('SEED-####'),  // Random seed registration number
+                    'registration_date_seed_producer' => $faker->date,  // Random date for seed producer registration
+                    'uses_certified_seed' => $faker->boolean,  // Random boolean
+                    'market_segment_fresh' => $faker->boolean,  // Random boolean for fresh market segment
+                    'market_segment_processed' => $faker->boolean,  // Random boolean for processed market segment
+                    'market_segment_seed' => $faker->boolean,  // Random boolean for seed market segment
+                    'market_segment_cuttings' => $faker->boolean,  // Random boolean for fertilizer market segmen
+                    'has_rtc_market_contract' => $faker->boolean,  // Random boolean for market contract
                     'total_vol_production_previous_season' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for production (metric tonnes)
-                    'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
-                    'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
-                    'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
-                    'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value
+                    ]) * 10,  // Random volume for production (metric tonnes)
+                    'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10,  // Random float for total production value
+                    'prod_value_previous_season_date_of_max_sales' => $faker->date,  // Random date for max sales
+                    'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.1),  // Random USD rate
+                    'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10,  // Random USD value
                     'total_vol_irrigation_production_previous_season' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for irrigation production
-                    'irr_prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random total value for irrigation production
-                    'irr_prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales (irrigation)
-                    'irr_prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate for irrigation
-                    'irr_prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value for irrigation
-                    'sells_to_domestic_markets' => $faker->boolean, // Random boolean
-                    'sells_to_international_markets' => $faker->boolean, // Random boolean
-                    'uses_market_information_systems' => $faker->boolean, // Random boolean
-                    'user_id' => 3, // Random user ID
-                    'status' => 'approved', // Fixed value
-                    'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
+                    ]) * 10,  // Random volume for irrigation production
+                    'irr_prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10,  // Random total value for irrigation production
+                    'irr_prod_value_previous_season_date_of_max_sales' => $faker->date,  // Random date for max sales (irrigation)
+                    'irr_prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.1),  // Random USD rate for irrigation
+                    'irr_prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10,  // Random USD value for irrigation
+                    'sells_to_domestic_markets' => $faker->boolean,  // Random boolean
+                    'sells_to_international_markets' => $faker->boolean,  // Random boolean
+                    'uses_market_information_systems' => $faker->boolean,  // Random boolean
+                    'user_id' => 3,  // Random user ID
+                    'status' => 'approved',  // Fixed value
+                    'sells_to_aggregation_centers' => $faker->boolean,  // Random boolean for selling to aggregation centers
                     'total_vol_aggregation_center_sales' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for aggregation center sales
+                    ]) * 10,  // Random volume for aggregation center sales
                 ],
-
                 'cultivation' => [
                     'variety' => $faker->word(),
                     'area' => $faker->randomElement([
@@ -522,7 +463,6 @@ class TestData
                         20
                     ]) * 10
                 ],
-
                 'area_under_certified_seed_multiplication' => [
                     'variety' => $faker->word(),
                     'area' => $faker->randomElement([
@@ -530,79 +470,65 @@ class TestData
                         20
                     ]) * 10
                 ],
-
                 'aggregation_center_sales' => [
                     'name' => $faker->word(),
-
                 ],
-
                 'market_information_systems' => [
                     'name' => $faker->word(),
                 ],
-
                 'conc_aggrement' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'partner_name' => $faker->company, // Random company name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'partner_name' => $faker->company,  // Random company name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'domestic' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'inter' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
-
             ];
         }
 
@@ -621,12 +547,8 @@ class TestData
         //     $faker = Faker::create();
         // }
 
-
-
         function rpmp()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -640,19 +562,18 @@ class TestData
             ];
             return [
                 'main' => [
-                    'epa' => $faker->word, // Random word for epa
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'section' => $faker->word, // Random word for section
+                    'epa' => $faker->word,  // Random word for epa
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'section' => $faker->word,  // Random word for section
                     'enterprise' => $faker->randomElement([
                         'Cassava',
                         'Sweet potato',
                         'Potato'
                     ]),
-
-                    'date_of_followup' => $faker->date, // Random date
-                    'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
-                    'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
-                    'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
+                    'date_of_followup' => $faker->date,  // Random date
+                    'market_segment_fresh' => $faker->boolean,  // Random boolean for fresh market segment
+                    'market_segment_processed' => $faker->boolean,  // Random boolean for processed market segment
+                    'has_rtc_market_contract' => $faker->boolean,  // Random boolean for market contract
                     'total_vol_production_previous_season' => $faker->numberBetween(1, 10),
                     'total_vol_production_previous_season_produce' => $faker->numberBetween(1, 10),
                     'total_vol_production_previous_season_seed' => $faker->numberBetween(1, 10),
@@ -667,106 +588,87 @@ class TestData
                     'prod_value_previous_season_date_of_max_sales' => $faker->date,
                     'prod_value_previous_season_usd_rate' => $faker->numberBetween(1, 10),
                     'prod_value_previous_season_usd_value' => $faker->numberBetween(1, 10),
-                    'sells_to_domestic_markets' => $faker->boolean, // Random boolean
-                    'sells_to_international_markets' => $faker->boolean, // Random boolean
-                    'uses_market_information_systems' => $faker->boolean, // Random boolean
-                    'user_id' => 3, // Random user ID
-                    'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
-                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                    'status' => 'approved', // Fixed value
-                    'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
+                    'sells_to_domestic_markets' => $faker->boolean,  // Random boolean
+                    'sells_to_international_markets' => $faker->boolean,  // Random boolean
+                    'uses_market_information_systems' => $faker->boolean,  // Random boolean
+                    'user_id' => 3,  // Random user ID
+                    'uuid' => $faker->uuid,  // Random UUID
+                    'submission_period_id' => 4,  // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2]),  // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                    'status' => 'approved',  // Fixed value
+                    'sells_to_aggregation_centers' => $faker->boolean,  // Random boolean for selling to aggregation centers
                     'total_vol_aggregation_center_sales' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for aggregation center sales
-
+                    ]) * 10,  // Random volume for aggregation center sales
                 ],
-
-
-
-
-
                 'aggregation_center_sales' => [
                     'name' => $faker->word(),
-
                 ],
-
                 'market_information_systems' => [
                     'name' => $faker->word(),
                 ],
-
                 'conc_aggrement' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'partner_name' => $faker->company, // Random company name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'partner_name' => $faker->company,  // Random company name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'domestic' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'inter' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
-
             ];
         }
+
         foreach (range(1, 10) as $index) {
             $data = rpmp();
             $farmer = RtcProductionProcessor::create($data['main']);
-
 
             $farmer->marketInformationSystems()->create($data['market_information_systems']);
             $farmer->aggregationCenters()->create($data['aggregation_center_sales']);
@@ -775,11 +677,8 @@ class TestData
             //   $farmer->agreements()->create($data['conc_aggrement']);
         }
 
-
         function rpmpFU()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -797,32 +696,29 @@ class TestData
                     // 'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
                     // 'section' => $faker->word, // Random word for section
                     // 'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),
-                    'date_of_follow_up' => $faker->date, // Random date
-
-
-                    'market_segment_fresh' => $faker->boolean, // Random boolean for fresh market segment
-                    'market_segment_processed' => $faker->boolean, // Random boolean for processed market segment
-                    'has_rtc_market_contract' => $faker->boolean, // Random boolean for market contract
+                    'date_of_follow_up' => $faker->date,  // Random date
+                    'market_segment_fresh' => $faker->boolean,  // Random boolean for fresh market segment
+                    'market_segment_processed' => $faker->boolean,  // Random boolean for processed market segment
+                    'has_rtc_market_contract' => $faker->boolean,  // Random boolean for market contract
                     'total_vol_production_previous_season' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for production (metric tonnes)
-                    'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10, // Random float for total production value
-                    'prod_value_previous_season_date_of_max_sales' => $faker->date, // Random date for max sales
-                    'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.10), // Random USD rate
-                    'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10, // Random USD value
-                    'sells_to_domestic_markets' => $faker->boolean, // Random boolean
-                    'sells_to_international_markets' => $faker->boolean, // Random boolean
-                    'uses_market_information_systems' => $faker->boolean, // Random boolean
-                    'user_id' => 3, // Random user ID
-                    'status' => 'approved', // Fixed value
-                    'sells_to_aggregation_centers' => $faker->boolean, // Random boolean for selling to aggregation centers
+                    ]) * 10,  // Random volume for production (metric tonnes)
+                    'prod_value_previous_season_total' => $faker->randomFloat(2, 1, 10) * 10,  // Random float for total production value
+                    'prod_value_previous_season_date_of_max_sales' => $faker->date,  // Random date for max sales
+                    'prod_value_previous_season_usd_rate' => $faker->randomFloat(2, 0.8, 1.1),  // Random USD rate
+                    'prod_value_previous_season_usd_value' => $faker->randomFloat(2, 1, 10) * 10,  // Random USD value
+                    'sells_to_domestic_markets' => $faker->boolean,  // Random boolean
+                    'sells_to_international_markets' => $faker->boolean,  // Random boolean
+                    'uses_market_information_systems' => $faker->boolean,  // Random boolean
+                    'user_id' => 3,  // Random user ID
+                    'status' => 'approved',  // Fixed value
+                    'sells_to_aggregation_centers' => $faker->boolean,  // Random boolean for selling to aggregation centers
                     'total_vol_aggregation_center_sales' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume for aggregation center sales
+                    ]) * 10,  // Random volume for aggregation center sales
                 ],
-
                 'cultivation' => [
                     'variety' => $faker->word(),
                     'area' => $faker->randomElement([
@@ -837,7 +733,6 @@ class TestData
                         20
                     ]) * 10
                 ],
-
                 'area_under_certified_seed_multiplication' => [
                     'variety' => $faker->word(),
                     'area' => $faker->randomElement([
@@ -845,79 +740,65 @@ class TestData
                         20
                     ]) * 10
                 ],
-
                 'aggregation_center_sales' => [
                     'name' => $faker->word(),
-
                 ],
-
                 'market_information_systems' => [
                     'name' => $faker->word(),
                 ],
-
                 'conc_aggrement' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'partner_name' => $faker->company, // Random company name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'partner_name' => $faker->company,  // Random company name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'domestic' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
                 'inter' => [
-
-                    'date_recorded' => $faker->dateTimeThisYear(), // Random date recorded this year
-                    'crop_type' => $faker->randomElement($crops), // Random crop type
-                    'market_name' => $faker->company, // Random market name
-                    'country' => $faker->country, // Random country
-                    'date_of_maximum_sale' => $faker->date(), // Random date of maximum sale
+                    'date_recorded' => $faker->dateTimeThisYear(),  // Random date recorded this year
+                    'crop_type' => $faker->randomElement($crops),  // Random crop type
+                    'market_name' => $faker->company,  // Random market name
+                    'country' => $faker->country,  // Random country
+                    'date_of_maximum_sale' => $faker->date(),  // Random date of maximum sale
                     'product_type' => $faker->randomElement([
                         'Seed',
                         'Ware',
                         'Value added products'
                     ]),
-
                     'volume_sold_previous_period' => $faker->randomElement([
                         10,
                         20
-                    ]) * 10, // Random volume sold
-                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10, // Random financial value of sales
+                    ]) * 10,  // Random volume sold
+                    'financial_value_of_sales' => $faker->randomFloat(2, 1, 10) * 10,  // Random financial value of sales
                     ...$dates
                 ],
-
-
             ];
         }
 
@@ -934,11 +815,8 @@ class TestData
             $faker = Faker::create();
         }
 
-
         function src()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -952,12 +830,11 @@ class TestData
             ];
             return [
                 'main' => [
-
-                    'epa' => $faker->word, // Random word for epa
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'section' => $faker->word, // Random word for section
-                    "school_name" => $faker->word,
-                    "date" => $faker->date,
+                    'epa' => $faker->word,  // Random word for epa
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'section' => $faker->word,  // Random word for section
+                    'school_name' => $faker->word,
+                    'date' => $faker->date,
                     //     "crop" => $faker->randomElement($crops),
                     'crop_cassava' => $faker->randomElement([
                         1,
@@ -971,30 +848,27 @@ class TestData
                         1,
                         0
                     ]),
-                    "male_count" => $faker->randomElement([
+                    'male_count' => $faker->randomElement([
                         10,
                         20
                     ]) * 10,
-                    "female_count" => $faker->randomElement([
+                    'female_count' => $faker->randomElement([
                         10,
                         20
                     ]) * 10,
-                    "total" => $faker->randomElement([
+                    'total' => $faker->randomElement([
                         10,
                         20
                     ]) * 10,
-                    'user_id' => 3, // Random user ID
-                    'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
-                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                    'status' => 'approved', // Fixed value
+                    'user_id' => 3,  // Random user ID
+                    'uuid' => $faker->uuid,  // Random UUID
+                    'submission_period_id' => 4,  // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2]),  // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                    'status' => 'approved',  // Fixed value
                     ...$dates
                 ],
-
-
-
             ];
         }
 
@@ -1003,11 +877,8 @@ class TestData
             SchoolRtcConsumption::create(src()['main']);
         }
 
-
         function att()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -1021,51 +892,44 @@ class TestData
             ];
             return [
                 'main' => [
-
-                    'meetingTitle' => $faker->sentence(3), // Random sentence with 3 words
+                    'meetingTitle' => $faker->sentence(3),  // Random sentence with 3 words
                     'meetingCategory' => $faker->randomElement([
                         'Training',
                         'Meeting',
                         'Workshop'
-
-                    ]), // Random word
-                    'rtcCrop_cassava' => $faker->boolean, // True/False (assuming it's a boolean)
-                    'rtcCrop_potato' => $faker->boolean, // True/False
-                    'rtcCrop_sweet_potato' => $faker->boolean, // True/False
-                    'venue' => $faker->city, // Random city name
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random city for district
-                    'startDate' => $faker->date, // Random date
-                    'endDate' => $faker->date, // Random date
-                    'totalDays' => $faker->numberBetween(1, 14), // Random number between 1 and 14
-                    'name' => $faker->name, // Random full name
+                    ]),  // Random word
+                    'rtcCrop_cassava' => $faker->boolean,  // True/False (assuming it's a boolean)
+                    'rtcCrop_potato' => $faker->boolean,  // True/False
+                    'rtcCrop_sweet_potato' => $faker->boolean,  // True/False
+                    'venue' => $faker->city,  // Random city name
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random city for district
+                    'startDate' => $faker->date,  // Random date
+                    'endDate' => $faker->date,  // Random date
+                    'totalDays' => $faker->numberBetween(1, 14),  // Random number between 1 and 14
+                    'name' => $faker->name,  // Random full name
                     'sex' => $faker->randomElement([
                         'Male',
                         'Female'
-                    ]), // Random gender
-                    'organization' => $faker->company, // Random company/organization name
+                    ]),  // Random gender
+                    'organization' => $faker->company,  // Random company/organization name
                     'designation' => $faker->randomElement([
                         'Farmer',
                         'Processor',
                         'Trader',
                         'Partner',
                         'Staff'
-                    ]), // Random job title
-                    'phone_number' => $faker->phoneNumber, // Random phone number
-                    'email' => $faker->unique()->safeEmail, // Random unique email
-                    'user_id' => 3, // Random user ID
-                    'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
-                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                    'status' => 'approved', // Fixed value
+                    ]),  // Random job title
+                    'phone_number' => $faker->phoneNumber,  // Random phone number
+                    'email' => $faker->unique()->safeEmail,  // Random unique email
+                    'user_id' => 3,  // Random user ID
+                    'uuid' => $faker->uuid,  // Random UUID
+                    'submission_period_id' => 4,  // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2]),  // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                    'status' => 'approved',  // Fixed value
                     ...$dates
-
-
                 ],
-
-
-
             ];
         }
 
@@ -1074,15 +938,11 @@ class TestData
             AttendanceRegister::create(attributes: att()['main']);
         }
 
-
-
-
         foreach (range(1, 10) as $index) {
             $faker = Faker::create();
 
             foreach (Indicator::with(['disaggregations', 'forms', 'organisation'])->get() as $indicator) {
                 $disagg = $indicator->disaggregations;
-
 
                 $organizations = $indicator->organisation->pluck('id')->toArray();
                 $dataAndDisagg = [];
@@ -1095,13 +955,13 @@ class TestData
                     }
 
                     SubmissionReport::create([
-                        'user_id' => $faker->numberBetween(4, 7), // Random user ID
-                        'uuid' => $faker->uuid, // Random UUID
-                        'submission_period_id' => 4, // Random submission period ID
-                        'organisation_id' => $faker->randomElement($organizations), // Random organisation ID
-                        'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                        'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                        'status' => 'approved', // Fixed value
+                        'user_id' => $faker->numberBetween(4, 7),  // Random user ID
+                        'uuid' => $faker->uuid,  // Random UUID
+                        'submission_period_id' => 4,  // Random submission period ID
+                        'organisation_id' => $faker->randomElement($organizations),  // Random organisation ID
+                        'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                        'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                        'status' => 'approved',  // Fixed value
                         'indicator_id' => $indicator->id,
                         'data' => json_encode($dataAndDisagg)
                     ]);
@@ -1109,13 +969,8 @@ class TestData
             }
         }
 
-
-
-
         function seed_distribution()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -1127,10 +982,6 @@ class TestData
                 'Potato',
                 'Cassava'
             ];
-
-
-
-
 
             return [
                 'main' => [
@@ -1146,39 +997,32 @@ class TestData
                     'village' => $faker->state,
                     'sex' => $faker->randomElement([1, 2]),
                     'age' => $faker->randomNumber(2),
-                    'marital_status' =>  $faker->randomElement([1, 2, 3]),
+                    'marital_status' => $faker->randomElement([1, 2, 3]),
                     'hh_head' => 1,
                     'household_size' => $faker->randomElement([1, 2, 3]),
                     'children_under_5' => $faker->randomElement([1, 2, 3]),
-                    'variety_received' =>  '1,2',
+                    'variety_received' => '1,2',
                     'bundles_received' => random_int(1, 100),
                     'phone_number' => $faker->phoneNumber(),
                     'national_id' => $faker->hexColor(),
-                    'user_id' => $faker->numberBetween(4, 7), // Random user ID
-                    'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => $faker->randomElement([1, 2, 3]), // Random organisation ID
-                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                    'status' => 'approved', // Fixed value
-
-
+                    'user_id' => $faker->numberBetween(4, 7),  // Random user ID
+                    'uuid' => $faker->uuid,  // Random UUID
+                    'submission_period_id' => 4,  // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2, 3]),  // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                    'status' => 'approved',  // Fixed value
                 ]
             ];
         }
-
-
 
         foreach (range(1, 10) as $index) {
             $data = seed_distribution();
             SeedBeneficiary::create(attributes: $data['main']);
         }
 
-
         function recruits()
         {
-
-
             $faker = Faker::create();
             $dates = [
                 'created_at' => now()->toDateTimeString(),
@@ -1191,65 +1035,59 @@ class TestData
                 'Cassava'
             ];
 
-
-
-
-
             return [
                 'main' => [
-                    'rc_id' => $faker->unique()->uuid, // Unique RC ID
-                    'epa' => $faker->randomElement(DistrictObject::ePAs()), // Random EPA
-                    'section' => $faker->word, // Random section
-                    'district' => $faker->randomElement(DistrictObject::districts()), // Random district
-                    'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']), // Random enterprise
+                    'rc_id' => $faker->unique()->uuid,  // Unique RC ID
+                    'epa' => $faker->randomElement(DistrictObject::ePAs()),  // Random EPA
+                    'section' => $faker->word,  // Random section
+                    'district' => $faker->randomElement(DistrictObject::districts()),  // Random district
+                    'enterprise' => $faker->randomElement(['Cassava', 'Sweet potato', 'Potato']),  // Random enterprise
                     //    'date_of_recruitment' => $faker->date(), // Random date
-                    'name_of_actor' => $faker->name, // Random name
-                    'name_of_representative' => $faker->name, // Random name
-                    'phone_number' => $faker->phoneNumber(), // Random phone number
-                    'type' => $faker->randomElement(['Type A', 'Type B', 'Type C']), // Random type
-                    'group' => $faker->word, // Random group
-                    'approach' => $faker->randomElement(['Approach 1', 'Approach 2', 'Approach 3']), // Random approach
-                    'mem_female_18_35' => $faker->numberBetween(0, 100), // Random number
-                    'mem_male_18_35' => $faker->numberBetween(0, 100), // Random number
-                    'mem_male_35_plus' => $faker->numberBetween(0, 100), // Random number
-                    'mem_female_35_plus' => $faker->numberBetween(0, 100), // Random number
-                    'sector' => $faker->randomElement(['Agriculture', 'Manufacturing', 'Services']), // Random sector
-                    'category' => $faker->randomElement(['Category A', 'Category B', 'Category C']), // Random category
-                    'establishment_status' => $faker->randomElement(['New', 'Old']), // Random establishment status
-                    'is_registered' => $faker->boolean, // Random boolean
-                    'registration_body' => $faker->company, // Random registration body
-                    'registration_number' => $faker->uuid, // Random registration number
-                    'registration_date' => $faker->date(), // Random registration date
-                    'emp_formal_female_18_35' => $faker->numberBetween(0, 100), // Random number
-                    'emp_formal_male_18_35' => $faker->numberBetween(0, 100), // Random number
-                    'emp_formal_male_35_plus' => $faker->numberBetween(0, 100), // Random number
-                    'emp_formal_female_35_plus' => $faker->numberBetween(0, 100), // Random number
-                    'emp_informal_female_18_35' => $faker->numberBetween(0, 100), // Random number
-                    'emp_informal_male_18_35' => $faker->numberBetween(0, 100), // Random number
-                    'emp_informal_male_35_plus' => $faker->numberBetween(0, 100), // Random number
-                    'emp_informal_female_35_plus' => $faker->numberBetween(0, 100), // Random number
-                    'area_under_cultivation' => $faker->randomFloat(2, 0, 1000), // Random area
-                    'is_registered_seed_producer' => $faker->boolean, // Random boolean
-                    'uses_certified_seed' => $faker->boolean, // Random boolean
-                    'user_id' => 3, // Random user ID
-                    'uuid' => $faker->uuid, // Random UUID
-                    'submission_period_id' => 4, // Random submission period ID
-                    'organisation_id' => $faker->randomElement([1, 2]), // Random organisation ID
-                    'financial_year_id' => $faker->numberBetween(1, 4), // Random financial year ID
-                    'period_month_id' => $faker->numberBetween(1, 4), // Random period month ID
-                    'status' => 'approved', // Fixed value
+                    'name_of_actor' => $faker->name,  // Random name
+                    'name_of_representative' => $faker->name,  // Random name
+                    'phone_number' => $faker->phoneNumber(),  // Random phone number
+                    'type' => $faker->randomElement(['Type A', 'Type B', 'Type C']),  // Random type
+                    'group' => $faker->word,  // Random group
+                    'approach' => $faker->randomElement(['Approach 1', 'Approach 2', 'Approach 3']),  // Random approach
+                    'mem_female_18_35' => $faker->numberBetween(0, 100),  // Random number
+                    'mem_male_18_35' => $faker->numberBetween(0, 100),  // Random number
+                    'mem_male_35_plus' => $faker->numberBetween(0, 100),  // Random number
+                    'mem_female_35_plus' => $faker->numberBetween(0, 100),  // Random number
+                    'sector' => $faker->randomElement(['Agriculture', 'Manufacturing', 'Services']),  // Random sector
+                    'category' => $faker->randomElement(['Category A', 'Category B', 'Category C']),  // Random category
+                    'establishment_status' => $faker->randomElement(['New', 'Old']),  // Random establishment status
+                    'is_registered' => $faker->boolean,  // Random boolean
+                    'registration_body' => $faker->company,  // Random registration body
+                    'registration_number' => $faker->uuid,  // Random registration number
+                    'registration_date' => $faker->date(),  // Random registration date
+                    'emp_formal_female_18_35' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_formal_male_18_35' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_formal_male_35_plus' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_formal_female_35_plus' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_informal_female_18_35' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_informal_male_18_35' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_informal_male_35_plus' => $faker->numberBetween(0, 100),  // Random number
+                    'emp_informal_female_35_plus' => $faker->numberBetween(0, 100),  // Random number
+                    'area_under_cultivation' => $faker->randomFloat(2, 0, 1000),  // Random area
+                    'is_registered_seed_producer' => $faker->boolean,  // Random boolean
+                    'uses_certified_seed' => $faker->boolean,  // Random boolean
+                    'user_id' => 3,  // Random user ID
+                    'uuid' => $faker->uuid,  // Random UUID
+                    'submission_period_id' => 4,  // Random submission period ID
+                    'organisation_id' => $faker->randomElement([1, 2]),  // Random organisation ID
+                    'financial_year_id' => $faker->numberBetween(1, 4),  // Random financial year ID
+                    'period_month_id' => $faker->numberBetween(1, 4),  // Random period month ID
+                    'status' => 'approved',  // Fixed value
                 ]
             ];
         }
-
-
 
         foreach (range(1, 10) as $index) {
             $data = recruits();
             Recruitment::create(attributes: $data['main']);
             RecruitSeedRegistration::create([
                 'recruitment_id' => $index,
-                'reg_no' => "reg_" . now(),
+                'reg_no' => 'reg_' . now(),
                 'reg_date' => now(),
                 'variety' => $faker->randomElement(['Chuma', 'Thandizo', 'Mathutu'])
             ]);

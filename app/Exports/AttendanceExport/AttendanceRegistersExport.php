@@ -17,70 +17,21 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
 {
     use ExportStylingTrait;
+    use \App\Traits\FormEssentials;
     public $template = false;
-    protected $validationTypes = [
-        'Meeting Title' => 'Required, Text',
-        'Meeting Category' => 'Required, Text, (Choose one option)',
-        'Cassava' => 'Boolean (1/0)',
-        'Potato' => 'Boolean (1/0)',
-        'Sweet Potato' => 'Boolean (1/0)',
-        'Venue' => 'Required, Text',
-        'District' => 'Required, Text',
-        'Start Date' => 'Required, Date (dd-mm-yyyy)',
-        'End Date' => 'Required, Date (dd-mm-yyyy), After or equal to Start Date',
-        'Total Days' => 'Number (>=1)',
-        'Name' => 'Required, Text',
-        'Sex' => 'Required, Male/Female',
-        'Organization' => 'Text',
-        'Designation' => 'Text',
-        'Category' => 'Required, Text, (Choose one option)',
-        'Phone Number' => 'Text',
-        'Email' => 'Text',
-    ];
-
+    protected $validationTypes = [];
     public function __construct($template = false)
     {
+
         $this->template = $template;
+        $this->validationTypes = $this->forms['Attendance Register Form']['Attendance Register'];
     }
+
     public function collection()
     {
         if ($this->template) {
             return collect([]);
         }
-        // Select only the necessary columns to be included in the export
-        $data = AttendanceRegister::select(
-
-            'meetingTitle',
-            'meetingCategory',
-            'rtcCrop_cassava',
-            'rtcCrop_potato',
-            'rtcCrop_sweet_potato',
-            'venue',
-            'district',
-            'startDate',
-            'endDate',
-            'totalDays',
-            'name',
-            'sex',
-            'organization',
-            'designation',
-            'category',
-            'phone_number',
-            'email',
-
-
-
-        )->get();
-
-        $data->transform(function ($row) {
-            $startDate = Carbon::parse($row['startDate'])->format('d-m-Y');
-            $endDate = Carbon::parse($row['endDate'])->format('d-m-Y');
-            $row['startDate'] = $startDate;
-            $row['endDate'] = $endDate;
-            return $row;
-        });
-
-        return $data;
     }
 
     public function registerEvents(): array
@@ -142,25 +93,7 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
     {
         return [
 
-            [
-                'Meeting Title',
-                'Meeting Category',
-                'Cassava',
-                'Potato',
-                'Sweet Potato',
-                'Venue',
-                'District',
-                'Start Date',
-                'End Date',
-                'Total Days',
-                'Name',
-                'Sex',
-                'Organization',
-                'Designation',
-                'Category',
-                'Phone Number',
-                'Email',
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
 
         ];

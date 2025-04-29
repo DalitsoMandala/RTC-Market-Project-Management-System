@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Imports\RtcRecruitment;
+namespace App\Imports\ImportFarmer;
 
-use App\Traits\newIDTrait;
+use App\Models\FarmerSeedRegistration;
 use App\Models\JobProgress;
 use App\Traits\excelDateFormat;
+use App\Traits\newIDTrait;
 use Illuminate\Support\Collection;
-use App\Models\RecruitSeedRegistration;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Validators\Failure;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
+
 class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
     protected $data;
@@ -43,42 +44,44 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
             $jobProgress->update(['progress' => round($progress)]);
         }
 
-        // Create the RpmFarmerMarketInformationSystem record with the actual Farmer ID
-        return new RecruitSeedRegistration([
-            'recruitment_id' => $row['ID'],
+        // Create the RpmFarmerMarketInformationSystem record with the acdfbtual Farmer ID
+        return new FarmerSeedRegistration([
+            'farmer_id' => $row['Farmer ID'],
             'reg_date' => \Carbon\Carbon::parse($row['Registration Date'])->format('Y-m-d'),
             'reg_no' => $row['Registration Number'],
             'variety' => $row['Variety'],
         ]);
     }
+
     use newIDTrait;
     use excelDateFormat;
+
     public function prepareForValidation(array $row)
     {
-
-        $row['Recruitment ID'] = $this->validateNewIdForRecruits("recruitment_id_mapping", $this->cacheKey, $row, "Recruitment ID");
+        $row['Farmer ID'] = $row['ID'];
+        $row['Farmer ID'] = $this->validateNewIdForRecruits('farmer_id_mapping1', $this->cacheKey, $row, 'Farmer ID');
         $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
         return $row;
     }
+
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            $errorMessage = "Validation Error on sheet 'Seed Services Unit' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
-                implode(', ', $failure->errors());
+            $errorMessage = "Validation Error on sheet 'Seed Services Unit' - Row {$failure->row()}, Field '{$failure->attribute()}': "
+                . implode(', ', $failure->errors());
             throw new \Exception($errorMessage);
         }
     }
+
     public function rules(): array
     {
         return [
-
-            'Recruitment ID' => 'exists:recruitments,id',
+            'ID' => 'exists:rtc_production_farmers,id',  // Validate Farmer ID
             'Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Registration Number' => 'nullable|max:255',
             'Variety' => 'nullable|max:255',
         ];
     }
-
 
     public function startRow(): int
     {

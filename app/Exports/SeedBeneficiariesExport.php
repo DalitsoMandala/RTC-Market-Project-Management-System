@@ -9,7 +9,7 @@ use App\Models\SeedBeneficiary;
 class SeedBeneficiariesExport implements WithMultipleSheets
 {
     public $template = false;
-    public function __construct($template)
+    public function __construct($template = false)
     {
         $this->template = $template;
     }

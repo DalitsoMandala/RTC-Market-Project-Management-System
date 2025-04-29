@@ -3,6 +3,7 @@
 namespace App\Exports\RtcRecruitment;
 
 use App\Traits\ExportStylingTrait;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -14,7 +15,7 @@ class SeedServicesUnitExport implements WithHeadings, WithTitle, WithStrictNullC
 {
     use ExportStylingTrait;
 
-
+    use FormEssentials;
 
 
     protected $rowNumber = 0; // Start counting from 1
@@ -24,6 +25,7 @@ class SeedServicesUnitExport implements WithHeadings, WithTitle, WithStrictNullC
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Recruitment Form']['Seed Services Unit'];
     }
 
     public function collection()

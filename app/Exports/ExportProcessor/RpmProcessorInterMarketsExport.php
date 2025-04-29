@@ -21,22 +21,13 @@ class RpmProcessorInterMarketsExport implements FromCollection, WithHeadings, Wi
 
     public $template;
 
-    public $validationTypes = [
-        'Processor ID' => 'Exists in Production Processors Sheet',
-        'Date Recorded' => 'Date (dd-mm-yyyy)',
-        'Crop Type' => 'Required, Text, (Choose One)',
-        'Market Name' => 'Required, Text',
-        'Country' => 'Text',
-        'Date of Maximum Sale' => 'Date (dd-mm-yyyy)',
-        'Product Type' => 'Text, (Choose One)',
-        'Volume Sold Previous Period' => 'Number (>=0)',
-        'Financial Value of Sales' => 'Number (>=0)',
-    ];
-
+    use \App\Traits\FormEssentials;
+    protected $validationTypes = [];
 
     public function __construct($template)
     {
         $this->template = $template;
+        $this->validationTypes = $this->forms['Rtc Production Processors Form']['International Markets'];
     }
     public function collection()
     {

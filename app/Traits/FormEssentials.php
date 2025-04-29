@@ -46,7 +46,7 @@ trait FormEssentials
                 'Uses Certified Seed' => 'Boolean (1/0)',
             ],
             'Seed Services Unit' => [
-                'Recruitment ID' => 'Number, Exists in Production Farmers Sheet',
+                'ID' => 'Number, Exists in RTC Actor Recruitment Sheet',
                 'Registration Date' => 'Date (dd-mm-yyyy)',
                 'Registration Number' => 'Text',
                 'Variety' => 'Text',
@@ -77,6 +77,7 @@ trait FormEssentials
                 'Market Segment Cuttings' => 'Boolean (1/0)',
                 'Has RTC Market Contract' => 'Boolean (1/0)',
                 'Total Volume Production Produce' => 'Number (>=0), (in MT)',
+                'Total Volume Production Seed' => 'Number (>=0), (in MT or Bundles depending on enterprise)',
                 'Total Volume Production Cuttings' => 'Number (>=0), (in MT)',
                 'Production Value Produce' => 'Number (>=0),(in MT)',
                 'Production Value Produce Prevailing Price' => 'Number (>=0)',
@@ -123,9 +124,9 @@ trait FormEssentials
             'International Markets' => [
                 'Farmer ID' => 'Exists in Production Farmers Sheet',
                 'Date Recorded' => 'Date (dd-mm-yyyy)',
-                'Crop Type' => 'Required, Text, (Choose One)',
-                'Market Name' => 'Required, Text',
-                'District' => 'Text',
+                'Crop Type' => 'Text, (Choose One)',
+                'Market Name' => 'Text',
+                'Country' => 'Text',
                 'Date of Maximum Sale' => 'Date (dd-mm-yyyy)',
                 'Product Type' => 'Text, (Choose One)',
                 'Volume Sold Previous Period' => 'Number (>=0)',
@@ -154,6 +155,12 @@ trait FormEssentials
                 'Area' => 'Number (>=0)',
                 'Farmer ID' => 'Exists in Production Farmers Sheet',
             ],
+            'Seed Services Unit' => [
+                'ID' => 'Number, Exists in Production Farmers Sheet',
+                'Registration Date' => 'Date (dd-mm-yyyy)',
+                'Registration Number' => 'Text',
+                'Variety' => 'Text',
+            ]
         ],
         'Rtc Production Processors Form' => [
             'Production Processors' => [
@@ -204,15 +211,15 @@ trait FormEssentials
                 'Financial Value of Sales' => 'Number (>=0)',
             ],
             'International Markets' => [
-                'Processor ID',
-                'Date Recorded',
-                'Crop Type',
-                'Market Name',
-                'Country',
-                'Date of Maximum Sale',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales'
+                'Processor ID' => 'Exists in Production Processors Sheet',
+                'Date Recorded' => 'Date (dd-mm-yyyy)',
+                'Crop Type' => 'Text, (Choose One)',
+                'Market Name' => 'Text',
+                'Country' => 'Text',
+                'Date of Maximum Sale' => 'Date (dd-mm-yyyy)',
+                'Product Type' => 'Text, (Choose One)',
+                'Volume Sold Previous Period' => 'Number (>=0)',
+                'Financial Value of Sales' => 'Number (>=0)',
             ],
             'Market Information Systems' => [
                 'Name' => 'Text',
