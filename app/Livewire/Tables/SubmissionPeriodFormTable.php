@@ -3,6 +3,7 @@
 namespace App\Livewire\tables;
 
 use App\Models\Form;
+use App\Models\Organisation;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Models\Submission;
@@ -133,8 +134,10 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ->add('status', function ($model) {
                 $data = $this->submissionPeriodRow;
                 $userId = auth()->id(); // Or pass in if needed
-
-                $hasSubmission = Submission::where('user_id', $userId)
+                $userOrganisation = User::find($userId)->organisation->id;
+                $usersForTHisOrganisation = Organisation::with('users')->find($userOrganisation);
+                $users = $usersForTHisOrganisation->users->pluck('id')->toArray();
+                $hasSubmission = Submission::whereIn('user_id', $users)
                     ->whereHas('form', function (Builder $query) use ($model) {
                         $query->where('id', $model->id);
                     })

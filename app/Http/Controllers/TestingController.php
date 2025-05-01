@@ -23,36 +23,15 @@ use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
 use App\Jobs\sendReminderToUserJob;
+use App\Traits\IndicatorsTrait;
 
 class TestingController extends Controller
 {
     use GroupsEndingSoonSubmissionPeriods;
-
+    use IndicatorsTrait;
     public function create()
     {
 
-        $sendExpired = true;
-
-        $users =   $this->getUserWithDeadlines(3, $sendExpired);
-
-        if ($sendExpired) {
-            foreach ($users as $userId => $userData) {
-
-
-                $indicators = $userData['user']->organisation->indicatorResponsiblePeople->map(function ($indicator) {
-
-                    return Indicator::find($indicator->indicator_id)->indicator_name;
-                })->flatten();
-
-
-                $userData['indicators'] = $indicators;
-
-                Bus::chain([
-                    new SendExpiredPeriodNotificationJob($userData['user'], $userData)
-                ])->dispatch();
-            }
-        } else {
-        }
     }
 
 

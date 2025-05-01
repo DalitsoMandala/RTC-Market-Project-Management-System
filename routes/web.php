@@ -82,43 +82,13 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-use App\Traits\GroupsEndingSoonSubmissionPeriods;
+
+
+
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test', function () {
-    // $indicatorContent = IndicatorClass::where('indicator_id', 19)->get();
-    // $data = [];
-
-    // foreach ($indicatorContent as $indicator) {
-
-    //     $getClass = new $indicator->class(financial_year: 2, reporting_period: 2);
-    //     $data[] = [
-    //         $indicator->class => $getClass->getDisaggregations()
-    //     ];
-    // }
-    // return response()->json($data);
-
-    $organisations = Organisation::with('users')->get();
-    $orgData = $organisations->map(function ($org) {
-        return collect([
-            'name' => $org->name,
-            'users' => $org->users->map(function ($user) {
-                return collect([
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'id' => $user->id
-                ]);
-            }),
-        ]);
-    });
-
-    $organisation = "ACE";
-
-    $userIDsForOrganisation = $orgData->where('name', $organisation)->first()['users']->pluck('id')->toArray();
-
-    dd($userIDsForOrganisation);
-});
+Route::get('/test',[TestingController::class,'create']);
 
 
 

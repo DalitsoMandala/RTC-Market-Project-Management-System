@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Indicator;
 use App\Models\MailingList;
 use App\Models\Organisation;
+use App\Traits\IndicatorsTrait;
 use Illuminate\Console\Command;
 use App\Models\SubmissionPeriod;
 use App\Models\ResponsiblePerson;
@@ -15,6 +16,7 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 
 class SendExpiredPeriodNotifications extends Command
 {
+    use IndicatorsTrait;
     /**
      * The name and signature of the console command.
      *
@@ -35,26 +37,6 @@ class SendExpiredPeriodNotifications extends Command
 
     public function handle()
     {
-        $sendExpired = true;
-
-        $users =   $this->getUserWithDeadlines(3, $sendExpired);
-
-        if ($sendExpired) {
-            foreach ($users as $userId => $userData) {
-
-
-                $indicators = $userData['user']->organisation->indicatorResponsiblePeople->map(function ($indicator) {
-
-                    return Indicator::find($indicator->indicator_id)->indicator_name;
-                })->flatten();
-
-
-                $userData['indicators'] = $indicators;
-
-                Bus::chain([
-                    new SendExpiredPeriodNotificationJob($userData['user'], $userData)
-                ])->dispatch();
-            }
-        }
+        $this->notifyExpiredSubmissionPeriods();
     }
 }
