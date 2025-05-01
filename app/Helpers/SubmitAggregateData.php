@@ -2,31 +2,28 @@
 
 namespace App\Helpers;
 
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Models\Submission;
+use App\Exceptions\UserErrorException;
 use App\Exports\JsonExport;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
+use App\Models\User;
+use App\Notifications\ImportSuccessNotification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exceptions\UserErrorException;
+use Ramsey\Uuid\Uuid;
 use Spatie\SimpleExcel\SimpleExcelWriter;
-use App\Notifications\ImportSuccessNotification;
 
 class SubmitAggregateData
 {
-
     public function storeData($data)
     {
         $fileName = 'exported_data_' . time() . '.xlsx';
 
         // Store the file in the `storage/app/exports` directory
         $filePath = storage_path('app/public/exports/' . $fileName);
-
-
 
         $writer = SimpleExcelWriter::create($filePath)->addHeader([
             'Title',
@@ -36,14 +33,13 @@ class SubmitAggregateData
         foreach ($data as $key => $value) {
             $writer->addRow([$key, (float) $value]);
         }
-        $writer->close(); // Finalize the file
+        $writer->close();  // Finalize the file
         return $fileName;
     }
+
     function submit_aggregate_data($data, $user, $submissionPeriodId, $selectedForm, $selectedIndicator, $selectedFinancialYear, $redirectRoute, $roleType)
     {
-
         try {
-
             $uuid = Uuid::uuid4()->toString();
             $currentUser = Auth::user();
 
@@ -53,7 +49,8 @@ class SubmitAggregateData
             $checkSubmission = Submission::where('period_id', $submissionPeriodId)
                 ->where('batch_type', 'aggregate')
                 ->where(function ($query) {
-                    $query->where('status', '=', 'pending')
+                    $query
+                        ->where('status', '=', 'pending')
                         ->orWhere('status', '=', 'approved');
                 })
                 ->where('user_id', $currentUser->id)
@@ -69,11 +66,12 @@ class SubmitAggregateData
                 'batch_no' => $uuid,
                 'form_id' => $selectedForm,
                 'user_id' => $currentUser->id,
-                'status' => $roleType === 'manager' ? 'approved' : 'pending', // Status based on role
+                'status' => $roleType === 'manager' ? 'approved' : 'pending',  // Status based on role
                 'batch_type' => 'aggregate',
                 'is_complete' => 1,
                 'period_id' => $submissionPeriodId,
                 'table_name' => 'reports',
+                'file_link' => $file,
             ]);
 
             $period = SubmissionPeriod::find($submission->period_id);
@@ -87,46 +85,38 @@ class SubmitAggregateData
                 'period_month_id' => $period->month_range_period_id,
                 'organisation_id' => $user->organisation->id,
                 'user_id' => $user->id,
-                'status' => $roleType === 'manager' ? 'approved' : 'pending', // Status based on role
+                'status' => $roleType === 'manager' ? 'approved' : 'pending',  // Status based on role
                 'data' => json_encode($data),
                 'uuid' => $uuid,
-                'file_name' => $file
+                'file_name' => null
             ]);
 
             $user = User::find($user->id);
             //    $user->notify(new JobNotification($uuid, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
             if ($user->hasAnyRole('manager')) {
-
-
                 $user->notify(
                     new ImportSuccessNotification(
                         $uuid,
                         route('cip-submissions', [
                             'batch' => $uuid,
                         ], true) . '#aggregate-submission'
-
                     )
                 );
             } else if ($user->hasAnyRole('admin')) {
-
                 $user->notify(
                     new ImportSuccessNotification(
                         $uuid,
                         route('admin-submissions', [
                             'batch' => $uuid,
                         ], true) . '#aggregate-submission'
-
                     )
                 );
             } else if ($user->hasAnyRole('staff')) {
-
-
                 $user->notify(new ImportSuccessNotification(
                     $uuid,
                     route('cip-staff-submissions', [
                         'batch' => $uuid,
                     ], true) . '#aggregate-submission'
-
                 ));
             } else {
                 $user->notify(new ImportSuccessNotification(
@@ -134,12 +124,8 @@ class SubmitAggregateData
                     route('external-submissions', [
                         'batch' => $uuid,
                     ], true) . '#aggregate-submission'
-
-
                 ));
             }
-
-
 
             // Success message and redirect
             session()->flash('success', 'Successfully submitted!');

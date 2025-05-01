@@ -2,20 +2,20 @@
 
 namespace App\Imports\ImportProcessor;
 
-use App\Models\User;
 use App\Models\JobProgress;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use App\Models\RtcProductionProcessor;
+use App\Models\User;
 use App\Traits\excelDateFormat;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Validators\Failure;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
@@ -25,7 +25,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     protected $cacheKey;
     protected $totalRows = 0;
 
-
+    protected const BUNDLE_MULTIPLIER = 4;  // KG per Bundle
 
     public function __construct($data, $cacheKey, $totalRows)
     {
@@ -33,15 +33,17 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         $this->cacheKey = $cacheKey;
         $this->totalRows = $totalRows;
     }
+
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            $errorMessage = "Validation Error on sheet 'Production Processors' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
-                implode(', ', $failure->errors());
+            $errorMessage = "Validation Error on sheet 'Production Processors' - Row {$failure->row()}, Field '{$failure->attribute()}': "
+                . implode(', ', $failure->errors());
 
             throw new \Exception($errorMessage);
         }
     }
+
     public function model(array $row)
     {
         // Create a new RtcProductionProcessor record
@@ -57,39 +59,23 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'section' => $row['Section'],
             'district' => $row['District'],
             'enterprise' => $row['Enterprise'],
-            // 'date_of_recruitment' => \Carbon\Carbon::parse($row['Date of Recruitment'])->format('Y-m-d'),
-            // 'name_of_actor' => $row['Name of Actor'],
-            // 'name_of_representative' => $row['Name of Representative'],
-            // 'phone_number' => $row['Phone Number'],
-            // 'type' => $row['Type'],
-            // 'approach' => $row['Approach'],
-            // 'sector' => $row['Sector'],
-            // 'mem_female_18_35' => $row['Members Female 18-35'],
-            // 'mem_male_18_35' => $row['Members Male 18-35'],
-            // 'mem_male_35_plus' => $row['Members Male 35+'],
-            // 'mem_female_35_plus' => $row['Members Female 35+'],
-            // 'group' => $row['Group'],
-            // 'establishment_status' => $row['Establishment Status'],
-            // 'is_registered' => $row['Is Registered'],
-            // 'registration_body' => $row['Registration Body'],
-            // 'registration_number' => $row['Registration Number'],
-            // 'registration_date' => \Carbon\Carbon::parse($row['Registration Date'])->format('Y-m-d'),
-            // 'emp_formal_female_18_35' => $row['Employees Formal Female 18-35'],
-            // 'emp_formal_male_18_35' => $row['Employees Formal Male 18-35'],
-            // 'emp_formal_male_35_plus' => $row['Employees Formal Male 35+'],
-            // 'emp_formal_female_35_plus' => $row['Employees Formal Female 35+'],
-            // 'emp_informal_female_18_35' => $row['Employees Informal Female 18-35'],
-            // 'emp_informal_male_18_35' => $row['Employees Informal Male 18-35'],
-            // 'emp_informal_male_35_plus' => $row['Employees Informal Male 35+'],
-            // 'emp_informal_female_35_plus' => $row['Employees Informal Female 35+'],
             'market_segment_fresh' => $row['Market Segment Fresh'],
             'market_segment_processed' => $row['Market Segment Processed'],
             'has_rtc_market_contract' => $row['Has RTC Market Contract'],
-            'total_vol_production_previous_season' => $row['Total Volume Production Previous Season'],
-            'prod_value_previous_season_total' => $row['Production Value Previous Season Total'],
+            'total_vol_production_previous_season' => $row['Total Volume Production'],
+            'total_vol_production_previous_season_produce' => $row['Total Volume Production Produce'],
+            'total_vol_production_previous_season_seed' => $row['Total Volume Production Seeed'],
+            'total_vol_production_previous_season_cuttings' => $row['Total Volume Production Cuttings'],
+            'prod_value_previous_season_total' => $row['Production Value Total'],
+            'prod_value_previous_season_produce' => $row['Production Value Produce'],
+            'prod_value_previous_season_seed' => $row['Production Value Seed'],
+            'prod_value_previous_season_cuttings' => $row['Production Value Cuttings'],
+            'prod_value_produce_prevailing_price' => $row['Production Value Produce Prevailing Price'],
+            'prod_value_seed_prevailing_price' => $row['Production Value Seed Prevailing Price'],
+            'prod_value_cuttings_prevailing_price' => $row['Production Value Cuttings Prevailing Price'],
             'prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Production Value Date of Max Sales'])->format('Y-m-d'),
-            'prod_value_previous_season_usd_rate' => $row['USD Rate'],
-            'prod_value_previous_season_usd_value' => $row['USD Value'],
+            'prod_value_previous_season_usd_rate' => $row['Production Value USD Rate'],
+            'prod_value_previous_season_usd_value' => $row['Production Value USD Value'],
             'sells_to_domestic_markets' => $row['Sells to Domestic Markets'],
             'sells_to_international_markets' => $row['Sells to International Markets'],
             'uses_market_information_systems' => $row['Uses Market Info Systems'],
@@ -118,18 +104,43 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         return $processorRecord;
     }
 
-
     use excelDateFormat;
 
     public function prepareForValidation(array $row)
     {
         $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up'], $row);
-        //   $row['Registration Date'] =  $this->convertExcelDate($row['Registration Date'], $row);
-        $row['Production Value Date of Max Sales'] = $this->convertExcelDate($row['Production Value Date of Max Sales'], $row);
+        $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'];
+        if ($row['Enterprise'] && $row['Enterprise'] != 'Potato') {
+            /** Convert the bundles to metric tonnes and use the multiplier */
+            $row['Total Volume Production Seeed'] = $this->convertToMetricTonnes($row['Total Volume Production Seeed']);
+        }
+        $row['Total Volume Production'] = ($row['Total Volume Production Produce'] ?? 0) + ($row['Total Volume Production Seed'] ?? 0) + ($row['Total Volume Production Cuttings'] ?? 0);
 
+        $row['Production Value Total'] = $this->calculateTotalProduction(
+            $row['Total Volume Production Produce'],
+            $row['Production Value Produce Prevailing Price'],
+            $row['Total Volume Production Seeed'],
+            $row['Production Value Seed Prevailing Price'],
+            $row['Total Volume Production Cuttings'],
+            $row['Production Value Cuttings Prevailing Price']
+        );
+        $row['Production Value USD Rate'] = 0;  // for now
+        $row['Production Value USD Value'] = 0;  // for now
         return $row;
     }
 
+    public function convertToMetricTonnes($value)
+    {
+        return ($value ?? 0) * self::BUNDLE_MULTIPLIER;
+    }
+
+    public function calculateTotalProduction($produce, $producePrevailingPrice, $seed, $seedPrevailingPrice, $cuttings, $cuttingsPrevailingPrice)
+    {
+        $totalProduction = (($produce ?? 0) * ($producePrevailingPrice ?? 0))
+            + (($seed ?? 0) * ($seedPrevailingPrice ?? 0))
+            + (($cuttings ?? 0) * ($cuttingsPrevailingPrice ?? 0));
+        return $totalProduction;
+    }
 
     public function rules(): array
     {
@@ -140,39 +151,24 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Section' => 'required|string|max:255',
             'District' => 'required|string|max:255',
             'Enterprise' => 'required|string|max:255',
-            // 'Date of Recruitment' => 'nullable|date|date_format:d-m-Y',
-            // 'Name of Actor' => 'nullable|string|max:255',
-            // 'Name of Representative' => 'nullable|string|max:255',
-            // 'Phone Number' => 'nullable|max:255',
-            // 'Type' => 'nullable|string|max:255',
-            // 'Approach' => 'nullable|string|max:255',
-            // 'Sector' => 'nullable|string|max:255',
-            // 'Members Female 18-35' => 'nullable|integer|min:0',
-            // 'Members Male 18-35' => 'nullable|integer|min:0',
-            // 'Members Male 35+' => 'nullable|integer|min:0',
-            // 'Members Female 35+' => 'nullable|integer|min:0',
-            // 'Group' => 'nullable|string|max:255',
-            // 'Establishment Status' => 'nullable|string|in:New,Old',
-            // 'Is Registered' => 'nullable|boolean',
-            // 'Registration Body' => 'nullable|string|max:255',
-            // 'Registration Number' => 'nullable|string|max:255',
-            // 'Registration Date' => 'nullable|date|date_format:d-m-Y',
-            // 'Employees Formal Female 18-35' => 'nullable|integer|min:0',
-            // 'Employees Formal Male 18-35' => 'nullable|integer|min:0',
-            // 'Employees Formal Male 35+' => 'nullable|integer|min:0',
-            // 'Employees Formal Female 35+' => 'nullable|integer|min:0',
-            // 'Employees Informal Female 18-35' => 'nullable|integer|min:0',
-            // 'Employees Informal Male 18-35' => 'nullable|integer|min:0',
-            // 'Employees Informal Male 35+' => 'nullable|integer|min:0',
-            // 'Employees Informal Female 35+' => 'nullable|integer|min:0',
             'Market Segment Fresh' => 'nullable|boolean',
             'Market Segment Processed' => 'nullable|boolean',
             'Has RTC Market Contract' => 'nullable|boolean',
-            'Total Volume Production Previous Season' => 'nullable|numeric|min:0',
-            'Production Value Previous Season Total' => 'nullable|numeric|min:0',
-            'Production Value Date of Max Sales' => 'nullable|date|date_format:d-m-Y',
-            'USD Rate' => 'nullable|numeric|min:0',
-            'USD Value' => 'nullable|numeric|min:0',
+            'Total Volume Production' => 'nullable|numeric|min:0',
+            'Total Volume Production Produce' => 'nullable|numeric|min:0',
+            'Total Volume Production Seeed' => 'nullable|numeric|min:0',
+            'Total Volume Production Cuttings' => 'nullable|numeric|min:0',
+            'Production Value Total' => 'nullable|numeric|min:0',
+            'Production Value Produce' => 'nullable|numeric|min:0',
+            'Production Value Seed' => 'nullable|numeric|min:0',
+            'Production Value Cuttings' => 'nullable|numeric|min:0',
+            'Production Value Produce Prevailing Price' => 'nullable|numeric|min:0',
+            'Production Value Seed Prevailing Price' => 'nullable|numeric|min:0',
+            'Production Value Cuttings Prevailing Price' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Produce' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Seeed' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Cuttings' => 'nullable|numeric|min:0',
             'Sells to Domestic Markets' => 'nullable|boolean',
             'Sells to International Markets' => 'nullable|boolean',
             'Uses Market Info Systems' => 'nullable|boolean',

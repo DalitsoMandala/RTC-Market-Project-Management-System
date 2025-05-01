@@ -13,10 +13,11 @@
         this.financialValue =
             (isNaN(parseFloat(this.formalCassava)) ? 0 : parseFloat(this.formalCassava)) +
             (isNaN(parseFloat(this.formalPotato)) ? 0 : parseFloat(this.formalPotato)) +
-            (isNaN(parseFloat(this.formalSweetPotato)) ? 0 : parseFloat(this.formalSweetPotato)) +
-            (isNaN(parseFloat(this.informalCassava)) ? 0 : parseFloat(this.informalCassava)) +
-            (isNaN(parseFloat(this.informalPotato)) ? 0 : parseFloat(this.informalPotato)) +
-            (isNaN(parseFloat(this.informalSweetPotato)) ? 0 : parseFloat(this.informalSweetPotato));
+            (isNaN(parseFloat(this.formalSweetPotato)) ? 0 : parseFloat(this.formalSweetPotato))
+        //+
+        //      (isNaN(parseFloat(this.informalCassava)) ? 0 : parseFloat(this.informalCassava)) +
+        //     (isNaN(parseFloat(this.informalPotato)) ? 0 : parseFloat(this.informalPotato)) +
+        //   (isNaN(parseFloat(this.informalSweetPotato)) ? 0 : parseFloat(this.informalSweetPotato));
         this.annualValue = this.financialValue;
         if (this.annualValue === 0) {
             this.totalPercentage = 0;

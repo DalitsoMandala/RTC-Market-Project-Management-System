@@ -13,22 +13,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(OrganisationSeeder::class);  //done
-        $this->call(UserSeeder::class); // done
-        $this->call(SystemSeeder::class); // done
-        $this->call(CgiarProjectSeeder::class); //
+        $this->call(OrganisationSeeder::class);  // done
+        $this->call(UserSeeder::class);  // done
+        $this->call(SystemSeeder::class);  // done
+        $this->call(CgiarProjectSeeder::class);  //
         $this->call(ReportPeriodSeeder::class);
         $this->call(ProjectSeeder::class);
         $this->call(IndicatorSeeder::class);
         $this->call(DisaggregationSeeder::class);
         $this->call(FormSeeder::class);
-        //     $this->call(PeriodSeeder::class); //edit this (test)
-        //  $this->call(SourceSeeder::class);
         $this->call(IndicatorClassSeeder::class);
         $this->call(BaselineSeeder::class);
-
-        $this->call(DataGenerationSeeder::class); //edit this (test)
-        $this->call(SubmissionTargetSeeder::class);
+        $this->call(DataGenerationSeeder::class);  // edit this (test)
+        $this->call(CropAndVarietySeeder::class);
         Artisan::call('update:information');
     }
 }

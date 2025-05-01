@@ -2,41 +2,43 @@
 
 namespace App\Imports\ImportProcessor;
 
-use App\Models\User;
-use App\Models\Submission;
-use App\Models\JobProgress;
-use App\Helpers\ExcelValidator;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use Illuminate\Support\Facades\Cache;
-use App\Models\RtcProductionProcessor;
-use App\Notifications\JobNotification;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Events\BeforeSheet;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\ExcelValidationException;
+use App\Helpers\ExcelValidator;
+use App\Helpers\SheetNamesValidator;
+use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
 use App\Imports\ImportProcessor\RpmpMisImport;
+use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
+use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
+use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
+use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
+use App\Models\JobProgress;
+use App\Models\RtcProductionProcessor;
+use App\Models\Submission;
+use App\Models\User;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
+use App\Notifications\JobNotification;
+use App\Traits\FormEssentials;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\BeforeSheet;
+use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Validators\ValidationException;
-use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
-use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
-use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
-use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
-use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable;
+    use FormEssentials;
 
     protected $expectedSheetNames = [
         'Production Processors',
@@ -47,101 +49,16 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
         'Aggregation Centers'
     ];
 
-    protected $expectedHeaders = [
-        'Production Processors' => [
-            'ID',
-            'Group Name',
-            'Date Of Follow Up',
-            'EPA',
-            'Section',
-            'District',
-            'Enterprise',
-            // 'Date of Recruitment',
-            // 'Name of Actor',
-            // 'Name of Representative',
-            // 'Phone Number',
-            // 'Type',
-            // 'Approach',
-            // 'Sector',
-            // 'Members Female 18-35',
-            // 'Members Male 18-35',
-            // 'Members Male 35+',
-            // 'Members Female 35+',
-            // 'Group',
-            // 'Establishment Status',
-            // 'Is Registered',
-            // 'Registration Body',
-            // 'Registration Number',
-            // 'Registration Date',
-            // 'Employees Formal Female 18-35',
-            // 'Employees Formal Male 18-35',
-            // 'Employees Formal Male 35+',
-            // 'Employees Formal Female 35+',
-            // 'Employees Informal Female 18-35',
-            // 'Employees Informal Male 18-35',
-            // 'Employees Informal Male 35+',
-            // 'Employees Informal Female 35+',
-            'Market Segment Fresh',
-            'Market Segment Processed',
-            'Has RTC Market Contract',
-            'Total Volume Production Previous Season',
-            'Production Value Previous Season Total',
-            'Production Value Date of Max Sales',
-            'USD Rate',
-            'USD Value',
-            'Sells to Domestic Markets',
-            'Sells to International Markets',
-            'Uses Market Info Systems',
-            'Sells to Aggregation Centers',
-            'Total Volume Aggregation Center Sales'
-        ],
-        'Contractual Agreements' => [
-            'Processor ID',
-            'Date Recorded',
-            'Partner Name',
-            'Country',
-            'Date of Maximum Sale',
-            'Product Type',
-            'Volume Sold Previous Period',
-            'Financial Value of Sales'
-        ],
-        'Domestic Markets' => [
-            'Processor ID',
-            'Date Recorded',
-            'Crop Type',
-            'Market Name',
-            'District',
-            'Date of Maximum Sale',
-            'Product Type',
-            'Volume Sold Previous Period',
-            'Financial Value of Sales'
-        ],
-        'International Markets' => [
-            'Processor ID',
-            'Date Recorded',
-            'Crop Type',
-            'Market Name',
-            'Country',
-            'Date of Maximum Sale',
-            'Product Type',
-            'Volume Sold Previous Period',
-            'Financial Value of Sales'
-        ],
-        'Market Information Systems' => [
-            'MIS Name',
-            'Processor ID'
-        ],
-        'Aggregation Centers' => [
-            'Aggregation Center Name',
-            'Processor ID'
-        ]
-    ];
-
+    protected $expectedHeaders = [];
 
     protected $cacheKey;
+
     protected $filePath;
+
     protected $submissionDetails = [];
+
     protected $totalRows = 0;
+
     private function getSheetHeaders(Worksheet $sheet): array
     {
         $highestColumn = $sheet->getHighestColumn();
@@ -153,11 +70,15 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
     {
         return array_values(array_map('trim', $actualHeaders)) === array_values(array_map('trim', $expectedHeaders));
     }
+
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
+        foreach ($this->expectedSheetNames as $sheetName) {
+            $this->expectedHeaders[$sheetName] = array_keys($this->forms['Rtc Production Processors Form'][$sheetName]);
+        }
     }
 
     public function sheets(): array
@@ -181,7 +102,6 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                 $spreadsheet = $reader->load($this->filePath);
                 $sheetNames = $spreadsheet->getSheetNames();
 
-
                 $workBook = $event->reader->getTotalRows();
 
                 foreach ($workBook as $sheetName => $totalRows) {
@@ -196,9 +116,6 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         }
                     }
                 }
-
-
-
 
                 // Validate headers and missing sheet names
                 foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
@@ -218,9 +135,8 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                 }
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
-                    return $sum + (($rowCounts[$sheetName] - 1) ?? 0); // exclude headers
+                    return $sum + (($rowCounts[$sheetName] - 1) ?? 0);  // exclude headers
                 }, 0);
-
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
@@ -235,7 +151,6 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
 
                 Cache::put("{$this->cacheKey}_import_progress", 0, now()->addMinutes(30));
             },
-
             AfterImport::class => function (AfterImport $event) {
                 $user = User::find($this->submissionDetails['user_id']);
                 // $user->notify(new JobNotification($this->cacheKey, 'Your file has finished importing, you can find your submissions on the submissions page!', []));
@@ -258,10 +173,9 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                             route('cip-submissions', [
                                 'batch' => $this->cacheKey,
                             ], true) . '#batch-submission'
-
                         )
                     );
-                } else   if ($user->hasAnyRole('staff')) {
+                } else if ($user->hasAnyRole('staff')) {
                     Submission::create([
                         'batch_no' => $this->cacheKey,
                         'form_id' => $this->submissionDetails['form_id'],
@@ -278,7 +192,6 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         route('cip-staff-submissions', [
                             'batch' => $this->cacheKey,
                         ], true) . '#batch-submission'
-
                     ));
                 } else {
                     Submission::create([
@@ -298,8 +211,6 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         route('external-submissions', [
                             'batch' => $this->cacheKey,
                         ], true) . '#batch-submission'
-
-
                     ));
                 }
 
@@ -311,10 +222,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                     ]
                 );
             },
-
             ImportFailed::class => function (ImportFailed $event) {
-
-
                 $exception = $event->getException();
 
                 $errorMessage = $exception->getMessage();
@@ -324,14 +232,12 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                     $errorMessage,
                     $this->submissionDetails['route'],
                     $this->cacheKey,
-
                 ));
 
                 JobProgress::updateOrCreate(
                     ['cache_key' => $this->cacheKey],
                     [
                         'status' => 'failed',
-
                         'error' => $errorMessage,
                     ]
                 );
