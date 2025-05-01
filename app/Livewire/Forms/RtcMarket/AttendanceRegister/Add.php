@@ -2,72 +2,68 @@
 
 namespace App\Livewire\Forms\RtcMarket\AttendanceRegister;
 
-use Throwable;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use Livewire\Attributes\On;
+use App\Exceptions\UserErrorException;
+use App\Livewire\tables\RtcMarket\AttendanceRegisterTable;
+use App\Models\AttendanceRegister;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\OrganisationTarget;
+use App\Models\ReportingPeriodMonth;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use Livewire\Attributes\Validate;
-use App\Models\AttendanceRegister;
-use App\Models\OrganisationTarget;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
+use App\Models\User;
+use App\Traits\ManualDataTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Livewire\tables\RtcMarket\AttendanceRegisterTable;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Add extends Component
 {
     use LivewireAlert;
-
-
-
-
+    use ManualDataTrait;
 
     public $meetingTitle;
-    public $meetingCategory;
+    public $meetingCategory = 'Meeting';
     public $rtcCrop = [];
     public $venue;
-    public $district = 'BALAKA';
+    public $district = 'Balaka';
     public $startDate;
     public $endDate;
     public $totalDays;
     public $name;
-    public $sex = 'MALE';
+    public $sex = 'Male';
     public $organization;
     public $designation;
     public $phone_number;
     public $email;
-
     public $disable = false;
-
     public $forms = [];
-
     public $selectedForm;
-
     public $months = [];
     public $financialYears = [];
-
     public $projects = [];
-
     public $selectedMonth;
-
     public $selectedFinancialYear;
+    public $form_name = 'ATTENDANCE REGISTER';
 
-    public $selectedProject, $selectedIndicator,
+    public $selectedProject,
+        $selectedIndicator,
         $submissionPeriodId;
-    public $routePrefix;
-    public $openSubmission = true;
 
+    public $routePrefix;
+    public $openSubmission = false;
     public $targetSet = false;
     public $targetIds = [];
+    public $category;
+
     protected $rules = [
         'meetingTitle' => 'required|string|max:255',
         'meetingCategory' => 'required',
@@ -81,9 +77,11 @@ class Add extends Component
         'sex' => 'required',
         'organization' => 'required|string|max:255',
         'designation' => 'required|string|max:255',
+        'category' => 'required|string|max:255',
         'phone_number' => 'required|string',
         'email' => 'required|email|max:255',
     ];
+
     public function validationAttributes()
     {
         return [
@@ -93,56 +91,51 @@ class Add extends Component
 
     public function save()
     {
-
-
         try {
-
             $this->validate();
         } catch (Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
+            //       session()->flash('validation_error', 'There are errors in the form.');
+            $this->dispatch('show-alert', data: [
+                'type' => 'error',  // success, error, info, warning
+                'message' => 'There are errors in the form.'
+            ]);
             throw $e;
         }
 
-
-        //continue
+        // continue
+        DB::beginTransaction();
         try {
+            $uuid = Uuid::uuid4()->toString();
+            $collect = collect($this->rtcCrop);
 
-
-            try {
-
-                $uuid = Uuid::uuid4()->toString();
-                $collect = collect($this->rtcCrop);
-
-
-                $data = [
-                    'meetingTitle' => $this->meetingTitle,
-                    'meetingCategory' => $this->meetingCategory,
-                    'rtcCrop_cassava' => $collect->contains('Cassava') ? true : false, // True/False (assuming it's a boolean)
-                    'rtcCrop_potato' => $collect->contains('Potato') ? true : false, // True/False
-                    'rtcCrop_sweet_potato' => $collect->contains('Sweet potato') ? true : false, // True/False
-                    'venue' => $this->venue,
-                    'district' => $this->district,
-                    'startDate' => $this->startDate,
-                    'endDate' => $this->endDate,
-                    'totalDays' => $this->totalDays,
-                    'name' => $this->name,
-                    'email' => $this->email,
-                    'sex' => $this->sex,
-                    'organization' => $this->organization,
-                    'designation' => $this->designation,
-                    'phone_number' => $this->phone_number,
-                    'user_id' => auth()->user()->id,
-                    'uuid' => $uuid,
-                    'submission_period_id' => $this->submissionPeriodId,
-                    'organisation_id' => Auth::user()->organisation->id,
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'period_month_id' => $this->selectedMonth,
-
-                ];
-
-
-                $insert = AttendanceRegister::create($data);
-                session()->put([
+            $data = [
+                'meetingTitle' => $this->meetingTitle,
+                'meetingCategory' => $this->meetingCategory,
+                'rtcCrop_cassava' => $collect->contains('Cassava') ? true : false,  // True/False (assuming it's a boolean)
+                'rtcCrop_potato' => $collect->contains('Potato') ? true : false,  // True/False
+                'rtcCrop_sweet_potato' => $collect->contains('Sweet potato') ? true : false,  // True/False
+                'venue' => $this->venue,
+                'district' => $this->district,
+                'startDate' => $this->startDate,
+                'endDate' => $this->endDate,
+                'totalDays' => $this->totalDays,
+                'name' => $this->name,
+                'email' => $this->email,
+                'sex' => $this->sex,
+                'organization' => $this->organization,
+                'designation' => $this->designation,
+                'category' => $this->category,
+                'phone_number' => $this->phone_number,
+                'user_id' => auth()->user()->id,
+                'uuid' => $uuid,
+                'submission_period_id' => $this->submissionPeriodId,
+                'organisation_id' => Auth::user()->organisation->id,
+                'financial_year_id' => $this->selectedFinancialYear,
+                'period_month_id' => $this->selectedMonth,
+            ];
+            AttendanceRegister::create($data);
+            session()->put([
+                'attendance_register' => [
                     'meetingTitle' => $this->meetingTitle,
                     'meetingCategory' => $this->meetingCategory,
                     'rtcCrop' => $this->rtcCrop,
@@ -151,115 +144,65 @@ class Add extends Component
                     'startDate' => $this->startDate,
                     'endDate' => $this->endDate,
                     'totalDays' => $this->totalDays,
-                    'submissionPeriodId' => $this->submissionPeriodId,
-                    'selectedFinancialYear' => $this->selectedFinancialYear,
-                    'selectedMonth' => $this->selectedMonth,
-                    'routePrefix' => $this->routePrefix,
-                ]);
+                ]
+            ]);
 
-                session()->flash('success', 'Successfully submitted!  <a href="' . $this->routePrefix . '/forms/rtc_market/attendance-register/view">View Submission here</a>');
-                session()->flash('info', 'Your ID is: <b>' . $insert->att_id . '</b>' . '<br><br> Please keep this ID for future reference.');
-                 $this->redirect(url()->previous());
-            } catch (UserErrorException $e) {
-                # code...
-                Log::error('Submission error: ' . $e->getMessage());
+            $this->resetErrorBag();
+            $this->resetValidation();
+            $this->reset([
+                'name',
+                'email',
+                'sex',
+                'organization',
+                'designation',
+                'category',
+                'phone_number'
+            ]);
+            $this->dispatch('show-alert', data: [
+                'type' => 'success',
+                'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/attendance-register/view">View Submission here</a>',
+            ]);
 
-                // Provide a generic error message to the user
-                session()->flash('error', $e->getMessage());
-            }
+            DB::commit();
         } catch (Throwable $th) {
-            # code...
+            // code...
 
-            session()->flash('error', 'Something went wrong!');
+            DB::rollBack();
+
+            $this->dispatch('show-alert', data: [
+                'type' => 'error',
+                'message' => 'Something went wrong!'
+            ]);
             Log::error($th->getMessage());
         }
     }
 
-    // public function mount()
-    // {
-
-    // }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
+        // Validate required IDs
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
+        // Find and validate related models
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
+        // Check if the submission period is open and targets are set
+        $this->checkSubmissionPeriodAndTargets();
 
-        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+        // Set the route prefix
+        $this->routePrefix = Route::current()->getPrefix();
 
-            abort(404);
-        }
-
-        $findForm = Form::find($form_id);
-        $findIndicator = Indicator::find($indicator_id);
-        $findFinancialYear = FinancialYear::find($financial_year_id);
-        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
-        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
-        if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
-
-            abort(404);
-        } else {
-            $this->selectedForm = $findForm->id;
-            $this->selectedIndicator = $findIndicator->id;
-            $this->selectedFinancialYear = $findFinancialYear->id;
-            $this->selectedMonth = $findMonthPeriod->id;
-            $this->submissionPeriodId = $findSubmissionPeriod->id;
-            //check submission period
-
-            $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
-                ->where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
-                ->where('is_open', true)
-                ->first();
-            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-                ->get();
-
-            $user = User::find(auth()->user()->id);
-
-            $targets = $target->pluck('id');
-
-
-
-            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
-                ->whereHas('submissionTarget', function ($query) use ($targets) {
-                    $query->whereIn('submission_target_id', $targets);
-                })
-                ->get();
-
-
-
-            $this->targetIds = $target->pluck('id')->toArray();
-
-            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
-
-
-                $this->meetingTitle = session('meetingTitle', $this->meetingTitle ?? null);
-                $this->meetingCategory = session('meetingCategory', $this->meetingCategory ?? null);
-                $this->rtcCrop = session('rtcCrop', $this->rtcCrop ?? []);
-                $this->venue = session('venue', $this->venue ?? null);
-                $this->district = session('district', $this->district ?? 'BALAKA'); // Default district
-                $this->startDate = session('startDate', $this->startDate ?? null);
-                $this->endDate = session('endDate', $this->endDate ?? null);
-                $this->totalDays = session('totalDays', $this->totalDays ?? 0);
-                $this->submissionPeriodId = session('submissionPeriodId', $this->submissionPeriodId ?? $submission_period_id);
-                $this->selectedFinancialYear = session('selectedFinancialYear', $this->selectedFinancialYear ?? $financial_year_id);
-                $this->selectedMonth = session('selectedMonth', $this->selectedMonth ?? $month_period_id);
-                $this->routePrefix = session('routePrefix', $this->routePrefix ?? Route::current()->getPrefix());
-
-
-                $this->openSubmission = true;
-
-                $this->targetSet = true;
-            } else {
-                $this->openSubmission = false;
-                $this->targetSet = false;
-            }
-
-
-            $this->routePrefix = Route::current()->getPrefix();
+        if (session()->has('attendance_register')) {
+            $this->meetingTitle = session()->get('attendance_register')['meetingTitle'];
+            $this->meetingCategory = session()->get('attendance_register')['meetingCategory'];
+            $this->rtcCrop = session()->get('attendance_register')['rtcCrop'];
+            $this->venue = session()->get('attendance_register')['venue'];
+            $this->district = session()->get('attendance_register')['district'];
+            $this->startDate = session()->get('attendance_register')['startDate'];
+            $this->endDate = session()->get('attendance_register')['endDate'];
+            $this->totalDays = session()->get('attendance_register')['totalDays'];
         }
     }
+
     #[On('open-submission')]
     public function clearTable()
     {
@@ -267,22 +210,12 @@ class Add extends Component
         $this->targetSet = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
+
     public function clearSessionData()
     {
-        session()->forget([
-            'meetingTitle',
-            'meetingCategory',
-            'rtcCrop',
-            'venue',
-            'district',
-            'startDate',
-            'endDate',
-            'totalDays',
-            'submissionPeriodId',
-            'selectedFinancialYear',
-            'selectedMonth',
-            'routePrefix'
-        ]);
+        session()->forget(
+            'attendance_register'
+        );
 
         $this->reset([
             'meetingTitle',
@@ -293,12 +226,12 @@ class Add extends Component
             'startDate',
             'endDate',
             'totalDays',
-            'submissionPeriodId',
-            'selectedFinancialYear',
-            'selectedMonth',
-            'routePrefix'
         ]);
-        session()->flash('info', 'Form data has been cleared.');
+
+        $this->dispatch('show-alert', data: [
+            'type' => 'notice',
+            'message' => 'Form data has been cleared!'
+        ]);
     }
 
     public function render()
