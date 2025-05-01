@@ -78,32 +78,6 @@
                         </div>
                         <form wire:submit.debounce.1000ms='filter'>
                             <div class="mx-1 row">
-
-
-
-                                <div class="col">
-
-                                    <div class="mb-3">
-                                        <label for="" class="form-label">Organisation</label>
-                                        <select
-                                            class="form-select @error('selectedOrganisation')
-                                            is-invalid
-                                        @enderror"
-                                            name="" id=""
-                                            wire:model.live.debounce.600ms="selectedOrganisation">
-                                            <option value="">Select one</option>
-                                            @foreach ($organisations as $organisation)
-                                                <option value="{{ $organisation->id }}">{{ $organisation->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    @error('selectedOrganisation')
-                                        <x-error class="mb-1">{{ $message }}</x-error>
-                                    @enderror
-
-                                </div>
-
                                 <div class="col">
 
                                     <div class="mb-3">
@@ -130,6 +104,32 @@
                                     @enderror
 
                                 </div>
+
+                                @hasanyrole('admin|manager')
+                                    <div class="col">
+
+                                        <div class="mb-3">
+                                            <label for="" class="form-label">Organisation</label>
+                                            <select
+                                                class="form-select @error('selectedOrganisation')
+                                            is-invalid
+                                        @enderror"
+                                                name="" id=""
+                                                wire:model.live.debounce.600ms="selectedOrganisation">
+                                                <option value="">Select one</option>
+                                                @foreach ($organisations as $organisation)
+                                                    <option value="{{ $organisation->id }}">{{ $organisation->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        @error('selectedOrganisation')
+                                            <x-error class="mb-1">{{ $message }}</x-error>
+                                        @enderror
+
+                                    </div>
+                                @endhasanyrole
+
                                 <div class="col">
 
                                     <div class="mb-3">
