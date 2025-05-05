@@ -2,6 +2,7 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Models\Recruitment;
 use App\Traits\FilterableQuery;
 
 use App\Models\Submission;
@@ -43,13 +44,8 @@ class indicator_3_1_1
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query()->where('status', 'approved')
+        $query = RtcProductionFarmer::query()->where('status', 'approved');
 
-            ->where(function ($model) {
-
-                $model->where('type', 'Producer organization (PO)')
-                    ->OrWhere('type', 'Large scale farm');
-            })->where('sector', 'Private');;
 
 
 
@@ -57,7 +53,22 @@ class indicator_3_1_1
 
         return $this->applyFilters($query);
     }
+    public function builder(): Builder
+    {
+        $query = Recruitment::query()->where('status', 'approved')
 
+            ->where(function ($model) {
+
+                $model->where('type', 'Producer organization (PO)')
+                    ->OrWhere('type', 'Large scale farm');
+            })->where('sector', 'Private');
+
+
+
+
+
+        return $this->applyFilters($query);
+    }
 
     public function builderProcessor(): Builder
     {
@@ -107,7 +118,7 @@ class indicator_3_1_1
     public function getCropTotal()
     {
         // Build the base query for farmers with type 'Large scale farm' and sector 'Private'
-        $builder = $this->builderFarmer();
+        $builder = $this->builder();
 
         // Clone the query builder for each crop type to avoid overwriting the base query
         $totalPotato = (clone $builder)->where('enterprise', 'Potato')->count();
@@ -149,10 +160,10 @@ class indicator_3_1_1
 
     public function getDisaggregations()
     {
-        $builder = $this->builderFarmer();
+        $builder = $this->builder()->count() + $this->builderFarmer()->count();
 
         return [
-            'Total' => $builder->count(),
+            'Total' => $builder,
             'Cassava' => $this->getCropTotal()['Cassava'],
             'Potato' => $this->getCropTotal()['Potato'],
             'Sweet potato' => $this->getCropTotal()['Sweet potato'],

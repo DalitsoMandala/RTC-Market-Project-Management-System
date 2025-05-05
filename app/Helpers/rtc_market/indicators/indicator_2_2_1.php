@@ -5,6 +5,7 @@ namespace App\Helpers\rtc_market\indicators;
 use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
+use App\Models\Recruitment;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
@@ -45,14 +46,14 @@ class indicator_2_2_1
 
     public function builderFarmer(): Builder
     {
-        $query = RtcProductionFarmer::query()->with('followups')->where('rtc_production_farmers.status', 'approved');
+        $query = Recruitment::query()->where('recruitments.status', 'approved');
 
         return $this->applyFilters($query);
     }
 
     public function builderProcessor(): Builder
     {
-        $query = RtcProductionProcessor::query()->with('followups')->where('rtc_production_processors.status', 'approved');
+        $query = RtcProductionProcessor::query()->where('rtc_production_processors.status', 'approved');
         return $this->applyFilters($query);
     }
     public function getTotals()
@@ -93,21 +94,21 @@ class indicator_2_2_1
         $cassavaTotal = $this->builderFarmer()
             ->where('enterprise', '=', 'Cassava')
             ->where('sector', '=', 'Private')
-            ->where('group', '=', 'Seed multiplier')
+            ->where('category', '=', 'Seed multiplier')
             ->count();
 
         // Count for Sweet potato
         $sweetPotatoTotal = $this->builderFarmer()
             ->where('enterprise', '=', 'Sweet potato')
             ->where('sector', '=', 'Private')
-            ->where('group', '=', 'Seed multiplier')
+            ->where('category', '=', 'Seed multiplier')
             ->count();
 
         // Count for Potato
         $potatoTotal = $this->builderFarmer()
             ->where('enterprise', '=', 'Potato')
             ->where('sector', '=', 'Private')
-            ->where('group', '=', 'Seed multiplier')
+            ->where('category', '=', 'Seed multiplier')
             ->count();
 
         return [

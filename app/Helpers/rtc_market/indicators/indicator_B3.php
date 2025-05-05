@@ -91,12 +91,8 @@ class indicator_B3
         // Retrieve the indicator
         $indicator = $this->findIndicator();
 
-        // Get the baseline value, defaulting to 0 if the indicator or baseline doesn't exist
-        $baseline = $indicator->baseline->baseline_value ?? 0;
 
-        // Calculate the percentage increase based on the subtotal and baseline
-        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
-        $finalTotalPercentage = $percentageIncrease->percentage();
+
 
         // Return the disaggregated data
         return [

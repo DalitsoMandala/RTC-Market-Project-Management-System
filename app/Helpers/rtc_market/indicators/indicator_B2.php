@@ -90,9 +90,8 @@ class indicator_B2
         $totals = $this->getTotals();
         $subTotal = $totals['(Formal) Cassava'] + $totals['(Formal) Potato'] + $totals['(Formal) Sweet potato'];
         $indicator = $this->findIndicator();
-        $baseline = $indicator->baseline->baseline_value ?? 0;
-        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
-        $finalTotalPercentage = $percentageIncrease->percentage();
+
+
         return [
             "Total (% Percentage)" => 0,
             '(Formal) Cassava' => $totals['(Formal) Cassava'],

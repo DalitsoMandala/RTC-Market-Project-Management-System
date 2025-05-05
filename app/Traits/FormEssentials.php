@@ -236,7 +236,7 @@ trait FormEssentials
                 'Section' => 'Required, Text',
                 'District' => 'Required, Text',
                 'Entity Name' => 'Required, Text',
-                'Entity Type' => 'Required, Text',
+                'Entity Type' => 'Required, (Choose One)',
                 'Date' => 'Date (dd-mm-yyyy)',
                 'Cassava Crop' => 'Boolean (1/0)',
                 'Potato Crop' => 'Boolean (1/0)',

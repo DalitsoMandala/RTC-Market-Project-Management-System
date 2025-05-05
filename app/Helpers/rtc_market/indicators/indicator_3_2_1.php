@@ -5,6 +5,7 @@ namespace App\Helpers\rtc_market\indicators;
 use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
+use App\Models\Recruitment;
 use App\Models\RtcProductionFarmer;
 use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,16 +35,17 @@ class indicator_3_2_1
         $query = RtcProductionFarmer::query()->where('uses_certified_seed', true)->where('status', 'approved');
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
 
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
 
-        //     }
+
+        return $this->applyFilters($query);
+    }
+
+    public function builderRecruitment(): Builder
+    {
+
+        $query = Recruitment::query()->where('uses_certified_seed', true)->where('status', 'approved');
+
 
 
 
@@ -51,20 +53,21 @@ class indicator_3_2_1
         return $this->applyFilters($query);
     }
 
-
-
     public function getCropTotal()
     {
 
         $totalPotato = $this->builder()->where('enterprise', 'Potato')->count();
         $totalCassava = $this->builder()->where('enterprise', 'Cassava')->count();
         $totalSweetPotato = $this->builder()->where('enterprise', 'Sweet potato')->count();
+        $totalPotatoRecruitment = $this->builderRecruitment()->where('enterprise', 'Potato')->count();
+        $totalCassavaRecruitment = $this->builderRecruitment()->where('enterprise', 'Cassava')->count();
+        $totalSweetPotatoRecruitment = $this->builderRecruitment()->where('enterprise', 'Sweet potato')->count();
 
 
         return [
-            'Potato' => $totalPotato,
-            'Cassava' => $totalCassava,
-            'Sweet potato' => $totalSweetPotato,
+            'Potato' => $totalPotato + $totalPotatoRecruitment,
+            'Cassava' => $totalCassava + $totalCassavaRecruitment,
+            'Sweet potato' => $totalSweetPotato + $totalSweetPotatoRecruitment,
         ];
     }
 
@@ -74,7 +77,7 @@ class indicator_3_2_1
     {
         $this->getCropTotal();
         return [
-            'Total' => $this->builder()->count(),
+            'Total' => $this->getCropTotal()['Cassava'] + $this->getCropTotal()['Potato'] + $this->getCropTotal()['Sweet potato'],
             'Cassava' => $this->getCropTotal()['Cassava'],
             'Potato' => $this->getCropTotal()['Potato'],
             'Sweet potato' => $this->getCropTotal()['Sweet potato']

@@ -53,6 +53,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
         }
+
+        $prodCalc = $this->calculateUsdValue($row['Production Value Date of Max Sales'], $row['Production Value Total']);
+
         $processorRecord = RtcProductionProcessor::create([
             'group_name' => $row['Group Name'],
             'date_of_followup' => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
@@ -67,8 +70,8 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'total_vol_production_previous_season_produce' => $row['Total Volume Production Produce'],
             'total_vol_production_previous_season_seed' => $row['Total Volume Production Seeed'],
             'total_vol_production_previous_season_cuttings' => $row['Total Volume Production Cuttings'],
-            'prod_value_previous_season_total' => $row['Production Value Total'],
-            'prod_value_previous_season_produce' => $row['Production Value Produce'],
+            'prod_value_previous_season_usd_rate' => $prodCalc['rate'],
+            'prod_value_previous_season_usd_value' => $prodCalc['usd_value'],
             'prod_value_previous_season_seed' => $row['Production Value Seed'],
             'prod_value_previous_season_cuttings' => $row['Production Value Cuttings'],
             'prod_value_produce_prevailing_price' => $row['Production Value Produce Prevailing Price'],
@@ -177,7 +180,22 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0'
         ];
     }
+    private function calculateUsdValue(?string $date, ?float $mwkValue): array
+    {
+        if (!$date || !$mwkValue) {
+            return ['rate' => null, 'usd_value' => null];
+        }
 
+        try {
+            $helper = new \App\Helpers\ExchangeRateHelper();
+            $rate = $helper->getRate($mwkValue, $date);
+            $usdValue = $rate ? round($mwkValue / $rate, 2) : 0;
+            return ['rate' => $rate, 'usd_value' => $usdValue];
+        } catch (\Exception $e) {
+            Log::error("Exchange rate calc error: " . $e->getMessage());
+            return ['rate' => 0, 'usd_value' => 0];
+        }
+    }
     public function startRow(): int
     {
         return 3;

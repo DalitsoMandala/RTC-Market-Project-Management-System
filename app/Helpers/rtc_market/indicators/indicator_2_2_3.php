@@ -7,6 +7,7 @@ use App\Traits\FilterableQuery;
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
 use App\Helpers\IncreasePercentage;
+use App\Models\Recruitment;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,21 +54,40 @@ class indicator_2_2_3
     }
 
 
+    public function builderRecruitment($crop = null): Builder
+    {
+
+
+        $query = Recruitment::query()->where('status', 'approved');
+
+
+
+
+        if ($crop) {
+
+            $query->where('enterprise', $crop);
+            return $query;
+        }
+
+        return $this->applyFilters($query);
+    }
+
     public function getCategoryPos($crop = null)
     {
-        // Use builderFarmer with specified crop and filter by type
-        return $this->builderFarmer($crop)
 
-            ->where('type', 'Producer organization (PO)')
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderRecruitment($crop)
+
+            ->where('group', 'Producer organization (PO)')
             ->count();
     }
 
     public function getCategoryIndividualFarmers($crop = null)
     {
         // Use builderFarmer with specified crop and filter by type
-        return $this->builderFarmer($crop)
+        return $this->builderRecruitment($crop)
 
-            ->where('type', 'Large scale farm')
+            ->where('group', 'Large scale farm')
             ->count();
     }
 
@@ -76,7 +96,7 @@ class indicator_2_2_3
         $totalArea = 0;
 
         // Use the builderFarmer query with specified crop and filter by group
-        $query = $this->builderFarmer($crop)->where('group', 'Early generation seed producer');
+        $query = $this->builderFarmer($crop);
 
         // Process the query in chunks to avoid memory issues
         $query->chunk(100, function ($farmers) use (&$totalArea) {
@@ -93,7 +113,7 @@ class indicator_2_2_3
         $totalArea = 0;
 
         // Use the builderFarmer query with specified crop and filter by group
-        $query = $this->builderFarmer($crop)->where('group', 'Seed multiplier');
+        $query = $this->builderFarmer($crop);
 
         $query->chunk(100, function ($farmers) use (&$totalArea) {
             // Calculate the area for certified seeds

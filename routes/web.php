@@ -87,10 +87,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', [TestingController::class, 'create'])->name('test-url');
 
-Route::get('/indicators', function () {
-    $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 1);
-    dd($indicatorClass->getDisaggregations());
-});
+// Route::get('/indicators', function () {
+//     $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_3_2_1(financial_year: 1);
+//     dd($indicatorClass->getDisaggregations());
+// });
 
 Route::get('/logout', function () {
     return abort(404);
@@ -176,6 +176,7 @@ Route::middleware([
     Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('admin-submission-period');
     Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('admin-jobs');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
 });

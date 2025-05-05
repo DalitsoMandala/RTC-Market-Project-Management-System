@@ -34,16 +34,6 @@ class indicator_2_2_4
         $query = SeedBeneficiary::query()->where('status', 'approved');
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
 

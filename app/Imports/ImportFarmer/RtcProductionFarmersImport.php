@@ -54,6 +54,11 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
         }
+
+
+        $prodCalc = $this->calculateUsdValue($row['Production Value Date of Max Sales'], $row['Production Value Total']);
+        $irrCalc = $this->calculateUsdValue($row['Irrigation Production Value Date of Max Sales'], $row['Irrigation Production Value Total']);
+
         $farmerRecord = RtcProductionFarmer::create([
             'group_name' => $row['Group Name'],
             'date_of_followup' => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
@@ -86,8 +91,8 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'prod_value_seed_prevailing_price' => $row['Production Value Seed Prevailing Price'],
             'prod_value_cuttings_prevailing_price' => $row['Production Value Cuttings Prevailing Price'],
             'prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Production Value Date of Max Sales'])->format('Y-m-d'),
-            'prod_value_previous_season_usd_rate' => $row['Production Value USD Rate'],
-            'prod_value_previous_season_usd_value' => $row['Production Value USD Value'],
+            'prod_value_previous_season_usd_rate' => $prodCalc['rate'],
+            'prod_value_previous_season_usd_value' => $prodCalc['usd_value'],
             'total_vol_irrigation_production_previous_season' => $row['Total Volume Irrigation Production'],
             'total_vol_irrigation_production_previous_season_produce' => $row['Total Volume Irrigation Production Produce'],
             'total_vol_irrigation_production_previous_season_seed' => $row['Total Volume Irrigation Production Seeed'],
@@ -100,8 +105,8 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'irr_prod_value_seed_prevailing_price' => $row['Irrigation Production Value Seed Prevailing Price'],
             'irr_prod_value_cuttings_prevailing_price' => $row['Irrigation Production Value Cuttings Prevailing Price'],
             'irr_prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Irrigation Production Value Date of Max Sales'])->format('Y-m-d'),
-            'irr_prod_value_previous_season_usd_rate' => $row['Irrigation Production Value USD Rate'],
-            'irr_prod_value_previous_season_usd_value' => $row['Irrigation Production Value USD Value'],
+            'irr_prod_value_previous_season_usd_rate' => $irrCalc['rate'],
+            'irr_prod_value_previous_season_usd_value' => $irrCalc['usd_value'],
             'sells_to_domestic_markets' => $row['Sells to Domestic Markets'] ?? 0,
             'sells_to_international_markets' => $row['Sells to International Markets'] ?? 0,
             'uses_market_information_systems' => $row['Uses Market Information Systems'] ?? 0,
@@ -257,5 +262,22 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
     public function startRow(): int
     {
         return 3;
+    }
+
+    private function calculateUsdValue(?string $date, ?float $mwkValue): array
+    {
+        if (!$date || !$mwkValue) {
+            return ['rate' => null, 'usd_value' => null];
+        }
+
+        try {
+            $helper = new \App\Helpers\ExchangeRateHelper();
+            $rate = $helper->getRate($mwkValue, $date);
+            $usdValue = $rate ? round($mwkValue / $rate, 2) : 0;
+            return ['rate' => $rate, 'usd_value' => $usdValue];
+        } catch (\Exception $e) {
+            Log::error("Exchange rate calc error: " . $e->getMessage());
+            return ['rate' => 0, 'usd_value' => 0];
+        }
     }
 }

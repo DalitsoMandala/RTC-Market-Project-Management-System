@@ -62,7 +62,7 @@ final class SubmissionTargetTable extends PowerGridComponent
             ->add('financial_year_id')
             ->add('financial_year', fn($model) => 'Year ' . $model->financialYear->number)
             ->add('indicator_id')
-            ->add('indicator', fn($model) => $model->indicator->indicator_name)
+            ->add('indicator', fn($model) => "({$model->indicator->indicator_no}) " . $model->indicator->indicator_name)
             ->add('target_name')
             ->add('target_value', function ($model) {
 
@@ -76,7 +76,7 @@ final class SubmissionTargetTable extends PowerGridComponent
 
                 $model->target_value = $formatted; // Output: 2
                 if ($model->target_name == "Total (% Percentage)") {
-                    return $model->target_value . ' %';
+                    return $model->target_value . '%';
                 }
                 return $model->target_value;
             })
@@ -91,7 +91,7 @@ final class SubmissionTargetTable extends PowerGridComponent
             Column::make('Financial year', 'financial_year', 'financial_years.number')->sortable(),
             Column::make('Indicator', 'indicator'),
             Column::make('Disaggregation', 'target_name'),
-            Column::make('Value', 'target_value'),
+            Column::make('Value', 'target_value')->bodyAttribute('fw-bold'),
             Column::action('Action')
 
 

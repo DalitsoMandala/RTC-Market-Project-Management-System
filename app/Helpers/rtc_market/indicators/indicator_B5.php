@@ -100,54 +100,17 @@ class indicator_B5
         $potatoTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Potato')->sum('total_vol_production_previous_season');
         $sweetPotatoTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Sweet potato')->sum('total_vol_production_previous_season');
 
-        // Calculate totals from the related `rpm_farmer_follow_ups` table for each crop type
-        $cassavaFarmerFollowUps = $this->builderFarmer()
-            ->where('enterprise', '=', 'Cassava')
-            ->withSum('followups', 'total_vol_production_previous_season')
-            ->first();
-        $cassavaRelatedTotalFarmer = $cassavaFarmerFollowUps ? $cassavaFarmerFollowUps->followups_sum_total_vol_production_previous_season : 0;
-
-        $potatoFarmerFollowUps = $this->builderFarmer()
-            ->where('enterprise', '=', 'Potato')
-            ->withSum('followups', 'total_vol_production_previous_season')
-            ->first();
-        $potatoRelatedTotalFarmer = $potatoFarmerFollowUps ? $potatoFarmerFollowUps->followups_sum_total_vol_production_previous_season : 0;
-
-        $sweetPotatoFarmerFollowUps = $this->builderFarmer()
-            ->where('enterprise', '=', 'Sweet potato')
-            ->withSum('followups', 'total_vol_production_previous_season')
-            ->first();
-        $sweetPotatoRelatedTotalFarmer = $sweetPotatoFarmerFollowUps ? $sweetPotatoFarmerFollowUps->followups_sum_total_vol_production_previous_season : 0;
-
         // Processor totals (following a similar approach for processors)
         $cassavaTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Cassava')->sum('total_vol_production_previous_season');
         $potatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Potato')->sum('total_vol_production_previous_season');
         $sweetPotatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Sweet potato')->sum('total_vol_production_previous_season');
 
-        // Processor related follow-ups totals
-        $cassavaProcessorFollowUps = $this->Processorbuilder()
-            ->where('enterprise', '=', 'Cassava')
-            ->withSum('followups', 'total_vol_production_previous_season')
-            ->first();
-        $cassavaRelatedTotalProcessor = $cassavaProcessorFollowUps ? $cassavaProcessorFollowUps->followups_sum_total_vol_production_previous_season : 0;
-
-        $potatoProcessorFollowUps = $this->Processorbuilder()
-            ->where('enterprise', '=', 'Potato')
-            ->withSum('followups', 'total_vol_production_previous_season')
-            ->first();
-        $potatoRelatedTotalProcessor = $potatoProcessorFollowUps ? $potatoProcessorFollowUps->followups_sum_total_vol_production_previous_season : 0;
-
-        $sweetPotatoProcessorFollowUps = $this->Processorbuilder()
-            ->where('enterprise', '=', 'Sweet potato')
-            ->withSum('followups', 'total_vol_production_previous_season')
-            ->first();
-        $sweetPotatoRelatedTotalProcessor = $sweetPotatoProcessorFollowUps ? $sweetPotatoProcessorFollowUps->followups_sum_total_vol_production_previous_season : 0;
 
         // Optionally, return the combined totals
         return [
-            'cassava' => $cassavaTotalFarmer + $cassavaRelatedTotalFarmer + $cassavaTotalProcessor + $cassavaRelatedTotalProcessor,
-            'potato' => $potatoTotalFarmer + $potatoRelatedTotalFarmer + $potatoTotalProcessor + $potatoRelatedTotalProcessor,
-            'sweet_potato' => $sweetPotatoTotalFarmer + $sweetPotatoRelatedTotalFarmer + $sweetPotatoTotalProcessor + $sweetPotatoRelatedTotalProcessor,
+            'cassava' => $cassavaTotalFarmer + $cassavaTotalProcessor,
+            'potato' => $potatoTotalFarmer  + $potatoTotalProcessor,
+            'sweet_potato' => $sweetPotatoTotalFarmer + $sweetPotatoTotalProcessor,
         ];
     }
 
@@ -167,10 +130,10 @@ class indicator_B5
     {
 
         return [
-            'Total (% Percentage)' => $this->getTotal(),
-            'Cassava' => round($this->findCropCount()['cassava'], 2),
-            'Potato' => round($this->findCropCount()['potato'], 2),
-            'Sweet potato' => round($this->findCropCount()['sweet_potato'], 2),
+            'Total (% Percentage)' => 0,
+            'Cassava' => $this->findCropCount()['cassava'],
+            'Potato' => $this->findCropCount()['potato'],
+            'Sweet potato' => $this->findCropCount()['sweet_potato'],
             //  'Certified seed produce' => $this->getCertifiedSeed(),
             //  'Value added RTC products' => $this->getValueAddedProducts()
         ];

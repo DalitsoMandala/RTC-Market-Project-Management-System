@@ -51,7 +51,7 @@ class indicator_2_2_2
         $totalArea = 0;
 
         // Use the builderFarmer query with specified crop and filter by group
-        $query = $this->builderFarmer($crop)->where('group', 'Early generation seed producer');
+        $query = $this->builderFarmer($crop);
 
         // Process the query in chunks to avoid memory issues
         $query->chunk(100, function ($farmers) use (&$totalArea) {
@@ -68,7 +68,7 @@ class indicator_2_2_2
         $totalArea = 0;
 
         // Use the builderFarmer query with specified crop and filter by group
-        $query = $this->builderFarmer($crop)->where('group', 'Seed multiplier');
+        $query = $this->builderFarmer($crop);
 
         $query->chunk(100, function ($farmers) use (&$totalArea) {
             // Calculate the area for certified seeds
