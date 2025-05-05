@@ -63,14 +63,17 @@
                                         <a href="{{ $routePrefix }}/reports" class="nav-link active "
                                             aria-current="page">Reporting</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Standard
-                                            Targets</a>
-                                    </li>
 
-                                    <li class="nav-item">
-                                        <a href="{{ $routePrefix }}/targets" class="nav-link ">Targets</a>
-                                    </li>
+                                    @hasanyrole('admin|manager')
+                                        <li class="nav-item">
+                                            <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Standard
+                                                Targets</a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="{{ $routePrefix }}/targets" class="nav-link ">Targets</a>
+                                        </li>
+                                    @endhasanyrole
 
                                 </ul>
 

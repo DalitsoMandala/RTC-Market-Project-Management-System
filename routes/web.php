@@ -250,8 +250,8 @@ Route::middleware([
     Route::get('/submissions/{batch?}', \App\Livewire\External\Submissions::class)->name('external-submissions');
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
-    Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
-    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
+    //   Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
+    //  Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
 
     registerFormRoutes('/forms/{project}', 'external');
 });
