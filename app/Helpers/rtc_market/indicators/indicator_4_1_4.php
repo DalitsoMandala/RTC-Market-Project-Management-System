@@ -57,7 +57,7 @@ class indicator_4_1_4
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of new RTC recipes/products adopted and branded by processors')->where('indicator_no', '4.1.4')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of new RTC recipes/products adopted and branded by processors')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

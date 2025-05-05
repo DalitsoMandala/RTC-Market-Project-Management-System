@@ -30,7 +30,7 @@ class indicator_1_1_2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of potential market preferred RTC genotypes in the pipeline identified')->where('indicator_no', '1.1.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of potential market preferred RTC genotypes in the pipeline identified')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
         return $this->applyFilters($query);

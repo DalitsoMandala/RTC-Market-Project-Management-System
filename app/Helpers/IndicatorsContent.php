@@ -220,7 +220,7 @@ class IndicatorsContent
                 'project_name' => 'RTC MARKET',
             ],
             [
-                "indicator_name" => "Percentage business plans for the production of different classes of RTC seeds that are executed",
+                "indicator_name" => "Number of business plans for the production of different classes of RTC seeds that are executed",
                 'class' => \App\Helpers\rtc_market\indicators\indicator_2_3_1_2::class,
                 'project_name' => 'RTC MARKET',
             ],
@@ -531,7 +531,7 @@ class IndicatorsContent
             ],
             "Number of on-farm seed production technology demonstrations established" => ['Total'],
             "Number of international learning visits for seed producers (OC)" => ['Total'],
-            "Percentage business plans for the production of different classes of RTC seeds that are executed" => [
+            "Number of business plans for the production of different classes of RTC seeds that are executed" => [
                 'Total (% Percentage)',
                 'POs',
                 'SMEs',
@@ -836,7 +836,7 @@ class IndicatorsContent
             [
                 "id" => 15,
                 "indicator_name" => "Number of policy briefs developed and shared on RTC topics",
-                "indicator_no" => "1.3.1",
+                "indicator_no" => "1.3.2",
                 "partners" => ['RTCDT']
             ],
             [
@@ -905,8 +905,8 @@ class IndicatorsContent
             ],
             [
                 "id" => 23,
-                "indicator_name" => "Percentage business plans for the production of different classes of RTC seeds that are executed",
-                "indicator_no" => "2.3.1",
+                "indicator_name" => "Number of business plans for the production of different classes of RTC seeds that are executed",
+                "indicator_no" => "2.3.2",
                 "partners" => [
                     'CIP',
                     'IITA'
@@ -915,7 +915,7 @@ class IndicatorsContent
             [
                 "id" => 24,
                 "indicator_name" => "Number of stakeholder engagement events that focus on RTC development",
-                "indicator_no" => "2.3.2",
+                "indicator_no" => "2.3.3",
                 "partners" => [
                     'CIP',
                     'IITA',
@@ -926,7 +926,7 @@ class IndicatorsContent
             [
                 "id" => 25,
                 "indicator_name" => "Number of registered seed producers accessing markets through online Market Information System (MIS)",
-                "indicator_no" => "2.3.3",
+                "indicator_no" => "2.3.4",
                 "partners" => [
                     'ACE',
 
@@ -935,7 +935,7 @@ class IndicatorsContent
             [
                 "id" => 26,
                 "indicator_name" => "Number of RTC actors linked to online Market Information System (MIS)",
-                "indicator_no" => "2.3.4",
+                "indicator_no" => "2.3.5",
                 "partners" => [
                     'ACE',
                     'DAES'
@@ -944,7 +944,7 @@ class IndicatorsContent
             [
                 "id" => 27,
                 "indicator_name" => "Number of RTC products available on the Management Information System",
-                "indicator_no" => "2.3.5",
+                "indicator_no" => "2.3.6",
                 "partners" => [
                     'ACE',
                     'DAES'

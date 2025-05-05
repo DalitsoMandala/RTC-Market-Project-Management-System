@@ -57,7 +57,7 @@ class indicator_3_3_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of market opportunities identified for RTC actors')->where('indicator_no', '3.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of market opportunities identified for RTC actors')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

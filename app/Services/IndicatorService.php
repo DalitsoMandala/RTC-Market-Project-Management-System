@@ -71,7 +71,7 @@ class IndicatorService
         'Number of international learning visits for seed producers (OC)' => [
             'RTC MARKET' => 'indicators.rtc-market.indicator-231',
         ],
-        'Percentage business plans for the production of different classes of RTC seeds that are executed' => [
+        'Number of business plans for the production of different classes of RTC seeds that are executed' => [
             'RTC MARKET' => 'indicators.rtc-market.indicator-2312',
         ],
         'Number of stakeholder engagement events that focus on RTC development' => [

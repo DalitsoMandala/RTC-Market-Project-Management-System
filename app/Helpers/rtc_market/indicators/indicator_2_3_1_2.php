@@ -31,7 +31,7 @@ class indicator_2_3_1_2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage business plans for the production of different classes of RTC seeds that are executed')->where('indicator_no', '2.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of business plans for the production of different classes of RTC seeds that are executed')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -58,7 +58,7 @@ class indicator_2_3_1_2
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Percentage business plans for the production of different classes of RTC seeds that are executed')->where('indicator_no', '2.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of business plans for the production of different classes of RTC seeds that are executed')->first();
 
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
@@ -88,7 +88,7 @@ class indicator_2_3_1_2
 
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage business plans for the production of different classes of RTC seeds that are executed')->where('indicator_no', '2.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of business plans for the production of different classes of RTC seeds that are executed')->where('indicator_no', '2.3.1')->first();
         if (!$indicator) {
             Log::error('Indicator not found');
             return null; // Or throw an exception if needed
@@ -104,7 +104,7 @@ class indicator_2_3_1_2
 
         // Return the disaggregated data
         return [
-            'Total (% Percentage)' => 0,
+            'Total' => 0,
             'POs' => $totals['POs'],
             'SMEs' => $totals['SMEs'],
             'Large scale commercial farmers' => $totals['Large scale commercial farmers'],

@@ -59,7 +59,7 @@ class indicator_3_5_4
         $builder = $this->builder()->get();
 
         $indicator = Indicator::where('indicator_name', 'Number of RTC utilization options (dishes) adopted by households (OC)')
-            ->where('indicator_no', '3.5.4')->first();
+            ->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

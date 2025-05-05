@@ -33,7 +33,7 @@ class indicatorBuilder
             "2.2.4" => "Volume of seed distributed within communities to enhance POs productivity",
             "2.2.5" => "Number of on-farm seed production technology demonstrations established",
             "2.3.1" => [
-                "Percentage business plans for the production of different classes of RTC seeds that are executed",
+                "Number of business plans for the production of different classes of RTC seeds that are executed",
             ],
             "2.3.2" => "Number of stakeholder engagement events that focus on RTC development",
             "2.3.3" => "Number of registered seed producers accessing markets through online Market Information System (MIS)",
@@ -67,5 +67,4 @@ class indicatorBuilder
 
         ];
     }
-
 }

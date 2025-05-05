@@ -57,7 +57,7 @@ class indicator_2_3_1_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of international learning visits for seed producers (OC)')->where('indicator_no', '2.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of international learning visits for seed producers (OC)')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

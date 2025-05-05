@@ -67,7 +67,7 @@ class indicator_3_4_4
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->where('indicator_no', '3.4.4')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

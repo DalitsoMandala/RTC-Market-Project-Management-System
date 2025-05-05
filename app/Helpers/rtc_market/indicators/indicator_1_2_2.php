@@ -30,7 +30,7 @@ class indicator_1_2_2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC and derived products recorded in official trade statistics')->where('indicator_no', '1.2.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC and derived products recorded in official trade statistics')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

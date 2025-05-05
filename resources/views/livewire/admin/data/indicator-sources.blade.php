@@ -23,6 +23,7 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+                <x-alerts />
                 <div class="card ">
                     <div class="card-header">
                         <h5 class="card-title text-capitalize">Forms & Organisations</h5>
@@ -37,9 +38,20 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-
+        
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
+        })
+        $wire.on('refresh', (e) => {
+            const modals = document.querySelectorAll('.modal.show');
+        
+            // Iterate over each modal and hide it using Bootstrap's modal hide method
+            modals.forEach(modal => {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
         })">
 
 
@@ -81,17 +93,21 @@
                         </div>
 
 
-                        
+
 
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3" x-data="{
+                        selectedLeadPartner: $wire.entangle('selectedLeadPartner')
+                    }">
                         <label for="" class="form-label">Select partner for this indicator</label>
                         <select class="form-select  @error('selectedLeadPartner') is-invalid @enderror" name=""
-                            id="" wire:model='selectedLeadPartner' multiple>
+                            id="" x-model='selectedLeadPartner' multiple>
 
                             @foreach ($leadPartners as $organisation)
-                                <option value="{{ $organisation->id }}">{{ $organisation->name }}</option>
+                                <option @if (in_array($organisation->id, $selectedLeadPartner)) selected @endif
+                                    value="{{ $organisation->id }}">
+                                    {{ $organisation->name }}</option>
                             @endforeach
                         </select>
 
@@ -100,28 +116,15 @@
                         @enderror
                     </div>
 
-                    <!-- Some borders are removed -->
-                    <h5>Forms for this indicator</h5>
-                    <ul class="list-group list-group-flush">
 
-                        @foreach ($forms as $form)
-                            <li class="italic list-group-item">
-                                <i class="bx bx-check text-success"></i> {{ $form->name }}
-                            </li>
-                        @endforeach
-
-                    </ul>
-
-
-                    {{-- <div class="mb-3">
+                    <div class="mb-3" x-data="{ selectedForms: $wire.entangle('selectedForms') }">
                         <label for="" class="form-label">Select forms</label>
-                        <select
-                            class="form-select form-select @if (!$selectedLeadPartner) pe-none opacity-25 @endif"
-                            name="" id="mySelect" wire:model='selectedForms' wire:loading.class='opacity-25'
-                            multiple>
-                            <option value="" disabled>Select one</option>
+                        <select class="form-select " name="" id="mySelect" x-model='selectedForms'
+                            wire:loading.class='opacity-25' multiple>
+
                             @foreach ($forms as $form)
-                                <option value="{{ $form->id }}">{{ $form->name }}</option>
+                                <option @if (in_array($form->id, $selectedForms)) selected @endif value="{{ $form->id }}">
+                                    {{ $form->name }}</option>
                             @endforeach
                         </select>
 
@@ -129,7 +132,7 @@
                         @error('selectedForms')
                             <x-error>{{ $message }}</x-error>
                         @enderror
-                    </div> --}}
+                    </div>
 
 
                     <div class="modal-footer border-top-0">
@@ -148,18 +151,3 @@
     </div>
 
 </div>
-@script
-    <script>
-        $('#mySelect').on('change', function() {
-            let selectedValues = $(this).val(); // Get selected values
-
-            if (selectedValues.includes('6')) { // If "All" (value 1) is selected
-                // Deselect all other options
-                $(this).find('option').not('[value="6"]').prop('disabled', true).prop('selected', false);
-            } else {
-                // Enable all options
-                $(this).find('option').prop('disabled', false);
-            }
-        });
-    </script>
-@endscript

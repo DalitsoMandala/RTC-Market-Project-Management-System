@@ -30,7 +30,7 @@ class indicator_3_4_1
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->where('indicator_no', '3.4.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

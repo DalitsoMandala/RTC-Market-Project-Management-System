@@ -29,7 +29,7 @@ class indicator_1_2_1
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->where('indicator_no', '1.2.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
         return $this->applyFilters($query);
@@ -40,7 +40,7 @@ class indicator_1_2_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->where('indicator_no', '1.2.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

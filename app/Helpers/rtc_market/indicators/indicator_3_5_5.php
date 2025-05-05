@@ -30,7 +30,7 @@ class indicator_3_5_5
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of urban market promotions conducted')->where('indicator_no', '3.5.5')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of urban market promotions conducted')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

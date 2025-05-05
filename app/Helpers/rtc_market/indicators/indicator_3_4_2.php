@@ -66,7 +66,7 @@ class indicator_3_4_2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of POs that have formal contracts with buyers')->where('indicator_no', '3.4.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of POs that have formal contracts with buyers')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

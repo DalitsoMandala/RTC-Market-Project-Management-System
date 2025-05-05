@@ -87,10 +87,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', [TestingController::class, 'create'])->name('test-url');
 
-// Route::get('/indicators', function () {
-//     $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_3_2_1(financial_year: 1);
-//     dd($indicatorClass->getDisaggregations());
-// });
+Route::get('/indicators', function () {
+    $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_2_3_1_2(financial_year: 1);
+    dd($indicatorClass->getDisaggregations());
+});
 
 Route::get('/logout', function () {
     return abort(404);

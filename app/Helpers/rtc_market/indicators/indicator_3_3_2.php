@@ -57,7 +57,7 @@ class indicator_3_3_2
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->where('indicator_no', '3.3.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

@@ -32,7 +32,7 @@ class indicator_3_2_5
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->where('indicator_no', '3.2.5')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

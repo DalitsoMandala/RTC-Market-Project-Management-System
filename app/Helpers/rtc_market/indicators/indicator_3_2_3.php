@@ -57,7 +57,7 @@ class indicator_3_2_3
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of off-season irrigation demonstration sites established')->where('indicator_no', '3.2.3')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of off-season irrigation demonstration sites established')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

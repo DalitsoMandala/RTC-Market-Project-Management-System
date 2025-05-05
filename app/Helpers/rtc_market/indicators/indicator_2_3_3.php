@@ -49,7 +49,7 @@ class indicator_2_3_3
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of registered seed producers accessing markets through online Market Information System (MIS)')->where('indicator_no', '2.3.3')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of registered seed producers accessing markets through online Market Information System (MIS)')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

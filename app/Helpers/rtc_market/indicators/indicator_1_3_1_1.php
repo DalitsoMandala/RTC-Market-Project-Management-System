@@ -29,7 +29,7 @@ class indicator_1_3_1_1
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of existing agricultural programs that integrate RTC into their programs')->where('indicator_no', '1.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of existing agricultural programs that integrate RTC into their programs')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

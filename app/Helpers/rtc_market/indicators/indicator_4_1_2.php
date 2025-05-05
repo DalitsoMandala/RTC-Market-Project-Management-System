@@ -107,7 +107,7 @@ class indicator_4_1_2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->where('indicator_no', '4.1.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

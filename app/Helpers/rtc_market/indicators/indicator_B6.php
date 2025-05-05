@@ -33,7 +33,7 @@ class indicator_B6
 
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->where('indicator_no', 'B6')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->first();
         if (!$indicator) {
             Log::error('Indicator not found');
             return null; // Or throw an exception if needed
@@ -45,7 +45,7 @@ class indicator_B6
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->where('indicator_no', 'B6')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

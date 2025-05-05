@@ -49,11 +49,19 @@ class IndicatorSources extends Component
 
                 ]);
             }
+
+
+            $currentIndicator = Indicator::find($this->rowId);
+            $currentIndicator->forms()->sync($this->selectedForms);
+
+
             $this->dispatch('refresh');
-            $this->alert('success', 'Indicator updated successfully');
+            //   $this->alert('success', 'Indicator updated successfully');
+            session()->flash('success', 'Indicator updated successfully');
         } catch (\Throwable $th) {
 
-            $this->alert('error', 'Something went wrong');
+            //$this->alert('error', 'Something went wrong');
+            session()->flash('error', 'Something went wrong');
             Log::error($th);
         }
     }
@@ -61,14 +69,16 @@ class IndicatorSources extends Component
     #[On('showModal')]
     public function setData($rowId)
     {
+
         $this->selectedForms = [];
 
         $row = Indicator::find($rowId);
         $organisations = $row->organisation->pluck('id');
         $forms = $row->forms->pluck('id');
-        $this->forms = Form::whereIn('id', $forms)->get();
+        $this->forms = Form::get();
+        $this->selectedForms = $forms->toArray();
         $this->leadPartners = Organisation::all();
-        //$this->selectedLeadPartner  = $organisations->toArray();
+        $this->selectedLeadPartner  = $organisations->toArray();
         $this->indicators = Indicator::where('id', $rowId)->get();
         $this->rowId = $rowId;
     }

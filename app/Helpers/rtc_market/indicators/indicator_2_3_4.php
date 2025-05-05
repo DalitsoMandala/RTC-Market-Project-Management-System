@@ -57,7 +57,7 @@ class indicator_2_3_4
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors linked to online Market Information System (MIS)')->where('indicator_no', '2.3.4')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC actors linked to online Market Information System (MIS)')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

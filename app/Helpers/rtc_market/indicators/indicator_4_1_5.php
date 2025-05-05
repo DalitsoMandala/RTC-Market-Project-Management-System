@@ -30,21 +30,9 @@ class indicator_4_1_5
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of domestic market opportunities identified for value-added products')->where('indicator_no', '4.1.5')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of domestic market opportunities identified for value-added products')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
 

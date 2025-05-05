@@ -92,7 +92,7 @@ class FormSeeder extends Seeder
             $indicators['Volume of seed distributed within communities to enhance POs productivity'] => ['SEED DISTRIBUTION REGISTER'],
             $indicators['Number of on-farm seed production technology demonstrations established'] => ['REPORT FORM'],
             $indicators['Number of international learning visits for seed producers (OC)'] => ['REPORT FORM'],
-            $indicators['Percentage business plans for the production of different classes of RTC seeds that are executed'] => ['REPORT FORM'],
+            $indicators['Number of business plans for the production of different classes of RTC seeds that are executed'] => ['REPORT FORM'],
             $indicators['Number of stakeholder engagement events that focus on RTC development'] => ['REPORT FORM'],
             $indicators['Number of registered seed producers accessing markets through online Market Information System (MIS)'] => [
                 'REPORT FORM',

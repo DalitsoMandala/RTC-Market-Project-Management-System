@@ -30,7 +30,7 @@ class indicator_3_5_1
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->where('indicator_no', '3.5.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

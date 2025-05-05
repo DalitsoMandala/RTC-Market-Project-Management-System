@@ -30,7 +30,7 @@ class indicator_4_1_6
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of international market opportunities identified for value-added products')->where('indicator_no', '4.1.6')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of international market opportunities identified for value-added products')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
