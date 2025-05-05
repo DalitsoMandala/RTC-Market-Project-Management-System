@@ -56,7 +56,7 @@ class indicator_2_2_5
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of on-farm seed production technology demonstrations established')->where('indicator_no', '2.2.5')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of on-farm seed production technology demonstrations established')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

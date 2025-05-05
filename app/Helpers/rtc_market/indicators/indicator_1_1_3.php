@@ -30,7 +30,7 @@ class indicator_1_1_3
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of new RTC technologies developed')->where('indicator_no', '1.1.3')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of new RTC technologies developed')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

@@ -61,7 +61,7 @@ class indicator_2_2_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of private sector actors involved in production of RTC certified seed')->where('indicator_no', '2.2.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of private sector actors involved in production of RTC certified seed')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

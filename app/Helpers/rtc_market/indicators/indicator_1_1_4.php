@@ -31,7 +31,7 @@ class indicator_1_1_4
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->where('indicator_no', '1.1.4')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -39,7 +39,7 @@ class indicator_1_1_4
     }
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->where('indicator_no', '1.1.4')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->first();
         if (!$indicator) {
 
             Log::error('Indicator not found');

@@ -30,7 +30,7 @@ class indicator_3_5_6
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of mass nutrition education campaigns conducted')->where('indicator_no', '3.5.6')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of mass nutrition education campaigns conducted')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

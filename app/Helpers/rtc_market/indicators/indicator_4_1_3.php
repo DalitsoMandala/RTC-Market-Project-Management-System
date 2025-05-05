@@ -30,7 +30,7 @@ class indicator_4_1_3
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC value-added products developed for domestic markets')->where('indicator_no', '4.1.3')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC value-added products developed for domestic markets')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

@@ -35,7 +35,7 @@ class indicator_B2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->where('indicator_no', 'B2')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -81,7 +81,7 @@ class indicator_B2
 
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->where('indicator_no', 'B2')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->first();
         return $indicator ?? Logger::error('Indicator not found');
     }
     public function getDisaggregations()
