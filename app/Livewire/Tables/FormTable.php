@@ -46,16 +46,7 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-        $groupedUsers = $this->getSubmissionPeriodsEndingSoonGroupedByUser();
 
-
-        foreach ($groupedUsers as $userId => $data) {
-            $user = User::find($userId);
-
-            if ($user && !empty($data['forms'])) {
-                $user->notify(new SubmissionPeriodsEndingSoon($data['forms']));
-            }
-        }
 
         $user = User::find(auth()->user()->id);
 
