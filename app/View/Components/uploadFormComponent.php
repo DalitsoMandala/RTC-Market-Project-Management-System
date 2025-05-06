@@ -39,7 +39,8 @@ class uploadFormComponent extends Component
         string $addDataRoute = '',
         string $currentRoute = '',
         $breadcrumbs = null,
-        string $pageTitle = ''
+        string $pageTitle = '',
+        $formRoute = null
     ) {
         $this->formName = $formName;
         $this->targetSet = $targetSet;
@@ -55,7 +56,7 @@ class uploadFormComponent extends Component
         $this->breadcrumbs = $breadcrumbs;
         $this->pageTitle = $pageTitle;
 
-        $this->formRoute = strtolower(str_replace(' ', '-', $this->formName));
+        $this->formRoute = strtolower(str_replace(' ', '-', $formName));
     }
     /**
      * Get the view / contents that represent the component.

@@ -58,7 +58,7 @@ class formComponent extends Component
         $currentUrl = url()->current();
         $this->replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
 
-        $this->formRoute = strtolower(str_replace(' ', '-', $this->formName));
+        $this->formRoute = strtolower(str_replace(' ', '-', $formName));
     }
 
     /**
