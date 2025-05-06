@@ -36,7 +36,8 @@ class formComponent extends Component
         $hideSubmitButtons = false,
         $skipDraftScript = false,
         $formName = 'default',
-        $showAlpineAlerts = false
+        $showAlpineAlerts = false,
+        $formRoute = null
     ) {
         $this->title = $title;
         $this->pageTitle = $pageTitle;

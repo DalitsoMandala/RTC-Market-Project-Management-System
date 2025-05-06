@@ -51,7 +51,7 @@ trait ManualDataTrait
     public $targetSet = false;
     public $targetIds = [];
 
-
+    public $form_name;
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
