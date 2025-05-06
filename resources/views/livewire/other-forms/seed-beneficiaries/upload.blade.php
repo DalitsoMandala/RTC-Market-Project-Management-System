@@ -1,163 +1,48 @@
  <div>
-     @section('title')
-         Upload Seed Distribution Register
-     @endsection
 
+     <x-upload-form-component :pageTitle="'Upload Seed Distribution Data'" :formName="$form_name" :targetSet="$targetSet" :openSubmission="$openSubmission" :importing="$importing"
+         :importingFinished="$importingFinished" :progress="$progress" :targetIds="$targetIds" :selectedMonth="$selectedMonth" :selectedFinancialYear="$selectedFinancialYear" :currentRoute="url()->current()">
 
-     <div class="container-fluid">
-
-         <!-- start page title -->
-         <div class="row">
-             <div class="col-12">
-                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                     <h4 class="mb-0">Upload Seed Distribution Register</h4>
-
-                     <div class="page-title-right" wire:ignore>
-                         @php
-                             use Ramsey\Uuid\Uuid;
-
-                             $currentUrl = url()->current();
-                             $uuid = Route::current()->parameters()['uuid'] ?? '';
-                             $newUuid = Uuid::uuid4()->toString();
-                             $addDataRoute = str_replace($uuid, '', $currentUrl);
-                             $addDataRoute = str_replace('upload', 'add', $addDataRoute);
-
-                         @endphp
-                         <ol class="m-0 breadcrumb">
-                             <li class="breadcrumb-item"><a href="/">Upload</a></li>
-
-                             <li class="breadcrumb-item ">
-                                 <a href="{{ $addDataRoute }}">
-                                     Add Data
-                                 </a>
-                             </li>
-
-
-                             <li class="breadcrumb-item active">Upload</li>
-                         </ol>
+         <form wire:submit='submitUpload'>
+             <div x-data>
+                 <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
+                     @if ($importing && !$importingFinished) disabled @endif wire:loading.attr='disabled'>
+                     <!-- Border spinner -->
+                     <div class="mx-2 opacity-30 spinner-border text-secondary" style="width: 1rem; height: 1rem;"
+                         wire:loading wire:target='downloadTemplate' role="status">
+                         <span class="sr-only">Loading...</span>
                      </div>
+                     Download template<i class="bx bx-download"></i>
+                 </button>
+                 <hr>
+             </div>
 
+             <div class="row justify-content-center">
+                 <div class="col-12 @if ($importing) pe-none opacity-25 @endif ">
+
+                     <x-filepond-single instantUpload="true" wire:model='upload' />
+
+
+                     @error('upload')
+                         <div class="d-flex justify-content-center">
+                             <x-error class="text-center">{{ $message }}</x-error>
+                         </div>
+                     @enderror
+
+                     <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
+                         <button type="submit" @uploading-files.window="disableButton = true"
+                             @finished-uploading.window="disableButton = false"
+                             :disabled="disableButton === true || openSubmission === false"
+                             class="px-5 btn btn-warning">
+                             <!-- Border spinner -->
+                             <div class="mx-2 opacity-30 spinner-border text-light" style="width: 1rem; height: 1rem;"
+                                 wire:loading wire:target='submitUpload' role="status">
+                                 <span class="sr-only">Loading...</span>
+                             </div>
+                             Submit data
+                         </button>
+                     </div>
                  </div>
              </div>
-         </div>
-
-         <div class="row justify-content-center">
-             <div class="col-12 col-md-8">
-
-
-                 <h3 class="mb-5 text-center text-warning">SEED DISTRIBUTION REGISTER</h3>
-
-                 <x-alerts />
-
-
-                 <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
-
-                 @if (!$targetSet)
-                     <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
-                 @endif
-
-                 @if ($openSubmission === false)
-                     <div class="alert alert-warning" role="alert">
-                         You can not submit a form right now
-                         because submissions are closed for the moment!
-                     </div>
-                 @endif
-
-                 <div
-                     class="my-2 border shadow-none card card-body @if ($openSubmission === false) opacity-25  pe-none @endif">
-                     <h5> Instructions</h5>
-                     <p class="alert bg-secondary-subtle text-uppercase">Download the Seed Distribution Register
-                         template &
-                         upload
-                         your
-                         data.</p>
-
-                     <form wire:submit='submitUpload'>
-                         <div x-data>
-                             <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
-                                 wire:loading.attr='disabled' wire:target='downloadTemplate'>
-                                 Download template <i class="bx bx-download"></i> </button>
-                             <hr>
-                         </div>
-
-                         <div id="table-form">
-                             <div class="row">
-                                 <div class="col">
-
-
-                                 </div>
-                                 @if ($importing && !$importingFinished)
-                                     <div class="alert alert-warning d-flex justify-content-between"
-                                         wire:poll.5000ms='checkProgress()'>Importing your
-                                         file
-                                         Please wait....
-
-                                         <div class=" d-flex align-content-center">
-                                             <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
-
-
-                                             <div class="spinner-border text-warning spinner-border-sm" role="status">
-                                                 <span class="visually-hidden">Loading...</span>
-                                             </div>
-
-                                         </div>
-                                     </div>
-
-
-
-
-
-                                     <div x-data class="my-2 progress progress-sm">
-                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                                             role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
-                                             aria-valuemin="0" aria-valuemax="100">
-
-                                         </div>
-                                     </div>
-                                 @endif
-
-
-                             </div>
-                         </div>
-                         <div class="row justify-content-center">
-
-                             <div class="col-12 @if ($importing) pe-none opacity-25 @endif">
-                                 <x-filepond-single instantUpload="true" wire:model='upload' />
-                                 @error('upload')
-                                     <div class="d-flex justify-content-center">
-                                         <x-error class="text-center ">{{ $message }}</x-error>
-                                     </div>
-                                 @enderror
-                                 <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
-                                     <button type="submit" @uploading-files.window="disableButton = true"
-                                         @finished-uploading.window="disableButton = false"
-                                         :disabled="disableButton === true || openSubmission === false"
-                                         wire:loading.attr='disabled' class="px-5 btn btn-warning ">
-                                         Submit data
-                                     </button>
-
-
-                                 </div>
-
-
-                             </div>
-                         </div>
-
-                 </div>
-                 </form>
-
-
-
-
-             </div>
-         </div>
-     </div>
-
- </div>
- @script
-     <script>
-         $wire.on('complete-submission', () => {
-             $wire.send();
-         });
-     </script>
- @endscript
+         </form>
+     </x-upload-form-component>

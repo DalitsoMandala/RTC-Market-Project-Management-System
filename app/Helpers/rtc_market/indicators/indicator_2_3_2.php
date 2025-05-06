@@ -30,7 +30,7 @@ class indicator_2_3_2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of stakeholder engagement events that focus on RTC development')->where('indicator_no', '2.3.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of stakeholder engagement events that focus on RTC development')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

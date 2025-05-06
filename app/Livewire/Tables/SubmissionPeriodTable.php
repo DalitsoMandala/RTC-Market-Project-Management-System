@@ -317,7 +317,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     #[On('timeout')]
     public function timeout()
     {
-        SubmissionPeriod::where('date_ending', '<', Carbon::now())->update([
+        SubmissionPeriod::where('date_ending', '<=', Carbon::now())->update([
             'is_expired' => 1,
             'is_open' => 0
         ]);

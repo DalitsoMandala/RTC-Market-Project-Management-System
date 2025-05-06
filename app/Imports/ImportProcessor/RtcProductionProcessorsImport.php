@@ -91,7 +91,10 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'submission_period_id' => $this->data['submission_period_id'],
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
-            'status' => $status
+            'status' => $status,
+            'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seeed'] / self::BUNDLE_MULTIPLIER) : 0,
+            'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
+
         ]);
 
         // Cache the mapping of 'ID' to primary key
@@ -118,7 +121,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             /** Convert the bundles to metric tonnes and use the multiplier */
             $row['Total Volume Production Seeed'] = $this->convertToMetricTonnes($row['Total Volume Production Seeed']);
         }
-        $row['Total Volume Production'] = ($row['Total Volume Production Produce'] ?? 0) + ($row['Total Volume Production Seed'] ?? 0) + ($row['Total Volume Production Cuttings'] ?? 0);
+        $row['Total Volume Production'] = ($row['Total Volume Production Produce'] ?? 0) + ($row['Total Volume Production Seeed'] ?? 0) + ($row['Total Volume Production Cuttings'] ?? 0);
 
         $row['Production Value Total'] = $this->calculateTotalProduction(
             $row['Total Volume Production Produce'],

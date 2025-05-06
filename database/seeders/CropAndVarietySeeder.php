@@ -56,6 +56,11 @@ class CropAndVarietySeeder extends Seeder
                     break;
                 case 'Cassava':
                     // code...
+
+                    $mainCrop->varieties()->createMany([
+
+                        ['name' => 'other'],
+                    ]);
                     break;
                 default:
                     // code...

@@ -5,7 +5,7 @@
     <form wire:submit.prevent="save">
         <div class="my-5 row">
             @foreach ($disaggregations as $disaggregation)
-                <div class="mb-3 col">
+                <div class="mb-3 col-6">
                     <label for="disaggregation_{{ $disaggregation->id }}" class="form-label">
                         {{ $disaggregation->name }} <!-- Assuming you have a 'name' column in your model -->
                     </label>

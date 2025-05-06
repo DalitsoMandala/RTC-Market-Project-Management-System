@@ -128,9 +128,13 @@ trait UploadDataTrait
         $targets = $this->getSubmissionTargets();
         $this->targetIds = $targets->pluck('id')->toArray();
 
-        $this->openSubmission = $submissionPeriod && $this->hasOrganisationTargets($targets);
-        $this->targetSet = true;
-        // $this->targetSet = $this->openSubmission;
+        $this->openSubmission =  $submissionPeriod->count() > 0 ? true : false; // tempolary
+        $this->targetSet = $this->openSubmission; // tempolary
+
+        //   $this->openSubmission = $submissionPeriod && $this->hasOrganisationTargets($targets);
+
+
+        //  $this->targetSet = $this->openSubmission;
     }
 
     /**

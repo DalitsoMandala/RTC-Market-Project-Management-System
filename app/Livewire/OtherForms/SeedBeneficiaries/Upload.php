@@ -12,6 +12,7 @@ use App\Models\JobProgress;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use Livewire\WithFileUploads;
+use App\Traits\UploadDataTrait;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use Livewire\Attributes\Validate;
@@ -22,6 +23,7 @@ use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\SeedBeneficiariesExport;
 use App\Imports\SeedBeneficiariesImport;
@@ -33,18 +35,19 @@ class Upload extends Component
     use LivewireAlert;
     use WithFileUploads;
     use CheckProgressTrait;
+    use UploadDataTrait;
     public $upload;
     public $variable;
     public $rowId;
     public $selectedIndicator;
     public $selectedMonth;
-
+public $form_name;
     public $selectedFinancialYear;
 
     public $selectedProject;
 
     public $selectedForm;
-    public $showReport;
+
     public $submissionPeriodId;
 
     public $openSubmission = false;
@@ -125,64 +128,21 @@ class Upload extends Component
         return Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries_template.xlsx');
     }
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
+        // Validate required IDs
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
-        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+        // Find and validate related models
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
-            abort(404);
-        }
+        // Check if the submission period is open and targets are set
+        $this->checkSubmissionPeriodAndTargets();
 
-        $findForm = Form::find($form_id);
-        $findIndicator = Indicator::find($indicator_id);
-        $findFinancialYear = FinancialYear::find($financial_year_id);
-        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
-        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
-        if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
-
-            abort(404);
-        } else {
-            $this->selectedForm = $findForm->id;
-            $this->selectedIndicator = $findIndicator->id;
-            $this->selectedFinancialYear = $findFinancialYear->id;
-            $this->selectedMonth = $findMonthPeriod->id;
-            $this->submissionPeriodId = $findSubmissionPeriod->id;
-            //check submission period
-
-            $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
-                ->where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
-                ->where('is_open', true)
-                ->first();
-
-            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-
-                ->get();
-            $user = User::find(auth()->user()->id);
-
-            $targets = $target->pluck('id');
-            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
-                ->whereHas('submissionTarget', function ($query) use ($targets) {
-                    $query->whereIn('submission_target_id', $targets);
-                })
-                ->get();
-            $this->targetIds = $target->pluck('id')->toArray();
-
-
-            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
-
-                $this->openSubmission = true;
-                $this->targetSet = true;
-            } else {
-                $this->openSubmission = false;
-                $this->targetSet = false;
-            }
-        }
-
+        //import ID
         $this->importId = Uuid::uuid4()->toString();
-        $this->currentRoute = url()->current();
+        // Set the route prefix
+        $this->routePrefix = Route::current()->getPrefix();
     }
     public function send()
     {
@@ -200,6 +160,9 @@ class Upload extends Component
 
     public function render()
     {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
         return view('livewire.other-forms.seed-beneficiaries.upload');
     }
 }

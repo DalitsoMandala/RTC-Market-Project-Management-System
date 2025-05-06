@@ -1,42 +1,7 @@
-@php
-    use Ramsey\Uuid\Uuid;
-    $uuid = Uuid::uuid4()->toString();
-    $currentUrl = url()->current();
-    $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
-
-@endphp
 <x-form-component :showAlpineAlerts="true" title="Add Rtc Consumption Data" pageTitle="Add Data" :formTitle="$form_name"
-    :openSubmission="$openSubmission" :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" formName="rtc-consumption-form">
-
-    <x-slot name="breadcrumbs">
+    :openSubmission="$openSubmission" :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name">
 
 
-        <li class="breadcrumb-item">
-            <a href="/">Dashboard</a>
-        </li>
-
-        @role('admin|manager')
-            <li class="breadcrumb-item">
-                <a href="/cip/submission-period">Submission Periods</a>
-            </li>
-        @endrole
-
-        @role('external')
-            <li class="breadcrumb-item"></li>
-            <a href="/external/submission-periods">Submission Periods</a>
-            </li>
-        @endrole
-
-        <li class="breadcrumb-item active">Add Data</li>
-        <li class="breadcrumb-item">
-            <a href="{{ $replaceUrl }}">Upload Data</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="{{ $routePrefix }}/forms/rtc-market/rtc-actor-recruitment-form/view">
-                {{ ucwords(strtolower($form_name)) }}
-            </a>
-        </li>
-    </x-slot>
     <div id="locations" x-data="{
         location_data: $wire.entangle('location_data'),
         enterprise: null,

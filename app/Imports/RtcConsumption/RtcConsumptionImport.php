@@ -78,7 +78,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
     public function onFailure(Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            $errorMessage = "Validation Error on sheet 'School RTC Consumption' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
+            $errorMessage = "Validation Error on sheet 'School Rtc Consumption' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
             Log::error($errorMessage);

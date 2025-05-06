@@ -57,7 +57,7 @@ class indicator_2_3_5
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC products available on the Management Information System')->where('indicator_no', '2.3.5')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC products available on the Management Information System')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

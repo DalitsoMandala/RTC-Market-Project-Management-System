@@ -35,7 +35,7 @@ class indicator_2_3_3
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of registered seed producers accessing markets through online Market Information System (MIS)')->where('indicator_no', '2.3.3')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of registered seed producers accessing markets through online Market Information System (MIS)')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 

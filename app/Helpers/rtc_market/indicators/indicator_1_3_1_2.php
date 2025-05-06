@@ -41,7 +41,7 @@ class indicator_1_3_1_2
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of policy briefs developed and shared on RTC topics')->where('indicator_no', '1.3.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of policy briefs developed and shared on RTC topics')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {

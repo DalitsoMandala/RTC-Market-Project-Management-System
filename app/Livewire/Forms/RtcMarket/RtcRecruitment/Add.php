@@ -270,12 +270,9 @@ class Add extends Component
             'category' => $this->category,
             'establishment_status' => $this->establishment_status,
             'is_registered' => $this->is_registered,
-            'registration_body' => $this->registration_details['registration_body'],
-            'registration_number' => $this->registration_details['registration_number'],
-            'registration_date' => $this->registration_details['registration_date'],
-            'is_registered_seed_producer' => $this->is_registered_seed_producer,
-            'registration_number_seed_producer' => $this->seed_service_unit_registration_details['registration_number'],
-            'registration_date_seed_producer' => $this->seed_service_unit_registration_details['registration_date'],
+            'registration_body' => $this->is_registered == true ? $this->registration_details['registration_body'] : null,
+            'registration_number' => $this->is_registered == true ? $this->registration_details['registration_number'] : null,
+            'registration_date' => $this->is_registered == true ? $this->registration_details['registration_date'] : null,
             'area_under_cultivation' => $this->area_under_cultivation ?? 0,
             'emp_formal_female_18_35' => $this->number_of_employees['formal']['female_18_35'],
             'emp_formal_male_18_35' => $this->number_of_employees['formal']['male_18_35'],
@@ -384,6 +381,9 @@ class Add extends Component
 
     public function render()
     {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
         return view('livewire.forms.rtc-market.rtc-recruitment.add');
     }
 }

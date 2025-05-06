@@ -725,6 +725,28 @@ class Add extends Component
                 $this->total_irrigation_production_value_previous_season_produce_prevailing_price = null;
             }
 
+
+            $isPotato = $this->location_data["enterprise"] === 'Potato';
+            $bundleValue = $this->bundle_multiplier;
+            $bundlesData = [];
+            if (!$isPotato) {
+
+                $bundlesData =  [
+                    'total_vol_production_previous_season_seed_bundle' => $this->total_vol_production_previous_season_seed / $bundleValue,
+                    'total_vol_irrigation_production_previous_season_seed_bundle' =>  $this->total_vol_irrigation_production_previous_season_seed / $bundleValue,
+                    'prod_value_previous_season_seed_bundle' => $this->total_production_value_previous_season_seed_value / $bundleValue,
+                    'irr_prod_value_previous_season_seed_bundle' => $this->total_irrigation_production_value_previous_season_seed_value / $bundleValue,
+                ];
+            } else {
+                $bundlesData =  [
+                    'total_vol_production_previous_season_seed_bundle' => 0,
+                    'total_vol_irrigation_production_previous_season_seed_bundle' => 0,
+                    'prod_value_previous_season_seed_bundle' => 0,
+                    'irr_prod_value_previous_season_seed_bundle' => 0,
+                ];
+            }
+
+
             $firstTable = [
                 //   'location_data' => $this->location_data,
                 'epa' => $this->location_data['epa'],
@@ -790,7 +812,7 @@ class Add extends Component
                 'status' => 'approved',
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,  // Previous season volume in metric tonnes
-
+                ...$bundlesData
             ];
 
 
@@ -992,6 +1014,9 @@ class Add extends Component
 
     public function render()
     {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
         return view('livewire.forms.rtc-market.rtc-production-farmers.add');
     }
 }

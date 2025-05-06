@@ -435,6 +435,21 @@ class Add extends Component
             $uuid = Uuid::uuid4()->toString();
 
             $segment = collect($this->market_segment);
+            $isPotato = $this->location_data["enterprise"] === 'Potato';
+            $bundleValue = $this->bundle_multiplier;
+            $bundlesData = [];
+            if (!$isPotato) {
+
+                $bundlesData =  [
+                    'total_vol_production_previous_season_seed_bundle' => $this->total_vol_production_previous_season_seed / $bundleValue,
+                    'prod_value_previous_season_seed_bundle' => $this->total_production_value_previous_season_seed_value / $bundleValue,
+                ];
+            } else {
+                $bundlesData =  [
+                    'total_vol_production_previous_season_seed_bundle' => 0,
+                    'prod_value_previous_season_seed_bundle' => 0,
+                ];
+            }
 
             $firstTable = [
                 'epa' => $this->location_data['epa'],
@@ -472,6 +487,7 @@ class Add extends Component
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,  // Previous season volume in metric tonnes
                 'status' => 'approved',
+                ...$bundlesData
             ];
 
             $recruit = RtcProductionProcessor::create($firstTable);
@@ -689,6 +705,9 @@ class Add extends Component
 
     public function render()
     {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
         return view('livewire.forms.rtc-market.rtc-production-processors.add');
     }
 }

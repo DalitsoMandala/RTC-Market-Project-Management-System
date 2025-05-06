@@ -1396,7 +1396,7 @@ class ExcelExportJob implements ShouldQueue
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
                 // Process data in chunks
-                Recruitment::with('user')->chunk(2000, function ($followUps) use ($writer) {
+                Recruitment::with(['user', 'user.organisation.responsiblePeopleforIndicators'])->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
                         $user = User::find($record->user_id); {

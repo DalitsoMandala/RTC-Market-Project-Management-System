@@ -42,6 +42,8 @@ return new class extends Migration {
             // PRODUCTION IN USD
             $table->decimal('prod_value_previous_season_usd_rate', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_usd_value', 16, 2)->nullable();
+            $table->decimal('total_vol_production_previous_season_seed_bundle', 16, 2)->nullable();
+            $table->decimal('prod_value_previous_season_seed_bundle', 16, 2)->nullable();
             $table->boolean('sells_to_domestic_markets')->default(false);
             $table->boolean('sells_to_international_markets')->default(false);
             $table->boolean('uses_market_information_systems')->default(false);

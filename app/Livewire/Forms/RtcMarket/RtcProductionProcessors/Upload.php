@@ -193,13 +193,7 @@ class Upload extends Component
         $this->routePrefix = Route::current()->getPrefix();
         $this->currentRoute =  url()->current();
     }
-    #[On('open-submission')]
-    public function clearTable()
-    {
-        $this->openSubmission = true;
-        $this->targetSet = true;
-        session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
-    }
+
 
     public function downloadTemplate()
     {

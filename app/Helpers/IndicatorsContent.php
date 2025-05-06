@@ -532,7 +532,7 @@ class IndicatorsContent
             "Number of on-farm seed production technology demonstrations established" => ['Total'],
             "Number of international learning visits for seed producers (OC)" => ['Total'],
             "Number of business plans for the production of different classes of RTC seeds that are executed" => [
-                'Total (% Percentage)',
+                'Total',
                 'POs',
                 'SMEs',
                 'Large scale commercial farmers',

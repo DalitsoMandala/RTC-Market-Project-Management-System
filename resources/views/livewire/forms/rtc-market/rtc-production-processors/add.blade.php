@@ -1,44 +1,6 @@
-@php
-    use Ramsey\Uuid\Uuid;
-    $uuid = Uuid::uuid4()->toString();
-    $currentUrl = url()->current();
-    $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
-
-@endphp
 <x-form-component :showAlpineAlerts="true" title="Add Processors Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission"
-    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true"
-    formName="rtc-production-and-marketing-form-processors-and-traders">
+    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name">
 
-    <x-slot name="breadcrumbs">
-
-
-        <li class="breadcrumb-item">
-            <a href="/">Dashboard</a>
-        </li>
-
-        @role('admin|manager')
-            <li class="breadcrumb-item">
-                <a href="/cip/submission-period">Submission Periods</a>
-            </li>
-        @endrole
-
-        @role('external')
-            <li class="breadcrumb-item"></li>
-            <a href="/external/submission-periods">Submission Periods</a>
-            </li>
-        @endrole
-
-        <li class="breadcrumb-item active">Add Data</li>
-        <li class="breadcrumb-item">
-            <a href="{{ $replaceUrl }}">Upload Data</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a
-                href="{{ $routePrefix }}/forms/rtc-market/rtc-production-and-marketing-form-processors-and-traders/view">
-                {{ ucwords(strtolower($form_name)) }}
-            </a>
-        </li>
-    </x-slot>
 
     <!-- Group Name -->
     <div class="mb-3">

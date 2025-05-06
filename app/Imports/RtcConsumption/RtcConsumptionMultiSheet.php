@@ -30,7 +30,7 @@ use App\Traits\FormEssentials;
 class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use FormEssentials;
-    protected $expectedSheetNames = ['RTC Consumption'];
+    protected $expectedSheetNames = ['Rtc Consumption'];
     protected $expectedHeaders = [];
     protected $cacheKey;
     protected $filePath;
@@ -49,7 +49,7 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
     public function sheets(): array
     {
         return [
-            'RTC Consumption' => new RtcConsumptionImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Rtc Consumption' => new RtcConsumptionImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
     private function getSheetHeaders(Worksheet $sheet): array

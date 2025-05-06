@@ -69,8 +69,8 @@
                     <div class="card-body " x-data="{
                         is_open: true,
                     
-                        selectAllIndicators: $wire.entangle('selectAllIndicators')
-                    
+                        selectAllIndicators: $wire.entangle('selectAllIndicators'),
+                        skipTargets: $wire.entangle('skipTargets')
                     
                     }">
 
@@ -294,10 +294,15 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="my-2 form-check">
+                                <input class="form-check-input" x-model='skipTargets' type="checkbox" value="false"
+                                    id="" />
+                                <label class="form-check-label" for=""> Skip Targets </label>
+                            </div>
 
 
                             <!-- Dynamic Target Section -->
-                            <div x-show="!selectAllIndicators" x-data="{
+                            <div x-show="!selectAllIndicators " x-data="{
                                 selectedProject: $wire.entangle('selectedProject'),
                                 selectedIndicator: $wire.entangle('selectedIndicator'),
                                 selectedForm: $wire.entangle('selectedForm'),

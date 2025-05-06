@@ -76,14 +76,15 @@ class SubPeriod extends Component
     public $isCipTargets = false;
     protected $rules = [];
     public $selectAllIndicators = false;
+    public $skipTargets = true;
 
     protected function rules()
     {
         $isCipTargets = $this->isCipTargets;
         return [
-            'targets.*' => 'required',
-            'targets.*.name' => 'required|string|distinct',
-            'targets.*.value' => 'required|numeric',
+            //     'targets.*' => 'required',
+            //   'targets.*.name' => 'required|string|distinct',
+            //  'targets.*.value' => 'required|numeric',
             // 'cip_targets.*.value' => [
             //     Rule::requiredIf(function () use ($isCipTargets) {
             //         return $isCipTargets === true;  // or whatever condition checks your flag
@@ -94,12 +95,12 @@ class SubPeriod extends Component
     }
 
     protected $messages = [
-        'targets.*.name.required' => 'Target name required',
-        'targets.*.value.required' => 'Target value required',
-        'targets.*.value.numeric' => 'Target value must be numeric',
-        'targets.*.name.distinct' => 'Target name must be unique',
-        'cip_targets.*.value.required' => 'Target value required',
-        'cip_targets.*.value.numeric' => 'Target value must be numeric',
+        // 'targets.*.name.required' => 'Target name required',
+        // 'targets.*.value.required' => 'Target value required',
+        // 'targets.*.value.numeric' => 'Target value must be numeric',
+        // 'targets.*.name.distinct' => 'Target name must be unique',
+        // 'cip_targets.*.value.required' => 'Target value required',
+        // 'cip_targets.*.value.numeric' => 'Target value must be numeric',
     ];
 
     public function mount()
@@ -205,24 +206,24 @@ class SubPeriod extends Component
 
     public function save()
     {
-        // try {
+        try {
 
-        //     if ($this->selectAllIndicators) {
-        //         $this->validate([
+            if ($this->selectAllIndicators) {
+                $this->validate([
 
-        //             'selectedMonth' => 'required',
-        //             'selectedFinancialYear' => 'required',
+                    'selectedMonth' => 'required',
+                    'selectedFinancialYear' => 'required',
 
-        //             'start_period' => 'required',
-        //             'end_period' => 'required',
-        //         ]);
-        //     } else {
-        //         $this->validate();
-        //     }
-        // } catch (Throwable $e) {
-        //     session()->flash('validation_error', 'There are errors in the form.');
-        //     throw $e;
-        // }
+                    'start_period' => 'required',
+                    'end_period' => 'required',
+                ]);
+            } else {
+                $this->validate();
+            }
+        } catch (Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
 
         try {
 
@@ -411,28 +412,31 @@ class SubPeriod extends Component
     {
         $user = User::find(auth()->user()->id);
         $organisationId = $user->organisation->id;
+        if ($this->skipTargets === false) {
 
-        foreach ($this->targets as $key => $target) {
-            $subTarget = SubmissionTarget::updateOrCreate(
-                [
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'indicator_id' => $this->selectedIndicator,
-                    'target_name' => $target['name'],
-                ],
-                [
-                    'target_value' => $target['value'],
-                ]
-            );
 
-            OrganisationTarget::updateOrCreate(
-                [
-                    'submission_target_id' => $subTarget->id,
-                    'organisation_id' => $organisationId,
-                ],
-                [
-                    'value' => $this->cip_targets[$key]['value'],
-                ]
-            );
+            foreach ($this->targets as $key => $target) {
+                $subTarget = SubmissionTarget::updateOrCreate(
+                    [
+                        'financial_year_id' => $this->selectedFinancialYear,
+                        'indicator_id' => $this->selectedIndicator,
+                        'target_name' => $target['name'],
+                    ],
+                    [
+                        'target_value' => $target['value'],
+                    ]
+                );
+
+                OrganisationTarget::updateOrCreate(
+                    [
+                        'submission_target_id' => $subTarget->id,
+                        'organisation_id' => $organisationId,
+                    ],
+                    [
+                        'value' => $this->cip_targets[$key]['value'],
+                    ]
+                );
+            }
         }
     }
 
@@ -473,11 +477,13 @@ class SubPeriod extends Component
                         <b>{$formName}</b>
                         </li>";
         }
+        $indicatorName = Indicator::find($Indicator)->indicator_name;
         $htmlForms .= "</ol></br>";
         $messageContent = "";
-        $messageContent .= "<p> Submissions are now open for: </p>";
+        $messageContent .= "<p> Submissions are now open for <b>" . $indicatorName . "</b></p>";
         $messageContent .= $htmlForms;
         $messageContent .= "<p>These forms will be closed on <b>" . Carbon::parse($this->end_period)->format('d/m/Y H:i:A') . "</b>. Please go to the platform to complete your submission before the period ends.</p>";
+        $messageContent .= "<p>For more details, please go to the platform.</p>";
 
 
 
@@ -508,7 +514,7 @@ class SubPeriod extends Component
         $organisations->get()->each(function ($organisation) use ($errorMessage, $selectedPeriods) {
             $organisation->users->each(function ($user) use ($errorMessage, $selectedPeriods) {
                 // Skip users with admin/manager roles
-                if ($user->hasAnyRole(['admin', 'project_manager', 'manager'])) {
+                if ($user->hasAnyRole(['admin', 'project_manager'])) {
                     return;
                 }
 
