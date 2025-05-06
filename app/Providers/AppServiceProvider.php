@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
 
 
             // Check for external users
-            if ($user->hasAnyRole('external')) {
+            if ($user->hasAnyRole('external') || $user->hasAnyRole('external_manager')) {
                 return '/external/dashboard';
             }
         });
