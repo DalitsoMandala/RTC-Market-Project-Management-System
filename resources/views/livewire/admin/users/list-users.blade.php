@@ -167,6 +167,7 @@
                                     required>
                             </div>
                             <button type="button" @click="downloadTemplate()" id="downloadTemplate"
+                                wire:loading.attr='disabled' wire:target='usersData'
                                 class="btn btn-secondary">Download
                                 Template</button>
                             <button type="submit" class="btn btn-warning">Upload and Parse</button>

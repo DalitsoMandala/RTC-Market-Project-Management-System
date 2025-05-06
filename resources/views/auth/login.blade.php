@@ -2,6 +2,7 @@
     <!-- Session Status -->
 
 
+
     <div class="authentication-bg min-vh-100">
         <div class="bg-overlay"></div>
         <div class="container">
@@ -23,8 +24,19 @@
                                     <h5 class="text-warning">Welcome!</h5>
                                     <p class="text-muted">Sign in </p>
                                 </div>
-                                <x-auth-session-status class="mb-4" :status="session('status')" />
+                                @if ($errors->has('login'))
+
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->get('login') as $message)
+                                                <li>{{ $message }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+
+                                @endif
                                 <div class="p-2 mt-4">
+
                                     <form method="POST" action="{{ route('login') }}">
                                         @csrf
                                         <x-input-error :messages="$errors->get('email')" class="mt-2" />

@@ -128,7 +128,7 @@ class ListUsers extends Component
             '*.organisation' => 'required|string|max:255', // Validate organisation
             '*.role' => 'required|string', // Validate role (only allow 'staff' or 'admin')
         ];
-
+        DB::beginTransaction();
         // Validate the array
         $validator = Validator::make($users, $rules);
 
@@ -138,25 +138,31 @@ class ListUsers extends Component
             session()->flash('error', $validator->errors());
 
             // Redirect back or to a specific route
-
+            DB::rollBack();
         } else {
             // Flash a success message to the session
 
-            foreach ($users as $user) {
-                $organisation = Organisation::where('name', $user['organisation'])->first();
-                $password = Str::random(10);
-                $addedUser =  User::create([
-                    'name' => strtolower($user['name']),
-                    'email' => $user['email'],
-                    'phone_number' => '+9999999999',
-                    'organisation_id' => $organisation->id,
-                    'password' => Hash::make($password),
+            try {
+                foreach ($users as $user) {
+                    $organisation = Organisation::where('name', $user['organisation'])->first();
+                    $password = Str::random(10);
+                    $addedUser =  User::create([
+                        'name' => $user['name'],
+                        'email' => $user['email'],
+                        'phone_number' => '+9999999999',
+                        'organisation_id' => $organisation->id,
+                        'password' => Hash::make($password),
 
-                ])->assignRole($user['role']);
-                $user->notify(new NewUserNotification($this->email, $this->password));
+                    ])->assignRole($user['role']);
+                    $addedUser->notify(new NewUserNotification($addedUser->email, $password, $user['role']));
+                }
+                $this->dispatch('refresh');
+                session()->flash('success', 'All users have been validated successfully!');
+                DB::commit();
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                session()->flash('error', 'An error occurred while processing your request.');
             }
-            $this->dispatch('refresh');
-            session()->flash('success', 'All users have been validated successfully!');
         }
     }
     public function save()
@@ -209,7 +215,7 @@ class ListUsers extends Component
 
                 $this->dispatch('refresh');
                 session()->flash('success', 'User successfully added!');
-                $user->notify(new NewUserNotification($this->email, $this->password));
+                $user->notify(new NewUserNotification($this->email, $this->password, $this->role));
                 $this->resetForm();
             }
 
