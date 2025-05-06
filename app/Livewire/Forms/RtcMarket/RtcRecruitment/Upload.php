@@ -46,6 +46,7 @@ class Upload extends Component
     use LivewireAlert;
     use CheckProgressTrait;
     use UploadDataTrait;
+    public $form_name;
     public function submitUpload()
     {
         try {
