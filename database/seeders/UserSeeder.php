@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         Role::create(['name' => 'staff']); // LIMITED FUNCTIONALITY
         Role::create(['name' => 'admin']); // FULL FUNCTIONALITY
         Role::create(['name' => 'project_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS
-        Role::create(['name' => 'external_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS ON BEHALF OF AN EXTERNAL ORGANISATION
+        //    Role::create(['name' => 'external_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS ON BEHALF OF AN EXTERNAL ORGANISATION
         // Role::create(['name' => 'cip']); // PROJECT
 
         User::create([
