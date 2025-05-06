@@ -8,6 +8,7 @@
         $addDataRoute = $uuid ? str_replace($uuid, '', $currentUrl) : $currentUrl;
         $addDataRoute = str_replace('upload', 'add', $addDataRoute);
         $routePrefix = Route::current()->getPrefix();
+        $formRoute = strtolower(str_replace(' ', '-', $formName));
     @endphp
     @section('title')
         {{ $pageTitle }}

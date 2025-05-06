@@ -9,7 +9,7 @@
         $currentUrl = url()->current();
         $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
         $routePrefix = Route::current()->getPrefix();
-
+        $formRoute = strtolower(str_replace(' ', '-', $formName));
     @endphp
     <div class="container-fluid">
         <!-- start page title -->
