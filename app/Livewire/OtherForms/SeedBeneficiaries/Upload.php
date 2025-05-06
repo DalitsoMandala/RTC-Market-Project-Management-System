@@ -41,7 +41,7 @@ class Upload extends Component
     public $rowId;
     public $selectedIndicator;
     public $selectedMonth;
-public $form_name;
+    public $form_name;
     public $selectedFinancialYear;
 
     public $selectedProject;

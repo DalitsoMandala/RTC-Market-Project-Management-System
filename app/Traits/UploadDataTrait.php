@@ -63,6 +63,7 @@ trait UploadDataTrait
     public $importId;
 
     public $queue = false;
+    public string $form_name;
 
     public $currentRoute;
 

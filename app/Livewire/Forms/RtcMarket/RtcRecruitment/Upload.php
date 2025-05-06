@@ -99,6 +99,9 @@ class Upload extends Component
 
     public function render()
     {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
         return view('livewire.forms.rtc-market.rtc-recruitment.upload');
     }
 }
