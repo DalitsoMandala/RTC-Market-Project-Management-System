@@ -9,6 +9,7 @@
         $currentUrl = url()->current();
         $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
         $routePrefix = Route::current()->getPrefix();
+
     @endphp
     <div class="container-fluid">
         <!-- start page title -->
