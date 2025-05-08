@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Indicator;
 use Illuminate\Console\Command;
 use App\Models\SubmissionPeriod;
+use App\Jobs\sendReminderToUserJob;
 use Illuminate\Support\Facades\Bus;
 use App\Notifications\SubmissionReminder;
 use App\Traits\GroupsEndingSoonSubmissionPeriods;
@@ -19,62 +20,23 @@ class CheckSubmissionDeadlines extends Command
 
     public function handle()
     {
-        $today = Carbon::now();
 
-        $users = $this->getSubmissionPeriodsEndingSoonGroupedByUser(3);
-
-
-
-        foreach ($users as $userData) {
-            $usr = User::find($userData['user_id']);
-            foreach ($userData['forms'] as $formId => $formData) {
-                foreach ($formData['periods'] as $period) {
+        $users =   $this->getUserWithDeadlines(3, false);
+        foreach ($users as $userId => $userData) {
 
 
-                    $subPeriod = SubmissionPeriod::find($period['period_id']);
-                    Bus::chain([
-                        fn() =>   $usr->notify(new SubmissionReminder($subPeriod))
-                    ])->dispatch();
-                }
-            }
+            $indicators = $userData['user']->organisation->indicatorResponsiblePeople->map(function ($indicator) {
+
+                return Indicator::find($indicator->indicator_id)->indicator_name;
+            })->flatten();
+
+
+            $userData['indicators'] = $indicators;
+
+            Bus::chain([
+                new sendReminderToUserJob($userData['user'], $userData)
+            ])->dispatch();
         }
-
-        //  foreach ($users as $user) {
-        //     Bus::chain([
-        //         fn() =>   $user->notify(new SubmissionReminder($submissionPeriod))
-        //     ])->dispatch();
-        // }
-
-        // // Query submissions 3 days before and on the last day
-        // $submissionPeriods = SubmissionPeriod::whereDate(
-        //     'date_ending',
-        //     $today->copy()->addDays(3)->toDateString(),
-
-        // )->orWhereDate('date_ending', $today->toDateString())->get();
-
-
-        // foreach ($submissionPeriods as $submissionPeriod) {
-
-        //     $indicator = Indicator::find($submissionPeriod->indicator_id);
-        //     $organisations = $indicator->responsiblePeopleforIndicators()->pluck('organisation_id');
-        //     $users = User::with(['organisation', 'roles'])
-        //         ->whereHas('roles', function ($query) {
-        //             $query->where('name', '!=', 'admin')->where('name', '!=', 'project_manager');
-        //         })
-        //         ->whereHas('organisation', function ($query) use ($organisations) {
-        //             $query->whereIn('id', $organisations);
-        //         })->get();
-
-
-
-
-        //     foreach ($users as $user) {
-        //         Bus::chain([
-        //             fn() =>   $user->notify(new SubmissionReminder($submissionPeriod))
-        //         ])->dispatch();
-        //     }
-        // }
-
         $this->info('Submission reminders sent successfully.');
     }
 }

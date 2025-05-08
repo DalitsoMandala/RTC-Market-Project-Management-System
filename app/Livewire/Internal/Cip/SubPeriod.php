@@ -2,31 +2,32 @@
 
 namespace App\Livewire\Internal\Cip;
 
-use App\Jobs\SendNotificationJob;
-use App\Models\FinancialYear;
+use Throwable;
+use Carbon\Carbon;
 use App\Models\Form;
-use App\Models\Indicator;
-use App\Models\IndicatorDisaggregation;
-use App\Models\MailingList;
-use App\Models\Organisation;
-use App\Models\OrganisationTarget;
+use App\Models\User;
 use App\Models\Project;
-use App\Models\ReportingPeriod;
-use App\Models\ReportingPeriodMonth;
-use App\Models\ResponsiblePerson;
+use Livewire\Component;
+use App\Models\Indicator;
 use App\Models\Submission;
+use App\Models\MailingList;
+use Livewire\Attributes\On;
+use App\Models\Organisation;
+use App\Models\FinancialYear;
+use App\Models\ReportingPeriod;
+use Illuminate\Validation\Rule;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\User;
-use App\Notifications\EmployeeBroadcastNotification;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Validation\Rule;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
+use App\Jobs\SendNotificationJob;
+use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
-use Livewire\Component;
-use Throwable;
+use App\Models\OrganisationTarget;
+use Illuminate\Support\Facades\Bus;
+use App\Models\ReportingPeriodMonth;
+use App\Models\IndicatorDisaggregation;
+use App\Jobs\sendAllIndicatorNotificationJob;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Notifications\EmployeeBroadcastNotification;
 
 class SubPeriod extends Component
 {
@@ -74,6 +75,7 @@ class SubPeriod extends Component
     public $disableTarget = true;
     public $isCipTargets = false;
     protected $rules = [];
+    public $selectAllIndicators = false;
 
     protected function rules()
     {
@@ -82,11 +84,11 @@ class SubPeriod extends Component
             'targets.*' => 'required',
             'targets.*.name' => 'required|string|distinct',
             'targets.*.value' => 'required|numeric',
-            'cip_targets.*.value' => [
-                Rule::requiredIf(function () use ($isCipTargets) {
-                    return $isCipTargets === true;  // or whatever condition checks your flag
-                }),
-            ],
+            // 'cip_targets.*.value' => [
+            //     Rule::requiredIf(function () use ($isCipTargets) {
+            //         return $isCipTargets === true;  // or whatever condition checks your flag
+            //     }),
+            // ],
             'selectedOrganisations' => 'required',
         ];
     }
@@ -203,14 +205,100 @@ class SubPeriod extends Component
 
     public function save()
     {
-        try {
-            $this->validate();
-        } catch (Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
-            throw $e;
-        }
+        // try {
+
+        //     if ($this->selectAllIndicators) {
+        //         $this->validate([
+
+        //             'selectedMonth' => 'required',
+        //             'selectedFinancialYear' => 'required',
+
+        //             'start_period' => 'required',
+        //             'end_period' => 'required',
+        //         ]);
+        //     } else {
+        //         $this->validate();
+        //     }
+        // } catch (Throwable $e) {
+        //     session()->flash('validation_error', 'There are errors in the form.');
+        //     throw $e;
+        // }
 
         try {
+
+
+            if ($this->selectAllIndicators) {
+
+                $periods = [];
+                $usersWithData = [];
+
+                $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->has('organisation.indicatorResponsiblePeople')->whereHas('roles', function ($query) {
+                    return $query->whereNotIn('name', ['admin', 'project_manager']);
+                })->get();
+
+                foreach ($users as $user) {
+
+                    $indicators = $user->organisation->indicatorResponsiblePeople->map(function ($indicator) {
+
+                        return Indicator::find($indicator->indicator_id);
+                    })->flatten();
+                    $usersWithData[] = [
+                        'user' => $user,
+
+                    ];
+
+                    foreach ($indicators as $indicator) {
+                        $forms = $indicator->forms;
+                        foreach ($forms as $form) {
+                            $submissionPeriod = SubmissionPeriod::where('indicator_id', $indicator->id)
+                                ->where('form_id', $form->id)
+                                ->where('month_range_period_id', $this->selectedMonth)
+                                ->where('financial_year_id', $this->selectedFinancialYear)
+                                ->first();
+
+                            if (!$submissionPeriod) {
+                                $submissionPeriod = new SubmissionPeriod();
+                                $submissionPeriod->indicator_id = $indicator->id;
+                                $submissionPeriod->form_id = $form->id;
+                                $submissionPeriod->month_range_period_id = $this->selectedMonth;
+                                $submissionPeriod->financial_year_id = $this->selectedFinancialYear;
+                                $submissionPeriod->date_established = $this->start_period;
+                                $submissionPeriod->date_ending = $this->end_period;
+                                $submissionPeriod->is_open = true;
+                                $submissionPeriod->save();
+                                $periods[] = $submissionPeriod->id;
+                            } else {
+                                continue;
+                            }
+                        }
+                        $indicatorIds[] = $indicator->id;
+                    }
+
+
+                    if (count($periods) > 0) {
+
+                        Bus::chain([
+                            new sendAllIndicatorNotificationJob($user,  $indicators)
+                        ])->dispatch();
+                    }
+                }
+
+
+                if (count($periods) > 0) {
+                    $this->setMailingList($periods, $usersWithData);
+                }
+
+                if (count($periods) === 0) {
+                    session()->flash('success', 'Existing submission periods exists for some of the indicators which are still open.');
+                    $this->redirect(url()->previous());
+                    return;
+                }
+
+
+                session()->flash('success', 'Successfully added submission periods.');
+                $this->redirect(url()->previous());
+                return;
+            }
             $data = $this->prepareSubmissionData();
 
             if ($this->rowId) {
@@ -219,10 +307,34 @@ class SubPeriod extends Component
                 $this->handleCreate($data);
             }
         } catch (Throwable $th) {
+            //  dd($th);
             session()->flash('error', 'Something went wrong.');
         }
     }
+    public function setMailingList($selectedPeriods, $usersWithData)
+    {
 
+        foreach ($selectedPeriods as $period) {
+
+            foreach ($usersWithData as $userData) {
+                $user = $userData['user'];
+
+                if (!$user) continue;
+
+                MailingList::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'submission_period_id' => $period
+                    ],
+                    [
+                        'user_id' => $user->id,
+                        'submission_period_id' => $period
+                    ]
+
+                );
+            }
+        }
+    }
     private function prepareSubmissionData(): array
     {
 

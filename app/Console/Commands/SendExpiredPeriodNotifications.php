@@ -35,49 +35,26 @@ class SendExpiredPeriodNotifications extends Command
     use GroupsEndingSoonSubmissionPeriods;
     public function handle()
     {
-        $periods = SubmissionPeriod::with('form')->where('date_ending', '<=', date('Y-m-d'))
-            ->where('is_expired', false)
-            ->get();
+        $sendExpired = true;
+
+        $users =   $this->getUserWithDeadlines(3, $sendExpired);
+
+        if ($sendExpired) {
+            foreach ($users as $userId => $userData) {
 
 
-        foreach ($periods as $period) {
-            $indicator = $period->indicator_id;
-            $indicatorName = Indicator::find($indicator)->indicator_name;
+                $indicators = $userData['user']->organisation->indicatorResponsiblePeople->map(function ($indicator) {
 
-            $organisations = Indicator::find($indicator)->organisation;
-            $people = $organisations->pluck('id');
-
-            $users = Organisation::whereIn('id', $people)
-                ->whereHas('users.roles', function ($role) {
-                    $role->whereNotIn('name', ['admin', 'project_manager', 'manager']);
-                })
-                ->with(['users' => function ($user) {
-                    $user->whereHas('roles', function ($role) {
-                        $role->whereNotIn('name', ['admin', 'project_manager', 'manager']);
-                    });
-                }])
-                ->get()
-                ->pluck('users')
-                ->flatten(); // Flatten the collection of collections into a single collection
+                    return Indicator::find($indicator->indicator_id)->indicator_name;
+                })->flatten();
 
 
-            $filteredUsers = $users->filter(function ($user) use ($period) {
-                $mailable =  MailingList::where('user_id', $user->id)->where('submission_period_id', $period->id)->exists();
-                return $mailable;
-            });
+                $userData['indicators'] = $indicators;
 
-
-
-            Bus::chain([
-                new SendExpiredPeriodNotificationJob($users, $indicatorName, $period->form->name)
-            ])->dispatch();
-
-
-
-            $period->update([
-                'is_expired' => 1,
-                'is_open' => 0
-            ]);
+                Bus::chain([
+                    new SendExpiredPeriodNotificationJob($userData['user'], $userData)
+                ])->dispatch();
+            }
         }
     }
 }

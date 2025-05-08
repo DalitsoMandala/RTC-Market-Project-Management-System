@@ -76,6 +76,7 @@ use App\Exports\AttendanceExport\AttendanceRegistersExport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
+use App\Jobs\sendAllIndicatorNotificationJob;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
@@ -85,11 +86,22 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 Route::get('/', fn() => redirect()->route('login'));
 
 
-Route::get('/test', [TestingController::class, 'create'])->name('test-url');
+Route::get('/test', [TestingController::class, 'store'])->name('test-url');
+Route::get('/test2', [TestingController::class, 'create'])->name('test-url2');
 
 Route::get('/indicators', function () {
-    $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_2_3_1_2(financial_year: 1);
-    dd($indicatorClass->getDisaggregations());
+    $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->get();
+    foreach ($users as $user) {
+        $user->organisation->indicators;
+        $indicators = $user->organisation->indicatorResponsiblePeople->map(function ($indicator) {
+
+            return Indicator::find($indicator->indicator_id);
+        })->flatten();
+
+        Bus::chain([
+            new sendAllIndicatorNotificationJob($user,  $indicators)
+        ])->dispatch();
+    }
 });
 
 Route::get('/logout', function () {

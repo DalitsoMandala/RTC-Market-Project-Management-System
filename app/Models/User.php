@@ -59,5 +59,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(MailingList::class, 'user_id');
     }
-
 }

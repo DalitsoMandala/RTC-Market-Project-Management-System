@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Users;
 
 use App\Models\User;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\Organisation;
 use Illuminate\Validation\Rule;
@@ -143,15 +144,16 @@ class ListUsers extends Component
 
             foreach ($users as $user) {
                 $organisation = Organisation::where('name', $user['organisation'])->first();
+                $password = Str::random(10);
                 $addedUser =  User::create([
                     'name' => strtolower($user['name']),
                     'email' => $user['email'],
                     'phone_number' => '+9999999999',
                     'organisation_id' => $organisation->id,
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make($password),
 
                 ])->assignRole($user['role']);
-                //   $addedUser->delete();
+                $user->notify(new NewUserNotification($this->email, $this->password));
             }
             $this->dispatch('refresh');
             session()->flash('success', 'All users have been validated successfully!');

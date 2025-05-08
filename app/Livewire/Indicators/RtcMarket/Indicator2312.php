@@ -67,7 +67,7 @@ class Indicator2312 extends Component
             // Retrieve and group data by 'name'
             $data = SystemReportData::whereIn('system_report_id', $reportId->toArray())->get();
 
-            dd($data);
+
             $groupedData = $data->groupBy('name');
 
             // Sum each group's values

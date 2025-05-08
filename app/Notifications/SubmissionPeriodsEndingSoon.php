@@ -3,49 +3,52 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\HtmlString;
+use Illuminate\Notifications\Messages\MailMessage;
 
-class SubmissionPeriodsEndingSoon extends Notification implements ShouldQueue
+class SubmissionPeriodsEndingSoon extends Notification
 {
     use Queueable;
 
-    protected $forms;
+    public array $periods;
 
     /**
      * Create a new notification instance.
-     *
-     * @param array $forms Grouped forms and periods for the user
      */
-    public function __construct(array $forms)
+    public function __construct(array $periods)
     {
-        $this->forms = $forms;
+        $this->periods = $periods;
     }
 
+    /**
+     * Get the notification's delivery channels.
+     */
     public function via($notifiable)
     {
         return ['mail'];
     }
 
+    /**
+     * Get the mail representation of the notification.
+     */
     public function toMail($notifiable)
     {
         $mail = (new MailMessage)
-            ->subject('Forms with Submission Periods Ending Soon')
-            ->greeting("Hello {$notifiable->name},")
-            ->line('The following forms you are responsible for have submission periods ending soon:');
-
-        foreach ($this->forms as $form) {
-            $mail->line("**Form:** {$form['form_name']}");
-            foreach ($form['periods'] as $period) {
-                $mail->line("- Indicator: {$period['indicator_name']}");
-                $mail->line(new HtmlString("Ending Date: <span style='color:red; font-weight: bold'>{$period['end']}</span>"));
-            }
-            $mail->line(''); // blank line for spacing
+            ->subject('Submission Periods Ending Soon')
+            ->greeting('Dear ' . $notifiable->name . ',')
+            ->line('The following submission periods for these indicators will end soon. Please take action before the deadline.');
+        $mail->line("**Their Dates include:** ");
+        foreach ($this->periods['periods'] as $date) {
+            $mail->line("- {$date['start']} to {$date['end']}");
         }
 
-        $mail->line('Please ensure your submissions are completed in time.');
+        $mail->line('**Indicators Requiring Submission**:');
+
+        foreach ($this->periods['indicators'] as $indicator) {
+            $mail->line("- {$indicator}");
+        }
+        $mail->action('Submit Now', url('/submissions'))
+            ->line('Thank you for your attention.');
 
         return $mail;
     }

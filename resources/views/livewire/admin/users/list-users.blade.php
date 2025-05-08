@@ -300,7 +300,6 @@
                         const users = jsonData.map(row => ({
                             email: row.email,
                             name: row.name,
-
                             organisation: row.organisation,
                             role: row.role,
                         }));

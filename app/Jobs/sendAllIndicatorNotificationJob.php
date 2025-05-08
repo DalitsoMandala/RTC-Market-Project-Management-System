@@ -3,23 +3,27 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Collection;
-use App\Notifications\SendReminder;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Notifications\PeriodExpiredNotification;
+use App\Notifications\sendAllIndicatorNoification;
+use App\Notifications\sendAllIndicatorNotification;
 
-class SendExpiredPeriodNotificationJob implements ShouldQueue
+class sendAllIndicatorNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $user, $period;
-    public function __construct($user, $period)
+
+    /**
+     * Create a new job instance.
+     */
+    public $indicators;
+    public $user;
+    public function __construct($user, $indicators)
     {
         //
+        $this->indicators = $indicators;
         $this->user = $user;
-        $this->period = $period;
     }
 
     /**
@@ -28,8 +32,6 @@ class SendExpiredPeriodNotificationJob implements ShouldQueue
     public function handle(): void
     {
         //
-
-
-        $this->user->notify(new PeriodExpiredNotification($this->period));
+        $this->user->notify(new sendAllIndicatorNotification($this->indicators));
     }
 }
