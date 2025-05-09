@@ -86,7 +86,7 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/restore-submission-periods', [FixPeriods::class, 'set']);
+// Route::get('/restore-submission-periods', [FixPeriods::class, 'set']);
 
 Route::get('/logout', function () {
     return abort(404);

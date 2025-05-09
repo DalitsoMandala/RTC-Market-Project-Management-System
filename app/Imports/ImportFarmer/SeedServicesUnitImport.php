@@ -60,7 +60,10 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
     {
         $row['Farmer ID'] = $row['ID'];
         $row['Farmer ID'] = $this->validateNewIdForRecruits('farmer_id_mapping1', $this->cacheKey, $row, 'Farmer ID');
-        $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
+      
+        if (!empty($row['Registration Date'])) {
+            $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
+        }
         return $row;
     }
 

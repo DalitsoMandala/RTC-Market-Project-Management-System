@@ -124,9 +124,17 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Recruitment'] = $this->convertExcelDate($row['Date of Recruitment']);
-        $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
-        $row['Seed Producer Registration Date'] = $this->convertExcelDate($row['Seed Producer Registration Date']);
+        if (!empty($row['Date of Recruitment'])) {
+            $row['Date of Recruitment'] = $this->convertExcelDate($row['Date of Recruitment']);
+        }
+
+        if (!empty($row['Registration Date'])) {
+            $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
+        }
+
+        if (!empty($row['Seed Producer Registration Date'])) {
+            $row['Seed Producer Registration Date'] = $this->convertExcelDate($row['Seed Producer Registration Date']);
+        }
         return $row;
     }
 
