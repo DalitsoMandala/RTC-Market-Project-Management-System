@@ -76,6 +76,7 @@ use App\Exports\AttendanceExport\AttendanceRegistersExport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
+use App\Http\Controllers\FixPeriods;
 use App\Jobs\sendAllIndicatorNotificationJob;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
@@ -85,24 +86,7 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-
-Route::get('/test', [TestingController::class, 'store'])->name('test-url');
-Route::get('/test2', [TestingController::class, 'create'])->name('test-url2');
-
-Route::get('/indicators', function () {
-    $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->get();
-    foreach ($users as $user) {
-        $user->organisation->indicators;
-        $indicators = $user->organisation->indicatorResponsiblePeople->map(function ($indicator) {
-
-            return Indicator::find($indicator->indicator_id);
-        })->flatten();
-
-        Bus::chain([
-            new sendAllIndicatorNotificationJob($user,  $indicators)
-        ])->dispatch();
-    }
-});
+Route::get('/restore-submission-periods', [FixPeriods::class, 'set']);
 
 Route::get('/logout', function () {
     return abort(404);
