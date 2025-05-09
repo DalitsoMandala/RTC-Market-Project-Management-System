@@ -136,7 +136,7 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
             'Marital Status' => 'nullable|in:Single,Married,Separated,Widowed,Polygamy',
             'Household Head' => 'nullable|in:FHH,MHH,CHH',
             'Household Size' => 'nullable|integer|min:1',
-            'Children Under 5 in HH' => 'nullable|integer|min:0',
+            'Children Under 5 in HH' => 'required|integer|min:0',
             'Sex' => 'nullable|in:Male,Female',
             'Group Name' => 'nullable|max:255',
             'Variety Received' => ['nullable', 'max:255'],

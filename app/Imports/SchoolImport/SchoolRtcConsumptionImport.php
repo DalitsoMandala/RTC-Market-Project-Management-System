@@ -110,9 +110,9 @@ class SchoolRtcConsumptionImport implements ToModel, WithHeadingRow, WithValidat
             'Cassava Crop' => 'nullable|boolean',
             'Potato Crop' => 'nullable|boolean',
             'Sweet Potato Crop' => 'nullable|boolean',
-            'Male Count' => 'nullable|integer|min:0',
-            'Female Count' => 'nullable|integer|min:0',
-            // 'Total' => 'nullable|integer|min:0',
+            'Male Count' => 'required|integer|min:0',
+            'Female Count' => 'required|integer|min:0',
+            // 'Total' => 'required|integer|min:0',
         ];
     }
 

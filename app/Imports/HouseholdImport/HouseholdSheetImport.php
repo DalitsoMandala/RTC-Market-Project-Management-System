@@ -166,13 +166,13 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             'Age Group' => 'nullable|string|max:255', // Customize as needed based on expected age group values
             'Sex' => 'nullable|in:Male,Female', // Limit to specific options
             'Phone Number' => 'nullable|max:255', // Phone number format with optional +, numbers, spaces, or dashes
-            'Household Size' => 'nullable|integer|min:0', // Minimum 1 household member
-            'Under 5 in Household' => 'nullable|integer|min:0', // Minimum 0
-            'RTC Consumers (Total)' => 'nullable|integer|min:0', // Minimum 0 consumers
-            'RTC Consumers - Potato' => 'nullable|integer|min:0', // Minimum 0 consumers for Potato
-            'RTC Consumers - Sweet Potato' => 'nullable|integer|min:0', // Minimum 0 consumers for Sweet Potato
-            'RTC Consumers - Cassava' => 'nullable|integer|min:0', // Minimum 0 consumers for Cassava
-            'RTC Consumption Frequency' => 'nullable|integer|min:0|max:365', // Assume frequency is within a year (max 365)
+            'Household Size' => 'required|integer|min:0', // Minimum 1 household member
+            'Under 5 in Household' => 'required|integer|min:0', // Minimum 0
+            'RTC Consumers (Total)' => 'required|integer|min:0', // Minimum 0 consumers
+            'RTC Consumers - Potato' => 'required|integer|min:0', // Minimum 0 consumers for Potato
+            'RTC Consumers - Sweet Potato' => 'required|integer|min:0', // Minimum 0 consumers for Sweet Potato
+            'RTC Consumers - Cassava' => 'required|integer|min:0', // Minimum 0 consumers for Cassava
+            'RTC Consumption Frequency' => 'required|integer|min:0|max:365', // Assume frequency is within a year (max 365)
 
             // Additional field validations as required
         ];
