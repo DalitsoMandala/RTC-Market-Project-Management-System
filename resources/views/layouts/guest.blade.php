@@ -37,22 +37,7 @@
     <script data-navigate-once src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
 
     <script data-navigate-once src="{{ asset('assets/js/app.js') }}"></script>
-    <script>
-        function checkSession() {
-            fetch('{{ route('session.check') }}')
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.active) {
-                        // Redirect to login if the session has expired
-                        window.location.href = "{{ route('login') }}";
-                    }
-                })
-                .catch(error => console.error('Error checking session:', error));
-        }
 
-        // Check session every minute (60000 milliseconds)
-        setInterval(checkSession, 1200000);
-    </script>
 
 </body>
 

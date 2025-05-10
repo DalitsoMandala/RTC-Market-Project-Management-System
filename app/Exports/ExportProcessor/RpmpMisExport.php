@@ -39,10 +39,7 @@ class RpmpMisExport implements FromCollection, WithHeadings, WithTitle, WithStri
     public function headings(): array
     {
         return [
-            [
-                'MIS Name',
-                'Processor ID'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }

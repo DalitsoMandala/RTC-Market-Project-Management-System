@@ -64,7 +64,8 @@ class RpmProcessorInterMarketsImport implements ToModel, WithHeadingRow, WithVal
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'International Markets' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-            throw new \Exception($errorMessage);
+                 Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

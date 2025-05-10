@@ -435,14 +435,24 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-3" x-data="{
+                                selectedOrganisations: @entangle('selectedOrganisations'),
+                                toggleSelection() {
+                                    if (this.selectedOrganisations.includes('0')) {
+                                        this.selectedOrganisations = ['0']; // Deselect others
+                                    } else {
+                                        this.selectedOrganisations = this.selectedOrganisations.filter(i => i !== '0'); // Remove '0' if others selected
+                                    }
+                                }
+                            }" x-effect="toggleSelection()">
                                 <label for="" class="form-label">Organisations</label>
-                                <select class="form-select form-select-md" wire:model='selectedOrganisation'>
-                                    <option selected value="0">All</option>
+                                <select class="form-select form-select-md" x-model="selectedOrganisations" multiple>
+                                    <option value="0">All</option>
                                     @foreach ($organisations as $organ)
                                         <option value="{{ $organ->id }}">{{ $organ->name }}</option>
                                     @endforeach
                                 </select>
+                                <span x-text="selectedOrganisations"></span>
                             </div>
 
 

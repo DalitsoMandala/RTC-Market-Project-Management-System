@@ -717,8 +717,9 @@ class IndicatorsContent
                 "partners" => [
                     'CIP',
                     'IITA',
-                    'DAES',
-                    'DCD'
+                    'TRADELINE',
+                    'ACE',
+                    'MINISTRY OF TRADE'
                 ]
             ],
             [
@@ -728,8 +729,9 @@ class IndicatorsContent
                 "partners" => [
                     'CIP',
                     'IITA',
-                    'DAES',
-                    'DCD'
+                    'TRADELINE',
+                    'ACE',
+                    'MINISTRY OF TRADE'
                 ]
             ],
             [
@@ -754,7 +756,9 @@ class IndicatorsContent
                 "partners" => [
                     'CIP',
                     'IITA',
-                    'DAES'
+                    'TRADELINE',
+                    'ACE',
+                    'MINISTRY OF TRADE'
                 ]
             ],
             [
@@ -764,7 +768,7 @@ class IndicatorsContent
                 "partners" => [
                     'CIP',
                     'IITA',
-                    'DAES'
+
                 ]
             ],
             [
@@ -788,7 +792,7 @@ class IndicatorsContent
                 "id" => 9,
                 "indicator_name" => "Number of potential market preferred RTC genotypes in the pipeline identified",
                 "indicator_no" => "1.1.2",
-                "partners" => ['DARS']
+                "partners" => ['DARS', 'LUANAR']
             ],
             [
                 "id" => 10,
@@ -839,7 +843,11 @@ class IndicatorsContent
                 "id" => 16,
                 "indicator_name" => "Number of market linkages between EGS and other seed class producers facilitated",
                 "indicator_no" => "2.1.1",
-                "partners" => ['TRADELINE']
+                "partners" => [
+                    'CIP',
+                    'IITA',
+                    'DARS'
+                ]
             ],
             [
                 "id" => 17,
@@ -855,7 +863,7 @@ class IndicatorsContent
                 "indicator_name" => "Area (ha) under seed multiplication",
                 "indicator_no" => "2.2.2",
                 "partners" => [
-                    'DAES',
+
                     'IITA',
                     'CIP'
                 ]
@@ -865,7 +873,7 @@ class IndicatorsContent
                 "indicator_name" => "Percentage seed multipliers with formal registration",
                 "indicator_no" => "2.2.3",
                 "partners" => [
-                    'DAES',
+
                     'IITA',
                     'CIP'
                 ]
@@ -875,7 +883,7 @@ class IndicatorsContent
                 "indicator_name" => "Volume of seed distributed within communities to enhance POs productivity",
                 "indicator_no" => "2.2.4",
                 "partners" => [
-                    'DAES',
+
                     'CIP',
                     'IITA'
                 ]
@@ -884,7 +892,7 @@ class IndicatorsContent
                 "id" => 21,
                 "indicator_name" => "Number of on-farm seed production technology demonstrations established",
                 "indicator_no" => "2.2.5",
-                "partners" => ['DAES']
+                "partners" => ['DAES', 'CIP', 'IITA']
             ],
             [
                 "id" => 22,
@@ -900,15 +908,20 @@ class IndicatorsContent
                 "indicator_name" => "Percentage business plans for the production of different classes of RTC seeds that are executed",
                 "indicator_no" => "2.3.1",
                 "partners" => [
-                    'TRADELINE',
-                    'RCDT'
+                    'CIP',
+                    'IITA'
                 ]
             ],
             [
                 "id" => 24,
                 "indicator_name" => "Number of stakeholder engagement events that focus on RTC development",
                 "indicator_no" => "2.3.2",
-                "partners" => ['ACE']
+                "partners" => [
+                    'CIP',
+                    'IITA',
+                    'TRADELINE',
+                    'RTCDT'
+                ]
             ],
             [
                 "id" => 25,
@@ -916,7 +929,7 @@ class IndicatorsContent
                 "indicator_no" => "2.3.3",
                 "partners" => [
                     'ACE',
-                    'TRADELINE'
+
                 ]
             ],
             [
@@ -942,7 +955,7 @@ class IndicatorsContent
                 "indicator_name" => "Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production",
                 "indicator_no" => "3.1.1",
                 "partners" => [
-                    'DAES',
+
                     'CIP',
                     'IITA'
                 ]
@@ -951,7 +964,7 @@ class IndicatorsContent
                 "id" => 29,
                 "indicator_name" => "Number of RTC actors that use certified seed",
                 "indicator_no" => "3.2.1",
-                "partners" => ['CIP']
+                "partners" => ['CIP', 'IITA']
             ],
             [
                 "id" => 30,
@@ -962,20 +975,21 @@ class IndicatorsContent
                     'CIP',
                     'IITA',
                     'ACE',
-                    'MINISTRY OF TRADE'
+                    'MINISTRY OF TRADE',
+                    'TRADELINE'
                 ]
             ],
             [
                 "id" => 31,
                 "indicator_name" => "Number of off-season irrigation demonstration sites established",
                 "indicator_no" => "3.2.3",
-                "partners" => ['DAES']
+                "partners" => ['DAES', 'CIP', 'IITA']
             ],
             [
                 "id" => 32,
                 "indicator_name" => "Number of demonstration sites for end-user preferred RTC varieties established",
                 "indicator_no" => "3.2.4",
-                "partners" => ['DAES']
+                "partners" => ['DAES', 'CIP', 'IITA']
             ],
             [
                 "id" => 33,
@@ -997,19 +1011,19 @@ class IndicatorsContent
                 "id" => 35,
                 "indicator_name" => "Number of contractual arrangements facilitated for commercial farmers",
                 "indicator_no" => "3.3.2",
-                "partners" => ['TRADELINE']
+                "partners" => ['TRADELINE', 'CIP', 'IITA']
             ],
             [
                 "id" => 36,
                 "indicator_name" => "Number of RTC actors supported to access funds from financial service providers",
                 "indicator_no" => "3.4.1",
-                "partners" => ['TRADELINE']
+                "partners" => ['TRADELINE', 'CIP', 'IITA']
             ],
             [
                 "id" => 37,
                 "indicator_name" => "Number of POs that have formal contracts with buyers",
                 "indicator_no" => "3.4.2",
-                "partners" => ['TRADELINE']
+                "partners" => ['TRADELINE', 'CIP', 'IITA']
             ],
             [
                 "id" => 38,
@@ -1083,7 +1097,11 @@ class IndicatorsContent
                 "id" => 46,
                 "indicator_name" => "Number of mass nutrition education campaigns conducted",
                 "indicator_no" => "3.5.6",
-                "partners" => ['DAES']
+                "partners" => [
+                    'DAES',
+                    'CIP',
+                    'IITA'
+                ]
             ],
             [
                 "id" => 47,
@@ -1108,7 +1126,7 @@ class IndicatorsContent
                 "id" => 49,
                 "indicator_name" => "Number of RTC value-added products developed for domestic markets",
                 "indicator_no" => "4.1.3",
-                "partners" => ['MINISTRY OF TRADE']
+                "partners" => ['MINISTRY OF TRADE', 'CIP', 'IITA']
             ],
             [
                 "id" => 50,

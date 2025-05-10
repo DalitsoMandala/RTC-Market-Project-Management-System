@@ -56,7 +56,8 @@ class RpmpMisImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
             $errorMessage = "Validation Error on sheet 'Market Information Systems' - Row {$failure->row()}, Field '{$failure->attribute()}': "
                 . implode(', ', $failure->errors());
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

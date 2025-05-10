@@ -114,25 +114,25 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             $row['Sex'] = "NA";
         }
 
-        if ($row['Sex']) {
-            $sex = $row['Sex'];
-            if (is_numeric($sex)) {
-                $sex = match ($sex) {
-                    1 => 'Male',
-                    2 => 'Female',
+        // if ($row['Sex']) {
+        //     $sex = $row['Sex'];
+        //     if (is_numeric($sex)) {
+        //         $sex = match ($sex) {
+        //             1 => 'Male',
+        //             2 => 'Female',
 
-                    default => 'Male',
-                };
-            } elseif (is_string($sex)) {
-                $sex = strtolower($sex);
-                $sex = match ($sex) {
-                    'm' => 'Male',
-                    'f' => 'Female',
+        //             default => 'Male',
+        //         };
+        //     } elseif (is_string($sex)) {
+        //         $sex = strtolower($sex);
+        //         $sex = match ($sex) {
+        //             'm' => 'Male',
+        //             'f' => 'Female',
 
-                    default => 'Male',
-                };
-            }
-        }
+        //             default => 'Male',
+        //         };
+        //     }
+        // }
 
 
         if ($row['Category']) {
@@ -181,12 +181,13 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
 
     public function onFailure(Failure ...$failures)
     {
+
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'Attendance Registers' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
             Log::error($errorMessage);
-            throw new \Exception($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

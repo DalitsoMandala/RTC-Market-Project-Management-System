@@ -1,43 +1,7 @@
-@php
-    use Ramsey\Uuid\Uuid;
-    $uuid = Uuid::uuid4()->toString();
-    $currentUrl = url()->current();
-    $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
-
-@endphp
 <x-form-component :showAlpineAlerts="true" title="Add Attendance Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission"
     :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" formName="attendance-register">
 
-    <x-slot name="breadcrumbs">
 
-
-        <li class="breadcrumb-item">
-            <a href="/">Dashboard</a>
-        </li>
-
-        @role('admin|manager')
-            <li class="breadcrumb-item">
-                <a href="/cip/submission-period">Submission Periods</a>
-            </li>
-        @endrole
-
-        @role('external')
-            <li class="breadcrumb-item"></li>
-            <a href="/external/submission-periods">Submission Periods</a>
-            </li>
-        @endrole
-
-        <li class="breadcrumb-item active">Add Data</li>
-        <li class="breadcrumb-item">
-            <a href="{{ $replaceUrl }}">Upload Data</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="{{ $routePrefix }}/forms/rtc-market/attendance-register/view">
-                {{ ucwords(strtolower($form_name)) }}
-            </a>
-        </li>
-
-    </x-slot>
 
 
     <h4>Meeting Details</h4>
@@ -134,8 +98,8 @@
         </div>
         <div class="col">
             <label for="totalDays" class="form-label">Total Number of Days</label>
-            <input type="number" wire:model="totalDays"
-                class="form-control @error('totalDays') is-invalid @enderror" id="totalDays" min="0">
+            <input type="number" wire:model="totalDays" class="form-control @error('totalDays') is-invalid @enderror"
+                id="totalDays" min="0">
             @error('totalDays')
                 <x-error>{{ $message }}</x-error>
             @enderror

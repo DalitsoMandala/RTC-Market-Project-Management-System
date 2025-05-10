@@ -43,6 +43,16 @@ final class JobProgressTable extends PowerGridComponent
             $this->batch = $collection->get('batch');
         }
 
+        $getProgresses = JobProgress::where('status', 'processing')->get();
+        foreach ($getProgresses as $progress) {
+            $getTime  = $progress->created_at;
+            $time = Carbon::parse($getTime);
+            if ($time->diffInHours() >= 1) {
+                $progress->status = 'failed';
+                $progress->save();
+            }
+        }
+
         return [
             Header::make(),
             Footer::make()
@@ -58,7 +68,7 @@ final class JobProgressTable extends PowerGridComponent
             ->where('user_id', $this->userId)
             ->select([
                 '*',
-                \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
             ]);
     }
 
@@ -129,6 +139,9 @@ final class JobProgressTable extends PowerGridComponent
             Column::make('Type', 'form_name_formatted', 'form_name')
                 ->searchable(),
             Column::make('Status', 'status_formatted')
+                ->searchable(),
+
+            Column::make('Error', 'error')->bodyAttribute(styleAttr: 'white-space: wrap; color:#ff6060')
                 ->searchable(),
             Column::make('Progress', 'progress')
                 ->searchable(),

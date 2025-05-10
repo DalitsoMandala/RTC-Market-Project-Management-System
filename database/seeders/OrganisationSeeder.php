@@ -24,7 +24,7 @@ class OrganisationSeeder extends Seeder
             'DARS',
             'RTCDT',
             'ACE',
-            //  'LUANAR'
+            'LUANAR'
         ];
 
         foreach ($organisations as $partner) {

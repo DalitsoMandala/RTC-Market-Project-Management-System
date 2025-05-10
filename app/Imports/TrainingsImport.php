@@ -117,7 +117,8 @@ class TrainingsImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 implode(', ', $failure->errors());
 
             Log::error($errorMessage);
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 }

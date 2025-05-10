@@ -2,7 +2,14 @@
     @section('title')
         {{ $title ?? 'Form' }}
     @endsection
-
+    @php
+        use Ramsey\Uuid\Uuid;
+        use illuminate\Support\Facades\Route;
+        $uuid = Uuid::uuid4()->toString();
+        $currentUrl = url()->current();
+        $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
+        $routePrefix = Route::current()->getPrefix();
+    @endphp
     <div class="container-fluid">
         <!-- start page title -->
         <div class="row">
@@ -11,12 +18,33 @@
                     <h4 class="mb-2">{{ $pageTitle ?? 'Add Data' }}</h4>
 
                     <div class="page-title-right" wire:ignore>
+                        <ol class="m-0 breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/">Dashboard</a>
+                            </li>
 
-                        @isset($breadcrumbs)
-                            <ol class="m-0 breadcrumb">
-                                {{ $breadcrumbs }}
-                            </ol>
-                        @endisset
+                            @role('admin|manager')
+                                <li class="breadcrumb-item">
+                                    <a href="/cip/submission-period">Submission Periods</a>
+                                </li>
+                            @endrole
+
+                            @role('external')
+                                <li class="breadcrumb-item"></li>
+                                <a href="/external/submission-periods">Submission Periods</a>
+                                </li>
+                            @endrole
+
+                            <li class="breadcrumb-item active">Add Data</li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ $replaceUrl }}">Upload Data</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ $routePrefix }}/forms/rtc-market/{{ $formRoute }}/view">
+                                    {{ ucwords(strtolower($formName)) }} Data
+                                </a>
+                            </li>
+                        </ol>
                     </div>
                 </div>
             </div>

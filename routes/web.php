@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Mail\SampleMail;
 use App\Jobs\RandomNames;
 use App\Models\Indicator;
+use App\Models\MailingList;
 use App\Traits\ExportTrait;
 use Faker\Factory as Faker;
 use App\Models\Organisation;
@@ -26,6 +27,7 @@ use App\Models\ResponsiblePerson;
 use App\Helpers\IndicatorsContent;
 use App\Helpers\ExchangeRateHelper;
 use App\Notifications\SendReminder;
+use Illuminate\Support\Facades\Bus;
 use App\Livewire\Internal\Cip\Forms;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\File;
@@ -38,6 +40,7 @@ use App\Helpers\PopulatePreviousValue;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Targets;
 use App\Notifications\JobNotification;
+
 use App\Models\IndicatorDisaggregation;
 use App\Exports\SeedBeneficiariesExport;
 use App\Livewire\External\ViewIndicator;
@@ -54,95 +57,43 @@ use App\Jobs\SendExpiredPeriodNotificationJob;
 use App\Livewire\Internal\Cip\ViewSubmissions;
 use App\Notifications\ImportSuccessNotification;
 use App\Notifications\NewSubmissionNotification;
+use App\Notifications\SubmissionPeriodsEndingSoon;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B2;
 use App\Helpers\rtc_market\indicators\indicator_B4;
 use App\Helpers\rtc_market\indicators\indicator_B5;
 use App\Helpers\rtc_market\indicators\indicator_B6;
+use App\Exports\RtcConsumption\RtcConsumptionExport;
 use App\Notifications\EmployeeBroadcastNotification;
 use App\Helpers\rtc_market\indicators\indicator_1_1_1;
 use App\Helpers\rtc_market\indicators\indicator_2_2_2;
 use App\Helpers\rtc_market\indicators\indicator_3_1_1;
 use App\Helpers\rtc_market\indicators\indicator_3_5_4;
 use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
+use App\Imports\RtcConsumption\RtcConsumptionMultiSheet;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Exports\AttendanceExport\AttendanceRegistersExport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
-use App\Exports\RtcConsumption\RtcConsumptionExport;
-use App\Imports\RtcConsumption\RtcConsumptionMultiSheet;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-
+use App\Traits\GroupsEndingSoonSubmissionPeriods;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test', function () {
-    $dateEstablished = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');  // Today's date
-    $dateEnding = Carbon::now()->addMonth()->startOfDay()->format('Y-m-d H:i:s');  // Date one month from today
+
+Route::get('/test', [TestingController::class, 'create'])->name('test-url');
 
 
-
-
-    foreach (Indicator::with('forms', 'disaggregations')->where('indicator_no', 'A1')->get() as $index => $indicator) {
-        $indicatorDis = $indicator->disaggregations->first();
-        foreach (FinancialYear::all() as $financialYear) {
-            if ($indicator->forms->count() > 0) {
-                foreach ($indicator->forms as $form) {
-                    SubmissionPeriod::create([
-                        'form_id' => $form->id,
-                        'date_established' => $dateEstablished,
-                        'date_ending' => $dateEnding,
-                        'month_range_period_id' => 1,
-                        'financial_year_id' => $financialYear->id,
-                        'indicator_id' => $indicator->id,
-                        'is_open' => true,
-                        'is_expired' => false,
-                    ]);
-                }
-
-
-
-                //    dd($indicatorDis);
-                SubmissionTarget::create([
-                    //     'month_range_period_id' => 1,
-                    'financial_year_id' => $financialYear->id,
-                    'indicator_id' => $indicator->id,
-                    'target_name' => $indicatorDis->name,
-                    'target_value' => rand(50, 100) * 10,
-                ]);
-
-                // $array[] = [
-                //     //     //     'month_range_period_id' => 1,
-                //     'financial_year_id' => $financialYear->id,
-                //     'indicator_id' => $indicator->id,
-                //     'target_name' => $indicatorDis->name,
-                //     'target_value' => rand(50, 100) * 10,
-                // ];
-            }
-        }
-    }
-});
-Route::get('/session-check', function () {
-    return response()->json(['active' => auth()->check()]);
-})->name('session.check');
 
 Route::get('/logout', function () {
     return abort(404);
 });
 
 
-// Route::get('/download-templates', function () {
-//     Excel::download(new AttendanceRegistersExport(true), 'attendance_register_template.xlsx');
-//     Excel::download(new HouseholdRtcConsumptionTemplateExport(true), 'household_rtc_consumption_template.xlsx');
-//     Excel::download(new RtcProductionFarmersMultiSheetExport(true), 'rtc_production_marketing_farmers_template.xlsx');
-//     Excel::download(new RtcProductionProcessorsMultiSheetExport(true), 'rtc_production_marketing_processors_template.xlsx');
-//     Excel::download(new SchoolRtcConsumptionExport(true), 'school_consumption_template.xlsx');
-//     Excel::download(new SeedBeneficiariesExport(true), 'seed_beneficiaries_template.xlsx');
-// });
 
 Route::get('/download-templates', [App\Http\Controllers\FormsExportController::class, 'export'])->name('download-templates');
 
@@ -239,7 +190,7 @@ Route::middleware([
     Route::get('/submissions/{batch?}', Submissions::class)->name('cip-submissions');
     Route::get('/reports', Reports::class)->name('cip-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
-    Route::get('/targets', App\Livewire\Targets\View::class);
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets-view');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');

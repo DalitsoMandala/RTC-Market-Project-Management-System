@@ -57,8 +57,8 @@
 
 
                             <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
-                                data-bs-target="#job-progress" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
+                                data-bs-target="#submission-progress" type="button" role="tab"
+                                aria-controls="profile" aria-selected="false" wire:ignore.self>
 
                                 Pending Submissions <span
                                     class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
@@ -78,7 +78,7 @@
                                 <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
                             </div>
 
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="job-progress" role="tabpanel"
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="submission-progress" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                             </div>
@@ -98,12 +98,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -112,7 +112,7 @@
                 }
             });
         })
-        
+
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -120,10 +120,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('showDataAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -131,10 +131,10 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-        
-        
+
+
             }),
-        
+
             $wire.on('deleteAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -142,11 +142,11 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-        
-        
+
+
             })
-        
-        
+
+
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -154,8 +154,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })">
 
 
@@ -176,17 +176,17 @@
                         isManager: $wire.entangle('isManager'),
                         disableInputs: false,
                         init() {
-                    
-                    
+
+
                             if (this.isManager) {
                                 this.disableInputs = false;
                             } else {
                                 this.disableInputs = true;
-                    
+
                             }
-                    
+
                         }
-                    
+
                     }">
 
 
@@ -240,9 +240,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-                
-                
-                
+
+
+
                 }">
 
 

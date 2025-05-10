@@ -91,18 +91,7 @@ class RpmProcessorDomMarketsExport implements FromCollection, WithHeadings, With
     public function headings(): array
     {
         return [
-
-            [
-                'Processor ID',
-                'Date Recorded',
-                'Crop Type',
-                'Market Name',
-                'District',
-                'Date of Maximum Sale',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }

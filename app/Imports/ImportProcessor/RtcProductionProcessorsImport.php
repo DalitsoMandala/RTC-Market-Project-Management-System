@@ -40,7 +40,8 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             $errorMessage = "Validation Error on sheet 'Production Processors' - Row {$failure->row()}, Field '{$failure->attribute()}': "
                 . implode(', ', $failure->errors());
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

@@ -17,15 +17,17 @@ class SendExpiredPeriodNotificationJob implements ShouldQueue
 
     protected $users;
     protected $indicatorName;
+    protected $form;
     /**
      * Create a new job instance.
      *
      * @param Collection $users
      */
-    public function __construct(Collection $users, $indicatorName)
+    public function __construct(Collection $users, $indicatorName, $form)
     {
         $this->users = $users;
         $this->indicatorName = $indicatorName;
+        $this->form = $form;
     }
 
     /**
@@ -36,7 +38,7 @@ class SendExpiredPeriodNotificationJob implements ShouldQueue
     public function handle()
     {
         foreach ($this->users as $user) {
-            $user->notify(new SendReminder('Submission Period Expired', "The submission period for <b>{$this->indicatorName}</b> has expired."));
+            $user->notify(new SendReminder('Submission Period Expired', "The submission period for <b>{$this->form}</b> for this indicator {$this->indicatorName} has expired."));
         }
     }
 }

@@ -12,7 +12,9 @@ use App\Models\Indicator;
 use App\Models\JobProgress;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use illuminate\Support\Facades\Route;
 use Livewire\WithFileUploads;
+use App\Traits\UploadDataTrait;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
@@ -38,6 +40,7 @@ class Upload extends Component
     use WithFileUploads;
     use LivewireAlert;
     use CheckProgressTrait;
+    use UploadDataTrait;
     #[Validate('required')]
     public $upload;
     public $variable;
@@ -50,7 +53,7 @@ class Upload extends Component
     public $selectedProject;
 
     public $selectedForm;
-    public $showReport;
+
     public $submissionPeriodId;
 
     public $openSubmission = false;
@@ -67,6 +70,7 @@ class Upload extends Component
     public $targetIds = [];
     public $currentRoute;
     public function save() {}
+    public $form_name;
 
     public function submitUpload()
     {
@@ -82,6 +86,8 @@ class Upload extends Component
             //code...
 
             $userId = auth()->user()->id;
+            $user = User::find($userId);
+
 
             if ($this->upload) {
 
@@ -138,46 +144,6 @@ class Upload extends Component
         $this->targetSet = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
-    // public function checkProgress()
-    // {
-    //     $jobProgress = JobProgress::where('cache_key', $this->importId)->first();
-
-    //     $this->progress = $jobProgress ? $jobProgress->progress : 0;
-    //     $this->importing = true;
-    //     $this->importingFinished = false;
-
-
-    //     if ($this->progress == 100) {
-
-
-
-
-
-    //         if ($jobProgress->status == 'failed') {
-
-    //             session()->flash('error', 'An error occurred during the import! --- ' . $jobProgress->error);
-    //             Cache::forget($this->importId);
-    //              $this->redirect(url()->previous());
-    //         } else if ($jobProgress->status == 'completed') {
-
-    //             $user = User::find(auth()->user()->id);
-    //             Cache::forget($this->importId);
-    //             if ($user->hasAnyRole('external')) {
-    //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('external-submissions') . '#batch-submission');
-    //             } else if ($user->hasAnyRole('staff')) {
-    //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('cip-staff-submissions') . '#batch-submission');
-    //             } else {
-    //                 session()->flash('success', 'Successfully submitted!');
-    //                 return redirect(route('cip-submissions') . '#batch-submission');
-    //             }
-    //         }
-
-
-    //         $this->importId = Uuid::uuid4()->toString(); // change key
-    //     }
-    // }
 
 
     public function send()
@@ -197,69 +163,23 @@ class Upload extends Component
     }
 
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id, $uuid)
+    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
+        // Validate required IDs
+        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
-        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+        // Find and validate related models
+        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
-            abort(404);
-        }
+        // Check if the submission period is open and targets are set
+        $this->checkSubmissionPeriodAndTargets();
 
-        $findForm = Form::find($form_id);
-        $findIndicator = Indicator::find($indicator_id);
-        $findFinancialYear = FinancialYear::find($financial_year_id);
-        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
-        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
-        if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
-
-            abort(404);
-        } else {
-            $this->selectedForm = $findForm->id;
-            $this->selectedIndicator = $findIndicator->id;
-            $this->selectedFinancialYear = $findFinancialYear->id;
-            $this->selectedMonth = $findMonthPeriod->id;
-            $this->submissionPeriodId = $findSubmissionPeriod->id;
-            //check submission period
-
-            $submissionPeriod = SubmissionPeriod::where('form_id', $this->selectedForm)
-                ->where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-                ->where('month_range_period_id', $this->selectedMonth)
-                ->where('is_open', true)
-                ->first();
-            $target = SubmissionTarget::where('indicator_id', $this->selectedIndicator)
-                ->where('financial_year_id', $this->selectedFinancialYear)
-
-                ->get();
-            $user = User::find(auth()->user()->id);
-
-            $targets = $target->pluck('id');
-
-            $checkOrganisationTargetTable = OrganisationTarget::where('organisation_id', $user->organisation->id)
-                ->whereHas('submissionTarget', function ($query) use ($targets) {
-                    $query->whereIn('submission_target_id', $targets);
-                })
-                ->get();
-
-
-
-            $this->targetIds = $target->pluck('id')->toArray();
-
-
-            if ($submissionPeriod && $checkOrganisationTargetTable->count() > 0) {
-
-                $this->openSubmission = true;
-                $this->targetSet = true;
-            } else {
-                $this->openSubmission = false;
-                $this->targetSet = false;
-            }
-        }
-
+        //import ID
         $this->importId = Uuid::uuid4()->toString();
-        $this->currentRoute = url()->current();
+        // Set the route prefix
+        $this->routePrefix = Route::current()->getPrefix();
+        $this->currentRoute =  url()->current();
     }
-
 
 
     public function downloadTemplate()
@@ -291,6 +211,9 @@ class Upload extends Component
 
     public function render()
     {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
         return view('livewire.forms.rtc-market.attendance-register.upload');
     }
 }

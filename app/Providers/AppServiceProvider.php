@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
@@ -23,7 +24,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-
+        if (app()->environment('local')) {
+            URL::forceScheme('http');
+        }
         RedirectIfAuthenticated::redirectUsing(function ($request) {
             $user = User::find(auth()->user()->id);
 

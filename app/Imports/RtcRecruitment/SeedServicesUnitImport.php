@@ -65,7 +65,8 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'Seed Services Unit' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
     public function rules(): array

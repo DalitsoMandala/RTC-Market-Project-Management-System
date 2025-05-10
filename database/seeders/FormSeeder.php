@@ -17,7 +17,7 @@ class FormSeeder extends Seeder
         //
 
         $forms = [
-            //'HOUSEHOLD CONSUMPTION FORM',
+            //'RTC CONSUMPTION FORM',
             'RTC ACTOR RECRUITMENT FORM',
             'RTC CONSUMPTION FORM',
             'RTC PRODUCTION AND MARKETING FORM FARMERS',
@@ -50,17 +50,19 @@ class FormSeeder extends Seeder
             $indicators['Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
                 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
 
             ],
             $indicators['Percentage increase in value of formal RTC exports'] => ['REPORT FORM'],
             $indicators['Percentage of value ($) of formal RTC imports substituted through local production'] => ['REPORT FORM'],
             $indicators['Number of people consuming RTC and processed products'] => [
-                //  'HOUSEHOLD CONSUMPTION FORM',
+                //  'RTC CONSUMPTION FORM',
                 'RTC CONSUMPTION FORM'
             ],
             $indicators['Percentage Increase in the volume of RTC produced'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Percentage increase in RTC investment'] => ['REPORT FORM'],
             $indicators['Number of local RTC varieties suitable for domestic and export markets identified for promotion'] => ['REPORT FORM'],
@@ -74,15 +76,18 @@ class FormSeeder extends Seeder
             $indicators['Number of market linkages between EGS and other seed class producers facilitated'] => ['REPORT FORM'],
             $indicators['Number of private sector actors involved in production of RTC certified seed'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Area (ha) under seed multiplication'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Percentage seed multipliers with formal registration'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Volume of seed distributed within communities to enhance POs productivity'] => ['SEED DISTRIBUTION REGISTER'],
             $indicators['Number of on-farm seed production technology demonstrations established'] => ['REPORT FORM'],
@@ -97,11 +102,13 @@ class FormSeeder extends Seeder
             $indicators['Number of RTC products available on the Management Information System'] => ['REPORT FORM'],
             $indicators['Number of Large scale producer organizations (POs) and private sector commercial farms involved in RTC production'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Number of RTC actors that use certified seed'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)'] => ['ATTENDANCE REGISTER'],
             $indicators['Number of off-season irrigation demonstration sites established'] => ['REPORT FORM'],
@@ -109,7 +116,8 @@ class FormSeeder extends Seeder
             //  $indicators['Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)'] => ['RTC PRODUCTION AND MARKETING FORM FARMERS'],
             $indicators['Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)'] => [
                 'RTC PRODUCTION AND MARKETING FORM FARMERS',
-                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS'
+                'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS',
+                'RTC ACTOR RECRUITMENT FORM',
             ],
             $indicators['Number of market opportunities identified for RTC actors'] => ['REPORT FORM'],
             $indicators['Number of contractual arrangements facilitated for commercial farmers'] => ['REPORT FORM'],
@@ -131,8 +139,8 @@ class FormSeeder extends Seeder
                 'REPORT FORM'
             ],
             $indicators['Number of households reached with RTC nutrition interventions'] => ['REPORT FORM'],
-            $indicators['Frequency of RTC consumption by households per week (OC)'] => ['HOUSEHOLD CONSUMPTION FORM'],
-            $indicators['Percentage increase in households consuming RTCs as the main foodstuff (OC)'] => ['HOUSEHOLD CONSUMPTION FORM'],
+            $indicators['Frequency of RTC consumption by households per week (OC)'] => ['RTC CONSUMPTION FORM'],
+            $indicators['Percentage increase in households consuming RTCs as the main foodstuff (OC)'] => ['RTC CONSUMPTION FORM'],
             $indicators['Number of RTC utilization options (dishes) adopted by households (OC)'] => ['REPORT FORM'],
             $indicators['Number of urban market promotions conducted'] => ['REPORT FORM'],
             $indicators['Number of mass nutrition education campaigns conducted'] => ['REPORT FORM'],

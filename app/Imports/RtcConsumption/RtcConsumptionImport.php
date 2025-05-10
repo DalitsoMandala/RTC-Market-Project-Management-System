@@ -81,7 +81,8 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             $errorMessage = "Validation Error on sheet 'School RTC Consumption' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('month_range_period_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->json('exception_list')->nullable();
             $table->boolean('is_open')->default(false);
             $table->boolean('is_expired')->default(false);
             $table->timestamps();

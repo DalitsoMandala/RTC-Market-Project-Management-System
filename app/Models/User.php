@@ -55,4 +55,9 @@ class User extends Authenticatable
         return $this->belongsTo(Organisation::class, 'organisation_id');
     }
 
+    public function mailingList()
+    {
+        return $this->hasMany(MailingList::class, 'user_id');
+    }
+
 }

@@ -57,7 +57,8 @@ class RpmfAreaCultivationImport implements ToModel, WithHeadingRow, WithValidati
             $errorMessage = "Validation Error on sheet 'Area Cultivation' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
     use newIDTrait;

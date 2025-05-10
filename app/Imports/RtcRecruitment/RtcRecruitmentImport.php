@@ -116,7 +116,8 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
                 implode(', ', $failure->errors());
 
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

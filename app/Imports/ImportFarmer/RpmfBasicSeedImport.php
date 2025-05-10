@@ -70,7 +70,8 @@ class RpmfBasicSeedImport implements ToModel, WithHeadingRow, WithValidation, Sk
 
             Log::error($errorMessage);
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
     public function rules(): array

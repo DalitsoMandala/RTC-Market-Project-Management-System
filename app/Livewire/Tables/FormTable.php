@@ -15,6 +15,8 @@ use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use App\Notifications\SubmissionPeriodsEndingSoon;
+use App\Traits\GroupsEndingSoonSubmissionPeriods;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -40,9 +42,20 @@ final class FormTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
-
+    use GroupsEndingSoonSubmissionPeriods;
     public function datasource(): Builder
     {
+
+        $groupedUsers = $this->getSubmissionPeriodsEndingSoonGroupedByUser();
+
+
+        foreach ($groupedUsers as $userId => $data) {
+            $user = User::find($userId);
+
+            if ($user && !empty($data['forms'])) {
+                $user->notify(new SubmissionPeriodsEndingSoon($data['forms']));
+            }
+        }
 
         $user = User::find(auth()->user()->id);
 

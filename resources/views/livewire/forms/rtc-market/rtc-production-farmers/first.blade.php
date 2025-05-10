@@ -898,10 +898,18 @@
     total_vol_irrigation_production_previous_season_produce: $wire.entangle('total_vol_irrigation_production_previous_season_produce'),
     total_vol_irrigation_production_previous_season_seed: $wire.entangle('total_vol_irrigation_production_previous_season_seed'),
     total_vol_irrigation_production_previous_season_cuttings: $wire.entangle('total_vol_irrigation_production_previous_season_cuttings'),
-
+    enterprise: $wire.entangle('location_data.enterprise'),
+    bundle_multiplier: $wire.entangle('bundle_multiplier'),
+    bundle_total: 0,
 }"
-    x-effect="total_vol_irrigation_production_previous_season = Number(total_vol_irrigation_production_previous_season_produce || 0)
-     + Number(total_vol_irrigation_production_previous_season_seed || 0) +
+    x-effect="
+    if(enterprise !='Potato'){
+   bundle_total = Number(total_vol_irrigation_production_previous_season_seed || 0) * bundle_multiplier;
+    }else{
+    bundle_total = Number(total_vol_irrigation_production_previous_season_seed || 0);
+    }
+    total_vol_irrigation_production_previous_season = Number(total_vol_irrigation_production_previous_season_produce || 0)
+     + bundle_total +
       Number(total_vol_irrigation_production_previous_season_cuttings || 0)">
     <label for="totalVolumeProduction" class="form-label">Total Volume of
         Production from Irrigation Farming (Metric
@@ -921,7 +929,7 @@
 
             </tr>
             <tr>
-                <td>Seed </td>
+                <td>Seed (<span x-text="enterprise === 'Potato' ? 'MT': 'Bundles'"></span>)</td>
                 <td>
                     <input type="number" min="0" step="any"
                         class="form-control @error('total_vol_irrigation_production_previous_season_seed') is-invalid @enderror"

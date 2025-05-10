@@ -41,7 +41,7 @@ class SendReminder extends Notification
             ->subject($this->title)
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line(new HtmlString($this->message))
-            ->action('Access Link', env('APP_URL'))
+            ->action('Go to website', url('/'))
             ->line('Thank you for using our application!');
     }
 

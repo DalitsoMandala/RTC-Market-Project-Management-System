@@ -22,6 +22,7 @@ class formComponent extends Component
     public $formName;
     public $replaceUrl;
     public $showAlpineAlerts;
+    public $formRoute;
 
     public function __construct(
         $title = null,
@@ -55,6 +56,8 @@ class formComponent extends Component
         $uuid = Uuid::uuid4()->toString();
         $currentUrl = url()->current();
         $this->replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
+
+        $this->formRoute = strtolower(str_replace(' ', '-', $this->formName));
     }
 
     /**

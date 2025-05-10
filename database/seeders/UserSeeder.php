@@ -31,6 +31,7 @@ class UserSeeder extends Seeder
         Role::create(['name' => 'staff']); // LIMITED FUNCTIONALITY
         Role::create(['name' => 'admin']); // FULL FUNCTIONALITY
         Role::create(['name' => 'project_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS
+        Role::create(['name' => 'external_manager']); // MANAGE OR VIEW REPORTS AND VISUALIZATIONS ON BEHALF OF AN EXTERNAL ORGANISATION
         // Role::create(['name' => 'cip']); // PROJECT
 
         User::create([
@@ -100,6 +101,19 @@ class UserSeeder extends Seeder
 
         ]);
 
+
+        User::create([
+            'name' => 'John Doe',
+            'email' => 'iita2@example.com',
+            'password' => Hash::make('password'),
+            'phone_number' => '+9999999999',
+            'organisation_id' => getOrganisationId('IITA'),
+        ])->assignRole([
+            'external',
+            'external_manager'
+
+        ]);
+
         User::create([
             'name' => 'John Mateck',
             'email' => 'tradeline@example.com',
@@ -108,6 +122,7 @@ class UserSeeder extends Seeder
             'organisation_id' => getOrganisationId('TRADELINE'),
         ])->assignRole([
             'external',
+
 
         ]);
 

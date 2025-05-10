@@ -213,7 +213,11 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
             ImportFailed::class => function (ImportFailed $event) {
                 $exception = $event->getException();
 
-                $errorMessage = $exception->getMessage();
+                if ($exception instanceof \App\Exceptions\UserErrorException) {
+                    $errorMessage = $exception->getMessage();
+                } else {
+                    $errorMessage = "Something went wrong. Please try again.";
+                }
 
                 $user = User::find($this->submissionDetails['user_id']);
                 $user->notify(new ImportFailureNotification(

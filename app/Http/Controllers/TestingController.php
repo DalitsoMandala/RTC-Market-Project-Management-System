@@ -2,61 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Indicator;
+use App\Models\MailingList;
+use App\Models\Organisation;
+use Illuminate\Http\Request;
+use App\Models\SubmissionPeriod;
+use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\Bus;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Notifications\SubmissionReminder;
+use App\Jobs\SendExpiredPeriodNotificationJob;
+use App\Traits\GroupsEndingSoonSubmissionPeriods;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
+use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
-use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 
 class TestingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index($name)
-    {
-        //
+    use GroupsEndingSoonSubmissionPeriods;
 
-        switch ($name) {
-            case 'rpmf':
-                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
-
-                return Excel::download(new RtcProductionFarmerWorkbookExport(true), 'rpmf' . $time . '.xlsx');
-                break;
-
-            case 'hrc':
-                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
-
-                return Excel::download(new HrcExport(true), 'hrc' . $time . '.xlsx');
-                break;
-
-            case 'rpmp':
-                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
-
-                return Excel::download(new RtcProductionProcessorWookbookExport(true), 'rpmp' . $time . '.xlsx');
-                break;
-
-            case 'src':
-                $time = Carbon::parse(now())->format('d_m_Y_H_i_s');
-
-                return Excel::download(new SrcExport(true), 'src' . $time . '.xlsx');
-                break;
-
-            default:
-                # code...
-                break;
-        }
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+
+
+        //   $this->getSubmissionPeriodsEndingSoonGroupedByUser(3);
     }
 
     /**

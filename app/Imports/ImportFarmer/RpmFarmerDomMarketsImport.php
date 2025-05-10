@@ -96,7 +96,8 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
 
             Log::error($errorMessage);
 
-            throw new \Exception($errorMessage);
+            Log::error($errorMessage);
+            throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
 

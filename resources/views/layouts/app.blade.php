@@ -217,6 +217,14 @@
             visibility: visible;
             opacity: 1;
         }
+
+        .page-title-box .breadcrumb {
+
+            background-color: #ECEBEA;
+            padding: 1.1rem;
+            border-radius: 10px;
+
+        }
     </style>
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
@@ -351,9 +359,7 @@
                     document.documentElement.scrollTop = 0;
                 }
 
-                document.querySelectorAll('input[type="number"]').forEach(function(input) {
-                    input.setAttribute('step', 'any');
-                });
+
 
             });
 

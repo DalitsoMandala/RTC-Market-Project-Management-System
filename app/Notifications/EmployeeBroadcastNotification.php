@@ -45,7 +45,7 @@ class EmployeeBroadcastNotification extends Notification implements ShouldQueue
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line(new HtmlString($this->messageContent))
             ->action('Go to website', $this->link)  // Adding a call-to-action button
-            ->line('Thank you for your attention!');
+            ->line('Thank you for using our application!');
     }
 
     public function toArray($notifiable)

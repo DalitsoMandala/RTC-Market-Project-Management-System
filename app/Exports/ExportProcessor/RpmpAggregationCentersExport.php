@@ -41,10 +41,7 @@ class RpmpAggregationCentersExport implements FromCollection, WithHeadings, With
     public function headings(): array
     {
         return [
-            [
-                'Aggregation Center Name',
-                'Processor ID'
-            ],
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }

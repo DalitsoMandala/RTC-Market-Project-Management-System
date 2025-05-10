@@ -45,18 +45,7 @@ class RpmProcessorConcAgreementsExport implements FromCollection, WithHeadings, 
     public function headings(): array
     {
         return [
-
-            [
-                'Processor ID',
-                'Date Recorded',
-                'Partner Name',
-                'Country',
-                'Date of Maximum Sale',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales'
-            ],
-
+            array_keys($this->validationTypes),
             array_values($this->validationTypes)
         ];
     }
