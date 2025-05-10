@@ -16,6 +16,7 @@ use App\Models\RtcProductionProcessor;
 use App\Models\HouseholdRtcConsumption;
 use Illuminate\Database\Eloquent\Builder;
 use App\Livewire\Internal\Cip\Submissions;
+use App\Models\Recruitment;
 
 class indicator_A1
 {
@@ -42,7 +43,7 @@ class indicator_A1
     {
 
 
-        return $this->applyFilters(HouseholdRtcConsumption::query()->where('status', 'approved'));
+        return $this->applyFilters(Recruitment::query()->where('status', 'approved'));
     }
 
     public function builderFarmer(): Builder
@@ -56,12 +57,12 @@ class indicator_A1
     }
 
     // Example of chunking data in `findTotalFarmerEmployees` method
-    public function findTotalFarmerEmployees()
+    public function findTotalEmployees()
     {
         $totalEmpFormal = 0;
         $totalEmpInFormal = 0;
 
-        $this->builderFarmer()->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
+        $this->builder()->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
             foreach ($data as $model) {
                 $model->empFormalTotal = $model->emp_formal_female_18_35
                     + $model->emp_formal_male_18_35
@@ -82,6 +83,31 @@ class indicator_A1
             'totalEmpFormal' => $totalEmpFormal,
             'totalEmpInFormal' => $totalEmpInFormal,
             'Total' => $totalEmpFormal + $totalEmpInFormal
+        ];
+    }
+
+    public function findTotalMembers()
+    {
+        $totalFemale = 0;
+        $totalMale = 0;
+        $totalYouth = 0;
+        $totalAdult = 0;
+        $this->builder()->chunk(100, function ($data) use (&$totalFemale, &$totalMale, &$totalYouth, &$totalAdult) {
+            foreach ($data as $model) {
+
+                $totalFemale += $model->mem_female_18_35 + $model->mem_female_35_plus;
+                $totalMale += $model->mem_male_18_35 + $model->mem_male_35_plus;
+                $totalYouth += $model->mem_female_18_35 + $model->mem_male_18_35;
+                $totalAdult += $model->mem_female_35_plus + $model->mem_male_35_plus;
+            }
+        });
+
+        return [
+            'totalFemale' => $totalFemale,
+            'totalMale' => $totalMale,
+            'totalYouth' => $totalYouth,
+            'totalAdult' => $totalAdult,
+            'TotalMembers' => $totalFemale + $totalMale
         ];
     }
 
@@ -119,9 +145,9 @@ class indicator_A1
 
     public function findTotal()
     {
-        $totalFarmerEmployees = $this->findTotalFarmerEmployees();
-        $totalProcessorEmployees = $this->findTotalProcessorEmployees();
-        return $this->builder()->count() + $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
+        $totalEmployees = $this->findTotalEmployees();
+
+        return $this->builder()->count() + $totalEmployees['Total'];
     }
 
     public function findGender()
@@ -130,6 +156,7 @@ class indicator_A1
 
         $this->builder()->chunk(100, function ($data) use (&$totalGender) {
             foreach ($data as $model) {
+
                 $totalGender['Total'] += 1;
                 $totalGender['MaleCount'] += $model->sex == 'Male' ? 1 : 0;
                 $totalGender['FemaleCount'] += $model->sex == 'Female' ? 1 : 0;
@@ -181,16 +208,16 @@ class indicator_A1
     public function countActor(): Collection
     {
 
-        $totalActor = collect(['Total' => 0, 'Farmer' => 0, 'Processor' => 0, 'Trader' => 0]);
-        $data =  $this->builder()->get();
+        $totalActor = collect(['Total' => 0, 'Farmers' => 0, 'Processors' => 0, 'Traders' => 0]);
+
         $this->builder()->chunk(100, function ($data) use (&$totalActor) {
 
             foreach ($data as $model) {
 
                 $totalActor['Total'] += 1;
-                $totalActor['Farmer'] += $model->actor_type == 'Farmer' ? 1 : 0;
-                $totalActor['Processor'] += $model->actor_type == 'Processor' ? 1 : 0;
-                $totalActor['Trader'] += $model->actor_type == 'Trader' ? 1 : 0;
+                $totalActor['Farmers'] += $model->type == 'Farmers' ? 1 : 0;
+                $totalActor['Processors'] += $model->type == 'Processors' ? 1 : 0;
+                $totalActor['Traders'] += $model->type == 'Traders' ? 1 : 0;
             }
         });
 
@@ -216,9 +243,9 @@ class indicator_A1
         return $this->countActor()->where('age_group', $age)->first()->toArray();
     }
 
-    public function getEstablishmentFarmers()
+    public function getEstablishment()
     {
-        return $this->builderFarmer()->select([
+        return $this->builder()->select([
             DB::raw('COUNT(*) AS Total'),
             DB::raw('SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS New'),
             DB::raw('SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS Old'),
@@ -239,34 +266,32 @@ class indicator_A1
 
     public function getDisaggregations()
     {
-        $gender = $this->findGender();
-        $age = $this->findAge();
+        $members = $this->findTotalMembers();
         $actorType = $this->findActorType();
         $crop = $this->findByCrop();
+        $totalEmployees = $this->findTotalEmployees();
+        $totalOldEstablishment = $this->getEstablishment()['Old'];
+        $totalNewEstablishment = $this->getEstablishment()['New'];
 
-
-        $totalFarmerEmployees = $this->findTotalFarmerEmployees();
-
-        $totalProcessorEmployees = $this->findTotalProcessorEmployees();
-        $totalEmployees = $totalFarmerEmployees['Total'] + $totalProcessorEmployees['Total'];
-        $totalOldEstablishment = $this->getEstablishmentFarmers()['Old'] + $this->getEstablishmentProcessors()['Old'];
-        $totalNewEstablishment = $this->getEstablishmentFarmers()['New'] + $this->getEstablishmentProcessors()['New'];
-
-        return [
+        return collect([
             'Total' => $this->findTotal(),
-            'Female' => (int) $gender['FemaleCount'],
-            'Male' => (int) $gender['MaleCount'],
-            'Youth (18-35 yrs)' => (int) $age['youth'],
-            'Not youth (35yrs+)' => (int) $age['not_youth'],
-            'Farmers' => (int) $actorType['Farmer'],
-            'Processors' => (int) $actorType['Processor'],
-            'Traders' => (int) $actorType['Trader'],
-            'Cassava' => (int) $crop['cassava'],
-            'Potato' => (int) $crop['potato'],
-            'Sweet potato' => (int) $crop['sweet_potato'],
-            'Employees on RTC establishment' => $totalEmployees,
+            'Female' => $members['totalFemale'],
+            'Male' => $members['totalMale'],
+            'Youth (18-35 yrs)' => $members['totalYouth'],
+            'Not youth (35yrs+)' => $members['totalAdult'],
+            'Farmers' => $actorType['Farmers'],
+            'Processors' => $actorType['Processors'],
+            'Traders' => $actorType['Traders'],
+            'Cassava' => $crop['cassava'],
+            'Potato' => $crop['potato'],
+            'Sweet potato' => $crop['sweet_potato'],
+            'Employees on RTC establishment' => $totalEmployees['Total'],
             'New establishment' => $totalNewEstablishment,
             'Old establishment' => $totalOldEstablishment,
-        ];
+        ])->map(function ($value) {
+            return is_numeric($value) && floor($value) != $value
+                ? (float) $value  // keep decimal if exists
+                : (int) $value;   // force to int if whole number
+        })->toArray();
     }
 }

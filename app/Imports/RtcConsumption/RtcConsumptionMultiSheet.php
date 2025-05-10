@@ -25,27 +25,13 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Exports\RtcConsumption\RtcConsumptionExport;
 use App\Models\RtcConsumption;
+use App\Traits\FormEssentials;
 
 class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
+    use FormEssentials;
     protected $expectedSheetNames = ['RTC Consumption'];
-    protected $expectedHeaders = [
-        'RTC Consumption' => [
-            'EPA',
-            'Section',
-            'District',
-            'Entity Name',
-            'Entity Type',
-            'Date',
-            'Cassava Crop',
-            'Potato Crop',
-            'Sweet Potato Crop',
-            'Male Count',
-            'Female Count',
-
-        ],
-
-    ];
+    protected $expectedHeaders = [];
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails = [];
@@ -55,6 +41,9 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
+        foreach ($this->expectedSheetNames as $sheetName) {
+            $this->expectedHeaders[$sheetName] = array_keys($this->forms['Rtc Consumption Form'][$sheetName]);
+        }
     }
 
     public function sheets(): array

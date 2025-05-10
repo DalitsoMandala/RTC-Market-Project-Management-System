@@ -27,37 +27,18 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Validators\ValidationException;
 use App\Imports\AttendanceImport\AttendanceRegistersImport;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 
 class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue, WithBatchInserts
 {
+    use FormEssentials;
     protected $expectedSheetNames = [
-        'Attendance Registers',
+        'Attendance Register',
 
     ];
 
-    protected $expectedHeaders = [
-        'Attendance Registers' => [
-            'Meeting Title',
-            'Meeting Category',
-            'Cassava',
-            'Potato',
-            'Sweet Potato',
-            'Venue',
-            'District',
-            'Start Date',
-            'End Date',
-            'Total Days',
-            'Name',
-            'Sex',
-            'Organization',
-            'Designation',
-            'Category',
-            'Phone Number',
-            'Email',
-        ],
-
-    ];
+    protected $expectedHeaders = [];
     protected $cacheKey;
     protected $filePath;
     protected $submissionDetails;
@@ -69,12 +50,15 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
+        foreach ($this->expectedSheetNames as $sheetName) {
+            $this->expectedHeaders[$sheetName] = array_keys($this->forms['Attendance Register Form'][$sheetName]);
+        }
     }
 
     public function sheets(): array
     {
         return [
-            'Attendance Registers' => new AttendanceRegistersImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Attendance Register' => new AttendanceRegistersImport($this->submissionDetails, $this->cacheKey, $this->totalRows),
 
         ];
     }

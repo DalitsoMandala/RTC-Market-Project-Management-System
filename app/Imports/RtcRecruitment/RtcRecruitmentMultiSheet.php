@@ -35,65 +35,20 @@ use App\Imports\ImportFarmer\RpmFarmerInterMarketsImport;
 use App\Imports\ImportFarmer\RpmfAggregationCentersImport;
 use App\Imports\ImportFarmer\RpmFarmerConcAgreementsImport;
 use App\Models\Recruitment;
+use App\Traits\FormEssentials;
 
 class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable, RegistersEventListeners;
+    use FormEssentials;
 
     protected $expectedSheetNames = [
         'RTC Actor Recruitment',
+        'Seed Services Unit',
 
     ];
-    protected $expectedHeaders = [
 
-        'RTC Actor Recruitment' => [
-            'ID',
-            'EPA',
-            'Section',
-            'District',
-            'Enterprise',
-            'Date of Recruitment',
-            'Name of Actor',
-            'Name of Representative',
-            'Phone Number',
-            'Type',
-            'Group',
-            'Approach',
-            'Sector',
-            'Members Female 18-35',
-            'Members Male 18-35',
-            'Members Male 35+',
-            'Members Female 35+',
-            'Category',
-            'Establishment Status',
-            'Is Registered',
-            'Registration Body',
-            'Registration Number',
-            'Registration Date',
-            'Employees Formal Female 18-35',
-            'Employees Formal Male 18-35',
-            'Employees Formal Male 35+',
-            'Employees Formal Female 35+',
-            'Employees Informal Female 18-35',
-            'Employees Informal Male 18-35',
-            'Employees Informal Male 35+',
-            'Employees Informal Female 35+',
-            'Area Under Cultivation',
-            'Is Registered Seed Producer',
-            'Seed Producer Registration Number',
-            'Seed Producer Registration Date',
-            'Uses Certified Seed',
-
-        ],
-        'Seed Services Unit' => [
-            'Recruitment ID',
-            'Registration Date',
-            'Registration Number',
-            'Variety',
-        ]
-
-
-    ];
+    protected $expectedHeaders = [];
 
     protected $cacheKey;
     protected $filePath;
@@ -105,6 +60,9 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
+        foreach ($this->expectedSheetNames as $sheetName) {
+            $this->expectedHeaders[$sheetName] = array_keys($this->forms['Rtc Recruitment Form'][$sheetName]);
+        }
     }
 
     private function getSheetHeaders(Worksheet $sheet): array

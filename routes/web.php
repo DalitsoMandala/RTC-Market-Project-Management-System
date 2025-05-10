@@ -87,7 +87,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', [TestingController::class, 'create'])->name('test-url');
 
-
+Route::get('/indicators', function () {
+    $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 1);
+    dd($indicatorClass->getDisaggregations());
+});
 
 Route::get('/logout', function () {
     return abort(404);

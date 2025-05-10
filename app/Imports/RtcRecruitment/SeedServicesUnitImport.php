@@ -56,7 +56,7 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
     public function prepareForValidation(array $row)
     {
 
-        $row['Recruitment ID'] = $this->validateNewIdForRecruits("recruitment_id_mapping", $this->cacheKey, $row, "Recruitment ID");
+        $row['ID'] = $this->validateNewIdForRecruits("recruitment_id_mapping", $this->cacheKey, $row, "ID");
         $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
         return $row;
     }
@@ -73,7 +73,7 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
     {
         return [
 
-            'Recruitment ID' => 'exists:recruitments,id',
+            'ID' => 'exists:recruitments,id',
             'Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Registration Number' => 'nullable|max:255',
             'Variety' => 'nullable|max:255',
