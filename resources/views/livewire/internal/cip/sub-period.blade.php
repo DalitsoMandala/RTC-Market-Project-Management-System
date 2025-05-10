@@ -452,7 +452,7 @@
                                         <option value="{{ $organ->id }}">{{ $organ->name }}</option>
                                     @endforeach
                                 </select>
-                                <span x-text="selectedOrganisations"></span>
+
                             </div>
 
 

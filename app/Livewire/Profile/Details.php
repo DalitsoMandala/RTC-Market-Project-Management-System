@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class Details extends Component
@@ -52,7 +53,6 @@ class Details extends Component
                 'profile_image' => 'nullable|image', // 1MB Max
                 'organization' => 'required|string|max:255',
             ]);
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -63,12 +63,15 @@ class Details extends Component
         try {
             $user = User::find(auth()->user()->id);
             $user->name = $this->username;
+            $directory = 'public/profiles';
+            if (!Storage::exists($directory)) {
+                Storage::makeDirectory($directory);
+            }
             //  $user->organisation->id = $this->organization;
             if ($this->profile_image) {
                 $name = Str::random(32) . '.' . $this->profile_image->extension();
-                $this->profile_image->storeAs('public/profiles', $name);
+                $this->profile_image->storeAs($directory, $name);
                 $user->image = $name;
-
             }
 
             $user->save();
@@ -79,11 +82,6 @@ class Details extends Component
         } catch (Throwable $th) {
             session()->flash('error', 'Something went wrong.');
         }
-
-
-
-
-
     }
 
     public function saveSecurity()
@@ -104,7 +102,6 @@ class Details extends Component
                 'new_password' => 'required|min:8',
                 'confirm_password' => 'required|same:new_password',
             ]);
-
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -128,9 +125,6 @@ class Details extends Component
         } catch (Throwable $th) {
             session()->flash('error', 'Something went wrong.');
         }
-
-
-
     }
 
     public function render()

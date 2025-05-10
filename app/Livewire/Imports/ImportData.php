@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProgresSummaryExport;
 use App\Imports\ProgresSummaryImport;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -70,7 +71,12 @@ class ImportData extends Component
 
             $this->showInput = false;
             $name = 'progress_summary_' . time() . '.' . $this->upload->getClientOriginalExtension();
-            $this->upload->storeAs('public/imports', $name);
+            $directory = 'public/imports';
+            if (!Storage::exists($directory)) {
+                Storage::makeDirectory($directory);
+            }
+
+            $this->upload->storeAs($directory, $name);
             $path = storage_path('app/public/imports/' . $name);
             $this->importing = true;
             $this->importingFinished = false;

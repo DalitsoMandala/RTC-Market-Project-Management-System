@@ -12,7 +12,6 @@ use App\Models\Indicator;
 use App\Models\JobProgress;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
-use illuminate\Support\Facades\Route;
 use Livewire\WithFileUploads;
 use App\Traits\UploadDataTrait;
 use App\Models\SubmissionPeriod;
@@ -27,6 +26,8 @@ use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
+use illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
@@ -90,11 +91,13 @@ class Upload extends Component
 
 
             if ($this->upload) {
-
                 $name = 'att' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs('public/imports', $name);
+                $directory = 'public/imports';
+                if (!Storage::exists($directory)) {
+                    Storage::makeDirectory($directory);
+                }
 
-                // Use storage_path to get the absolute path
+                $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
                 try {
 

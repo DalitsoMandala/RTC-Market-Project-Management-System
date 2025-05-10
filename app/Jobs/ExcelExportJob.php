@@ -2,42 +2,43 @@
 
 namespace App\Jobs;
 
-use App\Exports\rtcmarket\HouseholdExport\ExportData;
-use App\Exports\rtcmarket\HrcExport;
-use App\Models\AttendanceRegister;
-use App\Models\HouseholdRtcConsumption;
-use App\Models\Recruitment;
-use App\Models\ReportingPeriod;
-use App\Models\RpmFarmerAggregationCenter;
-use App\Models\RpmFarmerAreaCultivation;
-use App\Models\RpmFarmerBasicSeed;
-use App\Models\RpmFarmerCertifiedSeed;
-use App\Models\RpmFarmerConcAgreement;
-use App\Models\RpmFarmerDomMarket;
-use App\Models\RpmFarmerFollowUp;
-use App\Models\RpmFarmerInterMarket;
-use App\Models\RpmProcessorAggregationCenter;
-use App\Models\RpmProcessorConcAgreement;
-use App\Models\RpmProcessorDomMarket;
-use App\Models\RpmProcessorFollowUp;
-use App\Models\RpmProcessorInterMarket;
-use App\Models\RtcProductionFarmer;
-use App\Models\RtcProductionProcessor;
-use App\Models\SchoolRtcConsumption;
-use App\Models\SeedBeneficiary;
-use App\Models\SystemReportData;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Recruitment;
+use Illuminate\Support\Str;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\ReportingPeriod;
+use App\Models\SeedBeneficiary;
+use App\Models\SystemReportData;
+use App\Models\RpmFarmerFollowUp;
+use App\Models\AttendanceRegister;
+use App\Models\RpmFarmerBasicSeed;
+use App\Models\RpmFarmerDomMarket;
+use App\Models\RtcProductionFarmer;
+use App\Exports\rtcmarket\HrcExport;
+use App\Models\RpmFarmerInterMarket;
+use App\Models\RpmProcessorFollowUp;
+use App\Models\SchoolRtcConsumption;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmFarmerCertifiedSeed;
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\RtcProductionProcessor;
+use Illuminate\Queue\SerializesModels;
+use App\Models\HouseholdRtcConsumption;
+use App\Models\RpmProcessorInterMarket;
+use Illuminate\Support\Facades\Storage;
+use App\Models\RpmFarmerAreaCultivation;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Models\RpmProcessorConcAgreement;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use App\Models\RpmFarmerAggregationCenter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Models\RpmProcessorAggregationCenter;
+use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use Illuminate\Support\Facades\Cache;  // Use Cache for progress tracking
-use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
-use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class ExcelExportJob implements ShouldQueue
 {
@@ -48,6 +49,7 @@ class ExcelExportJob implements ShouldQueue
     public $progressKey;
     public $statusKey;
     public $user;
+
 
     /**
      * Create a new job instance.
@@ -64,6 +66,11 @@ class ExcelExportJob implements ShouldQueue
      */
     public function handle(): void
     {
+
+        $directory = 'public/exports';
+        if (!Storage::exists($directory)) {
+            Storage::makeDirectory($directory);
+        }
         switch ($this->name) {
             case 'hrc':
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
@@ -101,8 +108,7 @@ class ExcelExportJob implements ShouldQueue
                 HouseholdRtcConsumption::chunk(2000, function ($households) use ($writer) {
                     foreach ($households as $household) {
                         $submittedBy = '';
-                        $user = User::find($household->user_id);
-                        {
+                        $user = User::find($household->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -217,8 +223,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($households) use ($writer) {
                     foreach ($households as $household) {
                         $submittedBy = '';
-                        $user = User::find($household->user_id);
-                        {
+                        $user = User::find($household->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -349,8 +354,7 @@ class ExcelExportJob implements ShouldQueue
                 RtcProductionProcessor::chunk(2000, function ($households) use ($writer) {
                     foreach ($households as $household) {
                         $submittedBy = '';
-                        $user = User::find($household->user_id);
-                        {
+                        $user = User::find($household->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -452,8 +456,7 @@ class ExcelExportJob implements ShouldQueue
                 RpmFarmerFollowUp::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $followUp) {
                         $submittedBy = '';
-                        $user = User::find($followUp->user_id);
-                        {
+                        $user = User::find($followUp->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -528,8 +531,7 @@ class ExcelExportJob implements ShouldQueue
                 RpmProcessorFollowUp::with('processors')->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $followUp) {
                         $submittedBy = '';
-                        $user = User::find($followUp->user_id);
-                        {
+                        $user = User::find($followUp->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -980,8 +982,7 @@ class ExcelExportJob implements ShouldQueue
                 SchoolRtcConsumption::with('user')->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $item) {
                         $submittedBy = '';
-                        $user = User::find($item->user_id);
-                        {
+                        $user = User::find($item->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -1039,8 +1040,7 @@ class ExcelExportJob implements ShouldQueue
                 AttendanceRegister::with('user')->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
-                        $user = User::find($record->user_id);
-                        {
+                        $user = User::find($record->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 
@@ -1399,8 +1399,7 @@ class ExcelExportJob implements ShouldQueue
                 Recruitment::with('user')->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
-                        $user = User::find($record->user_id);
-                        {
+                        $user = User::find($record->user_id); {
                             $organisation = $user->organisation->name;
                             $name = $user->name;
 

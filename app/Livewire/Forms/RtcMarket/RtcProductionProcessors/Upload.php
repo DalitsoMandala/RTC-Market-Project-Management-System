@@ -36,6 +36,7 @@ use App\Exceptions\UserErrorException;
 use App\Models\RtcProductionProcessor;
 use App\Notifications\JobNotification;
 use App\Models\RpmProcessorInterMarket;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\SheetImportException;
 use App\Models\RpmProcessorConcAgreement;
 use App\Exceptions\ExcelValidationException;
@@ -105,12 +106,13 @@ class Upload extends Component
             if ($this->upload) {
 
                 $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs('public/imports', $name);
+                $directory = 'public/imports';
+                if (!Storage::exists($directory)) {
+                    Storage::makeDirectory($directory);
+                }
 
-                // Use storage_path to get the absolute path
+                $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
-
-
 
 
 

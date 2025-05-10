@@ -22,6 +22,7 @@ use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use App\Exports\SeedBeneficiariesExport;
 use App\Imports\SeedBeneficiariesImport;
 use App\Exceptions\ExcelValidationException;
@@ -69,9 +70,12 @@ class Upload extends Component
                 'upload' => 'required|file|mimes:xlsx,csv',
             ]);
             $name = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
-            $this->upload->storeAs('public/imports', $name);
+            $directory = 'public/imports';
+            if (!Storage::exists($directory)) {
+                Storage::makeDirectory($directory);
+            }
 
-            // Use storage_path to get the absolute path
+            $this->upload->storeAs($directory, $name);
             $path = storage_path('app/public/imports/' . $name);
             try {
 

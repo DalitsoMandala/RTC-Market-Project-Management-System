@@ -2,25 +2,31 @@
 
 namespace App\Helpers;
 
-use App\Exceptions\UserErrorException;
-use App\Exports\JsonExport;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
 use App\Models\Submission;
+use App\Exports\JsonExport;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\User;
-use App\Notifications\ImportSuccessNotification;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use Ramsey\Uuid\Uuid;
+use App\Exceptions\UserErrorException;
+use Illuminate\Support\Facades\Storage;
 use Spatie\SimpleExcel\SimpleExcelWriter;
+use App\Notifications\ImportSuccessNotification;
 
 class SubmitAggregateData
 {
     public function storeData($data)
     {
         $fileName = 'exported_data_' . time() . '.xlsx';
+
+        $directory = 'public/exports';
+        if (!Storage::exists($directory)) {
+            Storage::makeDirectory($directory);
+        }
 
         // Store the file in the `storage/app/exports` directory
         $filePath = storage_path('app/public/exports/' . $fileName);

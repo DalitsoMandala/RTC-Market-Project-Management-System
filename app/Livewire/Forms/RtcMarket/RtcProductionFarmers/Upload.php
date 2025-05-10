@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use App\Exceptions\UserErrorException;
 use App\Notifications\JobNotification;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Imports\rtcmarket\RtcProductionImport\RpmFarmerImport;
@@ -92,9 +93,12 @@ class Upload extends Component
             if ($this->upload) {
 
                 $name = 'rpmf' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $this->upload->storeAs('public/imports', $name);
+                $directory = 'public/imports';
+                if (!Storage::exists($directory)) {
+                    Storage::makeDirectory($directory);
+                }
 
-                // Use storage_path to get the absolute path
+                $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
 
 
