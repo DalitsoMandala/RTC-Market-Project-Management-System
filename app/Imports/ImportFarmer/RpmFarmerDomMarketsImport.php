@@ -59,8 +59,8 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
             'district' => $row['District'],
             'date_of_maximum_sale' => \Carbon\Carbon::parse($row['Date of Maximum Sale'])->format('Y-m-d'),
             'product_type' => $row['Product Type'],
-            'volume_sold_previous_period' => $row['Volume Sold Previous Period'],
-            'financial_value_of_sales' => $row['Financial Value of Sales'],
+            'volume_sold_previous_period' => $row['Volume Sold Previous Period'] ?? 0,
+            'financial_value_of_sales' => $row['Financial Value of Sales'] ?? 0,
         ]);
     }
 
@@ -68,8 +68,12 @@ class RpmFarmerDomMarketsImport implements ToModel, WithHeadingRow, WithValidati
     use newIDTrait;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale']);
-        $row['Date Recorded'] = $this->convertExcelDate($row['Date Recorded']);
+        if (!empty($row['Date Recorded'])) {
+            $row['Date Recorded'] = $this->convertExcelDate($row['Date Recorded']);
+        }
+        if (!empty($row['Date of Maximum Sale'])) {
+            $row['Date of Maximum Sale'] = $this->convertExcelDate($row['Date of Maximum Sale']);
+        }
         $row['Farmer ID'] = $this->validateNewIdForFarmers("farmer_id_mapping1", $this->cacheKey, $row, "Farmer ID");
 
         return $row;

@@ -50,7 +50,7 @@ class RpmfCertifiedSeedImport implements ToModel, WithHeadingRow, WithValidation
         return new RpmFarmerCertifiedSeed([
             'rpmf_id' => $row['Farmer ID'],
             'variety' => $row['Variety'],
-            'area' => $row['Area'],
+            'area' => $row['Area'] ?? 0,
         ]);
     }
 

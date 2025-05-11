@@ -2,19 +2,20 @@
 
 namespace App\Imports\ImportFarmer;
 
-use App\Models\FarmerSeedRegistration;
+use App\Traits\newIDTrait;
 use App\Models\JobProgress;
 use App\Traits\excelDateFormat;
-use App\Traits\newIDTrait;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use Illuminate\Support\Facades\Log;
+use App\Models\FarmerSeedRegistration;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
-use Maatwebsite\Excel\Validators\Failure;
 
 HeadingRowFormatter::default('none');
 
@@ -60,7 +61,7 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
     {
         $row['Farmer ID'] = $row['ID'];
         $row['Farmer ID'] = $this->validateNewIdForRecruits('farmer_id_mapping1', $this->cacheKey, $row, 'Farmer ID');
-      
+
         if (!empty($row['Registration Date'])) {
             $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
         }

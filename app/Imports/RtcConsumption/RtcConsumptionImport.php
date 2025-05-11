@@ -6,6 +6,7 @@ use App\Models\JobProgress;
 use App\Models\RtcConsumption;
 use App\Traits\excelDateFormat;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -43,11 +44,11 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'entity_name' => $row['Entity Name'],
             'entity_type' => $row['Entity Type'],
             'date' => \Carbon\Carbon::parse($row['Date'])->format('Y-m-d'),
-            'crop_cassava' => $row['Cassava Crop'],
-            'crop_potato' => $row['Potato Crop'],
-            'crop_sweet_potato' => $row['Sweet Potato Crop'],
-            'male_count' => $row['Male Count'],
-            'female_count' => $row['Female Count'],
+            'crop_cassava' => $row['Cassava Crop'] ?? 0,
+            'crop_potato' => $row['Potato Crop'] ?? 0,
+            'crop_sweet_potato' => $row['Sweet Potato Crop'] ?? 0,
+            'male_count' => $row['Male Count'] ?? 0,
+            'female_count' => $row['Female Count'] ?? 0,
             'total' => $row['Male Count'] + $row['Female Count'],
             'uuid' => $this->cacheKey,
             'user_id' => $this->data['user_id'],
@@ -99,9 +100,9 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'Cassava Crop' => 'nullable|boolean',
             'Potato Crop' => 'nullable|boolean',
             'Sweet Potato Crop' => 'nullable|boolean',
-            'Male Count' => 'required|integer|min:0',
-            'Female Count' => 'required|integer|min:0',
-            // 'Total' => 'required|integer|min:0',
+            'Male Count' => 'required|numeric|min:0',
+            'Female Count' => 'required|numeric|min:0',
+            // 'Total' => 'required|numeric|min:0',
         ];
     }
 

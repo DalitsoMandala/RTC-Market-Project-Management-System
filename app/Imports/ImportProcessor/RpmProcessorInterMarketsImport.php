@@ -44,8 +44,8 @@ class RpmProcessorInterMarketsImport implements ToModel, WithHeadingRow, WithVal
             'country' => $row['Country'],
             'date_of_maximum_sale' => \Carbon\Carbon::parse($row['Date of Maximum Sale'])->format('Y-m-d'),
             'product_type' => $row['Product Type'],
-            'volume_sold_previous_period' => $row['Volume Sold Previous Period'],
-            'financial_value_of_sales' => $row['Financial Value of Sales'],
+            'volume_sold_previous_period' => $row['Volume Sold Previous Period'] ?? 0,
+            'financial_value_of_sales' => $row['Financial Value of Sales'] ?? 0,
             'status' => 'approved',
         ]);
 
@@ -64,7 +64,7 @@ class RpmProcessorInterMarketsImport implements ToModel, WithHeadingRow, WithVal
         foreach ($failures as $failure) {
             $errorMessage = "Validation Error on sheet 'International Markets' - Row {$failure->row()}, Field '{$failure->attribute()}': " .
                 implode(', ', $failure->errors());
-                 Log::error($errorMessage);
+            Log::error($errorMessage);
             throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
@@ -73,8 +73,12 @@ class RpmProcessorInterMarketsImport implements ToModel, WithHeadingRow, WithVal
     use newIDTrait;
     public function prepareForValidation(array $row)
     {
-        $row['Date of Maximum Sale'] =  $this->convertExcelDate($row['Date of Maximum Sale'], $row);
-        $row['Date Recorded'] =    $this->convertExcelDate($row['Date Recorded'], $row);
+        if (!empty($row['Date Recorded'])) {
+            $row['Date Recorded'] = $this->convertExcelDate($row['Date Recorded']);
+        }
+        if (!empty($row['Date of Maximum Sale'])) {
+            $row['Date of Maximum Sale'] = $this->convertExcelDate($row['Date of Maximum Sale']);
+        }
         $row['Processor ID'] = $this->validateNewIdForProcessors("processor_id_mapping", $this->cacheKey, $row, "Processor ID");
         return $row;
     }

@@ -6,6 +6,7 @@ use App\Traits\newIDTrait;
 use App\Models\JobProgress;
 use App\Traits\excelDateFormat;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use App\Models\RecruitSeedRegistration;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
@@ -48,7 +49,7 @@ class SeedServicesUnitImport implements ToModel, WithHeadingRow, WithValidation,
             'recruitment_id' => $row['ID'],
             'reg_date' => \Carbon\Carbon::parse($row['Registration Date'])->format('Y-m-d'),
             'reg_no' => $row['Registration Number'],
-            'variety' => $row['Variety'],
+            'variety' => $row['Variety'] ?? 0,
         ]);
     }
     use newIDTrait;
