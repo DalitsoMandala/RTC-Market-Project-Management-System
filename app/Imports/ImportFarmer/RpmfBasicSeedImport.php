@@ -51,7 +51,7 @@ class RpmfBasicSeedImport implements ToModel, WithHeadingRow, WithValidation, Sk
         return new RpmFarmerBasicSeed([
             'rpmf_id' => $row['Farmer ID'],
             'variety' => $row['Variety'],
-            'area' => $row['Area'],
+            'area' => $row['Area']?? 0,
         ]);
     }
 

@@ -48,7 +48,7 @@ class RpmfAreaCultivationImport implements ToModel, WithHeadingRow, WithValidati
         return new RpmFarmerAreaCultivation([
             'rpmf_id' => $row['Farmer ID'],
             'variety' => $row['Variety'],
-            'area' => $row['Area'],
+            'area' => $row['Area'] ?? 0,
         ]);
     }
     public function onFailure(Failure ...$failures)

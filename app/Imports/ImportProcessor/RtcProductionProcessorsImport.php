@@ -66,25 +66,25 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'market_segment_fresh' => $row['Market Segment Fresh'],
             'market_segment_processed' => $row['Market Segment Processed'],
             'has_rtc_market_contract' => $row['Has RTC Market Contract'],
-            'total_vol_production_previous_season' => $row['Total Volume Production'],
-            'total_vol_production_previous_season_produce' => $row['Total Volume Production Produce'],
-            'total_vol_production_previous_season_seed' => $row['Total Volume Production Seeed'],
-            'total_vol_production_previous_season_cuttings' => $row['Total Volume Production Cuttings'],
-            'prod_value_previous_season_usd_rate' => $prodCalc['rate'],
-            'prod_value_previous_season_usd_value' => $prodCalc['usd_value'],
-            'prod_value_previous_season_seed' => $row['Production Value Seed'],
-            'prod_value_previous_season_cuttings' => $row['Production Value Cuttings'],
-            'prod_value_produce_prevailing_price' => $row['Production Value Produce Prevailing Price'],
-            'prod_value_seed_prevailing_price' => $row['Production Value Seed Prevailing Price'],
-            'prod_value_cuttings_prevailing_price' => $row['Production Value Cuttings Prevailing Price'],
+            'total_vol_production_previous_season' => $row['Total Volume Production'] ?? 0,
+            'total_vol_production_previous_season_produce' => $row['Total Volume Production Produce'] ?? 0,
+            'total_vol_production_previous_season_seed' => $row['Total Volume Production Seed'] ?? 0,
+            'total_vol_production_previous_season_cuttings' => $row['Total Volume Production Cuttings'] ?? 0,
+            'prod_value_previous_season_total' => $row['Production Value Total'] ?? 0,
+            'prod_value_previous_season_produce' => $row['Production Value Produce'] ?? 0,
+            'prod_value_previous_season_seed' => $row['Production Value Seed'] ?? 0,
+            'prod_value_previous_season_cuttings' => $row['Production Value Cuttings'] ?? 0,
+            'prod_value_produce_prevailing_price' => $row['Production Value Produce Prevailing Price'] ?? 0,
+            'prod_value_seed_prevailing_price' => $row['Production Value Seed Prevailing Price'] ?? 0,
+            'prod_value_cuttings_prevailing_price' => $row['Production Value Cuttings Prevailing Price'] ?? 0,
             'prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Production Value Date of Max Sales'])->format('Y-m-d'),
-            'prod_value_previous_season_usd_rate' => $row['Production Value USD Rate'],
-            'prod_value_previous_season_usd_value' => $row['Production Value USD Value'],
+            'prod_value_previous_season_usd_rate' => $prodCalc['rate'] ?? 0,
+            'prod_value_previous_season_usd_value' => $prodCalc['usd_value'] ?? 0,
             'sells_to_domestic_markets' => $row['Sells to Domestic Markets'],
             'sells_to_international_markets' => $row['Sells to International Markets'],
             'uses_market_information_systems' => $row['Uses Market Info Systems'],
             'sells_to_aggregation_centers' => $row['Sells to Aggregation Centers'],
-            'total_vol_aggregation_center_sales' => $row['Total Volume Aggregation Center Sales'],
+            'total_vol_aggregation_center_sales' => $row['Total Volume Aggregation Center Sales'] ?? 0,
             'uuid' => $this->data['batch_no'],
             'user_id' => $this->data['user_id'],
             'organisation_id' => $this->data['organisation_id'],
@@ -115,7 +115,10 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
     public function prepareForValidation(array $row)
     {
-        $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up'], $row);
+        if (!empty($row['Date Of Follow Up'])) {
+            $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
+        }
+
         $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'];
         if ($row['Enterprise'] && $row['Enterprise'] != 'Potato') {
             /** Convert the bundles to metric tonnes and use the multiplier */
@@ -124,11 +127,11 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         $row['Total Volume Production'] = ($row['Total Volume Production Produce'] ?? 0) + ($row['Total Volume Production Seeed'] ?? 0) + ($row['Total Volume Production Cuttings'] ?? 0);
 
         $row['Production Value Total'] = $this->calculateTotalProduction(
-            $row['Total Volume Production Produce'],
+            $row['Production Value Produce'],
             $row['Production Value Produce Prevailing Price'],
-            $row['Total Volume Production Seeed'],
+            $row['Production Value Seed'],
             $row['Production Value Seed Prevailing Price'],
-            $row['Total Volume Production Cuttings'],
+            $row['Production Value Cuttings'],
             $row['Production Value Cuttings Prevailing Price']
         );
         $row['Production Value USD Rate'] = 0;  // for now
@@ -186,7 +189,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     private function calculateUsdValue(?string $date, ?float $mwkValue): array
     {
         if (!$date || !$mwkValue) {
-            return ['rate' => null, 'usd_value' => null];
+            return ['rate' => 0, 'usd_value' => 0];
         }
 
         try {

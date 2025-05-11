@@ -53,25 +53,7 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
         if (isset($row['Date of Assessment'])) {
             $row['Date of Assessment'] = $this->convertExcelDate($row['Date of Assessment']);
         }
-        if ($row['Sex']) {
-            $sex = $row['Sex'];
-            if (is_numeric($sex)) {
-                $sex = match ($sex) {
-                    1 => 'Male',
-                    2 => 'Female',
-
-                    default => 'Male',
-                };
-            } elseif (is_string($sex)) {
-                $sex = strtolower($sex);
-                $sex = match ($sex) {
-                    'm' => 'Male',
-                    'f' => 'Female',
-
-                    default => 'Male',
-                };
-            }
-        }
+       
 
         return $row;
     }

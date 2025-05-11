@@ -60,6 +60,7 @@ class Add extends Component
     public $targetIds = [];
 
     public $indicator, $array;
+    public $form_name = "REPORT FORM";
 
     // public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     // {
