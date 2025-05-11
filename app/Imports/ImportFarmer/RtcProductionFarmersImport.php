@@ -176,20 +176,20 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         $row['Total Volume Irrigation Production'] = ($row['Total Volume Irrigation Production Produce'] ?? 0) + ($row['Total Volume Irrigation Production Seeed'] ?? 0) + ($row['Total Volume Irrigation Production Cuttings'] ?? 0);
 
         $row['Production Value Total'] = $this->calculateTotalProduction(
-            $row['Total Volume Production Produce'],
+            $row['Production Value Produce'],
             $row['Production Value Produce Prevailing Price'],
-            $row['Total Volume Production Seed'],
+            $row['Production Value Seed'],
             $row['Production Value Seed Prevailing Price'],
-            $row['Total Volume Production Cuttings'],
+            $row['Production Value Cuttings'],
             $row['Production Value Cuttings Prevailing Price']
         );
 
         $row['Irrigation Production Value Total'] = $this->calculateTotalProduction(
-            $row['Total Volume Irrigation Production Produce'],
+            $row['Irrigation Production Value Produce'],
             $row['Irrigation Production Value Produce Prevailing Price'],
-            $row['Total Volume Irrigation Production Seeed'],
+            $row['Irrigation Production Value Seed'],
             $row['Irrigation Production Value Seed Prevailing Price'],
-            $row['Total Volume Irrigation Production Cuttings'],
+            $row['Irrigation Production Value Cuttings'],
             $row['Irrigation Production Value Cuttings Prevailing Price']
         );
         $row['Production Value USD Rate'] = 0;  // for now
@@ -273,7 +273,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
     private function calculateUsdValue(?string $date, ?float $mwkValue): array
     {
         if (!$date || !$mwkValue) {
-            return ['rate' => null, 'usd_value' => null];
+            return ['rate' => 0, 'usd_value' => 0];
         }
 
         try {

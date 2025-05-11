@@ -171,7 +171,7 @@ class Indicator223 extends Component
                 $this->selectedForm,
                 $this->selectedIndicator,
                 $this->selectedFinancialYear,
-                route('cip-submissions'),
+                $user->hasAnyRole('admin') ? route('admin-submissions') : route('cip-submissions'),
                 'manager'
             );
         }

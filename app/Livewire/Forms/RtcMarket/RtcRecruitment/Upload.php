@@ -65,7 +65,8 @@ class Upload extends Component
                 $fileName = $this->uploadFile(
                     file: $this->upload,
                     importId: $this->importId,
-                    importClass: RtcRecruitmentMultiSheet::class // Pass the import class
+                    importClass: RtcRecruitmentMultiSheet::class,
+                    name_prefix: 'rtc_recruitment',
                 );
 
                 $submissionDetails['file_link'] = $fileName;
