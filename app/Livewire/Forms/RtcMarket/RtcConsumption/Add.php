@@ -38,6 +38,7 @@ class Add extends Component
     public $crop = [];
     public $male_count;
     public $female_count;
+    public $number_of_households;
     public $total = 0;
     public $location_data = [
         'entity_name' => null,
@@ -63,6 +64,7 @@ class Add extends Component
             'crop' => 'required',
             'male_count' => 'required|numeric',
             'female_count' => 'required|numeric',
+            'number_of_households' => 'required_if:location_data.entity_type,Nutrition intervention group|numeric',
             'total' => 'required|numeric',
         ];
     }
@@ -79,6 +81,13 @@ class Add extends Component
         ];
     }
 
+    protected function messages()
+    {
+        return [
+            'number_of_households.required_if' => 'The :attribute is required when entity type is Nutrition intervention group.',
+
+        ];
+    }
     public function save()
     {
 
@@ -110,6 +119,7 @@ class Add extends Component
             'crop_potato' => $cropCollection->contains('potato') ? 1 : 0,
             'crop_sweet_potato' => $cropCollection->contains('sweet_potato') ? 1 : 0,
             'entity_type' => $this->location_data['entity_type'],
+            'number_of_households' => $this->location_data['entity_type'] === 'Nutrition intervention group' ? $this->number_of_households : 0,
 
         ];
 
