@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class RtcConsumptionExport implements FromCollection, WithHeadings, WithEvents, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
+class RtcConsumptionExport implements FromCollection, WithHeadings, WithEvents, WithTitle, WithStrictNullComparison, ShouldAutoSize
 {
     use ExportStylingTrait;
     use FormEssentials;
