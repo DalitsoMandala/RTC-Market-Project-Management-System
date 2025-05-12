@@ -104,7 +104,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             $progress = ($jobProgress->processed_rows / $jobProgress->total_rows) * 100;
             $jobProgress->update(['progress' => round($progress)]);
         }
-        Log::info("Processed Recruit : " . Cache::get("recruitment_id_mapping_{$this->cacheKey}_{$row['ID']}") . "- {$farmerRecord->id} here");
+     //   Log::info("Processed Recruit : " . Cache::get("recruitment_id_mapping_{$this->cacheKey}_{$row['ID']}") . "- {$farmerRecord->id} here");
         return $farmerRecord;
     }
 
