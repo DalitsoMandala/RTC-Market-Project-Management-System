@@ -37,7 +37,7 @@ class indicator_B4
         $totalMale = 0;
         $totalYouth = 0;
         $totalAdult = 0;
-        $this->builder()->where('group', 'Other')->chunk(100, function ($data) use (&$totalFemale, &$totalMale, &$totalYouth, &$totalAdult) {
+        $this->builder()->chunk(100, function ($data) use (&$totalFemale, &$totalMale, &$totalYouth, &$totalAdult) {
             foreach ($data as $model) {
 
                 $totalFemale += $model->mem_female_18_35 + $model->mem_female_35_plus;
@@ -62,7 +62,7 @@ class indicator_B4
         $totalMale = 0;
         $totalYouth = 0;
         $totalAdult = 0;
-        $this->builder()->where('group', '!=', 'Other')->chunk(100, function ($data) use (&$totalFemale, &$totalMale, &$totalYouth, &$totalAdult) {
+        $this->builder()->chunk(100, function ($data) use (&$totalFemale, &$totalMale, &$totalYouth, &$totalAdult) {
             foreach ($data as $model) {
 
                 $totalFemale += $model->mem_female_18_35 + $model->mem_female_35_plus;
@@ -85,7 +85,7 @@ class indicator_B4
         $totalEmpFormal = 0;
         $totalEmpInFormal = 0;
 
-        $this->builder()->where('group', '!=', 'Other')->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
+        $this->builder()->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
             foreach ($data as $model) {
                 $model->empFormalTotal = $model->emp_formal_female_18_35
                     + $model->emp_formal_male_18_35
@@ -114,7 +114,7 @@ class indicator_B4
         $totalEmpFormal = 0;
         $totalEmpInFormal = 0;
 
-        $this->builder()->where('group', 'Other')->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
+        $this->builder()->chunk(100, function ($data) use (&$totalEmpFormal, &$totalEmpInFormal) {
             foreach ($data as $model) {
                 $model->empFormalTotal = $model->emp_formal_female_18_35
                     + $model->emp_formal_male_18_35
@@ -153,13 +153,20 @@ class indicator_B4
         return $this->applyFilters($query);
     }
 
+    public function builderHousehold(): Builder
+    {
+        $query = RtcConsumption::query()->where('status', 'approved')->where('entity_type', 'Nutrition intervention group');
+
+        return $this->applyFilters($query);
+    }
+
     public function getDisaggregations()
     {
 
 
 
         $household = ($this->findTotalMembersHousehold()['TotalMembers']  + $this->findTotalEmployeesHousehold()['Total']) * 5;
-        $interventions = ($this->findTotalMembersNutrition()['TotalMembers']  + $this->findTotalEmployeesNutrition()['Total']) * 5;
+        $interventions = ($this->builderHousehold()->sum('number_of_households')) * 5;
         $school = $this->builderSchool()->count();
         $total = $household + $interventions + $school;
         return [

@@ -98,6 +98,10 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             $row['End Date'] = $this->convertExcelDate($row['End Date']);
         }
 
+           $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['Section'] = $row['Section'] ?? 'NA';
+        $row['District'] = $row['District'] ?? 'NA';
+
         return $row;
     }
     public function rules(): array

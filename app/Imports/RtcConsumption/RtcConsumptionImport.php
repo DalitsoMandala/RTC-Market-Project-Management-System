@@ -50,6 +50,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'male_count' => $row['Male Count'] ?? 0,
             'female_count' => $row['Female Count'] ?? 0,
             'total' => $row['Male Count'] + $row['Female Count'],
+            'number_of_households' => $row['Number of Households'] ?? 0,
             'uuid' => $this->cacheKey,
             'user_id' => $this->data['user_id'],
             'organisation_id' => $this->data['organisation_id'],
@@ -72,7 +73,14 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
     use excelDateFormat;
     public function prepareForValidation(array $row)
     {
-        $row['Date'] =  $this->convertExcelDate($row['Date']);
+        if (!empty($row['Date'])) {
+            $row['Date'] =  $this->convertExcelDate($row['Date']);
+        }
+
+        $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['Section'] = $row['Section'] ?? 'NA';
+        $row['District'] = $row['District'] ?? 'NA';
+
         return $row;
     }
 
@@ -102,6 +110,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'Sweet Potato Crop' => 'nullable|boolean',
             'Male Count' => 'required|numeric|min:0',
             'Female Count' => 'required|numeric|min:0',
+            'Number of Households' => 'nullable|numeric|min:0',
             // 'Total' => 'required|numeric|min:0',
         ];
     }

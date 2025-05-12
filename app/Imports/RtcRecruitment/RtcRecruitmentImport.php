@@ -135,6 +135,10 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
         if (!empty($row['Seed Producer Registration Date'])) {
             $row['Seed Producer Registration Date'] = $this->convertExcelDate($row['Seed Producer Registration Date']);
         }
+
+        $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['Section'] = $row['Section'] ?? 'NA';
+        $row['District'] = $row['District'] ?? 'NA';
         return $row;
     }
 

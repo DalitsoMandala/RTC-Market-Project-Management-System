@@ -243,6 +243,7 @@ trait FormEssentials
                 'Sweet Potato Crop' => 'Boolean (1/0)',
                 'Male Count' => 'Number (>=0)',
                 'Female Count' => 'Number (>=0)',
+                'Number of Households' => 'Number (>=0), Only for CIP use',
             ]
         ],
         'Attendance Register Form' => [

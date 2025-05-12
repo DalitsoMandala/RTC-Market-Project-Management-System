@@ -197,6 +197,10 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         $row['Irrigation Production Value USD Rate'] = 0;  // for now
         $row['Irrigation Production Value USD Value'] = 0;  // for now
 
+
+        $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['Section'] = $row['Section'] ?? 'NA';
+        $row['District'] = $row['District'] ?? 'NA';
         return $row;
     }
 

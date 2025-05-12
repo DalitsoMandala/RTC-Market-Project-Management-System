@@ -88,9 +88,9 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'marital_status' => $row['Marital Status'],
                 'hh_head' => $row['Household Head'],
                 'household_size' => $row['Household Size'] ?? 0,
-                'children_under_5' => $row['Children Under 5 in HH'] ??0,
+                'children_under_5' => $row['Children Under 5 in HH'] ?? 0,
                 'variety_received' => $row['Variety Received'],
-                'bundles_received' => $row['Amount of Seed Received in KGs'] ??0,
+                'bundles_received' => $row['Amount of Seed Received in KGs'] ?? 0,
                 'phone_number' => $row['Phone Number'],
                 'national_id' => $row['National ID'],
                 'user_id' => $this->submissionDetails['user_id'],
@@ -153,9 +153,6 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     {
         $date = $this->convertExcelDate($row['Date of Distribution']);
 
-        if (!$row['Age']) {
-            $row['Age'] = 1;
-        }
 
         if (!$row['National ID']) {
             $row['National ID'] = 'NA';
@@ -165,16 +162,12 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             $row['Phone Number'] = 'NA';
         }
         if (!$row['Household Size']) {
-            $row['Household Size'] = 1;
+            $row['Household Size'] = 0;
         }
 
-        if (!$row['Sex']) {
-            $row['Sex'] = 'NA';
-        }
 
-        if (!$row['Household Head']) {
-            $row['Household Head'] = 1;
-        }
+
+
         if (!$row['Children Under 5 in HH']) {
             $row['Children Under 5 in HH'] = 0;
         }
@@ -186,21 +179,16 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             $row['AEDO Phone Number'] = 'NA';
         }
 
-        if (!$row['Section']) {
-            $row['Section'] = 'NA';
-        }
-        if (!$row['EPA']) {
-            $row['EPA'] = 'NA';
-        }
+
         if (!$row['Name of AEDO']) {
             $row['Name of AEDO'] = 'NA';
         }
         if (!$row['Name of Recipient']) {
             $row['Name of Recipient'] = 'NA';
         }
-        if (!$row['District']) {
-            $row['District'] = 'NA';
-        }
+        $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['Section'] = $row['Section'] ?? 'NA';
+        $row['District'] = $row['District'] ?? 'NA';
 
         if (!$row['Season Type']) {
             $row['Season Type'] = 'NA';

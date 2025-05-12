@@ -86,26 +86,17 @@ class PopulatePreviousValue
                     '(Formal) Cassava',
                     '(Formal) Potato',
                     '(Formal) Sweet potato',
-                    // '(Informal) Cassava',
-                    //  '(Informal) Potato',
-                    //   '(Informal) Sweet potato'
+
 
                 ]);
 
 
-                // if ($indicator->indicator_no == 'B2') {
-                //     dd($temp, $data, $disaggregation_name);
-                // }
-
-                // dd($test);
 
                 return $this->sumDisaggregations($data, $disaggregation_name, [
                     '(Formal) Cassava',
                     '(Formal) Potato',
                     '(Formal) Sweet potato',
-                    // '(Informal) Cassava',
-                    //  '(Informal) Potato',
-                    //   '(Informal) Sweet potato'
+
                 ]);
 
             case 'Percentage of value ($) of formal RTC imports substituted through local production':

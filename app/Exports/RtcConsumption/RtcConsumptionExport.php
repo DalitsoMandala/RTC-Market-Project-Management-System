@@ -86,6 +86,6 @@ class RtcConsumptionExport implements FromCollection, WithHeadings, WithEvents, 
     }
     public function title(): string
     {
-        return 'RTC Consumption';
+        return 'Rtc Consumption';
     }
 }
