@@ -1,22 +1,14 @@
 <?php
 
-namespace App\Livewire\Indicators\RtcMarket;
+namespace App\Traits;
 
-use App\Models\Indicator;
-
-use App\Helpers\rtc_market\indicators\A1;
-
-use Illuminate\Support\Facades\Log;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\Validate;
-use Livewire\Component;
 use App\Models\SystemReport;
 use App\Models\SystemReportData;
 
-class Indicator114 extends Component
+trait ViewIndicatorCalculationsTrait
 {
-    use LivewireAlert;
-    #[Validate('required')]
+    //
+
     public $rowId;
     public $data = [];
     public $indicator_no;
@@ -36,6 +28,9 @@ class Indicator114 extends Component
     public $reporting_period;
     public $financial_year;
     public $organisation;
+
+
+
 
 
 
@@ -62,8 +57,6 @@ class Indicator114 extends Component
                 ->pluck('id');
         }
 
-
-
         if ($reportId->isNotEmpty()) {
             // Retrieve and group data by 'name'
             $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
@@ -71,25 +64,25 @@ class Indicator114 extends Component
 
 
             // Sum each group's values
+
             $summedGroups = $groupedData->map(function ($group) {
-                return $group->first()->value;
+                return $group->sum('value'); // Changed from first()->value to sum('value')
             });
+
 
 
             // Store the results
             $this->data = $summedGroups;
-
-            // Retrieve the total if 'Total' is one of the grouped items
-            $this->total = $summedGroups->get('Total (% Percentage)', 0); // Defaults to 0 if 'Total' is not present
+            if ($summedGroups->has('Total (% Percentage)')) {
+                $this->total = $summedGroups->get('Total (% Percentage)', 0);
+            } elseif ($summedGroups->has('Total')) {
+                $this->total = $summedGroups->get('Total', 0);
+            }
         }
     }
     public function mount()
     {
-        $this->calculations();
-    }
 
-    public function render()
-    {
-        return view('livewire.indicators.rtc-market.indicator114');
+        $this->calculations();
     }
 }

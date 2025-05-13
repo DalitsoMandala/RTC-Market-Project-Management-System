@@ -86,7 +86,7 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test', [FixPeriods::class, 'set']);
+Route::get('/test', [FixPeriods::class, 'getIndicators']);
 
 
 

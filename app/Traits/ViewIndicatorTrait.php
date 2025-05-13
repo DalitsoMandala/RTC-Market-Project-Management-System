@@ -54,6 +54,8 @@ trait ViewIndicatorTrait
 
     public function mount(Indicator $id)
     {
+
+
         $this->indicator_name = $id->indicator_name;
         $this->indicator_id = $id->id;
         $this->project_id = $id->project->id;

@@ -98,7 +98,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             $row['End Date'] = $this->convertExcelDate($row['End Date']);
         }
 
-           $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['EPA'] = $row['EPA'] ?? 'NA';
         $row['Section'] = $row['Section'] ?? 'NA';
         $row['District'] = $row['District'] ?? 'NA';
 
@@ -116,7 +116,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'District' => 'required|string|max:255',
             'Start Date' => 'required|date|date_format:d-m-Y',
             'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
-            'Total Days' => 'numeric|min:1',
+            'Total Days' => 'nullable|numeric|min:0',
             'Name' => 'required|string|max:255',
             'Sex' => 'required|in:Male,Female,NA',
             'Organization' => 'nullable|string|max:255',

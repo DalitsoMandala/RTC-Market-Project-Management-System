@@ -101,6 +101,6 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
 
     public function title(): string
     {
-        return 'Attendance Registers';
+        return 'Attendance Register';
     }
 }

@@ -16,6 +16,7 @@ class ViewIndicators extends Component
     use ViewIndicatorTrait;
     public function render()
     {
+
         return view('livewire.admin.data.view-indicators');
     }
 }
