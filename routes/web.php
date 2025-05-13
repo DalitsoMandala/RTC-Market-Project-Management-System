@@ -86,12 +86,9 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-// Route::get('/restore-submission-periods', [FixPeriods::class, 'set']);
+Route::get('/test', [FixPeriods::class, 'set']);
 
-Route::get('/test', function () {
-    $data = new \App\Helpers\rtc_market\indicators\indicator_B4(financial_year: 2);
-    return $data->getDisaggregations();
-});
+
 
 Route::get('/logout', function () {
     return abort(404);

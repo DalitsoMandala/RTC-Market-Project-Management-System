@@ -17,6 +17,7 @@ class FixPeriods extends Controller
             array $indicatorIds = [],
             array $formIds = [],
             array $organisationIds = []
+
         ) {
             // Start with the base query
             $query = Indicator::with([
@@ -43,6 +44,7 @@ class FixPeriods extends Controller
                 $query->whereHas('organisation', function ($q) use ($organisationIds) {
                     $q->whereIn('organisations.id', $organisationIds);
                 });
+                //   dd($query->toRawSql());
             }
 
             // Execute the query
@@ -51,6 +53,7 @@ class FixPeriods extends Controller
             // Transform the result into the desired structure
             $organisationCollection = collect();
             $indicators->each(function ($indicator) use ($organisationCollection) {
+
                 $organisationCollection->push([
                     'indicator_id' => $indicator->id,
                     'indicator_name' => $indicator->indicator_name,
@@ -69,6 +72,7 @@ class FixPeriods extends Controller
                         ];
                     }),
                     'forms' => $indicator->forms->map(function ($form) {
+
                         return [
                             'form_id' => $form->id,
                             'form_name' => $form->name,
@@ -80,32 +84,20 @@ class FixPeriods extends Controller
             return $organisationCollection;
         }
 
-        $filteredIndicators = getFilteredIndicators();
-        $date_established = Carbon::parse('2025-05-06')->format('Y-m-d');
-        $date_ending = Carbon::parse('2025-06-06')->format('Y-m-d');
-        if (Carbon::parse($date_ending)->format('H:i:s') === '00:00:00') {
-            $date_ending = Carbon::parse($date_ending)
-                ->setTime(23, 59, 0)  // Sets to 11:59:00 PM
-                ->format('Y-m-d H:i:s'); // Convert back to string if needed
-        }
-        $month_range_period_id = 2;
-        $financial_year_id = 2;
+        $filteredIndicators = getFilteredIndicators(
+            indicatorIds: [1],
+            formIds: [1],
+            organisationIds: [2]
+
+        );
+        return response()->json($filteredIndicators);
 
         foreach ($filteredIndicators as $indicator) {
             $organisation = $indicator['organisations'];
             $forms = $indicator['forms'];
 
             foreach ($forms as $form) {
-                $period = SubmissionPeriod::create([
-                    'form_id' => $form['form_id'],
-                    'month_range_period_id' => $month_range_period_id,
-                    'financial_year_id' => $financial_year_id,
-                    'date_established' => $date_established,
-                    'date_ending' => $date_ending,
-                    'is_open' => true,
-                    'is_expired' => false,
-                    'indicator_id' => $indicator['indicator_id'],
-                ]);
+
 
                 foreach ($organisation as $org) {
 
@@ -116,10 +108,6 @@ class FixPeriods extends Controller
                         if ($userRoles->contains('admin') || $userRoles->contains('project_manager')) {
                             continue;
                         }
-                        $period->mailingList()->create([
-                            'submission_period_id' => $period->id,
-                            'user_id' => $user['user_id'],
-                        ]);
                     }
                 }
             }
