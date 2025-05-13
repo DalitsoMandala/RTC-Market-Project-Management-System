@@ -30,7 +30,9 @@ class Indicators extends Component
     public $indicators = [];
 
     public $selectedIndicators;
-
+    public $selectedIndicator;
+    public $name;
+    public $disaggregations = [];
 
     public $leadPartners = [];
     #[Validate('required')]
@@ -96,6 +98,7 @@ class Indicators extends Component
         $this->reset();
     }
 
+    public function saveDisaggregations() {}
     public function mount()
     {
 
@@ -103,8 +106,11 @@ class Indicators extends Component
         $this->leadPartners = Organisation::get();
         $this->sources = Form::get();
         $this->indicators = Indicator::get();
+    }
 
-
+    public function updatedSelectedIndicator(Indicator $value)
+    {
+        $this->disaggregations = $value->disaggregations;
     }
     public function render()
     {
