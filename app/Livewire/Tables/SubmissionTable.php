@@ -363,7 +363,8 @@ final class SubmissionTable extends PowerGridComponent
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => !($user->hasAnyRole('manager')))
+                ->when(fn($row) => !$user->hasAnyRole('manager')
+                    || !$user->hasAnyRole('admin'))
                 ->disable(),
 
             Rule::rows()
