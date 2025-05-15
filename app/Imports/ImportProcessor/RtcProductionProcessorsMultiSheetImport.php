@@ -135,7 +135,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                 }
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
-                    return $sum + (($rowCounts[$sheetName] - 1) ?? 0);  // exclude headers
+                    return $sum + (($rowCounts[$sheetName] - 2) ?? 0);  // exclude headers
                 }, 0);
 
                 JobProgress::updateOrCreate(

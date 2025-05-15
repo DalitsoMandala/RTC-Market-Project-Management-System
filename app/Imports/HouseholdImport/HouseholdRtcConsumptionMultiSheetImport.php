@@ -156,7 +156,7 @@ class HouseholdRtcConsumptionMultiSheetImport implements WithMultipleSheets, Wit
 
                 // Get total rows from both sheets
                 $rowCounts = $event->reader->getTotalRows();
-                $this->totalRows = (($rowCounts['Household Data'] - 1) ?? 0) + (($rowCounts['Main Food Data'] - 1) ?? 0); // others are header rows
+                $this->totalRows = (($rowCounts['Household Data'] - 2) ?? 0) + (($rowCounts['Main Food Data'] - 2) ?? 0); // others are header rows
                 // Initialize JobProgress record
 
 

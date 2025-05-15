@@ -122,7 +122,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                 // Get total rows from all sheets and initialize JobProgress
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
-                    return $sum + (($rowCounts[$sheetName] - 1) ?? 0);  // excluding headers
+                    return $sum + (($rowCounts[$sheetName] - 2) ?? 0);  // excluding headers
                 }, 0);
 
                 JobProgress::updateOrCreate(
