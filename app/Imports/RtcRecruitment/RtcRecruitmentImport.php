@@ -104,7 +104,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             $progress = ($jobProgress->processed_rows / $jobProgress->total_rows) * 100;
             $jobProgress->update(['progress' => round($progress)]);
         }
-     //   Log::info("Processed Recruit : " . Cache::get("recruitment_id_mapping_{$this->cacheKey}_{$row['ID']}") . "- {$farmerRecord->id} here");
+        //   Log::info("Processed Recruit : " . Cache::get("recruitment_id_mapping_{$this->cacheKey}_{$row['ID']}") . "- {$farmerRecord->id} here");
         return $farmerRecord;
     }
 
@@ -166,8 +166,8 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             'Category' => 'nullable|string|max:255|in:Early generation seed producer,Seed multiplier,RTC producer',
             'Establishment Status' => 'nullable|string|in:New,Old',
             'Is Registered' => 'nullable|boolean',
-            'Registration Body' => 'nullable|string|max:255',
-            'Registration Number' => 'nullable|string|max:255',
+            'Registration Body' => 'nullable|max:255',
+            'Registration Number' => 'nullable|max:255',
             'Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Employees Formal Female 18-35' => 'nullable|numeric|min:0',
             'Employees Formal Male 18-35' => 'nullable|numeric|min:0',
@@ -178,7 +178,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             'Employees Informal Male 35+' => 'nullable|numeric|min:0',
             'Employees Informal Female 35+' => 'nullable|numeric|min:0',
             'Is Registered Seed Producer' => 'nullable|boolean',
-            'Seed Producer Registration Number' => 'nullable|string|max:255',
+            'Seed Producer Registration Number' => 'nullable|max:255',
             'Seed Producer Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Uses Certified Seed' => 'nullable|boolean',
 
