@@ -86,7 +86,19 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test', [FixPeriods::class, 'getIndicators']);
+Route::get('/test', function () {
+    $indicatorContent = IndicatorClass::get();
+    $data = [];
+
+    foreach ($indicatorContent as $indicator) {
+
+        $getClass = new $indicator->class(financial_year: 2, reporting_period: 2);
+        $data[] = [
+            $indicator->class => $getClass->getDisaggregations()
+        ];
+    }
+    return response()->json($data);
+});
 
 
 

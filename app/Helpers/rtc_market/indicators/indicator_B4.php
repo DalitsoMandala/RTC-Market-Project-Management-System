@@ -160,12 +160,111 @@ class indicator_B4
         return $this->applyFilters($query);
     }
 
+
+    public function findCropBreakdown()
+    {
+        $results = [];
+
+        $this->builder()
+            ->whereIn('type', ['Farmers', 'Processors', 'Traders'])
+            ->selectRaw('
+            enterprise,
+            SUM(emp_formal_female_18_35 + emp_formal_male_18_35 + emp_formal_male_35_plus + emp_formal_female_35_plus) as totalEmployeeFormal,
+            SUM(emp_informal_female_18_35 + emp_informal_male_18_35 + emp_informal_male_35_plus + emp_informal_female_35_plus) as totalEmployeeInFormal,
+            SUM(mem_female_18_35 + mem_female_35_plus) as totalFemale,
+            SUM(mem_male_18_35 + mem_male_35_plus) as totalMale,
+            SUM(mem_female_18_35 + mem_male_18_35) as totalYouth,
+            SUM(mem_female_35_plus + mem_male_35_plus) as totalAdult,
+            SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS new_establishments,
+            SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS old_establishments
+        ')
+            ->groupBy('enterprise')
+            ->orderBy('enterprise') // Helps with consistent chunking
+            ->chunk(1000, function ($chunk) use (&$results) {
+                foreach ($chunk as $item) {
+                    $results[$item->enterprise] = [
+                        'totalEmployeeFormal' => (int) $item->totalEmployeeFormal,
+                        'totalEmployeeInFormal' => (int) $item->totalEmployeeInFormal,
+                        'totalFemale' => (int) $item->totalFemale,
+                        'totalMale' => (int) $item->totalMale,
+                        'totalYouth' => (int) $item->totalYouth,
+                        'totalAdult' => (int) $item->totalAdult,
+                        'new_establishments' => (int) $item->new_establishments,
+                        'old_establishments' => (int) $item->old_establishments,
+                    ];
+                }
+            });
+
+
+
+        return collect($results);
+    }
+
+    public function findActorTypeBreakdown()
+    {
+        $results = [];
+
+        $this->builder()
+            ->whereIn('type', ['Farmers', 'Processors', 'Traders'])
+            ->selectRaw('
+            type,
+            SUM(emp_formal_female_18_35 + emp_formal_male_18_35 + emp_formal_male_35_plus + emp_formal_female_35_plus) as totalEmployeeFormal,
+            SUM(emp_informal_female_18_35 + emp_informal_male_18_35 + emp_informal_male_35_plus + emp_informal_female_35_plus) as totalEmployeeInFormal,
+            SUM(mem_female_18_35 + mem_female_35_plus) as totalFemale,
+            SUM(mem_male_18_35 + mem_male_35_plus) as totalMale,
+            SUM(mem_female_18_35 + mem_male_18_35) as totalYouth,
+            SUM(mem_female_35_plus + mem_male_35_plus) as totalAdult,
+            SUM(CASE WHEN establishment_status = \'New\' THEN 1 ELSE 0 END) AS new_establishments,
+            SUM(CASE WHEN establishment_status = \'Old\' THEN 1 ELSE 0 END) AS old_establishments
+        ')
+
+            ->groupBy('type')
+            ->orderBy('type')
+            ->chunk(1000, function ($chunk) use (&$results) {
+                foreach ($chunk as $item) {
+                    $results[$item->type] = [
+                        'totalEmployeeFormal' => (int) $item->totalEmployeeFormal,
+                        'totalEmployeeInFormal' => (int) $item->totalEmployeeInFormal,
+                        'totalFemale' => (int) $item->totalFemale,
+                        'totalMale' => (int) $item->totalMale,
+                        'totalYouth' => (int) $item->totalYouth,
+                        'totalAdult' => (int) $item->totalAdult,
+                        'new_establishments' => (int) $item->new_establishments,
+                        'old_establishments' => (int) $item->old_establishments,
+                    ];
+                }
+            });
+
+
+
+        return collect($results);
+    }
+
     public function getDisaggregations()
     {
 
+        $actorsData = $this->findActorTypeBreakdown();
 
 
-        $household = ($this->findTotalMembersHousehold()['TotalMembers']  + $this->findTotalEmployeesHousehold()['Total']) * 5;
+        $actorTotals = [
+            'totalEmployeeFormal' => 0,
+            'totalEmployeeInFormal' => 0,
+            'totalFemale' => 0,
+            'totalMale' => 0,
+            'totalYouth' => 0,
+            'totalAdult' => 0,
+            'new_establishments' => 0,
+            'old_establishments' => 0,
+        ];
+
+        // Sum all values from actorsData
+        foreach ($actorsData as $actor) {
+            foreach ($actorTotals as $key => $value) {
+                $actorTotals[$key] += isset($actor[$key]) ? $actor[$key] : 0;
+            }
+        }
+
+        $household = ($actorTotals['totalEmployeeFormal'] + $actorTotals['totalEmployeeInFormal'] + $actorTotals['totalFemale'] + $actorTotals['totalMale']) * 5;
         $interventions = ($this->builderHousehold()->sum('number_of_households')) * 5;
         $school = $this->builderSchool()->count();
         $total = $household + $interventions + $school;

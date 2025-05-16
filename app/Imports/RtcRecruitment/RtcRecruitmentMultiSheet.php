@@ -136,7 +136,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                 // Get total rows from all sheets
                 $rowCounts = $event->reader->getTotalRows();
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
-                    return $sum + (($rowCounts[$sheetName] -2) ?? 0); // exclude headers
+                    return $sum + (($rowCounts[$sheetName] - 2) ?? 0); // exclude headers
                 }, 0);
 
                 // Initialize JobProgress record
@@ -169,7 +169,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'recruitments',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -191,7 +191,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'recruitments',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -213,7 +213,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'recruitments',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -233,7 +233,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'recruitments',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 

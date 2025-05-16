@@ -59,12 +59,6 @@ class indicator_B1
     }
 
 
-    public function FarmerFollowupbuilder(): Builder
-    {
-
-
-        return $this->applyFilters(RpmFarmerFollowUp::query());
-    }
 
     public function Processorbuilder(): Builder
     {
@@ -74,11 +68,6 @@ class indicator_B1
             ->where('rtc_production_processors.status', 'approved'));
     }
 
-    public function ProcessorFollowupbuilder(): Builder
-    {
-
-        return $this->applyFilters(RpmProcessorFollowUp::query());
-    }
 
 
 

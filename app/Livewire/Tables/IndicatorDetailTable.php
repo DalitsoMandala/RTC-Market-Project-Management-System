@@ -52,7 +52,7 @@ final class IndicatorDetailTable extends PowerGridComponent
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage(20)
                 ->showRecordCount(),
         ];
     }
