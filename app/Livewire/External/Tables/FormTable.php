@@ -145,6 +145,8 @@ final class FormTable extends PowerGridComponent
 
                 $submitted = $model->submissions
                     ->where('user_id', $userId)
+                    ->whereIn('batch_type', ['batch', 'aggregate'])
+                    ->where('status', 'approved')
                     ->where('form_id', $model->form->id)->count();
 
 
@@ -322,6 +324,17 @@ final class FormTable extends PowerGridComponent
         $withinDateRange = $currentDate->between($startDate, $endDate);
 
 
+
+        $userId = $this->userId;
+
+        $submitted = $row->submissions
+            ->where('user_id', $userId)
+            ->whereIn('batch_type', ['batch', 'aggregate'])
+            ->where('status', 'approved')
+            ->where('form_id', $row->form->id)->count();
+
+
+
         return [
             // Hide button edit for ID 1
             Rule::button('edit')
@@ -336,7 +349,7 @@ final class FormTable extends PowerGridComponent
             // Rules for uploading data
             Rule::button('upload')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0 || !$hasResponsiblePeople ||
-                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange)
+                    ($row->form_id && in_array(Form::find($row->form_id)->name, ['REPORT FORM'])) || !$withinDateRange || $submitted > 0)
                 ->disable(),
         ];
     }

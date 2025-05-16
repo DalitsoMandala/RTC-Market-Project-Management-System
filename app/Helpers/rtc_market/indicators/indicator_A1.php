@@ -139,50 +139,120 @@ class indicator_A1
         return $sum;
     }
 
-    public function getDisaggregations()
+
+    public function getMainGroup($type = null, $enterprise = null, $estType = null): Builder
     {
-        $actorsData = $this->findActorTypeBreakdown();
-        $cropsData = $this->findCropBreakdown();
 
-        $actorTotals = [
-            'totalEmployeeFormal' => 0,
-            'totalEmployeeInFormal' => 0,
-            'totalFemale' => 0,
-            'totalMale' => 0,
-            'totalYouth' => 0,
-            'totalAdult' => 0,
-            'new_establishments' => 0,
-            'old_establishments' => 0,
-        ];
 
-        // Sum all values from actorsData
-        foreach ($actorsData as $actor) {
-            foreach ($actorTotals as $key => $value) {
-                $actorTotals[$key] += isset($actor[$key]) ? $actor[$key] : 0;
-            }
+        $builder =   $this->builder()->select([
+            'enterprise',
+            'type',
+            'mem_female_18_35',
+            'mem_female_35_plus',
+            'mem_male_18_35',
+            'mem_male_35_plus',
+            'emp_formal_female_18_35',
+            'emp_formal_female_35_plus',
+            'emp_formal_male_18_35',
+            'emp_formal_male_35_plus',
+            'emp_informal_female_18_35',
+            'emp_informal_female_35_plus',
+            'emp_informal_male_18_35',
+            'emp_informal_male_35_plus',
+        ]);
+
+
+        if ($type) {
+            $builder->where('type', $type);
         }
 
-        // Helper function to safely sum group fields
+        if ($enterprise) {
+            $builder->where('enterprise', $enterprise);
+        }
 
-        return collect([
-            'Total' => $actorTotals['totalEmployeeFormal'] + $actorTotals['totalEmployeeInFormal'] + $actorTotals['totalFemale'] + $actorTotals['totalMale'],
-            'Female' => $actorTotals['totalFemale'],
-            'Male' => $actorTotals['totalMale'],
-            'Youth (18-35 yrs)' => $actorTotals['totalYouth'],
-            'Not youth (35yrs+)' => $actorTotals['totalAdult'],
-            'Farmers' => $this->sumGroup($actorsData, 'Farmers', ['totalEmployeeFormal', 'totalEmployeeInFormal', 'totalFemale', 'totalMale']),
-            'Processors' => $this->sumGroup($actorsData, 'Processors', ['totalEmployeeFormal', 'totalEmployeeInFormal', 'totalFemale', 'totalMale']),
-            'Traders' => $this->sumGroup($actorsData, 'Traders', ['totalEmployeeFormal', 'totalEmployeeInFormal', 'totalFemale', 'totalMale']),
-            'Cassava' => $this->sumGroup($cropsData, 'Cassava', ['totalEmployeeFormal', 'totalEmployeeInFormal', 'totalFemale', 'totalMale']),
-            'Potato' => $this->sumGroup($cropsData, 'Potato', ['totalEmployeeFormal', 'totalEmployeeInFormal', 'totalFemale', 'totalMale']),
-            'Sweet potato' => $this->sumGroup($cropsData, 'Sweet potato', ['totalEmployeeFormal', 'totalEmployeeInFormal', 'totalFemale', 'totalMale']),
-            'Employees on RTC establishment' => $actorTotals['totalEmployeeFormal'] + $actorTotals['totalEmployeeInFormal'],
-            'New establishment' => $actorTotals['new_establishments'],
-            'Old establishment' => $actorTotals['old_establishments'],
-        ])->map(function ($value) {
-            return is_numeric($value) && floor($value) != $value
-                ? (float) $value
-                : (int) $value;
-        })->toArray();
+        if ($estType) {
+            $builder->where('establishment_status', $estType);
+        }
+
+        return $builder;
+    }
+
+    public function getTotalSum($type = null, $enterprise = null, $estType = null)
+    {
+        $builder = $this->getMainGroup();
+
+
+        // Initialize totals
+        $totals = [
+            'members' => 0,
+            'employees' => 0,
+            'male' => 0,
+            'female' => 0,
+            'youth' => 0,
+            'not_youth' => 0,
+        ];
+
+        if ($type) {
+            $builder =  $this->getMainGroup(type: $type);
+        }
+
+        if ($enterprise) {
+            $builder =  $this->getMainGroup(enterprise: $enterprise);
+        }
+
+        if ($estType) {
+            $builder =  $this->getMainGroup(estType: $estType);
+        }
+
+
+        $data = $builder->get();
+
+
+        // Loop through each record and sum
+        foreach ($data as $row) {
+            $female_members = $row->mem_female_18_35 + $row->mem_female_35_plus;
+            $male_members = $row->mem_male_18_35 + $row->mem_male_35_plus;
+
+            $female_employees = $row->emp_formal_female_18_35 + $row->emp_formal_female_35_plus +
+                $row->emp_informal_female_18_35 + $row->emp_informal_female_35_plus;
+
+            $male_employees = $row->emp_formal_male_18_35 + $row->emp_formal_male_35_plus +
+                $row->emp_informal_male_18_35 + $row->emp_informal_male_35_plus;
+
+            $totals['members'] += $female_members + $male_members;
+            $totals['employees'] += $female_employees + $male_employees;
+
+            $totals['female'] += $female_members + $female_employees;
+            $totals['male'] += $male_members + $male_employees;
+
+            $totals['youth'] += $row->mem_female_18_35 + $row->mem_male_18_35 + $row->emp_formal_female_18_35 + $row->emp_formal_male_18_35 + $row->emp_informal_female_18_35 + $row->emp_informal_male_18_35;
+            $totals['not_youth'] += $row->mem_female_35_plus + $row->mem_male_35_plus + $row->emp_formal_female_35_plus + $row->emp_formal_male_35_plus + $row->emp_informal_female_35_plus + $row->emp_informal_male_35_plus;
+        }
+
+
+        return $totals;
+    }
+
+    public function getDisaggregations()
+    {
+
+
+
+        return [
+            'Total' => $this->getTotalSum()['employees'] + $this->getTotalSum()['members'],
+            'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
+            'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
+            'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
+            'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
+            'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
+            'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
+            'Male' => $this->getTotalSum()['male'],
+            'Female' => $this->getTotalSum()['female'],
+            'Youth (18-35 yrs)' => $this->getTotalSum()['youth'],
+            'Not youth (35yrs+)' => $this->getTotalSum()['not_youth'],
+            'Employees on RTC establishment' => $this->getTotalSum()['employees'],
+            'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
+            'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
+        ];
     }
 }
