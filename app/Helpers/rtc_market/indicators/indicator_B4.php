@@ -240,31 +240,104 @@ class indicator_B4
         return collect($results);
     }
 
+
+    public function getMainGroup($type = null, $enterprise = null, $estType = null): Builder
+    {
+
+
+        $builder =   $this->builder()->select([
+            'enterprise',
+            'type',
+            'mem_female_18_35',
+            'mem_female_35_plus',
+            'mem_male_18_35',
+            'mem_male_35_plus',
+            'emp_formal_female_18_35',
+            'emp_formal_female_35_plus',
+            'emp_formal_male_18_35',
+            'emp_formal_male_35_plus',
+            'emp_informal_female_18_35',
+            'emp_informal_female_35_plus',
+            'emp_informal_male_18_35',
+            'emp_informal_male_35_plus',
+        ]);
+
+
+        if ($type) {
+            $builder->where('type', $type);
+        }
+
+        if ($enterprise) {
+            $builder->where('enterprise', $enterprise);
+        }
+
+        if ($estType) {
+            $builder->where('establishment_status', $estType);
+        }
+
+        return $builder;
+    }
+
+    public function getTotalSum($type = null, $enterprise = null, $estType = null)
+    {
+        $builder = $this->getMainGroup();
+
+
+        // Initialize totals
+        $totals = [
+            'members' => 0,
+            'employees' => 0,
+            'male' => 0,
+            'female' => 0,
+            'youth' => 0,
+            'not_youth' => 0,
+        ];
+
+        if ($type) {
+            $builder =  $this->getMainGroup(type: $type);
+        }
+
+        if ($enterprise) {
+            $builder =  $this->getMainGroup(enterprise: $enterprise);
+        }
+
+        if ($estType) {
+            $builder =  $this->getMainGroup(estType: $estType);
+        }
+
+
+        $data = $builder->get();
+
+
+        // Loop through each record and sum
+        foreach ($data as $row) {
+            $female_members = $row->mem_female_18_35 + $row->mem_female_35_plus;
+            $male_members = $row->mem_male_18_35 + $row->mem_male_35_plus;
+
+            $female_employees = $row->emp_formal_female_18_35 + $row->emp_formal_female_35_plus +
+                $row->emp_informal_female_18_35 + $row->emp_informal_female_35_plus;
+
+            $male_employees = $row->emp_formal_male_18_35 + $row->emp_formal_male_35_plus +
+                $row->emp_informal_male_18_35 + $row->emp_informal_male_35_plus;
+
+            $totals['members'] += $female_members + $male_members;
+            $totals['employees'] += $female_employees + $male_employees;
+
+            $totals['female'] += $female_members + $female_employees;
+            $totals['male'] += $male_members + $male_employees;
+
+            $totals['youth'] += $row->mem_female_18_35 + $row->mem_male_18_35 + $row->emp_formal_female_18_35 + $row->emp_formal_male_18_35 + $row->emp_informal_female_18_35 + $row->emp_informal_male_18_35;
+            $totals['not_youth'] += $row->mem_female_35_plus + $row->mem_male_35_plus + $row->emp_formal_female_35_plus + $row->emp_formal_male_35_plus + $row->emp_informal_female_35_plus + $row->emp_informal_male_35_plus;
+        }
+
+
+        return $totals;
+    }
     public function getDisaggregations()
     {
 
-        $actorsData = $this->findActorTypeBreakdown();
 
-
-        $actorTotals = [
-            'totalEmployeeFormal' => 0,
-            'totalEmployeeInFormal' => 0,
-            'totalFemale' => 0,
-            'totalMale' => 0,
-            'totalYouth' => 0,
-            'totalAdult' => 0,
-            'new_establishments' => 0,
-            'old_establishments' => 0,
-        ];
-
-        // Sum all values from actorsData
-        foreach ($actorsData as $actor) {
-            foreach ($actorTotals as $key => $value) {
-                $actorTotals[$key] += isset($actor[$key]) ? $actor[$key] : 0;
-            }
-        }
-
-        $household = ($actorTotals['totalEmployeeFormal'] + $actorTotals['totalEmployeeInFormal'] + $actorTotals['totalFemale'] + $actorTotals['totalMale']) * 5;
+        $household = ($this->getTotalSum()['employees'] + $this->getTotalSum()['members']) * 5;
         $interventions = ($this->builderHousehold()->sum('number_of_households')) * 5;
         $school = $this->builderSchool()->count();
         $total = $household + $interventions + $school;
