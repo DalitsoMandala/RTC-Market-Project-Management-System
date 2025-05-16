@@ -73,7 +73,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
         return $query->select([
             '*',
-            \DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
     }
 
@@ -325,17 +325,18 @@ final class AggregateSubmissionTable extends PowerGridComponent
             //     ->when(fn($row) => ($row->status === 'pending')) // if admin or manager hide the show button
             //     ->disable(),
             Rule::button('edit')
-                ->when(fn($row) => !($row->status === 'pending'))
+                ->when(fn($row) => $row->status === 'denied')
                 ->disable(),
-            Rule::button('edit')
-                ->when(fn($row) => !($row->status === 'pending'))
-                ->disable(),
+
             Rule::button('delete')
                 ->when(fn($row) => $row->status === 'pending')
                 ->disable(),
+
             Rule::button('delete')
-                ->when(fn($row) => !($user->hasAnyRole('manager')))
+                ->when(fn($row) => !$user->hasAnyRole('manager')
+                    || !$user->hasAnyRole('admin'))
                 ->disable(),
+
             Rule::rows()
                 ->when(fn($row) => $row->batch_no === $this->batch)
                 ->setAttribute('class', 'table-secondary'),

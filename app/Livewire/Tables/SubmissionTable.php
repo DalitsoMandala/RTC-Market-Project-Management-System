@@ -355,7 +355,7 @@ final class SubmissionTable extends PowerGridComponent
             //  Hide button edit for ID 1
 
             Rule::button('edit')
-                ->when(fn($row) => $row->status !== 'pending')
+                ->when(fn($row) => $row->status === 'denied')
                 ->disable(),
 
             Rule::button('delete')
