@@ -30,14 +30,14 @@ return new class extends Migration {
             $table->boolean('market_segment_fresh')->default(false);
             $table->boolean('market_segment_processed')->default(false);
             $table->boolean('has_rtc_market_contract')->default(false)->nullable();
-            $table->decimal('total_vol_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            $table->decimal('total_vol_production_previous_season', 18, 2)->nullable(); // Metric tonnes
             //    $table->json('total_production_value_previous_season')->nullable();
             $table->decimal('prod_value_previous_season_total', 16, 2)->nullable();
             $table->date('prod_value_previous_season_date_of_max_sales')->nullable();
             $table->decimal('prod_value_previous_season_usd_rate', 16, 2)->nullable();
             $table->decimal('prod_value_previous_season_usd_value', 16, 2)->nullable();
             // MWK
-            $table->decimal('total_vol_irrigation_production_previous_season', 8, 2)->nullable(); // Metric tonnes
+            $table->decimal('total_vol_irrigation_production_previous_season', 18, 2)->nullable(); // Metric tonnes
             //    $table->json('total_irrigation_production_value_previous_season')->nullable(); // MWK
             $table->decimal('irr_prod_value_previous_season_total', 16, 2)->nullable();
             $table->date('irr_prod_value_previous_season_date_of_max_sales')->nullable();
@@ -50,7 +50,7 @@ return new class extends Migration {
             //    $table->json('market_information_systems')->nullable();
             $table->boolean('sells_to_aggregation_centers')->default(false);
             //    $table->json('aggregation_centers')->nullable(); // Stores aggregation center details (array of objects with name and volume sold)
-            $table->decimal('total_vol_aggregation_center_sales', 8, 2)->nullable(); // Previous season volume in metric tonnes
+            $table->decimal('total_vol_aggregation_center_sales', 18, 2)->nullable(); // Previous season volume in metric tonnes
             $table->foreignId('user_id')->constrained('users');
 
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');

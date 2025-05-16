@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('country')->nullable();
             $table->date('date_of_maximum_sale')->nullable();
             $table->string('product_type')->nullable();
-            $table->decimal('volume_sold_previous_period', 8, 2)->nullable(); // Metric tonnes (optional)
+            $table->decimal('volume_sold_previous_period', 18, 2)->nullable(); // Metric tonnes (optional)
             $table->decimal('financial_value_of_sales', 18, 2)->nullable(); // Financial value
             //  $table->string('uuid');
             $table->enum('status', ['pending', 'denied', 'approved'])->default('pending');

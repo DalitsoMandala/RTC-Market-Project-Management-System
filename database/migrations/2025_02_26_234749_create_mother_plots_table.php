@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('village'); // Village
             $table->string('gps_s'); // GPS (S)
             $table->string('gps_e'); // GPS (E)
-            $table->decimal('elevation', 8, 2); // Elevation (m)
+            $table->decimal('elevation', 18, 2); // Elevation (m)
             $table->tinyInteger('season')->comment('1=Rainfed, 2=Winter'); // Season
             $table->date('date_of_planting'); // Date of Planting
             $table->string('name_of_farmer'); // Name of Farmer
