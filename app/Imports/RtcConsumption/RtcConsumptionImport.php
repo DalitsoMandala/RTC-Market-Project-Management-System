@@ -49,7 +49,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'crop_sweet_potato' => $row['Sweet Potato Crop'] ?? 0,
             'male_count' => $row['Male Count'] ?? 0,
             'female_count' => $row['Female Count'] ?? 0,
-            'total' => $row['Male Count'] + $row['Female Count'],
+            'total' => ($row['Male Count'] + $row['Female Count']) ?? 0,
             'number_of_households' => $row['Number of Households'] ?? 0,
             'uuid' => $this->cacheKey,
             'user_id' => $this->data['user_id'],

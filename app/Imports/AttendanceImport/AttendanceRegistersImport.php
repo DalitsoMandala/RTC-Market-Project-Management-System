@@ -102,13 +102,14 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
         $row['Section'] = $row['Section'] ?? 'NA';
         $row['District'] = $row['District'] ?? 'NA';
 
+
         return $row;
     }
     public function rules(): array
     {
         return [
             'Meeting Title' => 'required|string|max:255',
-            'Meeting Category' => 'required|string|max:255',
+            'Meeting Category' => 'required|string|max:255|in:Training,Meeting,Workshop',
             'Cassava' => 'boolean',
             'Potato' => 'boolean',
             'Sweet Potato' => 'boolean',
@@ -118,7 +119,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
             'Total Days' => 'nullable|numeric|min:0',
             'Name' => 'required|string|max:255',
-            'Sex' => 'required|in:Male,Female,NA',
+            'Sex' => 'required|in:Male,Female',
             'Organization' => 'nullable|string|max:255',
             'Designation' => 'nullable|string|max:255',
             'Category' => 'required|string|max:255|in:Farmer,Processor,Trader,Partner,Staff,Other',

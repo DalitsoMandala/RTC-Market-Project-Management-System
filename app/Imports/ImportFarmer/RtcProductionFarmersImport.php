@@ -72,13 +72,13 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'number_of_screen_house_vines_harvested' => $row['Screen House Vines Harvested'] ?? 0,
             'number_of_screen_house_min_tubers_harvested' => $row['Screen House Min Tubers Harvested'] ?? 0,
             'number_of_sah_plants_produced' => $row['SAH Plants Produced'] ?? 0,
-            'is_registered_seed_producer' => $row['Is Registered Seed Producer'],
-            'uses_certified_seed' => $row['Uses Certified Seed'],
-            'market_segment_fresh' => $row['Market Segment Fresh'],
-            'market_segment_processed' => $row['Market Segment Processed'],
-            'market_segment_seed' => $row['Market Segment Seed'],
-            'market_segment_cuttings' => $row['Market Segment Cuttings'],
-            'has_rtc_market_contract' => $row['Has RTC Market Contract'],
+            'is_registered_seed_producer' => $row['Is Registered Seed Producer'] ?? 0,
+            'uses_certified_seed' => $row['Uses Certified Seed'] ?? 0,
+            'market_segment_fresh' => $row['Market Segment Fresh'] ?? 0,
+            'market_segment_processed' => $row['Market Segment Processed'] ?? 0,
+            'market_segment_seed' => $row['Market Segment Seed'] ?? 0,
+            'market_segment_cuttings' => $row['Market Segment Cuttings'] ?? 0,
+            'has_rtc_market_contract' => $row['Has RTC Market Contract'] ?? 0,
             'total_vol_production_previous_season' => $row['Total Volume Production'] ?? 0,
             'total_vol_production_previous_season_produce' => $row['Total Volume Production Produce'] ?? 0,
             'total_vol_production_previous_season_seed' => $row['Total Volume Production Seed'] ?? 0,
@@ -135,7 +135,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             $progress = ($jobProgress->processed_rows / $jobProgress->total_rows) * 100;
             $jobProgress->update(['progress' => round($progress)]);
         }
-    //    Log::info('Processed Farmer : ' . Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id));
+        //    Log::info('Processed Farmer : ' . Cache::get("farmer_id_mapping1_{$this->cacheKey}_{$row['ID']}", $farmerRecord->id));
         return $farmerRecord;
     }
 
