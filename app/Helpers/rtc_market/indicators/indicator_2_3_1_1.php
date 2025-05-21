@@ -35,20 +35,6 @@ class indicator_2_3_1_1
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-
-
-
         return $this->applyFilters($query);
     }
 

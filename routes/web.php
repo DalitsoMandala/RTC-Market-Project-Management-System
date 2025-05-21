@@ -87,7 +87,7 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $indicatorContent = IndicatorClass::where('indicator_id', 1)->get();
+    $indicatorContent = IndicatorClass::where('indicator_id', 19)->get();
     $data = [];
 
     foreach ($indicatorContent as $indicator) {
