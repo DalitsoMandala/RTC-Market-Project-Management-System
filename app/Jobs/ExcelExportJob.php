@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Recruitment;
 use Illuminate\Support\Str;
+use App\Models\Organisation;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use App\Models\ReportingPeriod;
@@ -37,6 +38,8 @@ use App\Models\RpmFarmerAggregationCenter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\RpmProcessorAggregationCenter;
+use App\Models\RpmFarmerMarketInformationSystem;
+use App\Models\RpmProcessorMarketInformationSystem;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
 use Illuminate\Support\Facades\Cache;  // Use Cache for progress tracking
 
@@ -72,78 +75,7 @@ class ExcelExportJob implements ShouldQueue
             Storage::makeDirectory($directory);
         }
         switch ($this->name) {
-            case 'hrc':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-                // Define the headers
-                $headers = [
-                    'Enterprise',
-                    'District',
-                    'EPA',
-                    'Section',
-                    'Date of Assessment',
-                    'Actor Type',
-                    'RTC Group Platform',
-                    'Producer Organisation',
-                    'Actor Name',
-                    'Age Group',
-                    'Sex',
-                    'Phone Number',
-                    'Household Size',
-                    'Under 5 in Household',
-                    'RTC Consumers',
-                    'RTC Consumers Potato',
-                    'RTC Consumers Sweet Potato',
-                    'RTC Consumers Cassava',
-                    'RTC Consumption Frequency',
-                    'Cassava Main Food',
-                    'Potato Main Food',
-                    'Sweet Potato Main Food',
-                    'Submitted by'
-                ];
 
-                // Create a new SimpleExcelWriter instance
-                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
-                // Process data in chunks
-                HouseholdRtcConsumption::chunk(2000, function ($households) use ($writer) {
-                    foreach ($households as $household) {
-                        $submittedBy = '';
-                        $user = User::find($household->user_id); {
-                            $organisation = $user->organisation->name;
-                            $name = $user->name;
-
-                            $submittedBy = $name . ' (' . $organisation . ')';
-                        }
-                        $writer->addRow([
-                            $household->enterprise ?? null,
-                            $household->district ?? null,
-                            $household->epa ?? null,
-                            $household->section ?? null,
-                            $household->date_of_assessment ?? null,
-                            $household->actor_type ?? null,
-                            $household->rtc_group_platform ?? null,
-                            $household->producer_organisation ?? null,
-                            $household->actor_name ?? null,
-                            $household->age_group ?? null,
-                            $household->sex ?? null,
-                            $household->phone_number ?? null,
-                            $household->household_size ?? null,
-                            $household->under_5_in_household ?? null,
-                            $household->rtc_consumers ?? null,
-                            $household->rtc_consumers_potato ?? null,
-                            $household->rtc_consumers_sw_potato ?? null,
-                            $household->rtc_consumers_cassava ?? null,
-                            $household->rtc_consumption_frequency ?? null,
-                            $household->mainFoods->pluck('name')->contains('Cassava') ? 1 : 0,
-                            $household->mainFoods->pluck('name')->contains('Potato') ? 1 : 0,
-                            $household->mainFoods->pluck('name')->contains('Sweet potato') ? 1 : 0,
-                            $submittedBy
-                        ]);
-                    }
-                });
-                $writer->close();  // Finalize the file
-
-                break;
             case 'rpmf':
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
                 // Define the headers
@@ -349,9 +281,15 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+                $query = RtcProductionProcessor::query();
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
 
                 // Process data in chunks
-                RtcProductionProcessor::chunk(2000, function ($households) use ($writer) {
+                $query->chunk(2000, function ($households) use ($writer) {
                     foreach ($households as $household) {
                         $submittedBy = '';
                         $user = User::find($household->user_id); {
@@ -412,154 +350,6 @@ class ExcelExportJob implements ShouldQueue
                 $writer->close();  // Finalize the file
 
                 break;
-            case 'rpmfFU':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-                // Define the headers
-                $headers = [
-                    'ACTOR ID',
-                    'Date of Follow-up',
-                    'Number of Plantlets Produced (Cassava)',
-                    'Number of Plantlets Produced (Potato)',
-                    'Number of Plantlets Produced (Sweet Potato)',
-                    'Number of Screen House Vines Harvested',
-                    'Number of Screen House Mini Tubers Harvested',
-                    'Number of SAH Plants Produced',
-                    'Is Registered Seed Producer',
-                    'Registration Number (Seed Producer)',
-                    'Registration Date (Seed Producer)',
-                    'Uses Certified Seed',
-                    'Market Segment (Fresh)',
-                    'Market Segment (Processed)',
-                    'Has RTC Market Contract',
-                    'Total Volume of Production (Previous Season)',
-                    'Production Value (Previous Season - Total)',
-                    'Date of Maximum Sales (Previous Season)',
-                    'USD Rate (Previous Season)',
-                    'USD Value (Previous Season)',
-                    'Total Volume of Irrigation Production (Previous Season)',
-                    'Irrigation Production Value (Previous Season - Total)',
-                    'Date of Maximum Sales (Irrigation Production)',
-                    'USD Rate (Irrigation Production)',
-                    'USD Value (Irrigation Production)',
-                    'Sells to Domestic Markets',
-                    'Sells to International Markets',
-                    'Uses Market Information Systems',
-                    'Sells to Aggregation Centers',
-                    'Total Volume of Aggregation Center Sales',
-                    'Submitted by',
-                ];
-
-                // Create a new SimpleExcelWriter instance
-                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
-                // Process data in chunks
-                RpmFarmerFollowUp::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
-                    foreach ($followUps as $followUp) {
-                        $submittedBy = '';
-                        $user = User::find($followUp->user_id); {
-                            $organisation = $user->organisation->name;
-                            $name = $user->name;
-
-                            $submittedBy = $name . ' (' . $organisation . ')';
-                        }
-
-                        $writer->addRow([
-                            $followUp->farmers->pf_id,
-                            $followUp->date_of_follow_up,
-                            $followUp->number_of_plantlets_produced_cassava,
-                            $followUp->number_of_plantlets_produced_potato,
-                            $followUp->number_of_plantlets_produced_sweet_potato,
-                            $followUp->number_of_screen_house_vines_harvested,
-                            $followUp->number_of_screen_house_min_tubers_harvested,
-                            $followUp->number_of_sah_plants_produced,
-                            $followUp->is_registered_seed_producer,
-                            $followUp->registration_number_seed_producer,
-                            $followUp->registration_date_seed_producer,
-                            $followUp->uses_certified_seed,
-                            $followUp->market_segment_fresh,
-                            $followUp->market_segment_processed,
-                            $followUp->has_rtc_market_contract,
-                            $followUp->total_vol_production_previous_season,
-                            $followUp->prod_value_previous_season_total,
-                            $followUp->prod_value_previous_season_date_of_max_sales,
-                            $followUp->prod_value_previous_season_usd_rate,
-                            $followUp->prod_value_previous_season_usd_value,
-                            $followUp->total_vol_irrigation_production_previous_season,
-                            $followUp->irr_prod_value_previous_season_total,
-                            $followUp->irr_prod_value_previous_season_date_of_max_sales,
-                            $followUp->irr_prod_value_previous_season_usd_rate,
-                            $followUp->irr_prod_value_previous_season_usd_value,
-                            $followUp->sells_to_domestic_markets,
-                            $followUp->sells_to_international_markets,
-                            $followUp->uses_market_information_systems,
-                            $followUp->sells_to_aggregation_centers,
-                            $followUp->total_vol_aggregation_center_sales,
-                            $submittedBy
-                        ]);
-                    }
-                });
-                $writer->close();  // Finalize the file
-
-                break;
-
-            case 'rpmpFU':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-                // Define the headers
-                $headers = [
-                    'ACTOR ID',
-                    'Date of Follow-up',
-                    'Market Segment (Fresh)',
-                    'Market Segment (Processed)',
-                    'Has RTC Market Contract',
-                    'Total Volume of Production (Previous Season)',
-                    'Production Value (Previous Season - Total)',
-                    'Date of Maximum Sales (Previous Season)',
-                    'USD Rate (Previous Season)',
-                    'USD Value (Previous Season)',
-                    'Sells to Domestic Markets',
-                    'Sells to International Markets',
-                    'Uses Market Information Systems',
-                    'Sells to Aggregation Centers',
-                    'Total Volume of Aggregation Center Sales',
-                    'Submitted by'
-                ];
-
-                // Create a new SimpleExcelWriter instance
-                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
-                // Process data in chunks
-                RpmProcessorFollowUp::with('processors')->chunk(2000, function ($followUps) use ($writer) {
-                    foreach ($followUps as $followUp) {
-                        $submittedBy = '';
-                        $user = User::find($followUp->user_id); {
-                            $organisation = $user->organisation->name;
-                            $name = $user->name;
-
-                            $submittedBy = $name . ' (' . $organisation . ')';
-                        }
-                        $writer->addRow([
-                            $followUp->processors->pp_id,
-                            $followUp->date_of_follow_up,
-                            $followUp->market_segment_fresh,
-                            $followUp->market_segment_processed,
-                            $followUp->has_rtc_market_contract,
-                            $followUp->total_vol_production_previous_season,
-                            $followUp->prod_value_previous_season_total,
-                            $followUp->prod_value_previous_season_date_of_max_sales,
-                            $followUp->prod_value_previous_season_usd_rate,
-                            $followUp->prod_value_previous_season_usd_value,
-                            $followUp->sells_to_domestic_markets,
-                            $followUp->sells_to_international_markets,
-                            $followUp->uses_market_information_systems,
-                            $followUp->sells_to_aggregation_centers,
-                            $followUp->total_vol_aggregation_center_sales,
-                            $submittedBy
-                        ]);
-                    }
-                });
-                $writer->close();  // Finalize the file
-
-                break;
             case 'rpmfCA':
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
                 // Define the headers
@@ -576,9 +366,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmFarmerConcAgreement::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerConcAgreement::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $household) {
                         $writer->addRow([
                             $household->farmers->pf_id,
@@ -612,9 +407,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmProcessorConcAgreement::query()->with('processors');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmProcessorConcAgreement::with('processors')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $household) {
                         $writer->addRow([
                             $household->processors->pp_id,
@@ -648,9 +448,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmFarmerDomMarket::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerDomMarket::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -686,9 +491,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmProcessorDomMarket::query()->with('processors');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmProcessorDomMarket::with('processors')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->processors->pp_id,
@@ -725,8 +535,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = RpmFarmerInterMarket::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerInterMarket::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -763,8 +579,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = RpmProcessorInterMarket::query()->with('processors');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmProcessorInterMarket::with('processors')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->processors->pp_id,
@@ -794,8 +616,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = RpmFarmerAggregationCenter::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerAggregationCenter::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -818,8 +646,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = RpmProcessorAggregationCenter::query()->with('processors');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmProcessorAggregationCenter::with('processors')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->processors->pp_id,
@@ -842,8 +676,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = RpmFarmerMarketInformationSystem::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerAggregationCenter::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -866,8 +706,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = RpmProcessorMarketInformationSystem::query()->with('processors');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmProcessorAggregationCenter::with('processors')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->processors->pp_id,
@@ -889,9 +735,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmFarmerBasicSeed::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerBasicSeed::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -915,9 +766,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmFarmerCertifiedSeed::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerCertifiedSeed::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -941,9 +797,14 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $query = RpmFarmerAreaCultivation::query()->with('farmers');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                RpmFarmerAreaCultivation::with('farmers')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
@@ -956,58 +817,7 @@ class ExcelExportJob implements ShouldQueue
 
                 break;
 
-            case 'src':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-                // Define the headers
-                $headers = [
-                    'School ID',
-                    'School Name',
-                    'District',
-                    'EPA',
-                    'Section',
-                    // 'Crop',
-                    'Crop (Cassava)',
-                    'Crop (Potato)',
-                    'Crop (Sweet potato)',
-                    'Male Count',
-                    'Female Count',
-                    'Total',
-                    'Submitted by',
-                ];
 
-                // Create a new SimpleExcelWriter instance
-                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
-                // Process data in chunks
-                SchoolRtcConsumption::with('user')->chunk(2000, function ($followUps) use ($writer) {
-                    foreach ($followUps as $item) {
-                        $submittedBy = '';
-                        $user = User::find($item->user_id); {
-                            $organisation = $user->organisation->name;
-                            $name = $user->name;
-
-                            $submittedBy = $name . ' (' . $organisation . ')';
-                        }
-                        $writer->addRow([
-                            $item->sc_id,
-                            $item->school_name ?? null,
-                            $item->district ?? null,
-                            $item->epa ?? null,
-                            $item->section ?? null,
-                            //  $item->crop,
-                            $item->crop_cassava,
-                            $item->crop_potato,
-                            $item->crop_sweet_potato,
-                            $item->male_count,
-                            $item->female_count,
-                            $item->total,
-                            $submittedBy,
-                        ]);
-                    }
-                });
-                $writer->close();  // Finalize the file
-
-                break;
 
             case 'att':
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
@@ -1036,8 +846,14 @@ class ExcelExportJob implements ShouldQueue
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
 
+                $query = AttendanceRegister::query()->with('user');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
                 // Process data in chunks
-                AttendanceRegister::with('user')->chunk(2000, function ($followUps) use ($writer) {
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
                         $user = User::find($record->user_id); {

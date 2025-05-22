@@ -87,17 +87,37 @@ use App\Traits\GroupsEndingSoonSubmissionPeriods;
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
-    $indicatorContent = IndicatorClass::where('indicator_id', 19)->get();
-    $data = [];
+    // $indicatorContent = IndicatorClass::where('indicator_id', 19)->get();
+    // $data = [];
 
-    foreach ($indicatorContent as $indicator) {
+    // foreach ($indicatorContent as $indicator) {
 
-        $getClass = new $indicator->class(financial_year: 2, reporting_period: 2);
-        $data[] = [
-            $indicator->class => $getClass->getDisaggregations()
-        ];
-    }
-    return response()->json($data);
+    //     $getClass = new $indicator->class(financial_year: 2, reporting_period: 2);
+    //     $data[] = [
+    //         $indicator->class => $getClass->getDisaggregations()
+    //     ];
+    // }
+    // return response()->json($data);
+
+    $organisations = Organisation::with('users')->get();
+    $orgData = $organisations->map(function ($org) {
+        return collect([
+            'name' => $org->name,
+            'users' => $org->users->map(function ($user) {
+                return collect([
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'id' => $user->id
+                ]);
+            }),
+        ]);
+    });
+
+    $organisation = "ACE";
+
+    $userIDsForOrganisation = $orgData->where('name', $organisation)->first()['users']->pluck('id')->toArray();
+
+    dd($userIDsForOrganisation);
 });
 
 
