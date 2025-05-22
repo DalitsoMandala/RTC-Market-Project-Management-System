@@ -41,6 +41,7 @@ use App\Models\RpmProcessorAggregationCenter;
 use App\Models\RpmFarmerMarketInformationSystem;
 use App\Models\RpmProcessorMarketInformationSystem;
 use App\Exports\rtcmarket\HouseholdExport\ExportData;
+use App\Models\RtcConsumption;
 use Illuminate\Support\Facades\Cache;  // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
@@ -222,6 +223,70 @@ class ExcelExportJob implements ShouldQueue
                             $household->sells_to_aggregation_centers,
                             $household->total_vol_aggregation_center_sales,
                             $submittedBy
+                        ]);
+                    }
+                });
+                $writer->close();  // Finalize the file
+
+                break;
+
+            case 'rtcConsumption':
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headers = [
+                    'ID',
+                    'EPA',
+                    'Section',
+                    'District',
+                    'Entity Name',
+                    'Entity Type',
+                    'Date',
+                    'Cassava Crop',
+                    'Potato Crop',
+                    'Sweet Potato Crop',
+                    'Male Count',
+                    'Female Count',
+                    'Total',
+                    'Number of Households',
+                    'Submitted by',
+                ];
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+
+                $query = RtcConsumption::with('user');
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $user = $this->user;
+                    $organisation = User::find($user->id)->organisation;
+                    $query->where('organisation_id', $organisation->id);
+                }
+
+                // Process data in chunks
+                $query->chunk(2000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $item) {
+                        $submittedBy = '';
+                        $user = User::find($item->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name = $user->name;
+
+                            $submittedBy = $name . ' (' . $organisation . ')';
+                        }
+                        $writer->addRow([
+                            $item->en_id,
+                            $item->epa,
+                            $item->section,
+                            $item->district,
+                            $item->entity_name,
+                            $item->entity_type,
+                            $item->date,
+                            $item->crop_cassava,
+                            $item->crop_potato,
+                            $item->crop_sweet_potato,
+                            $item->male_count,
+                            $item->female_count,
+                            $item->total,
+                            $item->number_of_households,
+                            $submittedBy,
                         ]);
                     }
                 });

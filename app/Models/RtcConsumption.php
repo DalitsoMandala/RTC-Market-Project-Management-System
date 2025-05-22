@@ -10,6 +10,10 @@ class RtcConsumption extends Model
     use HasFactory;
     protected $guarded = [];
     protected $table = 'rtc_consumptions';
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected static function booted()
     {
