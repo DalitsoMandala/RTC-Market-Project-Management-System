@@ -2,25 +2,26 @@
 
 namespace App\Imports;
 
-use App\Exceptions\ExcelValidationException;
+use Carbon\Carbon;
+use App\Models\User;
 use App\Models\JobProgress;
 use App\Models\SeedBeneficiary;
-use App\Models\User;
 use App\Traits\excelDateFormat;
-use Carbon\Carbon;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Illuminate\Support\Facades\Cache;
+use App\Exceptions\UserErrorException;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithStartRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 use Maatwebsite\Excel\Validators\Failure;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Concerns\Importable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Exceptions\ExcelValidationException;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 HeadingRowFormatter::default('none');
 
@@ -89,7 +90,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
                 'hh_head' => $row['Household Head'],
                 'household_size' => $row['Household Size'],
                 'children_under_5' => $row['Children Under 5 in HH'],
-                'variety_received' => $row['Variety Received'],
+                'variety_received' => strtolower($row['Variety Received']),
                 'bundles_received' => $row['Amount of Bundles Received'],
                 'phone_number' => $row['Phone Number'],
                 'national_id' => $row['National ID'],
@@ -133,7 +134,8 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
             'National ID' => 'nullable|max:255',
             'District' => 'required|string|max:255',
             'Age' => 'nullable|integer|min:1',
-            'Marital Status' => 'nullable|in:Single,Married,Separated,Widowed,Polygamy',
+            'Marital Status' => 'required|in:Single,Married,Separated,Widowed,Polygamy,Divorced',
+
             'Household Head' => 'nullable|in:FHH,MHH,CHH',
             'Household Size' => 'nullable|integer|min:1',
             'Children Under 5 in HH' => 'required|integer|min:0',
@@ -154,9 +156,6 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
     {
         $date = $this->convertExcelDate($row['Date of Distribution']);
 
-        if (!$row['Age']) {
-            $row['Age'] = 1;
-        }
 
         if (!$row['National ID']) {
             $row['National ID'] = 'NA';
@@ -166,16 +165,12 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
             $row['Phone Number'] = 'NA';
         }
         if (!$row['Household Size']) {
-            $row['Household Size'] = 1;
+            $row['Household Size'] = 0;
         }
 
-        if (!$row['Sex']) {
-            $row['Sex'] = 'NA';
-        }
 
-        if (!$row['Household Head']) {
-            $row['Household Head'] = 1;
-        }
+
+
         if (!$row['Children Under 5 in HH']) {
             $row['Children Under 5 in HH'] = 0;
         }
@@ -187,21 +182,16 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
             $row['AEDO Phone Number'] = 'NA';
         }
 
-        if (!$row['Section']) {
-            $row['Section'] = 'NA';
-        }
-        if (!$row['EPA']) {
-            $row['EPA'] = 'NA';
-        }
+
         if (!$row['Name of AEDO']) {
             $row['Name of AEDO'] = 'NA';
         }
         if (!$row['Name of Recipient']) {
             $row['Name of Recipient'] = 'NA';
         }
-        if (!$row['District']) {
-            $row['District'] = 'NA';
-        }
+        $row['EPA'] = $row['EPA'] ?? 'NA';
+        $row['Section'] = $row['Section'] ?? 'NA';
+        $row['District'] = $row['District'] ?? 'NA';
 
         if (!$row['Season Type']) {
             $row['Season Type'] = 'NA';
@@ -216,9 +206,9 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
         }
 
         $row['Date of Distribution'] = $date;
-        if (($row['Type of Plot'] != 'Baby')) {
-        } else if (($row['Type of Plot'] == 'Mother')) {
-        }
+        $row['Season Type'] = $row['Season Type'] ?? 'Rainfed';
+
+
         return $row;
     }
 
@@ -229,7 +219,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
                 . implode(', ', $failure->errors());
 
             Log::error($errorMessage);
-            throw new ExcelValidationException($errorMessage);
+            throw new UserErrorException($errorMessage);
         }
     }
 
