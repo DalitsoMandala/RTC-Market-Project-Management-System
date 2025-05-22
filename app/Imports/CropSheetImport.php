@@ -216,7 +216,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 . implode(', ', $failure->errors());
 
             Log::error($errorMessage);
-            throw new ExcelValidationException($errorMessage);
+            throw new UserErrorException($errorMessage);
         }
     }
 
