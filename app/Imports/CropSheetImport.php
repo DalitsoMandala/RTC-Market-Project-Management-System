@@ -203,7 +203,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         }
 
         $row['Date of Distribution'] = $date;
-
+        $row['Season Type'] = $row['Season Type'] ?? 'Rainfed';
 
 
         return $row;
