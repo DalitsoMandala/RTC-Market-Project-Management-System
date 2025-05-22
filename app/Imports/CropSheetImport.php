@@ -89,7 +89,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'hh_head' => $row['Household Head'],
                 'household_size' => $row['Household Size'] ?? 0,
                 'children_under_5' => $row['Children Under 5 in HH'] ?? 0,
-                'variety_received' => $row['Variety Received'],
+                'variety_received' => strtolower($row['Variety Received']),
                 'bundles_received' => $row['Amount of Seed Received in KGs'] ?? 0,
                 'phone_number' => $row['Phone Number'],
                 'national_id' => $row['National ID'],
