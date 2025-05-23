@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Tables;
 
+use App\Models\FinancialYear;
 use App\Models\Form;
 use Ramsey\Uuid\Uuid;
 use App\Models\Source;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Detail;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
@@ -30,6 +32,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 {
     use WithExport;
     public $currentRoutePrefix;
+    public string $sortField = 'count';
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -43,18 +46,32 @@ final class SubmissionPeriodTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage(10)
                 ->showRecordCount(),
+
+
+            Detail::make()
+                ->view('components.submission-period-detail')
+                ->showCollapseIcon()
+                ->params(['name' => 'Luan']),
         ];
     }
 
 
     public function datasource(): Builder
     {
+        $sub = SubmissionPeriod::query()
+            ->selectRaw('COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
+            ->groupBy('date_established', 'date_ending', 'is_open', 'is_expired', 'financial_year_id', 'month_range_period_id');
+
+
+        return $sub;
+
 
         return SubmissionPeriod::query()->with([
             'form',
             'financialYears',
             'reportingMonths',
         ])->select([
+
             '*',
             DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -66,41 +83,44 @@ final class SubmissionPeriodTable extends PowerGridComponent
             ->add('id')
             ->add('form_id')
             ->add('form_name', function ($model) {
-                $form = Form::find($model->form_id);
 
-                $form_name = str_replace(' ', '-', strtolower($form->name));
-                $project = str_replace(' ', '-', strtolower($form->project->name));
 
-                return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
+                //  return $form->name;
+                // $form = Form::find($model->form_id);
+
+                // $form_name = str_replace(' ', '-', strtolower($form->name));
+                // $project = str_replace(' ', '-', strtolower($form->project->name));
+
+                // return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
             })
             ->add('financial_year', function ($model) {
-                return $model->financialYears->number;
+                return FinancialYear::find($model->financial_year_id)?->number;
                 //   ReportingPeriodMonth::find($model->month_range_period_id)->;
             })
 
             ->add('indicator_id')
             ->add('indicator', function ($model) {
-                $indicator = Indicator::find($model->indicator_id);
-                return $indicator->indicator_name;
+                // $indicator = Indicator::find($model->indicator_id);
+                // return $indicator->indicator_name;
             })
 
             ->add('indicator_no', function ($model) {
-                $indicator = Indicator::find($model->indicator_id);
-                return $indicator->indicator_no;
+                // $indicator = Indicator::find($model->indicator_id);
+                // return $indicator->indicator_no;
             })
 
             ->add('assigned', function ($model) {
-                $indicator = Indicator::find($model->indicator_id);
+                // $indicator = Indicator::find($model->indicator_id);
 
-                $checkIds = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+                // $checkIds = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
 
-                $oganisations = Organisation::whereIn('id', $checkIds)->pluck('name');
-                return implode(', ', $oganisations->toArray());
+                // $oganisations = Organisation::whereIn('id', $checkIds)->pluck('name');
+                // return implode(', ', $oganisations->toArray());
             })
 
             ->add('month_range', function ($model) {
 
-                return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
+                // return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
                 //   ReportingPeriodMonth::find($model->month_range_period_id)->;
             })
             ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y'))
@@ -130,10 +150,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
                     $this->refreshData();
                 }
             })
-            ->add('submissions', fn($model) => '<span class=" fw-bold">' . SubmissionPeriod::find($model->id)->submissions->count() . '</span>')
-            ->add('submission_batch', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'batch')->count())
-            ->add('submission_aggregate', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'aggregate')->count())
-            ->add('submission_manual', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'manual')->count())
+            // ->add('submissions', fn($model) => '<span class=" fw-bold">' . SubmissionPeriod::find($model->id)->submissions->count() . '</span>')
+            // ->add('submission_batch', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'batch')->count())
+            // ->add('submission_aggregate', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'aggregate')->count())
+            // ->add('submission_manual', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'manual')->count())
             ->add('created_at')
             ->add('updated_at');
     }
@@ -349,7 +369,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->class('btn btn-warning my-1 btn-sm custom-tooltip')
                 ->dispatch('sendUploadData', ['model' => $row]),
 
-
+            Button::add('detail')
+                ->slot('Detail')
+                ->class('btn btn-primary btn-sm')
+                ->toggleDetail($row->id),
         ];
     }
     // public function actionsFromView($row): View
