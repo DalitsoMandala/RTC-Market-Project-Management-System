@@ -14,11 +14,17 @@ use App\Helpers\SubmitAggregateData;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use App\Models\IndicatorDisaggregation;
+use App\Traits\reportDefaultValuesTrait;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class NumberIndicators extends Component
 {
     use LivewireAlert;
+    public $form_id;
+    public $indicator_id;
+    public $financial_year_id;
+    public $month_period_id;
+    public $submission_period_id;
     public $openSubmission = false;
     public $enterprise;
 
@@ -94,55 +100,38 @@ class NumberIndicators extends Component
         }
     }
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount()
     {
+        $this->submissionPeriodId = $this->submission_period_id;
+        $this->selectedForm = $this->form_id;
+        $this->selectedIndicator = $this->indicator_id;
+        $this->selectedFinancialYear = $this->financial_year_id;
+        $this->disaggregations = [];
+        $this->inputs = [];
+        $this->validationRules = [];
+        $this->validationAttributes = [];
+        $disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get();
 
-        if ($form_id == null || $indicator_id == null || $financial_year_id == null || $month_period_id == null || $submission_period_id == null) {
+        // Count how many disaggregations are available
+        $disaggregationCount = $disaggregations->count();
 
-            abort(404);
-        }
+        foreach ($disaggregations as $disaggregation) {
+            $name = strtolower($disaggregation->name);
 
-        $findForm = Form::find($form_id);
-        $findIndicator = Indicator::find($indicator_id);
-        $findFinancialYear = FinancialYear::find($financial_year_id);
-        $findMonthPeriod = ReportingPeriodMonth::find($month_period_id);
-        $findSubmissionPeriod = SubmissionPeriod::find($submission_period_id);
-        if ($findForm == null || $findIndicator == null || $findFinancialYear == null || $findMonthPeriod == null || $findSubmissionPeriod == null) {
-
-            abort(404);
-        } else {
-            $this->selectedForm = $findForm->id;
-            $this->selectedIndicator = $findIndicator->id;
-            $this->selectedFinancialYear = $findFinancialYear->id;
-            $this->selectedMonth = $findMonthPeriod->id;
-            $this->submissionPeriodId = $findSubmissionPeriod->id;
-            //check submission period
-
-
-
-            $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get();
-
-            // Initialize input fields dynamically based on disaggregations
-            foreach ($this->disaggregations as $disaggregation) {
-
-                $name = strtolower($disaggregation->name);
-                if ($name != 'total') {
-
-
-                    $this->inputs[$disaggregation->id] = null;
-
-                    $this->validationRules["inputs.{$disaggregation->id}"] = 'required|numeric|min:0';
-
-                    // Dynamically set custom validation attribute names
-                    $this->validationAttributes["inputs.{$disaggregation->id}"] = $disaggregation->name;
-                }
-
-
-                // You can set initial values to 0 or fetch them if available
+            // Skip 'total' unless it's the only disaggregation
+            if ($name === 'total' && $disaggregationCount > 1) {
+                continue;
             }
-            $this->disaggregations = $this->disaggregations->whereIn('id', array_keys($this->inputs));
+
+            $this->inputs[$disaggregation->id] = null;
+            $this->validationRules["inputs.{$disaggregation->id}"] = 'required|numeric|min:0';
+            $this->validationAttributes["inputs.{$disaggregation->id}"] = $disaggregation->name;
         }
+
+        // Filter disaggregations to only those included in inputs
+        $this->disaggregations = $disaggregations->whereIn('id', array_keys($this->inputs));
     }
+
 
     public function render()
     {

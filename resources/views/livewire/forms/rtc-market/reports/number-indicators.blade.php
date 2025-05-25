@@ -1,8 +1,9 @@
 <div>
-
-    <x-required-notice />
     <x-alerts />
+    <x-required-notice />
+
     <form wire:submit.prevent="save">
+
         <div class="my-5 row">
             @foreach ($disaggregations as $disaggregation)
                 <div class="mb-3 col-6">

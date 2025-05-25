@@ -75,7 +75,7 @@ class SubPeriod extends Component
     public $disableTarget = true;
     public $isCipTargets = false;
     protected $rules = [];
-    public $selectAllIndicators = false;
+    public $selectAllIndicators = true;
     public $skipTargets = true;
 
     protected function rules()
