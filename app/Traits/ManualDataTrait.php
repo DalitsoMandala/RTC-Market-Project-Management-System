@@ -55,6 +55,7 @@ trait ManualDataTrait
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
+
         // Validate required IDs
         $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
 
@@ -73,7 +74,8 @@ trait ManualDataTrait
      */
     protected function validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
-        if (empty($form_id) || empty($indicator_id) || empty($financial_year_id) || empty($month_period_id) || empty($submission_period_id)) {
+
+        if (empty($form_id)  || empty($financial_year_id) || empty($month_period_id) || empty($submission_period_id)) {
             Log::error("Missing required IDs: form_id=$form_id, indicator_id=$indicator_id, financial_year_id=$financial_year_id, month_period_id=$month_period_id, submission_period_id=$submission_period_id");
             abort(404);
         }
@@ -85,7 +87,8 @@ trait ManualDataTrait
     protected function findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
         $this->selectedForm = $this->findModelOrFail(Form::class, $form_id)->id;
-        $this->selectedIndicator = $this->findModelOrFail(Indicator::class, $indicator_id)->id;
+        // $this->selectedIndicator = $this->findModelOrFail(Indicator::class, $indicator_id)->id;
+
         $this->selectedFinancialYear = $this->findModelOrFail(FinancialYear::class, $financial_year_id)->id;
         $this->selectedMonth = $this->findModelOrFail(ReportingPeriodMonth::class, $month_period_id)->id;
         $this->submissionPeriodId = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_id)->id;
@@ -128,7 +131,7 @@ trait ManualDataTrait
     protected function getOpenSubmissionPeriod()
     {
         return SubmissionPeriod::where('form_id', $this->selectedForm)
-            ->where('indicator_id', $this->selectedIndicator)
+            //  ->whereIn('indicator_id', $this->selectedIndicator)
             ->where('financial_year_id', $this->selectedFinancialYear)
             ->where('month_range_period_id', $this->selectedMonth)
             ->where('is_open', true)

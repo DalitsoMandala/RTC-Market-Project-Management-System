@@ -32,7 +32,7 @@ class SendExpiredPeriodNotifications extends Command
     /**
      * Execute the console command.
      */
-    use GroupsEndingSoonSubmissionPeriods;
+
     public function handle()
     {
         $sendExpired = true;

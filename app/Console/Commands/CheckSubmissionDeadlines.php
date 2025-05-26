@@ -11,32 +11,18 @@ use App\Jobs\sendReminderToUserJob;
 use Illuminate\Support\Facades\Bus;
 use App\Notifications\SubmissionReminder;
 use App\Traits\GroupsEndingSoonSubmissionPeriods;
+use App\Traits\IndicatorsTrait;
 
 class CheckSubmissionDeadlines extends Command
 {
     protected $signature = 'check:submission-deadlines';
     protected $description = 'Check submission deadlines and send reminders to users';
-    use GroupsEndingSoonSubmissionPeriods;
 
+use IndicatorsTrait;
     public function handle()
     {
 
-        $users =   $this->getUserWithDeadlines(3, false);
-        foreach ($users as $userId => $userData) {
-
-
-            $indicators = $userData['user']->organisation->indicatorResponsiblePeople->map(function ($indicator) {
-
-                return Indicator::find($indicator->indicator_id)->indicator_name;
-            })->flatten();
-
-
-            $userData['indicators'] = $indicators;
-
-            Bus::chain([
-                new sendReminderToUserJob($userData['user'], $userData)
-            ])->dispatch();
-        }
+     $this->getEndingSoonSubmissionPeriods();
         $this->info('Submission reminders sent successfully.');
     }
 }

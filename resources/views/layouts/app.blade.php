@@ -225,6 +225,14 @@
             border-radius: 10px;
 
         }
+
+        .bs5-rotate-90 {
+            transform: rotate(90deg);
+        }
+
+        .bs5-rotate-0 {
+            transform: rotate(0deg);
+        }
     </style>
     <!-- Scripts -->
     @vite(['resources/js/app.js'])

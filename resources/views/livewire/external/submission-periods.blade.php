@@ -33,9 +33,9 @@
 
                             $route = Route::current()->getPrefix();
                         @endphp
-                        <livewire:external.tables.form-table :userId="auth()->user()->id" :currentRoutePrefix="$route" />
+                        {{-- <livewire:external.tables.form-table :userId="auth()->user()->id" :currentRoutePrefix="$route" /> --}}
 
-
+                        <livewire:tables.submission-period-table :currentRoutePrefix="$route">
 
                     </div>
                 </div>

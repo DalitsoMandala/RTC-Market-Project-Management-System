@@ -99,7 +99,7 @@
                             </div>
 
                             <div class="my-2 form-check">
-                                <input class="form-check-input" x-model='selectAllIndicators' type="checkbox"
+                                <input class="form-check-input" disabled x-model='selectAllIndicators' type="checkbox"
                                     value="false" id="" />
                                 <label class="form-check-label" for=""> Select All indicators </label>
                             </div>
@@ -295,8 +295,8 @@
                                 </div>
                             </div>
                             <div class="my-2 form-check">
-                                <input class="form-check-input" x-model='skipTargets' type="checkbox" value="false"
-                                    id="" />
+                                <input class="form-check-input" disabled x-model='skipTargets' type="checkbox"
+                                    value="false" id="" />
                                 <label class="form-check-label" for=""> Skip Targets </label>
                             </div>
 

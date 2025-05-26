@@ -2,8 +2,15 @@
 
 namespace App\Traits;
 
+use App\Mail\SubmissionReminderMail;
+use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Indicator;
+use App\Models\Submission;
+use App\Models\MailingList;
+use App\Models\SubmissionPeriod;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 
 trait IndicatorsTrait
 {
@@ -94,5 +101,53 @@ trait IndicatorsTrait
             });
         });
         return $filteredIndicators;
+    }
+
+
+   public function getEndingSoonSubmissionPeriods()
+{
+    $now = Carbon::now();
+    $startDate = $now->copy()->addDays(1)->startOfDay();
+    $endDate = $now->copy()->addDays(3)->endOfDay();
+
+    $submissionPeriods = SubmissionPeriod::query()
+        ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
+        ->whereBetween('date_ending', [$startDate, $endDate])
+        ->groupBy('date_established', 'date_ending', 'is_open', 'is_expired', 'financial_year_id', 'month_range_period_id');
+    $dates = $submissionPeriods->get();
+
+    foreach ($dates as $period) {
+        $endingDate = Carbon::parse($period->date_ending);
+
+        // Calculate full calendar days remaining (more accurate for reminders)
+        $daysLeft = $now->diffInDays($endingDate, false); // false = don't return absolute value
+
+        // Only proceed if daysLeft is positive (in the future)
+        if ($daysLeft >= 0) {
+            $reminderType = match (true) {
+                $daysLeft >= 2 && $daysLeft < 3 => '3rd day reminder', // Between 2-3 days left
+                $daysLeft >= 1 && $daysLeft < 2 => '2nd day reminder',  // Between 1-2 days left
+                $daysLeft >= 0 && $daysLeft < 1 => 'Last day reminder', // Less than 1 day left
+                default => null,
+            };
+
+
+            if ($reminderType) {
+                $this->sendReminder($period->toArray(), $reminderType);
+            }
+        }
+    }
+}
+
+    public function sendReminder(array $period, $reminderType)
+    {
+
+        $users = User::with('roles')->whereHas('roles', function ($query) {
+            $query->whereIn('name', ['staff', 'external']);
+        })->get();
+
+        $users->each(function ($user) use ($period, $reminderType) {
+            Mail::to($user->email)->send(new SubmissionReminderMail($period, $reminderType, $user));
+        });
     }
 }

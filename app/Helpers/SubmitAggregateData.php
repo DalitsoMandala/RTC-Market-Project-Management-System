@@ -52,18 +52,13 @@ class SubmitAggregateData
             $file = $this->storeData($data);
 
             // Check if a submission already exists
-            $checkSubmission = Submission::where('period_id', $submissionPeriodId)
-                ->where('batch_type', 'aggregate')
-                ->where(function ($query) {
-                    $query
-                        ->where('status', '=', 'pending')
-                        ->orWhere('status', '=', 'approved');
-                })
+            $checkSubmission = SubmissionReport::where('submission_period_id', $submissionPeriodId)
+                ->where('indicator_id', $selectedIndicator)
                 ->where('user_id', $currentUser->id)
                 ->first();
 
             if ($checkSubmission) {
-                session()->flash('error', 'You have already submitted your data for this period!');
+                session()->flash('error', 'You have already submitted your data for this period and indicator!');
                 return false;
             }
 

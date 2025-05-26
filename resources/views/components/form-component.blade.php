@@ -23,13 +23,12 @@
                             <li class="breadcrumb-item">
                                 <a href="/">Dashboard</a>
                             </li>
-
-                            @role('admin|manager')
-                                @role('admin')
-                                    <li class="breadcrumb-item">
-                                        <a href="/admin/submission-period">Submission Periods</a>
-                                    </li>
-                                @endrole
+                            @role('admin')
+                                <li class="breadcrumb-item">
+                                    <a href="/admin/submission-period">Submission Periods</a>
+                                </li>
+                            @endrole
+                            @role('manager')
                                 <li class="breadcrumb-item">
                                     <a href="/cip/submission-period">Submission Periods</a>
                                 </li>

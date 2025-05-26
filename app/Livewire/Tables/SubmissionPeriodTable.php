@@ -2,17 +2,18 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\FinancialYear;
 use App\Models\Form;
 use Ramsey\Uuid\Uuid;
 use App\Models\Source;
 use App\Models\Indicator;
 use Livewire\Attributes\On;
 use App\Models\Organisation;
+use App\Models\FinancialYear;
 use Illuminate\Support\Carbon;
 use App\Models\SubmissionPeriod;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\DB;
+use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -50,7 +51,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
             Detail::make()
                 ->view('components.submission-period-detail')
-                ->showCollapseIcon()
+                //  ->showCollapseIcon()
                 ->params(['name' => 'Luan']),
         ];
     }
@@ -59,22 +60,11 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function datasource(): Builder
     {
         $sub = SubmissionPeriod::query()
-            ->selectRaw('COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
+            ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
             ->groupBy('date_established', 'date_ending', 'is_open', 'is_expired', 'financial_year_id', 'month_range_period_id');
 
 
         return $sub;
-
-
-        return SubmissionPeriod::query()->with([
-            'form',
-            'financialYears',
-            'reportingMonths',
-        ])->select([
-
-            '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-        ]);
     }
 
     public function fields(): PowerGridFields
@@ -119,12 +109,16 @@ final class SubmissionPeriodTable extends PowerGridComponent
             })
 
             ->add('month_range', function ($model) {
+                return    ReportingPeriodMonth::find($model->month_range_period_id)->start_month . '-' . ReportingPeriodMonth::find($model->month_range_period_id)->end_month;
 
                 // return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
                 //   ReportingPeriodMonth::find($model->month_range_period_id)->;
             })
             ->add('date_established_formatted', fn($model) => Carbon::parse($model->date_established)->format('d/m/Y'))
             ->add('date_ending_formatted', fn($model) => Carbon::parse($model->date_ending)->format('d/m/Y'))
+            ->add('submission_dates', function ($model) {
+                return Carbon::parse($model->date_established)->format('d/m/Y') . ' - ' . Carbon::parse($model->date_ending)->format('d/m/Y');
+            })
             ->add('is_open')
             ->add('is_open_toggle', function ($model) {
                 $open = $model->is_open === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary';
@@ -139,22 +133,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
                 return '<span class="badge ' . $open . ' "> ' . $is_expired . '</span>';
             })
-            ->add('check_expiry', function ($model) {
-                $getDate = Carbon::create($model->date_ending);
-                if ($getDate->isPast()) {
-                    SubmissionPeriod::find($model->id)->update([
-                        'is_expired' => 1,
-                        'is_open' => 0,
-                    ]);
 
-                    $this->refreshData();
-                }
-            })
             // ->add('submissions', fn($model) => '<span class=" fw-bold">' . SubmissionPeriod::find($model->id)->submissions->count() . '</span>')
-            // ->add('submission_batch', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'batch')->count())
+
             // ->add('submission_aggregate', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'aggregate')->count())
             // ->add('submission_manual', fn($model) => SubmissionPeriod::find($model->id)->submissions->where('batch_type', 'manual')->count())
             ->add('created_at')
+            ->add('model_data', fn($model) => array_merge($model->toArray(), ['routePrefix' => $this->currentRoutePrefix]))
             ->add('updated_at');
     }
 
@@ -180,14 +165,14 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+
+
+
             Column::make('#', 'rn')->sortable(),
 
-            Column::action('Action')->headerAttribute(classAttr: 'table-sticky-col')
-                ->bodyAttribute(classAttr: 'table-sticky-col'),
-            Column::make('indicator #', 'indicator_no'),
 
-            Column::make('Form', 'form_name'),
 
+            Column::make('Dates', 'submission_dates'),
 
             Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
                 ->sortable(),
@@ -205,30 +190,18 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Indicator', 'indicator'),
 
-            Column::make('Assigned Organisations', 'assigned'),
+
+
 
             Column::make('Expired', 'is_expired_toggle', 'is_expired')
                 ->sortable()
                 ->searchable(),
 
 
-            Column::make('Submission/Batch', 'submission_batch')
 
-                ->searchable(),
 
-            Column::make('Submissions/Aggregate', 'submission_aggregate')
-
-                ->searchable(),
-
-            Column::make('Submissions/Manual', 'submission_manual')
-
-                ->searchable(),
-
-            Column::make('Total Submissions', 'submissions')
-
-                ->searchable(),
+            Column::action(''),
 
 
 
@@ -258,82 +231,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
         $this->dispatch('reload-tooltips');
     }
 
-    #[On('sendData')]
-    public function sendData($model)
-    {
-        $model = (object) $model;
 
-        $form = Form::find($model->form_id);
-        $user = Auth::user();
-        $organisation = $user->organisation;
-        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
-        $person = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->first();
-
-
-        $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
-
-        $routePrefix = $this->currentRoutePrefix;
-
-
-
-        if ($form->name == 'REPORT FORM') {
-
-
-            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-        } else {
-
-
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-        }
-
-        $this->redirect($route);
-    }
-
-
-    #[On('sendFollowUpData')]
-    public function sendFollowUpData($model)
-    {
-        $model = (object) $model;
-
-        $form = Form::find($model->form_id);
-        $user = Auth::user();
-        $organisation = $user->organisation;
-        $indicator = $form->indicators->where('id', $model->indicator_id)->first();
-        $checkTypeofSubmission = ResponsiblePerson::where('indicator_id', $indicator->id)->where('organisation_id', $organisation->id)->pluck('type_of_submission');
-
-        $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
-
-        $routePrefix = $this->currentRoutePrefix;
-
-        if ($checkTypeofSubmission->contains('aggregate')) {
-
-
-            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-        } else {
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id;
-        }
-
-        $this->redirect($route);
-    }
-
-    #[On('sendUploadData')]
-    public function sendUploadData($model)
-    {
-        $model = (object) $model;
-
-        $form = Form::find($model->form_id);
-
-        $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
-
-        $routePrefix = $this->currentRoutePrefix;
-
-        $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
-
-        $this->redirect($route);
-    }
     #[On('timeout')]
     public function timeout()
     {
@@ -346,32 +244,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function actions($row): array
     {
         return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->tooltip('Edit Record')
-                ->class('btn btn-warning goUp btn-sm my-1 custom-tooltip')
-                ->dispatch('editData', ['rowId' => $row->id]),
-
-            Button::add('add-data')
-                ->slot('<i class="bx bx-plus"></i>')
-                ->id()
-                ->class('btn btn-warning btn-sm my-1 custom-tooltip')
-                ->tooltip('Add Data')
-
-
-                ->dispatch('sendData', ['model' => $row]),
-
-            Button::add('upload')
-                ->slot('<i class="bx bx-upload"></i>')
-                ->id()
-                ->tooltip('Upload Your Data')
-                ->class('btn btn-warning my-1 btn-sm custom-tooltip')
-                ->dispatch('sendUploadData', ['model' => $row]),
 
             Button::add('detail')
-                ->slot('Detail')
-                ->class('btn btn-primary btn-sm')
+                ->slot('View Details <i class="bx bx-chevron-down"></i>')
+                ->class('btn btn-warning btn-sm')
                 ->toggleDetail($row->id),
         ];
     }
@@ -408,6 +284,10 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return [
             // Hide button edit for ID 1
             Rule::button('edit')
+                ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
+                ->disable(),
+
+            Rule::button('detail')
                 ->when(fn($row) => $row->is_expired === 1 || $row->is_open === 0)
                 ->disable(),
 
