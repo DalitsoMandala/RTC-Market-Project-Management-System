@@ -245,7 +245,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         $route = "";
 
         if ($upload) {
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->id . '/0/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' .  $submissionPeriods[0] . '/' . Uuid::uuid4()->toString();
+            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' .  $submissionPeriods[0] . '/' . Uuid::uuid4()->toString();
             $this->redirect($route);
         }
 
@@ -267,7 +267,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     public function sendUploadData($model)
     {
         $model = (object) $model;
-        -+$form = Form::find($model->form_id);
+        +$form = Form::find($model->form_id);
 
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
