@@ -27,7 +27,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class submissionPeriodFormTable extends PowerGridComponent
+final class SubmissionPeriodFormTable extends PowerGridComponent
 {
     use WithExport;
     public $indicatorIds = [];
