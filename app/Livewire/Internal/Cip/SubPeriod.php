@@ -28,11 +28,12 @@ use App\Models\IndicatorDisaggregation;
 use App\Jobs\sendAllIndicatorNotificationJob;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
+use App\Traits\IndicatorsTrait;
 
 class SubPeriod extends Component
 {
     use LivewireAlert;
-
+    use IndicatorsTrait;
     public $rowId;
     public $forms = [];
     public $status = true;
@@ -641,6 +642,7 @@ class SubPeriod extends Component
 
     public function render()
     {
+      
         return view('livewire.internal.cip.sub-period', []);
     }
 }

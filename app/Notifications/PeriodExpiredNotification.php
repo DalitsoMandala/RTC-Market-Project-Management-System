@@ -39,13 +39,8 @@ class PeriodExpiredNotification extends Notification
             ->subject('Expired Submission Period Notification')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line("The submission period for these indicators has expired.")
-            ->action('Access System', url('/'))
-            ->line('---')
-            ->line('**Indicators Expired**:');
+            ->action('Access System', url('/'));
 
-        foreach ($this->periods['indicators'] as $indicator) {
-            $mail->line("- {$indicator}");
-        }
 
         $mail->line('Thank you for using our application!');
         return $mail;
