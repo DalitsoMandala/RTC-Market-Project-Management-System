@@ -217,6 +217,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     #[On('sendData')]
     public function sendData($model, $upload = false)
     {
+
         $model = (object) $model;
         $submissionPeriodRow = $this->submissionPeriodRow;
         $form = Form::find($model->id);
@@ -244,21 +245,22 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
         $route = "";
 
-        if ($upload) {
+        if ($upload === true) {
+
             $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' .  $submissionPeriods[0] . '/' . Uuid::uuid4()->toString();
             $this->redirect($route);
-        }
-
-        if ($form->name == 'REPORT FORM') {
-
-
-            $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' . $submissionPeriods[0];
         } else {
+            if ($form->name == 'REPORT FORM') {
 
-            $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' . $submissionPeriods[0];
+
+                $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' . $submissionPeriods[0];
+            } else {
+
+                $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' . $submissionPeriods[0];
+            }
+
+            $this->redirect($route);
         }
-
-        $this->redirect($route);
     }
 
 
