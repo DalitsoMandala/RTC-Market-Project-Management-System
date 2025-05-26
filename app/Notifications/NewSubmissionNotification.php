@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Artisan;
 
 class NewSubmissionNotification extends Notification implements ShouldQueue
 {
@@ -61,6 +62,7 @@ class NewSubmissionNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        Artisan::call('update:information');
         return [
             'message' => 'A new submission has been made that requires your review.',
             'link' => url($this->prefix . '/submissions'),
