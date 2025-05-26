@@ -32,7 +32,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     use WithExport;
     public $indicatorIds = [];
     public $formIds = [];
-    public array  $submissionPeriodRow;
+    public array $submissionPeriodRow;
     public $currentRoutePrefix;
 
     public function setUp(): array
