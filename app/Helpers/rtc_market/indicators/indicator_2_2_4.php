@@ -49,7 +49,7 @@ class indicator_2_2_4
         $potato = $this->builder()->where('crop', 'Potato')->sum('bundles_received');
         $sweetPotato = $this->builder()->where('crop', 'OFSP')->sum('bundles_received');
         return [
-            'Total' => $potato + $sweetPotato + $cassava,
+          // 'Total' => 0,
             'Cassava' => (int) $cassava,
             'Potato' => (int) $potato,
             'Sweet potato' => (int) $sweetPotato

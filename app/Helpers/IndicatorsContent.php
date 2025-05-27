@@ -522,7 +522,7 @@ class IndicatorsContent
                 //  'Medium scale farmers'
             ],
             "Volume of seed distributed within communities to enhance POs productivity" => [
-                'Total',
+               // 'Total',
                 'Cassava',
                 'Potato',
                 'Sweet potato',

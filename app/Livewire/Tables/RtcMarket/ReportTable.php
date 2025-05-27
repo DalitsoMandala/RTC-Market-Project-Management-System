@@ -188,6 +188,7 @@ final class ReportTable extends PowerGridComponent
                 return $model->systemReport->indicator->indicator_name ?? null;
             })
             ->add('name', function ($model) {
+                
                 return $model->name ?? null;
             })
             ->add('project', function ($model) {

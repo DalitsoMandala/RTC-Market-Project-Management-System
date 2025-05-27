@@ -106,10 +106,26 @@ class ReportJob implements ShouldQueue
                                                 ] // No additional fields to update
                                             );
 
-                                            foreach ($class->getDisaggregations() as $key => $value) {
-                                                // Update or create data entries
+                                            $disaggregations = $class->getDisaggregations();
+
+                                            // Delete removed disaggregations
+                                            $existing = $report->data()->pluck('name')->toArray();
+                                            $new = array_keys($disaggregations);
+                                            $toDelete = array_diff($existing, $new);
+
+                                            if (!empty($toDelete)) {
+                                                $report->data()->whereIn('name', $toDelete)->delete();
+                                            }
+
+                                            // Update or create disaggregations using your method
+                                            foreach ($disaggregations as $key => $value) {
                                                 $this->updateDisaggregations($report, $key, $value);
                                             }
+
+                                            // foreach ($class->getDisaggregations() as $key => $value) {
+                                            //     // Update or create data entries
+                                            //     $this->updateDisaggregations($report, $key, $value);
+                                            // }
                                         }
                                     } catch (\Exception $e) {
 

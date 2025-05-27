@@ -77,6 +77,8 @@ trait ViewIndicatorCalculationsTrait
                 $this->total = $summedGroups->get('Total (% Percentage)', 0);
             } elseif ($summedGroups->has('Total')) {
                 $this->total = $summedGroups->get('Total', 0);
+            }else{
+                $this->total = 0;
             }
         }
     }

@@ -18,7 +18,7 @@
 
                     </div>
                     <div class="card-body">
-                        <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" />
+                        <livewire:tables.indicator-detail-table :populatedData="$data" :name="$indicator_name" :excludeKeys="['Total']" />
                     </div>
                 </div>
 
