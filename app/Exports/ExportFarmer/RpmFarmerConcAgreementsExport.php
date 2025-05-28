@@ -82,7 +82,8 @@ class RpmFarmerConcAgreementsExport implements FromCollection, WithHeadings, Wit
 
                     'Seed',
                     'Ware',
-                    'Value added products'
+                    'Value added products',
+                    'Fresh'
                 ];
 
                 $this->setDataValidations($options, 'F3', $sheet);

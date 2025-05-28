@@ -95,7 +95,8 @@ class RpmFarmerDomMarketsExport implements FromCollection, WithHeadings, WithTit
 
                     'Seed',
                     'Ware',
-                    'Value added products'
+                    'Value added products',
+                    'Fresh'
                 ];
 
                 $this->setDataValidations($options, 'G3', $sheet);

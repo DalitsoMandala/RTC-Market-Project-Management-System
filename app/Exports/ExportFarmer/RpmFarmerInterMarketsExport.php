@@ -93,7 +93,8 @@ class RpmFarmerInterMarketsExport implements FromCollection, WithHeadings, WithT
 
                     'Seed',
                     'Ware',
-                    'Value added products'
+                    'Value added products',
+                    'Fresh'
                 ];
 
                 $this->setDataValidations($options, 'G3', $sheet);

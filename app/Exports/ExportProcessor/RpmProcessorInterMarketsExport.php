@@ -83,7 +83,8 @@ class RpmProcessorInterMarketsExport implements FromCollection, WithHeadings, Wi
 
                     'Seed',
                     'Ware',
-                    'Value added products'
+                    'Value added products',
+                    'Fresh'
                 ];
 
                 $this->setDataValidations($options, 'G3', $sheet);
