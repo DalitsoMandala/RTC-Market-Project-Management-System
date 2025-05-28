@@ -88,7 +88,7 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test',[TestingController::class,'create']);
+
 
 
 
