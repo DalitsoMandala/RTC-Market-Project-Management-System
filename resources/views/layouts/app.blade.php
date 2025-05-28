@@ -233,6 +233,12 @@
         .bs5-rotate-0 {
             transform: rotate(0deg);
         }
+
+        .placeholder {
+            border-radius: 20px;
+            background-color: #e5e7ebc4;
+            cursor: auto;
+        }
     </style>
     <!-- Scripts -->
     @vite(['resources/js/app.js'])

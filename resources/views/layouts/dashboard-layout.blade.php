@@ -61,7 +61,17 @@
 </style>
 <!-- end page title -->
 
-<div class="row align-items-center">
+
+@include('placeholders.dashboard-layout')
+<div class="row align-items-center" x-data="{
+    show: false,
+    init() {
+        setTimeout(() => {
+            this.show = true;
+        }, 5000);
+    }
+}" x-show="show" x-transition.duration.600ms
+    x-transition:enter.duration.500ms>
 
     <div class="order-1 col-12">
 

@@ -3,16 +3,16 @@
 
 
 
-    <div class="my-4 ">
+    <div class="my-4 @if (!$showContent) pe-none opacity-25 @endif">
         <div class="my-2 row align-items-center">
             <div class="col">
                 <h2 class="h2">Summary</h2>
-                <p class="text-muted"><span x-text="name"></span></p>
+                <p class="text-muted">{{ $name }}</p>
             </div>
             <div class="col ">
 
                 <div class="d-flex justify-content-end" wire:ignore x-data="{
-                
+
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
                     showContent: $wire.entangle('showContent'),
@@ -21,7 +21,7 @@
                             id: data.id,
                         });
                     },
-                
+
                 }">
                     <div class="dropdown card-header-dropdown"
                         :class="{
@@ -59,17 +59,14 @@
         @if (!$showContent)
             <div x-data x-init="() => {
                 setTimeout(() => {
-            
+
                     $wire.dispatch('showCharts');
-                }, 4000)
+                }, 5000)
             }">
 
-                <div class="d-flex justify-content-center align-items-center">
-                    <div class="spinner-border text-warning spinner-border-lg" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
+                <x-loader />
 
+                @include('placeholders.dashboard')
             </div>
         @else
             <livewire:charts-view :data="$data" />

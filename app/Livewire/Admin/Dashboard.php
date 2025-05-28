@@ -18,6 +18,8 @@ use Livewire\Attributes\Validate;
 use App\Models\AttendanceRegister;
 use Illuminate\Support\Facades\DB;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Lazy;
+
 
 class Dashboard extends Component
 {
@@ -28,7 +30,7 @@ class Dashboard extends Component
     public $submissions;
 
     public $attendance;
-    protected $showContent = false;
+    public $showContent = false;
     public $quickForms;
 
     public $submissionCategories;
@@ -54,7 +56,12 @@ class Dashboard extends Component
         $this->topData['indicators'] = Indicator::count();
         $this->loadData();
     }
+    #[On('showCharts2')]
+    public function showVisuals()
+    {
 
+        $this->showContent = true;
+    }
     public function loadData()
     {
         $this->loadIndicatorData();
@@ -111,8 +118,6 @@ class Dashboard extends Component
             ->groupBy('year', 'month', 'batch_type')
             ->get()
             ->toArray();
-
-        // dd($this->submissions);
     }
 
     public function loadSubmissions()
@@ -154,6 +159,7 @@ class Dashboard extends Component
 
     public function render()
     {
+
         return view('livewire.admin.dashboard');
     }
 }
