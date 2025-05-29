@@ -22,7 +22,7 @@ class SubmissionNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($status, $denialMessage = null, $batchId = null, $link)
+    public function __construct($status = null, $denialMessage = null, $batchId = null, $link = null)
     {
         $this->status = $status;
         $this->denialMessage = $denialMessage;
@@ -55,7 +55,6 @@ class SubmissionNotification extends Notification
                 ->line('Congratulations! Your submission has been accepted. Batch No. ' . $this->batchId)
 
                 ->action('Go to website', $this->link);
-            Artisan::call('update:information');
         } else {
             $mailMessage
 
