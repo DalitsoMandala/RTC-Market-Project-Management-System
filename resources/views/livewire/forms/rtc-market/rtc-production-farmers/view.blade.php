@@ -66,12 +66,6 @@
                                 </button>
                             </li>
 
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#followup"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Follow up Data
-                                </button>
-                            </li>
 
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#conc"
@@ -119,8 +113,8 @@
 
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#certified" type="button" role="tab"
-                                    aria-controls="profile" aria-selected="false">
+                                    data-bs-target="#certified" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">
                                     Certified seed multiplication
                                 </button>
                             </li>
@@ -142,12 +136,7 @@
                                 <livewire:tables.rtc-market.rtc-production-farmers-table :key="'rpm1'"
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
-                            <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
-                                aria-labelledby="profile-tab">
 
-                                <livewire:tables.rtc-market.rtc-production-farmers-follow-u :key="'rpm2'"
-                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
-                            </div>
 
                             <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
                                 aria-labelledby="profile-tab">

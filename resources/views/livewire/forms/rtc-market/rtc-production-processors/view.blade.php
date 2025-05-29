@@ -54,12 +54,7 @@
                                 </button>
                             </li>
 
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#followup"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Follow up Data
-                                </button>
-                            </li>
+
 
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#conc"
@@ -106,12 +101,7 @@
                                     :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
                             </div>
 
-                            <div class="mt-2 tab-pane fade show" id="followup" role="tabpanel"
-                                aria-labelledby="profile-tab">
 
-                                <livewire:tables.rtc-market.rtc-production-processors-follow-u :key="'rpm2'"
-                                    :userId="auth()->user()->id" :routePrefix="Route::current()->getPrefix()" />
-                            </div>
                             <div class="mt-2 tab-pane fade show" id="conc" role="tabpanel"
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rtc-production-processors-conc-agreement />
