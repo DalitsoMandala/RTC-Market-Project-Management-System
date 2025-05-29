@@ -33,7 +33,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 {
     use WithExport;
     public $currentRoutePrefix;
-    public string $sortField = 'count';
+    public string $sortField = 'date_established';
     public function setUp(): array
     {
         //  $this->showCheckBox();
