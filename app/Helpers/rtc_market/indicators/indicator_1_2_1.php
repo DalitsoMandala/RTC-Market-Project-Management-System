@@ -32,6 +32,7 @@ class indicator_1_2_1
         $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
+
         return $this->applyFilters($query);
     }
 

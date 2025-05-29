@@ -55,7 +55,7 @@ class indicator_3_5_5
     public function getTotals()
     {
 
-        $builder = $this->builder()->get();
+
 
         $indicator = Indicator::where('indicator_name', 'Number of urban market promotions conducted')->where('indicator_no', '3.5.5')->first();
         $disaggregations = $indicator->disaggregations;
@@ -63,7 +63,6 @@ class indicator_3_5_5
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
 
 
 

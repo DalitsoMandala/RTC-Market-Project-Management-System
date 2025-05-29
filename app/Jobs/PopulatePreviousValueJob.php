@@ -14,6 +14,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class PopulatePreviousValueJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
+    public $tries = 3;
+    public $timeout = 1200; // 20 minutes
+    public $backoff = [60, 300, 600]; // Retry delays
 
     /**
      * Create a new job instance.

@@ -74,7 +74,7 @@ final class ReportTable extends PowerGridComponent
         // Start building the query for SystemReportData and eager load systemReport
 
         $query = SystemReportData::query()
-            ->with('systemReport')
+            ->with(['systemReport', 'systemReport.indicator', 'systemReport.organisation', 'systemReport.financialYear'])
             ->join('system_reports', 'system_reports.id', '=', 'system_report_data.system_report_id')
             ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
             ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
@@ -167,11 +167,10 @@ final class ReportTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'systemReport' => [  // relationship on dishes model
-                'indicators' => ['indicator_name'],
-                'indicators' => ['indicator_no'],
-                'organisations' => ['name'],
-            ],
+
+            'systemReport.indicator' => ['indicator_name', 'indicator_no'],
+            'systemReport.organisation' => ['name'],
+            'systemReport.financialYear' => ['number'],
         ];
     }
 
@@ -188,7 +187,7 @@ final class ReportTable extends PowerGridComponent
                 return $model->systemReport->indicator->indicator_name ?? null;
             })
             ->add('name', function ($model) {
-                
+
                 return $model->name ?? null;
             })
             ->add('project', function ($model) {

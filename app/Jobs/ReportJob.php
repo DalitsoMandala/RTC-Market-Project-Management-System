@@ -31,7 +31,10 @@ class ReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
-    public $timeout = 3600;
+    public $tries = 3;
+    public $timeout = 1200; // 20 minutes
+    public $backoff = [60, 300, 600]; // Retry delays
+
     public $project_id, $financial_year_id, $organisation_id, $indicator_id, $reporting_period_id;
 
     public function __construct($financial_year_id = null, $project_id = null, $reporting_period_id = null, $organisation_id = null, $indicator_id = null)
@@ -45,7 +48,7 @@ class ReportJob implements ShouldQueue
 
     public function handle(): void
     {
-        ini_set('max_execution_time', 0);
+
         // Fetch Indicator classes and set up progress tracking
         $Indicator_classes = IndicatorClass::all();
         $totalReportingPeriods = ReportingPeriodMonth::count() + 1;

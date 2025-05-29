@@ -88,7 +88,9 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-
+Route::get('/priznet', function () {
+    $data = new \App\Helpers\rtc_market\indicators\indicator_3_5_5(financial_year: 2, organisation_id: 1);
+});
 
 
 
