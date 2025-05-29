@@ -8,6 +8,7 @@ use App\Models\Indicator;
 use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
+use App\Models\SubmissionReport;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -207,8 +208,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('indicator_id')
             ->add('indicator', function ($model) {
 
-                $indicator = Indicator::find($model->indicator_id);
-                return $indicator->indicator_name;
+                $period = SubmissionReport::with('indicator')->where('uuid', $model->batch_no)->first();
+                return $period?->indicator->indicator_name;
             })
             ->add('month_range', function ($model) {
                 $model = SubmissionPeriod::find($model->period_id);
