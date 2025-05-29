@@ -253,10 +253,12 @@ class Submissions extends Component
             $user = User::find($submission->user_id);
             $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
+
                 fn() => $user->notify(new SubmissionNotification(
-                    status: 'approved',
-                    batchId: $submission->batch_no,
-                    link: $link
+                    'approved',
+                    null,
+                    $submission->batch_no,
+                    $link
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
@@ -296,10 +298,10 @@ class Submissions extends Component
             $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(
-                    status: 'denied',
-                    batchId: $submission->batch_no,
-                    denialMessage: $this->comment,
-                    link: $link,
+                    'denied',
+                    $submission->batch_no,
+                    $this->comment,
+                    $link,
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
