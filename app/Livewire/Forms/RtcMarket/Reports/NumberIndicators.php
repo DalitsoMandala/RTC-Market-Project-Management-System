@@ -49,8 +49,6 @@ class NumberIndicators extends Component
     public $selectedIndicator;
     public $indicatorName;
 
-
-
     public $formData = [];
 
     public $disaggregations = [];
@@ -70,7 +68,7 @@ class NumberIndicators extends Component
         $user = User::find(Auth::user()->id);
         $submit = new SubmitAggregateData;
 
-
+        $this->notifyAdminsAndManagers();
 
         // Roles for internal users
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
@@ -84,9 +82,9 @@ class NumberIndicators extends Component
                 $user->hasAnyRole('admin') ? route('admin-submissions') : route('cip-submissions'),
                 'manager'
             );
-        }
-        // Roles for external users
-        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+        } else if ($user->hasAnyRole('external')) {
+
+
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -96,6 +94,19 @@ class NumberIndicators extends Component
                 $this->selectedFinancialYear,
                 route('external-submissions'),
                 'external'
+            );
+        } else if ($user->hasAnyRole('staff')) {
+
+
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-staff-submissions'),
+                'staff'
             );
         }
     }

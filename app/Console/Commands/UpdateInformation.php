@@ -31,10 +31,51 @@ class UpdateInformation extends Command
     /**
      * Execute the console command.
      */
+    // public function handle()
+    // {
+    //     //
+    //     $this->info('Updating information...');
+    //     Cache::put('report_progress', 0);
+
+    //     // Chain the jobs
+    //     Bus::chain([
+    //         new ReportJob(),
+    //         new PopulatePreviousValueJob(),
+    //         new AdditionalReportJob(),
+    //         function () {
+    //             ReportStatus::find(1)->update([
+    //                 'status' => 'completed',
+    //                 'progress' => 100
+    //             ]);
+    //             Cache::put('report_progress', 100);
+    //             Cache::put('report_', 'completed');
+    //         }
+    //     ])->catch(function (\Throwable $e) {
+    //         // Handle any exceptions that occur during the chain
+    //         logger()->error('Job chain failed: ' . $e->getMessage());
+
+
+    //         ReportStatus::find(1)->update([
+    //             'status' => 'completed',
+    //             'progress' => 100
+    //         ]);
+    //         Cache::put('report_progress', 100);
+    //         Cache::put('report_', 'completed');
+    //     })->dispatch();
+    // }
+
     public function handle()
     {
-        //
-        $this->info('Updating information...');
+        $this->info('Checking if report generation is already running...');
+
+        // Check if a job is already running
+        if (Cache::has('report_job_running')) {
+            $this->warn('Report generation is already in progress. Aborting...');
+            return;
+        }
+
+        $this->info('Starting report generation...');
+        Cache::put('report_job_running', true, now()->addMinutes(15)); // Lock for 15 mins
         Cache::put('report_progress', 0);
 
         // Chain the jobs
@@ -49,18 +90,24 @@ class UpdateInformation extends Command
                 ]);
                 Cache::put('report_progress', 100);
                 Cache::put('report_', 'completed');
+
+                // Release the lock
+                Cache::forget('report_job_running');
             }
-        ])->catch(function (\Throwable $e) {
-            // Handle any exceptions that occur during the chain
-            logger()->error('Job chain failed: ' . $e->getMessage());
+        ])
+            ->catch(function (\Throwable $e) {
+                logger()->error('Job chain failed: ' . $e->getMessage());
 
+                ReportStatus::find(1)->update([
+                    'status' => 'failed',
+                    'progress' => 100
+                ]);
+                Cache::put('report_progress', 100);
+                Cache::put('report_', 'failed');
 
-            ReportStatus::find(1)->update([
-                'status' => 'completed',
-                'progress' => 100
-            ]);
-            Cache::put('report_progress', 100);
-            Cache::put('report_', 'completed');
-        })->dispatch();
+                // Make sure to release the lock even on failure
+                Cache::forget('report_job_running');
+            })
+            ->dispatch();
     }
 }
