@@ -180,9 +180,9 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
 <!-- Base Example -->
 <div class="accordion" id="default-accordion-example">
-    <div class="accordion-item shadow">
+    <div class="shadow accordion-item">
         <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button collapsed  p-2 " style="font-size:0.75rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <button class="p-2 accordion-button collapsed " style="font-size:0.75rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                 View comment
             </button>
         </h2>
@@ -206,7 +206,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             })
             ->add('indicator_id')
             ->add('indicator', function ($model) {
-                $model = SubmissionPeriod::find($model->period_id);
+
                 $indicator = Indicator::find($model->indicator_id);
                 return $indicator->indicator_name;
             })

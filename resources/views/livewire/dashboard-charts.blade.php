@@ -3,8 +3,8 @@
 
 
 
-    <div class="my-4 @if (!$showContent) pe-none opacity-25 @endif">
-        <div class="my-2 row align-items-center">
+    <div class="my-4 ">
+        <div class="my-2 row align-items-center @if (!$showContent) pe-none opacity-25 @endif">
             <div class="col">
                 <h2 class="h2">Summary</h2>
                 <p class="text-muted">{{ $name }}</p>
@@ -12,7 +12,7 @@
             <div class="col ">
 
                 <div class="d-flex justify-content-end" wire:ignore x-data="{
-
+                
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
                     showContent: $wire.entangle('showContent'),
@@ -21,7 +21,7 @@
                             id: data.id,
                         });
                     },
-
+                
                 }">
                     <div class="dropdown card-header-dropdown"
                         :class="{
@@ -59,12 +59,12 @@
         @if (!$showContent)
             <div x-data x-init="() => {
                 setTimeout(() => {
-
+            
                     $wire.dispatch('showCharts');
                 }, 5000)
             }">
 
-                <x-loader />
+
 
                 @include('placeholders.dashboard')
             </div>
