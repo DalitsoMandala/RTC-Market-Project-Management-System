@@ -135,10 +135,7 @@ class Indicator223 extends Component
                 $user->hasAnyRole('admin') ? route('admin-submissions') : route('cip-submissions'),
                 'manager'
             );
-        }
-
-        // Roles for external users
-        else if ($user->hasAnyRole('external') || $user->hasAnyRole('staff')) {
+        } else if ($user->hasAnyRole('external')) {
 
 
             $submit->submit_aggregate_data(

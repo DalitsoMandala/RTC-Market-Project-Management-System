@@ -92,7 +92,7 @@ class Indicator325 extends Component
         $this->notifyAdminsAndManagers();
 
         // Roles for internal users
-        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
+       if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -103,10 +103,7 @@ class Indicator325 extends Component
                 $user->hasAnyRole('admin') ? route('admin-submissions') : route('cip-submissions'),
                 'manager'
             );
-        }
-        // Roles for external users
-        // Roles for external users
-        else if ($user->hasAnyRole('external')) {
+        }else if ($user->hasAnyRole('external')) {
 
 
             $submit->submit_aggregate_data(

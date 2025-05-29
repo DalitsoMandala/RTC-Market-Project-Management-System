@@ -18,10 +18,10 @@ final class IndicatorDetailTable extends PowerGridComponent
     use WithExport;
     public $populatedData = array();
     public $name;
-    public array $excludeKeys;
+    public $excludeKeys = [];
     public function datasource(): ?Collection
     {
- 
+
 
         $data = $this->populatedData;
 
@@ -29,7 +29,7 @@ final class IndicatorDetailTable extends PowerGridComponent
         $newData = collect();
 
         foreach ($data as $key => $value) {
-            if(in_array($key, $this->excludeKeys)){
+            if (in_array($key, $this->excludeKeys)) {
                 continue;
             }
             $newData->push([
