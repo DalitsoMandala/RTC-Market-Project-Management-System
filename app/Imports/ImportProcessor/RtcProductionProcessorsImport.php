@@ -150,12 +150,19 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
     public function calculateTotalProduction($produce, $producePrevailingPrice, $seed, $seedPrevailingPrice, $cuttings, $cuttingsPrevailingPrice)
     {
-        $totalProduction = (($produce ?? 0) * ($producePrevailingPrice ?? 0))
-            + (($seed ?? 0) * ($seedPrevailingPrice ?? 0))
-            + (($cuttings ?? 0) * ($cuttingsPrevailingPrice ?? 0));
+        $produce = (float) ($produce ?? 0);
+        $producePrevailingPrice = (float) ($producePrevailingPrice ?? 0);
+        $seed = (float) ($seed ?? 0);
+        $seedPrevailingPrice = (float) ($seedPrevailingPrice ?? 0);
+        $cuttings = (float) ($cuttings ?? 0);
+        $cuttingsPrevailingPrice = (float) ($cuttingsPrevailingPrice ?? 0);
+
+        $totalProduction = ($produce * $producePrevailingPrice)
+            + ($seed * $seedPrevailingPrice)
+            + ($cuttings * $cuttingsPrevailingPrice);
+
         return $totalProduction;
     }
-
     public function rules(): array
     {
         return [
