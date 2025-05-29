@@ -7,6 +7,7 @@ use App\Models\User;
 use Livewire\Component;
 use App\Models\Indicator;
 use Livewire\Attributes\On;
+use App\Traits\NotifyAdmins;
 use App\Models\FinancialYear;
 use App\Models\SubmissionPeriod;
 use Livewire\Attributes\Validate;
@@ -20,6 +21,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 class NumberIndicators extends Component
 {
     use LivewireAlert;
+    use NotifyAdmins;
     public $form_id;
     public $indicator_id;
     public $financial_year_id;

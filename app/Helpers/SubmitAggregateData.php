@@ -47,14 +47,17 @@ class SubmitAggregateData
     {
         try {
             $uuid = Uuid::uuid4()->toString();
+
             $currentUser = Auth::user();
-
+            $organisationId = User::find(auth()->user()->id)->organisation->id;
             $file = $this->storeData($data);
-
+            $monthId = SubmissionPeriod::find($submissionPeriodId);
             // Check if a submission already exists
-            $checkSubmission = SubmissionReport::where('submission_period_id', $submissionPeriodId)
+            $checkSubmission = SubmissionReport::where('financial_year_id', $selectedFinancialYear)
+                ->where('period_month_id', $monthId->month_range_period_id)
                 ->where('indicator_id', $selectedIndicator)
-                ->where('user_id', $currentUser->id)
+                ->where('organisation_id', $organisationId)
+                ->where('user_id', auth()->user()->id)
                 ->first();
 
             if ($checkSubmission) {

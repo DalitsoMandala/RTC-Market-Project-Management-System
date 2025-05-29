@@ -10,12 +10,17 @@ trait NotifyAdmins
     protected function notifyAdminsAndManagers()
     {
 
-
         $users = User::with('roles')->whereHas('roles', function ($role) {
-            $role->where('name', 'admin')->orWhere('name', 'manager');
+            $role->whereIn('name', ['admin', 'manager']);
         })->get();
+
+        // Notify each user
         foreach ($users as $user) {
-            $user->notify(new NewSubmissionNotification($user));
+            // Determine the prefix based on the user's role
+            $prefix = $user->hasAnyRole('admin') ? '/admin' : '/cip';
+
+            // Send notification
+            $user->notify(new NewSubmissionNotification($prefix));
         }
     }
 }
