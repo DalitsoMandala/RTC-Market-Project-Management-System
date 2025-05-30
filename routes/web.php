@@ -18,6 +18,7 @@ use App\Models\AssignedTarget;
 use App\Models\IndicatorClass;
 use App\Helpers\AmountSplitter;
 use App\Models\IndicatorTarget;
+use App\Traits\IndicatorsTrait;
 use App\Models\AdditionalReport;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
@@ -28,6 +29,7 @@ use App\Helpers\IndicatorsContent;
 use App\Helpers\ExchangeRateHelper;
 use App\Notifications\SendReminder;
 use Illuminate\Support\Facades\Bus;
+use App\Http\Controllers\FixPeriods;
 use App\Livewire\Internal\Cip\Forms;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\File;
@@ -38,9 +40,9 @@ use App\Imports\ProgresSummaryImport;
 use Illuminate\Support\Facades\Route;
 use App\Helpers\PopulatePreviousValue;
 use App\Livewire\Internal\Cip\Reports;
+
 use App\Livewire\Internal\Cip\Targets;
 use App\Notifications\JobNotification;
-
 use App\Models\IndicatorDisaggregation;
 use App\Exports\SeedBeneficiariesExport;
 use App\Livewire\External\ViewIndicator;
@@ -51,6 +53,7 @@ use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Http\Controllers\TestingController;
 use Database\Seeders\SubmissionTargetSeeder;
+use App\Jobs\sendAllIndicatorNotificationJob;
 use App\Livewire\Internal\Cip\SubPeriodStaff;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Jobs\SendExpiredPeriodNotificationJob;
@@ -76,8 +79,6 @@ use App\Exports\AttendanceExport\AttendanceRegistersExport;
 use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
 use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
-use App\Http\Controllers\FixPeriods;
-use App\Jobs\sendAllIndicatorNotificationJob;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
@@ -88,9 +89,7 @@ use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/priznet', function () {
-    $data = new \App\Helpers\rtc_market\indicators\indicator_3_5_5(financial_year: 2, organisation_id: 1);
-});
+Route::get('/priznet', [TestingController::class, 'create']);
 
 
 

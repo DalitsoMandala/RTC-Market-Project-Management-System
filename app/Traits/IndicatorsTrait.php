@@ -108,8 +108,10 @@ trait IndicatorsTrait
     public function getEndingSoonSubmissionPeriods()
     {
         $now = Carbon::now();
-        $startDate = $now->copy()->addDays(1)->startOfDay();
-        $endDate = $now->copy()->addDays(3)->endOfDay();
+        $startDate = Carbon::now()->startOfDay();
+
+        // Two days from now at 23:59:59
+        $endDate = Carbon::now()->copy()->addDays(2)->endOfDay();
 
         $submissionPeriods = SubmissionPeriod::query()
             ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
@@ -157,13 +159,12 @@ trait IndicatorsTrait
             if ($endingDate->isPast()) {
                 // Mark as expired
 
-               $update = SubmissionPeriod::where('date_ending', $period->date_ending)
+                $update = SubmissionPeriod::where('date_ending', $period->date_ending)
                     ->where('date_established', $period->date_established)->where('is_expired', false)->update(['is_expired' => true]);
 
-                    if($update){
-                        $this->sendNotification($period->toArray(), 'expired');
-                    }
-
+                if ($update) {
+                    $this->sendNotification($period->toArray(), 'expired');
+                }
             }
         }
     }
