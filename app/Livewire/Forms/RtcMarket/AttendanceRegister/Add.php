@@ -132,6 +132,7 @@ class Add extends Component
                 'organisation_id' => Auth::user()->organisation->id,
                 'financial_year_id' => $this->selectedFinancialYear,
                 'period_month_id' => $this->selectedMonth,
+                'status' => 'approved'
             ];
             AttendanceRegister::create($data);
             session()->put([

@@ -74,7 +74,7 @@ class SubmitAggregateData
                 'batch_type' => 'aggregate',
                 'is_complete' => 1,
                 'period_id' => $submissionPeriodId,
-                'table_name' => 'reports',
+                'table_name' => 'submission_reports',
                 'file_link' => $file,
             ]);
 

@@ -130,6 +130,7 @@ class Add extends Component
             'batch_type' => 'manual',
             'is_complete' => 1,
             'period_id' => $this->submissionPeriodId,
+            'status' => 'approved'
         ];
 
         // Call the trait method to save the submission
@@ -154,13 +155,7 @@ class Add extends Component
             $data['uuid'] = $uuid;
             $data['user_id'] = $user->id;
 
-            // Add role-specific logic
-            if ($user->hasAnyRole(['manager', 'admin'])) {
-                $data['status'] = 'approved';
-            } else {
-                $data['status'] = 'pending'; // Default status for non-manager/admin users
-            }
-
+            $data['status'] =  'approved';
             // Create the submission record
             $submissionData['batch_no'] = $uuid;
             $submissionData['table_name'] = $tableName;
