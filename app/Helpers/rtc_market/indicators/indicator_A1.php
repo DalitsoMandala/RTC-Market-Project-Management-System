@@ -29,14 +29,14 @@ class indicator_A1
 
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
+    protected $enterprise;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
 
 

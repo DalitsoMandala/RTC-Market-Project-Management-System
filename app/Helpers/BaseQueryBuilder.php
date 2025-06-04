@@ -9,18 +9,18 @@ abstract class BaseQueryBuilder
     protected  $reporting_period;
     protected  $financial_year;
     protected  $organisation_id;
-    protected  $target_year_id;
+   
 
     public function __construct(
         $reporting_period = null,
         $financial_year = null,
         $organisation_id = null,
-        $target_year_id = null
+
     ) {
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+
     }
 
     public function builder(Builder $query): Builder

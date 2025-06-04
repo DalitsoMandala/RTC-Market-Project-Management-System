@@ -19,38 +19,17 @@ class indicator_2_2_3
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
-    }
-    public function builderFarmer($crop = null): Builder
-    {
-
-
-        $query = RtcProductionFarmer::query()->where('status', 'approved')->where('is_registered_seed_producer', true);
-
-        return $this->applyFilters($query);
+        $this->enterprise = $enterprise;
     }
 
-
-    public function builderRecruitment($crop = null): Builder
-    {
-
-
-        $query = Recruitment::query()->where('status', 'approved');
-
-
-
-        return $this->applyFilters($query);
-    }
 
     public function getCategoryPos($crop = null)
     {
@@ -73,14 +52,57 @@ class indicator_2_2_3
 
 
 
+    public function builderFarmer($crop = null): Builder
+    {
+        $query = RtcProductionFarmer::query()
+            ->where('status', 'approved')
+            ->where('is_registered_seed_producer', true);
+
+        // Apply enterprise filter if set in constructor
+        if ($this->enterprise) {
+            $query->where('enterprise', $this->enterprise);
+        } elseif ($crop) {
+            $query->where('enterprise', $crop);
+        }
+
+        return $this->applyFilters($query);
+    }
+
+    public function builderRecruitment($crop = null): Builder
+    {
+        $query = Recruitment::query()->where('status', 'approved');
+
+        // Apply enterprise filter if set in constructor
+        if ($this->enterprise) {
+            $query->where('enterprise', $this->enterprise);
+        } elseif ($crop) {
+            $query->where('enterprise', $crop);
+        }
+
+        return $this->applyFilters($query);
+    }
+
     public function getCrop()
     {
         $farmers = $this->builderFarmer()
             ->with(['basicSeed', 'certifiedSeed'])
-
             ->get();
 
-        // Group farmers by crop type
+        // If enterprise is set, return only that enterprise's data
+        if ($this->enterprise) {
+            $enterpriseKey = strtolower(str_replace(' ', '_', $this->enterprise));
+            $grouped = $farmers->groupBy('enterprise');
+
+            return [
+                $enterpriseKey => [
+                    'basic_seed' => $grouped->first()?->sum(fn($farmer) => $farmer->basicSeed->count()) ?? 0,
+                    'certified_seed' => $grouped->first()?->sum(fn($farmer) => $farmer->certifiedSeed->count()) ?? 0,
+                    $enterpriseKey . '_count' => $farmers->count(),
+                ]
+            ];
+        }
+
+        // Otherwise return all crops
         $grouped = $farmers->groupBy('enterprise');
 
         return [
@@ -115,17 +137,46 @@ class indicator_2_2_3
 
     public function getDisaggregations()
     {
-        $cropData = $this->getCrop(); // Store crop data to avoid redundant calls
+        $cropData = $this->getCrop();
 
-        return [
+        // Initialize all crop counts (will be 0 if enterprise is filtered)
+        $cassavaCount = $cropData['cassava']['cassava_count'] ?? 0;
+        $potatoCount = $cropData['potato']['potato_count'] ?? 0;
+        $sweetPotatoCount = $cropData['sweet_potato']['sweet_potato_count'] ?? 0;
+
+        // Calculate totals
+        $totalFarmers = $cassavaCount + $potatoCount + $sweetPotatoCount;
+        $totalBasic = ($cropData['cassava']['basic_seed'] ?? 0)
+            + ($cropData['potato']['basic_seed'] ?? 0)
+            + ($cropData['sweet_potato']['basic_seed'] ?? 0);
+        $totalCertified = ($cropData['cassava']['certified_seed'] ?? 0)
+            + ($cropData['potato']['certified_seed'] ?? 0)
+            + ($cropData['sweet_potato']['certified_seed'] ?? 0);
+
+        // Prepare base response structure
+        $result = [
             'Total (% Percentage)' => 0,
-            'Cassava' => $cropData['cassava']['cassava_count'],
-            'Potato' => $cropData['potato']['potato_count'],
-            'Sweet potato' => $cropData['sweet_potato']['sweet_potato_count'],
-            'Basic' => $cropData['cassava']['basic_seed'] + $cropData['potato']['basic_seed'] + $cropData['sweet_potato']['basic_seed'],
-            'Certified' => $cropData['cassava']['certified_seed'] + $cropData['potato']['certified_seed'] + $cropData['sweet_potato']['certified_seed'],
-            'POs' => $this->getCategoryPos(),
-            'Individual farmers not in POs' => $this->getCategoryIndividualFarmers(),
+            'Cassava' => $cassavaCount,
+            'Potato' => $potatoCount,
+            'Sweet potato' => $sweetPotatoCount,
+            'Basic' => $totalBasic,
+            'Certified' => $totalCertified,
+            'POs' => 0,
+            'Individual farmers not in POs' => 0,
         ];
+
+        // If enterprise is filtered, keep all keys but zero out non-matching crops
+        if ($this->enterprise) {
+            $enterpriseKey = strtolower(str_replace(' ', '_', $this->enterprise));
+
+            foreach (['Cassava', 'Potato', 'Sweet potato'] as $crop) {
+                $key = str_replace(' ', '_', strtolower($crop));
+                if ($key !== $enterpriseKey) {
+                    $result[$crop] = 0;
+                }
+            }
+        }
+
+        return $result;
     }
 }

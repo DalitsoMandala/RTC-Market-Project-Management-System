@@ -158,7 +158,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'attendance_registers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -180,7 +180,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'status' => 'approved',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'attendance_registers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -202,7 +202,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'attendance_registers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
 
@@ -222,7 +222,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'status' => 'pending',
                         'batch_type' => 'batch',
                         'is_complete' => 1,
-                        'table_name' => 'rtc_production_farmers',
+                        'table_name' => 'attendance_registers',
                         'file_link' => $this->submissionDetails['file_link']
                     ]);
                     $user->notify(new ImportSuccessNotification(

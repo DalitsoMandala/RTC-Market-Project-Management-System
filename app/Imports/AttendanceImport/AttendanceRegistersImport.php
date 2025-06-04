@@ -71,7 +71,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'organisation_id' => $this->submissionDetails['organisation_id'],
             'financial_year_id' => $this->submissionDetails['financial_year_id'],
             'period_month_id' => $this->submissionDetails['period_month_id'],
-            'uuid' => $this->cacheKey,
+            'uuid' => $this->submissionDetails['batch_no'],
             'status' => $status,
         ]);
 

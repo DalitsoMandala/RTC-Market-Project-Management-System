@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Crop;
 use App\Models\Indicator;
 use App\Models\SystemReport;
 use App\Models\FinancialYear;
@@ -18,6 +19,8 @@ class PopulatePreviousValue
             $query->where('name', 'Total (% Percentage)');
         })->get();
 
+        $crops = Crop::pluck('name');
+
         foreach ($indicators as $indicator) {
             // Initialize each organization's previous value with the baseline
             $previousValues = [];
@@ -32,19 +35,23 @@ class PopulatePreviousValue
 
             foreach ($financialYears as $financialYear) {
                 foreach ($indicator->organisation as $organisation) {
-                    // Retrieve the previous value specific to this organization
-                    $previousValue = $previousValues[$organisation->id];
+                    foreach ($crops as $crop) {
 
-                    // Calculate annual value for this financial year and organization
-                    $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)');
+
+                        // Retrieve the previous value specific to this organization
+                        $previousValue = $previousValues[$organisation->id];
+
+                        // Calculate annual value for this financial year and organization
+                        $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)', $crop);
                     $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
 
 
-                    // Save or update previous value and growth percentage for the organization
-                    $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)');
+                        // Save or update previous value and growth percentage for the organization
+                        $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)', $crop);
 
                     // Update the previous value for this organization for the next financial year
                     $previousValues[$organisation->id] = $annualValue;
+                    }
                 }
             }
         }
@@ -52,7 +59,7 @@ class PopulatePreviousValue
 
 
 
-    protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name)
+    protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name, $crop)
     {
         // For the first year, return the baseline as the annual value
         if ($financialYear->number == 1) {
@@ -63,6 +70,7 @@ class PopulatePreviousValue
             ->where('project_id', 1)
             ->where('organisation_id', $organisation->id)
             ->where('indicator_id', $indicator->id)
+            ->where('crop', $crop)
             ->pluck('id');
 
         $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
@@ -151,7 +159,7 @@ class PopulatePreviousValue
     }
 
 
-    protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name)
+    protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name, $crop)
     {
         $unspecified = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first();
         // Identify the last reporting period for the financial year
@@ -160,6 +168,7 @@ class PopulatePreviousValue
             ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
             ->where('reporting_period_id', $unspecified->id) // unspecified
+            ->where('crop', $crop)
             //      ->orderByDesc('reporting_period_id') // Get the latest reporting period
             ->pluck('reporting_period_id')
             ->first(); // Get only the last period
@@ -187,6 +196,7 @@ class PopulatePreviousValue
             ->where('project_id', 1)
             ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
+            ->where('crop', $crop)
             ->where('reporting_period_id', $lastReportingPeriod) // Filter for last period only
             ->pluck('id');
 

@@ -30,17 +30,15 @@ class indicator_B5
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
 
 
@@ -92,27 +90,37 @@ class indicator_B5
     }
 
 
-
     public function findCropCount()
     {
-        // Calculate totals for each crop type from the main `rtc_production_farmers` table
-        $cassavaTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Cassava')->sum('total_vol_production_previous_season');
-        $potatoTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Potato')->sum('total_vol_production_previous_season');
-        $sweetPotatoTotalFarmer = $this->builderFarmer()->where('enterprise', '=', 'Sweet potato')->sum('total_vol_production_previous_season');
+        // If enterprise is set in constructor, return only that enterprise's total
+        if ($this->enterprise) {
+            $farmerTotal = $this->builderFarmer()->sum('prod_value_previous_season_usd_value');
+            $processorTotal = $this->Processorbuilder()->sum('prod_value_previous_season_usd_value');
 
-        // Processor totals (following a similar approach for processors)
-        $cassavaTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Cassava')->sum('total_vol_production_previous_season');
-        $potatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Potato')->sum('total_vol_production_previous_season');
-        $sweetPotatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Sweet potato')->sum('total_vol_production_previous_season');
+            return [
+                strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal + $processorTotal,
+            ];
+        }
 
+        // Otherwise, return totals for all enterprises
+        $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
+        $result = [];
 
-        // Optionally, return the combined totals
-        return [
-            'cassava' => $cassavaTotalFarmer + $cassavaTotalProcessor,
-            'potato' => $potatoTotalFarmer  + $potatoTotalProcessor,
-            'sweet_potato' => $sweetPotatoTotalFarmer + $sweetPotatoTotalProcessor,
-        ];
+        foreach ($enterprises as $enterprise) {
+            $farmerTotal = $this->builderFarmer()->where('enterprise', $enterprise)
+                ->sum('total_vol_production_previous_season');
+
+            $processorTotal = $this->Processorbuilder()->where('enterprise', $enterprise)
+                ->sum('total_vol_production_previous_season');
+
+            $result[strtolower(str_replace(' ', '_', $enterprise))] = $farmerTotal + $processorTotal;
+        }
+
+        return $result;
     }
+
+
+
 
 
     public function followUpBuilder()
@@ -128,12 +136,25 @@ class indicator_B5
 
     public function getDisaggregations()
     {
+        $crop = $this->findCropCount();
 
+        // Define all possible crops with default 0 values
+        $allCrops = [
+            'Cassava' => 0,
+            'Sweet potato' => 0,
+            'Potato' => 0,
+        ];
+
+        // Merge actual values (if they exist)
+        foreach ($allCrops as $key => $value) {
+            $snakeKey = strtolower(str_replace(' ', '_', $key));
+            if (isset($crop[$snakeKey])) {
+                $allCrops[$key] = round($crop[$snakeKey], 2);
+            }
+        }
         return [
             'Total (% Percentage)' => 0,
-            'Cassava' => $this->findCropCount()['cassava'],
-            'Potato' => $this->findCropCount()['potato'],
-            'Sweet potato' => $this->findCropCount()['sweet_potato'],
+            ...$allCrops
             //  'Certified seed produce' => $this->getCertifiedSeed(),
             //  'Value added RTC products' => $this->getValueAddedProducts()
         ];

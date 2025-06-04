@@ -20,17 +20,15 @@ class indicator_B2
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
     public function builder(): Builder
     {
@@ -39,13 +37,14 @@ class indicator_B2
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
-        return $this->applyFilters($query);
+        return $this->applyFilters($query, true);
     }
 
     public function getTotals()
     {
-
         $builder = $this->builder()->get();
+
+        // Initialize all possible keys with 0
         $data = collect([
             'Total (% Percentage)' => 0,
             'Volume (Metric Tonnes)' => 0,
@@ -58,19 +57,25 @@ class indicator_B2
             '(Informal) Sweet potato' => 0,
             'Raw' => 0,
             'Processed' => 0,
-
         ]);
 
         if ($builder->isNotEmpty()) {
-            // Process the builder in chunks of 100 (you can adjust this number as needed)
-            $this->builder()->chunk(100, function ($models) use (&$data) {
+            $this->builder()->chunk(1000, function ($models) use (&$data) {
                 $models->each(function ($model) use (&$data) {
                     $json = collect(json_decode($model->data, true));
 
                     foreach ($data as $key => $dt) {
+                        // Always process non-enterprise keys
+                        $isEnterpriseKey = str_contains($key, 'Cassava') ||
+                            str_contains($key, 'Potato') ||
+                            str_contains($key, 'Sweet potato');
+
+                        // If enterprise is set, only process matching keys or non-enterprise keys
+                        if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
+                    }
                     }
                 });
             });

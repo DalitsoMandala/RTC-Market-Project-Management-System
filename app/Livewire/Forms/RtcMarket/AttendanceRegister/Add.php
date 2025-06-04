@@ -10,6 +10,7 @@ use App\Models\Form;
 use App\Models\Indicator;
 use App\Models\OrganisationTarget;
 use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\User;
@@ -134,6 +135,19 @@ class Add extends Component
                 'period_month_id' => $this->selectedMonth,
                 'status' => 'approved'
             ];
+            $user = User::find(auth()->user()->id);
+            $submissionData = [
+                'form_id' => $this->selectedForm,
+                'user_id' => $user->id,
+                'batch_type' => 'manual',
+                'is_complete' => 1,
+                'period_id' => $this->submissionPeriodId,
+                'status' => 'approved',
+                'table_name' => 'attendance_registers',
+                'batch_no' => $uuid
+            ];
+
+            Submission::create($submissionData);
             AttendanceRegister::create($data);
             session()->put([
                 'attendance_register' => [
