@@ -74,45 +74,27 @@ class DashboardCharts extends Component
         $this->selectedReportYear = FinancialYear::find($financialYear)->number;
     }
 
-    public function calculations($financialYear = null)
+    public function calculations($financialYear = 2)
     {
-
-
-
-
-
-
-        $reportId = SystemReport::where('indicator_id', 1)
+        // Fetch matching report IDs
+        $reportIds = SystemReport::where('indicator_id', 1)
             ->where('project_id', 1)
-            ->where('financial_year_id', 2)
+            ->where('financial_year_id', $financialYear)
+            ->whereNull('crop')
             ->pluck('id');
 
-        if ($financialYear) {
-            $reportId = SystemReport::where('indicator_id', 1)
-                ->where('project_id', 1)
-                ->where('financial_year_id', $financialYear)
-                ->pluck('id');
-        }
+        // Return summed data grouped by 'name' if reports exist
+        if ($reportIds->isNotEmpty()) {
+            $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
 
-
-        if ($reportId->isNotEmpty()) {
-            // Retrieve and group data by 'name'
-            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
-            $groupedData = $data->groupBy('name');
-
-
-            // Sum each group's values
-
-            $summedGroups = $groupedData->map(function ($group) {
-                return $group->sum('value'); // Changed from first()->value to sum('value')
+            return $data->groupBy('name')->map(function ($group) {
+                return $group->sum('value');
             });
-
-
-
-            // Store the results
-            return $summedGroups;
         }
+
+        return collect(); // Return an empty collection instead of null for consistency
     }
+
     public function render()
     {
         return view('livewire.dashboard-charts');

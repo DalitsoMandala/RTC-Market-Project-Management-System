@@ -38,7 +38,9 @@ final class ReportTable extends PowerGridComponent
     public $organisation_id;
     public $indicator;
     public $disaggregation;
+    public $crop;
     public bool $withSortStringNumber = true;
+    //  public string $sortField = 'system_reports.crop';
 
     public function setUp(): array
     {
@@ -85,7 +87,8 @@ final class ReportTable extends PowerGridComponent
                 'indicators.indicator_no as indicator_no',
                 'organisations.name as organisation_name',
                 'financial_years.number as financial_year',
-            ]);
+
+        ]);
 
         // Apply filters if any are provided
         if ($this->hasFilters()) {
@@ -97,7 +100,8 @@ final class ReportTable extends PowerGridComponent
         if ($user->hasAnyRole('external')) {
             $query->where('system_reports.organisation_id', $user->organisation->id);
         }
-        return $query;
+        return $query->orderBy('system_reports.crop', 'asc')
+            ->orderBy('system_reports.indicator_id', 'asc');
     }
 
     /**
@@ -109,7 +113,8 @@ final class ReportTable extends PowerGridComponent
             !is_null($this->reporting_period) ||
             !is_null($this->financial_year) ||
             !is_null($this->disaggregation) ||
-            !is_null($this->indicator);
+            !is_null($this->indicator) ||
+            !is_null($this->crop);
     }
 
     /**
@@ -147,6 +152,12 @@ final class ReportTable extends PowerGridComponent
             if (!empty($indicators)) {
                 $this->applyIndicatorFilter($query, $indicators);
             }
+
+            if (!is_null($this->crop)) {
+                $query->where('crop', $this->crop);
+            } else {
+                $query->whereNull('crop');
+            }
         });
     }
 
@@ -171,6 +182,7 @@ final class ReportTable extends PowerGridComponent
             'systemReport.indicator' => ['indicator_name', 'indicator_no'],
             'systemReport.organisation' => ['name'],
             'systemReport.financialYear' => ['number'],
+
         ];
     }
 
@@ -212,6 +224,11 @@ final class ReportTable extends PowerGridComponent
                 // Handle null for financialYear
                 return $model->systemReport->financialYear->number ?? null;
             })
+
+            ->add('crop', function ($model) {
+                // Handle null for financialYear
+                return $model->systemReport->crop ?? 'All crops';
+            })
             ->add('organisations', function ($model) {
                 // Handle null for organisation
                 return $model->systemReport->organisation->name ?? null;
@@ -225,20 +242,25 @@ final class ReportTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id')->hidden()->visibleInExport(false),
-            Column::make('Disaggregation', 'name')
-                ->sortable()
+            Column::make('Indicator #', 'number', 'indicator_no')
                 ->searchable(),
-            Column::make('Value', 'value')
-                ->sortable(),
             Column::make('Indicator Name', 'indicator_name')
                 ->searchable()
                 ->sortable(),
-            Column::make('Indicator #', 'number', 'indicator_no')
+            Column::make('Disaggregation', 'name')
+                ->sortable()
                 ->searchable(),
-            Column::make('Project', 'project'),
+
+
+            Column::make('Value', 'value')
+                ->sortable(),
+
+
+            Column::make('Project', 'project')->hidden()->visibleInExport(true),
             Column::make('Reporting period', 'report_period')->searchable(),
             Column::make('Organisation', 'organisations', 'organisation_name')->sortable()->searchable(),
             Column::make('Project year', 'financial_year')->sortable(),
+            Column::make('Enterprise', 'crop', 'system_reports.crop')->searchable(),
         ];
     }
 
@@ -253,12 +275,13 @@ final class ReportTable extends PowerGridComponent
         $this->financial_year = $data['financial_year'];
         $this->organisation_id = $data['organisation_id'];
         $this->disaggregation = $data['disaggregation'];
+        $this->crop = $data['crop'];
     }
 
     #[On('reset-filters')]
     public function resetData()
     {
-        $this->reset('organisation_id', 'reporting_period', 'financial_year', 'indicator', 'disaggregation', 'project');
+        $this->reset('organisation_id', 'reporting_period', 'financial_year', 'indicator', 'disaggregation', 'project', 'crop');
         $this->resetPage();
         $this->refresh();
     }

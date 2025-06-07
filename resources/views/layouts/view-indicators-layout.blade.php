@@ -128,6 +128,54 @@
                 </div>
             </div>
 
+    <div class="mb-1 dropdown" x-data="{
+                selectedCrop: $wire.entangle('selectedCrop'),
+                crops: $wire.entangle('crops'),
+                setData(value) {
+
+                    this.disable = true;
+                    setTimeout(() => {
+                        this.selectedCrop = value;
+                        $wire.dispatch('refreshData');
+                        this.disable = false;
+                    }, 1000);
+
+
+
+
+
+
+                },
+
+                disable: false
+
+            }">
+
+
+                <a class="dropdown-toggle btn btn-soft-warning ms-2 fw-bolder" href="#" id="dropdownMenuButton1"
+                    :class="{
+                        'opacity-25 pe-none': disable
+                    }"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="font-size-12 text-uppercase me-3">Crop:</span> <span class="fw-medium">
+                        <span x-text="selectedCrop.name"></span>
+
+                        <i class="mdi mdi-chevron-down ms-1"></i></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                    <template x-for="(value, index) in crops" :key="index">
+                        <a class="dropdown-item" @click="setData(value)" href="#" data-bs-toggle="modal"
+                            :class="{
+                                'disabled': selectedCrop.value === value.value
+                            }">
+                            <span x-text="value.name"></span></a>
+
+                    </template>
+
+                </div>
+            </div>
+
+
         </div>
     </div>
     <div class="row">
@@ -149,6 +197,7 @@
 
                     'financial_year' => $selectedFinancialYear,
                     'organisation' => $selectedOrganisation,
+                    'crop' => $selectedCrop['value']
                 ])
             @else
                 <div class="d-flex justify-content-center align-items-center">

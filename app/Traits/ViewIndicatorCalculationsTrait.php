@@ -28,7 +28,7 @@ trait ViewIndicatorCalculationsTrait
     public $reporting_period;
     public $financial_year;
     public $organisation;
-
+    public $crop;
 
 
 
@@ -46,6 +46,7 @@ trait ViewIndicatorCalculationsTrait
             ->where('project_id', $this->project_id)
             ->where('organisation_id', $this->organisation['id'])
             ->where('financial_year_id', $this->financial_year['id'])
+            ->where('crop', $this->crop)
             ->pluck('id');
 
 
@@ -54,6 +55,7 @@ trait ViewIndicatorCalculationsTrait
             $reportId = SystemReport::where('indicator_id', $this->indicator_id)
                 ->where('project_id', $this->project_id)
                 ->where('financial_year_id', $this->financial_year['id'])
+                ->where('crop', $this->crop)
                 ->pluck('id');
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Internal\Cip;
 
+use App\Helpers\CoreFunctions;
 use App\Jobs\Mapper;
 use App\Jobs\ReportJob;
 use App\Livewire\Tables\ReportingTable;
@@ -71,6 +72,9 @@ class Reports extends Component
 
     public $routePrefix;
 
+    public $crops = [];
+    public $selectedCrop;
+
     public function mount()
     {
         $this->projects = Project::get();
@@ -80,12 +84,14 @@ class Reports extends Component
         $this->organisations = Organisation::get();
         $this->disaggregations = IndicatorDisaggregation::get();
         $this->routePrefix = Route::current()->getPrefix();
+        $this->crops = CoreFunctions::getCropsWithNull();
         $this->filterOrganisationData();
     }
 
     public function filterOrganisationData()
     {
-        $this->selectedOrganisation = auth()->user()->organisation->id;
+        $this->selectedOrganisation = null;
+        $this->selectedCrop = '';
         $user = User::find(auth()->user()->id);
         if ($user->hasAnyRole('external')) {
             $this->indicators = Indicator::with('organisation')->whereHas('organisation', function ($query) {
@@ -115,6 +121,7 @@ class Reports extends Component
             'financial_year' => $this->selectedFinancialYear === '' ? null : $this->selectedFinancialYear,
             'organisation_id' => $this->selectedOrganisation === '' ? null : $this->selectedOrganisation,
             'disaggregation' => $this->selectedDisaggregation === '' ? null : $this->selectedDisaggregation,
+            'crop' => $this->selectedCrop === '' ? null : $this->selectedCrop,
             // 'start_date' => $this->starting_period == "" ? null : $this->starting_period,
             // 'end_date' => $this->ending_period  == "" ? null : $this->ending_period,
         ];
@@ -136,7 +143,8 @@ class Reports extends Component
             'selectedProject',
             'selectedIndicator',
             'selectedReportingPeriod',
-            'selectedFinancialYear'
+            'selectedFinancialYear',
+            'selectedCrop'
         );
 
         $this->projects = Project::get();
@@ -145,6 +153,7 @@ class Reports extends Component
         $this->reportingPeriod = ReportingPeriodMonth::get();
         $this->organisations = Organisation::get();
         $this->disaggregations = IndicatorDisaggregation::get();
+        $this->crops = CoreFunctions::getCropsWithNull();
 
         $this->resetErrorBag();
         $this->resetValidation();
@@ -168,15 +177,19 @@ class Reports extends Component
 
     public function updated($property, $value)
     {
-        if ($this->selectedOrganisation) {
-            $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
-            $this->disaggregations = IndicatorDisaggregation::whereIn('indicator_id', $indicators)->get()->unique('name');
-            $this->indicators = Indicator::whereIn('id', $indicators)->get();
+        if ($property === 'selectedOrganisation') {
+            $indicatorIds = ResponsiblePerson::where('organisation_id', $value)->pluck('indicator_id');
+
+            $this->indicators = Indicator::whereIn('id', $indicatorIds)->get();
+            $this->disaggregations = IndicatorDisaggregation::whereIn('indicator_id', $indicatorIds)->get()->unique('name');
+
+
+            $this->selectedDisaggregation = null;
         }
 
-        if ($this->selectedOrganisation !== null && $this->selectedIndicator) {
-            $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
-            $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get()->unique('name');
+        if ($property === 'selectedIndicator') {
+            $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $value)->get()->unique('name');
+            $this->selectedDisaggregation = null; // reset only on indicator change
         }
     }
 

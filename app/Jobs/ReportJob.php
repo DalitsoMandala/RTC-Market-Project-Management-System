@@ -1,6 +1,7 @@
 <?php
 namespace App\Jobs;
 
+use App\Helpers\CoreFunctions;
 use App\Models\Crop;
 use App\Models\FinancialYear;
 use App\Models\Indicator;
@@ -66,7 +67,7 @@ class ReportJob implements ShouldQueue
             $organisations = Organisation::pluck('id')->toArray();
             $organisations = array_chunk($organisations, 50); // Chunk organisations
 
-            $crops = Crop::pluck('name')->toArray();
+            $crops = CoreFunctions::getCropsWithNull();
             $crops = array_chunk($crops, 50);
 
             foreach ($reportingPeriods as $periodChunk) {
@@ -84,7 +85,8 @@ class ReportJob implements ShouldQueue
                                                 $class = new $Indicator_class->class(
                                                     reporting_period: $period,
                                                     financial_year: $financialYear,
-                                                    organisation_id: $organisation
+                                                    organisation_id: $organisation,
+                                                    enterprise: $crop
                                                 );
 
                                                 $project    = Indicator::find($Indicator_class->indicator_id)->project;

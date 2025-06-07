@@ -39,17 +39,17 @@ class TestingController extends Controller
     public function test()
     {
 
-        // $crops = ['Cassava', 'Potato', 'Sweet potato'];
-        // $newData = [];
+        $crops = ['Cassava', 'Potato', 'Sweet potato'];
+        $newData = [];
 
 
         // foreach ($crops as $crop) {
-        //     $data = new \App\Helpers\rtc_market\indicators\indicator_B4(financial_year: 2, organisation_id: 1);
+        //     $data = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 2, enterprise: 'Potato');
         //     $newData[$crop] = $data->getDisaggregations();
         // }
 
 
-        //  return response()->json($newData);
+        // return response()->json($newData);
         DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // 🔴 Disable FIRST
 
         ReportStatus::find(1)->update([

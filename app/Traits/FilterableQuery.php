@@ -14,21 +14,17 @@ trait FilterableQuery
 
     public function applyFilters(Builder $query, $is_report = false): Builder
     {
-        if ($is_report) {
-            return $query
-                ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
-                ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
-                ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id))
-
-            ;
-        }
-        return $query
+        $query = $query
             ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
-            ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id))
-            ->when($this->enterprise, fn($q) => $q->where('enterprise', $this->enterprise));
-    }
+            ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
+        if (!$is_report && $this->enterprise) {
+            $query->where('enterprise', $this->enterprise);
+        }
+
+        return $query;
+    }
 
     public function applyHouseHoldFilters(Builder $query, $is_report = false): Builder
     {
@@ -58,24 +54,21 @@ trait FilterableQuery
 
     public function applySeedFilters(Builder $query, $is_report = false): Builder
     {
-        if ($is_report) {
-            return $query
-                ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
-                ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
-                ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id))
-
-            ;
-        }
+        $query = $query
+            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
+            ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
+            ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
 
         $temp = $this->enterprise;
         $enterprise = $temp === 'Sweet potato' ? 'OFSP' : $temp;
 
-        return $query
-            ->when($this->reporting_period, fn($q) => $q->where('period_month_id', $this->reporting_period))
-            ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
-            ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id))
-            ->when($this->enterprise, fn($q) => $q->where('crop', $enterprise));;
+
+        if (!$is_report && $this->enterprise) {
+            $query->where('crop', $enterprise);
+        }
+
+        return $query;
     }
 
     public function applyAttendanceFilters(Builder $query, $is_report = false): Builder

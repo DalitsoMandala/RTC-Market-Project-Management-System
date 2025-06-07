@@ -19,7 +19,7 @@ class PopulatePreviousValue
             $query->where('name', 'Total (% Percentage)');
         })->get();
 
-        $crops = Crop::pluck('name');
+        $crops = CoreFunctions::getCropsWithNull();
 
         foreach ($indicators as $indicator) {
             // Initialize each organization's previous value with the baseline
