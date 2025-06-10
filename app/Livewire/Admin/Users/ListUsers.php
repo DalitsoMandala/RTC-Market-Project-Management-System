@@ -56,6 +56,11 @@ class ListUsers extends Component
     }
 
 
+    public function noFile()
+    {
+        session()->flash('error', 'File is required');
+    }
+
     public function mount()
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
@@ -71,8 +76,15 @@ class ListUsers extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->phone = $user->phone_number;
+
         $this->organisation = $user->organisation_id;
         $this->role = $user->getRoleNames()->first();
+
+        if ($this->role == 'external') {
+            $this->organisations = Organisation::where('name', '!=', 'CIP')->get();
+        } else {
+            $this->organisations = Organisation::where('name', 'CIP')->get();
+        }
         $this->changePassword = false;
     }
 
@@ -109,6 +121,7 @@ class ListUsers extends Component
         $this->phone = null;
         $this->rowId = null;
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
+
         $this->organisations = Organisation::get();
 
         $this->role = null;
@@ -121,50 +134,78 @@ class ListUsers extends Component
     #[On('send-users')]
     public function usersData($users)
     {
-
         $rules = [
-            '*.email' => 'required|email|unique:users,email', // Validate email format and uniqueness
-            '*.name' => 'required|string|max:255', // Validate name
-            '*.organisation' => 'required|string|max:255', // Validate organisation
-            '*.role' => 'required|string', // Validate role (only allow 'staff' or 'admin')
+            '*.email' => 'required|email|unique:users,email',
+            '*.name' => 'required|string|max:255',
+            '*.organisation' => 'required|string|max:255',
+            '*.role' => 'required|string',
         ];
+
         DB::beginTransaction();
-        // Validate the array
+
         $validator = Validator::make($users, $rules);
 
-        // Check if validation fails
         if ($validator->fails()) {
-            // Flash validation errors to the session
-            session()->flash('error', $validator->errors());
+            $errors = $validator->errors()->toArray();
 
-            // Redirect back or to a specific route
-            DB::rollBack();
-        } else {
-            // Flash a success message to the session
+            $messages = [];
 
-            try {
-                foreach ($users as $user) {
-                    $organisation = Organisation::where('name', $user['organisation'])->first();
-                    $password = Str::random(10);
-                    $addedUser =  User::create([
-                        'name' => $user['name'],
-                        'email' => $user['email'],
-                        'phone_number' => '+9999999999',
-                        'organisation_id' => $organisation->id,
-                        'password' => Hash::make($password),
+            foreach ($errors as $field => $fieldErrors) {
+                // Extract row number from field like "0.email"
+                [$row] = explode('.', $field);
+                $rowNumber = $row + 1;
 
-                    ])->assignRole($user['role']);
-                    $addedUser->notify(new NewUserNotification($addedUser->email, $password, $user['role']));
+                foreach ($fieldErrors as $error) {
+                    $cleanError = preg_replace('/\b\d+\./', '', $error);
+                    $messages[$rowNumber][] = $cleanError;
                 }
-                $this->dispatch('refresh');
-                session()->flash('success', 'All users have been validated successfully!');
-                DB::commit();
-            } catch (\Throwable $e) {
-                DB::rollBack();
-                session()->flash('error', 'An error occurred while processing your request.');
             }
+
+            $finalMessages = [];
+            foreach ($messages as $rowNumber => $rowErrors) {
+                $rowNumber++;
+                $finalMessages[] = "Row {$rowNumber}: " . implode(' ', $rowErrors);
+            }
+
+            session()->flash('error', implode("<br>", $finalMessages));
+            DB::rollBack();
+            $this->dispatch('able-button');
+            return;
+        }
+
+        try {
+            if (count($users) == 0) {
+                session()->flash('error', 'No data found');
+                $this->dispatch('able-button');
+                return;
+            }
+
+            foreach ($users as $user) {
+                $organisation = Organisation::where('name', $user['organisation'])->first();
+                $password = Str::random(10);
+
+                $addedUser = User::create([
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'phone_number' => '+9999999999',
+                    'organisation_id' => $organisation->id,
+                    'password' => Hash::make($password),
+                ])->assignRole($user['role']);
+
+                $addedUser->notify(new NewUserNotification($addedUser->email, $password, $user['role']));
+            }
+
+            $this->dispatch('refresh');
+            session()->flash('success', 'All users have been validated successfully!');
+            $this->dispatch('able-button');
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            session()->flash('error', 'An error occurred while processing your request.');
         }
     }
+
+
     public function save()
     {
         $this->validate();

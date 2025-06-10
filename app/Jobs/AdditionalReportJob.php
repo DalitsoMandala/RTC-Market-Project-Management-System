@@ -57,6 +57,7 @@ class AdditionalReportJob implements ShouldQueue
                 $reportingPeriodId = $systemReport->reporting_period_id;
                 $financialYearId = $systemReport->financial_year_id;
                 $organisationId = $systemReport->organisation_id;
+                $crop = $systemReport->crop;
 
                 // Find the indicator for this report
                 $indicator = $indicators->where('id', $indicatorId)->first();
@@ -76,7 +77,8 @@ class AdditionalReportJob implements ShouldQueue
                     $reportingPeriodId,
                     $organisationId,
                     $disaggregations,
-                    $financialYearId
+                    $financialYearId,
+                    $crop
                 ) {
                     // Find the matching disaggregation
                     $indicatorDisaggregate = $disaggregations->where('name', $item->name)
@@ -92,6 +94,7 @@ class AdditionalReportJob implements ShouldQueue
                     AdditionalReport::where('indicator_id', $indicatorId)
                         ->where('period_month_id', $reportingPeriodId)
                         ->where('organisation_id', $organisationId)
+                        ->where('crop', $crop)
                         ->where('indicator_disaggregation_id', $indicatorDisaggregate->id)
                         ->chunk(50, function ($additionalReports) use ($item, $financialYearId) {
                             foreach ($additionalReports as $additionalData) {

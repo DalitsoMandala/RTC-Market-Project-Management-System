@@ -9,15 +9,15 @@
     <div class="container-fluid " x-data="{
         showLoadingIndicator: true,
         init() {
-    
-    
+
+
             setTimeout(() => {
-    
+
                 this.showLoadingIndicator = false;
-    
+
             }, 5000);
         }
-    
+
     }" x-show="showLoadingIndicator">
 
         <div class="d-flex justify-content-center align-items-center vh-100">
@@ -29,11 +29,11 @@
     </div>
     <div class="container-fluid" id="load-app" x-data="{
         showPage: false,
-    
+
         init() {
-    
+
             setTimeout(() => {
-    
+
                 this.showPage = true;
             }, 5000);
         }
@@ -68,10 +68,10 @@
                     </div>
                     <div class="card-body " x-data="{
                         is_open: true,
-                    
+
                         selectAllIndicators: $wire.entangle('selectAllIndicators'),
                         skipTargets: $wire.entangle('skipTargets')
-                    
+
                     }">
 
 
@@ -80,7 +80,10 @@
 
 
 
-                        <form wire:submit.debounce.1000ms='save' id="form">
+                        <form @edit-period.window="$wire.fillData($event.detail.data);window.scrollTo({
+                                            top: 0,
+                                            behavior: 'smooth'
+                                        })" wire:submit.debounce.1000ms='save' id="form">
 
 
                             <div class="mb-3">
@@ -110,76 +113,76 @@
 
 
                                     <div class="mb-3 " wire:ignore x-init="() => {
-                                    
+
                                         $('#select-indicators').select2({
                                             width: '100%',
                                             theme: 'bootstrap-5',
                                             containerCssClass: 'select2--small',
                                             dropdownCssClass: 'select2--small',
                                         });
-                                    
-                                    
+
+
                                         $('#select-indicators').on('select2:select', function(e) {
                                             let data = e.params.data;
-                                    
+
                                             setTimeout(() => {
                                                 $wire.set('selectedIndicator', data.id);
                                             }, 500)
-                                    
-                                    
+
+
                                         });
-                                    
-                                    
+
+
                                         $wire.on('update-indicator', (e) => {
-                                    
-                                    
-                                    
-                                    
+
+
+
+
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
+
+
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-                                    
+
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption);
                                             });
                                             // Refresh Select2 to reflect changes
                                             selectElement.trigger('change');
-                                    
-                                    
+
+
                                             if (e.selected) {
                                                 selectElement.val([e.selected]).trigger('change');
                                             }
-                                    
-                                    
-                                    
+
+
+
                                             // setTimeout(() => {
                                             //     $wire.set('selectedIndicator', null);
                                             // }, 500)
-                                    
-                                    
+
+
                                         });
-                                    
+
                                         $wire.on('select-indicator', (e) => {
                                             const selectElement = $('#select-indicators');
                                             const arrayOfObjects = e.data;
-                                    
+
                                             selectElement.empty();
-                                    
-                                    
+
+
                                             selectElement.append('<option selected value=\'\'>Select one</option>');
                                             arrayOfObjects.forEach(data => {
-                                    
+
                                                 let newOption = new Option(`(${data.indicator_no}) ` + data.indicator_name, data.id, false, false);
                                                 selectElement.append(newOption).trigger('change');
                                             });
-                                    
-                                    
-                                    
+
+
+
                                         })
                                     }">
                                         <label for="" class="form-label">Select Indicator</label>
@@ -211,25 +214,25 @@
                                     selectedForm: [],
                                     forms: [],
                                     setForms(forms) {
-                                
+
                                         this.forms = forms;
                                         selected = $wire.selectedForm;
-                                
+
                                         if (selected.length > 0 && selected != null) {
-                                
+
                                             this.selectedForm = selected;
-                                
+
                                         }
-                                
-                                
+
+
                                     },
-                                
+
                                     selectForm() {
                                         $wire.selectedForm = this.selectedForm;
-                                
-                                
+
+
                                     }
-                                
+
                                 }" @change="selectForm()"
                                 @changed-form.window="setForms($event.detail.forms)" x-init="">
                                 <div class="@if (!$selectedIndicator) pe-none opacity-25 @endif">
@@ -314,18 +317,18 @@
                                 isCipTargets: $wire.entangle('isCipTargets'),
                                 checkValues() {
                                     if ((this.selectedIndicator && this.selectedFinancialYear)) {
-                            
+
                                         $wire.getTargets();
-                            
+
                                     }
                                 },
-                            
-                            
-                            
+
+
+
                                 updateTargets() {
                                     $wire.getTargets();
                                 }
-                            
+
                             }" x-effect="checkValues();"
                                 x-bind:class="{
                                     'opacity-25 pe-none': !(selectedIndicator && selectedFinancialYear)

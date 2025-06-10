@@ -15,6 +15,7 @@ class SystemReport extends Model
         'project_id',
         'indicator_id',
         'data',
+        'crop',
     ];
     public function financialYear()
     {

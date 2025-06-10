@@ -17,17 +17,15 @@ class indicator_3_2_1
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
     public function builder(): Builder
     {
@@ -55,6 +53,14 @@ class indicator_3_2_1
 
     public function getCropTotal()
     {
+        if ($this->enterprise) {
+
+            $Total = $this->builder()->count() + $this->builderRecruitment()->count();
+
+            return [
+                strtolower(str_replace(' ', '_', $this->enterprise)) => $Total,
+            ];
+        }
 
         $totalPotato = $this->builder()->where('enterprise', 'Potato')->count();
         $totalCassava = $this->builder()->where('enterprise', 'Cassava')->count();
@@ -65,9 +71,9 @@ class indicator_3_2_1
 
 
         return [
-            'Potato' => $totalPotato + $totalPotatoRecruitment,
-            'Cassava' => $totalCassava + $totalCassavaRecruitment,
-            'Sweet potato' => $totalSweetPotato + $totalSweetPotatoRecruitment,
+            'potato' => $totalPotato + $totalPotatoRecruitment,
+            'cassava' => $totalCassava + $totalCassavaRecruitment,
+            'sweet_potato' => $totalSweetPotato + $totalSweetPotatoRecruitment,
         ];
     }
 
@@ -75,12 +81,28 @@ class indicator_3_2_1
 
     public function getDisaggregations()
     {
-        $this->getCropTotal();
+        $crop = $this->getCropTotal();
+
+        // Define all possible crops with default 0 values
+        $allCrops = [
+            'Cassava' => 0,
+            'Sweet potato' => 0,
+            'Potato' => 0,
+        ];
+
+        // Merge actual values (if they exist)
+        foreach ($allCrops as $key => $value) {
+            $snakeKey = strtolower(str_replace(' ', '_', $key));
+            if (isset($crop[$snakeKey])) {
+                $allCrops[$key] = round($crop[$snakeKey], 2);
+            }
+        }
+
+
+        $total = array_sum($allCrops);
         return [
-            'Total' => $this->getCropTotal()['Cassava'] + $this->getCropTotal()['Potato'] + $this->getCropTotal()['Sweet potato'],
-            'Cassava' => $this->getCropTotal()['Cassava'],
-            'Potato' => $this->getCropTotal()['Potato'],
-            'Sweet potato' => $this->getCropTotal()['Sweet potato']
+            'Total' => $total,
+            ...$allCrops,
         ];
     }
 }

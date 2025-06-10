@@ -33,21 +33,19 @@ class indicator_B1
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
+
 
     protected $projectName = 'RTC MARKET';
 
     protected $lop = 30;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
     public function Farmerbuilder(): Builder
     {
@@ -74,32 +72,35 @@ class indicator_B1
 
     public function findCropCount()
     {
-        // Farmers' totals for each crop
-        $cassavaTotalFarmer = $this->Farmerbuilder()->where('enterprise', '=', 'Cassava')->sum('prod_value_previous_season_usd_value');
-        $potatoTotalFarmer = $this->Farmerbuilder()->where('enterprise', '=', 'Potato')->sum('prod_value_previous_season_usd_value');
-        $sweetPotatoTotalFarmer = $this->Farmerbuilder()->where('enterprise', '=', 'Sweet potato')->sum('prod_value_previous_season_usd_value');
+        // If enterprise is set in constructor, return only that enterprise's total
+        if ($this->enterprise) {
+            $farmerTotal = $this->Farmerbuilder()->sum('prod_value_previous_season_usd_value');
+            $processorTotal = $this->Processorbuilder()->sum('prod_value_previous_season_usd_value');
 
-
-        // Processors' totals for each crop
-        $cassavaTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Cassava')->sum('prod_value_previous_season_usd_value');
-        $potatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Potato')->sum('prod_value_previous_season_usd_value');
-        $sweetPotatoTotalProcessor = $this->Processorbuilder()->where('enterprise', '=', 'Sweet potato')->sum('prod_value_previous_season_usd_value');
-
-        // Combine totals for each crop
-        return [
-            'cassava' => $cassavaTotalFarmer + $cassavaTotalProcessor,
-            'potato' => $potatoTotalFarmer + $potatoTotalProcessor,
-            'sweet_potato' => $sweetPotatoTotalFarmer + $sweetPotatoTotalProcessor,
+            return [
+                strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal + $processorTotal,
         ];
     }
 
+        // Otherwise, return totals for all enterprises
+        $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
+        $result = [];
 
-    public function calculations() {}
+        foreach ($enterprises as $enterprise) {
+            $farmerTotal = $this->Farmerbuilder()->where('enterprise', $enterprise)
+                ->sum('prod_value_previous_season_usd_value');
+
+            $processorTotal = $this->Processorbuilder()->where('enterprise', $enterprise)
+                ->sum('prod_value_previous_season_usd_value');
+
+            $result[strtolower(str_replace(' ', '_', $enterprise))] = $farmerTotal + $processorTotal;
+        }
+
+        return $result;
+    }
 
 
-    private function calculateCropValue($data, $crop, $year_id) {}
 
-    private function calculateIndicatorData(&$countDataYear, $year_id, $total) {}
 
     public function findTotal()
     {
@@ -124,16 +125,28 @@ class indicator_B1
     }
     public function getDisaggregations()
     {
-
-
         $crop = $this->findCropCount();
+
+        // Define all possible crops with default 0 values
+        $allCrops = [
+            'Cassava' => 0,
+            'Sweet potato' => 0,
+            'Potato' => 0,
+        ];
+
+        // Merge actual values (if they exist)
+        foreach ($allCrops as $key => $value) {
+            $snakeKey = strtolower(str_replace(' ', '_', $key));
+            if (isset($crop[$snakeKey])) {
+                $allCrops[$key] = round($crop[$snakeKey], 2);
+            }
+        }
+
 
 
         return [
             'Total (% Percentage)' => 0,
-            'Cassava' => round($crop['cassava'], 2),
-            'Sweet potato' => round($crop['sweet_potato'], 2),
-            'Potato' => round($crop['potato'], 2),
+            ...$allCrops
         ];
     }
 }

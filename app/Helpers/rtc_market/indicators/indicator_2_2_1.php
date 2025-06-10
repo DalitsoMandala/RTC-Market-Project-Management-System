@@ -21,17 +21,15 @@ class indicator_2_2_1
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
     public function builder(): Builder
     {
@@ -40,7 +38,7 @@ class indicator_2_2_1
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
-        return $this->applyFilters($query);
+        return $this->applyFilters($query, true);
     }
 
 
@@ -71,15 +69,23 @@ class indicator_2_2_1
 
 
 
-        $this->builder()->chunk(100, function ($models) use (&$data) {
+        $this->builder()->chunk(1000, function ($models) use (&$data) {
             $models->each(function ($model) use (&$data) {
                 // Decode the JSON data from the model
                 $json = collect(json_decode($model->data, true));
 
                 // Add the values for each key to the totals
                 foreach ($data as $key => $dt) {
-                    if ($json->has($key)) {
-                        $data->put($key, $data->get($key) + $json[$key]);
+                    // Always process non-enterprise keys
+                    $isEnterpriseKey = str_contains($key, 'Cassava') ||
+                        str_contains($key, 'Potato') ||
+                        str_contains($key, 'Sweet potato');
+
+                    // If enterprise is set, only process matching keys or non-enterprise keys
+                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                        if ($json->has($key)) {
+                            $data->put($key, $data->get($key) + $json[$key]);
+                        }
                     }
                 }
             });
@@ -90,6 +96,14 @@ class indicator_2_2_1
 
     public function findCropCount()
     {
+        if ($this->enterprise) {
+            $farmerTotal = $this->builderFarmer()->where('sector', '=', 'Private')
+                ->where('category', '=', 'Seed multiplier')->count();
+
+            return [
+                strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal,
+            ];
+        }
         // Count for Cassava
         $cassavaTotal = $this->builderFarmer()
             ->where('enterprise', '=', 'Cassava')
@@ -122,14 +136,28 @@ class indicator_2_2_1
 
     public function getDisaggregations()
     {
-
         $crop = $this->findCropCount();
-        $total = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
+
+        // Define all possible crops with default 0 values
+        $allCrops = [
+            'Cassava' => 0,
+            'Sweet potato' => 0,
+            'Potato' => 0,
+        ];
+
+        // Merge actual values (if they exist)
+        foreach ($allCrops as $key => $value) {
+            $snakeKey = strtolower(str_replace(' ', '_', $key));
+            if (isset($crop[$snakeKey])) {
+                $allCrops[$key] = round($crop[$snakeKey], 2);
+            }
+        }
+
+
+        $total = array_sum($allCrops);
         return [
             'Total' => $total,
-            'Cassava' => $crop['cassava'],
-            'Sweet potato' => $crop['sweet_potato'],
-            'Potato' => $crop['potato'],
+            ...$allCrops,
         ];
     }
 }

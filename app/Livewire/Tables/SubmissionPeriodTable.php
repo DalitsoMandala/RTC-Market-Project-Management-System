@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use App\Models\Source;
 use App\Models\Indicator;
@@ -232,6 +233,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     }
 
 
+
     #[On('timeout')]
     public function timeout()
     {
@@ -249,6 +251,13 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('View Details <i class="bx bx-chevron-down"></i>')
                 ->class('btn btn-warning btn-sm')
                 ->toggleDetail($row->id),
+
+            Button::add('schedule')
+                ->slot('Review Schedule <i class="bx bx-pen"></i>')
+                ->can(User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->class('btn btn-secondary btn-sm')
+                ->dispatch('edit-period', ['data' => $row])
+
         ];
     }
     // public function actionsFromView($row): View

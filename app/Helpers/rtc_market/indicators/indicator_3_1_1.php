@@ -28,28 +28,20 @@ class indicator_3_1_1
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
 
 
     public function builderFarmer(): Builder
     {
         $query = RtcProductionFarmer::query()->where('status', 'approved');
-
-
-
-
-
 
         return $this->applyFilters($query);
     }
@@ -59,8 +51,8 @@ class indicator_3_1_1
 
             ->where(function ($model) {
 
-                $model->where('type', 'Producer organization (PO)')
-                    ->OrWhere('type', 'Large scale farm');
+            $model->where('group', 'Producer organization (PO)')
+                ->OrWhere('group', 'Large scale farm');
             })->where('sector', 'Private');
 
 
@@ -114,61 +106,117 @@ class indicator_3_1_1
     }
 
 
-
     public function getCropTotal()
     {
-        // Build the base query for farmers with type 'Large scale farm' and sector 'Private'
         $builder = $this->builder();
 
-        // Clone the query builder for each crop type to avoid overwriting the base query
-        $totalPotato = (clone $builder)->where('enterprise', 'Potato')->count();
-        $totalCassava = (clone $builder)->where('enterprise', 'Cassava')->count();
-        $totalSweetPotato = (clone $builder)->where('enterprise', 'Sweet potato')->count();
 
-        // Return the totals as an array
-        return [
-            'Potato' => $totalPotato,
-            'Cassava' => $totalCassava,
-            'Sweet potato' => $totalSweetPotato,
+
+        // Initialize all crops with 0 values
+        $totals = [
+            'Potato' => 0,
+            'Cassava' => 0,
+            'Sweet potato' => 0,
+
         ];
+
+
+        // If enterprise is set, only count for that specific crop
+        if ($this->enterprise) {
+            $enterpriseKey = $this->enterprise;
+            $totals[$enterpriseKey] = (clone $builder)
+                ->where('enterprise', $enterpriseKey)
+                ->count();
+        }
+        // Otherwise count for all crops
+        else {
+            $totals['Potato'] = (clone $builder)
+                ->where('enterprise', 'Potato')
+                ->count();
+
+            $totals['Cassava'] = (clone $builder)
+                ->where('enterprise', 'Cassava')
+                ->count();
+
+            $totals['Sweet potato'] = (clone $builder)
+                ->where('enterprise', 'Sweet potato')
+                ->count();
+        }
+
+        return $totals;
     }
 
 
 
-
-    public function followUpBuilder()
-    {
-
-
-        return $this->builderFarmer()->with('followups')->whereHas('followups');
-    }
-
-    public function followUpBuilderProcessor()
-    {
-
-        return $this->builderProcessor()->with('followups')->whereHas('followups');
-    }
     public function getMarketSegment()
     {
         $builder = $this->builderFarmer();
+
+        if ($this->enterprise) {
         return [
-            'Fresh' => $builder->where('market_segment_fresh', true)->count(),
-            'Processed' => $builder->where('market_segment_processed', true)->count(),
+                'Fresh' => [
+                    $this->enterprise => (clone $builder)
+                        ->where('enterprise', $this->enterprise)
+                        ->where('market_segment_fresh', true)
+                        ->count(),
+                ],
+                'Processed' => [
+                    $this->enterprise => (clone $builder)
+                        ->where('enterprise', $this->enterprise)
+                        ->where('market_segment_processed', true)
+                        ->count(),
+                ],
         ];
     }
 
+        return [
+            'Fresh' => [
+                'Cassava' => (clone $builder)
+                    ->where('enterprise', 'Cassava')
+                    ->where('market_segment_fresh', true)
+                    ->count(),
+                'Potato' => (clone $builder)
+                    ->where('enterprise', 'Potato')
+                    ->where('market_segment_fresh', true)
+                    ->count(),
+                'Sweet potato' => (clone $builder)
+                    ->where('enterprise', 'Sweet potato')
+                    ->where('market_segment_fresh', true)
+                    ->count(),
+            ],
+            'Processed' => [
+                'Cassava' => (clone $builder)
+                    ->where('enterprise', 'Cassava')
+                    ->where('market_segment_processed', true)
+                    ->count(),
+                'Potato' => (clone $builder)
+                    ->where('enterprise', 'Potato')
+                    ->where('market_segment_processed', true)
+                    ->count(),
+                'Sweet potato' => (clone $builder)
+                    ->where('enterprise', 'Sweet potato')
+                    ->where('market_segment_processed', true)
+                    ->count(),
+            ]
+        ];
+    }
 
     public function getDisaggregations()
     {
-        $builder = $this->builder()->count() + $this->builderFarmer()->count();
+        $cropTotals = $this->getCropTotal();
+        $marketSegments = $this->getMarketSegment();
 
-        return [
-            'Total' => $builder,
-            'Cassava' => $this->getCropTotal()['Cassava'],
-            'Potato' => $this->getCropTotal()['Potato'],
-            'Sweet potato' => $this->getCropTotal()['Sweet potato'],
-            'Fresh' => $this->getMarketSegment()['Fresh'],
-            'Processed' => $this->getMarketSegment()['Processed'],
+        // Initialize the basic structure we want
+        $result = [
+            'Cassava' => $cropTotals['Cassava'],
+            'Potato' => $cropTotals['Potato'],
+            'Sweet potato' => $cropTotals['Sweet potato'],
+            'Fresh' => 0,
+            'Processed' => 0
         ];
+
+
+
+        return $result;
     }
 }

@@ -2,11 +2,11 @@
 
 
 
-    <div class="mx-2 d-flex justify-content-end">
+    <div class=" d-flex justify-content-end">
 
 
         <button :disabled="show" type="button" name="" id=""
-            class="btn btn-soft-warning  my-2 me-1  @if ($this->exporting && !$this->exportFinished) disabled @endif"
+            class="btn mb-2 btn-soft-secondary   me-1  @if ($this->exporting && !$this->exportFinished) disabled @endif"
             wire:click='$dispatch("export-{{ $this->namedExport }}")'>
             <i class="fas fa-file-excel"></i> Export
 
@@ -15,7 +15,7 @@
 
 
             <button type="button" name="" id=""
-                class="mx-2 my-2 btn btn-soft-warning waves-effect waves-light @if ($this->exporting && !$this->exportFinished) disabled @endif "
+                class=" me-2 mb-2 btn btn-soft-secondary waves-effect waves-light @if ($this->exporting && !$this->exportFinished) disabled @endif "
                 @click="show = !show;">
                 <i class="bx bx-import"></i> Import Report
             </button>

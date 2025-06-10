@@ -15,17 +15,15 @@ class indicator_3_2_2
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
-    protected $target_year_id;
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $target_year_id = null)
+
+    protected $enterprise;
+
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
-
-
-
         $this->reporting_period = $reporting_period;
         $this->financial_year = $financial_year;
-        //$this->project = $project;
         $this->organisation_id = $organisation_id;
-        $this->target_year_id = $target_year_id;
+        $this->enterprise = $enterprise;
     }
     // public function builder(): Builder
     // {
@@ -73,29 +71,39 @@ class indicator_3_2_2
 
 
 
-        return $this->applyFilters($query);
+        return $this->applyAttendanceFilters($query);
     }
 
     public function getCropType()
     {
 
+
+        if ($this->enterprise) {
+
+            $query = $this->builder()->count();
+            return [
+                strtolower(str_replace(' ', '_', $this->enterprise)) => $query,
+            ];
+        }
         $cassava = $this->builder()->where('rtcCrop_cassava', true)->count();
         $potato = $this->builder()->where('rtcCrop_potato', true)->count();
         $sweetPotato = $this->builder()->where('rtcCrop_sweet_potato', true)->count();
         return [
-            'Cassava' => $cassava,
-            'Potato' => $potato,
-            'Sweet potato' => $sweetPotato
+            'cassava' => $cassava,
+            'potato' => $potato,
+            'sweet_potato' => $sweetPotato
         ];
     }
 
     public function getCategory()
     {
-        $farmers = $this->builder()->where('designation', 'Farmer')->count();
-        $processors = $this->builder()->where('designation', 'Processor')->count();
-        $traders = $this->builder()->where('designation', 'Trader')->count();
-        $partners = $this->builder()->where('designation', 'Partner')->count();
-        $staff = $this->builder()->where('designation', 'Staff')->count();
+        $farmers = $this->builder()->where('category', 'Farmer')->count();
+        $processors = $this->builder()->where('category', 'Processor')->count();
+
+        $traders = $this->builder()->where('category', 'Trader')->count();
+        $partners = $this->builder()->where('category', 'Partner')->count();
+        $staff = $this->builder()->where('category', 'Staff')->count();
+
 
         return [
             'Farmers' => $farmers,
@@ -106,42 +114,28 @@ class indicator_3_2_2
         ];
     }
 
-    // public function getTotals()
-    // {
 
-    //     $builder = $this->builder()->get();
-
-    //     $indicator = Indicator::where('indicator_name', 'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)')->where('indicator_no', '3.2.2')->first();
-    //     $disaggregations = $indicator->disaggregations;
-    //     $data = collect([]);
-    //     $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-    //         $data->put($item, 0);
-    //     });
-
-
-
-
-    //     $this->builder()->chunk(100, function ($models) use (&$data) {
-    //         $models->each(function ($model) use (&$data) {
-    //             // Decode the JSON data from the model
-    //             $json = collect(json_decode($model->data, true));
-
-    //             // Add the values for each key to the totals
-    //             foreach ($data as $key => $dt) {
-    //                 if ($json->has($key)) {
-    //                     $data->put($key, $data->get($key) + $json[$key]);
-    //                 }
-    //             }
-    //         });
-    //     });
-
-    //     return $data;
-    // }
     public function getDisaggregations()
     {
-        $cassava = $this->getCropType()['Cassava'];
-        $potato = $this->getCropType()['Potato'];
-        $sweetPotato = $this->getCropType()['Sweet potato'];
+
+
+
+        $crop = $this->getCropType();
+
+        // Define all possible crops with default 0 values
+        $allCrops = [
+            'Cassava' => 0,
+            'Sweet potato' => 0,
+            'Potato' => 0,
+        ];
+
+        // Merge actual values (if they exist)
+        foreach ($allCrops as $key => $value) {
+            $snakeKey = strtolower(str_replace(' ', '_', $key));
+            if (isset($crop[$snakeKey])) {
+                $allCrops[$key] = round($crop[$snakeKey], 2);
+            }
+        }
         $farmers = $this->getCategory()['Farmers'];
         $processors = $this->getCategory()['Processors'];
         $traders = $this->getCategory()['Traders'];
@@ -150,9 +144,7 @@ class indicator_3_2_2
 
         return [
             'Total' => $staff + $farmers + $processors + $traders + $partners,
-            'Cassava' => $cassava,
-            'Potato' => $potato,
-            'Sweet potato' => $sweetPotato,
+            ...$allCrops,
             'Farmers' => $farmers,
             'Processors' => $processors,
             'Traders' => $traders,

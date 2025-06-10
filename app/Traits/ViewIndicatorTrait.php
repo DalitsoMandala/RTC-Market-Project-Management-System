@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Helpers\CoreFunctions;
 use App\Models\User;
 use App\Models\Indicator;
 use Livewire\Attributes\On;
@@ -51,7 +52,8 @@ trait ViewIndicatorTrait
     public $disaggregations = [];
 
     public $routePrefix;
-
+    public $crops;
+    public $selectedCrop;
     public function mount(Indicator $id)
     {
 
@@ -86,8 +88,28 @@ trait ViewIndicatorTrait
         $this->organisations = array_merge($additionalOrganisations, $this->organisations);
 
         $this->selectedOrganisation =   $this->organisations[0];
+        $crops = CoreFunctions::getCropsWithNull();
+        $this->crops = collect();
+        foreach ($crops as $crop) {
+            if ($crop === null) {
+                $this->crops->push(
+                    [
+                        'name' => 'All Crops',
+                        'value' => null
+                    ]
+                );
+            } else {
+                $this->crops->push(
+                    [
+                        'name' => $crop,
+                        'value' => $crop
+                    ]
+                );
+            }
+        }
 
 
+        $this->selectedCrop = $this->crops->where('value', null)->first();
         $this->reRender();
     }
 

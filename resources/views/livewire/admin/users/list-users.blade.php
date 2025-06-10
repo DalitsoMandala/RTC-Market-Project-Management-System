@@ -35,10 +35,12 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title">User Table</h4>
                         <div>
-                            <button class="px-3 btn btn-soft-warning" @click="showForm= !showForm; resetForm()">Add new
+                            <button class="px-3 btn btn-warning" :disabled="showUploadForm"
+                                @click="showForm= !showForm; resetForm()">Add new
                                 user
                                 <i class="bx bx-plus"></i></button>
-                            <button class="px-3 btn btn-soft-secondary" @click="showUploadForm= !showUploadForm;">Upload
+                            <button class="px-3 btn btn-secondary" :disabled="showForm"
+                                @click="showUploadForm= !showUploadForm;">Upload
                                 new users
                                 <i class="bx bx-upload"></i></button>
                         </div>
@@ -163,14 +165,15 @@
                         <form id="uploadForm" @submit.prevent="uploadData()">
                             <div class="mb-3">
                                 <label for="fileInput" class="form-label">Upload Excel File</label>
-                                <input class="form-control" type="file" id="fileInput" accept=".xlsx, .xls"
-                                    required>
+                                <input class="form-control" type="file" id="fileInput" accept=".xlsx, .xls">
                             </div>
-                            <button type="button" @click="downloadTemplate()" id="downloadTemplate"
+                            <button type="button" @click.debounce.200ms="downloadTemplate()" id="downloadTemplate"
                                 wire:loading.attr='disabled' wire:target='usersData'
                                 class="btn btn-secondary">Download
                                 Template</button>
-                            <button type="submit" class="btn btn-warning">Upload and Parse</button>
+                            <button type="submit" @able-button.window="uploading = false" :disabled="uploading"
+                                class="btn btn-warning">Upload and
+                                Parse</button>
 
                         </form>
                     </div>
@@ -259,7 +262,7 @@
 
             Alpine.data('uploadUsers', () => ({
                 open: false,
-
+                uploading: false,
                 downloadTemplate() {
                     const templateData = [
                         ['email', 'name', 'organisation', 'role', 'active'], // Header row
@@ -279,10 +282,14 @@
                 uploadData() {
                     const fileInput = document.getElementById('fileInput');
                     const file = fileInput.files[0];
-
+                    this.uploading = true;
                     if (!file) {
-                        alert('Please select a file.');
-                        return;
+                        setTimeout(() => {
+                            this.uploading = false;
+                            $wire.call('noFile');
+                            return;
+                        }, 5000);
+
                     }
 
                     const reader = new FileReader();
@@ -295,7 +302,10 @@
                         const sheet = workbook.Sheets[sheetName];
 
                         // Convert the sheet to JSON
-                        const jsonData = XLSX.utils.sheet_to_json(sheet);
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, {
+                            defval: null,
+                            blankrows: true
+                        });
 
                         // Map the data to the desired format
                         const users = jsonData.map(row => ({
@@ -304,6 +314,8 @@
                             organisation: row.organisation,
                             role: row.role,
                         }));
+
+
 
                         $wire.dispatch('send-users', {
                             users: users
