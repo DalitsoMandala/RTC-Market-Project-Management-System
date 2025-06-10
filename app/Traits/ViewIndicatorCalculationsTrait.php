@@ -2,8 +2,11 @@
 
 namespace App\Traits;
 
+use App\Models\Indicator;
 use App\Models\SystemReport;
 use App\Models\SystemReportData;
+use Illuminate\Support\Collection;
+use App\Models\IndicatorDisaggregation;
 
 trait ViewIndicatorCalculationsTrait
 {
@@ -38,54 +41,49 @@ trait ViewIndicatorCalculationsTrait
 
     public function calculations()
     {
-
-
-
-
-        $reportId = SystemReport::where('indicator_id', $this->indicator_id)
+        // Build base query for reports
+        $reportQuery = SystemReport::where('indicator_id', $this->indicator_id)
             ->where('project_id', $this->project_id)
-            ->where('organisation_id', $this->organisation['id'])
             ->where('financial_year_id', $this->financial_year['id'])
-            ->where('crop', $this->crop)
-            ->pluck('id');
+            ->where('crop', $this->crop);
 
-
-
-        if ($this->organisation['id'] == 0) {
-            $reportId = SystemReport::where('indicator_id', $this->indicator_id)
-                ->where('project_id', $this->project_id)
-                ->where('financial_year_id', $this->financial_year['id'])
-                ->where('crop', $this->crop)
-                ->pluck('id');
+        // Add organisation filter only if not global (id != 0)
+        if ($this->organisation['id'] != 0) {
+            $reportQuery->where('organisation_id', $this->organisation['id']);
         }
 
-        if ($reportId->isNotEmpty()) {
-            // Retrieve and group data by 'name'
-            $data = SystemReportData::whereIn('system_report_id', $reportId)->get();
-            $groupedData = $data->groupBy('name');
+        $reportIds = $reportQuery->pluck('id');
+
+        if ($reportIds->isEmpty()) {
+            $this->data = [];
+            $this->total = 0;
+            return;
+        }
+
+        // Fetch and group data by 'name'
+        $reportData = SystemReportData::whereIn('system_report_id', $reportIds)->get();
+        $groupedData = $reportData->groupBy('name');
+
+        // Get disaggregation keys with default value 0
+        $disaggregations = IndicatorDisaggregation::where('indicator_id', $this->indicator_id)->pluck('name')->unique();
+        $data = $disaggregations->mapWithKeys(fn($name) => [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : 0]);
+
+        // Assign results
+        $this->data = $data->toArray();
 
 
-            // Sum each group's values
-
-            $summedGroups = $groupedData->map(function ($group) {
-                return $group->sum('value'); // Changed from first()->value to sum('value')
-            });
-
-
-
-            // Store the results
-            $this->data = $summedGroups;
-            if ($summedGroups->has('Total (% Percentage)')) {
-                $this->total = $summedGroups->get('Total (% Percentage)', 0);
-            } elseif ($summedGroups->has('Total')) {
-                $this->total = $summedGroups->get('Total', 0);
+        if ($groupedData->has('Total (% Percentage)')) {
+            $this->total = $groupedData->get('Total (% Percentage)', 0);
+        } elseif ($groupedData->has('Total')) {
+            $this->total = $groupedData->get('Total', 0);
             }else{
                 $this->total = 0;
-            }
         }
     }
+
     public function mount()
     {
+
 
         $this->calculations();
     }
