@@ -101,7 +101,7 @@
                                 @enderror
                             </div>
 
-                            <div class="my-2 form-check">
+                            <div class="my-2 form-check d-none">
                                 <input class="form-check-input" disabled x-model='selectAllIndicators' type="checkbox"
                                     value="false" id="" />
                                 <label class="form-check-label" for=""> Select All indicators </label>
@@ -477,8 +477,8 @@
 
                                 <label for="">Open for submissions ?</label>
                                 <div class="square-switch d-flex align-items-baseline">
-                                    <input type="checkbox" x-model="switchOn" id="square-switch1" switch="none"
-                                        checked="">
+                                    <input type="checkbox" x-model="switchOn" :checked="switchOn" id="square-switch1" switch="none"
+                                        >
                                     <label for="square-switch1" data-on-label="Yes" data-off-label="No"></label>
 
                                 </div>
@@ -502,7 +502,7 @@
                                 @click="  window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
-                                        })">Submit</button>
+                                        })"> {{ $rowId ? 'Update' : 'Submit' }}</button>
                             <button class="btn btn-outline-warning" type="button"
                                 wire:click.debounce.1000ms='resetData' wire:loading.attr='disabled'>Reset</button>
                         </form>

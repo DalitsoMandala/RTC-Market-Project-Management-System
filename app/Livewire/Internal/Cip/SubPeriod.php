@@ -15,6 +15,7 @@ use Livewire\Attributes\On;
 use App\Models\Organisation;
 use App\Models\FinancialYear;
 use App\Models\ReportingPeriod;
+use App\Traits\IndicatorsTrait;
 use Illuminate\Validation\Rule;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
@@ -22,19 +23,21 @@ use App\Jobs\SendNotificationJob;
 use App\Models\ResponsiblePerson;
 use Livewire\Attributes\Validate;
 use App\Models\OrganisationTarget;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use App\Models\ReportingPeriodMonth;
 use App\Models\IndicatorDisaggregation;
 use App\Jobs\sendAllIndicatorNotificationJob;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\EmployeeBroadcastNotification;
-use App\Traits\IndicatorsTrait;
 
 class SubPeriod extends Component
 {
     use LivewireAlert;
     use IndicatorsTrait;
     public $rowId;
+    public $rowData = [];
     public $forms = [];
     public $status = true;
 
@@ -170,6 +173,7 @@ class SubPeriod extends Component
     public function fillData($row)
     {
         $row = (object) $row;
+        $this->rowData = $row;
         $this->rowId = $row->rn;
 
 
@@ -196,18 +200,15 @@ class SubPeriod extends Component
     {
         try {
 
-            if ($this->selectAllIndicators) {
-                $this->validate([
+
+            $this->validate([
 
                     'selectedMonth' => 'required',
                     'selectedFinancialYear' => 'required',
 
                     'start_period' => 'required',
                     'end_period' => 'required',
-                ]);
-            } else {
-                $this->validate();
-            }
+            ]);
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
@@ -216,7 +217,7 @@ class SubPeriod extends Component
         try {
 
 
-            if ($this->selectAllIndicators) {
+            if (!$this->rowId) {
 
                 $periods = [];
                 $usersWithData = [];
@@ -288,15 +289,16 @@ class SubPeriod extends Component
                 $this->redirect(url()->previous());
                 return;
             }
-            $data = $this->prepareSubmissionData();
+
+
+
 
             if ($this->rowId) {
-                $this->handleUpdate($data);
-            } else {
-                $this->handleCreate($data);
+                $this->handleUpdate();
             }
         } catch (Throwable $th) {
             //  dd($th);
+            Log::error($th->getMessage(), $th->getTrace());
             session()->flash('error', 'Something went wrong.');
         }
     }
@@ -344,28 +346,34 @@ class SubPeriod extends Component
         ];
     }
 
-    private function handleUpdate(array $data): void
+
+    private function handleUpdate(): void
     {
-        $submissions = Submission::where('period_id', $this->rowId)->count();
 
-        if ($submissions === 0) {
-            SubmissionPeriod::find($this->rowId)->update($data);
-            $this->updateTargets();
 
-            if ($this->status == false) {
-                $this->handleClosedSubmission();
-            } else {
-                $this->dispatch('timeout');
-                session()->flash('success', 'Updated Successfully');
-                $this->sendBroadcast($this->selectedIndicator, $this->selectedForm, null, []);
-            }
-        } else {
+        $rowData = (object) $this->rowData;
+        if ($rowData) {
+            SubmissionPeriod::where('month_range_period_id', $rowData->month_range_period_id)
+                ->where('financial_year_id', $rowData->financial_year_id)
+                ->where('date_established', $rowData->date_established)
+                ->where('date_ending', $rowData->date_ending)
+                ->where('is_open', $rowData->is_open)
+                ->where('is_expired', $rowData->is_expired)
+                ->update([
+                    'is_open' => $this->status,
+                    'date_ending' => $this->end_period,
+                    'date_established' => $this->start_period,
+                    'is_expired' => $this->status ? false : true
+
+                ]);
+
+            session()->flash('success', 'Updated Successfully');
+            $this->resetData();
             $this->dispatch('timeout');
-            session()->flash('error', 'Cannot update this record because it has submissions.');
         }
     }
 
-    private function handleCreate(array $data)
+    private function handleCreate(Collection $data)
     {
         $exists = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
             ->where('financial_year_id', $this->selectedFinancialYear)
