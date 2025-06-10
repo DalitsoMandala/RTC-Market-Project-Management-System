@@ -163,36 +163,23 @@ class SubPeriod extends Component
         $this->selectedOrganisations = [0];
     }
 
+
+
+
     #[On('editData')]
-    public function fillData($rowId)
+    public function fillData($row)
     {
-        $this->rowId = $rowId;
+        $row = (object) $row;
+        $this->rowId = $row->rn;
 
-        $submissionPeriod = SubmissionPeriod::findOrFail($rowId);
-        $this->start_period = Carbon::parse($submissionPeriod->date_established)->format('Y-m-d');
-        $this->end_period = Carbon::parse($submissionPeriod->date_ending)->format('Y-m-d');
-        $this->status = $submissionPeriod->is_open;
-        $this->selectedIndicator = $submissionPeriod->indicator_id;
-        $this->selectedForm = [$submissionPeriod->form_id];
-        $this->selectedMonth = $submissionPeriod->month_range_period_id;
-        $this->selectedFinancialYear = $submissionPeriod->financial_year_id;
 
-        $form = Form::find($submissionPeriod->form_id);
-        if ($form) {
-            $project = $form->project;
-            $this->selectedProject = $project->id;
-            $this->updateProjectRelatedData($project);
-        }
 
-        $indicator = Indicator::find($this->selectedIndicator);
-        if ($indicator) {
-            $formIds = $indicator->forms->pluck('id');
-            $this->all = $formIds;
-            $this->forms = $formIds->isNotEmpty() ? Form::whereIn('id', $formIds)->get() : collect();
 
-            $this->dispatch('changed-form', data: $formIds->toArray(), forms: $this->forms);
-            $this->dispatch('set-targets');
-        }
+        $this->start_period = Carbon::parse($row->date_established)->format('Y-m-d');
+        $this->end_period = Carbon::parse($row->date_ending)->format('Y-m-d');
+        $this->status = $row->is_open;
+        $this->selectedMonth = $row->month_range_period_id;
+        $this->selectedFinancialYear = $row->financial_year_id;
     }
 
     public function updateProjectRelatedData($project)
@@ -642,7 +629,7 @@ class SubPeriod extends Component
 
     public function render()
     {
-      
+
         return view('livewire.internal.cip.sub-period', []);
     }
 }
