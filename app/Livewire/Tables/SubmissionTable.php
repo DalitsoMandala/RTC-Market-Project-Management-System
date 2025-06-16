@@ -61,7 +61,7 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'financial_year'])
+        $query = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
             ->where('batch_type', 'batch');
 
         $user = User::find(auth()->user()->id);
@@ -116,14 +116,18 @@ final class SubmissionTable extends PowerGridComponent
             'period.reportingMonths' => [
                 'start_month',
                 'end_month',
+
+
+            ],
+
+            'period.financialYears' => [
+                'number',
             ],
             'form' => [
                 'name',
             ],
 
-            'financial_year' => [
-                'number'
-            ]
+
 
 
         ];

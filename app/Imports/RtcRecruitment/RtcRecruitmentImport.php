@@ -81,8 +81,6 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             'emp_informal_female_35_plus' => $row['Employees Informal Female 35+'] ?? 0,
             'area_under_cultivation' => $row['Area Under Cultivation'] ?? 0,
             'is_registered_seed_producer' => $row['Is Registered Seed Producer'] ?? 0,
-            'registration_number_seed_producer' => $row['Seed Producer Registration Number'],
-            'registration_date_seed_producer' => \Carbon\Carbon::parse($row['Seed Producer Registration Date'])->format('Y-m-d'),
             'uses_certified_seed' => $row['Uses Certified Seed'] ?? 0,
             'uuid' => $this->data['batch_no'],
             'user_id' => $this->data['user_id'],
@@ -132,9 +130,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             $row['Registration Date'] = $this->convertExcelDate($row['Registration Date']);
         }
 
-        if (!empty($row['Seed Producer Registration Date'])) {
-            $row['Seed Producer Registration Date'] = $this->convertExcelDate($row['Seed Producer Registration Date']);
-        }
+
 
         $row['EPA'] = $row['EPA'] ?? 'NA';
         $row['Section'] = $row['Section'] ?? 'NA';
@@ -178,8 +174,6 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
             'Employees Informal Male 35+' => 'nullable|numeric|min:0',
             'Employees Informal Female 35+' => 'nullable|numeric|min:0',
             'Is Registered Seed Producer' => 'nullable|boolean',
-            'Seed Producer Registration Number' => 'nullable|max:255',
-            'Seed Producer Registration Date' => 'nullable|date|date_format:d-m-Y',
             'Uses Certified Seed' => 'nullable|boolean',
 
         ];

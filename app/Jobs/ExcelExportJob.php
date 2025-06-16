@@ -1,43 +1,48 @@
 <?php
+
 namespace App\Jobs;
 
-use App\Models\AttendanceRegister;
-use App\Models\Organisation;
-use App\Models\Recruitment;
-use App\Models\ReportingPeriod;
-use App\Models\RpmFarmerAggregationCenter;
-use App\Models\RpmFarmerAreaCultivation;
-use App\Models\RpmFarmerBasicSeed;
-use App\Models\RpmFarmerCertifiedSeed;
-use App\Models\RpmFarmerConcAgreement;
-use App\Models\RpmFarmerDomMarket;
-use App\Models\RpmFarmerInterMarket;
-use App\Models\RpmFarmerMarketInformationSystem;
-use App\Models\RpmProcessorAggregationCenter;
-use App\Models\RpmProcessorConcAgreement;
-use App\Models\RpmProcessorDomMarket;
-use App\Models\RpmProcessorInterMarket;
-use App\Models\RpmProcessorMarketInformationSystem;
-use App\Models\RtcConsumption;
-use App\Models\RtcProductionFarmer;
-use App\Models\RtcProductionProcessor;
-use App\Models\SeedBeneficiary;
-use App\Models\SystemReportData;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Recruitment;
+use App\Models\Organisation;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Models\RtcConsumption;
+use App\Traits\FormEssentials;
+use App\Models\ReportingPeriod;
+use App\Models\SeedBeneficiary;
+use App\Models\SystemReportData;
+use App\Models\AttendanceRegister;
+use App\Models\RpmFarmerBasicSeed;
+use App\Models\RpmFarmerDomMarket;
+use Illuminate\Support\Facades\DB;
+use App\Models\RtcProductionFarmer;
+use App\Models\RpmFarmerInterMarket;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmFarmerCertifiedSeed;
+use App\Models\RpmFarmerConcAgreement;
+use App\Models\RtcProductionProcessor;
+use Illuminate\Queue\SerializesModels;
+use App\Models\RecruitSeedRegistration;
+use App\Models\RpmProcessorInterMarket;
+use Illuminate\Support\Facades\Storage;
+use App\Models\RpmFarmerAreaCultivation;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Models\RpmProcessorConcAgreement;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use App\Models\RpmFarmerAggregationCenter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Spatie\SimpleExcel\SimpleExcelWriter;
+use App\Models\RpmProcessorAggregationCenter;
+use App\Models\RpmFarmerMarketInformationSystem;
+use App\Models\RpmProcessorMarketInformationSystem;
 // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
-
+    use FormEssentials;
     public $name;
     public $uniqueID;
     public $progressKey;
@@ -224,6 +229,7 @@ class ExcelExportJob implements ShouldQueue
                 // Define the headers
                 $headers = [
                     'ID',
+                    'ENTITY ID',
                     'EPA',
                     'Section',
                     'District',
@@ -242,8 +248,11 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
-                $query = RtcConsumption::with('user');
+                $writer->nameCurrentSheet('RTC Consumption');
+                $query = RtcConsumption::with('user')->select([
+                    'rtc_consumptions.*',
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -261,6 +270,7 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy = $name . ' (' . $organisation . ')';
                         }
                         $writer->addRow([
+                            $item->rn,
                             $item->en_id,
                             $item->epa,
                             $item->section,
@@ -982,30 +992,30 @@ class ExcelExportJob implements ShouldQueue
                         ])
                         ->chunk(2000, function ($reports) use ($writer) {
                             foreach ($reports as $record) {
-                            // Check if systemReport and reportingPeriod are available
-                            $report_period  = null;
+                                // Check if systemReport and reportingPeriod are available
+                                $report_period  = null;
                                 $type_of_period = null;
                                 if ($record->systemReport && $record->systemReport->reportingPeriod) {
-                                $start_month    = $record->systemReport->reportingPeriod->start_month;
-                                $end_month      = $record->systemReport->reportingPeriod->end_month;
-                                $report_period  = $start_month . ' - ' . $end_month;
+                                    $start_month    = $record->systemReport->reportingPeriod->start_month;
+                                    $end_month      = $record->systemReport->reportingPeriod->end_month;
+                                    $report_period  = $start_month . ' - ' . $end_month;
                                     $type_of_period = $record->systemReport->reportingPeriod->type;
                                 }
 
                                 $writer->addRow([
-                                $record->name,                                // Disaggregation (from `name` field)
-                                (float) $record->value,                       // Value
-                                $record->indicator_name ?? null,              // Indicator Name
-                                $record->indicator_no ?? null,                // Indicator #
-                                $record->systemReport->project->name ?? null, // Project
-                                $report_period,                               // Reporting period (null if no systemReport or reportingPeriod)
-                                $type_of_period,
-                                $record->organisation_name ?? null,         // Organisation
-                                $record->financial_year,                    // Project year
-                                $record->financial_year_start_date ?? null, // Start year
-                                $record->financial_year_end_date ?? null,   // End Year
-                                $record->systemReport->crop ?? 'All',                      // Crop
-                            ]);
+                                    $record->name,                                // Disaggregation (from `name` field)
+                                    (float) $record->value,                       // Value
+                                    $record->indicator_name ?? null,              // Indicator Name
+                                    $record->indicator_no ?? null,                // Indicator #
+                                    $record->systemReport->project->name ?? null, // Project
+                                    $report_period,                               // Reporting period (null if no systemReport or reportingPeriod)
+                                    $type_of_period,
+                                    $record->organisation_name ?? null,         // Organisation
+                                    $record->financial_year,                    // Project year
+                                    $record->financial_year_start_date ?? null, // Start year
+                                    $record->financial_year_end_date ?? null,   // End Year
+                                    $record->systemReport->crop ?? 'All',                      // Crop
+                                ]);
                             }
                         });
                     $writer->close(); // Finalize the file
@@ -1031,30 +1041,30 @@ class ExcelExportJob implements ShouldQueue
                     ])
                     ->chunk(2000, function ($reports) use ($writer) {
                         foreach ($reports as $record) {
-                        // Check if systemReport and reportingPeriod are available
-                        $report_period  = null;
+                            // Check if systemReport and reportingPeriod are available
+                            $report_period  = null;
                             $type_of_period = null;
                             if ($record->systemReport && $record->systemReport->reportingPeriod) {
-                            $start_month    = $record->systemReport->reportingPeriod->start_month;
-                            $end_month      = $record->systemReport->reportingPeriod->end_month;
-                            $report_period  = $start_month . ' - ' . $end_month;
+                                $start_month    = $record->systemReport->reportingPeriod->start_month;
+                                $end_month      = $record->systemReport->reportingPeriod->end_month;
+                                $report_period  = $start_month . ' - ' . $end_month;
                                 $type_of_period = $record->systemReport->reportingPeriod->type;
                             }
 
                             $writer->addRow([
-                            $record->name,                                // Disaggregation (from `name` field)
-                            (float) $record->value,                       // Value
-                            $record->indicator_name ?? null,              // Indicator Name
-                            $record->indicator_no ?? null,                // Indicator #
-                            $record->systemReport->project->name ?? null, // Project
-                            $report_period,                               // Reporting period (null if no systemReport or reportingPeriod)
-                            $type_of_period,
-                            $record->organisation_name ?? null,         // Organisation
-                            $record->financial_year,                    // Project year
-                            $record->financial_year_start_date ?? null, // Start year
-                            $record->financial_year_end_date ?? null,   // End Year
-                            $record->systemReport->crop ?? 'All',                       // Crop
-                        ]);
+                                $record->name,                                // Disaggregation (from `name` field)
+                                (float) $record->value,                       // Value
+                                $record->indicator_name ?? null,              // Indicator Name
+                                $record->indicator_no ?? null,                // Indicator #
+                                $record->systemReport->project->name ?? null, // Project
+                                $report_period,                               // Reporting period (null if no systemReport or reportingPeriod)
+                                $type_of_period,
+                                $record->organisation_name ?? null,         // Organisation
+                                $record->financial_year,                    // Project year
+                                $record->financial_year_start_date ?? null, // Start year
+                                $record->financial_year_end_date ?? null,   // End Year
+                                $record->systemReport->crop ?? 'All',                       // Crop
+                            ]);
                         }
                     });
                 $writer->close(); // Finalize the file
@@ -1179,9 +1189,9 @@ class ExcelExportJob implements ShouldQueue
                             'seed_beneficiaries.phone_number',
                             'seed_beneficiaries.national_id',
                             'seed_beneficiaries.season_type',
-                        'users.name as user_name',                 // Assuming the table name for the user model is 'users'
-                        'organisations.name as organisation_name', // Assuming the table name for the organisation model is 'organisations'
-                    ])
+                            'users.name as user_name',                 // Assuming the table name for the user model is 'users'
+                            'organisations.name as organisation_name', // Assuming the table name for the organisation model is 'organisations'
+                        ])
                         ->join('users', 'seed_beneficiaries.user_id', '=', 'users.id')            // Assuming the foreign key is 'user_id'
                         ->join('organisations', 'users.organisation_id', '=', 'organisations.id') // Assuming the foreign key is 'organisation_id'
                         ->chunk(2000, function ($seedBeneficiaries) use ($writer) {
@@ -1223,7 +1233,7 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
                 // Define the headers
                 $headerFromExports = [
-                    //  'ID' => 'Required, Unique,  Number',
+                    'ID' => 'Required, Unique,  Number',
                     'EPA'                               => 'Required, Text',
                     'Section'                           => 'Required, Text',
                     'District'                          => 'Required, Text',
@@ -1256,8 +1266,6 @@ class ExcelExportJob implements ShouldQueue
                     'Employees Informal Female 35+'     => 'Number (>=0)',
                     'Area Under Cultivation'            => 'Number (>=0)',
                     'Is Registered Seed Producer'       => 'Boolean (1/0)',
-                    'Seed Producer Registration Number' => 'Text',
-                    'Seed Producer Registration Date'   => 'Date (dd-mm-yyyy)',
                     'Uses Certified Seed'               => 'Boolean (1/0)',
                     'Submitted By'                      => true,
                 ];
@@ -1265,9 +1273,18 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+                $writer->nameCurrentSheet('RTC Actor Recruitment');
 
+                $query =     Recruitment::with(['user', 'user.organisation'])->select([
+                    'recruitments.*',
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                ]);
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $query = $query->where('organisation_id', $this->user->organisation->id);
+                }
                 // Process data in chunks
-                Recruitment::with(['user', 'user.organisation.responsiblePeopleforIndicators'])->chunk(2000, function ($followUps) use ($writer) {
+
+                $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
                         $user        = User::find($record->user_id); {
@@ -1277,28 +1294,29 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy = $name . ' (' . $organisation . ')';
                         }
                         $writer->addRow([
-                            $record->epa,
-                            $record->section,
-                            $record->district,
-                            $record->enterprise,
-                            $record->date_of_recruitment,
-                            $record->name_of_actor,
-                            $record->name_of_representative,
-                            $record->phone_number,
-                            $record->type,
-                            $record->group,
-                            $record->approach,
-                            $record->sector,
+                            $record->rn,
+                            $record->epa ?? 'NA',
+                            $record->section ?? 'NA',
+                            $record->district ?? 'NA',
+                            $record->enterprise ?? 'NA',
+                            $record->date_of_recruitment ?   Carbon::parse($record->date_of_recruitment)->format('d/m/Y') : 'NA',
+                            $record->name_of_actor ?? 'NA',
+                            $record->name_of_representative ?? 'NA',
+                            $record->phone_number ?? 'NA',
+                            $record->type ?? 'NA',
+                            $record->group ?? 'NA',
+                            $record->approach ?? 'NA',
+                            $record->sector ?? 'NA',
                             $record->mem_female_18_35,
                             $record->mem_male_18_35,
                             $record->mem_male_35_plus,
                             $record->mem_female_35_plus,
-                            $record->category,
-                            $record->establishment_status,
-                            $record->is_registered,
-                            $record->registration_body,
-                            $record->registration_number,
-                            $record->registration_date,
+                            $record->category ?? 'NA',
+                            $record->establishment_status ?? 'NA',
+                            $record->is_registered == 1 ? 'Yes' : 'No',
+                            $record->registration_body ?? 'NA',
+                            $record->registration_number ?? 'NA',
+                            $record->registration_date ? Carbon::parse($record->registration_date)->format('d/m/Y') : 'NA',
                             $record->emp_formal_female_18_35,
                             $record->emp_formal_male_18_35,
                             $record->emp_formal_male_35_plus,
@@ -1308,11 +1326,30 @@ class ExcelExportJob implements ShouldQueue
                             $record->emp_informal_male_35_plus,
                             $record->emp_informal_female_35_plus,
                             $record->area_under_cultivation,
-                            $record->is_registered_seed_producer,
-                            $record->registration_number_seed_producer,
-                            $record->registration_date_seed_producer,
-                            $record->uses_certified_seed,
+                            $record->is_registered_seed_producer == 1 ? 'Yes' : 'No',
+                            $record->uses_certified_seed == 1 ? 'Yes' : 'No',
                             $submittedBy,
+                        ]);
+                    }
+                });
+
+                $writer->addNewSheetAndMakeItCurrent('Seed services unit');
+                $headers = [
+                    'ID' => 'Number, Exists in RTC Actor Recruitment Sheet',
+                    'Registration Date' => 'Date (dd-mm-yyyy)',
+                    'Registration Number' => 'Text',
+                    'Variety' => 'Text',
+                ];
+                $writer->addHeader(array_keys($headers));
+                RecruitSeedRegistration::query()->chunk(2000, function ($recruitments) use ($writer) {
+                    foreach ($recruitments as $recruitment) {
+                        $writer->addRow([
+                            $recruitment->recruitment_id,
+                            $recruitment->reg_date,
+                            $recruitment->reg_no,
+                            $recruitment->variety
+
+
                         ]);
                     }
                 });

@@ -82,6 +82,11 @@ class RtcProductionFarmer extends Model
         return $this->hasMany(FarmerSeedRegistration::class, 'farmer_id');
     }
 
+    public function seedRegistrations()
+    {
+        return $this->hasMany(FarmerSeedRegistration::class, 'farmer_id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

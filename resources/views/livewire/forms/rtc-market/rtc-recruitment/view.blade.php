@@ -1,6 +1,6 @@
 <div>
     @section('title')
-        View Recruits Data
+        View Recruitment Data
     @endsection
     <div class="container-fluid">
 
@@ -29,26 +29,50 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
 
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">RTC ACTOR RECRUITMENT Table
-                            @if ($batch_no)
-                                [Batch : {{ $batch_no }}]
-                            @endif
-                        </h4>
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">
+                            RTC ACTOR RECRUITMENT
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            SEED SERVICES UNIT
+                        </button>
+                    </li>
+
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="card">
+
+                            <div class=" card-body">
+                                <livewire:tables.rtc-market.recruitments-table />
+                            </div>
+
+                        </div>
                     </div>
-                    <div class="px-0 card-body" id="#datatable">
-                        <livewire:tables.rtc-market.recruitments-table />
+                    <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="card">
+
+                            <div class=" card-body">
+                                <livewire:tables.recruitment-seed-services-table />
+                            </div>
+
+                        </div>
                     </div>
 
                 </div>
+
+
+
             </div>
 
 
@@ -59,15 +83,18 @@
 
         </div>
 
-        @script
-            <script>
-                if (window.location.hash !== '') {
-                    const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
-                    if (button) {
-                        button.click();
 
-                    }
-                }
-            </script>
-        @endscript
     </div>
+
+</div>
+@script
+    <script>
+        if (window.location.hash !== '') {
+            const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+            if (button) {
+                button.click();
+
+            }
+        }
+    </script>
+@endscript

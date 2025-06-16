@@ -66,6 +66,7 @@ trait ExportTrait
                 $this->exporting = false;
                 $this->exportFinished = true;
                 $this->exportFailed = $batch->failedJobs > 0;
+                $this->dispatch('download-export');
             }
         }
     }

@@ -15,6 +15,11 @@ class Recruitment extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function seedRegistrations()
+    {
+        return $this->hasMany(FarmerSeedRegistration::class, 'recruitment_id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

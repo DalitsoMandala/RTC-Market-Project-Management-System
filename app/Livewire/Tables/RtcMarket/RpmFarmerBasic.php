@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 
 use App\Models\RpmFarmerBasicSeed;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,16 +33,18 @@ final class RpmFarmerBasic extends PowerGridComponent
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
+        $query = RpmFarmerBasicSeed::query()->with('farmers')->select([
+            'rpmf_basic_seed.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
         if ($user->hasAnyRole('external')) {
 
-            return RpmFarmerBasicSeed::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+            return $query->whereHas('farmers', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
-        return RpmFarmerBasicSeed::query()->with('farmers');
-
+        return $query;
     }
     public $namedExport = 'rpmfBS';
     #[On('export-rpmfBS')]
@@ -49,7 +52,6 @@ final class RpmFarmerBasic extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
     public function downloadExport()
@@ -82,7 +84,7 @@ final class RpmFarmerBasic extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->pageName('basic-seed')
@@ -113,7 +115,6 @@ final class RpmFarmerBasic extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('variety');
     }
@@ -123,18 +124,14 @@ final class RpmFarmerBasic extends PowerGridComponent
         return [
 
 
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Farmer ID', 'unique_id', 'pf_id')
+                ->searchable(),
 
-            Column::make('Actor ID', 'unique_id', 'pf_id')
-                ->searchable()
-            ,
-
-            Column::make('Name of actor', 'name_of_actor')
-                ->searchable()
-            ,
 
             Column::make('Variety', 'variety')->sortable()->searchable(),
 
-            Column::make('Area (Number of acres)', 'area')->sortable()->searchable(),
+            Column::make('Area (Number of acres)', 'area')->sortable(),
 
 
 

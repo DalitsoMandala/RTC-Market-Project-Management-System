@@ -29,105 +29,101 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
 
+                <ul class=" nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item border-right " role="presentation">
+                        <button class="nav-link active text-uppercase" id="batch-tab" data-bs-toggle="tab"
+                            data-bs-target="#normal" type="button" role="tab" aria-controls="home"
+                            aria-selected="true">
+                            RTC Farmers
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#conc" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Contractual Aggrement
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#dom" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Domestic Markets
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#inter" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            International Markets
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#agg" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Aggregation Centers
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#mis" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Market Information Systems
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#basic" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Basic seed multiplication
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#certified" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Certified seed multiplication
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#cultiv" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Area under cultivation
+                        </button>
+                    </li>
+
+
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-uppercase" id="people-tab" data-bs-toggle="tab"
+                            data-bs-target="#seed" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">
+                            Seed services unit
+                        </button>
+                    </li>
+
+                </ul>
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">RTC PRODUCTION AND MARKETING (FARMERS) Table
-                            @if ($batch_no)
-                                [Batch : {{ $batch_no }}]
-                            @endif
-                        </h4>
-                    </div>
-                    <div class="px-0 card-body" id="#datatable">
+
+                    <div class="card-body" id="#datatable">
 
 
-                        {{-- @if ($loadingData)
-                        <div wire:poll.keep-alive.5s='readCache()' class="d-flex justify-content-center align-items-center">
-                            <div class="spinner-border text-warning spinner-border-lg" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-
-                        </div>
-                        @endif --}}
 
 
-                        <ul class="mx-2 nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item border-right" role="presentation">
-                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#normal" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true">
-                                    Farmers' Data
-                                </button>
-                            </li>
-
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#conc"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Contractual Aggrement Data
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#dom"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Domestic Markets Data
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#inter"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    International Markets Data
-                                </button>
-                            </li>
-
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#agg"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Aggregation Centers
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#mis"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Market Information System
-                                </button>
-                            </li>
-
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#basic"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Basic seed multiplication
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#certified" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
-                                    Certified seed multiplication
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                    data-bs-target="#cultiv" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
-                                    Area under cultivation
-                                </button>
-                            </li>
-
-                        </ul>
 
                         <!-- Tab panes -->
                         <div class="tab-content">
@@ -178,16 +174,10 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.rtc-market.rpm-farmer-cultivation />
                             </div>
-                            {{--
-
-
-
-
-
-                            <div class="mt-2 tab-pane fade show" id="agg" role="tabpanel" aria-labelledby="profile-tab">
-                                <livewire:tables.rtc-market.rpm-farmer-agg-centers />
+                            <div class="mt-2 tab-pane fade show" id="seed" role="tabpanel"
+                                aria-labelledby="profile-tab">
+                                <livewire:tables.farmer-seed-registration-table />
                             </div>
-                            --}}
 
                         </div>
 

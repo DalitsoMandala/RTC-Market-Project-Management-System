@@ -5,6 +5,7 @@ namespace App\Livewire\tables\RtcMarket;
 use App\Models\User;
 use App\Models\Recruitment;
 use App\Traits\ExportTrait;
+use App\Traits\UITrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,9 @@ final class RecruitmentsTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+    use UITrait;
+    public $nameOfTable = "RTC Actor Recruitment Table";
+    public $descriptionOfTable = 'Data from recruitment form';
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -41,6 +45,7 @@ final class RecruitmentsTable extends PowerGridComponent
         ];
     }
     public $namedExport = 'recruits';
+
     #[On('export-recruits')]
     public function startExport()
     {
@@ -51,48 +56,55 @@ final class RecruitmentsTable extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-
-        if ($user->hasAnyRole('external')) {
-
-            return Recruitment::query()->with([
-                'user',
-                'user.organisation'
-            ])->where('organisation_id', $organisation_id);
-        }
-
-        return Recruitment::query()->with([
-
+        $query = Recruitment::query()->with([
             'user',
             'user.organisation'
+        ])->select([
+            'recruitments.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
+        if ($user->hasAnyRole('external')) {
+
+            return $query->where('organisation_id', $organisation_id);
+        }
+
+        return $query;
     }
+
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('rn')
             ->add('rc_id')
-            ->add('epa')
-            ->add('section')
-            ->add('district')
-            ->add('enterprise')
-            ->add('date_of_recruitment_formatted', fn($model) => Carbon::parse($model->date_of_recruitment)->format('d/m/Y'))
-            ->add('name_of_actor')
-            ->add('name_of_representative')
-            ->add('phone_number')
-            ->add('type')
-            ->add('group')
-            ->add('approach')
+            ->add('epa', fn($model) => $model->epa ?? 'NA')
+            ->add('section', fn($model) => $model->section ?? 'NA')
+            ->add('district', fn($model) => $model->district ?? 'NA')
+            ->add('enterprise', fn($model) => $model->enterprise ?? 'NA')
+            ->add('date_of_recruitment_formatted', fn($model) => $model->date_of_recruitment ? Carbon::parse($model->date_of_recruitment)->format('d/m/Y') : 'NA')
+            ->add('name_of_actor', fn($model) => $model->name_of_actor ?? 'NA')
+            ->add('name_of_representative', fn($model) => $model->name_of_representative ?? 'NA')
+            ->add('phone_number', fn($model) => $model->phone_number ?? 'NA')
+            ->add('type', fn($model) => $model->type ?? 'NA')
+            ->add('group', fn($model) => $model->group ?? 'NA')
+            ->add('approach', fn($model) => $model->approach ?? 'NA')
             ->add('mem_female_18_35')
             ->add('mem_male_18_35')
             ->add('mem_male_35_plus')
             ->add('mem_female_35_plus')
-            ->add('sector')
-            ->add('category')
-            ->add('establishment_status')
-            ->add('is_registered')
-            ->add('registration_body')
-            ->add('registration_number')
+            ->add('sector', fn($model) => $model->sector ?? 'NA')
+            ->add('category', fn($model) => $model->sector ?? 'NA')
+            ->add('establishment_status', fn($model) => $this->booleanUI(
+                $model->establishment_status,
+                $model->establishment_status === 'New'
+            ))
+            ->add('is_registered', fn($model) => $this->booleanUI(
+                $model->is_registered,
+                $model->is_registered == 1,
+                true
+            ))
+            ->add('registration_body', fn($model) => $model->registration_body ?? 'NA')
+            ->add('registration_number', fn($model) => $model->registration_number ?? 'NA')
             ->add('registration_date_formatted', fn($model) => Carbon::parse($model->registration_date)->format('d/m/Y'))
             ->add('emp_formal_female_18_35')
             ->add('emp_formal_male_18_35')
@@ -103,10 +115,16 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('emp_informal_male_35_plus')
             ->add('emp_informal_female_35_plus')
             ->add('area_under_cultivation')
-            ->add('is_registered_seed_producer')
-            ->add('registration_number_seed_producer')
-            ->add('registration_date_seed_producer_formatted', fn($model) => Carbon::parse($model->registration_date_seed_producer)->format('d/m/Y'))
-            ->add('uses_certified_seed')
+            ->add('is_registered_seed_producer', fn($model) => $this->booleanUI(
+                $model->is_registered_seed_producer,
+                $model->is_registered_seed_producer == 1,
+                true
+            ))
+            ->add('uses_certified_seed', fn($model) => $this->booleanUI(
+                $model->uses_certified_seed,
+                $model->uses_certified_seed == 1,
+                true
+            ))
             ->add('uuid')
             ->add('user_id')
             ->add('submitted_by', function ($model) {
@@ -120,6 +138,8 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('created_at')
             ->add('updated_at');
     }
+
+    #[On('download-export')]
     public function downloadExport()
     {
         return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
@@ -127,9 +147,9 @@ final class RecruitmentsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
-            Column::make('Rc id', 'rc_id')
-                ->sortable()
+            Column::make('Id', 'rn')->sortable(),
+            Column::make('Recruitment id', 'rc_id')
+
                 ->searchable(),
 
             Column::make('Epa', 'epa')
@@ -204,8 +224,7 @@ final class RecruitmentsTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Is registered', 'is_registered')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Registration body', 'registration_body')
                 ->sortable()
@@ -255,19 +274,11 @@ final class RecruitmentsTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Is registered seed producer', 'is_registered_seed_producer')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Registration number seed producer', 'registration_number_seed_producer')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Registration date seed producer', 'registration_date_seed_producer_formatted', 'registration_date_seed_producer')
                 ->sortable(),
 
+
             Column::make('Uses certified seed', 'uses_certified_seed')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Submitted by', 'submitted_by')
 

@@ -1,6 +1,14 @@
 <div>
-    @includeIf(data_get($setUp, 'header.includeViewOnTop'))
+
     <div class="dt--top-section">
+        <div class="mb-1 row">
+            <div class="col-12">
+                @includeIf(data_get($setUp, 'header.includeViewOnTop'))
+
+
+            </div>
+
+        </div>
         <div class="row">
             <div class="col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center">
                 @include(powerGridThemeRoot() . '.header.actions')
@@ -15,7 +23,7 @@
                 @includeWhen(boolval(data_get($setUp, 'header.wireLoading')),
                     powerGridThemeRoot() . '.header.loading')
             </div>
-            <div class="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3">
+            <div class="mt-3 col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0">
                 @include(powerGridThemeRoot() . '.header.search')
             </div>
         </div>

@@ -41,8 +41,6 @@ trait FormEssentials
                 'Employees Informal Female 35+' => 'Number (>=0)',
                 'Area Under Cultivation' => 'Number (>=0)',
                 'Is Registered Seed Producer' => 'Boolean (1/0)',
-                'Seed Producer Registration Number' => 'Text',
-                'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
                 'Uses Certified Seed' => 'Boolean (1/0)',
             ],
             'Seed Services Unit' => [

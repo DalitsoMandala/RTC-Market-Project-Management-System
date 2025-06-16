@@ -36,9 +36,8 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')
-                ->showSearchInput()
-            ,
+            Header::make()
+                ->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->pageName('farmers-domestic-markets')
@@ -52,16 +51,19 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
+        $query = RpmFarmerDomMarket::query()->with('farmers')->select([
+            'rpm_farmer_dom_markets.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
 
         if ($user->hasAnyRole('external')) {
 
-            return RpmFarmerDomMarket::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+            return $query->whereHas('farmers', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
-        return RpmFarmerDomMarket::query()->with('farmers');
+        return $query;
     }
 
     public $namedExport = 'rpmfDM';
@@ -70,7 +72,6 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -92,11 +93,8 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 
                 if ($row) {
                     return $row->name_of_actor;
-
                 }
                 return null;
-
-
             })
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
@@ -115,7 +113,6 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('updated_at');
     }
@@ -124,75 +121,14 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
         // Get the data as a collection
         return $this->datasource()->get();
     }
-    #[On('export-dom')]
-    public function export()
-    {
-        // Get data for export
-        $data = $this->getDataForExport();
-
-        // Define the path for the Excel file
-        $path = storage_path('app/public/rtc_production_and_marketing_farmers_domestic_markets.xlsx');
-
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Id',
-                'Actor ID',
-                'Actor Name',
-                'Date Recorded (Formatted)',
-                'Crop Type',
-                'Market Name',
-                'District',
-                'Date of Maximum Sale (Formatted)',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales',
-
-            ]);
-
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $farmer = $item->rpm_farmer_id;
-                $row = RtcProductionFarmer::find($farmer);
-
-                $actor_name = $row ? $row->name_of_actor : null;
-
-                $row = [
-                    'id' => $item->id,
-                    'rpm_farmer_id' => $item->rpm_farmer_id,
-                    'actor_name' => $actor_name,
-                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
-                    'crop_type' => $item->crop_type,
-                    'market_name' => $item->market_name,
-                    'district' => $item->district,
-                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
-                    'product_type' => $item->product_type,
-                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
-                    'financial_value_of_sales' => $item->financial_value_of_sales,
-
-                ];
-
-                $writer->addRow($row);
-            }
-        }
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
-    }
 
 
     public function columns(): array
     {
         return [
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Farmer ID', 'unique_id')->searchable(),
 
-            Column::make('Actor ID', 'unique_id')->searchable(),
-            Column::make('Actor Name', 'actor_name'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
@@ -217,12 +153,10 @@ final class RtcProductionFarmersDomMarkets extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Volume sold previous period', 'volume_sold_previous_period')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Financial value of sales', 'financial_value_of_sales')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             // Column::make('Submitted by', 'submitted_by')
 

@@ -5,9 +5,17 @@
     'lazy' => false,
     'tableName' => null,
 ])
+
+<style>
+    .table-secondary {
+
+        --bs-table-bg: rgb(241 241 241/1) !important;
+        --bs-table-border-color: rgb(241 241 241/1) !important;
+    }
+</style>
 @php
     $baseTableClass = str_replace('table-bordered', '', $theme['table']['tableClass']);
-    $headerTableClass = $theme['table']['theadClass'] . ' table-warning';
+    $headerTableClass = $theme['table']['theadClass'] . ' table-secondary grayColor';
 
 @endphp
 
