@@ -34,7 +34,7 @@ final class RpmFarmerAggCenters extends PowerGridComponent
         $organisation_id = $user->organisation->id;
 
         $query = RpmFarmerAggregationCenter::query()->with('farmers')->select([
-            'rpm_farmer_conc_agreements.*',
+            'rpmf_aggregation_centers.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
         if ($user->hasAnyRole('external')) {

@@ -125,7 +125,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
             'farmers' => [ // relationship on dishes model
 
 
-                'name_of_actor',
+
                 'pf_id'
 
             ],
@@ -145,7 +145,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
         return [
             Column::make('ID', 'rn')->sortable(),
             Column::make('FARMER ID', 'unique_id')->searchable(),
-            Column::make('Actor Name', 'actor_name'),
+
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),

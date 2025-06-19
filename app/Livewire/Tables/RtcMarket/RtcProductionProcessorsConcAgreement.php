@@ -35,7 +35,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->pageName('contractual-agreement')
@@ -48,16 +48,18 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-
+        $query = RpmProcessorConcAgreement::query()->with('processors')->select([
+            'rpm_processor_conc_agreements.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
         if ($user->hasAnyRole('external')) {
 
-            return RpmProcessorConcAgreement::query()->with('processors')->whereHas('processors', function ($model) use ($organisation_id) {
+            return $query->whereHas('processors', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
-        return RpmProcessorConcAgreement::query()->with('processors');
+        return $query;
     }
 
     public function fields(): PowerGridFields
@@ -72,11 +74,8 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 
                 if ($row) {
                     return $row->name_of_actor;
-
                 }
                 return null;
-
-
             })
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('partner_name')
@@ -94,7 +93,6 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('updated_at');
     }
@@ -111,7 +109,6 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -206,9 +203,9 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('PROCESSOR ID', 'unique_id')->searchable(),
 
-            Column::make('Actor ID', 'unique_id')->searchable(),
-            Column::make('Actor Name', 'actor_name'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
@@ -229,12 +226,10 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Volume sold previous period', 'volume_sold_previous_period')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Financial value of sales', 'financial_value_of_sales')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
 
 

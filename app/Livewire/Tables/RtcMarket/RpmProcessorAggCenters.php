@@ -7,6 +7,7 @@ use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionProcessor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,17 +29,19 @@ final class RpmProcessorAggCenters extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-
+        $query = RpmProcessorAggregationCenter::query()->with('processors')->select([
+            'rpmf_aggregation_centers.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
         if ($user->hasAnyRole('external')) {
 
-            return RpmProcessorAggregationCenter::query()->with('processors')->whereHas('processors', function ($model) use ($organisation_id) {
+            return $query->whereHas('processors', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
 
-        return RpmProcessorAggregationCenter::query()->with('processors');
+        return $query;
     }
     public $namedExport = 'rpmpAC';
     #[On('export-rpmpAC')]
@@ -46,7 +49,6 @@ final class RpmProcessorAggCenters extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
     public function relationSearch(): array
@@ -78,7 +80,7 @@ final class RpmProcessorAggCenters extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->showRecordCount(),
@@ -108,7 +110,6 @@ final class RpmProcessorAggCenters extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
 
             ->add('name', function ($model) {
@@ -119,14 +120,11 @@ final class RpmProcessorAggCenters extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Processor ID', 'unique_id',)
+                ->searchable(),
 
-            Column::make('Actor ID', 'unique_id', )
-                ->searchable()
-            ,
 
-            Column::make('Name of actor', 'name_of_actor')
-                ->searchable()
-            ,
 
             Column::make('Name of Aggregation centers', 'name')
                 ->searchable()

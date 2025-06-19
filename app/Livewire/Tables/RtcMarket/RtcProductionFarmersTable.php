@@ -41,7 +41,12 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     public function setUp(): array
     {
         //  $this->showCheckBox();
-
+        // $columns = $this->columns();
+        // $getMap = [];
+        // foreach ($columns as $column) {
+        //     $getMap[$column->title] = $column->dataField;
+        // }
+        // dd($getMap);
         return [
 
             Header::make()->includeViewOnTop('components.export-data')
@@ -96,12 +101,11 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('id')
             ->add('rn')
             ->add('unique_id', fn($model) => $model->pf_id)
-            ->add('date_of_recruitment_formatted', fn($model) => Carbon::parse($model->date_of_recruitment)->format('d/m/Y'))
-            ->add('name_of_actor')
-            ->add('name_of_representative')
-            ->add('phone_number')
-            ->add('type')
-            ->add('approach')
+            ->add('date_of_followup_formatted', fn($model) => Carbon::parse($model->date_of_followup)->format('d/m/Y'))
+
+            ->add('group_name')
+
+
             ->add('enterprise', function ($model) {
 
                 return $model->enterprise;
@@ -118,98 +122,9 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
                 return $model->section;
             })
-            ->add('sector')
-            ->add('number_of_members_total', function ($model) {
 
+            ->add('uses_certified_seed', fn($model) => $this->booleanUI($model->uses_certified_seed, $model->uses_certified_seed == 1, true))
 
-
-                return ($model->mem_female_18_35 ?? 0) +
-                    ($model->mem_male_18_35 ?? 0) +
-                    ($model->mem_male_35_plus ?? 0) +
-                    ($model->mem_female_35_plus ?? 0);
-            })
-            ->add('number_of_members_female_18_35', function ($model) {
-
-                return $model->mem_female_18_35 ?? 0;
-            })
-            ->add('number_of_members_male_18_35', function ($model) {
-
-                return $model->mem_male_18_35 ?? 0;
-            })
-            ->add('number_of_members_male_35_plus', function ($model) {
-
-                return $model->mem_male_35_plus ?? 0;
-            })
-            ->add('number_of_members_female_35_plus', function ($model) {
-
-                return $model->mem_female_35_plus ?? 0;
-            })
-            ->add('group')
-            ->add('establishment_status')
-            ->add('is_registered', function ($model) {
-                return $model->is_registered == 1 ? 'Registered' : 'Not registered';
-            })
-
-            ->add('registration_body')
-            ->add('registration_date', function ($model) {
-
-                if (is_null($model->registration_date)) {
-                    return null;
-                }
-
-                return Carbon::parse($model->registration_date)->format('d/m/Y');
-            })
-            ->add('registration_number')
-            ->add('number_of_employees_formal_female_18_35', function ($model) {
-
-                return $model->emp_formal_female_18_35 ?? 0;
-            })
-            ->add('number_of_employees_formal_male_18_35', function ($model) {
-
-                return $model->emp_formal_male_18_35 ?? 0;
-            })
-            ->add('number_of_employees_formal_male_35_plus', function ($model) {
-
-                return $model->emp_formal_male_35_plus ?? 0;
-            })
-            ->add('number_of_employees_formal_female_35_plus', function ($model) {
-
-                return $model->emp_formal_female_35_plus ?? 0;
-            })
-            ->add('number_of_employees_formal_total', function ($model) {
-
-
-
-                return ($model->emp_formal_female_18_35 ?? 0) +
-                    ($model->emp_formal_male_18_35 ?? 0) +
-                    ($model->emp_formal_male_35_plus ?? 0) +
-                    ($model->emp_formal_female_35_plus ?? 0);
-            })
-            ->add('number_of_employees_informal_female_18_35', function ($model) {
-
-                return $model->emp_informal_female_18_35 ?? 0;
-            })
-            ->add('number_of_employees_informal_male_18_35', function ($model) {
-
-                return $model->emp_informal_male_18_35 ?? 0;
-            })
-            ->add('number_of_employees_informal_male_35_plus', function ($model) {
-
-                return $model->emp_informal_male_35_plus ?? 0;
-            })
-            ->add('number_of_employees_informal_female_35_plus', function ($model) {
-
-                return $model->emp_informal_female_35_plus ?? 0;
-            })
-            ->add('number_of_employees_informal_total', function ($model) {
-
-
-
-                return ($model->emp_informal_female_18_35 ?? 0) +
-                    ($model->emp_informal_male_18_35 ?? 0) +
-                    ($model->emp_informal_male_35_plus ?? 0) +
-                    ($model->emp_informal_female_35_plus ?? 0);
-            })
             ->add('area_under_cultivation_total', function ($model) {
 
                 return $model->cultivatedArea()->sum('area') ?? 0;
@@ -304,6 +219,8 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 true
             ))
 
+            ->add('total_vol_aggregation_center_sales')
+
             ->add('sells_to_aggregation_centers', function ($model) {
                 return $this->booleanUI(
                     $model->sells_to_aggregation_centers,
@@ -326,12 +243,14 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     }
 
 
+
     public function columns(): array
     {
         return [
             Column::make('ID', 'rn')->sortable(),
-            Column::make('Actor ID', 'unique_id', 'pf_id')->sortable()->searchable(),
-            Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
+            Column::make('Farmer ID', 'unique_id', 'pf_id')->sortable()->searchable(),
+            Column::make('Group Name', 'group_name'),
+            Column::make('Date of follow up', 'date_of_followup')
                 ->sortable(),
 
 
@@ -343,56 +262,8 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
 
 
-            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35', 'number_of_members->male_18_35')
-                ->sortable(),
-            Column::make('Number of members/Female 18-35', 'number_of_members_female_18_35', 'number_of_members->female_18_35')
-                ->sortable(),
-            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus', 'number_of_members->male_35_plus')
-                ->sortable(),
-            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus', 'number_of_members->female_35_plus')
-                ->sortable(),
-            Column::make('Number of members/total', 'number_of_members_total', 'number_of_members->total')
-                ->sortable(),
 
 
-
-
-
-
-
-            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35', 'number_of_employees->emp_formal_female_18_35')
-                ->sortable(),
-
-            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35', 'number_of_employees->emp_formal_male_18_35')
-                ->sortable(),
-
-            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus', 'number_of_employees->emp_formal_male_35_plus')
-                ->sortable(),
-
-            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus', 'number_of_employees->emp_formal_female_35_plus')
-                ->sortable(),
-
-            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total', 'number_of_employees->emp_formal_total')
-                ->sortable(),
-
-            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35', 'number_of_employees->emp_informal_female_18_35')
-                ->sortable(),
-
-            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35', 'number_of_employees->emp_informal_male_18_35')
-                ->sortable(),
-
-            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus', 'number_of_employees->emp_informal_male_35_plus')
-                ->sortable(),
-
-            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus', 'number_of_employees->emp_informal_female_35_plus')
-                ->sortable(),
-
-            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total', 'number_of_employees->emp_informal_total')
-                ->sortable(),
-
-
-            Column::make('Has RTC Contractual Agreement', 'has_rtc_market_contract', 'has_rtc_market_contract')
-                ->sortable(),
 
 
 
@@ -412,12 +283,6 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             Column::make('Number of sah plants produced', 'number_of_sah_plants_produced')
                 ->sortable(),
 
-            Column::make('Area under basic seed multiplication/total', 'area_basic_seed')
-                ->sortable(),
-
-
-            Column::make('Area under certified seed multiplication/total', 'area_certified_seed')
-                ->sortable(),
 
             Column::make('Is registered seed producer', 'is_registered_seed_producer')
                 ->sortable(),
@@ -486,6 +351,9 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
 
             Column::make('Sells to aggregation centers', 'sells_to_aggregation_centers')
+                ->sortable(),
+
+            Column::make('Total Volume of Aggregation Center Sales', 'total_vol_aggregation_center_sales')
                 ->sortable(),
 
 
