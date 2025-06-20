@@ -84,7 +84,6 @@ class Add extends Component
     public $plots = [];
     public $seasons = [];
 
-
     protected $rules = [
         'district' => 'required|string|max:255',
         'epa' => 'required|string|max:255',
@@ -94,10 +93,10 @@ class Add extends Component
         'date' => 'required|date',
         'name_of_recipient' => 'required|string|max:255',
         'village' => 'required|string|max:255',
-        'sex' => 'required|integer|in:1,2',
+        'sex' => 'required|string',
         'age' => 'required|integer|min:1',
-        'marital_status' => 'required|integer|in:1,2,3,4',
-        'hh_head' => 'required|integer|in:1,2,3',
+        'marital_status' => 'required|string',
+        'hh_head' => 'required|string',
         'household_size' => 'required|integer|min:1',
         'children_under_5' => 'required|integer|min:0',
         'variety_received' => 'required|string|max:255',

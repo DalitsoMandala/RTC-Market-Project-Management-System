@@ -26,13 +26,23 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+
+                <ul class=" nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">
+                            ATTENDANCE REGISTER
+                        </button>
+                    </li>
+
+
+
+
+                </ul>
                 <div class="card">
 
-                    <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">Attendance Register Table
-                        </h4>
-                    </div>
-                    <div class="px-0 card-body">
+
+                    <div class="card-body">
                         <livewire:tables.rtc-market.attendance-register-table />
                     </div>
                 </div>

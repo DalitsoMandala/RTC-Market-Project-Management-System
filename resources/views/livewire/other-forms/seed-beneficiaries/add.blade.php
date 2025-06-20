@@ -122,8 +122,8 @@
             <label class="form-label">Sex</label>
             <select class="form-select @error('sex') is-invalid @enderror" wire:model="sex">
                 <option value="">Select Sex</option>
-                <option value="1">Male</option>
-                <option value="2">Female</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
             </select>
             @error('sex')
                 <span class="text-danger">{{ $message }}</span>
@@ -146,10 +146,13 @@
             <label class="form-label">Marital Status</label>
             <select class="form-select @error('marital_status') is-invalid @enderror" wire:model="marital_status">
                 <option value="">Select Status</option>
-                <option value="1">Married</option>
-                <option value="2">Single</option>
-                <option value="3">Divorced</option>
-                <option value="4">Widow/er</option>
+
+                <option>Single</option>
+                <option>Married</option>
+                <option>Divorced</option>
+                <option>Separated</option>
+                <option>Widowed</option>
+                <option>Polygamy</option>
             </select>
             @error('marital_status')
                 <span class="text-danger">{{ $message }}</span>
@@ -162,9 +165,9 @@
             <label class="form-label">Household Head</label>
             <select class="form-select @error('hh_head') is-invalid @enderror" wire:model="hh_head">
                 <option value="">Select HH Head</option>
-                <option value="1">MHH</option>
-                <option value="2">FHH</option>
-                <option value="3">CHH</option>
+                <option value="MHH">MHH</option>
+                <option value="FHH">FHH</option>
+                <option value="CHH">CHH</option>
             </select>
             @error('hh_head')
                 <span class="text-danger">{{ $message }}</span>

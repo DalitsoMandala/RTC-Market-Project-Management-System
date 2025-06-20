@@ -2,11 +2,13 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use App\Models\SubmissionReport;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -37,17 +39,21 @@ final class SubmissionReportTable extends PowerGridComponent
         ];
     }
 
-    public function datasource(): Collection
+    public function datasource(): Builder
     {
-        if (auth()->user()->organisation->name == 'CIP') {
-            return SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->where('status', 'approved')->get();
+        $query = SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->where('status', 'approved');
+        $user = User::find(auth()->user()->id);
+        $organisation = $user->organisation->id;
+
+        if ($user->hasAnyRole('external')) {
+            $query->whereHas(
+                'organisation',
+                function ($model) use ($organisation) {
+                    $model->where('id', $organisation);
+                }
+            )->where('status', 'approved');
         }
-        return SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->whereHas(
-            'organisation',
-            function ($model) {
-                $model->where('id', auth()->user()->organisation->id);
-            }
-        )->where('status', 'approved')->get();
+        return $query;
     }
 
     public function fields(): PowerGridFields
@@ -71,10 +77,12 @@ final class SubmissionReportTable extends PowerGridComponent
 
             ->add('uuid')
             ->add('file', function ($model) {
+                $file = Submission::where('batch_no', $model->uuid)->first();
 
-                if ($model->file_name) {
+                if ($file) {
+
                     $html = "
-                       <a class='text-success custom-tooltip' title='download file' download='{$model->file_name}' href='" . asset('/storage/exports/' . $model->file_name) . "'>
+                       <a class='text-success custom-tooltip' title='download file' download='{$file->file_link}' href='" . asset('/storage/exports/' . $file->file_link) . "'>
 
                     <div class='d-flex align-items-center'>
                         <div class='flex-shrink-0 me-2'>
@@ -83,7 +91,7 @@ final class SubmissionReportTable extends PowerGridComponent
                             </div>
                         </div>
                         <div class='flex-grow-1 fw-bolder'>
-                           {$model->file_name}
+                           {$file->file_link}
 
                         </div>
                     </div>
@@ -116,10 +124,10 @@ final class SubmissionReportTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Indicator id', 'indicator_id'),
+            Column::make('Indicator', 'indicator_id'),
             Column::make('Project year', 'financial_year_id'),
 
-            Column::make('File', 'file_link'),
+            Column::make('File', 'file'),
 
             Column::make('Submitted By', 'user_id'),
 

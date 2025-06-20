@@ -83,13 +83,19 @@ use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
 use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
 use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
-
-
+use App\Models\SeedBeneficiary;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/priznet', [TestingController::class, 'test']);
+Route::get('/priznet', function () {
+    $getData = SeedBeneficiary::where('variety_received', 'LIKE', '%kadyaubwerere%')->get()->map(function ($item) {
+        $getID = SeedBeneficiary::find($item->id);
+        $variety_received = $getID->variety_received;
+        $getID->variety_received = str_replace('kadyaubwerere', 'kadyaubwelere', $variety_received);
+        $getID->save();
+    });
+});
 
 
 

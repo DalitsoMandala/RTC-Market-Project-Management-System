@@ -61,22 +61,7 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
                     try {
 
                         // targets if available for year 2
-                        $y2Target = $row['Y2 Target'];
-                        if ($y2Target != null && $y2Target > 0 && $y2Target) {
 
-                            $target = SubmissionTarget::where('financial_year_id', FinancialYear::where('number', 2)->first()->id)
-                                ->where('indicator_id', $indicator->id)
-                                ->where('target_name', $disaggregation->name)
-                                ->first();
-
-                            if ($target) {
-                                OrganisationTarget::updateOrCreate([
-                                    'submission_target_id' => $target->id,
-                                    'organisation_id' => $this->organisation_id,
-                                    'value' => $y2Target
-                                ]);
-                            }
-                        }
 
 
                         $data = [

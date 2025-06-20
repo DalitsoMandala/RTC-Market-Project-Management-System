@@ -884,7 +884,10 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
                 // Define the headers
                 $headers = [
-                    'Person ID',
+                    'ID',
+                    'Attendee ID',
+                    'Name',
+                    'Sex',
                     'Meeting Title',
                     'Meeting Category',
                     'RTC Crop (Cassava)',
@@ -895,8 +898,8 @@ class ExcelExportJob implements ShouldQueue
                     'Start Date',
                     'End Date',
                     'Total Days',
-                    'Name',
-                    'Sex',
+
+
                     'Organization',
                     'Designation',
                     'Phone Number',
@@ -906,8 +909,11 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
-                $query = AttendanceRegister::query()->with('user');
+                $writer->nameCurrentSheet('Attendances');
+                $query = AttendanceRegister::query()->with('user')->select([
+                    'attendance_registers.*',
+                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -924,7 +930,10 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy = $name . ' (' . $organisation . ')';
                         }
                         $writer->addRow([
+                            $record->rn,
                             $record->att_id,
+                            $record->name,
+                            $record->sex,
                             $record->meetingTitle,
                             $record->meetingCategory,
                             $record->rtcCrop_cassava,
@@ -935,8 +944,7 @@ class ExcelExportJob implements ShouldQueue
                             $record->startDate,
                             $record->endDate,
                             $record->totalDays,
-                            $record->name,
-                            $record->sex,
+
                             $record->organization,
                             $record->designation,
                             $record->phone_number,
@@ -969,26 +977,27 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
-
+                $writer->nameCurrentSheet('Reports');
+                $query =  SystemReportData::query()
+                    ->with('systemReport')
+                    ->join('system_reports', function ($join) {
+                        $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
+                    })
+                    ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
+                    ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
+                    ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
+                    ->select([
+                        'system_report_data.*',
+                        'indicators.indicator_name as indicator_name',
+                        'indicators.indicator_no as indicator_no',
+                        'organisations.name as organisation_name',
+                        'financial_years.number as financial_year',
+                        'financial_years.start_date as financial_year_start_date',
+                        'financial_years.end_date as financial_year_end_date',
+                    ]);
                 if ($this->user->hasAnyRole('external')) {
-                    SystemReportData::query()
-                        ->with('systemReport')
-                        ->join('system_reports', function ($join) {
-                            $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
-                        })
-                        ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
-                        ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
-                        ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
-                        ->where('system_reports.organisation_id', $this->user->organisation->id)
-                        ->select([
-                            'system_report_data.*',
-                            'indicators.indicator_name as indicator_name',
-                            'indicators.indicator_no as indicator_no',
-                            'organisations.name as organisation_name',
-                            'financial_years.number as financial_year',
-                            'financial_years.start_date as financial_year_start_date',
-                            'financial_years.end_date as financial_year_end_date',
-                        ])
+                    $query->where('system_reports.organisation_id', $this->user->organisation->id)
+
                         ->chunk(2000, function ($reports) use ($writer) {
                             foreach ($reports as $record) {
                                 // Check if systemReport and reportingPeriod are available
@@ -1021,64 +1030,49 @@ class ExcelExportJob implements ShouldQueue
                     return;
                 }
                 // Process data in chunks
-                SystemReportData::query()
-                    ->with('systemReport')
-                    ->join('system_reports', function ($join) {
-                        $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
-                    })
-                    ->leftJoin('indicators', 'indicators.id', '=', 'system_reports.indicator_id')
-                    ->leftJoin('organisations', 'organisations.id', '=', 'system_reports.organisation_id')
-                    ->leftJoin('financial_years', 'financial_years.id', '=', 'system_reports.financial_year_id')
-                    ->select([
-                        'system_report_data.*',
-                        'indicators.indicator_name as indicator_name',
-                        'indicators.indicator_no as indicator_no',
-                        'organisations.name as organisation_name',
-                        'financial_years.number as financial_year',
-                        'financial_years.start_date as financial_year_start_date',
-                        'financial_years.end_date as financial_year_end_date',
-                    ])
-                    ->chunk(2000, function ($reports) use ($writer) {
-                        foreach ($reports as $record) {
-                            // Check if systemReport and reportingPeriod are available
-                            $report_period  = null;
-                            $type_of_period = null;
-                            if ($record->systemReport && $record->systemReport->reportingPeriod) {
-                                $start_month    = $record->systemReport->reportingPeriod->start_month;
-                                $end_month      = $record->systemReport->reportingPeriod->end_month;
-                                $report_period  = $start_month . ' - ' . $end_month;
-                                $type_of_period = $record->systemReport->reportingPeriod->type;
-                            }
 
-                            $writer->addRow([
-                                $record->name,                                // Disaggregation (from `name` field)
-                                (float) $record->value,                       // Value
-                                $record->indicator_name ?? null,              // Indicator Name
-                                $record->indicator_no ?? null,                // Indicator #
-                                $record->systemReport->project->name ?? null, // Project
-                                $report_period,                               // Reporting period (null if no systemReport or reportingPeriod)
-                                $type_of_period,
-                                $record->organisation_name ?? null,         // Organisation
-                                $record->financial_year,                    // Project year
-                                $record->financial_year_start_date ?? null, // Start year
-                                $record->financial_year_end_date ?? null,   // End Year
-                                $record->systemReport->crop ?? 'All',                       // Crop
-                            ]);
+                $query->chunk(2000, function ($reports) use ($writer) {
+                    foreach ($reports as $record) {
+                        // Check if systemReport and reportingPeriod are available
+                        $report_period  = null;
+                        $type_of_period = null;
+                        if ($record->systemReport && $record->systemReport->reportingPeriod) {
+                            $start_month    = $record->systemReport->reportingPeriod->start_month;
+                            $end_month      = $record->systemReport->reportingPeriod->end_month;
+                            $report_period  = $start_month . ' - ' . $end_month;
+                            $type_of_period = $record->systemReport->reportingPeriod->type;
                         }
-                    });
+
+                        $writer->addRow([
+                            $record->name,                                // Disaggregation (from `name` field)
+                            (float) $record->value,                       // Value
+                            $record->indicator_name ?? null,              // Indicator Name
+                            $record->indicator_no ?? null,                // Indicator #
+                            $record->systemReport->project->name ?? null, // Project
+                            $report_period,                               // Reporting period (null if no systemReport or reportingPeriod)
+                            $type_of_period,
+                            $record->organisation_name ?? null,         // Organisation
+                            $record->financial_year,                    // Project year
+                            $record->financial_year_start_date ?? null, // Start year
+                            $record->financial_year_end_date ?? null,   // End Year
+                            $record->systemReport->crop ?? 'All',                       // Crop
+                        ]);
+                    }
+                });
                 $writer->close(); // Finalize the file
 
                 break;
             case 'seedBeneficiaries':
                 $filePath  = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
                 $cropTypes = [
-                    'Cassava',
-                    'OFSP',
                     'Potato',
+                    'OFSP',
+                    'Cassava',
+
                 ];
                 // Define the headers
                 $OFSPHeaders = [
-                    'Crop',
+
                     'District',
                     'EPA',
                     'Section',
@@ -1096,11 +1090,15 @@ class ExcelExportJob implements ShouldQueue
                     'Children Under 5 in HH',
                     'Variety Received',
                     'Bundles Received',
-                    'Phone / National ID',
+                    'Phone Number',
+                    'National ID',
+                    'Type of Plot',
+                    'Type of Actor',
                     'Season Type',
+                    'Submitted By'
                 ];
                 $PotatoHeaders = [
-                    'Crop',
+
                     'District',
                     'EPA',
                     'Section',
@@ -1117,13 +1115,16 @@ class ExcelExportJob implements ShouldQueue
                     'Household Size',
                     'Children Under 5 in HH',
                     'Variety Received',
-                    'Amount Of Seed Received',
-                    'Phone / National ID',
+                    'Tons_KG Received',
+                    'National ID',
+                    'Type of Plot',
+                    'Type of Actor',
                     'Season Type',
+                    'Submitted By'
                 ];
                 // Define crop types
                 $CassavaHeaders = [
-                    'Crop',
+
                     'District',
                     'EPA',
                     'Section',
@@ -1140,9 +1141,12 @@ class ExcelExportJob implements ShouldQueue
                     'Household Size',
                     'Children Under 5 in HH',
                     'Variety Received',
-                    'Amount Received',
-                    'Phone / National ID',
+                    'Bundles Received',
+                    'National ID',
+                    'Type of Plot',
+                    'Type of Actor',
                     'Season Type',
+                    'Submitted By'
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -1163,8 +1167,8 @@ class ExcelExportJob implements ShouldQueue
                         $writer->nameCurrentSheet($crop)->addHeader($CassavaHeaders);
                     }
 
-                    // Process data in chunks for the current crop
-                    SeedBeneficiary::with(['user', 'user.organisation'])
+                    $query =  // Process data in chunks for the current crop
+                        SeedBeneficiary::with(['user', 'user.organisation'])
                         ->where('crop', $crop)
                         ->select([
                             'seed_beneficiaries.crop',
@@ -1187,41 +1191,58 @@ class ExcelExportJob implements ShouldQueue
                             'seed_beneficiaries.bundles_received',
                             'seed_beneficiaries.phone_number',
                             'seed_beneficiaries.national_id',
+                            'seed_beneficiaries.type_of_plot',
+                            'seed_beneficiaries.type_of_actor',
                             'seed_beneficiaries.season_type',
                             'users.name as user_name',                 // Assuming the table name for the user model is 'users'
                             'organisations.name as organisation_name', // Assuming the table name for the organisation model is 'organisations'
                         ])
                         ->join('users', 'seed_beneficiaries.user_id', '=', 'users.id')            // Assuming the foreign key is 'user_id'
-                        ->join('organisations', 'users.organisation_id', '=', 'organisations.id') // Assuming the foreign key is 'organisation_id'
-                        ->chunk(2000, function ($seedBeneficiaries) use ($writer) {
-                            foreach ($seedBeneficiaries as $record) {
-                                $writer->addRow([
-                                    $record->crop,
-                                    $record->district,
-                                    $record->epa,
-                                    $record->section,
-                                    $record->name_of_aedo,
-                                    $record->aedo_phone_number,
-                                    $record->date,
-                                    $record->name_of_recipient,
-                                    $record->group_name,
-                                    $record->village,
-                                    $record->sex,
-                                    $record->age,
-                                    $record->marital_status,
-                                    $record->hh_head,
-                                    $record->household_size,
-                                    $record->children_under_5,
-                                    $record->variety_received,
-                                    $record->bundles_received,
-                                    $record->phone_number,
-                                    $record->national_id,
-                                    $record->season_type,
-                                    $record->user_name,
-                                    $record->organisation_name,
-                                ]);
-                            }
-                        });
+                        ->join('organisations', 'seed_beneficiaries.organisation_id', '=', 'organisations.id') // Assuming the foreign key is 'organisation_id'
+                    ;
+
+                    if ($this->user && $this->user->hasAnyRole('external')) {
+                        $user         = $this->user;
+                        $organisation = User::find($user->id)->organisation;
+                        $query->where('organisation_id', $organisation->id);
+                    }
+
+                    $query->chunk(2000, function ($seedBeneficiaries) use ($writer) {
+                        foreach ($seedBeneficiaries as $record) {
+
+
+
+
+                            $submittedBy = $record->user_name . ' (' . $record->organisation_name . ')';
+
+                            $writer->addRow([
+
+                                $record->district,
+                                $record->epa,
+                                $record->section,
+                                $record->name_of_aedo,
+                                $record->aedo_phone_number,
+                                $record->date,
+                                $record->name_of_recipient,
+                                $record->group_name,
+                                $record->village,
+                                $record->sex,
+                                $record->age,
+                                $record->marital_status,
+                                $record->hh_head,
+                                $record->household_size,
+                                $record->children_under_5,
+                                $record->variety_received,
+                                $record->bundles_received,
+                                $record->phone_number,
+                                $record->national_id,
+                                $record->type_of_plot,
+                                $record->type_of_actor,
+                                $record->season_type,
+                                $submittedBy
+                            ]);
+                        }
+                    });
                 }
 
                 $writer->close(); // Finalize the file
