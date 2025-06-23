@@ -62,7 +62,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function datasource(): Builder
     {
         $query = Submission::query()
-            ->with(['period.indicator', 'user.organisation', 'user', 'period.reportingMonths', 'form', 'financial_year'])
+            ->with(['period.indicator', 'user.organisation', 'user', 'period.reportingMonths', 'form', 'period.financialYears'])
             ->where('batch_type', 'aggregate');
 
         $user = User::find(auth()->user()->id);
@@ -93,13 +93,12 @@ final class AggregateSubmissionTable extends PowerGridComponent
             'period.reportingMonths' => [
                 'start_month',
                 'end_month',
+                'financialYears.number'
             ],
             'form' => [
                 'name',
             ],
-            'financial_year' => [
-                'number'
-            ]
+
         ];
     }
 

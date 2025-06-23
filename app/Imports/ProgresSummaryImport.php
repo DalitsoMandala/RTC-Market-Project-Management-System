@@ -2,9 +2,11 @@
 
 namespace App\Imports;
 
+use App\Models\Submission;
 use App\Models\JobProgress;
 use App\Helpers\ExcelValidator;
 use App\Models\AdditionalReport;
+use App\Models\ProgressSubmission;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
@@ -21,53 +23,52 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
+use App\Traits\FormEssentials;
+use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
-
+HeadingRowFormatter::default('none');
 class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, WithEvents
 {
-
+    use FormEssentials;
     public $filePath;
     public $expectedSheetNames = [
         'Progress summary',
     ];
 
     protected $totalRows = 0;
-    protected $expectedHeaders = [
-        'Progress summary' => [
-            "Indicator Number",
-            "Indicator",
-            "Disaggregation",
-            "Y1 Achieved",
-            "Y2 Target",
-            "Y2 Achieved",
-        ]
-
-    ];
+    protected $expectedHeaders = [];
 
     public $organisation_id;
     public $user_id;
 
     public $uuid;
     public $file_link;
+    public $table_name;
+    public $description;
 
-    public function __construct($filePath = null, $user_id, $organisation_id, $uuid, $file_link)
+    public function __construct($filePath = null, $submmited_user_id, $report_organisation_id, $uuid, $file_link, $table_name, $description)
     {
         $this->filePath = $filePath;
 
-        $this->user_id = $user_id;
-        $this->organisation_id = $organisation_id;
+        $this->user_id = $submmited_user_id;
+        $this->organisation_id = $report_organisation_id;
         $this->uuid = $uuid;
         $this->file_link = $file_link;
+        $this->table_name = $table_name;
+        $this->description = $description;
+
+        foreach ($this->expectedSheetNames as $sheetName) {
+            $this->expectedHeaders[$sheetName] = array_values($this->forms['Progress summary Form'][$sheetName]);
+        }
     }
 
     public function sheets(): array
     {
         return [
             'Progress summary' => new ProgresSummaryImportSheet(
-
                 $this->user_id,
                 $this->organisation_id,
                 $this->uuid
@@ -130,8 +131,18 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
             },
 
             AfterImport::class => function (AfterImport $event) {
+                ProgressSubmission::create([
+                    'submitted_user_id' => $this->user_id,
+                    'report_organisation_id' => $this->organisation_id,
+                    'batch_no' => $this->uuid,
+                    'file_link' => $this->file_link,
+                    'table_name' => $this->table_name,
+                    'description' => $this->description,
+                    'status' => 'active',
 
-                session()->flash('success', 'Importing was successful. The report will be updated shortly.');
+                ]);
+
+                Artisan::call('update:information');
             },
 
             ImportFailed::class => function (ImportFailed $event) {
@@ -140,11 +151,7 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
 
                 $errorMessage = $exception->getMessage();
 
-                AdditionalReport::where('uuid', $this->uuid)->update([
-
-                    'year_1' =>  0,
-                    'year_2' => 0,
-                ]);
+                AdditionalReport::where('uuid', $this->uuid)->delete();
 
                 Log::error($exception->getMessage());
                 session()->flash('error', $errorMessage);

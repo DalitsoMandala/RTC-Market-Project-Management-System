@@ -132,7 +132,7 @@ class Dashboard extends Component
     public function  loadLastSubmissions()
     {
 
-        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'financial_year'])->take(5)->get();
+        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(5)->get();
     }
 
     private function loadAttendanceData()

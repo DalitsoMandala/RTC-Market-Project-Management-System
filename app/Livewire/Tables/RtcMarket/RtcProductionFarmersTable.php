@@ -11,6 +11,7 @@ use App\Models\RpmFarmerFollowUp;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
+use App\Traits\UITrait;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Storage;
@@ -32,12 +33,20 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+    use UITrait;
     public $routePrefix;
     public bool $deferLoading = false;
+    public $nameOfTable = 'RTC Production Farmers Table';
+    public $descriptionOfTable = 'Data of RTC production farmers';
     public function setUp(): array
     {
         //  $this->showCheckBox();
-
+        // $columns = $this->columns();
+        // $getMap = [];
+        // foreach ($columns as $column) {
+        //     $getMap[$column->title] = $column->dataField;
+        // }
+        // dd($getMap);
         return [
 
             Header::make()->includeViewOnTop('components.export-data')
@@ -55,23 +64,19 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-
-        if ($user->hasAnyRole('external')) {
-
-            return RtcProductionFarmer::query()->with([
-                'user',
-                'user.organisation'
-            ])->where('organisation_id', $organisation_id);
-
-        }
-
-        return RtcProductionFarmer::query()->with([
-
+        $query = RtcProductionFarmer::query()->with([
             'user',
             'user.organisation'
+        ])->select([
+            'rtc_production_farmers.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
+        if ($user->hasAnyRole('external')) {
 
+            return $query->where('organisation_id', $organisation_id);
+        }
 
+        return $query;
     }
 
 
@@ -81,11 +86,10 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
-
+    #[On('download-export')]
     public function downloadExport()
     {
         return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
@@ -95,13 +99,13 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('rn')
             ->add('unique_id', fn($model) => $model->pf_id)
-            ->add('date_of_recruitment_formatted', fn($model) => Carbon::parse($model->date_of_recruitment)->format('d/m/Y'))
-            ->add('name_of_actor')
-            ->add('name_of_representative')
-            ->add('phone_number')
-            ->add('type')
-            ->add('approach')
+            ->add('date_of_followup_formatted', fn($model) => Carbon::parse($model->date_of_followup)->format('d/m/Y'))
+
+            ->add('group_name')
+
+
             ->add('enterprise', function ($model) {
 
                 return $model->enterprise;
@@ -118,98 +122,9 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
                 return $model->section;
             })
-            ->add('sector')
-            ->add('number_of_members_total', function ($model) {
 
+            ->add('uses_certified_seed', fn($model) => $this->booleanUI($model->uses_certified_seed, $model->uses_certified_seed == 1, true))
 
-
-                return ($model->mem_female_18_35 ?? 0) +
-                    ($model->mem_male_18_35 ?? 0) +
-                    ($model->mem_male_35_plus ?? 0) +
-                    ($model->mem_female_35_plus ?? 0);
-            })
-            ->add('number_of_members_female_18_35', function ($model) {
-
-                return $model->mem_female_18_35 ?? 0;
-            })
-            ->add('number_of_members_male_18_35', function ($model) {
-
-                return $model->mem_male_18_35 ?? 0;
-            })
-            ->add('number_of_members_male_35_plus', function ($model) {
-
-                return $model->mem_male_35_plus ?? 0;
-            })
-            ->add('number_of_members_female_35_plus', function ($model) {
-
-                return $model->mem_female_35_plus ?? 0;
-            })
-            ->add('group')
-            ->add('establishment_status')
-            ->add('is_registered', function ($model) {
-                return $model->is_registered == 1 ? 'Registered' : 'Not registered';
-            })
-
-            ->add('registration_body')
-            ->add('registration_date', function ($model) {
-
-                if (is_null($model->registration_date)) {
-                    return null;
-                }
-
-                return Carbon::parse($model->registration_date)->format('d/m/Y');
-            })
-            ->add('registration_number')
-            ->add('number_of_employees_formal_female_18_35', function ($model) {
-
-                return $model->emp_formal_female_18_35 ?? 0;
-            })
-            ->add('number_of_employees_formal_male_18_35', function ($model) {
-
-                return $model->emp_formal_male_18_35 ?? 0;
-            })
-            ->add('number_of_employees_formal_male_35_plus', function ($model) {
-
-                return $model->emp_formal_male_35_plus ?? 0;
-            })
-            ->add('number_of_employees_formal_female_35_plus', function ($model) {
-
-                return $model->emp_formal_female_35_plus ?? 0;
-            })
-            ->add('number_of_employees_formal_total', function ($model) {
-
-
-
-                return ($model->emp_formal_female_18_35 ?? 0) +
-                    ($model->emp_formal_male_18_35 ?? 0) +
-                    ($model->emp_formal_male_35_plus ?? 0) +
-                    ($model->emp_formal_female_35_plus ?? 0);
-            })
-            ->add('number_of_employees_informal_female_18_35', function ($model) {
-
-                return $model->emp_informal_female_18_35 ?? 0;
-            })
-            ->add('number_of_employees_informal_male_18_35', function ($model) {
-
-                return $model->emp_informal_male_18_35 ?? 0;
-            })
-            ->add('number_of_employees_informal_male_35_plus', function ($model) {
-
-                return $model->emp_informal_male_35_plus ?? 0;
-            })
-            ->add('number_of_employees_informal_female_35_plus', function ($model) {
-
-                return $model->emp_informal_female_35_plus ?? 0;
-            })
-            ->add('number_of_employees_informal_total', function ($model) {
-
-
-
-                return ($model->emp_informal_female_18_35 ?? 0) +
-                    ($model->emp_informal_male_18_35 ?? 0) +
-                    ($model->emp_informal_male_35_plus ?? 0) +
-                    ($model->emp_informal_female_35_plus ?? 0);
-            })
             ->add('area_under_cultivation_total', function ($model) {
 
                 return $model->cultivatedArea()->sum('area') ?? 0;
@@ -232,7 +147,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('number_of_sah_plants_produced', fn($model) => $model->number_of_sah_plants_produced ?? 0)
 
 
-            ->add('is_registered_seed_producer', fn($model) => $model->is_registered_seed_producer == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('is_registered_seed_producer', fn($model) => $this->booleanUI($model->is_registered_seed_producer, $model->is_registered_seed_producer == 1, true))
             ->add('seed_service_unit_registration_details_date', function ($model) {
 
 
@@ -241,76 +156,79 @@ final class RtcProductionFarmersTable extends PowerGridComponent
                 }
 
                 return Carbon::parse($model->registration_date_seed_producer)->format('d/m/Y');
-
             })
             ->add('seed_service_unit_registration_details_number', fn($model) => $model->registration_number_seed_producer ?? null)
-            ->add('uses_certified_seed', fn($model) => $model->uses_certified_seed == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
+            ->add('uses_certified_seed', fn($model) => $this->booleanUI($model->uses_certified_seed, $model->uses_certified_seed == 1, true))
             ->add('market_segment_fresh', function ($model) {
 
-                return $model->market_segment_fresh ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
+                return $this->booleanUI($model->market_segment_fresh, $model->market_segment_fresh == 1, true);
             })
             ->add('market_segment_processed', function ($model) {
-                return $model->market_segment_processed ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
-            })
-            ->add('has_rtc_market_contract', fn($model) => $model->has_rtc_market_contract == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
-
-            ->add('total_vol_production_previous_season', function ($model) {
-
-                return $model->total_vol_production_previous_season ?? 0;
-            })
-            ->add('total_production_value_previous_season_total', function ($model) {
-
-                return $model->prod_value_previous_season_total ?? 0;
+                return $this->booleanUI($model->market_segment_processed, $model->market_segment_processed == 1, true);
             })
 
-            ->add('total_production_value_previous_season_usd', function ($model) {
-
-                return $model->prod_value_previous_season_usd_value ?? 0;
+            ->add('market_segment_cuttings', function ($model) {
+                return $this->booleanUI($model->market_segment_cuttings, $model->market_segment_cuttings == 1, true);
             })
+            ->add('has_rtc_market_contract', fn($model) => $this->booleanUI($model->has_rtc_market_contract, $model->has_rtc_market_contract == 1, true))
+            ->add('date_of_followup', fn($model) => $model->date_of_followup ? Carbon::parse($model->date_of_followup)->format('d/m/Y') : null)
+            ->add('total_vol_production_previous_season', fn($model) => $model->total_vol_production_previous_season ?? null)
+            ->add('total_vol_production_previous_season_produce', fn($model) => $model->total_vol_production_previous_season_produce ?? null)
+            ->add('total_vol_production_previous_season_seed', fn($model) => $model->total_vol_production_previous_season_seed ?? null)
+            ->add('total_vol_production_previous_season_cuttings', fn($model) => $model->total_vol_production_previous_season_cuttings ?? null)
+            ->add('total_vol_production_previous_season_seed_bundle', fn($model) => $model->total_vol_production_previous_season_seed_bundle ?? null)
+            ->add('prod_value_previous_season_total', fn($model) => $model->prod_value_previous_season_total ?? null)
+            ->add('prod_value_previous_season_produce', fn($model) => $model->prod_value_previous_season_produce ?? null)
+            ->add('prod_value_previous_season_seed', fn($model) => $model->prod_value_previous_season_seed ?? null)
+            ->add('prod_value_previous_season_seed_bundle', fn($model) => $model->prod_value_previous_season_seed_bundle ?? null)
+            ->add('prod_value_previous_season_cuttings', fn($model) => $model->prod_value_previous_season_cuttings ?? null)
+            ->add('prod_value_produce_prevailing_price', fn($model) => $model->prod_value_produce_prevailing_price ?? null)
+            ->add('prod_value_seed_prevailing_price', fn($model) => $model->prod_value_seed_prevailing_price ?? null)
+            ->add('prod_value_cuttings_prevailing_price', fn($model) => $model->prod_value_cuttings_prevailing_price ?? null)
+            ->add('prod_value_previous_season_usd_rate', fn($model) => $model->prod_value_previous_season_usd_rate ?? null)
+            ->add('prod_value_previous_season_usd_value', fn($model) => $model->prod_value_previous_season_usd_value ?? null)
+            ->add('total_vol_irrigation_production_previous_season', fn($model) => $model->total_vol_irrigation_production_previous_season ?? null)
+            ->add('total_vol_irrigation_production_previous_season_produce', fn($model) => $model->total_vol_irrigation_production_previous_season_produce ?? null)
+            ->add('total_vol_irrigation_production_previous_season_seed', fn($model) => $model->total_vol_irrigation_production_previous_season_seed ?? null)
+            ->add('total_vol_irrigation_production_previous_season_cuttings', fn($model) => $model->total_vol_irrigation_production_previous_season_cuttings ?? null)
+            ->add('total_vol_irrigation_production_previous_season_seed_bundle', fn($model) => $model->total_vol_irrigation_production_previous_season_seed_bundle ?? null)
+            ->add('irr_prod_value_previous_season_total', fn($model) => $model->irr_prod_value_previous_season_total ?? null)
+            ->add('irr_prod_value_previous_season_produce', fn($model) => $model->irr_prod_value_previous_season_produce ?? null)
+            ->add('irr_prod_value_previous_season_seed', fn($model) => $model->irr_prod_value_previous_season_seed ?? null)
+            ->add('irr_prod_value_previous_season_seed_bundle', fn($model) => $model->irr_prod_value_previous_season_seed_bundle ?? null)
+            ->add('irr_prod_value_previous_season_cuttings', fn($model) => $model->irr_prod_value_previous_season_cuttings ?? null)
+            ->add('irr_prod_value_produce_prevailing_price', fn($model) => $model->irr_prod_value_produce_prevailing_price ?? null)
+            ->add('irr_prod_value_seed_prevailing_price', fn($model) => $model->irr_prod_value_seed_prevailing_price ?? null)
+            ->add('irr_prod_value_cuttings_prevailing_price', fn($model) => $model->irr_prod_value_cuttings_prevailing_price ?? null)
+            ->add('irr_prod_value_previous_season_usd_rate', fn($model) => $model->irr_prod_value_previous_season_usd_rate ?? null)
+            ->add('irr_prod_value_previous_season_usd_value', fn($model) => $model->irr_prod_value_previous_season_usd_value ?? null)
 
-            ->add('total_production_value_previous_season_date', function ($model) {
+            ->add('sells_to_domestic_markets', fn($model) => $this->booleanUI(
+                $model->sells_to_domestic_markets,
+                $model->sells_to_domestic_markets == 1,
+                true
+            ))
+            ->add('sells_to_international_markets', fn($model) => $this->booleanUI(
+                $model->sells_to_international_markets,
+                $model->sells_to_international_markets == 1,
+                true
+            ))
+            ->add('uses_market_information_systems', fn($model) => $this->booleanUI(
+                $model->uses_market_information_systems,
+                $model->uses_market_information_systems == 1,
+                true
+            ))
 
-                return $model->prod_value_previous_season_date_of_max_sales === null ? null : Carbon::parse($model->prod_value_previous_season_date_of_max_sales)->format('d/m/Y');
-            })
-            ->add('usd_rate', function ($model) {
+            ->add('total_vol_aggregation_center_sales')
 
-                return $model->prod_value_previous_season_usd_rate ?? 0;
-            })
-
-            ->add('total_vol_irrigation_production_previous_season', function ($model) {
-
-                return $model->total_vol_irrigation_production_previous_season ?? 0;
-            })
-            ->add('total_irrigation_production_value_previous_season_total', function ($model) {
-                return $model->irr_prod_value_previous_season_total ?? 0;
-            })
-            ->add('total_irrigation_production_value_previous_season_usd', function ($model) {
-                return $model->irr_prod_value_previous_season_usd_value ?? 0;
-            })
-            ->add('total_irrigation_production_value_previous_season_date', function ($model) {
-                return $model->irr_prod_value_previous_season_date_of_max_sales === null ? null : Carbon::parse($model->irr_prod_value_previous_season_date_of_max_sales)->format('d/m/Y');
-            })
-
-            ->add('usd_rate_irrigation', function ($model) {
-
-                return $model->irr_prod_value_previous_season_usd_rate ?? 0;
-            })
-            ->add('sells_to_domestic_markets', fn($model) => $model->sells_to_domestic_markets == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
-            ->add('sells_to_international_markets', fn($model) => $model->sells_to_international_markets == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
-            ->add('uses_market_information_systems', fn($model) => $model->uses_market_information_systems == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>')
-            ->add('market_information_systems', fn($model) => $model->market_information_systems ?? null)
             ->add('sells_to_aggregation_centers', function ($model) {
-                return $model->sells_to_aggregation_centers == 1 ? '<i class="bx bx-check text-success fs-4"></i>' : '<i class="bx bx-x text-danger fs-4"></i>';
+                return $this->booleanUI(
+                    $model->sells_to_aggregation_centers,
+                    $model->sells_to_aggregation_centers == 1,
+                    true
+                );
             })
-            ->add('area_basic_seed', function ($model) {
 
-                return $model->basicSeed()->sum('area') ?? 0;
-            })
-
-            ->add('area_certified_seed', function ($model) {
-
-                return $model->certifiedSeed()->sum('area') ?? 0;
-            })
 
             ->add('submitted_by', function ($model) {
                 $user = User::find($model->user_id);
@@ -320,23 +238,21 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
         ;
     }
 
 
+
     public function columns(): array
     {
         return [
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Farmer ID', 'unique_id', 'pf_id')->sortable()->searchable(),
+            Column::make('Group Name', 'group_name'),
+            Column::make('Date of follow up', 'date_of_followup')
+                ->sortable(),
 
-            Column::make('Actor ID', 'unique_id', 'pf_id')->sortable()->searchable(),
-            Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
-                ->sortable()->searchable(),
-
-            Column::make('Name of actor', 'name_of_actor')
-                ->sortable()
-                ->searchable(),
 
             Column::make('Enterprise', 'enterprise')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
@@ -344,221 +260,101 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             Column::make('Section', 'section')->sortable()->searchable(),
 
 
-            Column::make('Name of representative', 'name_of_representative')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Phone number', 'phone_number')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Type', 'type')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Approach', 'approach')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Sector', 'sector')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Number of members/Male 18-35', 'number_of_members_male_18_35', 'number_of_members->male_18_35')
-                ->sortable()
-                ->searchable(),
-            Column::make('Number of members/Female 18-35', 'number_of_members_female_18_35', 'number_of_members->female_18_35')
-                ->sortable()
-                ->searchable(),
-            Column::make('Number of members/Male 35+', 'number_of_members_male_35_plus', 'number_of_members->male_35_plus')
-                ->sortable()
-                ->searchable(),
-            Column::make('Number of members/Female 35+', 'number_of_members_female_35_plus', 'number_of_members->female_35_plus')
-                ->sortable()
-                ->searchable(),
-            Column::make('Number of members/total', 'number_of_members_total', 'number_of_members->total')
-                ->sortable()
-                ->searchable(),
-            Column::make('Group', 'group')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Establishment status', 'establishment_status')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Is registered', 'is_registered')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Registration body', 'registration_body')
-                ->sortable()
-                ->searchable(),
-            Column::make('Registration date', 'registration_date')
-                ->sortable()
-                ->searchable(),
-            Column::make('Registration number', 'registration_number')
-                ->sortable()
-                ->searchable(),
 
 
 
-            Column::make('Number of Employees Formal Female 18-35', 'number_of_employees_formal_female_18_35', 'number_of_employees->emp_formal_female_18_35')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Number of Employees Formal Male 18-35', 'number_of_employees_formal_male_18_35', 'number_of_employees->emp_formal_male_18_35')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Formal Male 35 Plus', 'number_of_employees_formal_male_35_plus', 'number_of_employees->emp_formal_male_35_plus')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Formal Female 35 Plus', 'number_of_employees_formal_female_35_plus', 'number_of_employees->emp_formal_female_35_plus')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total Number of Employees Formal', 'number_of_employees_formal_total', 'number_of_employees->emp_formal_total')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Informal Female 18-35', 'number_of_employees_informal_female_18_35', 'number_of_employees->emp_informal_female_18_35')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Informal Male 18-35', 'number_of_employees_informal_male_18_35', 'number_of_employees->emp_informal_male_18_35')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Informal Male 35 Plus', 'number_of_employees_informal_male_35_plus', 'number_of_employees->emp_informal_male_35_plus')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Number of Employees Informal Female 35 Plus', 'number_of_employees_informal_female_35_plus', 'number_of_employees->emp_informal_female_35_plus')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total Number of Employees Informal', 'number_of_employees_informal_total', 'number_of_employees->emp_informal_total')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Has RTC Contractual Agreement', 'has_rtc_market_contract', 'has_rtc_market_contract')
-                ->sortable()
-                ->searchable(),
 
 
 
             Column::make('Number of plantlets produced/cassava', 'number_of_plantlets_produced_cassava', 'number_of_plantlets_produced->cassava')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
             Column::make('Number of plantlets produced/potato', 'number_of_plantlets_produced_potato', 'number_of_plantlets_produced->potato')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
             Column::make('Number of plantlets produced/sweet potato', 'number_of_plantlets_produced_sw_potato', 'number_of_plantlets_produced->sweet_potato')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Number of screen house vines harvested', 'number_of_screen_house_vines_harvested')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Number of screen house min tubers harvested', 'number_of_screen_house_min_tubers_harvested')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Number of sah plants produced', 'number_of_sah_plants_produced')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
-            Column::make('Area under basic seed multiplication/total', 'area_basic_seed')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('Area under certified seed multiplication/total', 'area_certified_seed')
-                ->sortable()
-                ->searchable(),
 
             Column::make('Is registered seed producer', 'is_registered_seed_producer')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
 
             Column::make('Uses certified seed', 'uses_certified_seed')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
 
             Column::make('Market segment (Fresh)', 'market_segment_fresh')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
 
             Column::make('Market segment (Processed)', 'market_segment_processed')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
+
+            Column::make('Market segment (Cuttings)', 'market_segment_cuttings')
+                ->sortable(),
 
             Column::make('Has rtc market contract', 'has_rtc_market_contract')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
-            Column::make('Total production volume previous season', 'total_vol_production_previous_season', 'total_vol_production_previous_season')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total production value previous season/total', 'total_production_value_previous_season_total', 'total_production_value_previous_season->value')
-                ->sortable()
-                ->searchable(),
-            Column::make('Total production value previous season/total ($)', 'total_production_value_previous_season_usd', 'total_production_value_previous_season->total')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total production value previous season/date of max. sales', 'total_production_value_previous_season_date', 'total_production_value_previous_season->date_of_maximum_sales')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('USD Rate of Production Value', 'usd_rate', 'total_production_value_previous_season->rate')
-                ->sortable()
-                ->searchable(),
+            Column::make('Volume of production (Produce)', 'total_vol_production_previous_season_produce'),
+            Column::make('Volume of production (Seed)', 'total_vol_production_previous_season_seed'),
+            Column::make('Volume of production (Cuttings)', 'total_vol_production_previous_season_cuttings'),
+            Column::make('Volume of production Seed Bundle', 'total_vol_production_previous_season_seed_bundle'),
+            Column::make('Total volume of production (Metric Tonnes)', 'total_vol_production_previous_season'),
+            Column::make('Value of Production (Produce)', 'prod_value_previous_season_produce'),
+            Column::make('Value of Production (Produce Prevailing Price)', 'prod_value_produce_prevailing_price'),
+            Column::make('Value of Production (Seed)', 'prod_value_previous_season_seed'),
+            Column::make('Value of Production (Seed Prevailing Price)', 'prod_value_seed_prevailing_price'),
+            Column::make('Value of Production (Cuttings)', 'prod_value_previous_season_cuttings'),
+            Column::make('Value of Production (Cuttings Prevailing Price)', 'prod_value_cuttings_prevailing_price'),
+            Column::make('Value of Production Seed Bundle', 'prod_value_previous_season_seed_bundle'),
+            Column::make('Total Value of Production (Metric Tonnes)', 'prod_value_previous_season_total'),
+            Column::make('Total Value of Production (USD Rate)', 'prod_value_previous_season_usd_rate'),
+            Column::make('Total Value of Production (USD)', 'prod_value_previous_season_usd_value'),
 
 
-            Column::make('Total irrigation production value previous season/total', 'total_irrigation_production_value_previous_season_total', 'total_irrigation_production_value_previous_season->value')
-                ->sortable()
-                ->searchable(),
-            Column::make('Total irrigation production value previous season/total ($)', 'total_irrigation_production_value_previous_season_usd', 'total_irrigation_production_value_previous_season->total')
-                ->sortable()
-                ->searchable(),
 
-
-            Column::make('Total irrigation production value previous season/date of max. sales', 'total_irrigation_production_value_previous_season_date', 'total_irrigation_production_value_previous_season->date_of_maximum_sales')
-                ->sortable()
-                ->searchable(),
-
-
-            Column::make('USD Rate of irrigation Production Value', 'usd_rate_irrigation', 'total_irrigation_production_value_previous_season->rate')
-                ->sortable()
-                ->searchable(),
+            Column::make('Volume of irrigation production (Produce)', 'total_vol_irrigation_production_previous_season_produce'),
+            Column::make('Volume of irrigation production (Seed)', 'total_vol_irrigation_production_previous_season_seed'),
+            Column::make('Volume of irrigation production (Cuttings)', 'total_vol_irrigation_production_previous_season_cuttings'),
+            Column::make('Volume of irrigation production Seed Bundle', 'total_vol_irrigation_production_previous_season_seed_bundle'),
+            Column::make('Total volume of irrigation production (Metric Tonnes)', 'total_vol_irrigation_production_previous_season'),
+            Column::make('Value of irrigation Production (Produce)', 'irr_prod_value_previous_season_produce'),
+            Column::make('Value of irrigation Production (Produce Prevailing Price)', 'irr_prod_value_produce_prevailing_price'),
+            Column::make('Value of irrigation Production (Seed)', 'irr_prod_value_previous_season_seed'),
+            Column::make('Value of irrigation Production (Seed Prevailing Price)', 'irr_prod_value_seed_prevailing_price'),
+            Column::make('Value of irrigation Production (Cuttings)', 'irr_prod_value_previous_season_cuttings'),
+            Column::make('Value of irrigation Production (Cuttings Prevailing Price)', 'irr_prod_value_cuttings_prevailing_price'),
+            Column::make('Value of irrigation Production Seed Bundle', 'irr_prod_value_previous_season_seed_bundle'),
+            Column::make('Total Value of irrigation Production (Metric Tonnes)', 'irr_prod_value_previous_season_total'),
+            Column::make('Total Value of irrigation Production (USD Rate)', 'irr_prod_value_previous_season_usd_rate'),
+            Column::make('Total Value of irrigation Production (USD)', 'irr_prod_value_previous_season_usd_value'),
 
             Column::make('Sells to domestic markets', 'sells_to_domestic_markets')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Sells to international markets', 'sells_to_international_markets')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Uses market information systems', 'uses_market_information_systems')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
 
             Column::make('Sells to aggregation centers', 'sells_to_aggregation_centers')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
+
+            Column::make('Total Volume of Aggregation Center Sales', 'total_vol_aggregation_center_sales')
+                ->sortable(),
 
 
             Column::make('Submitted by', 'submitted_by')
@@ -598,9 +394,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     #[\Livewire\Attributes\On('edit')]
@@ -646,5 +440,4 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             // You can add other HTML attributes as needed
         ];
     }
-
 }

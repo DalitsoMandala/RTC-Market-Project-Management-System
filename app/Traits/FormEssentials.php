@@ -41,8 +41,6 @@ trait FormEssentials
                 'Employees Informal Female 35+' => 'Number (>=0)',
                 'Area Under Cultivation' => 'Number (>=0)',
                 'Is Registered Seed Producer' => 'Boolean (1/0)',
-                'Seed Producer Registration Number' => 'Text',
-                'Seed Producer Registration Date' => 'Date (dd-mm-yyyy)',
                 'Uses Certified Seed' => 'Boolean (1/0)',
             ],
             'Seed Services Unit' => [
@@ -342,6 +340,22 @@ trait FormEssentials
                 'Amount of Bundles Received' => 'Number(>=0)',
                 'Phone Number' => 'Text',
                 'Season Type' => 'Text, (Choose One)'
+            ]
+        ],
+
+        'Progress summary Form' => [
+            'Progress summary' => [
+                "Indicator Number",
+                "Indicator",
+                "Disaggregation",
+                "Y1 Target",
+                "Y1 Achieved",
+                "Y2 Target",
+                "Y2 Achieved",
+                "Y3 Target",
+                "Y3 Achieved",
+                "Y4 Target",
+                "Y4 Achieved"
             ]
         ]
     ];

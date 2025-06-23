@@ -6,6 +6,7 @@ namespace App\Jobs;
 use App\Models\Project;
 use App\Models\Indicator;
 use App\Models\Organisation;
+use App\Models\ReportStatus;
 use App\Models\SystemReport;
 use App\Models\FinancialYear;
 use Illuminate\Bus\Batchable;
@@ -91,25 +92,37 @@ class AdditionalReportJob implements ShouldQueue
 
 
                     // Fetch additional report data in chunks
-                    AdditionalReport::where('indicator_id', $indicatorId)
-                        ->where('period_month_id', $reportingPeriodId)
-                        ->where('organisation_id', $organisationId)
-                        ->where('crop', $crop)
-                        ->where('indicator_disaggregation_id', $indicatorDisaggregate->id)
-                        ->chunk(50, function ($additionalReports) use ($item, $financialYearId) {
-                            foreach ($additionalReports as $additionalData) {
-                                // Update value based on financial year
-                                if (FinancialYear::find($financialYearId)->number == 1) {
-                                    $item->update(['value' => $additionalData->year_1]);
-                                } elseif (FinancialYear::find($financialYearId)->number == 2) {
-                                    $item->update(['value' => $additionalData->year_2]);
-                                }
-                            }
-                        });
+                    $financialYear = FinancialYear::find($financialYearId);
+
+                    if ($financialYear) {
+                        $yearColumn = match ($financialYear->number) {
+                            1 => 'year_1',
+                            2 => 'year_2',
+                            3 => 'year_3',
+                            4 => 'year_4',
+                            default => null,
+                        };
+
+                        if ($yearColumn) {
+                            $totalValue = AdditionalReport::where('indicator_id', $indicatorId)
+                                ->where('period_month_id', $reportingPeriodId)
+                                ->where('organisation_id', $organisationId)
+                                ->where('crop', $crop)
+                                ->where('indicator_disaggregation_id', $indicatorDisaggregate->id)
+                                ->sum($yearColumn);
+
+                            $item->update(['value' => $item->value + $totalValue]);
+                        }
+                    }
                 });
             }
         });
 
-        Cache::put('report_progress', 100);
+
+        Cache::put('report_progress', 99);
+        ReportStatus::find(1)->update([
+            'status'   => 'pending',
+            'progress' => 99,
+        ]);
     }
 }

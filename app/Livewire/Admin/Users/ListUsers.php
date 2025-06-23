@@ -80,11 +80,7 @@ class ListUsers extends Component
         $this->organisation = $user->organisation_id;
         $this->role = $user->getRoleNames()->first();
 
-        if ($this->role == 'external') {
-            $this->organisations = Organisation::where('name', '!=', 'CIP')->get();
-        } else {
-            $this->organisations = Organisation::where('name', 'CIP')->get();
-        }
+
         $this->changePassword = false;
     }
 
@@ -269,15 +265,7 @@ class ListUsers extends Component
         }
     }
 
-    public function updatedRole($value)
-    {
 
-        if ($value == 'external') {
-            $this->organisations = Organisation::where('name', '!=', 'CIP')->get();
-        } else {
-            $this->organisations = Organisation::where('name', 'CIP')->get();
-        }
-    }
     public function render()
     {
         return view('livewire.admin.users.list-users');

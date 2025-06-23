@@ -1,95 +1,124 @@
 <?php
 
-use Carbon\Carbon;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Models\Project;
-use App\Mail\SampleMail;
-use App\Jobs\RandomNames;
+
 use App\Models\Indicator;
-use App\Models\MailingList;
-use App\Traits\ExportTrait;
-use Faker\Factory as Faker;
-use App\Models\Organisation;
-use App\Models\SystemReport;
-use Illuminate\Http\Request;
-use App\Models\FinancialYear;
-use App\Models\AssignedTarget;
-use App\Models\IndicatorClass;
-use App\Helpers\AmountSplitter;
-use App\Models\IndicatorTarget;
-use App\Traits\IndicatorsTrait;
-use App\Models\AdditionalReport;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionReport;
-use App\Models\SubmissionTarget;
-use App\Jobs\SendNotificationJob;
-use App\Models\ResponsiblePerson;
-use App\Helpers\IndicatorsContent;
-use App\Helpers\ExchangeRateHelper;
-use App\Notifications\SendReminder;
-use Illuminate\Support\Facades\Bus;
-use App\Http\Controllers\FixPeriods;
+
 use App\Livewire\Internal\Cip\Forms;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ProgresSummaryExport;
-use App\Imports\ProgresSummaryImport;
+
 use Illuminate\Support\Facades\Route;
-use App\Helpers\PopulatePreviousValue;
+
 use App\Livewire\Internal\Cip\Reports;
 
 use App\Livewire\Internal\Cip\Targets;
-use App\Notifications\JobNotification;
-use App\Models\IndicatorDisaggregation;
-use App\Exports\SeedBeneficiariesExport;
+
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\SubPeriod;
 use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
-use App\Http\Controllers\TestingController;
-use Database\Seeders\SubmissionTargetSeeder;
-use App\Jobs\sendAllIndicatorNotificationJob;
-use App\Livewire\Internal\Cip\SubPeriodStaff;
+
 use App\Livewire\Internal\Cip\ViewIndicators;
-use App\Jobs\SendExpiredPeriodNotificationJob;
-use App\Livewire\Internal\Cip\ViewSubmissions;
-use App\Notifications\ImportSuccessNotification;
-use App\Notifications\NewSubmissionNotification;
-use App\Notifications\SubmissionPeriodsEndingSoon;
-use App\Helpers\rtc_market\indicators\indicator_A1;
-use App\Helpers\rtc_market\indicators\indicator_B2;
-use App\Helpers\rtc_market\indicators\indicator_B4;
-use App\Helpers\rtc_market\indicators\indicator_B5;
-use App\Helpers\rtc_market\indicators\indicator_B6;
-use App\Exports\RtcConsumption\RtcConsumptionExport;
-use App\Notifications\EmployeeBroadcastNotification;
-use App\Helpers\rtc_market\indicators\indicator_1_1_1;
-use App\Helpers\rtc_market\indicators\indicator_2_2_2;
-use App\Helpers\rtc_market\indicators\indicator_3_1_1;
-use App\Helpers\rtc_market\indicators\indicator_3_5_4;
-use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
-use App\Imports\RtcConsumption\RtcConsumptionMultiSheet;
+
 use App\Livewire\External\Dashboard as ExternalDashboard;
-use App\Exports\AttendanceExport\AttendanceRegistersExport;
-use App\Exports\ExportFarmer\RtcProductionFarmersMultiSheetExport;
-use App\Exports\HouseholdExport\HouseholdRtcConsumptionTemplateExport;
-use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
-use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add as RTCMAddData;
-use App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View as RTCMViewData;
-use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\AddData as HRCAddData;
-use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\ViewData as HRCViewData;
 
-
+use App\Models\SeedBeneficiary;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/priznet', [TestingController::class, 'test']);
+Route::get('/priznet', function () {
+    SeedBeneficiary::where('variety_received', 'LIKE', '%kadyaubwerere%')->get()->map(function ($item) {
+        $getID = SeedBeneficiary::find($item->id);
+        $variety_received = $getID->variety_received;
+        $getID->variety_received = str_replace('kadyaubwerere', 'kadyaubwelere', $variety_received);
+        $getID->save();
+    });
+
+
+
+    $updateDisaggregation = Indicator::where(
+        'indicator_name',
+        'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities'
+    )->first();
+    $disaggregations = ['Farmers', 'Processors', 'Aggregators', 'Traders', 'Transporters'];
+    foreach ($disaggregations as $disaggregation) {
+        $updateDisaggregation->disaggregations()->firstOrCreate([
+            'name' => $disaggregation,
+        ]);
+    }
+
+
+    $updateDisaggregation = Indicator::where(
+        'indicator_name',
+        'Number of business plans for the production of different classes of RTC seeds that are executed',
+    )->first();
+    $disaggregations = ['Business plans executed', 'Business plans submitted'];
+    foreach ($disaggregations as $disaggregation) {
+        $updateDisaggregation->disaggregations()->firstOrCreate([
+            'name' => $disaggregation,
+        ]);
+    }
+
+
+    $updateDisaggregation = Indicator::where(
+        'indicator_name',
+        'Percentage increase in value of formal RTC exports',
+    )->first();
+    $disaggregations = ['Value of exports'];
+    foreach ($disaggregations as $disaggregation) {
+        $updateDisaggregation->disaggregations()->firstOrCreate([
+            'name' => $disaggregation,
+        ]);
+    }
+
+
+    $updateDisaggregation = Indicator::where(
+        'indicator_name',
+        'Percentage seed multipliers with formal registration',
+    )->first();
+    $disaggregations = ['Registered', 'Seed multipliers', 'Large scale', 'Small scale'];
+    foreach ($disaggregations as $disaggregation) {
+        $updateDisaggregation->disaggregations()->firstOrCreate([
+            'name' => $disaggregation,
+        ]);
+    }
+
+    $updateDisaggregation = Indicator::where(
+        'indicator_name',
+        'Number of RTC actors linked to online Market Information System (MIS)'
+    )->first();
+    $disaggregations = [
+        "Registered",
+        "Not registered",
+        "Farmers",
+        "Traders",
+        "Transporters",
+        "PO's",
+        "Individual farmers not in PO's",
+        "Large scalecommercial farmers",
+        "Cassava",
+        "Potato",
+        "Sweet potato"
+    ];
+    foreach ($disaggregations as $disaggregation) {
+        $updateDisaggregation->disaggregations()->firstOrCreate([
+            'name' => $disaggregation,
+        ]);
+    }
+
+
+    $updateDisaggregation = Indicator::where(
+        'indicator_name',
+        'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)'
+    )->first();
+    $disaggregations = ['Aggregators', 'Transporters'];
+    foreach ($disaggregations as $disaggregation) {
+        $updateDisaggregation->disaggregations()->firstOrCreate([
+            'name' => $disaggregation,
+        ]);
+    }
+});
 
 
 

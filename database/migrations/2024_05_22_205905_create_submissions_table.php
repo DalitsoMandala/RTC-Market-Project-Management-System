@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->string('file_link', 1000)->nullable();
             $table->text('comments')->nullable();
             $table->timestamps();
-          //  $table->softDeletes();
+            //  $table->softDeletes();
         });
     }
 

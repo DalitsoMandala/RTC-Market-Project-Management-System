@@ -122,7 +122,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'Sex' => 'required|in:Male,Female',
             'Organization' => 'nullable|string|max:255',
             'Designation' => 'nullable|string|max:255',
-            'Category' => 'required|string|max:255|in:Farmer,Processor,Trader,Partner,Staff,Other',
+            'Category' => 'required|string|max:255|in:Farmer,Processor,Trader,Partner,Staff,Aggregator,Transporter,Other',
             'Phone Number' => 'nullable|max:255',
             'Email' => 'nullable|max:255',
         ];

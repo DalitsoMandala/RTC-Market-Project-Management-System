@@ -1,5 +1,5 @@
 <div class="col-12" style="text-align: right;">
-    <label class="col-12 col-sm-8 me-2">
+    <label class="col-12 col-sm-8 ">
         @if (data_get($setUp, 'header.searchInput'))
             <div class="input-group w-100">
                 <span class="input-group-text">

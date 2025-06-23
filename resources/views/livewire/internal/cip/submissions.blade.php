@@ -27,44 +27,45 @@
                 <div>
                     <x-alerts />
                 </div>
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+
+                    <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                        data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
+                        aria-selected="true" wire:ignore.self>
+                        Batch Submissions <span
+                            class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
+                    </button>
+
+
+
+                    <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#aggregate-submission"
+                        type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
+                        Aggregate Submission (Reports) <span
+                            class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
+                    </button>
+
+
+
+                    <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
+                        data-bs-target="#submission-progress" type="button" role="tab" aria-controls="profile"
+                        aria-selected="false" wire:ignore.self>
+
+                        Pending Submissions <span
+                            class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
+                    </button>
+
+                    @hasanyrole('admin|manager')
+                        <button class="nav-link" id="progress-tab" data-bs-toggle="tab" data-bs-target="#report-progress"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
+                            Progress Summary </button>
+                    @endhasanyrole
+                </ul>
 
                 <div class="card ">
-                    <div class="card-header fw-bold ">
-                        <h5 class="card-title"> Submissions Table</h5>
 
-                    </div>
-                    <div class="px-0 card-body">
+                    <div class=" card-body">
                         <!-- Nav tabs -->
 
-                        <ul class="mx-1 nav nav-tabs" id="myTab" role="tablist">
-
-                            <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
-                                aria-selected="true" wire:ignore.self>
-                                Batch Submissions <span
-                                    class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
-                            </button>
-
-
-
-                            <button class="nav-link" id="people-tab" data-bs-toggle="tab"
-                                data-bs-target="#aggregate-submission" type="button" role="tab"
-                                aria-controls="profile" aria-selected="false" wire:ignore.self>
-                                Aggregate Submission (Reports) <span
-                                    class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
-                            </button>
-
-
-
-                            <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
-                                data-bs-target="#submission-progress" type="button" role="tab"
-                                aria-controls="profile" aria-selected="false" wire:ignore.self>
-
-                                Pending Submissions <span
-                                    class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
-                            </button>
-
-                        </ul>
 
                         <!-- Tab panes -->
                         <div class="tab-content">
@@ -82,6 +83,26 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                             </div>
+
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="report-progress" role="tabpanel"
+                                aria-labelledby="profile-tab" x-data="{
+                                    show: false,
+                                    toggle() {
+                                        this.show = !this.show
+                                    }
+                                }">
+
+                                <button class="btn btn-warning" role="button" @click="toggle()"> Import Report
+                                </button>
+                                <div x-show="show">
+
+                                    <livewire:imports.import-data />
+                                    <hr />
+                                </div>
+
+
+                                <livewire:tables.additional-report-table />
+                            </div>
                         </div>
 
 
@@ -98,12 +119,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -112,7 +133,7 @@
                 }
             });
         })
-
+        
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -120,10 +141,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
-
+        
         $wire.on('showDataAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -131,10 +152,10 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-
-
+        
+        
             }),
-
+        
             $wire.on('deleteAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -142,11 +163,11 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-
-
+        
+        
             })
-
-
+        
+        
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -154,8 +175,20 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
+        })
+        
+        
+        $wire.on('deleteProgress', (e) => {
+            setTimeout(() => {
+                $wire.dispatch('set', { id: e.id });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
         })">
 
 
@@ -176,17 +209,17 @@
                         isManager: $wire.entangle('isManager'),
                         disableInputs: false,
                         init() {
-
-
+                    
+                    
                             if (this.isManager) {
                                 this.disableInputs = false;
                             } else {
                                 this.disableInputs = true;
-
+                    
                             }
-
+                    
                         }
-
+                    
                     }">
 
 
@@ -240,9 +273,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-
-
-
+                
+                
+                
                 }">
 
 
@@ -344,6 +377,33 @@
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteBatch"
+                            class="btn btn-theme-red">Yes, I'm sure</button>
+                    </div>
+                </form>
+            </x-modal>
+
+
+            <x-modal id="delete-progress-modal" title="Delete Submission">
+                <x-alerts />
+                <h4 class="text-center h4">Please confirm whether you would like to delete this record?
+
+                </h4>
+
+                <form wire:submit='deleteProgress'>
+                    <label for="">Please type "delete" to confirm</label>
+                    <input type="text" wire:model='confirmDeleteProgress'
+                        class="form-control @error('confirmDeleteProgress') is-invalid @enderror" />
+                    <small class=" text-danger">This action cannot be undone</small>
+
+
+                    @error('confirmDeleteProgress')
+                        <x-error>{{ $message }}</x-error>
+                    @enderror
+
+                    <div class="mt-5 d-flex border-top-0 justify-content-center">
+                        <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
+                            data-bs-dismiss="modal">No, cancel</button>
+                        <button type="submit" wire:loading.attr="disabled" wire:target="deleteProgress"
                             class="btn btn-theme-red">Yes, I'm sure</button>
                     </div>
                 </form>

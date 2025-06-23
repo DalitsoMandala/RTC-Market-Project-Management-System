@@ -10,4 +10,9 @@ class RecruitSeedRegistration extends Model
     use HasFactory;
     protected $guarded = [];
     protected $table = 'recruit_seed_registrations';
+
+    public function recruitments()
+    {
+        return $this->belongsTo(Recruitment::class, 'recruitment_id');
+    }
 }

@@ -117,7 +117,9 @@ class indicator_2_3_1_2
             'Potato' => $totals['Potato'],
             'Sweet potato' => $totals['Sweet potato'],
             'Basic' => $totals['Basic'],
-            'Certified' => $totals['Certified']
+            'Certified' => $totals['Certified'],
+            'Business plans executed' => $totals['Business plans executed'],
+            'Business plans submitted' => $totals['Business plans submitted'],
         ];
     }
 }

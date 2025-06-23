@@ -33,40 +33,57 @@ class UpdateInformation extends Command
      */
     public function handle()
     {
-        //
         ini_set('max_execution_time', 0);
-        $this->info('Updating information...');
-        Cache::put('report_progress', 0);
+        $this->info('Checking report status...');
+
+        // Acquire a lock to prevent duplicate execution
+        //   $lock = Cache::lock('report_lock', 3600); // 1 hour lock
+
 
 
         $reportStatus = ReportStatus::find(1);
-        if ($reportStatus && $reportStatus->status == 'pending') {
+
+        if ($reportStatus && $reportStatus->status === 'pending') {
+            $this->comment("Report is already running at {$reportStatus->progress}%.");
+            Cache::put('report_progress', $reportStatus->progress);
+            Cache::put('report_', 'pending');
+
             return;
         }
+
+        // Reset the report status
+        $reportStatus->update([
+            'status' => 'pending',
+            'progress' => 0,
+        ]);
+        Cache::put('report_progress', 0);
+        Cache::put('report_', 'pending');
+
         // Chain the jobs
         Bus::chain([
             new ReportJob(),
             new PopulatePreviousValueJob(),
             new AdditionalReportJob(),
-            function () {
-                ReportStatus::find(1)->update([
+            function () use ($reportStatus) {
+                $reportStatus->update([
                     'status' => 'completed',
-                    'progress' => 100
+                    'progress' => 100,
                 ]);
                 Cache::put('report_progress', 100);
                 Cache::put('report_', 'completed');
             }
-        ])->catch(function (\Throwable $e) {
-            // Handle any exceptions that occur during the chain
-            logger()->error('Job chain failed: ' . $e->getMessage());
+        ])
+            ->catch(function (\Throwable $e) use ($reportStatus) {
+                logger()->error('Report job chain failed: ' . $e->getMessage());
 
-
-            ReportStatus::find(1)->update([
-                'status' => 'completed',
-                'progress' => 100
-            ]);
-            Cache::put('report_progress', 100);
-            Cache::put('report_', 'completed');
-        })->dispatch();
+                $reportStatus->update([
+                    'status' => 'completed',
+                    'progress' => 100,
+                ]);
+                Cache::put('report_progress', 100);
+                Cache::put('report_', 'completed');
+            })
+            // Optional: you can omit ->onQueue('default') since it's default anyway
+            ->dispatch();
     }
 }

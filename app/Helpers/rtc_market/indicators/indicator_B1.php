@@ -79,8 +79,8 @@ class indicator_B1
 
             return [
                 strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal + $processorTotal,
-        ];
-    }
+            ];
+        }
 
         // Otherwise, return totals for all enterprises
         $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
@@ -146,7 +146,12 @@ class indicator_B1
 
         return [
             'Total (% Percentage)' => 0,
-            ...$allCrops
+            ...$allCrops,
+            'Traders' => 0,
+            'Farmers' => 0,
+            'Processors' => 0,
+            'Aggregators' => 0,
+            'Transporters' => 0,
         ];
     }
 }

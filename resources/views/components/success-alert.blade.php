@@ -1,4 +1,4 @@
-<div class="alert alert-success" role="alert" x-ref="successAlert" x-data x-init="() => {
+<div class="alert alert-success alert-border-left" role="alert" x-ref="successAlert" x-data x-init="() => {
 
     let object = $($refs.successAlert);
     object.fadeTo(30000, 0).slideUp(500);

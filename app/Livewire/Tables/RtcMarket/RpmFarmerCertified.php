@@ -8,6 +8,7 @@ use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use App\Models\RpmFarmerCertifiedSeed;
 use Illuminate\Support\Facades\Storage;
@@ -32,15 +33,18 @@ final class RpmFarmerCertified extends PowerGridComponent
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
+        $query = RpmFarmerCertifiedSeed::query()->with('farmers')->select([
+            'rpmf_certified_seed.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
         if ($user->hasAnyRole('external')) {
 
-            return RpmFarmerCertifiedSeed::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+            return $query->whereHas('farmers', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
-        return RpmFarmerCertifiedSeed::query()->with('farmers');
+        return $query;
     }
 
     public $namedExport = 'rpmfCS'; // rtc prouction marketing farmers Certified Seed
@@ -49,7 +53,6 @@ final class RpmFarmerCertified extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
     public function relationSearch(): array
@@ -80,7 +83,7 @@ final class RpmFarmerCertified extends PowerGridComponent
 
         return [
 
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->pageName('certified-seed')
@@ -111,7 +114,6 @@ final class RpmFarmerCertified extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('variety');
     }
@@ -119,18 +121,14 @@ final class RpmFarmerCertified extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Farmer ID', 'unique_id', 'pf_id')
+                ->searchable(),
 
-            Column::make('Actor ID', 'unique_id', 'pf_id')
-                ->searchable()
-            ,
-
-            Column::make('Name of actor', 'name_of_actor')
-                ->searchable()
-            ,
 
             Column::make('Variety', 'variety')->sortable()->searchable(),
 
-            Column::make('Area (Number of acres)', 'area')->sortable()->searchable(),
+            Column::make('Area (Number of acres)', 'area')->sortable(),
 
 
 

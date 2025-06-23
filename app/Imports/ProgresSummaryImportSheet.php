@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Concerns\Importable;
 
 use Maatwebsite\Excel\Concerns\WithEvents;
 use App\Exceptions\ExcelValidationException;
+use App\Helpers\CoreFunctions;
 use App\Models\FinancialYear;
 use App\Models\OrganisationTarget;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -58,50 +59,40 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
             $disaggregations = $indicator->disaggregations;
             foreach ($disaggregations as $disaggregation) {
                 if ($disaggregation->name == $row['Disaggregation']) {
-                    try {
 
-                        // targets if available for year 2
-                        $y2Target = $row['Y2 Target'];
-                        if ($y2Target != null && $y2Target > 0 && $y2Target) {
+                    $crops = CoreFunctions::getCropsWithNull();
+                    foreach ($crops as $crop) {
 
-                            $target = SubmissionTarget::where('financial_year_id', FinancialYear::where('number', 2)->first()->id)
-                                ->where('indicator_id', $indicator->id)
-                                ->where('target_name', $disaggregation->name)
-                                ->first();
 
-                            if ($target) {
-                                OrganisationTarget::updateOrCreate([
-                                    'submission_target_id' => $target->id,
-                                    'organisation_id' => $this->organisation_id,
-                                    'value' => $y2Target
-                                ]);
-                            }
+                        try {
+
+                            // targets if available for year 2
+
+
+
+
+
+                            AdditionalReport::create([
+                                'uuid' => $this->uuid,
+                                'indicator_id' => $indicator->id,
+                                'indicator_disaggregation_id' => $disaggregation->id,
+                                'period_month_id' => ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first()->id,
+                                'user_id' => $this->user_id,
+                                'organisation_id' => $this->organisation_id,
+                                'year_1' => $row['Y1 Achieved'] ?? 0,
+                                'y1_target' => $row['Y1 Target'] ?? 0,
+                                'year_2' => $row['Y2 Achieved'] ?? 0,
+                                'y2_target' => $row['Y2 Target'] ?? 0,
+                                'year_3' => $row['Y3 Achieved'] ?? 0,
+                                'y3_target' => $row['Y3 Target'] ?? 0,
+                                'year_4' => $row['Y4 Achieved'] ?? 0,
+                                'y4_target' => $row['Y4 Target'] ?? 0,
+                                'crop' => $crop
+                            ]);
+                        } catch (\Throwable $e) {
+                            Log::error($e->getMessage());
+                            throw new \Exception("An error occurred while importing data.");
                         }
-
-
-                        $data = [
-                            'uuid' => $this->uuid,
-                            'indicator_id' => $indicator->id,
-                            'indicator_disaggregation_id' => $disaggregation->id,
-                            'period_month_id' => ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first()->id,
-                            'user_id' => $this->user_id,
-                            'organisation_id' => $this->organisation_id,
-                            'year_1' => $row['Y1 Achieved'] ?? 0,
-                            'year_2' => $row['Y2 Achieved'] ?? 0,
-                        ];
-
-
-
-                        return AdditionalReport::updateOrCreate([
-                            'indicator_id' => $indicator->id,
-                            'indicator_disaggregation_id' => $disaggregation->id,
-                            'period_month_id' => ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first()->id,
-                            'user_id' => $this->user_id,
-                            'organisation_id' => $this->organisation_id,
-                        ], $data);
-                    } catch (\Throwable $e) {
-                        Log::error($e->getMessage());
-                        throw new \Exception("An error occurred while importing data.");
                     }
                 }
             }
@@ -129,10 +120,14 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
             'Indicator Number' => 'required|string', // Allow null values
             'Indicator' => 'required|string',
             'Disaggregation' => 'required|string',
-            // 'Y1 Target' => 'nullable|numeric|min:0',
+            'Y1 Target' => 'nullable|numeric|min:0',
             'Y1 Achieved' => 'nullable|numeric|min:0',
             'Y2 Target' => 'nullable|numeric|min:0',
             'Y2 Achieved' => 'nullable|numeric|min:0',
+            'Y3 Target' => 'nullable|numeric|min:0',
+            'Y3 Achieved' => 'nullable|numeric|min:0',
+            'Y4 Target' => 'nullable|numeric|min:0',
+            'Y4 Achieved' => 'nullable|numeric|min:0',
         ];
     }
 

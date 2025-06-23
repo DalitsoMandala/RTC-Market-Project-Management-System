@@ -68,6 +68,8 @@ class indicator_2_2_3
         return $this->applyFilters($query);
     }
 
+
+
     public function builderRecruitment($crop = null): Builder
     {
         $query = Recruitment::query()->where('status', 'approved');
@@ -153,6 +155,7 @@ class indicator_2_2_3
             + ($cropData['potato']['certified_seed'] ?? 0)
             + ($cropData['sweet_potato']['certified_seed'] ?? 0);
 
+
         // Prepare base response structure
         $result = [
             'Total (% Percentage)' => 0,
@@ -163,6 +166,10 @@ class indicator_2_2_3
             'Certified' => $totalCertified,
             'POs' => 0,
             'Individual farmers not in POs' => 0,
+            'Registered' => $this->builderFarmer()->count(),
+            'Seed multipliers' => 0,
+            'Large scale' => 0,
+            'Small scale' => 0
         ];
 
         // If enterprise is filtered, keep all keys but zero out non-matching crops

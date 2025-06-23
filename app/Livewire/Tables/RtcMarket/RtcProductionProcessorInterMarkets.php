@@ -35,7 +35,7 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->pageName('international-markets')
@@ -47,16 +47,18 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-
+        $query = RpmProcessorInterMarket::query()->with('processors')->select([
+            'rpm_processor_inter_markets.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
         if ($user->hasAnyRole('external')) {
 
-            return RpmProcessorInterMarket::query()->with('processors')->whereHas('processors', function ($model) use ($organisation_id) {
+            return $query->whereHas('processors', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
-        return RpmProcessorInterMarket::query()->with('processors');
+        return $query;
     }
 
 
@@ -66,7 +68,6 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -88,11 +89,8 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 
                 if ($row) {
                     return $row->name_of_actor;
-
                 }
                 return null;
-
-
             })
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
@@ -111,7 +109,6 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('updated_at');
     }
@@ -126,8 +123,9 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         return [
 
-            Column::make('Actor ID', 'unique_id')->searchable(),
-            Column::make('Actor Name', 'actor_name'),
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Processor ID', 'unique_id')->searchable(),
+
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
@@ -148,16 +146,14 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Product type', 'product_type')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Volume sold previous period', 'volume_sold_previous_period')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Financial value of sales', 'financial_value_of_sales')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
+
 
 
             // Column::make('Submitted by', 'submitted_by')

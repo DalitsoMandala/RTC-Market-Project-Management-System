@@ -22,7 +22,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class SeedBeneficiaryTable extends PowerGridComponent
+final class SeedBeneficiariesCassavaTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
@@ -39,7 +39,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
                 ->pageName("{$this->crop}_page")
@@ -47,19 +47,6 @@ final class SeedBeneficiaryTable extends PowerGridComponent
         ];
     }
 
-    #[On('export-seedBeneficiaries')]
-    public function startExport()
-    {
-        $this->execute($this->namedExport);
-        $this->performExport();
-    }
-
-    #[On('download-export')]
-    public function downloadExport()
-    {
-
-        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
-    }
 
 
     public function datasource(): Builder
@@ -67,7 +54,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = SeedBeneficiary::query()->with('user')->where('crop', 'Potato')->join('users', function ($user) {
+        $query = SeedBeneficiary::query()->with('user')->where('crop', 'Cassava')->join('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select([
             'seed_beneficiaries.*',
@@ -201,7 +188,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 
             Column::make('Variety received', 'variety_received')->searchable(),
 
-            Column::make('Tons/KG received', 'bundles_received')
+            Column::make('Bundles received', 'bundles_received')
                 ->sortable(),
 
             Column::make('Phone', 'phone_number')

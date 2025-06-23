@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs;
 
 use App\Helpers\CoreFunctions;
@@ -52,10 +53,7 @@ class ReportJob implements ShouldQueue
         $currentProgress = 0;
         $updateInterval  = 10; // Update progress every 10 iterations
 
-        ReportStatus::find(1)->update([
-            'status'   => 'pending',
-            'progress' => 0,
-        ]);
+
 
         foreach ($Indicator_classes as $Indicator_class) {
             $reportingPeriods = ReportingPeriodMonth::pluck('id')->toArray();
@@ -145,6 +143,10 @@ class ReportJob implements ShouldQueue
         }
 
         Cache::put('report_progress', 33);
+        ReportStatus::find(1)->update([
+            'status'   => 'pending',
+            'progress' => 33,
+        ]);
     }
 
     public function updateDisaggregations($report, $key, $value)

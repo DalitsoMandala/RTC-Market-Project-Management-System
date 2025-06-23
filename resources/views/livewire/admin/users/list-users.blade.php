@@ -78,12 +78,10 @@
 
 
 
-                            <div class="mb-3" x-data="{
-                                role: $wire.entangle('role').live
-                            }">
+                            <div class="mb-3" >
                                 <label for="role" class="form-label">Roles</label>
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
-                                    x-model="role">
+                                    wire:model="role">
                                     <option value="">Select a role</option>
                                     @foreach ($roles as $role)
                                         <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}
@@ -94,20 +92,16 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
+{{ $role }}
                             <div class="mb-3 ">
                                 <label for="organisation" class="form-label">Organisation</label>
                                 <select class="form-select @error('organisation') is-invalid @enderror"
                                     id="organisation" wire:model.live.debounce.200ms="organisation">
                                     <option value="">Select an organisation</option>
                                     @foreach ($organisations as $org)
-                                        @if ($disableAll)
-                                            <option value="{{ $org->id }}"
-                                                @if ($org->name != 'CIP') disabled @endif>{{ $org->name }}
-                                            </option>
-                                        @else
-                                            <option value="{{ $org->id }}">{{ $org->name }}</option>
-                                        @endif
+
+                                            <option @if($role !== 'external' && $org->name==='CIP') selected disabled @endif   value="{{ $org->id }}">{{ $org->name }}</option>
+
                                     @endforeach
                                 </select>
                                 @error('organisation')

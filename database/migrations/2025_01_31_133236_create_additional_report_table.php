@@ -14,19 +14,13 @@ return new class extends Migration
         Schema::create('additional_report', function (Blueprint $table) {
             $table->id();
             $table->string('uuid');
-            //   $table->decimal('y1_target', 15, 2)->default(0);
-            //  $table->decimal('y4_target', 15, 2)->default(0);
             $table->decimal('year_1', 15, 2)->default(0);
             $table->decimal('y2_target', 15, 2)->default(0);
             $table->decimal('year_2', 15, 2)->default(0);
-            //   $table->decimal('year_3', 15, 2)->default(0);
-            //     $table->decimal('year_4', 15, 2)->default(0);
             $table->foreignId('period_month_id')->constrained('reporting_period_months', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('indicator_id')->constrained('indicators', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('indicator_disaggregation_id')->constrained('indicator_disaggregations', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade')->onUpdate('cascade');
-            //   $table->foreignId('financial_year_id')->constrained('financial_years', 'id')->onDelete('cascade')->onUpdate('cascade');
-
             $table->foreignId('organisation_id')->constrained('organisations', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

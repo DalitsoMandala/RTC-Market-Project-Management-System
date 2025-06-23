@@ -37,20 +37,33 @@
 
                 <x-alerts />
 
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">RTC consumption table
-                            @if ($batch_no)
-                                [Batch : {{ $batch_no }}]
-                            @endif
-                        </h4>
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">
+                            RTC CONSUMPTION
+                        </button>
+                    </li>
+
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="card">
+
+                            <div class=" card-body">
+                                <livewire:tables.rtc-market.rtc-consumption-table />
+                            </div>
+
+                        </div>
                     </div>
 
-                    <div class="px-0 card-body" id="#datatable">
-                        <livewire:tables.rtc-market.rtc-consumption-table />
 
-                    </div>
                 </div>
+
+
 
             </div>
         </div>

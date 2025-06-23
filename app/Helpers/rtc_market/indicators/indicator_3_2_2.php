@@ -99,10 +99,11 @@ class indicator_3_2_2
     {
         $farmers = $this->builder()->where('category', 'Farmer')->count();
         $processors = $this->builder()->where('category', 'Processor')->count();
-
         $traders = $this->builder()->where('category', 'Trader')->count();
         $partners = $this->builder()->where('category', 'Partner')->count();
         $staff = $this->builder()->where('category', 'Staff')->count();
+        $aggregators = $this->builder()->where('category', 'Aggregator')->count();
+        $transporters = $this->builder()->where('category', 'Transporter')->count();
 
 
         return [
@@ -110,7 +111,9 @@ class indicator_3_2_2
             'Processors' => $processors,
             'Traders' => $traders,
             'Partners' => $partners,
-            'Staff' => $staff
+            'Staff' => $staff,
+            'Aggregators' => $aggregators,
+            'Transporters' => $transporters
         ];
     }
 
@@ -141,6 +144,8 @@ class indicator_3_2_2
         $traders = $this->getCategory()['Traders'];
         $partners = $this->getCategory()['Partners'];
         $staff = $this->getCategory()['Staff'];
+        $aggregators = $this->getCategory()['Aggregators'];
+        $transporters = $this->getCategory()['Transporters'];
 
         return [
             'Total' => $staff + $farmers + $processors + $traders + $partners,
@@ -150,6 +155,8 @@ class indicator_3_2_2
             'Traders' => $traders,
             'Partner' => $partners,
             'Staff' => $staff,
+            'Aggregators' => $aggregators,
+            'Transporters' => $transporters
         ];
     }
 }

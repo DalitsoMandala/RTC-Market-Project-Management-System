@@ -13,7 +13,7 @@
 
 
         @if (session()->has('notice'))
-            <div class="alert alert-secondary" x-ref="warningAlert" x-data x-init="() => {
+            <div class="alert alert-secondary alert-border-left" x-ref="warningAlert" x-data x-init="() => {
             
                 let object = $($refs.warningAlert);
                 object.fadeTo(30000, 0).slideUp(500);

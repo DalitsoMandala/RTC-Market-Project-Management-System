@@ -9,5 +9,9 @@ class FarmerSeedRegistration extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $table ='farmer_seed_registrations';
+    protected $table = 'farmer_seed_registrations';
+    public function productionFarmers()
+    {
+        return $this->belongsTo(RtcProductionFarmer::class, 'farmer_id');
+    }
 }

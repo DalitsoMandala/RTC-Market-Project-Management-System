@@ -36,7 +36,7 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
+            Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
                 ->pageName('international-markets')
@@ -49,16 +49,19 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
+        $query = RpmFarmerInterMarket::query()->with('farmers')->select([
+            'rpm_farmer_inter_markets.*',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
 
         if ($user->hasAnyRole('external')) {
 
-            return RpmFarmerInterMarket::query()->with('farmers')->whereHas('farmers', function ($model) use ($organisation_id) {
+            return $query->whereHas('farmers', function ($model) use ($organisation_id) {
 
                 $model->where('organisation_id', $organisation_id);
-
             });
         }
-        return RpmFarmerInterMarket::query()->with('farmers');
+        return $query;
     }
 
 
@@ -68,7 +71,6 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
     {
         $this->execute($this->namedExport);
         $this->performExport();
-
     }
 
 
@@ -90,11 +92,8 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
                 if ($row) {
                     return $row->name_of_actor;
-
                 }
                 return null;
-
-
             })
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
@@ -113,7 +112,6 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
             })
             ->add('updated_at');
     }
@@ -127,9 +125,9 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
     public function columns(): array
     {
         return [
+            Column::make('ID', 'rn')->sortable(),
+            Column::make('Farmer ID', 'unique_id')->searchable(),
 
-            Column::make('Actor ID', 'unique_id')->searchable(),
-            Column::make('Actor Name', 'actor_name'),
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
@@ -150,20 +148,15 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Product type', 'product_type')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Volume sold previous period', 'volume_sold_previous_period')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
             Column::make('Financial value of sales', 'financial_value_of_sales')
-                ->sortable()
-                ->searchable(),
+                ->sortable(),
 
 
-            // Column::make('Submitted by', 'submitted_by')
-            //     ->searchable(),
 
 
         ];

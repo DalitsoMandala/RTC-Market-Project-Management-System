@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ReportStatus;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Cache;
@@ -36,5 +37,9 @@ class PopulatePreviousValueJob implements ShouldQueue
         $class = new PopulatePreviousValue();
         $class->start(); // percentages
         Cache::put('report_progress', 66);
+        ReportStatus::find(1)->update([
+            'status'   => 'pending',
+            'progress' => 66,
+        ]);
     }
 }

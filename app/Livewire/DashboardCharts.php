@@ -80,7 +80,7 @@ class DashboardCharts extends Component
         $reportIds = SystemReport::where('indicator_id', 1)
             ->where('project_id', 1)
             ->where('financial_year_id', $financialYear)
-            ->whereNull('crop')
+            ->where('crop', null)
             ->pluck('id');
 
         // Return summed data grouped by 'name' if reports exist

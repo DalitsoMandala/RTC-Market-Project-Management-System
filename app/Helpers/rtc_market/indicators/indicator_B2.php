@@ -57,6 +57,7 @@ class indicator_B2
             '(Informal) Sweet potato' => 0,
             'Raw' => 0,
             'Processed' => 0,
+            'Value of exports' => 0
         ]);
 
         if ($builder->isNotEmpty()) {
@@ -72,10 +73,10 @@ class indicator_B2
 
                         // If enterprise is set, only process matching keys or non-enterprise keys
                         if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
-                        if ($json->has($key)) {
-                            $data->put($key, $data->get($key) + $json[$key]);
+                            if ($json->has($key)) {
+                                $data->put($key, $data->get($key) + $json[$key]);
+                            }
                         }
-                    }
                     }
                 });
             });
@@ -108,7 +109,7 @@ class indicator_B2
             'Raw' => $totals['Raw'],
             'Processed' => $totals['Processed'],
             "Financial value ($)" => $subTotal,
-            //"Volume (Metric Tonnes)" => $totals['Volume (Metric Tonnes)'],
+            'Value of exports' => $subTotal,
         ];
     }
 }

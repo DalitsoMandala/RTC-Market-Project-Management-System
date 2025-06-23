@@ -41,7 +41,8 @@ final class ReportTable extends PowerGridComponent
     public $crop;
     public bool $withSortStringNumber = true;
     //  public string $sortField = 'system_reports.crop';
-
+    public $nameOfTable = 'Reporting Table';
+    public $descriptionOfTable = 'Generate report';
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -66,6 +67,8 @@ final class ReportTable extends PowerGridComponent
         $this->performExport();
     }
 
+
+    #[On('download-export')]
     public function downloadExport()
     {
         return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
@@ -88,7 +91,7 @@ final class ReportTable extends PowerGridComponent
                 'organisations.name as organisation_name',
                 'financial_years.number as financial_year',
 
-        ]);
+            ]);
 
         // Apply filters if any are provided
         if ($this->hasFilters()) {

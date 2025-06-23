@@ -28,70 +28,56 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                @if (session()->has('success'))
-                    <x-success-alert>{!! session()->get('success') !!}</x-success-alert>
-                @endif
-                @if (session()->has('error'))
-                    <x-error-alert>{!! session()->get('error') !!}</x-error-alert>
-                @endif
+
+                <ul class=" nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">
+                            RTC PRODUCTION PROCESSORS
+                        </button>
+                    </li>
+
+
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#conc"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            CONTRACTUAL AGGREMENT
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#dom"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            DOMESTIC MARKETS
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#inter"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            INTERNATION MARKETS
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="mis-tab" data-bs-toggle="tab" data-bs-target="#mis"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            MARKET INFORMATION SYSTEMS
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="aggrSales-tab" data-bs-toggle="tab" data-bs-target="#aggrSales"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false">
+                            AGGREGATION CENTERS
+                        </button>
+                    </li>
+                </ul>
 
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="text-center text-warning text-uppercase">RTC PRODUCTION AND MARKETING (PROCESSORS)
-                            Table
-                            @if ($batch_no)
-                                [Batch : {{ $batch_no }}]
-                            @endif
-                        </h4>
-                    </div>
-                    <div class="px-0 card-body" id="#datatable">
-                        <ul class="mx-2 nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                    data-bs-target="#normal" type="button" role="tab" aria-controls="home"
-                                    aria-selected="true">
-                                    Processors' Data
-                                </button>
-                            </li>
 
-
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#conc"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Contractual Aggrement Data
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#dom"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Domestic Markets Data
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#inter"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    International Markets Data
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="mis-tab" data-bs-toggle="tab" data-bs-target="#mis"
-                                    type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Market Information Systems
-                                </button>
-                            </li>
-
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="aggrSales-tab" data-bs-toggle="tab"
-                                    data-bs-target="#aggrSales" type="button" role="tab" aria-controls="profile"
-                                    aria-selected="false">
-                                    Aggregation sales
-                                </button>
-                            </li>
-                        </ul>
+                    <div class=" card-body" id="#datatable">
 
                         <!-- Tab panes -->
                         <div class="tab-content">
