@@ -95,6 +95,8 @@ Route::get('/priznet', function () {
         $getID->variety_received = str_replace('kadyaubwerere', 'kadyaubwelere', $variety_received);
         $getID->save();
     });
+
+
 });
 
 

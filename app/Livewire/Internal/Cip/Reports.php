@@ -164,15 +164,8 @@ class Reports extends Component
     {
         $this->loadingData = true;
 
-        $pending = ReportStatus::where('status', 'pending')->first();
-        $completed = ReportStatus::where('status', 'completed')->first();
-        $processing = ReportStatus::where('status', 'processing')->first();
-
-        if ($pending || $completed) {
-            Artisan::call('update:information');
-        } else if ($processing) {
-            $this->readCache();
-        }
+        Artisan::call('update:information');
+        $this->readCache();
     }
 
     public function updated($property, $value)

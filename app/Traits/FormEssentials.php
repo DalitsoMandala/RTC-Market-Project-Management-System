@@ -341,6 +341,22 @@ trait FormEssentials
                 'Phone Number' => 'Text',
                 'Season Type' => 'Text, (Choose One)'
             ]
+        ],
+
+        'Progress summary Form' => [
+            'Progress summary' => [
+                "Indicator Number",
+                "Indicator",
+                "Disaggregation",
+                "Y1 Target",
+                "Y1 Achieved",
+                "Y2 Target",
+                "Y2 Achieved",
+                "Y3 Target",
+                "Y3 Achieved",
+                "Y4 Target",
+                "Y4 Achieved"
+            ]
         ]
     ];
 }

@@ -8,6 +8,7 @@ use App\Models\Submission;
 use App\Models\JobProgress;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Models\ProgressSubmission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
 use App\Models\RpmFarmerFollowUp;
@@ -43,6 +44,7 @@ class Submissions extends Component
     public $tableName;
     public $isManager = false;
 
+    public $confirmDeleteProgress;
     public function messages()
     {
         return [
@@ -219,7 +221,35 @@ class Submissions extends Component
             Log::error($th);
         }
     }
+    public function deleteProgress()
+    {
 
+
+        try {
+
+            $this->validate([
+                'confirmDeleteProgress' => 'required|in:delete'
+            ], [
+                'confirmDeleteProgress.required' => 'Please confirm deletion',
+                'confirmDeleteProgress.in' => 'The value must be "delete"',
+            ]);
+        } catch (\Throwable $e) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $e;
+        }
+        try {
+            $submission = ProgressSubmission::findOrFail($this->rowId);
+            DB::table($submission->table_name)->where('uuid', $submission->batch_no)->delete();
+            $submission->delete();
+            session()->flash('success', 'Successfully deleted progress summary');
+            $this->dispatch('hideModal');
+            $this->dispatch('refresh');
+        } catch (\Throwable $th) {
+            session()->flash('error', 'Something went wrong');
+
+            Log::error($th);
+        }
+    }
 
 
 

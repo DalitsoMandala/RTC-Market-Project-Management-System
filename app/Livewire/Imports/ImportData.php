@@ -42,6 +42,9 @@ class ImportData extends Component
     public $reportingPeriod;
     public $showInput = true;
 
+
+    public $description;
+
     public function downloadTemplate()
     {
         $time = \Carbon\Carbon::parse(now())->format('d_m_Y_H_i_s');
@@ -54,7 +57,7 @@ class ImportData extends Component
         try {
             $this->validate([
                 'upload' => 'required|file|mimes:xlsx,csv',
-
+                'description' => 'required',
                 'selectedReportingPeriod' => 'required',
                 'selectedOrganisation' => 'required',
             ], attributes: [
@@ -80,41 +83,28 @@ class ImportData extends Component
             $path = storage_path('app/public/imports/' . $name);
             $this->importing = true;
             $this->importingFinished = false;
-            try {
 
-                $this->importId = Uuid::uuid4()->toString();
-                Excel::import(new ProgresSummaryImport(
-                    filePath: $path,
 
-                    user_id: Auth::user()->id,
-                    organisation_id: $this->selectedOrganisation,
-                    uuid: $this->importId,
-                    file_link: $name
-                ), $path);
-                // Clear the file input after upload
-                session()->flash('success', 'File uploaded successfully. Report will be updated very soon!');
-                $this->redirect(url()->previous());
-            } catch (Exception $th) {
-
-                $this->showInput = true;
-                session()->flash('error', $th->getMessage());
-                Log::error($th);
-            }
+            $this->importId = Uuid::uuid4()->toString();
+            Excel::import(new ProgresSummaryImport(
+                filePath: $path,
+                submmited_user_id: Auth::user()->id,
+                report_organisation_id: $this->selectedOrganisation,
+                uuid: $this->importId,
+                file_link: $name,
+                table_name: 'additional_report',
+                description: $this->description
+            ), $path);
+            // Clear the file input after upload
+            session()->flash('success', 'File uploaded successfully. Report will be updated very soon!');
+            $this->redirect(url()->previous());
         } catch (Throwable $e) {
-            session()->flash('validation_error', 'There are errors in the form.');
-            $this->showInput = true;
+            session()->flash('error', $e->getMessage());
+            Log::error($e);
             throw $e;
         }
-
-        // $this->dispatch('removeUploadedFile');
-        $this->showInput = true;
-        // Use Excel import (Assumes you have set up an Import for SeedBeneficiaries)
-
-
-
-
     }
-    public function save() {}
+
 
     public function mount()
     {

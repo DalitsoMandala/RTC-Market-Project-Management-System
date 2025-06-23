@@ -36,9 +36,14 @@ class ProgressSummaryExportSheet implements FromCollection, WithHeadings, WithTi
                     "Indicator Number" => $disaggregation->indicator->indicator_no,
                     "Indicator" => $disaggregation->indicator->indicator_name,
                     "Disaggregation" => $disaggregation->name,
+                    "Y1 Target" => null,
                     "Y1 Achieved" => null,
                     "Y2 Target" => null,
                     "Y2 Achieved" =>  null,
+                    "Y3 Target" => null,
+                    "Y3 Achieved" => null,
+                    "Y4 Target" => null,
+                    "Y4 Achieved" => null
 
                 ]);
             });
@@ -54,9 +59,14 @@ class ProgressSummaryExportSheet implements FromCollection, WithHeadings, WithTi
             "Indicator Number",
             "Indicator",
             "Disaggregation",
+            "Y1 Target",
             "Y1 Achieved",
             "Y2 Target",
             "Y2 Achieved",
+            "Y3 Target",
+            "Y3 Achieved",
+            "Y4 Target",
+            "Y4 Achieved"
 
         ];
     }

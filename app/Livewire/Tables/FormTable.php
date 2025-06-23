@@ -92,7 +92,7 @@ final class FormTable extends PowerGridComponent
                 //     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 // }
 
-                return '<a class="text-decoration-underline custom-tooltip" title="View Form"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
+                return '<a class="text-decoration-underline custom-tooltip" title="View Form Data"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
             })
             ->add('type')
             ->add('project_id')
@@ -125,7 +125,7 @@ final class FormTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::make('ID', 'rn')->sortable(),
 
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
@@ -139,7 +139,7 @@ final class FormTable extends PowerGridComponent
                 ->searchable(),
 
 
-            Column::make('Action', 'followup'),
+
 
             // Column::make('Project id', 'project_id'),
             // Column::make('Created at', 'created_at_formatted', 'created_at')
