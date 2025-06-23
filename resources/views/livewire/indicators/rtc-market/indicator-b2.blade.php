@@ -51,9 +51,9 @@
                             </div>
 
                             <div class="card-body">
-                                <div id="totalFormalAndInformalCrops"
-                                    x-show='!hasZeroValues(formalCrops) && !hasZeroValues(informalCrops)'></div>
-                                <x-no-data x-show='hasZeroValues(formalCrops)&& hasZeroValues(informalCrops)' />
+                                <div id="totalFormalAndInformalCrops2"
+                                    x-show='!(hasZeroValues(formalCrops) && hasZeroValues(informalCrops))'></div>
+                                <x-no-data x-show='(hasZeroValues(formalCrops) && hasZeroValues(informalCrops))' />
                             </div>
                         </div>
                     </div>
@@ -105,6 +105,7 @@
 
 
             hasZeroValues(array) {
+                console.log(array)
                 if (!array.every(item => typeof item === 'number')) {
 
                     throw new Error("Array contains non-number elements.");
@@ -135,7 +136,7 @@
                     data['(Informal) Sweet potato']
                 ];
 
-                console.log(this.formalCrops, this.informalCrops)
+
 
 
             },
@@ -159,7 +160,7 @@
                     },
 
                     plotOptions: {
-                            
+
                         radialBar: {
                             hollow: {
                                 size: '70%',
@@ -182,20 +183,23 @@
 
 
                 const totalFormalAndInformalChart = new ApexCharts(document.querySelector(
-                    "#totalFormalAndInformalCrops"), {
+                    "#totalFormalAndInformalCrops2"), {
                     chart: {
                         type: 'bar',
                         height: 338
                     },
                     plotOptions: {
                         bar: {
-                            distributed: true,
-                            endingShape: 'rounded', // Rounded bar ends
+
                             borderRadius: 4,
-                            borderRadiusApplication: 'end',
+                            endingShape: 'rounded',
+                            horizontal: false, // optional, vertical by default
+                            columnWidth: '55%' // makes it look cleaner
                         }
                     },
-
+                    dataLabels: {
+                        enabled: false
+                    },
                     series: [{
                             name: 'Formal',
                             data: this.formalCrops
@@ -210,7 +214,7 @@
                     },
 
 
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'], // Bar and line colors
+                    colors: ['#FC931D', '#FA7070'], // Bar and line colors
                 })
 
                 totalFormalAndInformalChart.render();

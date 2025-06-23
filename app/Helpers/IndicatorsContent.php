@@ -396,6 +396,7 @@ class IndicatorsContent
                 'Cassava',
                 'Sweet potato',
                 'Potato',
+
             ],
             "Percentage increase in value of formal RTC exports" => [
                 'Total (% Percentage)',
@@ -405,11 +406,11 @@ class IndicatorsContent
                 '(Formal) Cassava',
                 '(Formal) Potato',
                 '(Formal) Sweet potato',
-                // 'Formal exports',
+
                 '(Informal) Cassava',
                 '(Informal) Potato',
                 '(Informal) Sweet potato',
-                // 'Informal exports',
+
                 'Raw',
                 'Processed',
             ],
@@ -420,7 +421,7 @@ class IndicatorsContent
                 '(Formal) Cassava',
                 '(Formal) Potato',
                 '(Formal) Sweet potato',
-                //'Formal imports'
+
             ],
             "Number of people consuming RTC and processed products" => [
                 'Total',
@@ -518,16 +519,14 @@ class IndicatorsContent
                 'Certified',
                 'POs',
                 'Individual farmers not in POs',
-                // 'Large scale farmers',
-                //  'Medium scale farmers'
+
             ],
             "Volume of seed distributed within communities to enhance POs productivity" => [
-               // 'Total',
+                // 'Total',
                 'Cassava',
                 'Potato',
                 'Sweet potato',
-                //   'Basic',
-                // 'Certified'
+
             ],
             "Number of on-farm seed production technology demonstrations established" => ['Total'],
             "Number of international learning visits for seed producers (OC)" => ['Total'],

@@ -80,6 +80,8 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
                     'Trader',
                     'Partner',
                     'Staff',
+                    'Aggregator',
+                    'Transporter',
                     'Other'
 
                 ]; // Includes an empty option

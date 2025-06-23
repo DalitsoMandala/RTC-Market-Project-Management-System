@@ -100,6 +100,11 @@
                                                 <a href="{{ route('admin-indicators') }}" class="dropdown-item"
                                                     data-key="t-lightbox">Indicators</a>
 
+                                                <a class="dropdown-item" href="/admin/baseline" data-key="t-range-slider">
+                                                    <i class='bx bx-network-chart'></i>
+                                                    <span data-key="t-dashboards">Manage Baselines</span>
+                                                </a>
+
                                                 {{-- <a href="{{ route('admin-leads') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Lead partners</a> --}}
 
