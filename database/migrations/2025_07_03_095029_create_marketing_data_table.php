@@ -33,7 +33,6 @@ return new class extends Migration
             $table->decimal('estimated_total_value_mk', 15, 2)->nullable();
             $table->decimal('estimated_total_value_usd', 15, 2)->nullable();
             $table->string('status')->default('pending')->nullable();
-
             $table->timestamps();
         });
     }
