@@ -1,4 +1,8 @@
+@include('layouts.user-navigation')
+
 @include('layouts.other-navs')
+
+
 <header id="page-topbar" class="ishorizontal-topbar">
     <div class="navbar-header">
         <div class="d-flex">
@@ -101,8 +105,8 @@
                                                     data-key="t-lightbox">Indicators</a>
 
                                                 <a class="dropdown-item" href="/admin/baseline" data-key="t-range-slider">
-                                                    <i class='bx bx-network-chart'></i>
-                                                    <span data-key="t-dashboards">Manage Baselines</span>
+
+                                                    <span data-key="t-dashboards">Manage Baseline Data</span>
                                                 </a>
 
                                                 {{-- <a href="{{ route('admin-leads') }}" class="dropdown-item"
@@ -140,6 +144,21 @@
                                             </div>
                                         </div>
 
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Marketing Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-forms') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('admin-submissions') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Marketing Data Submission</a>
+
+
+                                            </div>
+                                        </div>
 
 
 
@@ -191,8 +210,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none "
                                         href="{{ $routePrefixMain }}/baseline" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-network-chart'></i>
-                                        <span data-key="t-dashboards">Manage Baselines</span>
+
+                                        <span data-key="t-dashboards">Manage Baseline Data</span>
                                     </a>
                                 </li>
                                 <li class="nav-item ">
