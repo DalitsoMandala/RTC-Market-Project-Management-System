@@ -2,12 +2,32 @@
     @section('title')
         Dashboard
     @endsection
-    <div class="container-fluid">
+    <div class="container-fluid" x-data="{
+        dashboardOneShow: true,
+        dashboardTwoShow: false,
+        toggleDashboard(value) {
+            if (value == 1) {
+                this.dashboardOneShow = true;
+                this.dashboardTwoShow = false;
+            } else if (value == 2) {
+                this.dashboardOneShow = false;
+                this.dashboardTwoShow = true;
+            }
+        }
+    }" @change-dashboard.window="toggleDashboard($event.detail.value)">
 
         @include('layouts.dashboard-layout')
 
+        <div x-show="dashboardOneShow" x-transition.duration.500ms>
+            <livewire:dashboard-charts />
+        </div>
 
-        <livewire:dashboard-charts />
+
+        <div x-show="dashboardTwoShow" x-transition.duration.500ms>
+            dashboard2
+        </div>
+
+
 
         <div>
             <div class="row">
@@ -21,7 +41,7 @@
                         </div>
                         <div class="card-body" x-data="{
                             init() {
-
+                        
                                 let chartData = @js($submissions); // Data from the backend
                                 const months = [
                                     'January', 'February', 'March', 'April', 'May', 'June',
@@ -29,36 +49,36 @@
                                 ];
                                 let seriesData = [];
                                 const serieArray = {};
-
+                        
                                 // Process chartData
                                 chartData.forEach((item) => {
                                     // Initialize the type array if not already initialized
                                     if (!serieArray[item.type]) {
                                         serieArray[item.type] = Array(months.length).fill(0);
                                     }
-
+                        
                                     // Find the correct index for the month (1-indexed to 0-indexed)
                                     const monthIndex = item.month - 1;
-
+                        
                                     // Update the total for the specific type and month
                                     if (monthIndex >= 0 && monthIndex < months.length) {
                                         serieArray[item.type][monthIndex] += item.total; // Sum totals for the same type and month
                                     }
                                 });
-
+                        
                                 // Destructure series data
                                 const { batch = [], manual = [], aggregate = [] } = serieArray;
-
+                        
                                 // Output the series data for debugging
                                 console.log('Batch:', batch);
                                 console.log('Manual:', manual);
                                 console.log('Aggregate:', aggregate);
-
-
-
-
-
-
+                        
+                        
+                        
+                        
+                        
+                        
                                 options = {
                                     chart: {
                                         type: 'area',
@@ -76,7 +96,7 @@
                                             name: 'Aggregate Submission',
                                             data: aggregate
                                         },
-
+                        
                                     ],
                                     dataLabels: {
                                         enabled: false
@@ -94,7 +114,7 @@
                                         },
                                     },
                                 };
-
+                        
                                 let chart = new ApexCharts($refs.chart, options);
                                 chart.render();
                             }

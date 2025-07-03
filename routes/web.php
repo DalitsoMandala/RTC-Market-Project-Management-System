@@ -28,96 +28,96 @@ use App\Models\SeedBeneficiary;
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/priznet', function () {
-    SeedBeneficiary::where('variety_received', 'LIKE', '%kadyaubwerere%')->get()->map(function ($item) {
-        $getID = SeedBeneficiary::find($item->id);
-        $variety_received = $getID->variety_received;
-        $getID->variety_received = str_replace('kadyaubwerere', 'kadyaubwelere', $variety_received);
-        $getID->save();
-    });
+    // SeedBeneficiary::where('variety_received', 'LIKE', '%kadyaubwerere%')->get()->map(function ($item) {
+    //     $getID = SeedBeneficiary::find($item->id);
+    //     $variety_received = $getID->variety_received;
+    //     $getID->variety_received = str_replace('kadyaubwerere', 'kadyaubwelere', $variety_received);
+    //     $getID->save();
+    // });
 
 
 
-    $updateDisaggregation = Indicator::where(
-        'indicator_name',
-        'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities'
-    )->first();
-    $disaggregations = ['Farmers', 'Processors', 'Aggregators', 'Traders', 'Transporters'];
-    foreach ($disaggregations as $disaggregation) {
-        $updateDisaggregation->disaggregations()->firstOrCreate([
-            'name' => $disaggregation,
-        ]);
-    }
+    // $updateDisaggregation = Indicator::where(
+    //     'indicator_name',
+    //     'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities'
+    // )->first();
+    // $disaggregations = ['Farmers', 'Processors', 'Aggregators', 'Traders', 'Transporters'];
+    // foreach ($disaggregations as $disaggregation) {
+    //     $updateDisaggregation->disaggregations()->firstOrCreate([
+    //         'name' => $disaggregation,
+    //     ]);
+    // }
 
 
-    $updateDisaggregation = Indicator::where(
-        'indicator_name',
-        'Number of business plans for the production of different classes of RTC seeds that are executed',
-    )->first();
-    $disaggregations = ['Business plans executed', 'Business plans submitted'];
-    foreach ($disaggregations as $disaggregation) {
-        $updateDisaggregation->disaggregations()->firstOrCreate([
-            'name' => $disaggregation,
-        ]);
-    }
+    // $updateDisaggregation = Indicator::where(
+    //     'indicator_name',
+    //     'Number of business plans for the production of different classes of RTC seeds that are executed',
+    // )->first();
+    // $disaggregations = ['Business plans executed', 'Business plans submitted'];
+    // foreach ($disaggregations as $disaggregation) {
+    //     $updateDisaggregation->disaggregations()->firstOrCreate([
+    //         'name' => $disaggregation,
+    //     ]);
+    // }
 
 
-    $updateDisaggregation = Indicator::where(
-        'indicator_name',
-        'Percentage increase in value of formal RTC exports',
-    )->first();
-    $disaggregations = ['Value of exports'];
-    foreach ($disaggregations as $disaggregation) {
-        $updateDisaggregation->disaggregations()->firstOrCreate([
-            'name' => $disaggregation,
-        ]);
-    }
+    // $updateDisaggregation = Indicator::where(
+    //     'indicator_name',
+    //     'Percentage increase in value of formal RTC exports',
+    // )->first();
+    // $disaggregations = ['Value of exports'];
+    // foreach ($disaggregations as $disaggregation) {
+    //     $updateDisaggregation->disaggregations()->firstOrCreate([
+    //         'name' => $disaggregation,
+    //     ]);
+    // }
 
 
-    $updateDisaggregation = Indicator::where(
-        'indicator_name',
-        'Percentage seed multipliers with formal registration',
-    )->first();
-    $disaggregations = ['Registered', 'Seed multipliers', 'Large scale', 'Small scale'];
-    foreach ($disaggregations as $disaggregation) {
-        $updateDisaggregation->disaggregations()->firstOrCreate([
-            'name' => $disaggregation,
-        ]);
-    }
+    // $updateDisaggregation = Indicator::where(
+    //     'indicator_name',
+    //     'Percentage seed multipliers with formal registration',
+    // )->first();
+    // $disaggregations = ['Registered', 'Seed multipliers', 'Large scale', 'Small scale'];
+    // foreach ($disaggregations as $disaggregation) {
+    //     $updateDisaggregation->disaggregations()->firstOrCreate([
+    //         'name' => $disaggregation,
+    //     ]);
+    // }
 
-    $updateDisaggregation = Indicator::where(
-        'indicator_name',
-        'Number of RTC actors linked to online Market Information System (MIS)'
-    )->first();
-    $disaggregations = [
-        "Registered",
-        "Not registered",
-        "Farmers",
-        "Traders",
-        "Transporters",
-        "PO's",
-        "Individual farmers not in PO's",
-        "Large scalecommercial farmers",
-        "Cassava",
-        "Potato",
-        "Sweet potato"
-    ];
-    foreach ($disaggregations as $disaggregation) {
-        $updateDisaggregation->disaggregations()->firstOrCreate([
-            'name' => $disaggregation,
-        ]);
-    }
+    // $updateDisaggregation = Indicator::where(
+    //     'indicator_name',
+    //     'Number of RTC actors linked to online Market Information System (MIS)'
+    // )->first();
+    // $disaggregations = [
+    //     "Registered",
+    //     "Not registered",
+    //     "Farmers",
+    //     "Traders",
+    //     "Transporters",
+    //     "PO's",
+    //     "Individual farmers not in PO's",
+    //     "Large scalecommercial farmers",
+    //     "Cassava",
+    //     "Potato",
+    //     "Sweet potato"
+    // ];
+    // foreach ($disaggregations as $disaggregation) {
+    //     $updateDisaggregation->disaggregations()->firstOrCreate([
+    //         'name' => $disaggregation,
+    //     ]);
+    // }
 
 
-    $updateDisaggregation = Indicator::where(
-        'indicator_name',
-        'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)'
-    )->first();
-    $disaggregations = ['Aggregators', 'Transporters'];
-    foreach ($disaggregations as $disaggregation) {
-        $updateDisaggregation->disaggregations()->firstOrCreate([
-            'name' => $disaggregation,
-        ]);
-    }
+    // $updateDisaggregation = Indicator::where(
+    //     'indicator_name',
+    //     'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)'
+    // )->first();
+    // $disaggregations = ['Aggregators', 'Transporters'];
+    // foreach ($disaggregations as $disaggregation) {
+    //     $updateDisaggregation->disaggregations()->firstOrCreate([
+    //         'name' => $disaggregation,
+    //     ]);
+    // }
 });
 
 

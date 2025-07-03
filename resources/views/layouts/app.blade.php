@@ -37,6 +37,53 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.11/build/css/intlTelInput.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
     <style>
+        body[data-layout="horizontal"] .page-content {
+            margin-top: 70px;
+
+            padding: 70px 0 60px 0;
+        }
+
+
+
+        .topBar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1002;
+            /* highest, so dropdowns work */
+        }
+
+        #page-topbar {
+            position: fixed;
+            top: 52px;
+            /* Adjust depending on height of navbar-top */
+            width: 100%;
+
+            /* just under the first one */
+        }
+
+        @media (max-width: 576px) {
+
+            #page-topbar {
+                top: 92px;
+                /* Adjust if the top navbar grows taller on mobile */
+            }
+
+            body[data-layout="horizontal"] .page-content {
+                margin-top: 120px;
+                padding: 70px 0 60px 0;
+
+            }
+
+            .topnav {
+                position: fixed;
+
+                top: 160px;
+
+            }
+
+        }
+
         /* Preloader */
         .preloader {
             position: fixed;
