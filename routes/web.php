@@ -207,6 +207,7 @@ Route::middleware([
     Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('admin-jobs');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
+    Route::get('user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('admin-user-roles');
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
 });

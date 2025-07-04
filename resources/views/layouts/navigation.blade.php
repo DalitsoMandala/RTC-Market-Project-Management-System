@@ -62,6 +62,11 @@
                                         </a>
 
 
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('admin-user-roles') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">User Roles</span>
+
+                                        </a>
                                     </div>
                                 </li>
 
