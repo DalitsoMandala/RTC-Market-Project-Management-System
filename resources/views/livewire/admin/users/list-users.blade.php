@@ -27,10 +27,10 @@
                     showForm: false,
                     resetForm() {
                         $wire.dispatch('resetForm');
-
+                
                     },
                     showUploadForm: false,
-
+                
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="card-title">User Table</h4>
@@ -77,36 +77,88 @@
                             </div>
 
 
+                            <div x-data="{
+                                role: $wire.entangle('role'),
+                                organisation: $wire.entangle('organisation'),
+                                roles: $wire.entangle('roles'),
+                                organisationsData: $wire.entangle('organisations'),
+                                skipValidation: false,
+                            
+                                filterOrganisations(role) {
+                                    if (role == null || role == '') { return this.organisationsData; }
+                            
+                                    return this.organisationsData.filter(org => {
+                                        return role === 'external' ?
+                                            org.name !== 'CIP' :
+                                            org.name === 'CIP';
+                                    });
+                                },
+                            }" x-init="$watch('role', (newRole) => {
+                                if (skipValidation) {
+                                    skipValidation = false;
+                                    return;
+                                }
+                            
+                                // Clear organisation if role is blank
+                                if (newRole == '' || newRole == null) {
+                                    organisation = '';
+                                    return;
+                                }
+                            
+                                // Validate current organisation against filtered list
+                                const filtered = filterOrganisations(newRole);
+                                const found = filtered.find(org => org.id == organisation);
+                                if (!found) {
+                                    organisation = '';
+                                }
+                            });
+                            
+                            $wire.on('update-org', (e) => {
+                                skipValidation = true;
+                            
+                                setTimeout(() => {
+                                    role = e.role;
+                                    organisation = e.organisation;
+                                }, 500)
+                            
+                            });">
 
-                            <div class="mb-3" >
-                                <label for="role" class="form-label">Roles</label>
-                                <select class="form-select @error('role') is-invalid @enderror" id="role"
-                                    wire:model="role">
-                                    <option value="">Select a role</option>
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role }}">{{ str_replace('_', ' ', $role) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('role')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-{{ $role }}
-                            <div class="mb-3 ">
-                                <label for="organisation" class="form-label">Organisation</label>
-                                <select class="form-select @error('organisation') is-invalid @enderror"
-                                    id="organisation" wire:model.live.debounce.200ms="organisation">
-                                    <option value="">Select an organisation</option>
-                                    @foreach ($organisations as $org)
 
-                                            <option @if($role !== 'external' && $org->name==='CIP') selected disabled @endif   value="{{ $org->id }}">{{ $org->name }}</option>
 
-                                    @endforeach
-                                </select>
-                                @error('organisation')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <div class="mb-3">
+                                    <label for="role" class="form-label">Roles</label>
+                                    <select wire:loading.attr='disabled' wire:loading.class='opacity-25'
+                                        class="form-select @error('role') is-invalid @enderror" x-model="role">
+                                        <option value="">Select a role</option>
+                                        <template x-for="role in roles">
+                                            <option :value="role"><span x-text="role"></span></option>
+                                        </template>
+
+                                    </select>
+                                    @error('role')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+
+                                <div class="mb-3 ">
+                                    <label for="organisation" class="form-label">Organisation</label>
+                                    <select wire:loading.attr='disabled' wire:loading.class='opacity-25'
+                                        class="form-select @error('organisation') is-invalid @enderror"
+                                        x-model="organisation">
+                                        <option value="">Select an organisation</option>
+
+                                        <template :key="org.id" x-for="org in filterOrganisations(role)">
+
+                                            <option :value="org.id"><span x-text="org.name"></span></option>
+                                        </template>
+
+                                    </select>
+                                    @error('organisation')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+                                </div>
+
                             </div>
                             <div x-data="{
                                 changePassword: $wire.entangle('changePassword'),
@@ -159,9 +211,11 @@
                         <form id="uploadForm" @submit.prevent="uploadData()">
                             <div class="mb-3">
                                 <label for="fileInput" class="form-label">Upload Excel File</label>
-                                <input class="form-control" type="file" id="fileInput" accept=".xlsx, .xls">
+                                <input class="form-control @error('file') is-invalid @enderror " wire:model="file"
+                                    type="file" id="fileInput" accept=".xlsx, .xls">
                             </div>
-                            <button type="button" @click.debounce.200ms="downloadTemplate()" id="downloadTemplate"
+                            <button @able-button.window="uploading = false" :disabled="uploading" type="button"
+                                @click.debounce.200ms="downloadTemplate()" id="downloadTemplate"
                                 wire:loading.attr='disabled' wire:target='usersData'
                                 class="btn btn-secondary">Download
                                 Template</button>
@@ -180,7 +234,7 @@
 
 
             <div x-data x-init="$wire.on('showModal-delete', (e) => {
-
+            
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })">
@@ -203,15 +257,15 @@
             </div>
 
             <div x-data x-init="$wire.on('showModal-restore', (e) => {
-
+            
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })
-
-
+            
+            
             $wire.on('refresh', (e) => {
                 const modals = document.querySelectorAll('.modal.show');
-
+            
                 // Iterate over each modal and hide it using Bootstrap's modal hide method
                 modals.forEach(modal => {
                     const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -247,7 +301,7 @@
     @endpush
     @script
         <script>
-            $('.goUp').on('click', () => {
+            $wire.on('edit', () => {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'

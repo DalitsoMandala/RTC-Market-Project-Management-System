@@ -26,10 +26,9 @@ class ListUsers extends Component
     public $email;
     public $phone;
     public $organisation;
-
+    public $file;
     public $organisations = [];
     public $role;
-
     public $rowId;
     public $roles = [];
     public $password;
@@ -59,30 +58,63 @@ class ListUsers extends Component
     public function noFile()
     {
         session()->flash('error', 'File is required');
+        $this->validate([
+            'file' => 'required',
+        ]);
     }
 
     public function mount()
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
-        $this->organisations = Organisation::get();
-        $this->organisation = 1;
+        $this->organisations = Organisation::all()->toArray();
     }
 
     #[On('edit')]
     public function editForm($rowId)
     {
+        $this->resetForm();
         $this->rowId = $rowId;
         $user = User::find($rowId);
+
         $this->name = $user->name;
         $this->email = $user->email;
         $this->phone = $user->phone_number;
-
-        $this->organisation = $user->organisation_id;
-        $this->role = $user->getRoleNames()->first();
-
-
         $this->changePassword = false;
+        $this->organisation = null;
+        $this->role = null;
+        // Set role — this triggers updatedRole() automatically
+        $role = $user->roles[0]->name;
+        $this->dispatch('update-org', role: $role, organisation: $user->organisation->id);
     }
+
+
+    // public function changeOrg($role){
+
+
+    //     if ($role === 'external') {
+    //         $this->organisations = Organisation::whereNotIn('name',  ['CIP'])->get();
+    //     } else {
+    //         $this->organisations = Organisation::whereIn('name', ['CIP'])->get();
+    //     }
+
+
+
+    //}
+    // public function updated($property, $value)
+    // {
+
+    //     if ($property === 'role') {
+    //         $role = $value;
+
+    //         if ($role === 'external') {
+    //             $this->organisations = [];
+    //             $this->organisations = Organisation::whereNotIn('name',  ['CIP'])->get()->toArray();
+    //         } else {
+    //             $this->organisations = [];
+    //             $this->organisations = Organisation::whereIn('name', ['CIP'])->get()->toArray();
+    //         }
+    //     }
+    // }
 
     #[On('showModal-delete')]
     public function delete($rowId)
@@ -117,9 +149,7 @@ class ListUsers extends Component
         $this->phone = null;
         $this->rowId = null;
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
-
-        $this->organisations = Organisation::get();
-
+        $this->organisation = null;
         $this->role = null;
         $this->password = null;
         $this->password_confirmation = null;
@@ -135,6 +165,7 @@ class ListUsers extends Component
             '*.name' => 'required|string|max:255',
             '*.organisation' => 'required|string|max:255',
             '*.role' => 'required|string',
+
         ];
 
         DB::beginTransaction();
@@ -184,7 +215,7 @@ class ListUsers extends Component
                     'name' => $user['name'],
                     'email' => $user['email'],
                     'phone_number' => '+9999999999',
-                    'organisation_id' => $organisation->id,
+                    'organisation_id' =>  $organisation->id,
                     'password' => Hash::make($password),
                 ])->assignRole($user['role']);
 
@@ -207,17 +238,17 @@ class ListUsers extends Component
         $this->validate();
         DB::beginTransaction();
         // Handle form submission logic, e.g., saving to database or sending an email
+        $organisationId = $this->organisation;
 
         try {
 
             if ($this->rowId) {
-
                 if ($this->changePassword) {
                     User::find($this->rowId)->update([
                         'name' => $this->name,
                         'email' => $this->email,
                         'phone_number' => $this->phone,
-                        'organisation_id' => $this->organisation,
+                        'organisation_id' => $organisationId,
                         'password' => Hash::make($this->password),
                     ]);
                 }
@@ -225,7 +256,7 @@ class ListUsers extends Component
                     'name' => $this->name,
                     'email' => $this->email,
                     'phone_number' => $this->phone,
-                    'organisation_id' => $this->organisation,
+                    'organisation_id' => $organisationId,
 
                 ]);
 
@@ -244,7 +275,7 @@ class ListUsers extends Component
                     'name' => $this->name,
                     'email' => $this->email,
                     'phone_number' => $this->phone,
-                    'organisation_id' => $this->organisation,
+                    'organisation_id' => $organisationId,
                     'password' => Hash::make($this->password),
 
                 ])->assignRole($this->role);
