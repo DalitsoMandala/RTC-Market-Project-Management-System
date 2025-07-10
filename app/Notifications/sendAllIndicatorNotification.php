@@ -37,6 +37,7 @@ class sendAllIndicatorNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
+            ->greeting('Hello ' . $notifiable->name . ',')
             ->subject('Action Required: New Data Submission Periods Opened')
             ->line('New submission periods have been created for the following indicators. Please log in to the system to submit your data at your earliest convenience.')
             ->line('Kindly note the submission deadlines are displayed in the system to ensure timely compliance.')
@@ -46,7 +47,7 @@ class sendAllIndicatorNotification extends Notification implements ShouldQueue
 
 
         foreach ($this->indicators as $indicator) {
-            $mail->line("- {$indicator['indicator_name']}");
+            $mail->line("- ({$indicator['indicator_no']}) {$indicator['indicator_name']}");
         }
 
 

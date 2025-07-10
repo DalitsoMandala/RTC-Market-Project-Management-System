@@ -419,7 +419,17 @@
                     document.body.scrollTop = 0;
                     document.documentElement.scrollTop = 0;
                 }
+                if (window.location.hash !== '') {
+                    const button = document.querySelector(`a[href='${window.location.hash}']`);
 
+                    if (button) {
+                        setTimeout(() => {
+                            button.click();
+                        })
+
+
+                    }
+                }
 
 
             });

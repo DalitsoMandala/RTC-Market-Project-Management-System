@@ -35,15 +35,15 @@ final class SubmissionPeriodTable extends PowerGridComponent
     use WithExport;
     public $currentRoutePrefix;
     public string $sortField = 'date_established';
+    public string $primaryKey = 'rn';
+
     public function setUp(): array
     {
-        //  $this->showCheckBox();
+
         $this->timeout();
 
         return [
-            // Exportable::make('export')
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make(),
             Footer::make()
                 ->showPerPage(10)
@@ -51,9 +51,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
 
             Detail::make()
-                ->view('components.submission-period-detail')
-                //  ->showCollapseIcon()
-                ->params(['name' => 'Luan']),
+                ->view('components.submission-period-detail'),
         ];
     }
 
@@ -243,21 +241,38 @@ final class SubmissionPeriodTable extends PowerGridComponent
         ]);
     }
 
+    #[On('toggle-detail')]
+    public function setDetail($row)
+    {
+
+        //  $this->toggleDetail();
+    }
+
     public function actions($row): array
     {
+
         return [
 
             Button::add('detail')
                 ->slot('View Details <i class="bx bx-chevron-down"></i>')
-                ->class('btn btn-warning btn-sm')
-                ->toggleDetail($row->id),
+                ->class('btn btn-warning btn-sm custom-tooltip')
+                ->tooltip('View Details')
+                ->toggleDetail($row->rn),
+            // ->dispatch('toggle-detail', ['row' => $row]),
 
             Button::add('schedule')
-                ->slot('Review Schedule <i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-pen"></i>')
                 ->can(User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
-                ->class('btn btn-secondary btn-sm')
-                ->dispatch('edit-period', ['data' => $row])
+                ->class('btn btn-secondary btn-sm custom-tooltip')
+                ->tooltip('Schedule')
+                ->dispatch('edit-period', ['data' => $row]),
 
+            // Button::add('delete')
+            //     ->slot('<i class="bx bx-trash-alt"></i>')
+            //     ->can(User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
+            //     ->class('btn btn-danger btn-sm custom-tooltip')
+            //     ->tooltip('Delete')
+            //     ->dispatch('delete-period', ['data' => $row])
         ];
     }
     // public function actionsFromView($row): View

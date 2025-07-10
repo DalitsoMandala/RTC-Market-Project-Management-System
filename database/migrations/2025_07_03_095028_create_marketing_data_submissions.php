@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('status')->default('pending')->nullable();
             $table->string('table_name');
             $table->string('file_link', 1000)->nullable();
+            $table->string('comments')->nullable();
             $table->timestamps();
         });
     }

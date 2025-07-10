@@ -11,10 +11,10 @@ class MarketDataSubmission extends Model
 
     protected $table = 'marketing_data_submissions';
 
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
-    public function marketData()
+    public function user()
     {
-        return $this->hasMany(MarketData::class, 'submission_id');
+        return $this->belongsTo(User::class, 'submitted_user_id');
     }
 }

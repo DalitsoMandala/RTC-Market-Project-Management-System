@@ -203,11 +203,11 @@ class SubPeriod extends Component
 
             $this->validate([
 
-                    'selectedMonth' => 'required',
-                    'selectedFinancialYear' => 'required',
+                'selectedMonth' => 'required',
+                'selectedFinancialYear' => 'required',
 
-                    'start_period' => 'required',
-                    'end_period' => 'required',
+                'start_period' => 'required',
+                'end_period' => 'required',
             ]);
         } catch (Throwable $e) {
             session()->flash('validation_error', 'There are errors in the form.');
@@ -225,6 +225,19 @@ class SubPeriod extends Component
                 $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->has('organisation.indicatorResponsiblePeople')->whereHas('roles', function ($query) {
                     return $query->whereNotIn('name', ['admin', 'project_manager']);
                 })->get();
+
+                $existingSubmissionPeriod = SubmissionPeriod::where('month_range_period_id', $this->selectedMonth)
+                    ->where('financial_year_id', $this->selectedFinancialYear)
+                    ->where('is_open', true)
+                    ->first();
+
+                if ($existingSubmissionPeriod) {
+                    session()->flash('error', 'This submission period exists.');
+                    $this->redirect(url()->previous());
+                    return;
+                }
+
+
 
                 foreach ($users as $user) {
 
@@ -273,21 +286,12 @@ class SubPeriod extends Component
                     }
                 }
 
-
                 if (count($periods) > 0) {
                     $this->setMailingList($periods, $usersWithData);
-                }
-
-                if (count($periods) === 0) {
-                    session()->flash('success', 'Existing submission periods exists for some of the indicators which are still open.');
+                    session()->flash('success', 'Successfully added submission periods.');
                     $this->redirect(url()->previous());
                     return;
                 }
-
-
-                session()->flash('success', 'Successfully added submission periods.');
-                $this->redirect(url()->previous());
-                return;
             }
 
 
@@ -298,7 +302,7 @@ class SubPeriod extends Component
             }
         } catch (Throwable $th) {
             //  dd($th);
-            Log::error($th->getMessage(), $th->getTrace());
+            Log::error($th);
             session()->flash('error', 'Something went wrong.');
         }
     }

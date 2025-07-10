@@ -59,6 +59,12 @@
                             type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
                             Progress Summary </button>
                     @endhasanyrole
+                    @hasanyrole('admin|manager|staff|enumerator')
+                        <button class="nav-link" id="market-tab" data-bs-toggle="tab" data-bs-target="#market-submission"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
+                            Market Data Submission </button>
+                    @endhasanyrole
+
                 </ul>
 
                 <div class="card ">
@@ -83,6 +89,12 @@
                                 aria-labelledby="profile-tab">
                                 <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                             </div>
+
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="market-submission" role="tabpanel"
+                                aria-labelledby="market-tab">
+                                <livewire:tables.market-data-submission-table :userId="auth()->user()->id" />
+                            </div>
+
 
                             <div wire:ignore class="mt-2 tab-pane fade show" id="report-progress" role="tabpanel"
                                 aria-labelledby="profile-tab" x-data="{
@@ -114,7 +126,7 @@
 
         <div x-data x-init="$wire.on('showModal', (e) => {
             setTimeout(() => {
-                $wire.dispatch('set', { id: e.rowId });
+                $wire.dispatch('set', { id: e.id });
                 //  $wire.setData(e.rowId);
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
@@ -168,6 +180,19 @@
             })
         
         
+        
+        $wire.on('showMarket', (e) => {
+        
+            console.log(e);
+            setTimeout(() => {
+                $wire.dispatch('setMarket', { id: e.id });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
+        })
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -179,6 +204,17 @@
         
         })
         
+        
+        $wire.on('deleteMarketBatch', (e) => {
+            setTimeout(() => {
+                $wire.dispatch('set', { id: e.id });
+                //  $wire.setData(e.rowId);
+                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                myModal.show();
+            }, 500);
+        
+        
+        })
         
         $wire.on('deleteProgress', (e) => {
             setTimeout(() => {
@@ -342,6 +378,44 @@
             </x-modal>
 
 
+            <x-modal id="view-market-modal" title="Approve Market Data Submission">
+                <x-alerts />
+                <h4 class="text-center h4">Please confirm whether you would like to approve/disapprove this record?
+                </h4>
+
+
+                <input type="hidden" wire:model="status">
+                <div class="mt-4 mb-3">
+                    <label for="">Comment</label>
+                    <textarea wire:model="comment" rows="5" class=" form-control @error('comment') is-invalid @enderror"></textarea>
+
+                    @error('comment')
+                        <x-error>{{ $message }}</x-error>
+                    @enderror
+                </div>
+
+
+                <div class="mt-5 d-flex border-top-0 justify-content-center">
+                    <form wire:submit.debounce.1000ms="DisapproveMarketSubmission">
+
+                        <button type="submit" wire:loading.attr="disabled" class="btn btn-theme-red me-2"> <i
+                                class="bx bx-x-circle"></i> Disapprove</button>
+
+                    </form>
+
+
+                    <form wire:submit.debounce.1000ms="ApproveMarketSubmission">
+
+                        <button type="submit" wire:loading.attr="disabled" class="btn btn-success me-2"> <i
+                                class="bx bx-check-double"></i> Approve</button>
+
+                    </form>
+
+                </div>
+
+            </x-modal>
+
+
             <x-modal id="delete-aggregate-modal" title="Delete Submission">
                 <x-alerts />
                 <h4 class="text-center h4">Please confirm whether you would like to delete this record?
@@ -382,7 +456,25 @@
                 </form>
             </x-modal>
 
+            <x-modal id="delete-market-modal" title="Delete Market Data Submission">
+                <x-alerts />
+                <h4 class="text-center h4">Please confirm whether you would like to delete this record?
 
+                </h4>
+
+
+                <form wire:submit='deleteMarket'>
+
+
+
+                    <div class="mt-5 d-flex border-top-0 justify-content-center">
+                        <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
+                            data-bs-dismiss="modal">No, cancel</button>
+                        <button type="submit" wire:loading.attr="disabled" wire:target="deleteMarketBatch"
+                            class="btn btn-theme-red">Yes, I'm sure</button>
+                    </div>
+                </form>
+            </x-modal>
             <x-modal id="delete-progress-modal" title="Delete Submission">
                 <x-alerts />
                 <h4 class="text-center h4">Please confirm whether you would like to delete this record?

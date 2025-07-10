@@ -4,7 +4,10 @@
 
 
     <div class="my-4 ">
-        <div class="my-2 row align-items-center @if (!$showContent) pe-none opacity-25 @endif">
+        <div class="my-2 row align-items-center" x-data="{
+        
+            showContent: $wire.entangle('showContent'),
+        }" x-show="showContent">
             <div class="col">
                 <h2 class="h2">Summary</h2>
                 <p class="text-muted">{{ $name }}</p>
@@ -15,7 +18,7 @@
                 
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
-                    showContent: $wire.entangle('showContent'),
+                
                     changeYear(data) {
                         $wire.dispatch('updateReportYear', {
                             id: data.id,
@@ -23,10 +26,7 @@
                     },
                 
                 }">
-                    <div class="dropdown card-header-dropdown"
-                        :class="{
-                            'pe-none opacity-25': showContent === false
-                        }">
+                    <div class="dropdown card-header-dropdown">
                         <a class="shadow-none dropdown-btn btn btn-soft-warning waves-effect waves-light" href="#"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="bx bx-filter me-5 fw-bold"></i> <span> <span id='report_year'
