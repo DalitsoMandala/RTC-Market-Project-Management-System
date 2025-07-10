@@ -265,6 +265,27 @@ trait FormEssentials
                 'Email' => 'Text',
             ]
         ],
+        'Marketing Form' => [
+            'Marketing Monthly Report' => [
+                'Entry Month' => 'Date (dd-mm-yyyy)',
+                'Off-taker Name/Vehicle Reg Number' => 'Text',
+                'Trader Contact' => 'Text',
+                'Buyer Location' => 'Text',
+                'Variety Demanded' => 'Text',
+                'Quality/Size' => 'Text',
+                'Quantity' => 'Number (decimal)',
+                'Units' => 'Text',
+                'Estimated Demand (Kg)' => 'Number (decimal)',
+                'Agreed Price per Kg (MWK)' => 'Number (decimal)',
+                'Market Ordered From' => 'Text',
+                'Final Market' => 'Text',
+                'Final Market District' => 'Text',
+                'Final Market Country' => 'Text',
+                'Supply Frequency' => 'Text',
+                'Estimated Total Value (MWK)' => 'Number (decimal)',
+                'Estimated Total Value (USD)' => 'Number (decimal)',
+            ]
+        ],
         'Seed Beneficiaries Form' => [
             'Potato' => [
                 'EPA' => 'Required, Text',
@@ -342,6 +363,8 @@ trait FormEssentials
                 'Season Type' => 'Text, (Choose One)'
             ]
         ],
+
+
 
         'Progress summary Form' => [
             'Progress summary' => [

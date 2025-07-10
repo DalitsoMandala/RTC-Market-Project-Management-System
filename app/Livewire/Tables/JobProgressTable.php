@@ -125,7 +125,12 @@ final class JobProgressTable extends PowerGridComponent
                     return '<i class="bx bx-x fs-2 text-danger"></i>';
                 }
             })
-            ->add('error')
+            ->add('error', function ($model) {
+                if ($model->error) {
+                    return "<span class='text-danger'>{$model->error}</span>";
+                }
+                return "<span class='text-success'>No error.</span>";
+            })
             ->add('updated_at_formatted', fn($model) => Carbon::parse($model->created_at)->format('d/m/Y h:i A'))
             ->add('updated_at');
     }
@@ -141,9 +146,9 @@ final class JobProgressTable extends PowerGridComponent
             Column::make('Status', 'status_formatted')
                 ->searchable(),
 
-            Column::make('Error', 'error')->bodyAttribute(styleAttr: 'white-space: wrap; color:#ff6060')
+            Column::make('Error', 'error')->bodyAttribute(styleAttr: 'white-space: wrap;')
                 ->searchable(),
-            Column::make('Progress', 'progress')
+            Column::make('Progress', 'progress')->bodyAttribute(styleAttr: 'width: 200px;')
                 ->searchable(),
             Column::make('Uploaded at', 'updated_at_formatted')
                 ->searchable(),

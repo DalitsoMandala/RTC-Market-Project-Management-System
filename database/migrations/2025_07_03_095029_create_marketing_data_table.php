@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('marketing_data', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('submission_id')->constrained('marketing_data_submissions', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('uuid');
             $table->date('entry_date')->nullable(); // full date of record
-            $table->string('off_taker_name')->nullable();
-            $table->string('vehicle_reg_number')->nullable();
+            $table->string('off_taker_name_vehicle_reg_number')->nullable();
             $table->string('trader_contact')->nullable();
             $table->string('buyer_location')->nullable();
             $table->string('variety_demanded')->nullable();
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->string('final_market_district')->nullable();
             $table->string('final_market_country')->nullable();
             $table->string('supply_frequency')->nullable();
-            $table->decimal('estimated_total_value_mk', 15, 2)->nullable();
+            $table->decimal('estimated_total_value_mwk', 15, 2)->nullable();
             $table->decimal('estimated_total_value_usd', 15, 2)->nullable();
             $table->string('status')->default('pending')->nullable();
             $table->timestamps();

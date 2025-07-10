@@ -43,7 +43,7 @@
 <div class="row gx-2 gy-2">
     <!-- Establishment Distribution -->
     <div class="col-12 col-xl-6 ">
-        <div class="card h-100 bg-light">
+        <div class="shadow-sm card h-100 bg-light">
             <div class="card-header ">
                 <h5 class="card-title placeholder-glow ">
                     <span class="placeholder col-6"></span>
@@ -70,7 +70,7 @@
 
     <div class="col-12 col-xl-3">
 
-        <div class="card h-100 bg-light">
+        <div class="shadow-sm card h-100 bg-light ">
             <div class="card-header ">
                 <h5 class="card-title placeholder-glow ">
                     <span class="placeholder col-6"></span>
@@ -95,7 +95,7 @@
 
     <div class="col-12 col-xl-3">
         <!-- Age Group Distribution -->
-        <div class="card h-100 bg-light">
+        <div class="shadow-sm card h-100 bg-light">
             <div class="card-header ">
                 <h5 class="card-title placeholder-glow ">
                     <span class="placeholder col-6"></span>
@@ -117,7 +117,7 @@
     </div>
     <!-- Crop Distribution -->
     <div class="col-12 col-xl-4">
-        <div class="card h-100 bg-light">
+        <div class="shadow-sm card h-100 bg-light">
             <div class="card-header ">
                 <h5 class="card-title placeholder-glow ">
                     <span class="placeholder col-6"></span>
@@ -140,7 +140,7 @@
 
     <!-- Profession Distribution -->
     <div class="col-12 col-xl-8">
-        <div class="card h-100 bg-light">
+        <div class="shadow-sm card h-100 bg-light">
             <div class="card-header ">
                 <h5 class="card-title placeholder-glow ">
                     <span class="placeholder col-6"></span>

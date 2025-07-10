@@ -1,17 +1,13 @@
 <?php
 
-namespace App\Livewire\Tables;
+namespace App\Livewire\tables;
 
-use App\Models\Form;
 use App\Models\User;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\Organisation;
+use Livewire\Attributes\On;
 use App\Helpers\TruncateText;
 use Illuminate\Support\Carbon;
-use App\Models\SubmissionPeriod;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
+use App\Models\MarketDataSubmission;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -26,11 +22,11 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
-final class SubmissionTable extends PowerGridComponent
+final class MarketDataSubmissionTable extends PowerGridComponent
 {
-
-    //Batch Submission Table
     use WithExport;
+    //Batch Submission Table
+
     public $filter;
     public $userId;
     public bool $showFilters = true;
@@ -61,15 +57,14 @@ final class SubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
-            ->where('batch_type', 'batch');
+        $query = MarketDataSubmission::query()->with(['user.organisation', 'user']);
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
 
-            return $query->where('user_id', $user->id)->select([
+            return $query->where('submitted_user_id', $user->id)->select([
                 '*',
                 DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
             ]);
@@ -86,7 +81,7 @@ final class SubmissionTable extends PowerGridComponent
         return [
             Filter::select('status_formatted', 'status')
                 ->dataSource(function () {
-                    $submission = Submission::select(['status'])->distinct();
+                    $submission = MarketDataSubmission::select(['status'])->distinct();
 
                     return $submission->get();
                 })
@@ -102,32 +97,13 @@ final class SubmissionTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'period.indicator' => [ // relationship on dishes model
-                'indicator_name', // column enabled to search
 
-            ],
             'user.organisation' => [
                 'name',
             ],
             'user' => [
                 'name'
             ],
-
-            'period.reportingMonths' => [
-                'start_month',
-                'end_month',
-
-
-            ],
-
-            'period.financialYears' => [
-                'number',
-            ],
-            'form' => [
-                'name',
-            ],
-
-
 
 
         ];
@@ -144,26 +120,13 @@ final class SubmissionTable extends PowerGridComponent
 
                 return $model->batch_no;
             })
-            ->add('user_id')
+            ->add('submitted_user_id')
             ->add('username', function ($model) {
-                return User::find($model->user_id)->name;
+                return User::find($model->submitted_user_id)->name;
             })
-            ->add('form_id')
-            ->add('form_name', function ($model) {
-                $form = Form::find($model->form_id);
 
-
-                return $form->name;
-            })
-            ->add('organisation')
-            ->add('organisation_formatted', function ($model) {
-
-                $user = User::find($model->user_id);
-
-                return $user->organisation->name;
-            })
             ->add('status')
-            ->add('batch_type')
+
             ->add('record_filter', function ($model) {})
             ->add('status_formatted', function ($model) {
 
@@ -177,18 +140,8 @@ final class SubmissionTable extends PowerGridComponent
             })
 
             ->add('period_id')
-            ->add('reporting_period', function ($model) {
-
-                $period = SubmissionPeriod::find($model->period_id);
-                if ($period) {
-                    return Carbon::parse($period->date_established)->format('d F Y') . '-' . Carbon::parse($period->date_ended)->format('d F Y');
-                } else {
-                    return 'N/A';
-                }
-            })
             ->add('comments')
             ->add('comments_truncated', function ($model) {
-
                 if (!$model->comments) {
                     return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
                 }
@@ -218,22 +171,6 @@ final class SubmissionTable extends PowerGridComponent
                 return $html;
             })
 
-            ->add('financial_year', function ($model) {
-
-                $model = SubmissionPeriod::find($model->period_id);
-
-                return $model->financialYears->number;
-                //   ReportingPeriodMonth::find($model->month_range_period_id)->;
-            })
-
-
-            ->add('month_range', function ($model) {
-                $model = SubmissionPeriod::find($model->period_id);
-
-                return $model->reportingMonths->start_month . '-' . $model->reportingMonths->end_month;
-                //
-            })
-            ->add('created_at')
             ->add('file_link', function ($model) {
 
                 if ($model->file_link) {
@@ -277,22 +214,9 @@ final class SubmissionTable extends PowerGridComponent
 
             Column::make('SUBMITTED BY', 'username')->searchable(),
 
-            Column::make('Organisation', 'organisation_formatted')->searchable(),
-            Column::make('Form name', 'form_name')->searchable(),
-
-
-
-            Column::make('SUBMISSION PERIOD', 'month_range')->searchable(),
-
-            Column::make('Project Year', 'financial_year')->searchable(),
             Column::make('Status', 'status_formatted')
                 ->sortable()
                 ->searchable(),
-
-            // Column::make('Submission Period', 'reporting_period')
-            //     ->sortable()
-            //     ->searchable(),
-
             Column::make('Comments', 'comments_truncated'),
 
             Column::make('Date of submission', 'date_of_submission', 'created_at')
@@ -306,7 +230,7 @@ final class SubmissionTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('refresh')]
+    #[On('refresh')]
     public function refreshData(): void
     {
         $this->refresh();
@@ -322,9 +246,9 @@ final class SubmissionTable extends PowerGridComponent
                 ->class('btn btn-warning my-1 custom-tooltip btn-sm')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->tooltip('Submit Approval')
-                ->dispatch('showModal', [
+                ->dispatch('showMarket', [
                     'id' => $row->id,
-                    'name' => 'view-submission-modal',
+                    'name' => 'view-market-modal',
 
                 ]),
 
@@ -338,9 +262,9 @@ final class SubmissionTable extends PowerGridComponent
                         User::find(auth()->user()->id)->hasAnyRole('admin'))
                 )
                 ->tooltip('Delete Data')
-                ->dispatch('deleteBatch', [
+                ->dispatch('deleteMarketBatch', [
                     'id' => $row->id,
-                    'name' => 'delete-batch-modal'
+                    'name' => 'delete-market-modal'
                 ]),
         ];
     }

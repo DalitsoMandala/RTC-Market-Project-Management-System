@@ -134,7 +134,7 @@
 
 
                         <div class="pt-2 mt-2 mb-2">
-                            <a href="/profile" class="btn rounded-3 btn-outline-warning"> <i class="bx bx-user"></i>
+                            <a href="/profile" class="btn rounded-3 btn-warning"> <i class="bx bx-user"></i>
                                 View
                                 Profile <i class="mdi mdi-arrow-right ms-1"></i></a>
                             <a href="forms" class="btn btn-warning rounded-3"> <i class="bx bx-file"></i> View

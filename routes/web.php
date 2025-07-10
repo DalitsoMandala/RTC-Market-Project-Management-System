@@ -208,6 +208,8 @@ Route::middleware([
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
     Route::get('user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('admin-user-roles');
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('admin-markets-manage-data');
+    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('admin-markets-submit-data');
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
 });
@@ -230,6 +232,8 @@ Route::middleware([
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('cip-markets-manage-data');
+    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('cip-markets-submit-data');
     registerFormRoutes('/forms/{project}', 'manager');
 });
 
@@ -265,7 +269,8 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');
     Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
     Route::get('/targets', App\Livewire\Targets\View::class);
-
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project_manager-markets-manage-data');
+    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('project_manager-markets-submit-data');
     registerFormRoutes('/forms/{project}', 'project_manager');
 });
 // External routes
