@@ -66,7 +66,7 @@
                                 @change-dashboard.window="makeActive($event.detail.value)"
                                 @click="$dispatch('change-dashboard', { value: 1 });"
                                 class="px-3 active nav-link text-light">
-                                Dashboard 1
+                                Project Report
                             </a>
                         </li>
                         <li class="mx-2 nav-item text-light">|</li>
@@ -74,8 +74,8 @@
                             <a href="#dashboard-2" id="dashboard-two"
                                 @change-dashboard.window="makeActive($event.detail.value)"
                                 @click="$dispatch('change-dashboard', { value: 2 })"
-                                class="px-3 nav-link text-light ">Dashboard
-                                2</a>
+                                class="px-3 nav-link text-light ">Market Data
+                            </a>
                         </li>
                     </ul>
                 @endhasanyrole
