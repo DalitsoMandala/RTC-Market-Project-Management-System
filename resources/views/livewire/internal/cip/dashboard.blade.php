@@ -21,24 +21,26 @@
 
         @include('layouts.dashboard-layout')
 
-
-
-        <div x-show="dashboardOneShow" x-transition.duration.500ms>
-            <livewire:dashboard-charts />
-
-
+        <div x-if="dashboardOneShow">
+            dashboard1
         </div>
 
 
-        <div x-show="dashboardTwoShow" x-transition.duration.500ms>
-            <livewire:dashboard-2-charts />
-        </div>
-
-
-
+        <livewire:dashboard-charts />
 
 
     </div>
+
+
+    <div x-show="dashboardTwoShow" x-transition.duration.500ms>
+        <livewire:dashboard-2-charts />
+    </div>
+
+
+
+
+
+</div>
 
 
 
