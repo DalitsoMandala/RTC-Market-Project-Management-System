@@ -31,20 +31,18 @@ class ReportingComponent extends Component
     public function readCache()
     {
         $this->loadingData = true;
-        $data = cache()->get('report_', []);
+        $data = cache()->get('report_status', []);
 
         if (!empty($data)) {
 
             $this->loadingData = false;
             $this->data = $data;
-
         }
-
     }
 
 
-    public function render(
-    ) {
+    public function render()
+    {
 
 
         return view('livewire.reporting-component', [

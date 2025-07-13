@@ -49,8 +49,7 @@ class Mapper implements ShouldQueue
         // $this->financial_year = $financial_year;
         // $this->indicators = $indicators;
         // $this->project = $project;
-        Cache::put('report_', []);
-
+        Cache::put('report_status', []);
     }
 
     /**
@@ -91,9 +90,7 @@ class Mapper implements ShouldQueue
 
 
 
-        Cache::put('report_', $collection);
-
-
+        Cache::put('report_status', $collection);
     }
 
     private function prepareItem($disaggregation, int $count): array
@@ -104,16 +101,11 @@ class Mapper implements ShouldQueue
         if ($this->financial_year != null) {
 
             $year = FinancialYear::find($this->financial_year)->number;
-
-
         }
         if ($this->reporting_period != null) {
 
 
             $period = ReportingPeriodMonth::find($this->reporting_period)->start_month . ' - ' . ReportingPeriodMonth::find($this->reporting_period)->end_month;
-
-
-
         }
 
 

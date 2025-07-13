@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Project;
 use App\Models\ReportStatus;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -35,7 +36,8 @@ class PopulatePreviousValueJob implements ShouldQueue
         //
 
         $class = new PopulatePreviousValue();
-        $class->start(); // percentages
+        $project = Project::where('name', 'RTC MARKET')->first();
+        $project ? $class->start($project->id) : null; // percentages
         Cache::put('report_progress', 66);
         ReportStatus::find(1)->update([
             'status'   => 'pending',

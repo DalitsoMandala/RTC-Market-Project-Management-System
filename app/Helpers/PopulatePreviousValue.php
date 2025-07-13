@@ -12,9 +12,9 @@ use App\Models\ReportingPeriodMonth;
 
 class PopulatePreviousValue
 {
-    public function start()
+    public function start($projectId)
     {
-        $financialYears = FinancialYear::where('project_id', 1)->orderBy('number')->get();
+        $financialYears = FinancialYear::where('project_id', $projectId)->orderBy('number')->get();
         $indicators = Indicator::with('disaggregations', 'organisation')->whereHas('disaggregations', function ($query) {
             $query->where('name', 'Total (% Percentage)');
         })->get();
@@ -42,15 +42,15 @@ class PopulatePreviousValue
                         $previousValue = $previousValues[$organisation->id];
 
                         // Calculate annual value for this financial year and organization
-                        $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)', $crop);
-                    $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
+                        $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)', $crop, $projectId);
+                        $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
 
 
                         // Save or update previous value and growth percentage for the organization
-                        $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)', $crop);
+                        $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)', $crop, $projectId);
 
-                    // Update the previous value for this organization for the next financial year
-                    $previousValues[$organisation->id] = $annualValue;
+                        // Update the previous value for this organization for the next financial year
+                        $previousValues[$organisation->id] = $annualValue;
                     }
                 }
             }
@@ -59,7 +59,7 @@ class PopulatePreviousValue
 
 
 
-    protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name, $crop)
+    protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name, $crop, $projectId)
     {
         // For the first year, return the baseline as the annual value
         if ($financialYear->number == 1) {
@@ -67,7 +67,7 @@ class PopulatePreviousValue
         }
 
         $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
-            ->where('project_id', 1)
+            ->where('project_id', $projectId)
             ->where('organisation_id', $organisation->id)
             ->where('indicator_id', $indicator->id)
             ->where('crop', $crop)
@@ -159,12 +159,12 @@ class PopulatePreviousValue
     }
 
 
-    protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name, $crop)
+    protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name, $crop, $projectId)
     {
         $unspecified = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first();
         // Identify the last reporting period for the financial year
         $lastReportingPeriod = SystemReport::where('financial_year_id', $financialYear->id)
-            ->where('project_id', 1)
+            ->where('project_id', $projectId)
             ->where('indicator_id', $indicator->id)
             ->where('organisation_id', $organisation->id)
             ->where('reporting_period_id', $unspecified->id) // unspecified
