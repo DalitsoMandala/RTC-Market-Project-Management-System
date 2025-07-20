@@ -1,19 +1,7 @@
 <div>
 
-    <div class="my-4">
+    <div @update-chart.window="reRenderCharts($event.detail.data)" class="my-4" x-data="dashboard2">
 
-        <div class="my-2 row align-items-center ">
-            <div class="col">
-                <h2 class="h2">Marketing Overview</h2>
-                <p class="text-muted">Summary of Demand, Value, and Distribution Trends</p>
-            </div>
-            <div class="col">
-                <div class="d-flex justify-content-end">
-                    <a href="marketing/manage-data" class="btn btn-warning"> View Details <i
-                            class="bx bx-arrow-to-right"></i></a>
-                </div>
-            </div>
-        </div>
 
         <!-- Volume vs Value by District (Combo Chart) -->
         <div class="mt-4 row">
@@ -22,7 +10,7 @@
                     <div class="text-dark fw-bold card-header">
                         Estimated Volume (Kg) vs Value (US$) by District
                     </div>
-                    <div class="card-body" x-data="districtComboChart">
+                    <div class="card-body">
                         <div id="district-combo-chart" style="height: 500px;"></div>
                     </div>
                 </div>
@@ -36,7 +24,7 @@
                     <div class="text-dark fw-bold card-header ">
                         Estimated Demand (Kg) by Variety
                     </div>
-                    <div class="card-body" x-data="demandChart">
+                    <div class="card-body">
                         <div id="demand-chart" style="height: 350px;"></div>
                     </div>
                 </div>
@@ -48,7 +36,7 @@
                     <div class="text-dark fw-bold card-header ">
                         Estimated Total Value (US$) by Variety
                     </div>
-                    <div class="card-body" x-data="valueChart">
+                    <div class="card-body">
                         <div id="value-chart" style="height: 350px;"></div>
                     </div>
                 </div>
@@ -62,7 +50,7 @@
                     <div class="text-dark fw-bold card-header ">
                         Monthly Volume vs Value (May 2024 – Jan 2025)
                     </div>
-                    <div class="card-body" x-data="monthlyChart">
+                    <div class="card-body">
                         <div id="monthly-chart" style="height: 400px;"></div>
                     </div>
                 </div>
@@ -74,9 +62,9 @@
             <div class="col-12">
                 <div class="shadow-sm card">
                     <div class="card-header text-dark fw-bold">
-                        Monthly Estimated Demand (Kg) by Variety – Stacked View
+                        Monthly Estimated Demand (Kg) by Variety
                     </div>
-                    <div class="card-body" x-data="stackedDemandChart">
+                    <div class="card-body">
                         <div id="stacked-demand-chart" style="height: 400px;"></div>
                     </div>
                 </div>
@@ -92,7 +80,7 @@
                     <div class="text-dark fw-bold card-header">
                         Value Contribution by Country (%)
                     </div>
-                    <div class="card-body" x-data="countryValueDonut">
+                    <div class="card-body">
                         <div id="country-value-donut" style="height: 400px;"></div>
                     </div>
                 </div>
@@ -104,7 +92,7 @@
                     <div class="text-dark fw-bold card-header">
                         Estimated Demand (Kg) by Country & Variety
                     </div>
-                    <div class="card-body" x-data="countryVarietyChart">
+                    <div class="card-body">
                         <div id="country-variety-chart" style="height: 400px;"></div>
                     </div>
                 </div>
@@ -119,7 +107,7 @@
                     <div class="text-dark fw-bold card-header">
                         Average Price per Kg (MWK) Over Time
                     </div>
-                    <div class="card-body" x-data="priceTrendChart">
+                    <div class="card-body">
                         <div id="price-trend-chart" style="height: 400px;"></div>
                     </div>
                 </div>
@@ -132,53 +120,433 @@
 </div>
 @script
     <script>
-        Alpine.data('demandChart', () => ({
+        Alpine.data('dashboard2', () => ({
+            data: $wire.entangle('data'),
+            demandChart: {
+                instance: null,
+                data: [],
+            },
+            demandChartCollection(data) {
+                const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+
+                const usdValues = data.map(item => safeParseFloat(item.usd_value));
+                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
+                const varieties = data.map((item, index) => item.variety_demanded ??
+                    `Unknown ${index + 1}`);
+
+                return {
+                    volumesKg: volumesKg,
+                    usdValues: usdValues,
+                    varieties: varieties
+                };
+            },
+            valueChart: {
+                instance: null,
+                data: [],
+            },
+
+            valuesChartCollection(data) {
+                const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+
+                const usdValues = data.map(item => safeParseFloat(item.usd_value));
+                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
+                const varieties = data.map((item, index) => item.variety_demanded ??
+                    `Unknown ${index + 1}`);
+
+                return {
+                    volumesKg: volumesKg,
+                    usdValues: usdValues,
+                    varieties: varieties
+                };
+            },
+
+            monthlyChart: {
+                instance: null,
+                data: [],
+            },
+            monthlyChartCollection(data) {
+                const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                ];
+
+                const usdValues = data.map(item => safeParseFloat(item.usd_value));
+                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
+                const months = data.map((item, index) => {
+                    if (item.entry_date) {
+                        const date = new Date(item.entry_date);
+                        const month = monthNames[date.getMonth()];
+                        const year = String(date.getFullYear()).slice(-2); // last two digits
+                        return `${month}-${year}`;
+                    } else {
+                        return `Unknown ${index + 1}`;
+                    }
+                });
+
+                return {
+                    volumesKg: volumesKg,
+                    usdValues: usdValues,
+                    months: months
+                };
+            },
+
+            stackedDemandChart: {
+                instance: null,
+                data: [],
+            },
+
+            stackedChartCollection(rawData) {
+                // Step 1: Extract all unique varieties
+                const uniqueVarieties = new Set();
+                for (const entry of Object.values(rawData)) {
+                    for (const key of Object.keys(entry)) {
+                        uniqueVarieties.add(key.trim()); // normalize keys
+                    }
+                }
+
+                // Step 2: Prepare empty arrays for each variety
+                const seriesMap = {};
+                for (const variety of uniqueVarieties) {
+                    seriesMap[variety] = [];
+                }
+
+                // Step 3: Sort dates and populate data
+                const dates = Object.keys(rawData).sort();
+                const formattedDates = dates.map(dateStr => {
+                    const date = new Date(dateStr);
+                    return date.toLocaleString('en-US', {
+                        month: 'short',
+                        year: '2-digit'
+                    }); // e.g. "May-24"
+                });
+
+                for (const date of dates) {
+                    const entry = rawData[date];
+                    for (const variety of uniqueVarieties) {
+                        const matchKey = Object.keys(entry).find(k => k.trim() === variety);
+                        const value = matchKey ? entry[matchKey] : 0;
+                        seriesMap[variety].push(value);
+                    }
+                }
+
+                // Step 4: Convert seriesMap to ApexCharts format
+                const series = Array.from(uniqueVarieties).map(variety => ({
+                    name: variety,
+                    data: seriesMap[variety]
+                }));
+
+                return {
+                    dates: formattedDates,
+                    series: series
+                }
+            },
+
+            districtComboChart: {
+                instance: null,
+                data: [],
+
+            },
+            districtComboChartCollection(data) {
+                const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+
+                const usdValues = data.map(item => safeParseFloat(item.usd_value));
+                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
+                const districts = data.map((item, index) => item.final_market_district ??
+                    `District ${index + 1}`);
+
+                return {
+                    volumesKg: volumesKg,
+                    usdValues: usdValues,
+                    districts: districts
+                };
+            },
+            countryValueDonut: {
+                instance: null,
+                data: []
+            },
+            countryValueDonutCollection(data) {
+                const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+
+                const usdValues = data.map(item => safeParseFloat(item.share));
+
+                const countries = data.map((item, index) => item.country ??
+                    `Country ${index + 1}`);
+
+                return {
+
+                    usdValues: usdValues,
+                    countries: countries
+                };
+            },
+
+            countryVarietyChart: {
+                instance: null,
+                data: []
+            },
+
+            countryVarietyChartCollection(rawData) {
+                // Step 1: Get unique country names across all varieties
+                const countrySet = new Set();
+                for (const varietyData of Object.values(rawData)) {
+                    for (const country of Object.keys(varietyData)) {
+                        countrySet.add(country);
+                    }
+                }
+                const countries = Array.from(countrySet); // x-axis categories
+
+                // Step 2: Build series array dynamically
+                const series = Object.entries(rawData).map(([varietyName, countryData]) => {
+                    return {
+                        name: varietyName.trim(), // Remove trailing spaces like in "Violet "
+                        data: countries.map(country => countryData[country] || 0) // Fill missing with 0
+                    };
+                });
+
+                return {
+                    countries: countries,
+                    series: series
+
+                }
+
+            },
+            priceTrendChart: {
+                instance: null,
+                data: []
+            },
+            priceTrendChartCollection(data) {
+                const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                ];
+
+                const avgPrice = data.map(item => safeParseFloat(item.avg_price_per_kg));
+                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
+                const months = data.map((item, index) => {
+                    if (item.entry_date) {
+                        const date = new Date(item.entry_date);
+                        const month = monthNames[date.getMonth()];
+                        const year = String(date.getFullYear()).slice(-2); // last two digits
+                        return `${month}-${year}`;
+                    } else {
+                        return `Unknown ${index + 1}`;
+                    }
+                });
+
+                return {
+                    volumesKg: volumesKg,
+                    avgPrice: avgPrice,
+                    months: months
+                };
+            },
+
+            reRenderCharts(data) {
+                data.map(item => {
+                    if (item.name === 'volumeVsValueByDistrict') {
+                        const data = this.districtComboChartCollection(item.data);
+                        this.updateDistrictComboChart(data)
+                    }
+
+                    if (item.name === 'demandByVariety') {
+                        const data = this.demandChartCollection(item.data)
+
+                        this.updateDemandChart(data);
+
+                    }
+
+                    if (item.name === 'valueByVariety') {
+                        const data = this.valuesChartCollection(item.data);
+                        this.updateValueChart(data);
+                    }
+
+                    if (item.name === 'monthlyVolumeVsValue') {
+                        const data = this.monthlyChartCollection(item.data);
+                        this.updateMonthlyChart(data);
+                    }
+
+                    if (item.name === 'monthlyDemandByVariety') {
+                        const data = this.stackedChartCollection(item.data);
+                        this.updateStackedDemandChart(data);
+                    }
+
+                    if (item.name === 'countryValueShare') {
+                        const data = this.countryValueDonutCollection(item.data);
+
+                        this.updateCountryValueDonut(data);
+                    }
+
+                    if (item.name === 'demandByCountryAndVariety') {
+                        const data = this.countryVarietyChartCollection(item.data);
+                        this.updateCountryVarietyChart(data);
+                    }
+
+                    if (item.name === 'priceTrendMWK') {
+                        const data = this.priceTrendChartCollection(item.data);
+                        this.updatePriceTrendChart(data);
+                    }
+
+
+
+                })
+
+            },
+
+            updateDemandChart(data) {
+
+                this.demandChart.updateOptions([{
+                    series: [{
+                        name: 'Estimated Demand (Kg)',
+                        data: data.volumesKg
+                    }],
+                    xaxis: {
+                        categories: data.varieties
+                    },
+                }])
+                this.demandChart.data = data;
+            },
+            updateValueChart(data) {
+                this.valueChart.updateOptions([{
+                    series: data.usdValues,
+                    labels: data.varieties
+                }])
+            },
+            updateMonthlyChart(data) {
+                this.monthlyChart.updateOptions([{
+                    series: [{
+                            name: 'Volume',
+                            type: 'column',
+                            data: data.volumesKg
+                        },
+                        {
+                            name: 'Value ($)',
+                            type: 'line',
+                            data: data.usdValues
+                        }
+                    ],
+                    xaxis: {
+                        categories: data.months,
+                        title: {
+                            text: 'Month'
+                        }
+                    },
+                }])
+            },
+            updateStackedDemandChart(data) {
+
+                this.stackedDemandChart.updateOptions([{
+                    series: data.series,
+                    xaxis: {
+                        categories: data.dates,
+
+                    },
+            }])
+            },
+            updateDistrictComboChart(data) {
+
+
+                this.districtComboChart.instance.updateOptions({
+                    series: [{
+                            name: 'Volume (Kg)',
+                            type: 'column',
+                            data: data.volumesKg
+                        },
+                        {
+                            name: 'Value (US$)',
+                            type: 'line',
+                            data: data.usdValues
+                        }
+                    ],
+                    xaxis: {
+                        categories: data.districts
+                    }
+                });
+                this.districtComboChart.data = data;
+            },
+            updateCountryValueDonut(data) {
+                this.countryValueDonut.updateOptions([{
+                      series: data.usdValues,
+                    labels: data.countries
+                }])
+            },
+            updateCountryVarietyChart(data) {
+                this.countryVarietyChart.updateOptions([{
+                  series: data.series,
+                    xaxis: {
+                        categories: data.countries,
+                    }
+                }])
+            },
+            updatePriceTrendChart(data) {
+                this.priceTrendChart.updateSeries([{
+                    series: [{
+
+                        data: data.avgPrice
+                    }],
+                    xaxis: {
+                        categories: data.months,
+                    }
+                }])
+            },
             init() {
-                const options = {
+                this.initDemandChart();
+                this.initValueChart();
+                this.initMonthlyChart();
+                this.initStackedDemandChart();
+                this.initDistrictComboChart();
+                this.initCountryValueDonut();
+                this.initCountryVarietyChart();
+                this.initPriceTrendChart();
+
+
+            },
+
+            initDemandChart() {
+
+                const arr = this.data.filter(item => item.name === 'demandByVariety')[0].data;
+                const data = this.demandChartCollection(arr);
+                this.demandChart = new ApexCharts(document.querySelector("#demand-chart"), {
                     chart: {
                         type: 'bar',
                         height: 390
                     },
                     series: [{
                         name: 'Estimated Demand (Kg)',
-                        data: [10094350, 6484978, 1612100, 59060]
+                        data: data.volumesKg
                     }],
                     xaxis: {
-                        categories: ['Rosita', 'Violet', 'Chuma', 'White']
+                        categories: data.varieties
                     },
-                    colors: SystemColors,
-                };
+                    colors: SystemColors
+                });
+                this.demandChart.render();
+            },
 
-                new ApexCharts(document.querySelector("#demand-chart"), options).render();
-            }
-        }));
-
-        Alpine.data('valueChart', () => ({
-            init() {
-                const options = {
+            initValueChart() {
+                const arr = this.data.filter(item => item.name === 'valueByVariety')[0].data;
+                const data = this.demandChartCollection(arr); // use same collection
+                this.valueChart = new ApexCharts(document.querySelector("#value-chart"), {
                     chart: {
                         type: 'donut',
                         height: 400
                     },
-                    series: [5610650, 3414124, 1093275, 29632],
-                    labels: ['Rosita', 'Violet', 'Chuma', 'White'],
+                    series: data.usdValues,
+                    labels: data.varieties,
                     tooltip: {
                         y: {
-                            formatter: function(val) {
-                                return "$" + val.toLocaleString();
-                            }
+                            formatter: val => "$" + val.toLocaleString()
                         }
                     },
                     colors: SystemColors
-                };
+                });
+                this.valueChart.render();
+            },
 
-                new ApexCharts(document.querySelector("#value-chart"), options).render();
-            }
-        }));
+            initMonthlyChart() {
+                const arr = this.data.filter(item => item.name === 'monthlyVolumeVsValue')[0].data;
+                const data = this.monthlyChartCollection(arr); // use same collection
 
-        Alpine.data('monthlyChart', () => ({
-            init() {
-                const options = {
+                this.monthlyChart = new ApexCharts(document.querySelector("#monthly-chart"), {
                     chart: {
                         height: 400,
                         type: 'line',
@@ -190,22 +558,16 @@
                     series: [{
                             name: 'Volume',
                             type: 'column',
-                            data: [2491530, 2775300, 4347006, 1197008, 2783991, 3278833, 1094940,
-                                281880
-                            ]
+                            data: data.volumesKg
                         },
                         {
                             name: 'Value ($)',
                             type: 'line',
-                            data: [1257308.395, 1537115.363, 2361909.88, 792190.0914, 1756997.744,
-                                1651326.585, 546902.3415, 243930.3255
-                            ]
+                            data: data.usdValues
                         }
                     ],
                     xaxis: {
-                        categories: ['May-24', 'Jun-24', 'Jul-24', 'Aug-24', 'Sept-24', 'Oct-24', 'Nov-24',
-                            'Jan-25'
-                        ],
+                        categories: data.months,
                         title: {
                             text: 'Month'
                         }
@@ -232,67 +594,50 @@
                     dataLabels: {
                         enabled: true,
                         enabledOnSeries: [1],
-                        formatter: (val, opts) => {
-                            return opts.seriesIndex === 1 ? '$' + Math.round(val).toLocaleString() :
-                                Math.round(val).toLocaleString();
-                        }
+                        formatter: (val, opts) => opts.seriesIndex === 1 ?
+                            '$' + Math.round(val).toLocaleString() : Math.round(val).toLocaleString()
                     },
                     tooltip: {
                         shared: true,
                         y: [{
-                            formatter: val => val.toLocaleString()
-                        }, {
-                            formatter: val => '$' + val.toLocaleString()
-                        }]
+                                formatter: val => val.toLocaleString()
+                            },
+                            {
+                                formatter: val => '$' + val.toLocaleString()
+                            }
+                        ]
                     },
                     legend: {
                         position: 'top'
                     }
-                };
+                });
+                this.monthlyChart.render();
+            },
 
-                new ApexCharts(this.$el.querySelector("#monthly-chart"), options).render();
-            }
-        }));
+            initStackedDemandChart() {
+                const arr = this.data.filter(item => item.name === 'monthlyDemandByVariety')[0].data;
+                const data = this.stackedChartCollection(arr); // use same collection
 
-        Alpine.data('stackedDemandChart', () => ({
-            init() {
-                const options = {
+
+
+                this.stackedDemandChart = new ApexCharts(document.querySelector("#stacked-demand-chart"), {
                     chart: {
-                        type: 'bar',
+                        type: 'line',
                         height: 400,
-                        stacked: true,
                         toolbar: {
                             show: false
                         }
                     },
-                    series: [{
-                            name: 'Chuma',
-                            data: [290920, 58240, 309820, 203280, 336840, 305620, 107380, 0]
-                        },
-                        {
-                            name: 'Rosita',
-                            data: [1247260, 1392685, 2615740, 828410, 1427400, 1755975, 643160, 183720]
-                        },
-                        {
-                            name: 'Violet',
-                            data: [935710, 1324255, 1380146, 165318, 1019751, 1217238, 344400, 98160]
-                        },
-                        {
-                            name: 'White',
-                            data: [17640, 120, 41300, 0, 0, 0, 0, 0]
-                        }
-                    ],
+                    series: data.series,
                     xaxis: {
-                        categories: ['May-24', 'Jun-24', 'Jul-24', 'Aug-24', 'Sept-24', 'Oct-24', 'Nov-24',
-                            'Jan-25'
-                        ],
+                        categories: data.dates,
                         title: {
-                            text: 'Month'
+                            text: 'Period'
                         }
                     },
                     yaxis: {
                         title: {
-                            text: 'Estimated Demand (Kg)'
+                            text: 'Volume (kg)'
                         },
                         labels: {
                             formatter: val => val.toLocaleString()
@@ -311,21 +656,18 @@
                     },
                     dataLabels: {
                         enabled: false
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false
-                        }
                     }
-                };
+                });
+                this.stackedDemandChart.render();
+            },
 
-                new ApexCharts(this.$el.querySelector("#stacked-demand-chart"), options).render();
-            }
-        }));
+            initDistrictComboChart() {
 
-        Alpine.data('districtComboChart', () => ({
-            init() {
-                const options = {
+                const arr = this.data.filter(item => item.name === 'volumeVsValueByDistrict')[0].data;
+                const data = this.districtComboChartCollection(arr);
+                this.districtComboChart.data = data;
+                this.districtComboChart.instance = new ApexCharts(document.querySelector(
+                    "#district-combo-chart"), {
                     chart: {
                         height: 500,
                         type: 'line',
@@ -339,36 +681,16 @@
                     series: [{
                             name: 'Volume (Kg)',
                             type: 'column',
-                            data: [
-                                5629520, 4889036, 2713840, 1758060, 1477700, 793860, 565560,
-                                298240, 58172, 22800, 12840, 6240, 6120, 5840, 4020, 3360, 2880,
-                                2400
-                            ]
+                            data: data.volumesKg
                         },
                         {
                             name: 'Value (US$)',
                             type: 'line',
-                            data: [
-                                3707254.14, 2675796.745, 1300010.28, 882592.8041, 699474.586,
-                                398693.3181, 235105.0828, 161195.8881, 31805.16848, 18961.73615,
-                                11815.53398, 5318.103941, 5139.920046, 4363.221017, 2124.500286,
-                                2958.309537, 3015.41976, 2055.968018
-                            ]
+                            data: data.usdValues
                         }
                     ],
-                    labels: [
-                        'Other (Int.)', 'Lilongwe', 'Blantyre', 'Other (local)', 'Zomba',
-                        'Mangochi', 'Ntcheu', 'Mzimba', 'Dowa', 'Mulanje', 'Balaka',
-                        'Nkhatabay', 'Thyolo', 'Kasungu', 'Nkhotakota', 'Machinga',
-                        'Mchinji', 'Mwanza'
-                    ],
                     xaxis: {
-                        categories: [
-                            'Other (Int.)', 'Lilongwe', 'Blantyre', 'Other (local)', 'Zomba',
-                            'Mangochi', 'Ntcheu', 'Mzimba', 'Dowa', 'Mulanje', 'Balaka',
-                            'Nkhatabay', 'Thyolo', 'Kasungu', 'Nkhotakota', 'Machinga',
-                            'Mchinji', 'Mwanza'
-                        ],
+                        categories: data.districts,
                         labels: {
                             rotate: -45,
                             style: {
@@ -408,41 +730,43 @@
                     legend: {
                         position: 'top'
                     }
-                };
+                });
+                this.districtComboChart.instance.render();
+            },
 
-                new ApexCharts(this.$el.querySelector("#district-combo-chart"), options).render();
-            }
-        }));
-        Alpine.data('countryValueDonut', () => ({
-            init() {
-                const options = {
+            initCountryValueDonut() {
+                const arr = this.data.filter(item => item.name === 'countryValueShare')[0].data;
+
+                const data = this.countryValueDonutCollection(arr);
+
+                this.countryValueDonut = new ApexCharts(document.querySelector("#country-value-donut"), {
                     chart: {
                         type: 'donut',
                         height: 400
                     },
-                    series: [63, 16, 21],
-                    labels: ['Malawi', 'Mozambique', 'Zambia'],
+                    series: data.usdValues,
+                    labels: data.countries,
                     colors: SystemColors,
                     dataLabels: {
-                        formatter: (val) => val.toFixed(1) + '%'
+                        formatter: val => val.toFixed(1) + '%'
                     },
                     legend: {
                         position: 'bottom'
                     },
                     tooltip: {
                         y: {
-                            formatter: (val) => val.toFixed(1) + '%'
+                            formatter: val => val.toFixed(1) + '%'
                         }
                     }
-                };
+                });
+                this.countryValueDonut.render();
+            },
 
-                new ApexCharts(this.$el.querySelector("#country-value-donut"), options).render();
-            }
-        }));
+            initCountryVarietyChart() {
+                const arr = this.data.filter(item => item.name === 'demandByCountryAndVariety')[0].data;
 
-        Alpine.data('countryVarietyChart', () => ({
-            init() {
-                const options = {
+                const data = this.countryVarietyChartCollection(arr);
+                this.countryVarietyChart = new ApexCharts(document.querySelector("#country-variety-chart"), {
                     chart: {
                         type: 'bar',
                         height: 400,
@@ -454,28 +778,12 @@
                     plotOptions: {
                         bar: {
                             horizontal: false,
-                            columnWidth: '55%',
+                            columnWidth: '55%'
                         }
                     },
-                    series: [{
-                            name: 'Chuma',
-                            data: [6092410, 481880, 1130220]
-                        },
-                        {
-                            name: 'Rosita',
-                            data: [6469498, 2055520, 1946420]
-                        },
-                        {
-                            name: 'Violet',
-                            data: [59060, 5520, 9960]
-                        },
-                        {
-                            name: 'White',
-                            data: [0, 0, 0] // Malawi has 59,060, others have none, adjust as needed
-                        }
-                    ],
+                    series: data.series,
                     xaxis: {
-                        categories: ['Malawi', 'Mozambique', 'Zambia'],
+                        categories: data.countries,
                         title: {
                             text: 'Country'
                         }
@@ -496,23 +804,23 @@
                         }
                     },
                     legend: {
-                        position: 'top'
+                        position: 'bottom'
                     },
                     colors: SystemColors,
                     dataLabels: {
                         enabled: false
                     }
-                };
+                });
+                this.countryVarietyChart.render();
+            },
 
-                new ApexCharts(this.$el.querySelector("#country-variety-chart"), options).render();
-            }
-        }));
+            initPriceTrendChart() {
+                const arr = this.data.filter(item => item.name === 'priceTrendMWK')[0].data;
 
-        Alpine.data('priceTrendChart', () => ({
-            init() {
-                const options = {
+                const data = this.priceTrendChartCollection(arr);
+                this.priceTrendChart = new ApexCharts(document.querySelector("#price-trend-chart"), {
                     chart: {
-                        type: 'line',
+                        type: 'area',
                         height: 400,
                         toolbar: {
                             show: false
@@ -520,12 +828,10 @@
                     },
                     series: [{
                         name: 'Average Price (MWK/kg)',
-                        data: [13.39, 21.58, 25.15, 47.70, 43.81, 34.97, 21.49, 127.91]
+                        data: data.avgPrice
                     }],
                     xaxis: {
-                        categories: ['May-24', 'Jun-24', 'Jul-24', 'Aug-24', 'Sept-24', 'Oct-24', 'Nov-24',
-                            'Jan-25'
-                        ],
+                        categories: data.months,
                         title: {
                             text: 'Period'
                         },
@@ -549,7 +855,7 @@
                         }
                     },
                     dataLabels: {
-                        enabled: true,
+                        enabled: false,
                         formatter: val => 'MWK ' + val.toFixed(2)
                     },
                     stroke: {
@@ -563,9 +869,8 @@
                     legend: {
                         position: 'top'
                     }
-                };
-
-                new ApexCharts(this.$el.querySelector("#price-trend-chart"), options).render();
+                });
+                this.priceTrendChart.render();
             }
         }));
     </script>

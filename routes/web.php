@@ -3,31 +3,40 @@
 
 use App\Models\Indicator;
 
+use App\Models\MarketData;
+
+use App\Models\SeedBeneficiary;
+
+use Illuminate\Support\Facades\DB;
+
 use App\Livewire\Internal\Cip\Forms;
 
 use Illuminate\Support\Facades\Route;
-
 use App\Livewire\Internal\Cip\Reports;
-
 use App\Livewire\Internal\Cip\Targets;
-
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\SubPeriod;
+
+use App\Helpers\MarketReportCalculations;
+
 use App\Livewire\Internal\Cip\Indicators;
+
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
-
 use App\Livewire\Internal\Cip\ViewIndicators;
-
 use App\Livewire\External\Dashboard as ExternalDashboard;
-
-use App\Models\SeedBeneficiary;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
+Route::get('/test-stuff', function () {
 
+$market = new MarketReportCalculations();
+return response()->json($market->run());
+
+
+});
 
 
 Route::get('/logout', function () {

@@ -2,24 +2,28 @@
 
 namespace App\Livewire;
 
+use App\Models\MarketData;
+use App\Models\MarketDataReport;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Computed;
+
 class ChartsView2 extends Component
 {
-        use LivewireAlert;
+    use LivewireAlert;
+    public $data = [];
 
+    #[On('update-chart')]
+    public function updateCharts($data)
+    {
 
-    public function save(){
-
-
+        // Access parameters as needed
+        $this->data = $data;
     }
-
-    public function mount(){
-
-    }
-
 
     public function render()
     {

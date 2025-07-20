@@ -48,7 +48,7 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'off_taker_name_vehicle_reg_number' => $row['Off-taker Name/Vehicle Reg Number'],
             'trader_contact' => $row['Trader Contact'],
             'buyer_location' => $row['Buyer Location'],
-            'variety_demanded' => $row['Variety Demanded'],
+            'variety_demanded' => trim($row['Variety Demanded']),
             'quality_size' => $row['Quality/Size'],
             'quantity' => $row['Quantity'],
             'units' => $row['Units'],

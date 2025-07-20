@@ -8,12 +8,14 @@
                 <div class="my-auto row justify-content-center">
                     <div class="col-md-8 col-lg-6 col-xl-5">
 
-                        <div class="mb-4 text-center">
+                      <div class="mb-4 text-center">
                             <a href="/">
-                                <x-application-logo width="50" /> <span
-                                    class="logo-txt">{{ config('app.name') }}</span>
+                                <x-application-logo width="150" />
+                                <br>
+                                <span class="mt-5 logo-txt">{{ config('app.name') }}</span>
                             </a>
                         </div>
+
 
                         <div class="card">
                             <div class="p-4 card-body">
@@ -33,7 +35,7 @@
                                         <!-- Email Address -->
                                         <div>
                                             <x-input-label for="email" :value="__('Email')" />
-                                            <x-text-input id="email" class="block w-full mt-1" type="email"
+                                            <x-text-input readonly id="email" class="block w-full mt-1" type="email"
                                                 name="email" :value="old('email', $request->email)" required autofocus
                                                 autocomplete="username" />
                                             <x-input-error :messages="$errors->get('email')" class="mt-2" />

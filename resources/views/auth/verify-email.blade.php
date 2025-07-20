@@ -22,14 +22,16 @@
                             <div class="p-4 card-body">
                                 <div class="mt-2 text-center">
                                     <h5 class="text-warning">Verify Your Email!</h5>
+
+                                    <div class="mt-4 alert alert-warning">
+                                        {{ __('We need you to verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+                                    </div>
                                     @if (session('status') == 'verification-link-sent')
                                         <div class="mb-4 alert alert-success">
                                             {{ __('A new verification link has been sent to the email address you provided during registration.') }}
                                         </div>
                                     @endif
-                                    <p class="text-muted">
-                                        {{ __('We need you to verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-                                    </p>
+
                                 </div>
 
 

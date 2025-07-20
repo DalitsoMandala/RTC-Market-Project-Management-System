@@ -5,11 +5,13 @@ namespace App\Console\Commands;
 use App\Jobs\ReportJob;
 use Illuminate\Bus\Batch;
 use App\Models\ReportStatus;
+use App\Jobs\MarketReportJob;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use App\Jobs\AdditionalReportJob;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
+
 use App\Helpers\PopulatePreviousValue;
 use App\Jobs\PopulatePreviousValueJob;
 
@@ -98,6 +100,7 @@ class UpdateInformation extends Command
             new ReportJob(),
             new PopulatePreviousValueJob(),
             new AdditionalReportJob(),
+            new MarketReportJob(),
             function () use ($reportStatus) {
                 $reportStatus->update([
                     'status' => 'completed',

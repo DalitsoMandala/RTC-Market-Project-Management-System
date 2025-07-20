@@ -7,7 +7,7 @@
     }
 }" x-show="show">
 
-    <div class="order-1 col-12">
+    <div class="order-1 opacity-25 col-12 pe-none">
 
         <h3 class="mb-0 text-dark placeholder-glow ">
             <span class="placeholder col-6 "></span>
@@ -15,7 +15,7 @@
         <p class="placeholder-glow">
             <span class="placeholder col-7 placeholder-sm"></span>
         </p>
-        <div class="my-3 bg-opacity-25 card bg-light jumbo">
+        <div class="my-3 bg- card bg-light jumbo">
             <div class="wave"> </div>
 
             <div class="card-body">
@@ -56,10 +56,10 @@
 
 
                         <div class="pt-2 mt-2 mb-2">
-                            <a class="opacity-25 btn btn-secondary rounded-3 disabled placeholder col-1">
+                            <a class=" btn btn-secondary rounded-3 disabled placeholder col-1">
 
                             </a>
-                            <a class="opacity-25 btn btn-secondary rounded-3 disabled placeholder col-1">
+                            <a class=" btn btn-secondary rounded-3 disabled placeholder col-1">
 
                             </a>
                         </div>
