@@ -32,10 +32,8 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test-stuff', function () {
 
-$market = new MarketReportCalculations();
-return response()->json($market->run());
-
-
+    $market = new MarketReportCalculations();
+    return response()->json($market->run());
 });
 
 
@@ -126,7 +124,7 @@ Route::middleware([
     Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('admin-submission-period');
     Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('admin-jobs');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
-    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('admin-std-targets');
     Route::get('user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('admin-user-roles');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('admin-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('admin-markets-submit-data');
@@ -148,7 +146,7 @@ Route::middleware([
     Route::get('/reports', Reports::class)->name('cip-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets-view');
-    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('cip-std-targets');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
@@ -218,10 +216,9 @@ Route::middleware([
 
 ])->prefix('enumerator')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Enumerator\Dashboard::class)->name('enumerator-dashboard');
-   Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
+    Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
-
 });
 // Authentication routes
 require __DIR__ . '/auth.php';

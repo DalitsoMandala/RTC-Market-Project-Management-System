@@ -113,14 +113,14 @@
 
                                                     <span data-key="t-dashboards">Manage Baseline Data</span>
                                                 </a>
-
+                                                <a href="{{ route('admin-std-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Indicator Targets</a>
                                                 {{-- <a href="{{ route('admin-leads') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Lead partners</a> --}}
+                                                    data-key="t-range-slider">Lead partners</a>
 
                                                 <a href="{{ route('admin-sources') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Organisation Forms</a>
-                                                {{-- <a href="{{ route('admin-indicators-targets') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Indicator Targets</a>
+
 
                                                 <a href="{{ route('admin-assigned-targets') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Assigned Targets</a> --}}
@@ -511,9 +511,8 @@
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('enumerator-dashboard') }}" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
+                                        href="{{ route('enumerator-dashboard') }}" id="topnav-dashboard" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
