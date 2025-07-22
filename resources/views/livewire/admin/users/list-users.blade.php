@@ -23,23 +23,36 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+
+                <ul class=" nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">
+                            USERS TABLE
+                        </button>
+                    </li>
+
+
+
+
+                </ul>
                 <div class="card" x-data="{
                     showForm: false,
                     resetForm() {
                         $wire.dispatch('resetForm');
-                
+
                     },
                     showUploadForm: false,
-                
+
                 }" @edit.window="showForm=true;">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">User Table</h4>
+
                         <div>
                             <button class="px-3 btn btn-warning" :disabled="showUploadForm"
                                 @click="showForm= !showForm; resetForm()">Add new
                                 user
                                 <i class="bx bx-plus"></i></button>
-                            <button class="px-3 btn btn-secondary" :disabled="showForm"
+                            <button class="px-3 btn btn-warning" :disabled="showForm"
                                 @click="showUploadForm= !showUploadForm;">Upload
                                 new users
                                 <i class="bx bx-upload"></i></button>
@@ -83,10 +96,10 @@
                                 roles: $wire.entangle('roles'),
                                 organisationsData: $wire.entangle('organisations'),
                                 skipValidation: false,
-                            
+
                                 filterOrganisations(role) {
                                     if (role == null || role == '') { return this.organisationsData; }
-                            
+
                                     return this.organisationsData.filter(org => {
                                         return role === 'external' ?
                                             org.name !== 'CIP' :
@@ -98,13 +111,13 @@
                                     skipValidation = false;
                                     return;
                                 }
-                            
+
                                 // Clear organisation if role is blank
                                 if (newRole == '' || newRole == null) {
                                     organisation = '';
                                     return;
                                 }
-                            
+
                                 // Validate current organisation against filtered list
                                 const filtered = filterOrganisations(newRole);
                                 const found = filtered.find(org => org.id == organisation);
@@ -112,15 +125,15 @@
                                     organisation = '';
                                 }
                             });
-                            
+
                             $wire.on('update-org', (e) => {
                                 skipValidation = true;
-                            
+
                                 setTimeout(() => {
                                     role = e.role;
                                     organisation = e.organisation;
                                 }, 500)
-                            
+
                             });">
 
 
@@ -200,7 +213,7 @@
                                     Submit
                                 @endif
                             </button>
-                            <button type="button" class="btn btn-light"
+                            <button type="button" class="btn btn-secondary"
                                 @click="showForm = false; resetForm(); ">Close</button>
 
                         </form>
@@ -214,18 +227,27 @@
                                 <input class="form-control @error('file') is-invalid @enderror " wire:model="file"
                                     type="file" id="fileInput" accept=".xlsx, .xls">
                             </div>
-                            <button @able-button.window="uploading = false" :disabled="uploading" type="button"
-                                @click.debounce.200ms="downloadTemplate()" id="downloadTemplate"
-                                wire:loading.attr='disabled' wire:target='usersData'
-                                class="btn btn-secondary">Download
-                                Template</button>
-                            <button type="submit" @able-button.window="uploading = false" :disabled="uploading"
-                                class="btn btn-warning">Upload and
-                                Parse</button>
 
+
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <button @able-button.window="uploading = false" :disabled="uploading"
+                                        type="button" @click.debounce.200ms="downloadTemplate()"
+                                        id="downloadTemplate" wire:loading.attr='disabled' wire:target='usersData'
+                                        class="btn btn-warning">Download
+                                        Template</button>
+                                </div>
+                                <div>
+                                    <button type="submit" @able-button.window="uploading = false"
+                                        :disabled="uploading" class="btn btn-warning">Upload data</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        @click="showUploadForm = false; resetForm();">Close</button>
+
+                                </div>
+                            </div>
                         </form>
                     </div>
-                    <div class="px-0 card-body">
+                    <div class="card-body">
                         <livewire:admin.user-table />
                     </div>
                 </div>
@@ -234,7 +256,7 @@
 
 
             <div x-data x-init="$wire.on('showModal-delete', (e) => {
-            
+
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })">
@@ -257,15 +279,15 @@
             </div>
 
             <div x-data x-init="$wire.on('showModal-restore', (e) => {
-            
+
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             })
-            
-            
+
+
             $wire.on('refresh', (e) => {
                 const modals = document.querySelectorAll('.modal.show');
-            
+
                 // Iterate over each modal and hide it using Bootstrap's modal hide method
                 modals.forEach(modal => {
                     const modalInstance = bootstrap.Modal.getInstance(modal);

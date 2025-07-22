@@ -31,6 +31,10 @@ class RoleBasedRedirectHelper
             return '/cip/dashboard';
         }
 
+        if ($user->hasAnyRole('enumerator')) {
+
+            return '/enumerator/dashboard';
+        }
 
 
         // Check for external users

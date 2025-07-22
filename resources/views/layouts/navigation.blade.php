@@ -503,6 +503,70 @@
                         </div>
                     </nav>
                 @endhasallroles
+
+                @hasallroles('enumerator')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('enumerator-dashboard') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-tachometer'></i>
+                                        <span data-key="t-dashboards">Dashboard</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('enumerator-submissions') }}" id="topnav-dashboard"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        <i class='bx bx-bar-chart-alt-2 '></i>
+                                        <span data-key="t-dashboards">Submissions</span>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
+                                        role="button">
+                                        <i class="bx bx-file"></i>
+                                        <span data-key="t-pages">Manage Data</span>
+                                        <div class="arrow-down"></div>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+
+
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Marketing Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('enumerator-markets-manage-data') }}"
+                                                    class="dropdown-item" data-key="t-lightbox">Manage Data</a>
+
+                                                <a href="{{ route('enumerator-markets-submit-data') }}"
+                                                    class="dropdown-item" data-key="t-lightbox">Marketing Data
+                                                    Submission</a>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </li>
+
+
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
             </div>
         </div>
 

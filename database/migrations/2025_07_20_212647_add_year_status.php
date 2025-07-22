@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -20,6 +21,8 @@ return new class extends Migration
                 ->after('end_date');  // Optional: specify column position
 
         });
+
+  Role::create(['name' => 'enumerator']);
     }
 
     /**

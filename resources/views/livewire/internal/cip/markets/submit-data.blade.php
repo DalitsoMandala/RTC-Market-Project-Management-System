@@ -4,7 +4,11 @@
         Submit Market Data
     @endsection
     <div class="container-fluid">
+  @php
 
+        $routePrefix = Route::current()->getPrefix();
+
+    @endphp
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
@@ -15,6 +19,9 @@
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active"> Submit Market Data</li>
+
+                       <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/marketing/manage-data"> View Data</a> </li>
+
                         </ol>
                     </div>
 
@@ -25,6 +32,8 @@
         <div class="row">
             <div class="col-12">
                 <x-alerts />
+
+             
                 <div class="card ">
 
                     <div class="card-body">

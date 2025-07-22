@@ -1,7 +1,7 @@
 <div>
 
     @section('title')
-        Manage Market Data
+        
     @endsection
     <div class="container-fluid">
 
@@ -9,12 +9,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Manage Data</h4>
+                    <h4 class="mb-0">Dashboard</h4>
 
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Data</li>
+                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Manage Page Name</li>
                         </ol>
                     </div>
 
@@ -24,31 +24,20 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                    <ul class=" nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal"
-                            type="button" role="tab" aria-controls="home" aria-selected="true">
-                            MARKETING DATA
-                        </button>
-                    </li>
+<div class="card ">
+<div class="card-header">
+        <h5 class="card-title"></h5>
+</div>
+  <div class="card-body">
 
-
-
-
-                </ul>
-                <div class="card ">
-
-                    <div class="card-body">
-                        <livewire:tables.market-data-table />
-
-                    </div>
-                </div>
+  </div>
+</div>
             </div>
         </div>
 
 
 
-        {{--  <div x-data x-init="$wire.on('showModal', (e) => {
+ {{--  <div x-data x-init="$wire.on('showModal', (e) => {
 
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();

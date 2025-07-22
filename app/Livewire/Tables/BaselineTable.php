@@ -124,7 +124,7 @@ final class BaselineTable extends PowerGridComponent
                             <div x-show="error" x-text="error" class="mt-1 text-danger"></div>
 
                             <!-- Buttons -->
-                            <div class="my-2">
+                            <div class="my-2" wire:loading.class="opacity-50 pe-none">
                                 <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
                                 <button class="btn btn-theme-red btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
                             </div>
@@ -165,6 +165,8 @@ final class BaselineTable extends PowerGridComponent
                                 \$dispatch('submit-form', { value: this.baseline_value, id: this.base_id, type:'single' });
                                 this.initial_value = this.baseline_value;
                             }
+
+
                         }
                     }"
                     @submit.prevent.debounce.600ms="submitForm">

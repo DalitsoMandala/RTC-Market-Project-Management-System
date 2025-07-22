@@ -2,12 +2,14 @@
 
 namespace App\Traits;
 
-use App\Jobs\ExcelExportJob;
 use App\Models\User;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
+use App\Jobs\ExcelExportJob;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 trait ExportTrait
 {
@@ -54,6 +56,8 @@ trait ExportTrait
         return Bus::findBatch($this->batchID);
     }
 
+    public function failedJobs() {}
+
     public function exportProgress()
     {
         $batch = $this->BatchProperty();
@@ -66,6 +70,28 @@ trait ExportTrait
                 $this->exporting = false;
                 $this->exportFinished = true;
                 $this->exportFailed = $batch->failedJobs > 0;
+
+                if ($this->exportFailed) {
+                    $this->failedJobErrors = [];
+
+                    foreach ($batch->failedJobIds as $failedJobId) {
+                        $failedJob = DB::table('failed_jobs')->where('uuid', $failedJobId)->first();
+
+                        if ($failedJob) {
+                            // Collect exception messages for UI or further handling
+                            $this->failedJobErrors[] = [
+                                'uuid' => $failedJob->uuid,
+                                'exception' => $failedJob->exception,
+                            ];
+
+                            // Optionally log for developers
+                            Log::error("Export batch job failed: {$failedJob->uuid}", [
+                                'exception' => $failedJob->exception,
+                                'payload' => $failedJob->payload,
+                            ]);
+                        }
+                    }
+                }
                 $this->dispatch('download-export');
             }
         }

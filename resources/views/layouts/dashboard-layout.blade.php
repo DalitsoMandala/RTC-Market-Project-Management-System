@@ -93,7 +93,7 @@
                     </ul>
                     <div class="main-wid position-relative topbox">
 
-                        <div class="mx-0 my-0 row">
+                        <div class="mx-3 my-3 row">
                             <div class="px-0 col-lg-8">
 
                                 <h5 class="mt-2 fw-bolder h2">{{ config('app.name') }}</h5>
@@ -125,13 +125,7 @@
                         </div>
 
 
-                        <div class="pt-2 mt-2 mb-2">
-                            <a href="/profile" class="btn rounded-3 btn-warning"> <i class="bx bx-user"></i>
-                                View
-                                Profile <i class="mdi mdi-arrow-right ms-1"></i></a>
-                            <a href="forms" class="btn btn-warning rounded-3"> <i class="bx bx-file"></i> View
-                                Forms <i class="mdi mdi-arrow-right ms-1"></i></a>
-                        </div>
+
 
 
 

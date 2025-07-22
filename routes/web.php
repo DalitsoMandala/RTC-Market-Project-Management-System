@@ -212,6 +212,16 @@ Route::middleware([
     registerFormRoutes('/forms/{project}', 'external');
 });
 
+Route::middleware([
+    'auth',
+    'role:enumerator',
 
+])->prefix('enumerator')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Internal\Enumerator\Dashboard::class)->name('enumerator-dashboard');
+   Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
+    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
+
+});
 // Authentication routes
 require __DIR__ . '/auth.php';

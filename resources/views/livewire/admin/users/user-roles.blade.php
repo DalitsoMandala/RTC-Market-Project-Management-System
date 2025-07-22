@@ -24,9 +24,21 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
+                  <ul class=" nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal"
+                            type="button" role="tab" aria-controls="home" aria-selected="true">
+                            USER ROLES
+                        </button>
+                    </li>
+
+
+
+
+                </ul>
                 <div class="card ">
                     <div class="card-header d-flex justify-content-end">
-                        <button class="btn btn-warning"
+                        <button class="btn btn-warning disabled"
                             wire:click="$dispatch('showModal', {name: 'view-role-modal'})">Create new role</button>
                     </div>
                     <div class="card-body">
@@ -39,13 +51,13 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

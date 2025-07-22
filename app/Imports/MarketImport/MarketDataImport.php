@@ -61,6 +61,8 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'supply_frequency' => $row['Supply Frequency'],
             'estimated_total_value_mwk' => $row['Estimated Total Value (MWK)'],
             'estimated_total_value_usd' => $row['Estimated Total Value (USD)'],
+            'user_id' => $this->submissionDetails['user_id'],
+            'organisation_id' => $this->submissionDetails['organisation_id'],
             'status' => $status
         ]);
 
