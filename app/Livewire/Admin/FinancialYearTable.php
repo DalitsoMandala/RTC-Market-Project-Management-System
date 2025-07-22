@@ -2,7 +2,9 @@
 
 namespace App\Livewire\admin;
 
+use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Traits\UITrait;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +14,7 @@ use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -20,7 +23,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class FinancialYearTable extends PowerGridComponent
 {
     use WithExport;
-
+    use UITrait;
     public function setUp(): array
     {
 
@@ -48,6 +51,14 @@ final class FinancialYearTable extends PowerGridComponent
             ->add('end_date_formatted', fn($model) => Carbon::parse($model->end_date)->format('d/m/Y'))
             ->add('project_id')
             ->add('project', fn($model) => $model->project->name)
+            ->add('status', function ($model) {
+                if ($model->status == 'active') {
+                    return "<span class='badge bg-success-subtle text-success'>{$model->status}</span>";
+                } else {
+
+                    return "<span class='badge bg-secondary-subtle text-secondary'>{$model->status}</span>";
+                }
+            })
             ->add('created_at')
             ->add('updated_at');
     }
@@ -67,10 +78,43 @@ final class FinancialYearTable extends PowerGridComponent
                 ->sortable(),
 
             Column::make('Project', 'project'),
+            Column::make('Status', 'status'),
+
+            Column::action('')
 
         ];
     }
 
+
+    #[On('set-active')]
+    public function checkYear($rowId)
+    {
+        $row =  FinancialYear::find($rowId)?->update([
+            'status' => 'active'
+        ]);
+
+
+        if ($row) {
+            FinancialYear::where('id', '!=', $rowId)->update([
+
+                'status' => 'inactive'
+            ]);
+        }
+        $this->dispatch('show-alert', data: [
+            'type' => 'success',  // success, error, info, warning
+            'message' => 'Successfully updated.'
+        ]);
+    }
+    public function actions($row): array
+    {
+        return [
+            Button::add('Active')
+                ->slot('<i class="bx bx-check"></i> Make active')
+                ->id()
+                ->class('btn btn-sm btn-success')
+                ->dispatch('set-active', ['rowId' => $row->id]),
+        ];
+    }
     public function filters(): array
     {
         return [];

@@ -2,24 +2,46 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\User;
 use App\Models\MarketData;
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\ExportTrait;
+use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class MarketDataTable extends PowerGridComponent
 {
     use WithExport;
+    use ExportTrait;
+    public $nameOfTable = 'Market Data';
+    public $descriptionOfTable = 'Data from Enumerator\'s Market Data';
+    public $namedExport = 'market_data';
+    #[On('export-market_data')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+    }
+
+
+    #[On('download-export')]
+    public function downloadExport()
+    {
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
 
     public function setUp(): array
     {
@@ -27,7 +49,8 @@ final class MarketDataTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
+            Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
+
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -36,10 +59,16 @@ final class MarketDataTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return MarketData::query()->select([
+        $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+        $query =  MarketData::query()->select([
             'marketing_data.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
+        if ($user->hasAnyRole('external')) {
+            $query->where('organisation_id', $organisation_id);
+        }
+        return $query;
     }
 
     public function fields(): PowerGridFields

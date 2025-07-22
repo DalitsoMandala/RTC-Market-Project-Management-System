@@ -29,7 +29,7 @@
                 </div>
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
 
-                    <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                    <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab" data-bs-toggle="tab"
                         data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
                         aria-selected="true" wire:ignore.self>
                         Batch Submissions <span
@@ -38,7 +38,7 @@
 
 
 
-                    <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#aggregate-submission"
+                    <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="people-tab" data-bs-toggle="tab" data-bs-target="#aggregate-submission"
                         type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
                         Aggregate Submission (Reports) <span
                             class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
@@ -46,7 +46,7 @@
 
 
 
-                    <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
+                    <button class="nav-link " id="progress-tab" data-bs-toggle="tab"
                         data-bs-target="#submission-progress" type="button" role="tab" aria-controls="profile"
                         aria-selected="false" wire:ignore.self>
 
@@ -131,12 +131,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -145,7 +145,7 @@
                 }
             });
         })
-        
+
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -153,10 +153,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('showDataAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -164,10 +164,10 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-        
-        
+
+
             }),
-        
+
             $wire.on('deleteAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -175,14 +175,14 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-        
-        
+
+
             })
-        
-        
-        
+
+
+
         $wire.on('showMarket', (e) => {
-        
+
             console.log(e);
             setTimeout(() => {
                 $wire.dispatch('setMarket', { id: e.id });
@@ -190,8 +190,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
@@ -200,11 +200,11 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
-        
+
+
         $wire.on('deleteMarketBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -212,10 +212,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('deleteProgress', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -223,8 +223,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })">
 
 
@@ -245,17 +245,17 @@
                         isManager: $wire.entangle('isManager'),
                         disableInputs: false,
                         init() {
-                    
-                    
+
+
                             if (this.isManager) {
                                 this.disableInputs = false;
                             } else {
                                 this.disableInputs = true;
-                    
+
                             }
-                    
+
                         }
-                    
+
                     }">
 
 
@@ -309,9 +309,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-                
-                
-                
+
+
+
                 }">
 
 
@@ -518,6 +518,19 @@
 
                 }
             }
+
+                 const getUserRole = @json(auth()->user()->getRoleNames()->first());
+                    if (getUserRole === 'enumerator') {
+                        const button = document.querySelector(`button[data-bs-target='#market-submission']`);
+
+                        if (button) {
+                            setTimeout(() => {
+                                button.click();
+                            })
+
+
+                        }
+                    }
         </script>
     @endscript
 

@@ -52,7 +52,7 @@
     --bs-secondary-text-emphasis: #2e3038;
     --bs-success-text-emphasis: #144036;
     --bs-info-text-emphasis: #1e465a;
-    --bs-warning-text-emphasis: #653b0c;
+    --bs-warning-text-emphasis: #082a3e;
     --bs-danger-text-emphasis: #64282e;
     --bs-light-text-emphasis: #082a3e;
     --bs-dark-text-emphasis: #082a3e;
@@ -5895,7 +5895,7 @@ fieldset:disabled .btn {
     --bs-breadcrumb-padding-y: 0;
     --bs-breadcrumb-margin-bottom: 1rem;
     --bs-breadcrumb-divider-color: var(--bs-secondary-color);
-    --bs-breadcrumb-item-padding-x: 0.5rem;
+    --bs-breadcrumb-item-padding-x: 0.7rem;
     --bs-breadcrumb-item-active-color: var(--bs-secondary-color);
     display: -webkit-box;
     display: -ms-flexbox;
@@ -5928,7 +5928,7 @@ fieldset:disabled .btn {
 
 .breadcrumb-item:hover :not(.active) {
     color: var(--bs-warning-text-emphasis);
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .pagination {

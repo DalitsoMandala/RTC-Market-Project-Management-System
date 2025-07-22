@@ -69,6 +69,9 @@ class SubmitData extends Component
             } else if ($user->hasAnyRole('admin')) {
                 session()->flash('success', 'Successfully submitted!');
                 $this->redirect(route('admin-submissions') . '#market-submission');
+            } else if ($user->hasAnyRole('enumerator')) {
+                session()->flash('success', 'Successfully submitted!');
+                $this->redirect(route('enumerator-submissions') . '#market-submission');
             } else {
                 session()->flash('success', 'Successfully submitted!');
                 $this->redirect(route('cip-submissions') . '#market-submission');
@@ -107,6 +110,7 @@ class SubmitData extends Component
 
                     Excel::import(new MarketImportSheet(cacheKey: $this->importId, filePath: $path, submissionDetails: [
                         'user_id' => Auth::user()->id,
+                        'organisation_id' => Auth::user()->organisation->id,
                         'file_link' => $name,
                         'batch_no' => $this->importId,
                         'route' => $this->currentRoute,

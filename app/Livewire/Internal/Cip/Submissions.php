@@ -567,6 +567,7 @@ class Submissions extends Component
             ->where('status', 'pending');
         $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
             ->where('status', 'pending');
+        $market = \App\Models\MarketDataSubmission::where('status', 'pending');
         $pendingJob = JobProgress::where('user_id', auth()->user()->id)
             ->where('status', 'processing')->count();
 
@@ -575,11 +576,16 @@ class Submissions extends Component
             $manual = $manual->where('user_id', auth()->user()->id);
             $aggregate = $aggregate->where('user_id', auth()->user()->id);
         }
+
+         if (User::find(auth()->user()->id)->hasAnyRole('enumerator')) {
+            $market = $market->where('submitted_user_id', auth()->user()->id);
+        }
         return view('livewire.internal.cip.submissions', [
             'batch' => $batch->count(),
             'manual' => $manual->count(),
             'aggregate' => $aggregate->count(),
             'pendingJob' => $pendingJob,
+            'market' => $market->count(),
 
 
         ]);

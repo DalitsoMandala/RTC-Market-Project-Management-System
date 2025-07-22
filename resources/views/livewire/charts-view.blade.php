@@ -1,6 +1,6 @@
 <div>
 
-    <div class="main" x-data="dashboard">
+    <div class="main" x-data="dashboard" @updateChartData.window="updateCharts($event.detail.data)">
 
         <div class="row">
             <div class="col-xl-3 col-sm-6">
@@ -394,35 +394,40 @@
                 });
                 this.establishmentChartInstance.render();
 
-                $wire.on('updateChartData', (event) => {
-                    data = event.data;
+                // $wire.on('updateChartData', (event) => {
+                //     data = event.data;
 
-                    this.setData(data);
-
-                    this.genderChartInstance.updateOptions({
-                        series: this.genderChart,
-                    });
-
-                    this.cropChartInstance.updateOptions({
-                        series: this.cropChart,
-                    });
-
-                    this.ageGroupChartInstance.updateOptions({
-                        series: this.ageGroupChart,
-                    });
-
-                    this.professionChartInstance.updateSeries([{
-                        data: this.professionChart,
-                    }]);
-
-                    this.establishmentChartInstance.updateSeries([{
-                        data: this.establishmentChart,
-                    }]);
-                    // Re-render charts with updated data
+                //     this.setData(data);
 
 
-                })
+                //     // Re-render charts with updated data
 
+
+                // })
+
+            },
+
+            updateCharts(data) {
+                this.setData(data);
+                this.genderChartInstance.updateOptions({
+                    series: this.genderChart,
+                });
+
+                this.cropChartInstance.updateOptions({
+                    series: this.cropChart,
+                });
+
+                this.ageGroupChartInstance.updateOptions({
+                    series: this.ageGroupChart,
+                });
+
+                this.professionChartInstance.updateSeries([{
+                    data: this.professionChart,
+                }]);
+
+                this.establishmentChartInstance.updateSeries([{
+                    data: this.establishmentChart,
+                }]);
             },
 
             getRandomNumber() {

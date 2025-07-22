@@ -15,6 +15,7 @@ use App\Models\SeedBeneficiary;
 use App\Models\SystemReportData;
 use App\Models\AttendanceRegister;
 use App\Models\FarmerSeedRegistration;
+use App\Models\MarketData;
 use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerDomMarket;
 use Illuminate\Support\Facades\DB;
@@ -1377,8 +1378,83 @@ class ExcelExportJob implements ShouldQueue
 
                 break;
 
+            case 'market_data':
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                // Define the headers
+                $headerFromExports = [
+                    'ID' => 'Number, Exists in Market Data Sheet',
+                    'Entry Month' => 'Date (dd-mm-yyyy)',
+                    'Off-taker Name/Vehicle Reg Number' => 'Text',
+                    'Trader Contact' => 'Text',
+                    'Buyer Location' => 'Text',
+                    'Variety Demanded' => 'Text',
+                    'Quality/Size' => 'Text',
+                    'Quantity' => 'Number (decimal)',
+                    'Units' => 'Text',
+                    'Estimated Demand (Kg)' => 'Number (decimal)',
+                    'Agreed Price per Kg (MWK)' => 'Number (decimal)',
+                    'Market Ordered From' => 'Text',
+                    'Final Market' => 'Text',
+                    'Final Market District' => 'Text',
+                    'Final Market Country' => 'Text',
+                    'Supply Frequency' => 'Text',
+                    'Estimated Total Value (MWK)' => 'Number (decimal)',
+                    'Estimated Total Value (USD)' => 'Number (decimal)',
+                    'Submitted By'                      => true,
+                ];
+                $headers = array_keys($headerFromExports);
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+                $writer->nameCurrentSheet('Marketing Monthly Report');
+
+                $query =     MarketData::with(['user', 'user.organisation'])->select([
+                    'marketing_data.*',
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                ]);
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $query = $query->where('organisation_id', $this->user->organisation->id);
+                }
+                // Process data in chunks
+
+                $query->chunk(2000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $record) {
+                        $submittedBy = '';
+                        $user        = User::find($record->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name         = $user->name;
+
+                            $submittedBy = $name . ' (' . $organisation . ')';
+                        }
+                        $writer->addRow([
+                            $record->rn,
+                            $record->entry_date,
+                            $record->off_taker_name_vehicle_reg_number,
+                            $record->trader_contact,
+                            $record->buyer_location,
+                            $record->variety_demanded,
+                            $record->quality_size,
+                            $record->quantity,
+                            $record->units,
+                            $record->estimated_demand_kg,
+                            $record->agreed_price_per_kg,
+                            $record->market_ordered_from,
+                            $record->final_market,
+                            $record->final_market_district,
+                            $record->final_market_country,
+                            $record->supply_frequency,
+                            $record->estimated_total_value_mwk,
+                            $record->estimated_total_value_usd,
+                            $submittedBy,
+                        ]);
+                    }
+                });
+
+
+                $writer->close(); // Finalize the file
+                break;
             default:
-                $this->fail('Invalid model name!');
+                $this->fail('Invalid model name! Naming of the excel export is unknown.');
                 return;
                 break;
         }

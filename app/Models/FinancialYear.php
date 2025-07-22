@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class FinancialYear extends Model
 {
     use HasFactory;
-
+protected $fillable = ['status'];
 
     public function indicatorTargets(): HasMany
     {

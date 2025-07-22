@@ -15,4 +15,15 @@ class MarketData extends Model
     {
         return $this->belongsTo(MarketDataSubmission::class, 'submission_id');
     }
+
+        public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+        public function organisation()
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id');
+    }
+
 }

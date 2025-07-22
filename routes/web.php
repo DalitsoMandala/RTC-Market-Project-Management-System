@@ -3,126 +3,43 @@
 
 use App\Models\Indicator;
 
+use App\Models\MarketData;
+
+use App\Models\SeedBeneficiary;
+
+use Illuminate\Support\Facades\DB;
+
 use App\Livewire\Internal\Cip\Forms;
 
 use Illuminate\Support\Facades\Route;
-
 use App\Livewire\Internal\Cip\Reports;
-
 use App\Livewire\Internal\Cip\Targets;
-
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\SubPeriod;
+
+use App\Helpers\MarketReportCalculations;
+
 use App\Livewire\Internal\Cip\Indicators;
+
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
-
 use App\Livewire\Internal\Cip\ViewIndicators;
-
 use App\Livewire\External\Dashboard as ExternalDashboard;
-
-use App\Models\SeedBeneficiary;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/priznet', function () {
-    // SeedBeneficiary::where('variety_received', 'LIKE', '%kadyaubwerere%')->get()->map(function ($item) {
-    //     $getID = SeedBeneficiary::find($item->id);
-    //     $variety_received = $getID->variety_received;
-    //     $getID->variety_received = str_replace('kadyaubwerere', 'kadyaubwelere', $variety_received);
-    //     $getID->save();
-    // });
+Route::get('/test-stuff', function () {
 
-
-
-    // $updateDisaggregation = Indicator::where(
-    //     'indicator_name',
-    //     'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities'
-    // )->first();
-    // $disaggregations = ['Farmers', 'Processors', 'Aggregators', 'Traders', 'Transporters'];
-    // foreach ($disaggregations as $disaggregation) {
-    //     $updateDisaggregation->disaggregations()->firstOrCreate([
-    //         'name' => $disaggregation,
-    //     ]);
-    // }
-
-
-    // $updateDisaggregation = Indicator::where(
-    //     'indicator_name',
-    //     'Number of business plans for the production of different classes of RTC seeds that are executed',
-    // )->first();
-    // $disaggregations = ['Business plans executed', 'Business plans submitted'];
-    // foreach ($disaggregations as $disaggregation) {
-    //     $updateDisaggregation->disaggregations()->firstOrCreate([
-    //         'name' => $disaggregation,
-    //     ]);
-    // }
-
-
-    // $updateDisaggregation = Indicator::where(
-    //     'indicator_name',
-    //     'Percentage increase in value of formal RTC exports',
-    // )->first();
-    // $disaggregations = ['Value of exports'];
-    // foreach ($disaggregations as $disaggregation) {
-    //     $updateDisaggregation->disaggregations()->firstOrCreate([
-    //         'name' => $disaggregation,
-    //     ]);
-    // }
-
-
-    // $updateDisaggregation = Indicator::where(
-    //     'indicator_name',
-    //     'Percentage seed multipliers with formal registration',
-    // )->first();
-    // $disaggregations = ['Registered', 'Seed multipliers', 'Large scale', 'Small scale'];
-    // foreach ($disaggregations as $disaggregation) {
-    //     $updateDisaggregation->disaggregations()->firstOrCreate([
-    //         'name' => $disaggregation,
-    //     ]);
-    // }
-
-    // $updateDisaggregation = Indicator::where(
-    //     'indicator_name',
-    //     'Number of RTC actors linked to online Market Information System (MIS)'
-    // )->first();
-    // $disaggregations = [
-    //     "Registered",
-    //     "Not registered",
-    //     "Farmers",
-    //     "Traders",
-    //     "Transporters",
-    //     "PO's",
-    //     "Individual farmers not in PO's",
-    //     "Large scalecommercial farmers",
-    //     "Cassava",
-    //     "Potato",
-    //     "Sweet potato"
-    // ];
-    // foreach ($disaggregations as $disaggregation) {
-    //     $updateDisaggregation->disaggregations()->firstOrCreate([
-    //         'name' => $disaggregation,
-    //     ]);
-    // }
-
-
-    // $updateDisaggregation = Indicator::where(
-    //     'indicator_name',
-    //     'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)'
-    // )->first();
-    // $disaggregations = ['Aggregators', 'Transporters'];
-    // foreach ($disaggregations as $disaggregation) {
-    //     $updateDisaggregation->disaggregations()->firstOrCreate([
-    //         'name' => $disaggregation,
-    //     ]);
-    // }
+    $market = new MarketReportCalculations();
+    return response()->json($market->run());
 });
 
 
-
 Route::get('/logout', function () {
+
+
     return abort(404);
 });
 
@@ -185,6 +102,7 @@ Route::get('/profile', \App\Livewire\Profile\Details::class)
 Route::middleware([
     'auth',
     'role:admin',
+    'verified'
 
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
@@ -206,7 +124,7 @@ Route::middleware([
     Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('admin-submission-period');
     Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('admin-jobs');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
-    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('admin-std-targets');
     Route::get('user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('admin-user-roles');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('admin-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('admin-markets-submit-data');
@@ -228,7 +146,7 @@ Route::middleware([
     Route::get('/reports', Reports::class)->name('cip-reports');
     Route::get('/submission-period', SubPeriod::class)->name('cip-submission-period');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets-view');
-    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('cip-std-targets');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/indicators-targets', Targets::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
@@ -292,6 +210,15 @@ Route::middleware([
     registerFormRoutes('/forms/{project}', 'external');
 });
 
+Route::middleware([
+    'auth',
+    'role:enumerator',
 
+])->prefix('enumerator')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Internal\Enumerator\Dashboard::class)->name('enumerator-dashboard');
+    Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
+    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
+});
 // Authentication routes
 require __DIR__ . '/auth.php';

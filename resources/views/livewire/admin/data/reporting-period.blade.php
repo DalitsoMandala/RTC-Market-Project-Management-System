@@ -22,7 +22,7 @@
             </div>
         </div>
         <!-- end page title -->
-
+<x-alpine-alerts />
         <!-- Nav tabs -->
         <div class="card">
             <div class="px-0 card-body">

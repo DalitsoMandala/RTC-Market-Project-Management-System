@@ -130,7 +130,7 @@ class ReportJob implements ShouldQueue
                                                 }
                                             } catch (\Exception $e) {
 
-                                                Log::error($e->getMessage(), $e->getTrace());
+                                                Log::error($e);
                                             }
                                         }
                                     }

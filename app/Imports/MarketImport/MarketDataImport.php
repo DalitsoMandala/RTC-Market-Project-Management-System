@@ -48,7 +48,7 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'off_taker_name_vehicle_reg_number' => $row['Off-taker Name/Vehicle Reg Number'],
             'trader_contact' => $row['Trader Contact'],
             'buyer_location' => $row['Buyer Location'],
-            'variety_demanded' => $row['Variety Demanded'],
+            'variety_demanded' => trim($row['Variety Demanded']),
             'quality_size' => $row['Quality/Size'],
             'quantity' => $row['Quantity'],
             'units' => $row['Units'],
@@ -61,6 +61,8 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'supply_frequency' => $row['Supply Frequency'],
             'estimated_total_value_mwk' => $row['Estimated Total Value (MWK)'],
             'estimated_total_value_usd' => $row['Estimated Total Value (USD)'],
+            'user_id' => $this->submissionDetails['user_id'],
+            'organisation_id' => $this->submissionDetails['organisation_id'],
             'status' => $status
         ]);
 

@@ -16,24 +16,30 @@
                             </div>
                         </div>
 
-                        <h4 class="mt-5 text-uppercase"> @yield('code')</h4>
-                        <p class="text-muted">@yield('message')</p>
+                        <h4 class=" text-uppercase display-5"> @yield('code')</h4>
+                        <p class="text-muted" style="font-size:16px">@yield('message')</p>
                         <div class="mt-2">
-                            <a class="btn btn-warning waves-effect waves-light" href="/"> <i
-                                    class="bx bx-home"></i> Back to Dashboard</a>
+                            @php
+                                $errorCode = trim($__env->yieldContent('code'));
+                            @endphp
 
-                            <form class="d-inline-flex" method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <a class="btn btn-theme-red" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault();
+                            @if ($errorCode !== 'Site Under Maintenance')
+                                <form class="gap-2 d-inline-flex" method="POST" action="{{ route('logout') }}">
+                                    @csrf
+
+                                    <a class="btn btn-warning waves-effect waves-light" href="/"> Back to
+                                        Dashboard</a>
+
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                                    <i class='align-middle bx bx-log-out font-size-18 me-1'></i> <span
-                                        class="align-middle">
-                                        {{ __('Log Out') }}</span>
 
-                                </a>
+                                        {{ __('Log Out') }}
 
-                            </form>
+                                    </button>
+
+                                </form>
+                            @endif
                         </div>
 
                     </div>
