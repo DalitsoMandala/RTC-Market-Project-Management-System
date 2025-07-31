@@ -165,7 +165,22 @@
                                             </div>
                                         </div>
 
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Gross Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('admin-gross-margin-manage-data') }}"
+                                                    class="dropdown-item" data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('admin-gross-margin-add-data') }}"
+                                                    class="dropdown-item" data-key="t-range-slider">Gross Data
+                                                    Submission</a>
 
+
+                                            </div>
+                                        </div>
 
                                     </div>
 
@@ -269,6 +284,22 @@
                                                     data-key="t-lightbox">Manage Data</a>
                                                 <a href="{{ route('cip-markets-submit-data') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Marketing Data Submission</a>
+
+
+                                            </div>
+                                        </div>
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                id="topnav-extended" role="button">
+                                                <span data-key="t-extendeds">Gross Management</span>
+                                                <div class="arrow-down"></div>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('cip-gross-margin-manage-data') }}"
+                                                    class="dropdown-item" data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('cip-gross-margin-add-data') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Gross Data Submission</a>
 
 
                                             </div>
