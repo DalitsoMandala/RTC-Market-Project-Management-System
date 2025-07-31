@@ -223,6 +223,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->optionValue('id'),
         ];
     }
+
     #[On('refresh')]
     public function refreshData(): void
     {

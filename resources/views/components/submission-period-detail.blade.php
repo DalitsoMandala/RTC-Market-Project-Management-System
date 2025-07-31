@@ -12,7 +12,7 @@
                 @endphp
             </div>
             <div class="">
-                <livewire:tables.submission-period-form-table :submissionPeriodRow="$row->toArray()['model_data']" :currentRoutePrefix="$route" />
+                <livewire:tables.submission-period-form-table :wire:key="'form-table-'.$row->rn" :submissionPeriodRow="$row->toArray()['model_data']" :currentRoutePrefix="$route" />
 
             </div>
 

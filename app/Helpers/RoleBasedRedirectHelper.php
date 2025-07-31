@@ -11,7 +11,7 @@ class RoleBasedRedirectHelper
     }
 
 
-    public static function getDashboardRoute($user): string
+    public static  function getDashboardRoute($user): string
     {
 
 

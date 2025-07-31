@@ -58,7 +58,8 @@
                             } else if (value == 2) {
                                 document.getElementById('dashboard-one').classList.remove('active');
                                 document.getElementById('dashboard-two').classList.add('active');
-                            }
+
+                                }
                         },
 
                     }">
