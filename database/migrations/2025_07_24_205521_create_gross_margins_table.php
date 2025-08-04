@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('gross_margins', function (Blueprint $table) {
             $table->id();
-                
             $table->string('title')->unique();
+            $table->string('enterprise');
             $table->timestamps();
         });
     }

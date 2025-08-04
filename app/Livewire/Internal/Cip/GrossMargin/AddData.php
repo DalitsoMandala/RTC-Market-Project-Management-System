@@ -40,7 +40,8 @@ class AddData extends Component
     public $epa = null;
     public $section = null;
     public $ta = null;
-public $routePrefix = null;
+    public $enterprise;
+    public $routePrefix = null;
     // Items table
     public $items = [];
     public $itemOptions = [];
@@ -52,6 +53,7 @@ public $routePrefix = null;
             'newTitle' => $this->selectedTitle === 'Other' ? 'required|string|unique:gross_margins,title' : 'nullable',
             'name_of_producer' => 'required|string|max:255',
             'season' => 'required|string|in:Rainfed,Irrigated',
+            'enterprise' => 'required|string|max:255',
             'district' => 'required|string|max:255',
             'gender' => 'required|string|max:255',
             'type_of_produce' => 'required|string|max:255',
@@ -111,7 +113,8 @@ public $routePrefix = null;
             'epa',
             'section',
             'ta',
-            'items'
+            'items',
+            'enterprise'
         ]);
 
         $this->resetErrorBag();
@@ -125,9 +128,7 @@ public $routePrefix = null;
             'unit_price' => 0
         ]];
         $this->type_of_produce = 'Seed';
-        $this->season ='Rainfed';
-
-
+        $this->season = 'Rainfed';
     }
     public function addItem()
     {
@@ -140,15 +141,16 @@ public $routePrefix = null;
         ];
     }
 
-    public function redirectUsers(){
+    public function redirectUsers()
+    {
         $user = User::find(auth()->user()->id);
 
         if ($user->hasAnyRole('admin')) {
 
-            return route('admin-gross-margin-manage-data'); ;
+            return route('admin-gross-margin-manage-data');;
         } else if ($user->hasAnyRole('manager')) {
-        return route('cip-gross-margin-manage-data') ;
-        } else if($user->hasAnyRole('project_manager')){
+            return route('cip-gross-margin-manage-data');
+        } else if ($user->hasAnyRole('project_manager')) {
             return route('project_manager-gross-margin-manage-data');
         }
     }
@@ -168,21 +170,24 @@ public $routePrefix = null;
 
             $uuid = Uuid::uuid4()->toString(); // Generate a new UUID for the new information;
 
-                GrossSubmission::create([
-                    'batch_type' => 'manual',
-                        'batch_no' => $uuid,
-                        'submitted_user_id' => auth()->user()->id,
-                        'status' => 'approved',
-                        'table_name' => 'gross_margin_details',
-                        'file_link' => null
-                    ]);
+            GrossSubmission::create([
+                'batch_type' => 'manual',
+                'batch_no' => $uuid,
+                'submitted_user_id' => auth()->user()->id,
+                'status' => 'approved',
+                'table_name' => 'gross_margin_details',
+                'file_link' => null
+            ]);
             // Determine the final title
             $finalTitle = $this->selectedTitle === 'Other'
                 ? trim($this->newTitle)
                 : $this->selectedTitle;
 
             // Retrieve or create GrossMargin
-            $grossMargin = GrossMargin::firstOrCreate(['title' => $finalTitle]);
+            $grossMargin = GrossMargin::firstOrCreate([
+                'title' => $finalTitle,
+                'enterprise' => $this->enterprise
+            ]);
 
             // Create Gross Margin Detail
             $grossMarginDetail = $grossMargin->details()->create([
@@ -227,7 +232,7 @@ public $routePrefix = null;
 
             $this->dispatch('set-new-title', title: $finalTitle, titles: $this->existingTitles);
             $this->clear();
-            session()->flash('success', 'Gross Margin data saved successfully. <a href="'.$this->redirectUsers().'">View Submission here</a>');
+            session()->flash('success', 'Gross Margin data saved successfully. <a href="' . $this->redirectUsers() . '">View Submission here</a>');
 
             DB::commit();
         } catch (\Throwable $e) {
