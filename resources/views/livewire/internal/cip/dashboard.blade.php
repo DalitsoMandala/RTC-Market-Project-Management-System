@@ -2,6 +2,7 @@
     @section('title')
         Dashboard
     @endsection
+
     <div class="container-fluid" x-data="{
         dashboardOneShow: true,
         dashboardTwoShow: false,
@@ -36,5 +37,6 @@
 
 
     </div>
+
 
 </div>

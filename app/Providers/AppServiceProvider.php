@@ -31,10 +31,35 @@ class AppServiceProvider extends ServiceProvider
         RedirectIfAuthenticated::redirectUsing(function ($request) {
             $user = User::find(auth()->user()->id);
 
-            $helper = new RoleBasedRedirectHelper($user);
+$helper = new RoleBasedRedirectHelper($user);
 
-          return  $helper->getDashboardRoute($user);
+$helper->getDashboardRoute($user);
+            // Check for admin role
+            // if ($user->hasAnyRole('admin')) {
+            //     return '/admin/dashboard';
+            // }
+            // if ($user->hasAnyRole('staff')) {
+            //     return '/staff/dashboard';
+            // }
+            // if ($user->hasAnyRole('project_manager')) {
+            //     return '/cip/project-manager/dashboard';
+            // }
 
+            // if ($user->hasAnyRole('manager')) {
+
+            //     return '/cip/dashboard';
+            // }
+
+
+            // if ($user->hasAnyRole('enumerator')) {
+
+            //     return '/enumerator/dashboard';
+            // }
+
+            // // Check for external users
+            // if ($user->hasAnyRole('external') || $user->hasAnyRole('external_manager')) {
+            //     return '/external/dashboard';
+            // }
         });
     }
 }

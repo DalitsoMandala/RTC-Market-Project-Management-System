@@ -40,19 +40,13 @@ class Dashboard2Charts extends Component
             ];
         }
 
-        $this->financialYears = count($formatYears) > 0 ? $formatYears : [
-            [
-                'id' => 1,
-                'number' => 'All'
-            ]
-        ];
+        $this->financialYears = $formatYears;
         $this->selectedReportYear = 'All';
 
         $data = $this->load();
 
-
         $this->marketData = $this->filterByDate($data, 'All');
-
+    
     }
 
 

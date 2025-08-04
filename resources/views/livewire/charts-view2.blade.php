@@ -11,8 +11,7 @@
                         Estimated Volume (Kg) vs Value (US$) by District
                     </div>
                     <div class="card-body">
-                        <div id="district-combo-chart" x-show="hasDistrictComboData===true" style="height: 500px;"></div>
-                        <x-no-data x-show="hasDistrictComboData===false" />
+                        <div id="district-combo-chart" style="height: 500px;"></div>
                     </div>
                 </div>
             </div>
@@ -26,8 +25,7 @@
                         Estimated Demand (Kg) by Variety
                     </div>
                     <div class="card-body">
-                        <div id="demand-chart" x-show="hasDemandData===true" style="height: 350px;"></div>
-                        <x-no-data x-show="hasDemandData===false" />
+                        <div id="demand-chart" style="height: 350px;"></div>
                     </div>
                 </div>
             </div>
@@ -39,8 +37,7 @@
                         Estimated Total Value (US$) by Variety
                     </div>
                     <div class="card-body">
-                        <div id="value-chart" x-show="hasValueData===true" style="height: 350px;"></div>
-                        <x-no-data x-show="hasValueData===false" />
+                        <div id="value-chart" style="height: 350px;"></div>
                     </div>
                 </div>
             </div>
@@ -54,8 +51,7 @@
                         Monthly Volume vs Value (May 2024 – Jan 2025)
                     </div>
                     <div class="card-body">
-                        <div id="monthly-chart" x-show="hasMonthlyData===true" style="height: 400px;"></div>
-                        <x-no-data x-show="hasMonthlyData===false" />
+                        <div id="monthly-chart" style="height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -69,9 +65,7 @@
                         Monthly Estimated Demand (Kg) by Variety
                     </div>
                     <div class="card-body">
-                        <div id="stacked-demand-chart" x-show="hasStackedDemandData===true" style="height: 400px;">
-                        </div>
-                        <x-no-data x-show="hasStackedDemandData===false" />
+                        <div id="stacked-demand-chart" style="height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -87,9 +81,7 @@
                         Value Contribution by Country (%)
                     </div>
                     <div class="card-body">
-                        <div id="country-value-donut" x-show="hasCountryValueDonutData===true" style="height: 400px;">
-                        </div>
-                        <x-no-data x-show="hasCountryValueDonutData===false" />
+                        <div id="country-value-donut" style="height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -101,9 +93,7 @@
                         Estimated Demand (Kg) by Country & Variety
                     </div>
                     <div class="card-body">
-                        <div id="country-variety-chart" x-show="hasCountryVarietyData===true" style="height: 400px;">
-                        </div>
-                        <x-no-data x-show="hasCountryVarietyData===false" />
+                        <div id="country-variety-chart" style="height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -118,8 +108,7 @@
                         Average Price per Kg (MWK) Over Time
                     </div>
                     <div class="card-body">
-                        <div id="price-trend-chart" x-show="hasPriceTrendData===true" style="height: 400px;"></div>
-                        <x-no-data x-show="hasPriceTrendData===false" />
+                        <div id="price-trend-chart" style="height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -133,7 +122,6 @@
     <script>
         Alpine.data('dashboard2', () => ({
             data: $wire.entangle('data'),
-            hasDemandData: true,
             demandChart: {
                 instance: null,
                 data: [],
@@ -152,7 +140,6 @@
                     varieties: varieties
                 };
             },
-            hasValueData: true,
             valueChart: {
                 instance: null,
                 data: [],
@@ -172,7 +159,7 @@
                     varieties: varieties
                 };
             },
-            hasMonthlyData: true,
+
             monthlyChart: {
                 instance: null,
                 data: [],
@@ -203,7 +190,7 @@
                     months: months
                 };
             },
-            hasStackedDemandData: true,
+
             stackedDemandChart: {
                 instance: null,
                 data: [],
@@ -254,7 +241,7 @@
                     series: series
                 }
             },
-            hasDistrictComboData: true,
+
             districtComboChart: {
                 instance: null,
                 data: [],
@@ -274,7 +261,6 @@
                     districts: districts
                 };
             },
-            hasCountryValueDonutData: true,
             countryValueDonut: {
                 instance: null,
                 data: []
@@ -293,7 +279,7 @@
                     countries: countries
                 };
             },
-            hasCountryVarietyData: true,
+
             countryVarietyChart: {
                 instance: null,
                 data: []
@@ -324,7 +310,6 @@
                 }
 
             },
-            hasPriceTrendData: true,
             priceTrendChart: {
                 instance: null,
                 data: []
@@ -357,90 +342,53 @@
             },
 
             reRenderCharts(data) {
-
-                // Check if data exists and is an array
-                if (!data || !Array.isArray(data)) {
-                    console.warn("No valid data provided to reRenderCharts");
-                    return;
-                }
-
-
-                data.forEach(item => {
-                    try {
-                        // Skip if item is invalid or missing name
-                        if (!item || typeof item !== 'object' || !('name' in item)) {
-                            console.warn("Invalid chart data item - missing name", item);
-                            return;
-                        }
-
-                        // Skip if data is missing
-                        if (!('data' in item)) {
-                            console.warn(`Chart ${item.name || 'unnamed'} has no data property`);
-                            return;
-                        }
-
-                        switch (item.name) {
-                            case 'volumeVsValueByDistrict':
-                                if (item.data) {
-                                    const chartData = this.districtComboChartCollection(item.data);
-                                    this.updateDistrictComboChart(chartData);
-                                    this.hasDemandData = true;
-                                }
-                                break;
-                            case 'demandByVariety':
-                                if (item.data) {
-                                    const chartData = this.demandChartCollection(item.data);
-                                    this.updateDemandChart(chartData);
-                                }
-                                break;
-                            case 'valueByVariety':
-                                if (item.data) {
-                                    const chartData = this.valuesChartCollection(item.data);
-                                    this.updateValueChart(chartData);
-                                }
-                                break;
-                            case 'monthlyVolumeVsValue':
-                                if (item.data) {
-                                    const chartData = this.monthlyChartCollection(item.data);
-                                    this.updateMonthlyChart(chartData);
-                                }
-                                break;
-                            case 'monthlyDemandByVariety':
-                                if (item.data) {
-                                    const chartData = this.stackedChartCollection(item.data);
-                                    this.updateStackedDemandChart(chartData);
-                                }
-                                break;
-                            case 'countryValueShare':
-                                if (item.data) {
-                                    const chartData = this.countryValueDonutCollection(item.data);
-                                    this.updateCountryValueDonut(chartData);
-                                }
-                                break;
-                            case 'demandByCountryAndVariety':
-                                if (item.data) {
-                                    const chartData = this.countryVarietyChartCollection(item.data);
-                                    this.updateCountryVarietyChart(chartData);
-                                }
-                                break;
-                            case 'priceTrendMWK':
-                                if (item.data) {
-                                    const chartData = this.priceTrendChartCollection(item.data);
-                                    this.updatePriceTrendChart(chartData);
-                                }
-                                break;
-
-
-                            default:
-                                console.warn(`Unknown chart type: ${item.name}`);
-
-                        }
-                    } catch (error) {
-                        console.error(`Error processing chart data:`, error);
+                data.map(item => {
+                    if (item.name === 'volumeVsValueByDistrict') {
+                        const data = this.districtComboChartCollection(item.data);
+                        this.updateDistrictComboChart(data)
                     }
-                });
+
+                    if (item.name === 'demandByVariety') {
+                        const data = this.demandChartCollection(item.data)
+
+                        this.updateDemandChart(data);
+
+                    }
+
+                    if (item.name === 'valueByVariety') {
+                        const data = this.valuesChartCollection(item.data);
+                        this.updateValueChart(data);
+                    }
+
+                    if (item.name === 'monthlyVolumeVsValue') {
+                        const data = this.monthlyChartCollection(item.data);
+                        this.updateMonthlyChart(data);
+                    }
+
+                    if (item.name === 'monthlyDemandByVariety') {
+                        const data = this.stackedChartCollection(item.data);
+                        this.updateStackedDemandChart(data);
+                    }
+
+                    if (item.name === 'countryValueShare') {
+                        const data = this.countryValueDonutCollection(item.data);
+
+                        this.updateCountryValueDonut(data);
+                    }
+
+                    if (item.name === 'demandByCountryAndVariety') {
+                        const data = this.countryVarietyChartCollection(item.data);
+                        this.updateCountryVarietyChart(data);
+                    }
+
+                    if (item.name === 'priceTrendMWK') {
+                        const data = this.priceTrendChartCollection(item.data);
+                        this.updatePriceTrendChart(data);
+                    }
 
 
+
+                })
 
             },
 
@@ -492,7 +440,7 @@
                         categories: data.dates,
 
                     },
-                }])
+            }])
             },
             updateDistrictComboChart(data) {
 
@@ -517,13 +465,13 @@
             },
             updateCountryValueDonut(data) {
                 this.countryValueDonut.updateOptions([{
-                    series: data.usdValues,
+                      series: data.usdValues,
                     labels: data.countries
                 }])
             },
             updateCountryVarietyChart(data) {
                 this.countryVarietyChart.updateOptions([{
-                    series: data.series,
+                  series: data.series,
                     xaxis: {
                         categories: data.countries,
                     }
@@ -554,19 +502,9 @@
             },
 
             initDemandChart() {
-                const filtered = this.data.filter(item => item.name === 'demandByVariety');
 
-                // Check if filtered data exists and has data
-                if (!filtered.length || !filtered[0].data ) {
-                    // Optionally clear the chart area or show a message
-
-                    this.hasDemandData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
+                const arr = this.data.filter(item => item.name === 'demandByVariety')[0].data;
                 const data = this.demandChartCollection(arr);
-
                 this.demandChart = new ApexCharts(document.querySelector("#demand-chart"), {
                     chart: {
                         type: 'bar',
@@ -581,22 +519,12 @@
                     },
                     colors: SystemColors
                 });
-
                 this.demandChart.render();
             },
 
             initValueChart() {
-                const filtered = this.data.filter(item => item.name === 'valueByVariety');
-
-                // Check if data exists and has entries
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasValueData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
-                const data = this.demandChartCollection(arr); // still using the same collection
-
+                const arr = this.data.filter(item => item.name === 'valueByVariety')[0].data;
+                const data = this.demandChartCollection(arr); // use same collection
                 this.valueChart = new ApexCharts(document.querySelector("#value-chart"), {
                     chart: {
                         type: 'donut',
@@ -611,20 +539,11 @@
                     },
                     colors: SystemColors
                 });
-
                 this.valueChart.render();
             },
 
             initMonthlyChart() {
-                const filtered = this.data.filter(item => item.name === 'monthlyVolumeVsValue');
-
-                // Check if data exists and is not empty
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasMonthlyData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
+                const arr = this.data.filter(item => item.name === 'monthlyVolumeVsValue')[0].data;
                 const data = this.monthlyChartCollection(arr); // use same collection
 
                 this.monthlyChart = new ApexCharts(document.querySelector("#monthly-chart"), {
@@ -675,8 +594,7 @@
                     dataLabels: {
                         enabled: true,
                         enabledOnSeries: [1],
-                        formatter: (val, opts) =>
-                            opts.seriesIndex === 1 ?
+                        formatter: (val, opts) => opts.seriesIndex === 1 ?
                             '$' + Math.round(val).toLocaleString() : Math.round(val).toLocaleString()
                     },
                     tooltip: {
@@ -693,22 +611,14 @@
                         position: 'top'
                     }
                 });
-
                 this.monthlyChart.render();
             },
 
             initStackedDemandChart() {
-                const filtered = this.data.filter(item => item.name === 'monthlyDemandByVariety');
+                const arr = this.data.filter(item => item.name === 'monthlyDemandByVariety')[0].data;
+                const data = this.stackedChartCollection(arr); // use same collection
 
-                // Check if the data is available and has content
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasStackedDemandData = false;
-                    return;
-                }
 
-                const arr = filtered[0].data;
-
-                const data = this.stackedChartCollection(arr); // same collection
 
                 this.stackedDemandChart = new ApexCharts(document.querySelector("#stacked-demand-chart"), {
                     chart: {
@@ -748,25 +658,14 @@
                         enabled: false
                     }
                 });
-
                 this.stackedDemandChart.render();
             },
 
             initDistrictComboChart() {
-                const filtered = this.data.filter(item => item.name === 'volumeVsValueByDistrict');
 
-                // Check if valid data exists
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasDistrictComboData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
+                const arr = this.data.filter(item => item.name === 'volumeVsValueByDistrict')[0].data;
                 const data = this.districtComboChartCollection(arr);
-
-                // Store chart data for potential later use
                 this.districtComboChart.data = data;
-
                 this.districtComboChart.instance = new ApexCharts(document.querySelector(
                     "#district-combo-chart"), {
                     chart: {
@@ -832,20 +731,12 @@
                         position: 'top'
                     }
                 });
-
                 this.districtComboChart.instance.render();
             },
 
             initCountryValueDonut() {
-                const filtered = this.data.filter(item => item.name === 'countryValueShare');
+                const arr = this.data.filter(item => item.name === 'countryValueShare')[0].data;
 
-                // Check if data exists and is not empty
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasCountryValueDonutData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
                 const data = this.countryValueDonutCollection(arr);
 
                 this.countryValueDonut = new ApexCharts(document.querySelector("#country-value-donut"), {
@@ -868,22 +759,13 @@
                         }
                     }
                 });
-
                 this.countryValueDonut.render();
             },
 
             initCountryVarietyChart() {
-                const filtered = this.data.filter(item => item.name === 'demandByCountryAndVariety');
+                const arr = this.data.filter(item => item.name === 'demandByCountryAndVariety')[0].data;
 
-                // Check if data exists and is not empty
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasCountryVarietyData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
                 const data = this.countryVarietyChartCollection(arr);
-
                 this.countryVarietyChart = new ApexCharts(document.querySelector("#country-variety-chart"), {
                     chart: {
                         type: 'bar',
@@ -929,22 +811,13 @@
                         enabled: false
                     }
                 });
-
                 this.countryVarietyChart.render();
             },
 
             initPriceTrendChart() {
-                const filtered = this.data.filter(item => item.name === 'priceTrendMWK');
+                const arr = this.data.filter(item => item.name === 'priceTrendMWK')[0].data;
 
-                // Check for valid, non-empty data
-                if (!filtered.length || !filtered[0].data ) {
-                    this.hasPriceTrendData = false;
-                    return;
-                }
-
-                const arr = filtered[0].data;
                 const data = this.priceTrendChartCollection(arr);
-
                 this.priceTrendChart = new ApexCharts(document.querySelector("#price-trend-chart"), {
                     chart: {
                         type: 'area',
@@ -982,7 +855,8 @@
                         }
                     },
                     dataLabels: {
-                        enabled: false
+                        enabled: false,
+                        formatter: val => 'MWK ' + val.toFixed(2)
                     },
                     stroke: {
                         curve: 'smooth',
@@ -996,10 +870,8 @@
                         position: 'top'
                     }
                 });
-
                 this.priceTrendChart.render();
             }
-
         }));
     </script>
 @endscript

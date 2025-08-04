@@ -80,7 +80,7 @@ visible: true,
         @else
             <livewire:charts-view :data="$data" />
 
-            @hasanyrole('admin')
+            @hasanyrole('admin|manager|project_manager|enumarator')
                 <div>
                     <div class="row">
                         <div class="col-12">

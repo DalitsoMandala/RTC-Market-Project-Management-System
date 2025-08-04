@@ -39,8 +39,8 @@
             data.forEach((item, index) => {
                 this.area_under_cultivation[index] = item;
             })
-
-
+    
+    
         }
     }">
 
@@ -303,7 +303,7 @@
         Seed Multiplication</label>
     <div class="px-2 row" x-data="{
         area_under_certified_seed_multiplication: $wire.entangle('area_under_certified_seed_multiplication'),
-
+    
         init() {
             const indices = [];
             const structuredData = [];
