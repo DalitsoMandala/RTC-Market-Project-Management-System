@@ -4,24 +4,26 @@ namespace App\Jobs;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\MarketData;
 use App\Models\Recruitment;
 use App\Models\Organisation;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use App\Models\RtcConsumption;
 use App\Traits\FormEssentials;
+use App\Models\GrossMarginData;
 use App\Models\ReportingPeriod;
 use App\Models\SeedBeneficiary;
 use App\Models\SystemReportData;
+use App\Models\GrossMarginDetail;
 use App\Models\AttendanceRegister;
-use App\Models\FarmerSeedRegistration;
-use App\Models\MarketData;
 use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerDomMarket;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RpmProcessorDomMarket;
+use App\Models\FarmerSeedRegistration;
 use App\Models\RpmFarmerCertifiedSeed;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\RtcProductionProcessor;
@@ -50,7 +52,7 @@ class ExcelExportJob implements ShouldQueue
     public $progressKey;
     public $statusKey;
     public $user;
-
+    public $filePath;
     /**
      * Create a new job instance.
      */
@@ -59,6 +61,7 @@ class ExcelExportJob implements ShouldQueue
         $this->name     = $name;
         $this->uniqueID = $uniqueID;
         $this->user     = $user;
+        $this->filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
     }
 
     /**
@@ -74,7 +77,7 @@ class ExcelExportJob implements ShouldQueue
         switch ($this->name) {
 
             case 'rpmf':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $columns = [
                     "ID" => "rn",
@@ -524,7 +527,7 @@ class ExcelExportJob implements ShouldQueue
                 break;
 
             case 'rtcConsumption':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $headers = [
                     'ID',
@@ -593,7 +596,7 @@ class ExcelExportJob implements ShouldQueue
                 break;
 
             case 'rpmp':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $headers = [
                     "ID" => "rn",
@@ -882,7 +885,7 @@ class ExcelExportJob implements ShouldQueue
 
 
             case 'att':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $headers = [
                     'ID',
@@ -959,7 +962,7 @@ class ExcelExportJob implements ShouldQueue
                 break;
 
             case 'report':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $headers = [
                     'Disaggregation',
@@ -1251,7 +1254,7 @@ class ExcelExportJob implements ShouldQueue
                 break;
 
             case 'recruits':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $headerFromExports = [
                     'ID' => 'Required, Unique,  Number',
@@ -1379,7 +1382,7 @@ class ExcelExportJob implements ShouldQueue
                 break;
 
             case 'market_data':
-                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+                $filePath = $this->filePath;
                 // Define the headers
                 $headerFromExports = [
                     'ID' => 'Number, Exists in Market Data Sheet',
@@ -1452,6 +1455,135 @@ class ExcelExportJob implements ShouldQueue
 
 
                 $writer->close(); // Finalize the file
+                break;
+
+            case 'gross':
+                $filePath = $this->filePath;
+                // Define the headers
+                $headerFromExports = [
+                    'ID' => 'Number, Required',
+                    'Gross Margin ID' => 'Number, Required',
+                    'Gross Margin Title' => 'Text, Required',
+                    'Name of Producer' => 'Text',
+                    'Season' => 'Text',
+                    'Season Dates' => 'Text',
+                    'District' => 'Text',
+                    'Gender' => 'Text',
+                    'Phone Number' => 'Text',
+                    'GPS S' => 'Number ',
+                    'GPS E' => 'Number ',
+                    'Elevation' => 'Number',
+                    'Type of Produce' => 'Text',
+                    'EPA' => 'Text',
+                    'Section' => 'Text',
+                    'TA' => 'Text',
+                    'Selling Price Description' => 'Text',
+                    'Selling Price Quantity' => 'Number',
+                    'Selling Price Unit Price' => 'Number',
+                    'Selling Price' => 'Number',
+                    'Income Price Description' => 'Text',
+                    'Income Price Quantity' => 'Number',
+                    'Income Price Unit Price' => 'Number',
+                    'Income Price' => 'Number',
+                    'Total Valuable Costs' => 'Number',
+                    'Yield' => 'Number',
+                    'Break Even Yield' => 'Number',
+                    'Break Even Price' => 'Number',
+                    'Gross Margin' => 'Number',
+
+                ];
+                $headers = array_keys($headerFromExports);
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+                $writer->nameCurrentSheet('Gross Margin Report');
+
+                $query =     GrossMarginDetail::query()->with(['grossMargin', 'items', 'user', 'user.organisation'])->join('gross_margins', function ($join) {
+                    $join->on('gross_margins.id', '=', 'gross_margin_details.gross_margin_id');
+                })
+
+                    ->select([
+                        'gross_margin_details.*',
+                        'gross_margins.title',
+                        'gross_margins.enterprise',
+
+
+                        DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+                    ]);
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $query = $query->where('organisation_id', $this->user->organisation->id);
+                }
+                // Process data in chunks
+
+                $query->chunk(2000, function ($followUps) use ($writer) {
+                    foreach ($followUps as $record) {
+                        $submittedBy = '';
+                        $user        = User::find($record->user_id); {
+                            $organisation = $user->organisation->name;
+                            $name         = $user->name;
+
+                            $submittedBy = $name . ' (' . $organisation . ')';
+                        }
+                        $writer->addRow([
+                            $record->rn,
+                            $record->gross_id,
+                            $record->title,
+                            $record->name_of_producer,
+                            $record->season,
+                            $record->season_dates,
+                            $record->district,
+                            $record->gender,
+                            $record->phone_number,
+                            $record->gps_s,
+                            $record->gps_e,
+                            $record->elevation,
+                            $record->type_of_produce,
+                            $record->epa,
+                            $record->section,
+                            $record->ta,
+                            $record->selling_price_desc,
+                            $record->selling_price_qty,
+                            $record->selling_price_unit_price,
+                            $record->selling_price,
+                            $record->income_price_desc,
+                            $record->income_price_qty,
+                            $record->income_price_unit_price,
+                            $record->income_price,
+                            $record->total_valuable_costs,
+                            $record->yield,
+                            $record->break_even_yield,
+                            $record->break_even_price,
+                            $record->gross_margin,
+                            $submittedBy,
+                        ]);
+                    }
+                });
+
+                $writer->addNewSheetAndMakeItCurrent('Valuable Costs');
+                $headers = [
+                    'Gross Margin ID' => 'Number, Required',
+                    'Item Name' => 'Text, Required',
+                    'Description' => 'Text',
+                    'Quantity' => 'Number',
+                    'Unit Price' => 'Number',
+                    'Total' => 'Number',
+                ];
+                $writer->addHeader(array_keys($headers));
+                GrossMarginData::query()->with(['grossMarginDetail'])->chunk(2000, function ($recruitments) use ($writer) {
+                    foreach ($recruitments as $recruitment) {
+                        $writer->addRow([
+                            $recruitment->grossMarginDetail->gross_id,
+                            $recruitment->item_name,
+                            $recruitment->description,
+                            $recruitment->quantity,
+                            $recruitment->unit_price,
+                            $recruitment->total
+
+                        ]);
+                    }
+                });
+                $writer->close(); // Finalize the file
+
                 break;
             default:
                 $this->fail('Invalid model name! Naming of the excel export is unknown.');

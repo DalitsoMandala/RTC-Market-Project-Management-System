@@ -286,6 +286,48 @@ trait FormEssentials
                 'Estimated Total Value (USD)' => 'Number (decimal)',
             ]
         ],
+
+        'Gross Margin Form' => [
+            'Gross Profit' => [
+                'ID' => 'Number, Required',
+
+                'Gross Margin Title' => 'Text, Required',
+                'Name of Producer' => 'Text',
+                'Season' => 'Text',
+                'Season Dates' => 'Text',
+                'District' => 'Text',
+                'Gender' => 'Text',
+                'Phone Number' => 'Text',
+                'GPS S' => 'Number ',
+                'GPS E' => 'Number ',
+                'Elevation' => 'Number',
+                'Type of Produce' => 'Text',
+                'EPA' => 'Text',
+                'Section' => 'Text',
+                'TA' => 'Text',
+                'Selling Price Description' => 'Text',
+                'Selling Price Quantity' => 'Number',
+                'Selling Price Unit Price' => 'Number',
+                'Selling Price' => 'Number',
+                'Income Price Description' => 'Text',
+                'Income Price Quantity' => 'Number',
+                'Income Price Unit Price' => 'Number',
+                'Income Price' => 'Number',
+                'Total Valuable Costs' => 'Number',
+                'Yield' => 'Number',
+                'Break Even Yield' => 'Number',
+                'Break Even Price' => 'Number',
+                'Gross Margin' => 'Number',
+            ],
+            'Total Vaulable Costs' => [
+                'Gross Margin ID' => 'Number, Required',
+                'Item Name' => 'Text, Required',
+                'Description' => 'Text',
+                'Quantity' => 'Number',
+                'Unit Price' => 'Number',
+                'Total' => 'Number',
+            ]
+        ],
         'Seed Beneficiaries Form' => [
             'Potato' => [
                 'EPA' => 'Required, Text',

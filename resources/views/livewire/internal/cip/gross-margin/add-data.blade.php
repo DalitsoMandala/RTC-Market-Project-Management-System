@@ -71,8 +71,8 @@
                         @enderror
 
                         <template x-if="selectedTitle === 'Other'">
-                            <input type="text" class="mt-2 form-control" placeholder="Enter new title"
-                                x-model="newTitle" wire:model="newTitle">
+                            <input type="text" class="mt-2 form-control @error('newTitle') is-invalid @enderror"
+                                placeholder="Enter new title" x-model="newTitle" wire:model="newTitle">
                         </template>
                         @error('newTitle')
                             <x-error>{{ $message }}</x-error>
@@ -137,7 +137,7 @@
                                 <x-error>{{ $message }}</x-error>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-12">
+                        <div class="mb-3 col-md-4">
                             <label class="form-label d-block">Season</label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input @error('season') is-invalid @enderror" type="radio"
@@ -153,6 +153,17 @@
                                 <x-error>{{ $message }}</x-error>
                             @enderror
                         </div>
+                        <div class="mb-3 col-md-8">
+                            <label for="season" class="form-label">Season Dates</label>
+                            <select wire:model="seasonDate" class="form-select" >
+                                <option value="">Select season</option>
+                                @foreach ($seasonDates as $season)
+                                    <option value="{{ $season }}">{{ $season }}</option>
+                                @endforeach
+                            </select>
+
+                        </div>
+
 
                         <div class="mb-3 col-md-4">
                             <label for="district" class="form-label">District</label>
@@ -231,24 +242,76 @@
 
 
                     {{-- Item Table --}}
-                    <div class="table-responsive">
-                        <table class="table align-middle table-hover table-bordered table-sm" x-data="{
-                            items: @entangle('items'),
-                            get grossProfit() {
-                                return this.items.reduce((sum, item) => {
-                                    let qty = parseFloat(item.qty) || 0;
-                                    let unit = parseFloat(item.unit_price) || 0;
-                                    return sum + (qty * unit);
-                                }, 0);
-                            }
-                        }">
+                    <div class="rounded table-responsive">
+                        <table class="table align-middle table-hover table-bordered table-sm "
+                            x-data="{
+                                items: @entangle('items'),
+                                sellingPrice: @entangle('sellingPrice'),
+                                sellingPriceQty: @entangle('sellingPriceQty'),
+                                sellingPriceDesc: @entangle('sellingPriceDesc'),
+                                sellingPriceUnit: @entangle('sellingPriceUnit'),
+                                yield: @entangle('yield'),
+                                yieldQty: @entangle('yieldQty'),
+                                yieldDesc: @entangle('yieldDesc'),
+                                yieldUnit: @entangle('yieldUnit'),
+                                income: @entangle('income'),
+                                incomeQty: @entangle('incomeQty'),
+                                incomeDesc: @entangle('incomeDesc'),
+                                incomeUnit: @entangle('incomeUnit'),
+                                breakEvenYield: @entangle('breakEvenYield'),
+                                breakEvenPrice: @entangle('breakEvenPrice'),
+                                grossMargin: @entangle('grossMargin'),
+                                totalValuableCost: @entangle('totalValuableCost'),
 
-                            <thead class="table-secondary">
-                                <tr>
-                                    <th colspan="6" class="text-start"> Total valuable costs</th>
+                                get totalValuableCost() {
+                                    return this.items.reduce((sum, item) => {
+                                        let qty = parseFloat(item.qty) || 0;
+                                        let unit = parseFloat(item.unit_price) || 0;
+                                        return sum + (qty * unit);
+                                    }, 0);
+                                },
+
+                                get sellingPrice() {
+                                    return (parseFloat(this.sellingPriceQty) || 0) * (parseFloat(this.sellingPriceUnit) || 0);
+                                },
+
+                                get income() {
+                                    return (parseFloat(this.incomeQty) || 0) * (parseFloat(this.incomeUnit) || 0);
+                                },
+
+                                get yield() {
+                                    return (this.income > 0) ? ((this.totalValuableCost / this.income) * 100) : 0;
+                                },
+
+                                get breakEvenYield() {
+                                    return (this.sellingPrice > 0) ? (this.totalValuableCost / this.sellingPrice) : 0;
+                                },
+
+                                get breakEvenPrice() {
+                                    return (this.yield > 0) ? (this.totalValuableCost / this.yield) : 0;
+                                },
+
+                                get grossMargin() {
+                                    return this.income - this.totalValuableCost;
+                                },
+
+                                init() {
+                                    this.$watch('sellingPrice', (val) => $wire.sellingPrice = val);
+                                    this.$watch('income', (val) => $wire.income = val);
+                                    this.$watch('yield', (val) => $wire.yield = val);
+                                    this.$watch('breakEvenYield', (val) => $wire.breakEvenYield = val);
+                                    this.$watch('breakEvenPrice', (val) => $wire.breakEvenPrice = val);
+                                    this.$watch('grossMargin', (val) => $wire.grossMargin = val);
+                                    this.$watch('totalValuableCost', (val) => $wire.totalValuableCost = val);
+
+                                }
+                            }">
+
+                            <!-- === HEADER === -->
+                            <thead class=" table-secondary">
+                                <tr class="">
+                                    <th colspan="6" class="p-2 text-center">Total Valuable Costs</th>
                                 </tr>
-                            </thead>
-                            <thead class="">
                                 <tr>
                                     <th>Item</th>
                                     <th>Description</th>
@@ -259,11 +322,11 @@
                                 </tr>
                             </thead>
 
+                            <!-- === BODY === -->
                             <tbody>
-
                                 @foreach ($items as $index => $item)
                                     <tr>
-                                        {{-- Item --}}
+                                        <!-- Item -->
                                         <td>
                                             <div x-data="{ showInput: @js($item['item'] === 'Other') }" x-init="$watch(() => items[{{ $index }}].item, val => showInput = val === 'Other')">
                                                 <select
@@ -292,60 +355,54 @@
                                             </div>
                                         </td>
 
-                                        {{-- Description --}}
+                                        <!-- Description -->
                                         <td>
                                             <input type="text"
                                                 class="form-control @error('items.' . $index . '.description') is-invalid @enderror"
                                                 wire:model="items.{{ $index }}.description">
-
-
                                             @error('items.' . $index . '.description')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
                                         </td>
 
-                                        {{-- Qty --}}
+                                        <!-- Qty -->
                                         <td>
                                             <input type="number" step="any"
-                                                class="form-control  @error('items.' . $index . '.qty') is-invalid @enderror"
+                                                class="form-control @error('items.' . $index . '.qty') is-invalid @enderror"
                                                 wire:model="items.{{ $index }}.qty">
-
-
                                             @error('items.' . $index . '.qty')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
                                         </td>
 
-                                        {{-- Unit Price --}}
+                                        <!-- Unit Price -->
                                         <td>
                                             <input type="number" step="any"
-                                                class="form-control  @error('items.' . $index . '.unit_price') is-invalid @enderror"
+                                                class="form-control @error('items.' . $index . '.unit_price') is-invalid @enderror"
                                                 wire:model="items.{{ $index }}.unit_price">
-
-
                                             @error('items.' . $index . '.unit_price')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
                                         </td>
 
-                                        {{-- Row Total --}}
+                                        <!-- Total -->
                                         <td>
                                             <input readonly class="form-control"
                                                 :value="(parseFloat(items[{{ $index }}].qty || 0) * parseFloat(items[
-                                                    {{ $index }}].unit_price || 0)).toFixed(2)" />
+                                                    {{ $index }}].unit_price || 0)).toFixed(2)">
                                         </td>
 
-                                        {{-- Remove --}}
+                                        <!-- Remove -->
                                         <td>
                                             <button class="btn btn-danger btn-sm" wire:loading.attr="disabled"
-                                                wire:click.prevent="removeItem({{ $index }})">
-                                                Remove
-                                            </button>
+                                                wire:click.prevent="removeItem({{ $index }})">Remove</button>
                                         </td>
                                     </tr>
                                 @endforeach
+
+                                <!-- Add Row -->
                                 <tr>
-                                    <td colspan="6" class="text-start">
+                                    <td colspan="6">
                                         <button class="btn btn-warning btn-sm" wire:click="addItem"
                                             wire:loading.attr="disabled">
                                             Add Row +
@@ -354,150 +411,164 @@
                                 </tr>
 
                             </tbody>
-                            <tbody>
-                                <tr class="table-secondary">
-                                    <th colspan="6">Other Items</th>
-                                </tr>
 
+                            <thead class=" table-secondary">
+                                <tr class="">
+                                    <th colspan="6" class="p-2 text-center">Calculations</th>
+                                </tr>
                                 <tr>
                                     <th>Item</th>
                                     <th>Description</th>
                                     <th>Qty</th>
                                     <th>Unit Price</th>
-                                    <th>Total</th>
+                                    <th colspan="2">Total</th>
+
 
                                 </tr>
-                                <tr>
-                                    <td>
+                            </thead>
 
-
-                                        <select class="form-select " disabled wire:model='yield'>
-
-                                            <option selected value="Yield">Yield (Production)</option>
-
-                                        </select>
-                                        @error('yield')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-
-                                    </td>
-
-                                    <td>
-
-
-                                        <input type="text" step="any"
-                                            class="form-control @error('yield_description') is-invalid @enderror"
-                                            wire:model="yield_description">
-                                        @error('yield_description')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-
-
-                                    </td>
-
-                                    <td>
-
-                                        <input type="number" step="any"
-                                            class="form-control @error('yield_qty') is-invalid @enderror"
-                                            wire:model="yield_qty">
-                                        @error('yield_qty')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </td>
-
-                                    <td>
-
-                                        <input type="number" step="any"
-                                            class="form-control @error('yield_unit_price') is-invalid @enderror"
-                                            wire:model="yield_unit_price">
-                                        @error('yield_unit_price')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </td>
-
-                                    <td>
-
-                                        <input type="number" step="any"
-                                            class="form-control @error('yield_total') is-invalid @enderror"
-                                            wire:model="yield_total">
-                                        @error('yield_total')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-
-
-                                        <select class="form-select " disabled wire:model='price'>
-
-                                            <option selected value="Price">Price/KG (Income)</option>
-
-                                        </select>
-                                        @error('income_price')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-
-                                    </td>
-
-                                    <td>
-
-
-                                        <input type="text" step="any"
-                                            class="form-control @error('income_price_description') is-invalid @enderror"
-                                            wire:model="income_price_description">
-                                        @error('income_price_description')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-
-
-                                    </td>
-
-                                    <td>
-
-                                        <input type="number" step="any"
-                                            class="form-control @error('income_price_qty') is-invalid @enderror"
-                                            wire:model="income_price_qty">
-                                        @error('income_price_qty')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </td>
-
-                                    <td>
-
-                                        <input type="number" step="any"
-                                            class="form-control @error('income_price_unit_price') is-invalid @enderror"
-                                            wire:model="income_price_unit_price">
-                                        @error('income_price_unit_price')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </td>
-
-                                    <td>
-
-                                        <input type="number" step="any"
-                                            class="form-control @error('income_price_total') is-invalid @enderror"
-                                            wire:model="income_price_total">
-                                        @error('income_price_total')
-                                            <x-error>{{ $message }}</x-error>
-                                        @enderror
-                                    </td>
-                                </tr>
-
-                            </tbody>
                             <tfoot>
 
-                                <tr class="fs-4">
-                                    <td colspan="5" class="text-end">
-                                        <strong>Gross Profit (MWK): </strong>
+                                <tr>
+                                    <td>
+                                        <strong>Selling Price (MWK):</strong>
                                     </td>
-                                    <td><strong x-text="grossProfit.toFixed(2)"></strong></td>
+
+                                    <!-- Description -->
+                                    <td>
+                                        <input type="text"
+                                            class="form-control @error('sellingPriceDesc') is-invalid @enderror"
+                                            wire:model="sellingPriceDesc">
+                                        @error('sellingPriceDesc')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </td>
+
+                                    <!-- Qty -->
+                                    <td>
+                                        <input type="number" step="any"
+                                            class="form-control @error('sellingPriceQty') is-invalid @enderror"
+                                            wire:model="sellingPriceQty">
+                                        @error('sellingPriceQty')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </td>
+
+                                    <!-- Unit Price -->
+                                    <td>
+                                        <input type="number" step="any"
+                                            class="form-control @error('sellingPriceUnit') is-invalid @enderror"
+                                            wire:model="sellingPriceUnit">
+                                        @error('sellingPriceUnit')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </td>
+                                    <td colspan="2">
+                                        <input type="number" readonly step="any" class="form-control"
+                                            x-bind:value="sellingPrice.toFixed(2)" wire:model="sellingPrice">
+                                    </td>
                                 </tr>
 
+                                <tr>
+                                    <td><strong>Income (MWK):</strong></td>
+                                    <!-- Description -->
+                                    <td>
+                                        <input type="text"
+                                            class="form-control @error('incomeDesc') is-invalid @enderror"
+                                            wire:model="incomeDesc">
+                                        @error('incomeDesc')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </td>
+
+                                    <!-- Qty -->
+                                    <td>
+                                        <input type="number" step="any"
+                                            class="form-control @error('incomeQty') is-invalid @enderror"
+                                            wire:model="incomeQty">
+                                        @error('incomeQty')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </td>
+
+                                    <!-- Unit Price -->
+                                    <td>
+                                        <input type="number" step="any"
+                                            class="form-control @error('incomeUnit') is-invalid @enderror"
+                                            wire:model="incomeUnit">
+                                        @error('incomeUnit')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </td>
+                                    <td colspan="2">
+                                        <input type="text" class="form-control" readonly
+                                            x-bind:value="income.toFixed(2)" wire:model="income">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Valuable Costs (MWK):</strong></td>
+                                    <td>
+                                        <input type="text" class="form-control" readonly />
+                                    </td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td colspan="2">
+                                        <input type="text" class="form-control" readonly
+                                            x-bind:value="totalValuableCost.toFixed(2)" wire:model="totalValuableCost">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Yield (kg/unit):</strong></td>
+                                    <!-- Description -->
+                                    <td>
+                                        <input type="text" class="form-control" readonly />
+                                    </td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td colspan="2">
+                                        <input type="number" step="any" class="form-control" readonly
+                                            x-bind:value="yield.toFixed(2)" wire:model="yield">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Break-even Yield:</strong></td>
+                                    <td>
+                                        <input type="text" class="form-control" readonly />
+                                    </td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td colspan="2">
+                                        <input type="text" class="form-control" readonly
+                                            x-bind:value="breakEvenYield.toFixed(2)" wire:model="breakEvenYield">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Break-even Price (MWK):</strong></td>
+                                    <!-- Description -->
+                                    <td>
+                                        <input type="text" class="form-control" readonly />
+                                    </td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td colspan="2">
+                                        <input type="text" class="form-control" readonly
+                                            x-bind:value="breakEvenPrice.toFixed(2)" wire:model="breakEvenPrice">
+                                    </td>
+                                </tr>
+                                <tr class="table-secondary">
+                                    <td colspan="4" class="text-end"><strong class="fs-5">Gross Margin
+                                            (Profit):</strong></td>
+                                    <td colspan="2">
+                                        <input type="text" class="form-control fs-5 fw-bold" readonly
+                                            x-bind:value="grossMargin.toFixed(2)" wire:model="grossMargin">
+                                    </td>
+                                </tr>
                             </tfoot>
                         </table>
+
                     </div>
                     <div class="mt-5 d-flex col-12 justify-content-center" x-data>
+
                         <button class="mx-1 btn btn-secondary" id="resetForm"
                             @click="window.scrollTo({
                                                     top: 0,

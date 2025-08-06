@@ -6,15 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('marketing_data', function (Blueprint $table) {
+        Schema::table('gross_margin_details', function (Blueprint $table) {
             //
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('organisation_id')->nullable()->constrained('organisations')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('gross_id')->unique()->nullable()->after('id');
         });
     }
 
@@ -23,13 +21,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('marketing_data', function (Blueprint $table) {
+        Schema::table('gross_margin_details', function (Blueprint $table) {
             //
 
-                 $table->dropForeign(['user_id']);
-        $table->dropForeign(['organisation_id']);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['organisation_id']);
             $table->dropColumn('user_id');
             $table->dropColumn('organisation_id');
+            $table->dropColumn('gross_id');
         });
     }
 };

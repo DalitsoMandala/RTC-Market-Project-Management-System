@@ -29,7 +29,8 @@ class AddData extends Component
     // Farmer Metadata
     public $name_of_producer = null;
     public $season = 'Rainfed';
-
+public $seasonDates = [];
+public $seasonDate;
     public $district = null;
     public $gender = null;
     public $phone_number = null;
@@ -44,8 +45,24 @@ class AddData extends Component
     public $routePrefix = null;
     // Items table
     public $items = [];
+    public $summaryItems = [];
     public $itemOptions = [];
-
+    public float $sellingPrice;
+    public  $sellingPriceDesc;
+    public float $sellingPriceQty = 1;
+    public float $sellingPriceUnit;
+    public float $yield;
+    public  $yieldDesc;
+    public float $yieldQty = 1;
+    public float $yieldUnit;
+    public float $income;
+    public  $incomeDesc;
+    public float $incomeQty = 1;
+    public float $incomeUnit;
+    public float $breakEvenYield;
+    public float $breakEvenPrice;
+    public float $grossMargin;
+    public float $totalValuableCost;
     protected function rules()
     {
         return [
@@ -70,6 +87,19 @@ class AddData extends Component
                     $fail('Custom item name is required when "Other" is selected.');
                 }
             },
+            'sellingPrice' => 'required|numeric|min:0',
+            'sellingPriceDesc' => 'nullable|string|max:255',
+            'sellingPriceQty' => 'required|numeric|min:0',
+            'sellingPriceUnit' => 'required|numeric|min:0',
+            'yield' => 'required|numeric|min:0',
+            'income' => 'required|numeric|min:0',
+            'incomeDesc' => 'nullable|string|max:255',
+            'incomeQty' => 'required|numeric|min:0',
+            'incomeUnit' => 'required|numeric|min:0',
+            'breakEvenYield' => 'required|numeric',
+            'breakEvenPrice' => 'required|numeric',
+            'grossMargin' => 'required|numeric',
+
         ];
     }
     protected function validationAttributes()
@@ -84,15 +114,25 @@ class AddData extends Component
         ];
     }
 
+public function seasonDates(){
+     $startYear = 2010;
+    $currentYear = date('Y');
 
+    for ($year = $startYear; $year <= $currentYear; $year++) {
+        $nextYear = $year + 1;
+        $this->seasonDates[] = "$year/$nextYear";
+    }
+}
     public function mount()
     {
         // Example: You can later fetch this from DB
         $this->itemOptions = GrossMarginItemOption::pluck('name')->toArray();
         $this->items[] =
-            ['item' => null, 'custom_item' => null, 'description' => null, 'qty' => 1, 'unit_price' => 0];
+            ['item' => null, 'custom_item' => null, 'description' => null, 'qty' => 1, 'unit_price' => null];
         $this->existingTitles = GrossMargin::get()->toArray();
         $this->selectedTitle = 'Other';
+
+        $this->seasonDates();
     }
 
 
@@ -114,7 +154,22 @@ class AddData extends Component
             'section',
             'ta',
             'items',
-            'enterprise'
+            'enterprise',
+            'sellingPrice',
+            'sellingPriceDesc',
+            'sellingPriceQty',
+            'sellingPriceUnit',
+            'yield',
+            'yieldDesc',
+            'yieldQty',
+            'yieldUnit',
+            'income',
+            'incomeDesc',
+            'incomeQty',
+            'incomeUnit',
+            'breakEvenYield',
+            'breakEvenPrice',
+            'grossMargin',
         ]);
 
         $this->resetErrorBag();
@@ -125,10 +180,11 @@ class AddData extends Component
             'custom_item' => null,
             'description' => null,
             'qty' => 1,
-            'unit_price' => 0
+            'unit_price' => null
         ]];
         $this->type_of_produce = 'Seed';
         $this->season = 'Rainfed';
+        $this->seasonDates();
     }
     public function addItem()
     {
@@ -137,7 +193,7 @@ class AddData extends Component
             'custom_item' => null,
             'description' => null,
             'qty' => 1,
-            'unit_price' => 0
+            'unit_price' => null
         ];
     }
 
@@ -183,11 +239,18 @@ class AddData extends Component
                 ? trim($this->newTitle)
                 : $this->selectedTitle;
 
-            // Retrieve or create GrossMargin
-            $grossMargin = GrossMargin::firstOrCreate([
-                'title' => $finalTitle,
-                'enterprise' => $this->enterprise
-            ]);
+
+                $grossMarginExists = GrossMargin::where('title', $finalTitle)->exists();
+                $grossMargin = null;
+                if(!$grossMarginExists){
+                  $grossMargin =  GrossMargin::create([
+                        'title' => $finalTitle,
+                        'enterprise' => $this->enterprise
+                    ]);
+                }else{
+                    $grossMargin = GrossMargin::where('title', $finalTitle)->first();
+                }
+
 
             // Create Gross Margin Detail
             $grossMarginDetail = $grossMargin->details()->create([
@@ -203,6 +266,22 @@ class AddData extends Component
                 'epa' => $this->epa,
                 'section' => $this->section,
                 'ta' => $this->ta,
+                'selling_price_desc' => $this->sellingPriceDesc,
+                'selling_price_qty' => $this->sellingPriceQty,
+                'selling_price_unit_price' => $this->sellingPriceUnit,
+                'selling_price' => $this->sellingPrice,
+                'income_price_desc' => $this->incomeDesc,
+                'income_price_qty' => $this->incomeQty,
+                'income_price_unit_price' => $this->incomeUnit,
+                'income_price' => $this->income,
+                'total_valuable_costs' => $this->totalValuableCost,
+                'yield' => $this->yield,
+                'break_even_yield' => $this->breakEvenYield,
+                'break_even_price' => $this->breakEvenPrice,
+                'gross_margin' => $this->grossMargin,
+                'season_dates' => $this->seasonDate,
+                'user_id' => auth()->user()->id,
+                'organisation_id' => auth()->user()->organisation->id,
                 'uuid' => $uuid
             ]);
 

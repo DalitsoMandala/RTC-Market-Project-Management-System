@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('gross_margin_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('gross_margin_id')->constrained('gross_margins')->onDelete('cascade')->onUpdate('cascade');
-    $table->string('uuid');
+            $table->string('uuid');
             $table->string('name_of_producer')->nullable();
             $table->string('season')->nullable();
             $table->string('district')->nullable();
@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('epa')->nullable();
             $table->string('section')->nullable();
             $table->string('ta')->nullable();
-
             $table->timestamps();
         });
     }

@@ -7,21 +7,22 @@ use App\Models\MarketData;
 
 use App\Models\SeedBeneficiary;
 
+use App\Models\GrossMarginDetail;
+
 use Illuminate\Support\Facades\DB;
 
 use App\Livewire\Internal\Cip\Forms;
-
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Dashboard;
+
 use App\Livewire\Internal\Cip\SubPeriod;
 
 use App\Helpers\MarketReportCalculations;
 
 use App\Livewire\Internal\Cip\Indicators;
-
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Livewire\Internal\Cip\ViewIndicators;
@@ -31,9 +32,25 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test-stuff', function () {
+ $query =     GrossMarginDetail::query()->with(['grossMargin', 'items'])->join('gross_margins', function ($join) {
+                    $join->on('gross_margins.id', '=', 'gross_margin_details.gross_margin_id');
+                })->leftJoin('gross_margin_data', function ($join) {
+                    $join->on('gross_margin_data.gross_margin_detail_id', '=', 'gross_margin_details.id');
+                })->leftJoin('gross_submissions', function ($join) {
+                    $join->on('gross_margin_details.uuid', '=', 'gross_submissions.batch_no');
+                })
 
-    $market = new MarketReportCalculations();
-    return response()->json($market->run());
+                    ->select([
+                        'gross_margin_details.*',
+                        'gross_margins.title',
+                        'gross_margins.enterprise',
+                        'gross_margin_data.total as gross_total',
+'gross_margin_'
+
+                        DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+                    ]);
+
+                    dd($query->get());
 });
 
 

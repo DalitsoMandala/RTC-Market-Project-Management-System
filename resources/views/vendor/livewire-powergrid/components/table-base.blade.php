@@ -15,6 +15,7 @@
 </style>
 @php
     $baseTableClass = str_replace('table-bordered', '', $theme['table']['tableClass']);
+    $baseTableClass = str_replace('table-striped', '', $baseTableClass);
     $headerTableClass = $theme['table']['theadClass'] . ' table-secondary grayColor';
 
 @endphp
