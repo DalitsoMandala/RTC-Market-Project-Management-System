@@ -31,27 +31,6 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/test-stuff', function () {
- $query =     GrossMarginDetail::query()->with(['grossMargin', 'items'])->join('gross_margins', function ($join) {
-                    $join->on('gross_margins.id', '=', 'gross_margin_details.gross_margin_id');
-                })->leftJoin('gross_margin_data', function ($join) {
-                    $join->on('gross_margin_data.gross_margin_detail_id', '=', 'gross_margin_details.id');
-                })->leftJoin('gross_submissions', function ($join) {
-                    $join->on('gross_margin_details.uuid', '=', 'gross_submissions.batch_no');
-                })
-
-                    ->select([
-                        'gross_margin_details.*',
-                        'gross_margins.title',
-                        'gross_margins.enterprise',
-                        'gross_margin_data.total as gross_total',
-'gross_margin_'
-
-                        DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-                    ]);
-
-                    dd($query->get());
-});
 
 
 Route::get('/logout', function () {
