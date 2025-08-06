@@ -28,9 +28,7 @@ public $row;
         return [
 
 
-            Footer::make()
-                ->showPerPage()
-                ->showRecordCount(),
+
         ];
     }
 

@@ -1,7 +1,7 @@
 <div class="row bg-soft-secondary">
 
 
-        <div class="col-12 ">
+        <div class="col-5 ">
 
 
             <div wire:ignore>

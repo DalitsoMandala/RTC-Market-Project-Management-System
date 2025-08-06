@@ -288,6 +288,13 @@
                 background-color: #e5e7ebc4;
                 cursor: auto;
             }
+
+
+            .table-secondary {
+
+                --bs-table-bg: rgb(241 241 241/1) !important;
+                --bs-table-border-color: #e5e7eb !important;
+            }
         </style>
         <!-- Scripts -->
         @vite(['resources/js/app.js'])
