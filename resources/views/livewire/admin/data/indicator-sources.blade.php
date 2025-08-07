@@ -38,13 +38,13 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })
         $wire.on('refresh', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -96,9 +96,9 @@
 
 
                     </div>
-
+{{ var_export($selectedLeadPartner) }}
                     <div class="mb-3" x-data="{
-                        selectedLeadPartner: $wire.entangle('selectedLeadPartner')
+                        selectedLeadPartner: $wire.entangle('selectedLeadPartner').live
                     }">
                         <label for="" class="form-label">Select partner for this indicator</label>
                         <select class="form-select  @error('selectedLeadPartner') is-invalid @enderror" name=""

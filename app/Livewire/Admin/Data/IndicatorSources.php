@@ -3,15 +3,16 @@
 namespace App\Livewire\Admin\Data;
 
 use App\Models\Form;
+use App\Models\Source;
+use Livewire\Component;
 use App\Models\Indicator;
+use Livewire\Attributes\On;
 use App\Models\Organisation;
 use App\Models\ResponsiblePerson;
-use App\Models\Source;
+use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
-use Livewire\Component;
 
 class IndicatorSources extends Component
 {
@@ -34,37 +35,37 @@ class IndicatorSources extends Component
     {
         $this->validate();
 
+        DB::beginTransaction();
 
         try {
-
-            $responsible = ResponsiblePerson::where('indicator_id', $this->rowId)->whereIn('organisation_id', $this->selectedLeadPartner);
-            $responsible->delete();
+            ResponsiblePerson::where('indicator_id', $this->rowId)->delete();
 
             foreach ($this->selectedLeadPartner as $partner) {
-
                 $organisation = Organisation::find($partner);
-                ResponsiblePerson::create([
-                    'indicator_id' => $this->rowId,
-                    'organisation_id' => $organisation->id,
-
-                ]);
+                if ($organisation) {
+                    ResponsiblePerson::create([
+                        'indicator_id' => $this->rowId,
+                        'organisation_id' => $organisation->id,
+                    ]);
+                }
             }
 
-
             $currentIndicator = Indicator::find($this->rowId);
-            $currentIndicator->forms()->sync($this->selectedForms);
+            if ($currentIndicator) {
+                $currentIndicator->forms()->sync($this->selectedForms);
+            }
 
+            DB::commit();
 
             $this->dispatch('refresh');
-            //   $this->alert('success', 'Indicator updated successfully');
             session()->flash('success', 'Indicator updated successfully');
         } catch (\Throwable $th) {
-
-            //$this->alert('error', 'Something went wrong');
+            DB::rollBack();
             session()->flash('error', 'Something went wrong');
             Log::error($th);
         }
     }
+
 
     #[On('showModal')]
     public function setData($rowId)
