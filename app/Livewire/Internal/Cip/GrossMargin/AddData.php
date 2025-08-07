@@ -127,9 +127,11 @@ public function seasonDates(){
     {
         // Example: You can later fetch this from DB
         $this->itemOptions = GrossMarginItemOption::pluck('name')->toArray();
-        $this->items[] =
-            ['item' => null, 'custom_item' => null, 'description' => null, 'qty' => 1, 'unit_price' => null];
-        $this->existingTitles = GrossMargin::get()->toArray();
+        foreach ($this->itemOptions as $option) {
+            $this->items[] =
+                ['item' => $option, 'custom_item' => null, 'description' => null, 'qty' => 1, 'unit_price' => null];
+        }
+         $this->existingTitles = GrossMargin::get()->toArray();
         $this->selectedTitle = 'Other';
 
         $this->seasonDates();

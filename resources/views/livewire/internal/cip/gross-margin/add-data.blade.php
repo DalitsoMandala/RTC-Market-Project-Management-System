@@ -330,7 +330,7 @@
                                         <td>
                                             <div x-data="{ showInput: @js($item['item'] === 'Other') }" x-init="$watch(() => items[{{ $index }}].item, val => showInput = val === 'Other')">
                                                 <select
-                                                    class="form-select @error('items.' . $index . '.item') is-invalid @enderror"
+                                                   disabled class="form-control @error('items.' . $index . '.item') is-invalid @enderror"
                                                     wire:model="items.{{ $index }}.item">
                                                     <option value="">-- Select Item --</option>
                                                     @foreach ($itemOptions as $option)
@@ -388,8 +388,7 @@
                                         <!-- Total -->
                                         <td>
                                             <input readonly class="form-control"
-                                                :value="(parseFloat(items[{{ $index }}].qty || 0) * parseFloat(items[
-                                                    {{ $index }}].unit_price || 0)).toFixed(2)">
+                                                 :value="'MWK ' + (parseFloat(items[{{ $index }}].qty || 0) * parseFloat(items[{{ $index }}].unit_price || 0)).toFixed(2)">
                                         </td>
 
                                         <!-- Remove -->
@@ -465,7 +464,7 @@
                                     </td>
                                     <td colspan="2">
                                         <input type="number" readonly step="any" class="form-control"
-                                            x-bind:value="sellingPrice.toFixed(2)" wire:model="sellingPrice">
+                                            x-bind:value="sellingPrice.toFixed(2)" >
                                     </td>
                                 </tr>
 
@@ -502,7 +501,7 @@
                                     </td>
                                     <td colspan="2">
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="income.toFixed(2)" wire:model="income">
+                                            x-bind:value="income.toFixed(2)" >
                                     </td>
                                 </tr>
                                 <tr>
@@ -514,7 +513,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td colspan="2">
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="totalValuableCost.toFixed(2)" wire:model="totalValuableCost">
+                                            x-bind:value="totalValuableCost.toFixed(2)">
                                     </td>
                                 </tr>
                                 <tr>
@@ -527,7 +526,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td colspan="2">
                                         <input type="number" step="any" class="form-control" readonly
-                                            x-bind:value="yield.toFixed(2)" wire:model="yield">
+                                            x-bind:value="yield.toFixed(2)" >
                                     </td>
                                 </tr>
                                 <tr>
@@ -539,7 +538,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td colspan="2">
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="breakEvenYield.toFixed(2)" wire:model="breakEvenYield">
+                                            x-bind:value="breakEvenYield.toFixed(2)" >
                                     </td>
                                 </tr>
                                 <tr>
@@ -552,7 +551,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td colspan="2">
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="breakEvenPrice.toFixed(2)" wire:model="breakEvenPrice">
+                                            x-bind:value="breakEvenPrice.toFixed(2)" >
                                     </td>
                                 </tr>
                                 <tr class="table-secondary">
@@ -560,7 +559,7 @@
                                             (Profit):</strong></td>
                                     <td colspan="2">
                                         <input type="text" class="form-control fs-5 fw-bold" readonly
-                                            x-bind:value="grossMargin.toFixed(2)" wire:model="grossMargin">
+                                            x-bind:value="grossMargin.toFixed(2)" >
                                     </td>
                                 </tr>
                             </tfoot>

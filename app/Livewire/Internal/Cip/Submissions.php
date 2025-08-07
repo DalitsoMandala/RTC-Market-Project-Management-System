@@ -89,11 +89,11 @@ class Submissions extends Component
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
-    private function getLink($submission, $type)
+    private function getLink($submission, $type = null)
     {
         $user_id = null;
 
-        if ($type == '#market-submission') {
+        if ($type == '#market-submission' || $type == '#gross-submission') {
             $user_id = $submission->submitted_user_id;
         } else {
             $user_id = $submission->user_id;
@@ -139,17 +139,12 @@ class Submissions extends Component
 
         try {
             $submission = Submission::findOrFail($this->rowId);
-
-
+            $user = User::find($submission->user_id);
+                $link = $this->getLink($submission,'#batch-submission');
             // Perform actions based on status
             if ($this->status === 'approved') {
                 $this->approveSubmission($submission, [$this->tableName]);
                 // Dispatch notification using Bus::chain
-                $user = User::find($submission->user_id);
-
-                $routePrefix = Route::current()->getPrefix();
-
-                $link = $this->getLink($submission);
                 Bus::chain([
                     fn() => $user->notify(new SubmissionNotification(
                         status: $this->status,
@@ -160,9 +155,9 @@ class Submissions extends Component
                 ])->dispatch();
             } else {
                 $this->denySubmission($submission, [$this->tableName]);
-                $user = User::find($submission->user_id);
 
-                $link = $this->getLink($submission);
+
+
                 Bus::chain([
                     fn() => $user->notify(new SubmissionNotification(
                         status: 'denied',
