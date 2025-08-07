@@ -96,7 +96,7 @@
 
 
                     </div>
-{{ var_export($selectedLeadPartner) }}
+
                     <div class="mb-3" x-data="{
                         selectedLeadPartner: $wire.entangle('selectedLeadPartner').live
                     }">
