@@ -39,55 +39,48 @@
                 </li>
             </ul>
 
-            @php
-                use Illuminate\Support\Str;
-            @endphp
 
-            @if (Str::contains(request()->url(), '/dashboard'))
-                {{-- URL contains /dashboard --}}
+            {{-- URL contains /dashboard --}}
 
-                @hasanyrole('admin|manager|project_manager')
-                    <!-- Right side: Dashboard links -->
-                    <ul class="nav align-items-center topbar-nav" x-data="{
-                        role: '{{ Auth::user()->getRoleNames()->first() }}',
-                        makeActive(value) {
+            @hasanyrole('admin|manager|project_manager')
+                <!-- Right side: Dashboard links -->
+                <ul class="nav align-items-center topbar-nav" x-data="{
+                    role: '{{ Auth::user()->getRoleNames()->first() }}',
+                    makeActive(value) {
 
-                            if (value == 1) {
-                                document.getElementById('dashboard-one').classList.add('active');
-                                document.getElementById('dashboard-two').classList.remove('active');
-                            } else if (value == 2) {
-                                document.getElementById('dashboard-one').classList.remove('active');
-                                document.getElementById('dashboard-two').classList.add('active');
+                        if (value == 1) {
+                            document.getElementById('dashboard-one').classList.add('active');
+                            document.getElementById('dashboard-two').classList.remove('active');
+                        } else if (value == 2) {
+                            document.getElementById('dashboard-one').classList.remove('active');
+                            document.getElementById('dashboard-two').classList.add('active');
 
-                                }
-                        },
+                        }
+                    },
 
-                    }">
+                }">
 
-                        <li class="nav-item" >
-                            <a href="#dashboard-1" id="dashboard-one"
-                                @change-dashboard.window="makeActive($event.detail.value)"
-                                @click="$dispatch('change-dashboard', { value: 1 });"
-                                class="px-3 active nav-link text-light">
-                                Project Report
-                            </a>
-                        </li>
-                        <li class="mx-2 nav-item text-light">|</li>
-                        <li class="nav-item">
-                            <a href="#dashboard-2" id="dashboard-two"
-                                @change-dashboard.window="makeActive($event.detail.value)"
-                                @click="$dispatch('change-dashboard', { value: 2 })"
-                                class="px-3 nav-link text-light ">Market Data
-                            </a>
-                        </li>
-                    </ul>
-                @endhasanyrole
+                    <li class="nav-item">
+                        <a href="#dashboard-1" id="dashboard-one" @change-dashboard.window="makeActive($event.detail.value)"
+                            @click="$dispatch('change-dashboard', { value: 1 });" class="px-3 active nav-link text-light">
+                            Project Report
+                        </a>
+                    </li>
+                    <li class="mx-2 nav-item text-light">|</li>
+                    <li class="nav-item">
+                        <a href="#dashboard-2" id="dashboard-two" @change-dashboard.window="makeActive($event.detail.value)"
+                            @click="$dispatch('change-dashboard', { value: 2 })" class="px-3 nav-link text-light ">Market
+                            Data
+                        </a>
+                    </li>
+                </ul>
+            @endhasanyrole
 
-                @hasanyrole('enumerator')
-                    <!-- Right side: Dashboard links -->
-                    <ul class="nav align-items-center topbar-nav" x-data="{
+            @hasanyrole('enumerator')
+                <!-- Right side: Dashboard links -->
+                <ul class="nav align-items-center topbar-nav" x-data="{
 
-                        makeActive(value) {
+                    makeActive(value) {
 
                             if (value == 1) {
                                 document.getElementById('dashboard-one').classList.add('active');
@@ -98,27 +91,24 @@
                             }
                         },
 
-                    }">
+                }">
 
-                        <li class="nav-item" >
-                            <a href="#dashboard-1" id="dashboard-one"
-                                @change-dashboard.window="makeActive($event.detail.value)"
-                                @click="$dispatch('change-dashboard', { value: 1 });"
-                                class="px-3 nav-link text-light disabled">
-                                Project Report
-                            </a>
-                        </li>
-                        <li class="mx-2 nav-item text-light">|</li>
-                        <li class="nav-item">
-                            <a href="#dashboard-2" id="dashboard-two"
-                                @change-dashboard.window="makeActive($event.detail.value)"
-                                @click="$dispatch('change-dashboard', { value: 2 })"
-                                class="px-3 active nav-link text-light ">Market Data
-                            </a>
-                        </li>
-                    </ul>
-                @endhasanyrole
-            @endif
+                    <li class="nav-item">
+                        <a href="#dashboard-1" id="dashboard-one" @change-dashboard.window="makeActive($event.detail.value)"
+                            @click="$dispatch('change-dashboard', { value: 1 });" class="px-3 nav-link text-light disabled">
+                            Project Report
+                        </a>
+                    </li>
+                    <li class="mx-2 nav-item text-light">|</li>
+                    <li class="nav-item">
+                        <a href="#dashboard-2" id="dashboard-two" @change-dashboard.window="makeActive($event.detail.value)"
+                            @click="$dispatch('change-dashboard', { value: 2 })"
+                            class="px-3 active nav-link text-light ">Market Data
+                        </a>
+                    </li>
+                </ul>
+            @endhasanyrole
+
         </div>
     </nav>
 
