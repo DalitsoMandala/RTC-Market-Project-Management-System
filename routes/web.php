@@ -102,6 +102,8 @@ Route::middleware([
 
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
+       Route::get('/dashboard-2', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard-2');
+          Route::get('/dashboard-3', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard-3');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
     Route::get('/cgiar-projects', \App\Livewire\Admin\Data\CgiarProjects::class)->name('admin-cgiar-projects');
