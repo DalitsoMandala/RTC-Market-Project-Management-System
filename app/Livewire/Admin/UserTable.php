@@ -89,27 +89,26 @@ final class UserTable extends PowerGridComponent
                         $role->name = '<span class="badge bg-secondary-subtle text-secondary" >External user</span>';
                     }
 
-
-
-
-
-
-                    if ($role->name == 'manager') {
+                    else if ($role->name == 'manager') {
                         $role->name = '<span class="badge bg-info-subtle text-info" >Manager</span>';
                     }
 
 
 
-                    if ($role->name == 'admin') {
+                  else  if ($role->name == 'admin') {
                         $role->name = '<span class="badge bg-success-subtle text-success" >Administrator</span>';
                     }
-                    if ($role->name == 'project_manager') {
+                   else if ($role->name == 'project_manager') {
                         $role->name = '<span class="badge bg-success-subtle text-success" >Project Manager</span>';
                     }
-                    if ($role->name == 'staff') {
+                  else  if ($role->name == 'staff') {
                         $role->name = '<span class="badge bg-warning-subtle text-warning" >Staff</span>';
                     }
-
+                  else  if ($role->name == 'enumerator') {
+                        $role->name = '<span class="badge bg-dark-subtle text-dark" >' . $role->name . '</span>';
+                    }else {
+                        $role->name = '<span class="badge bg-danger-subtle text-danger" >' . $role->name . '</span>';
+                    }
 
                     return $role;
                 })->pluck('name');

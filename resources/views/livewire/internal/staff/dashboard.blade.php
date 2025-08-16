@@ -4,19 +4,7 @@
     @endsection
 
 
-    <div class="container-fluid" x-data="{
-        dashboardOneShow: true,
-        dashboardTwoShow: false,
-        toggleDashboard(value) {
-            if (value == 1) {
-                this.dashboardOneShow = true;
-                this.dashboardTwoShow = false;
-            } else if (value == 2) {
-                this.dashboardOneShow = false;
-                this.dashboardTwoShow = true;
-            }
-        }
-    }" @change-dashboard.window="toggleDashboard($event.detail.value)">
+    <div class="container-fluid" >
 
         @include('layouts.dashboard-layout')
 
@@ -37,16 +25,8 @@
                 </div>
             </div>
         @endif
-        <div x-show="dashboardOneShow" x-transition.duration.500ms>
+
             <livewire:dashboard-charts />
-
-
-        </div>
-
-
-        <div x-show="dashboardTwoShow" x-transition.duration.500ms>
-            <livewire:dashboard-2-charts />
-        </div>
 
 
 

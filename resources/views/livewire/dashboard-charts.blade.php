@@ -15,12 +15,12 @@
             <div class="col ">
 
                 <div class="d-flex justify-content-end" wire:ignore x-data="{
-visible: true,
+                    visible: true,
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
 
                     changeYear(data) {
-                      this.visible = false;
+                        this.visible = false;
                         $wire.dispatch('updateReportYear', {
                             id: data.id,
                         });
@@ -29,15 +29,15 @@ visible: true,
 
 
 
-                            setTimeout(() => {
-                                this.visible = true
-                            }, 5000)
+                        setTimeout(() => {
+                            this.visible = true
+                        }, 5000)
                     },
 
                 }">
                     <div class="dropdown card-header-dropdown" :class="{ 'opacity-25 pe-none': visible === false }">
-                        <a class="shadow-none dropdown-btn btn btn-warning " href="#"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="shadow-none dropdown-btn btn btn-warning " href="#" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="bx bx-filter me-5 fw-bold"></i> <span> <span id='report_year'
                                     x-text="'Year ' + selectedReportYear"></span> <i
                                     class="mdi mdi-chevron-down ms-1"></i></span>
@@ -82,7 +82,7 @@ visible: true,
 
             @hasanyrole('admin')
                 <div>
-                    <div class="row">
+                    <div class="mt-2 row">
                         <div class="col-12">
                             <div class="card">
                                 <div class="py-3 border-0 card-header fw-bold">
@@ -93,75 +93,58 @@ visible: true,
                                 </div>
                                 <div class="card-body" x-data="{
                                     init() {
+                                        let chartData = @js($submissions); // Data from backend
+                                        let categories = []; // Will hold month-year labels
+                                        let serieArray = {}; // { batch: [], manual: [], aggregate: [] }
 
-                                        let chartData = @js($submissions); // Data from the backend
-                                        const months = [
-                                            'January', 'February', 'March', 'April', 'May', 'June',
-                                            'July', 'August', 'September', 'October', 'November', 'December'
-                                        ];
-                                        let seriesData = [];
-                                        const serieArray = {};
+                                        // Sort data by year & month to keep chart in order
+                                        chartData.sort((a, b) => (a.year - b.year) || (a.month - b.month));
 
-                                        // Process chartData
+                                        // Create unique month-year keys
                                         chartData.forEach((item) => {
-                                            // Initialize the type array if not already initialized
-                                            if (!serieArray[item.type]) {
-                                                serieArray[item.type] = Array(months.length).fill(0);
-                                            }
+                                            const monthName = new Date(item.year, item.month - 1).toLocaleString('default', { month: 'long' });
+                                            const monthYear = `${monthName} ${item.year}`;
 
-                                            // Find the correct index for the month (1-indexed to 0-indexed)
-                                            const monthIndex = item.month - 1;
-
-                                            // Update the total for the specific type and month
-                                            if (monthIndex >= 0 && monthIndex < months.length) {
-                                                serieArray[item.type][monthIndex] += item.total; // Sum totals for the same type and month
+                                            // Add category if not already in list
+                                            if (!categories.includes(monthYear)) {
+                                                categories.push(monthYear);
                                             }
                                         });
 
-                                        // Destructure series data
+
+
+                                        // Initialize serieArray for each type
+                                        const types = [...new Set(chartData.map(i => i.type))];
+                                        types.forEach(type => {
+                                            serieArray[type] = Array(categories.length).fill(0);
+                                        });
+
+                                        // Fill serieArray with totals
+                                        chartData.forEach((item) => {
+                                            const monthName = new Date(item.year, item.month - 1).toLocaleString('default', { month: 'long' });
+                                            const monthYear = `${monthName} ${item.year}`;
+                                            const index = categories.indexOf(monthYear);
+                                            serieArray[item.type][index] += item.total;
+                                        });
+
+                                        // Extract data
                                         const { batch = [], manual = [], aggregate = [] } = serieArray;
 
-                                        // Output the series data for debugging
-
-
-
-
-
-
-                                        options = {
+                                        // ApexCharts options
+                                        let options = {
                                             chart: {
                                                 type: 'area',
                                                 height: '400px'
                                             },
-                                            series: [{
-                                                    name: 'Batch Submission',
-                                                    data: batch
-                                                },
-                                                {
-                                                    name: 'Manual Submission',
-                                                    data: manual
-                                                },
-                                                {
-                                                    name: 'Aggregate Submission',
-                                                    data: aggregate
-                                                },
-
+                                            series: [
+                                                { name: 'Batch Submission', data: batch },
+                                                { name: 'Manual Submission', data: manual },
+                                                { name: 'Aggregate Submission', data: aggregate },
                                             ],
-                                            dataLabels: {
-                                                enabled: false
-                                            },
-                                            stroke: {
-                                                curve: 'smooth'
-                                            },
-                                            xaxis: {
-                                                categories: months
-                                            },
+                                            dataLabels: { enabled: false },
+                                            stroke: { curve: 'smooth' },
+                                            xaxis: { categories: categories },
                                             colors: ['#FC931D', '#FA7070', '#DE8F5F'],
-                                            tooltip: {
-                                                x: {
-                                                    format: 'dd/MM/yy'
-                                                },
-                                            },
                                         };
 
                                         let chart = new ApexCharts($refs.chart, options);
@@ -171,6 +154,7 @@ visible: true,
 
                                     <div x-ref="chart"></div>
                                 </div>
+
                             </div>
                         </div>
 
@@ -200,7 +184,7 @@ visible: true,
                                 <div class="p-0 overflow-scroll card-body">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-striped table-hover table-borderless">
-                                            <thead class="table-warning">
+                                            <thead class="table-secondary">
 
                                                 <tr>
                                                     <th>Username</th>
@@ -248,19 +232,27 @@ visible: true,
                         <div class="col-12 col-xl-5 d-flex align-items-stretch">
                             <div class="card w-100">
                                 <div class="card-header fw-bold">
-                                    <h5>Recent Submissions</h5>
-                                    <span class="text-muted small">
-                                        Latest submissions with details.
-                                    </span>
+                                    <div class="align-items-center d-flex justify-content-between">
+                                        <div>
+                                            <h5>Recent Submissions</h5>
+                                            <span class="text-muted small">
+                                                Latest submissions with details.
+                                            </span>
+                                        </div>
+
+                                        <a class="btn btn-warning" href="/admin/submissions" role="button"> View More <i
+                                                class="bx bx-right-arrow-alt"></i></a>
+                                    </div>
+
                                 </div>
                                 <div class="p-0 card-body">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-striped table-hover table-borderless">
-                                            <thead class="table-warning">
+                                            <thead class="table-secondary">
                                                 <tr>
-                                                    <th scope="col">User</th>
                                                     <th scope="col">Form</th>
-                                                    <th scope="col">Organisation</th>
+                                                    <th scope="col">Partner</th>
+                                                    <th scope="col">User</th>
 
                                                     <th scope="col">Date</th>
                                                 </tr>

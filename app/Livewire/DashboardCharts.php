@@ -181,6 +181,7 @@ public $indicatorData = [];
             ->groupBy('year', 'month', 'batch_type')
             ->get()
             ->toArray();
+
     }
 
     private function loadSubmissions()
@@ -195,7 +196,7 @@ public $indicatorData = [];
     private function  loadLastSubmissions()
     {
 
-        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(5)->get();
+        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(5)->orderBy('created_at', 'desc')->get();
     }
 
     private function loadAttendanceData()

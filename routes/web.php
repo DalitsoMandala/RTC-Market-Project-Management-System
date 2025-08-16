@@ -102,8 +102,8 @@ Route::middleware([
 
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
-       Route::get('/dashboard-2', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard-2');
-          Route::get('/dashboard-3', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard-3');
+       Route::get('/dashboard-2', \App\Livewire\Admin\Dashboard2::class)->name('admin-dashboard-2');
+          Route::get('/dashboard-3', \App\Livewire\Admin\Dashboard3::class)->name('admin-dashboard-3');
     Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('admin-users');
     Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('admin-setup');
     Route::get('/cgiar-projects', \App\Livewire\Admin\Data\CgiarProjects::class)->name('admin-cgiar-projects');
@@ -141,6 +141,8 @@ Route::middleware([
     'check_baseline'
 ])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-dashboard');
+           Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('admin-dashboard-2');
+          Route::get('/dashboard-3', \App\Livewire\Internal\Manager\Dashboard3::class)->name('admin-dashboard-3');
     Route::get('/indicators', Indicators::class)->name('cip-indicators');
     Route::get('/indicators/view/{id}', ViewIndicators::class)->where('id', '[0-9]+')->name('cip-indicator-view');
     Route::get('/forms', Forms::class)->name('cip-forms');
@@ -168,6 +170,8 @@ Route::middleware([
 
 ])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
+    Route::get('/dashboard-2', \App\Livewire\Internal\Staff\Dashboard2::class)->name('cip-staff-dashboard-2');
+    Route::get('/dashboard-3', \App\Livewire\Internal\Staff\Dashboard3::class)->name('cip-staff-dashboard-3');
     Route::get('/indicators', \App\Livewire\Internal\Staff\Indicators::class)->name('cip-staff-indicators');
     Route::get('/indicators/view/{id}', \App\Livewire\Internal\Staff\ViewIndicators::class)->where('id', '[0-9]+')->name('cip-staff-indicator-view');
     Route::get('/forms', \App\Livewire\Internal\Staff\Forms::class)->name('cip-staff-forms');
@@ -188,6 +192,8 @@ Route::middleware([
 
 ])->prefix('cip/project-manager')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project_manager-dashboard');
+   Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('project_manager-dashboard-2');
+    Route::get('/dashboard-3', \App\Livewire\Internal\Manager\Dashboard3::class)->name('project_manager-dashboard-3');
     Route::get('/indicators', \App\Livewire\Internal\Manager\Indicators::class)->name('project_manager-indicators');
     Route::get('/indicators/view/{id}', \App\Livewire\Internal\Manager\ViewIndicator::class)->where('id', '[0-9]+')->name('project_manager-indicator-view');
     Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');

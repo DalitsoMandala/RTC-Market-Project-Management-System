@@ -42,7 +42,7 @@
 
             {{-- URL contains /dashboard --}}
 
-            @hasanyrole('admin|manager|project_manager')
+            @hasanyrole('admin|manager|project_manager|staff')
                 <!-- Right side: Dashboard links -->
                 <ul class="nav align-items-center topbar-nav" x-data="{
                     role: '{{ Auth::user()->getRoleNames()->first() }}',
@@ -60,52 +60,48 @@
 
                 }">
 
+                    @php
+                        $routePrefix = trim(\Illuminate\Support\Facades\Route::current()->getPrefix(), '/');
+                    @endphp
+
                     <li class="nav-item">
-                        <a href="#dashboard-1" id="dashboard-one" @change-dashboard.window="makeActive($event.detail.value)"
-                            @click="$dispatch('change-dashboard', { value: 1 });" class="px-3 active nav-link text-light">
+                        <a href="{{ url('/') }}" id="dashboard-one"
+                            class="px-3 nav-link text-light {{ request()->is($routePrefix.'/dashboard') ? 'active' : '' }}">
                             Project Report
                         </a>
                     </li>
+
                     <li class="mx-2 nav-item text-light">|</li>
+
                     <li class="nav-item">
-                        <a href="#dashboard-2" id="dashboard-two" @change-dashboard.window="makeActive($event.detail.value)"
-                            @click="$dispatch('change-dashboard', { value: 2 })" class="px-3 nav-link text-light ">Market
-                            Data
+                        <a href="{{ url($routePrefix . '/dashboard-2') }}" id="dashboard-two"
+                            class="px-3 nav-link text-light {{ request()->is($routePrefix . '/dashboard-2') ? 'active' : '' }}">
+                            Market Data
                         </a>
                     </li>
+
+                    <li class="mx-2 nav-item text-light">|</li>
+
+                    <li class="nav-item">
+                        <a href="{{ url($routePrefix . '/dashboard-3') }}" id="dashboard-three"
+                            class="px-3 nav-link text-light {{ request()->is($routePrefix . '/dashboard-3') ? 'active' : '' }}">
+                            Gross Margins
+                        </a>
+                    </li>
+
                 </ul>
             @endhasanyrole
 
             @hasanyrole('enumerator')
                 <!-- Right side: Dashboard links -->
-                <ul class="nav align-items-center topbar-nav" x-data="{
-
-                    makeActive(value) {
-
-                            if (value == 1) {
-                                document.getElementById('dashboard-one').classList.add('active');
-                                document.getElementById('dashboard-two').classList.remove('active');
-                            } else if (value == 2) {
-                                document.getElementById('dashboard-one').classList.remove('active');
-                                document.getElementById('dashboard-two').classList.add('active');
-                            }
-                        },
-
-                }">
+                <ul class="nav align-items-center topbar-nav">
 
                     <li class="nav-item">
-                        <a href="#dashboard-1" id="dashboard-one" @change-dashboard.window="makeActive($event.detail.value)"
-                            @click="$dispatch('change-dashboard', { value: 1 });" class="px-3 nav-link text-light disabled">
+                        <a href="/" id="dashboard-one" class="px-3 nav-link text-light disabled">
                             Project Report
                         </a>
                     </li>
-                    <li class="mx-2 nav-item text-light">|</li>
-                    <li class="nav-item">
-                        <a href="#dashboard-2" id="dashboard-two" @change-dashboard.window="makeActive($event.detail.value)"
-                            @click="$dispatch('change-dashboard', { value: 2 })"
-                            class="px-3 active nav-link text-light ">Market Data
-                        </a>
-                    </li>
+
                 </ul>
             @endhasanyrole
 

@@ -48,13 +48,13 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
 
                         <div>
-                            <button class="px-3 btn btn-warning" :disabled="showUploadForm"
-                                @click="showForm= !showForm; resetForm()">Add new
-                                user
-                                <i class="bx bx-plus"></i></button>
-                            <button class="px-3 btn btn-warning" :disabled="showForm"
-                                @click="showUploadForm= !showUploadForm;">Upload
-                                new users
+                            <button class="px-3 btn" :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }" :disabled="showUploadForm"
+                                @click="showForm= !showForm; resetForm()">
+                                <span x-show="showForm">Cancel <i class="bx bx-x"></i></span> <span x-show="!showForm">Add New User             <i class="bx bx-plus"></i></span></span>
+                    </button>
+                            <button class="px-3 btn" :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }" :disabled="showForm"
+                                @click="showUploadForm= !showUploadForm;">
+                                <span x-show="showUploadForm">Cancel <i class="bx bx-x"></i></span><span x-show="!showUploadForm">Upload
                                 <i class="bx bx-upload"></i></button>
                         </div>
                     </div>
@@ -335,7 +335,7 @@
                 uploading: false,
                 downloadTemplate() {
                     const templateData = [
-                        ['email', 'name', 'organisation', 'role', 'active'], // Header row
+                        ['email', 'name', 'organisation', 'role'], // Header row
                         //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
                         //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
                     ];

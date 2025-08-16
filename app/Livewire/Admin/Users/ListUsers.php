@@ -17,11 +17,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\NewUserNotification;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\WithFileUploads;
 
 class ListUsers extends Component
 {
     use LivewireAlert;
-
+use WithFileUploads;
     public $name;
     public $email;
     public $phone;
