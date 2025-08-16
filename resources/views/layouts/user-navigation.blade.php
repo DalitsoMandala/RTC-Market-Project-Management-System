@@ -41,7 +41,9 @@
 
 
             {{-- URL contains /dashboard --}}
-
+    @php
+                        $routePrefix = trim(\Illuminate\Support\Facades\Route::current()->getPrefix(), '/');
+                    @endphp
             @hasanyrole('admin|manager|project_manager|staff')
                 <!-- Right side: Dashboard links -->
                 <ul class="nav align-items-center topbar-nav" x-data="{
@@ -60,9 +62,7 @@
 
                 }">
 
-                    @php
-                        $routePrefix = trim(\Illuminate\Support\Facades\Route::current()->getPrefix(), '/');
-                    @endphp
+
 
                     <li class="nav-item">
                         <a href="{{ url('/') }}" id="dashboard-one"
@@ -97,7 +97,7 @@
                 <ul class="nav align-items-center topbar-nav">
 
                     <li class="nav-item">
-                        <a href="/" id="dashboard-one" class="px-3 nav-link text-light disabled">
+                        <a href="/" id="dashboard-one" class="px-3 nav-link text-light {{ request()->is($routePrefix . '/dashboard') ? 'active' : ''  }} ">
                             Project Report
                         </a>
                     </li>

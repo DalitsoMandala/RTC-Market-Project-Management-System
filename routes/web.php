@@ -177,6 +177,11 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Internal\Staff\Forms::class)->name('cip-staff-forms');
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Staff\Submissions::class)->name('cip-staff-submissions');
     Route::get('/targets', App\Livewire\Targets\View::class);
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('staff-markets-manage-data');
+    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('staff-markets-submit-data');
+      Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('staff-gross-margin-manage-data');
+    Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('staff-gross-margin-add-data');
+    Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('staff-gross-margin-upload-data');
 
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
