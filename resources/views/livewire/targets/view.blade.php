@@ -26,31 +26,22 @@
         <!-- end page title -->
         <div class="row">
             <div class="col-12">
-                <div class="card ">
-                    <div class="card-header">
-                        <h5 class="card-title">Targets Table</h5>
-                    </div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a href="{{ $routePrefix }}/targets" class="nav-link active">View Targets</a>
+                    </li>
 
-                    <div class="px-0 card-body">
-                        <ul class="mx-1 my-2 nav nav-tabs">
-                            <li class="nav-item">
-                                <a href="{{ $routePrefix }}/reports" class="nav-link "
-                                    aria-current="page">Reporting</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Standard
-                                    Targets</a>
-                            </li>
+                    <li class="nav-item">
+                        <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Set Targets</a>
+                    </li>
 
-                            <li class="nav-item">
-                                <a href="{{ $routePrefix }}/targets" class="nav-link active">Targets</a>
-                            </li>
-
-                        </ul>
-
-                        <livewire:targets.target-table />
+                </ul>
+                <div class="card">
+                    <div class="card-body">
+                        <livewire:targets.target-table  />
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

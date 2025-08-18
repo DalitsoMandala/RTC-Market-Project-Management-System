@@ -1,9 +1,12 @@
 @include('layouts.user-navigation')
 
+<div class="d-none">
 @include('layouts.other-navs')
+</div>
 
 
-<header id="page-topbar" class="ishorizontal-topbar">
+
+<header id="page-topbar" class="ishorizontal-topbar border-top">
     <div class="navbar-header">
         <div class="d-flex">
             <!-- LOGO -->
@@ -141,6 +144,8 @@
                                                     data-key="t-range-slider">Submission Periods</a>
                                                 <a href="{{ route('admin-reports') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reports</a>
+                                                <a href="{{ route('admin-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Project Targets</a>
 
                                             </div>
                                         </div>
@@ -439,7 +444,7 @@
 
                                         </a>
 
- <div class="dropdown">
+                                        <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
                                                 <span data-key="t-extendeds">Marketing Management</span>
@@ -464,11 +469,12 @@
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('staff-gross-margin-manage-data') }}"
                                                     class="dropdown-item" data-key="t-lightbox">Manage Data</a>
-                                                <a href="{{ route('staff-gross-margin-add-data') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Gross Data Submission</a>
+                                                <a href="{{ route('staff-gross-margin-add-data') }}"
+                                                    class="dropdown-item" data-key="t-range-slider">Gross Data
+                                                    Submission</a>
 
 
-                                    </div>
+                                            </div>
                                 </li>
 
                                 <li class="nav-item">
@@ -543,7 +549,7 @@
                                         </div>
 
 
-                                                      <div class="dropdown">
+                                        <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
                                                 <span data-key="t-extendeds">Gross Management</span>

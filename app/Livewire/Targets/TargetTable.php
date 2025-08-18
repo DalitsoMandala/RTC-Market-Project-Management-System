@@ -3,6 +3,7 @@
 namespace App\Livewire\targets;
 
 use App\Models\User;
+use Illuminate\Support\Str;
 use App\Models\SystemReport;
 use Illuminate\Support\Carbon;
 use App\Models\SystemReportData;
@@ -82,7 +83,7 @@ final class TargetTable extends PowerGridComponent
             })
             ->add('indicator', function ($model) {
 
-                return $model->submissionTarget->indicator->indicator_name;
+                return Str::limit($model->submissionTarget->indicator->indicator_name,50);
             })
 
             ->add('financial_year', function ($model) {
@@ -107,9 +108,12 @@ final class TargetTable extends PowerGridComponent
 
 
                 $data = $this->calculateRow($model);
-                $setTarget = $model->submissionTarget->target_value;
+
+                $setTarget = $model->value;
+
+
                 // dd($data, $setTarget);
-                $progress = ($data / $setTarget) * 100;
+                $progress = $setTarget == 0 ? 0 : round(($data / $setTarget) * 100);
                 $progressColor = match (true) {
                     $progress >= 0 && $progress <= 49 => 'bg-danger',
                     $progress >= 50 && $progress <= 99 => 'bg-warning',
@@ -117,9 +121,7 @@ final class TargetTable extends PowerGridComponent
                     default => 'bg-success', // Fallback for unexpected values
                 };
 
-                if ($setTarget == 0) {
-                    return '<span class="badge bg-warning">Not available!</span>';
-                }
+
 
 
 
@@ -147,7 +149,7 @@ final class TargetTable extends PowerGridComponent
             Column::make('Id', 'id'),
 
             Column::make('Organisation', 'organisation'),
-            Column::make('Indicator', 'indicator'),
+            Column::make('Indicator', 'indicator')->bodyAttribute(styleAttr:'max-width:200px; white-space: wrap;'),
 
 
             Column::make('Project year', 'financial_year'),
