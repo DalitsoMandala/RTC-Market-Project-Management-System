@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('gross_margin_details', function (Blueprint $table) {
-            //
-$table->string('season_dates')->nullable()->after('season');
+        Schema::create('gross_margin_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -22,9 +23,6 @@ $table->string('season_dates')->nullable()->after('season');
      */
     public function down(): void
     {
-        Schema::table('margin', function (Blueprint $table) {
-            //
-            $table->dropColumn('season_dates');
-        });
+        Schema::dropIfExists('gross_margin_categories');
     }
 };

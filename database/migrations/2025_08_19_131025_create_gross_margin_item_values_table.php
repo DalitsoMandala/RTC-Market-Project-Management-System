@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gross_margin_data', function (Blueprint $table) {
+        Schema::create('gross_margin_item_values', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gross_margin_detail_id')->constrained('gross_margin_details', 'id')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->string('item_name')->nullable();
-            $table->string('description')->nullable();
+            $table->foreignId('gross_margin_id')->constrained('gross_margins', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('gross_margin_category_item_id')->constrained('gross_margin_category_items', 'id')->onDelete('cascade')->onUpdate('cascade');
             $table->decimal('qty', 12, 2)->default(0);
             $table->decimal('unit_price', 14, 2)->default(0);
             $table->decimal('total', 16, 2)->default(0);
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gross_margin_data');
+        Schema::dropIfExists('gross_margin_item_values');
     }
 };

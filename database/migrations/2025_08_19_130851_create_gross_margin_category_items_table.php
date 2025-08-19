@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gross_margins', function (Blueprint $table) {
+        Schema::create('gross_margin_category_items', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
-            $table->string('enterprise');
+            $table->foreignId('gross_margin_category_id')->constrained('gross_margin_categories', 'id')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('item_name');
+             $table->string('unit');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gross_margins');
+        Schema::dropIfExists('gross_margin_category_items');
     }
 };
