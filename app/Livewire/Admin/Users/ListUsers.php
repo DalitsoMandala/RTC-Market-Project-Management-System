@@ -214,7 +214,7 @@ use WithFileUploads;
 
                 $addedUser = User::create([
                     'name' => $user['name'],
-                    'email' => $user['email'],
+                    'email' => strtolower(trim($user['email'])),
                     'phone_number' => '+9999999999',
                     'organisation_id' =>  $organisation->id,
                     'password' => Hash::make($password),
@@ -247,7 +247,7 @@ use WithFileUploads;
                 if ($this->changePassword) {
                     User::find($this->rowId)->update([
                         'name' => $this->name,
-                        'email' => $this->email,
+                        'email' => strtolower(trim($this->email)),
                         'phone_number' => $this->phone,
                         'organisation_id' => $organisationId,
                         'password' => Hash::make($this->password),
@@ -255,7 +255,7 @@ use WithFileUploads;
                 }
                 User::find($this->rowId)->update([
                     'name' => $this->name,
-                    'email' => $this->email,
+                    'email' => strtolower(trim($this->email)),
                     'phone_number' => $this->phone,
                     'organisation_id' => $organisationId,
 
@@ -274,7 +274,7 @@ use WithFileUploads;
 
                 $user = User::create([
                     'name' => $this->name,
-                    'email' => $this->email,
+                    'email' => strtolower(trim($this->email)),
                     'phone_number' => $this->phone,
                     'organisation_id' => $organisationId,
                     'password' => Hash::make($this->password),
@@ -284,7 +284,7 @@ use WithFileUploads;
 
                 $this->dispatch('refresh');
                 session()->flash('success', 'User successfully added!');
-                $user->notify(new NewUserNotification($this->email, $this->password, $this->role));
+                $user->notify(new NewUserNotification(strtolower(trim($this->email)), $this->password, $this->role));
                 $this->resetForm();
             }
 

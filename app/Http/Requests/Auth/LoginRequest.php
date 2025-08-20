@@ -62,7 +62,7 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
         $arr = $this->only('email', 'password');
-        $email = $arr['email'];
+        $email = strtolower(trim($arr['email']));
         $password = $arr['password'];
 
         $user = User::where(function ($user) use ($email, $password) {
