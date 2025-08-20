@@ -2,9 +2,13 @@
 
 namespace App\Livewire\Admin\System;
 
+use Ramsey\Uuid\Uuid;
 use Livewire\Component;
 use Livewire\Attributes\On;
+
 use App\Models\SystemDetail;
+use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Event\Telemetry\System;
@@ -22,6 +26,7 @@ class Setup extends Component
     public $maintenance_mode = false;
     public $maintenance_message;
     public $confirmingMaintenanceMode = false;
+    public $secretKey;
 
     protected function rules()
     {
@@ -50,11 +55,19 @@ class Setup extends Component
                 'maintenance_mode' => $this->maintenance_mode,
                 'maintenance_message' => $this->maintenance_message,
             ]);
+            $this->dispatch('hideModal');
 
-            session()->flash('success', 'Maintenance mode updated successfully.');
+
+            if ($this->maintenance_mode) {
+                Artisan::call('down' . ' --secret=' . $this->secretKey);
+                $user = User::find(auth()->user()->id);
+                $user->notify(new \App\Notifications\MaintenanceNotification($this->secretKey));
+                session()->flash('success', 'Maintenance mode enabled successfully.');
+            } else {
+                Artisan::call('up');
+                session()->flash('success', 'Maintenance mode disabled successfully.');
+            }
         }
-
-        $this->confirmingMaintenanceMode = false;
     }
     public function save()
     {
@@ -70,8 +83,7 @@ class Setup extends Component
                     'website' => $this->website,
                     'phone' => $this->phone,
                     'email' => $this->email,
-                    'maintenance_mode' => $this->maintenance_mode,
-                    'maintenance_message' => $this->maintenance_message,
+
                 ]
             );
 
@@ -82,7 +94,6 @@ class Setup extends Component
             Log::error($th);
             session()->flash('error', 'An error occurred while updating the system details.');
         }
-
     }
 
     public function mount()
@@ -97,6 +108,7 @@ class Setup extends Component
             $this->email = $systemDetail->email;
             $this->maintenance_mode = $systemDetail->maintenance_mode;
             $this->maintenance_message = $systemDetail->maintenance_message;
+            $this->secretKey = Uuid::uuid4()->toString();
         }
     }
 

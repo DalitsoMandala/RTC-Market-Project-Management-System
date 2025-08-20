@@ -7,6 +7,7 @@ use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\Organisation;
+use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Validate;
@@ -16,8 +17,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\NewUserNotification;
+use App\Notifications\BulkEmailNotification;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use Livewire\WithFileUploads;
 
 class ListUsers extends Component
 {
@@ -37,6 +38,10 @@ use WithFileUploads;
     public $changePassword = false;
     public $disableValue;
     public $disableAll = false;
+       public $subject;
+    public $message;
+    public $excludedRoles = [];
+    public $allRoles = [];
     public function rules()
     {
         $rules = [
@@ -68,6 +73,7 @@ use WithFileUploads;
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::all()->toArray();
+          $this->allRoles = Role::pluck('name')->toArray();
     }
 
     #[On('edit')]
@@ -87,35 +93,29 @@ use WithFileUploads;
         $role = $user->roles[0]->name;
         $this->dispatch('update-org', role: $role, organisation: $user->organisation->id);
     }
+public function sendEmails()
+    {
+        $this->validate([
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $users = User::
+            whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', $this->excludedRoles);
+            })
+            ->get();
+
+        foreach ($users as $user) {
+
+            $user->notify(new BulkEmailNotification($this->subject, $this->message));
+        }
 
 
-    // public function changeOrg($role){
+        session()->flash('success', 'Notifications sent successfully to ' . $users->count() . ' users.');
 
 
-    //     if ($role === 'external') {
-    //         $this->organisations = Organisation::whereNotIn('name',  ['CIP'])->get();
-    //     } else {
-    //         $this->organisations = Organisation::whereIn('name', ['CIP'])->get();
-    //     }
-
-
-
-    //}
-    // public function updated($property, $value)
-    // {
-
-    //     if ($property === 'role') {
-    //         $role = $value;
-
-    //         if ($role === 'external') {
-    //             $this->organisations = [];
-    //             $this->organisations = Organisation::whereNotIn('name',  ['CIP'])->get()->toArray();
-    //         } else {
-    //             $this->organisations = [];
-    //             $this->organisations = Organisation::whereIn('name', ['CIP'])->get()->toArray();
-    //         }
-    //     }
-    // }
+    }
 
     #[On('showModal-delete')]
     public function delete($rowId)
@@ -296,6 +296,8 @@ use WithFileUploads;
             throw $th;
         }
     }
+
+
 
 
     public function render()

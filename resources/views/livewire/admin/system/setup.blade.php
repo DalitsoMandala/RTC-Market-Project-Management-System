@@ -86,26 +86,36 @@
 
 
                 <!-- Maintenance Mode Card -->
-                <div class="mb-4 opacity-25 card pe-none">
+                <div class="mb-4 card col-5">
                     <div class="card-header">
                         <h5>Maintenance Mode</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3 form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="maintenance_mode"
+
+                        <div class="mb-3 form-check form-switch" x-data="{ maintenance_mode: $wire.entangle('maintenance_mode') }">
+                            <input class="form-check-input" type="checkbox" id="maintenance_mode" :checked="maintenance_mode"
                                 wire:model.live.debounce.600ms="maintenance_mode">
                             <label class="form-check-label" for="maintenance_mode">Enable Maintenance Mode</label>
                         </div>
 
-                        <!-- Maintenance Message -->
-                        <div class="mb-3">
-                            <label for="maintenance_message" class="form-label">Maintenance Mode Message</label>
-                            <textarea class="form-control" id="maintenance_message" wire:model="maintenance_message"></textarea>
-                            @error('maintenance_message')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        <div class=" form-icon right" x-data="{ tooltip: 'Copy to clipboard',
+                        tooltipIcon: 'bx-copy',
+                        secretKey: $wire.entangle('secretKey'),
+                        toggleTooltip() {
+                        this.tooltip = this.tooltip === 'Copy to clipboard' ? 'Copied!' : 'Copy to clipboard';
+                        this.tooltipIcon = this.tooltipIcon === 'bx-copy' ? 'bx-check' : 'bx-copy';
+                        setTimeout(() => {
+                            this.tooltip = 'Copy to clipboard';
+                            this.tooltipIcon = 'bx-copy';
+                        }, 1500);
+                        }
+                        }">
+                            <input type="text" readonly class="form-control form-control-icon" id="iconrightInput"
+                                placeholder="Secret Key" wire:model="secretKey">
+                            <i class="p-0 cursor-pointer bx btn custom-tooltip text-warning" :class="tooltipIcon" @click="toggleTooltip" :title="tooltip"></i>
 
+                        </div>
+  <small class="mt-1 mb-3 text-muted d-block">Use this secret key to bypass Maintenance Mode</small>
                         <button class="btn btn-warning" data-bs-toggle="modal"
                             data-bs-target="#confirmingMaintenanceMode">Confirm</button>
                     </div>
@@ -129,7 +139,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-warning" wire:click="toggleMaintenanceMode">Yes,
+                                <button type="button" class="btn btn-warning" wire:click="saveMaintananceMode">Yes,
                                     Proceed</button>
                             </div>
                         </div>
@@ -141,7 +151,24 @@
             </div>
         </div>
 
+<div x-data x-init="     $wire.on('hideModal', (e) => {
+            const modals = document.querySelectorAll('.modal.show');
 
+            // Iterate over each modal and hide it using Bootstrap's modal hide method
+            modals.forEach(modal => {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    })
+
+        })">
+
+</div>
 
         {{-- <div x-data x-init="$wire.on('showModal', (e) => {
 

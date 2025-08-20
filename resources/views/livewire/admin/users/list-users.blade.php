@@ -48,14 +48,17 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
 
                         <div>
-                            <button class="px-3 btn" :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }" :disabled="showUploadForm"
-                                @click="showForm= !showForm; resetForm()">
-                                <span x-show="showForm">Cancel <i class="bx bx-x"></i></span> <span x-show="!showForm">Add New User             <i class="bx bx-plus"></i></span></span>
-                    </button>
-                            <button class="px-3 btn" :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }" :disabled="showForm"
-                                @click="showUploadForm= !showUploadForm;">
-                                <span x-show="showUploadForm">Cancel <i class="bx bx-x"></i></span><span x-show="!showUploadForm">Upload
-                                <i class="bx bx-upload"></i></button>
+                            <button class="px-3 btn" :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }"
+                                :disabled="showUploadForm" @click="showForm= !showForm; resetForm()">
+                                <span x-show="showForm">Cancel <i class="bx bx-x"></i></span> <span
+                                    x-show="!showForm">Add New User <i class="bx bx-plus"></i></span></span>
+                            </button>
+                            <button class="px-3 btn"
+                                :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }"
+                                :disabled="showForm" @click="showUploadForm= !showUploadForm;">
+                                <span x-show="showUploadForm">Cancel <i class="bx bx-x"></i></span><span
+                                    x-show="!showUploadForm">Upload
+                                    <i class="bx bx-upload"></i></button>
                         </div>
                     </div>
 
@@ -316,13 +319,95 @@
 
         </div>
 
+        <div class="row">
+            <div class="col-12">
+                <div>
+                    <x-tab-component>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
+                                data-bs-target="#normal" type="button" role="tab" aria-controls="home"
+                                aria-selected="true">
+                                Send Emails
+                            </button>
+                        </li>
+                    </x-tab-component>
+                    <div class=" card">
+
+                        <div class="card-body">
+                            @if (session()->has('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+
+                            <form wire:submit="sendEmails">
+                                <div class="mb-3">
+                                    <label class="form-label">Subject</label>
+                                    <input type="text" wire:model="subject" class="form-control @error('subject') is-invalid @enderror"
+                                        placeholder="Enter email subject">
+                                    @error('subject')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3" wire:ignore>
+                                    <label class="form-label">Message</label>
+                                <div id="editor" style="height: 250px;"></div>
+                                </div>
+                                @error('message')
+                                    <x-error >{{ $message }}</x-error>
+                                @enderror
+                                <div class="mb-3">
+                                    <label class="form-label">Exclude Roles</label>
+                                    <div class="flex-wrap gap-3 d-flex">
+                                        @foreach ($allRoles as $role)
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    wire:model="excludedRoles" value="{{ $role }}">
+                                                <label class="form-check-label">
+                                                    {{ ucfirst($role) }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="px-4 btn btn-warning">Send
+                                        Emails</button>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
+
 
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    @endpush
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+ @endpush
     @script
         <script>
+       const  quill = new Quill('#editor', {
+                theme: 'snow',
+                placeholder: 'Type your message...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                        ['link', 'blockquote', 'code-block']
+                    ]
+                }
+            });
+
+            quill.on('text-change', function(delta, oldDelta, source) {
+$wire.message = quill.root.innerHTML;
+            });
             $wire.on('edit', () => {
                 window.scrollTo({
                     top: 0,
