@@ -74,6 +74,9 @@ use WithFileUploads;
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::all()->toArray();
           $this->allRoles = Role::pluck('name')->toArray();
+          foreach ($this->allRoles as $role) {
+              $this->excludedRoles[] = $role;
+          }
     }
 
     #[On('edit')]
