@@ -3,17 +3,18 @@
 
 
 
+use App\Jobs\TestJob;
 use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\External\ViewIndicator;
+
 use App\Livewire\Internal\Cip\Dashboard;
 
 use App\Livewire\Internal\Cip\SubPeriod;
 
 use App\Helpers\MarketReportCalculations;
-
 use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
@@ -24,7 +25,10 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 Route::get('/', fn() => redirect()->route('login'));
 Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
 
-
+Route::get('/queue-test', function () {
+    TestJob::dispatch();
+    return 'Test job dispatched!';
+});
 Route::get('/logout', function () {
 
 

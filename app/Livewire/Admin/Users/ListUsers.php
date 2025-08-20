@@ -113,7 +113,7 @@ public function sendEmails()
 
 
         session()->flash('success', 'Notifications sent successfully to ' . $users->count() . ' users.');
-
+   $this->redirect(url()->previous());
 
     }
 
