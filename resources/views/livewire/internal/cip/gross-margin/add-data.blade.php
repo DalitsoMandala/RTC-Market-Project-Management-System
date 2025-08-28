@@ -39,7 +39,7 @@
             <div class="card-body">
                 <form wire:submit.prevent="save">
                     {{-- Gross Margin Title --}}
-
+<div class="row">
                     <div class="mb-3 col-md-12">
                         <label class="form-label">Name of Producer</label>
                         <input type="text" class="form-control @error('name_of_producer') is-invalid @enderror"
@@ -49,8 +49,7 @@
                         @enderror
                     </div>
 
-                    <div class="row">
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-4">
                             <label class="form-label d-block">Sex</label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input @error('sex') is-invalid @enderror" type="radio"
@@ -66,7 +65,7 @@
                                 <x-error>{{ $message }}</x-error>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-4">
                             <label class="form-label">Phone Number</label>
                             <input type="text" class="form-control @error('phone_number') is-invalid @enderror"
                                 wire:model="phone_number" oninput="this.value = this.value.toUpperCase()"
@@ -75,11 +74,9 @@
                                 <x-error>{{ $message }}</x-error>
                             @enderror
                         </div>
-                    </div>
 
-                    {{-- Farmer Metadata Section --}}
-                    <div class="row">
-                        <div class="mb-3 col-md-6">
+
+                        <div class="mb-3 col-md-4">
                             <label for="" class="form-label ">ENTERPRISE</label>
                             <div class="form-group">
 
@@ -101,7 +98,7 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-4">
                             <label for="date" class="form-label"> Date</label>
                             <input type="date" wire:model="date"
                                 class="form-control @error('date') is-invalid @enderror" id="date">
@@ -148,7 +145,7 @@
 
 
                         <div class="mb-3 col-md-4">
-                            <label class="form-label d-block">Season</label>
+                            <label class="mb-3 form-label d-block">Season</label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input @error('season') is-invalid @enderror" type="radio"
                                     id="Rainfed" value="Rainfed" wire:model="season">
@@ -213,8 +210,8 @@
                                 <x-error>{{ $message }}</x-error>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-12">
-                            <label class="form-label d-block">Type of Produce</label>
+                        <div class="mb-3 col-md-4">
+                            <label class="mb-3 form-label d-block">Type of Produce</label>
 
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input @error('type_of_produce') is-invalid @enderror"
@@ -241,9 +238,8 @@
                             @enderror
                         </div>
 
-                    </div>
 
-
+</div>
 
                     {{-- Item Table --}}
                     <div class="rounded table-responsive">
