@@ -8,9 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class GrossMargin extends Model
 {
     use HasFactory;
+    protected $guarded = [];
     public function items()
     {
         return $this->hasMany(GrossMarginItemValue::class, 'gross_margin_id');
+    }
+
+    public function varieties(){
+        return $this->hasMany(GrossMarginVariety::class,'gross_margin_id');
     }
     public function user()
     {

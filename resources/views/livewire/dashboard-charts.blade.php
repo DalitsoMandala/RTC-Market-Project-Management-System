@@ -181,9 +181,9 @@
                                     </div>
                                 </div>
 
-                                <div class="p-0 overflow-scroll card-body">
+                                <div class="overflow-scroll card-body">
                                     <div class="table-responsive">
-                                        <table class="table align-middle table-striped table-hover table-borderless">
+                                        <table class="table align-middle table-striped table-hover ">
                                             <thead class="table-secondary">
 
                                                 <tr>
@@ -197,7 +197,7 @@
 
                                                 @foreach ($users as $user)
                                                     <tr class="">
-                                                        <td scope="row">
+                                                        <td scope="row" class="py-4">
                                                             <div class="d-flex align-items-center">
                                                                 <img src="{{ $user->image == null ? asset('assets/images/users/usr.png') : asset('storage/profiles/' . $user->image) }}"
                                                                     class="avatar-sm rounded-circle " alt="...">
@@ -245,9 +245,9 @@
                                     </div>
 
                                 </div>
-                                <div class="p-0 card-body">
+                                <div class=" card-body">
                                     <div class="table-responsive">
-                                        <table class="table align-middle table-striped table-hover table-borderless">
+                                        <table class="table align-middle table-striped table-hover ">
                                             <thead class="table-secondary">
                                                 <tr>
                                                     <th scope="col">Form</th>
@@ -261,7 +261,7 @@
 
                                                 @foreach ($lastSubmission as $item)
                                                     <tr>
-                                                        <td scope="row">
+                                                        <td scope="row" class="py-4">
                                                             {{ $item->form->name }}
                                                         </td>
                                                         <td>{{ $item->user->organisation->name }}</td>

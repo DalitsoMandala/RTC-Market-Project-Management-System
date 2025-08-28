@@ -5,6 +5,7 @@ namespace App\Jobs;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\MarketData;
+use App\Models\GrossMargin;
 use App\Models\Recruitment;
 use App\Models\Organisation;
 use Illuminate\Bus\Batchable;
@@ -17,10 +18,12 @@ use App\Models\SeedBeneficiary;
 use App\Models\SystemReportData;
 use App\Models\GrossMarginDetail;
 use App\Models\AttendanceRegister;
+use App\Models\GrossMarginVariety;
 use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerDomMarket;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
+use App\Models\GrossMarginItemValue;
 use App\Models\RpmFarmerInterMarket;
 use App\Models\RpmProcessorDomMarket;
 use App\Models\FarmerSeedRegistration;
@@ -1462,9 +1465,9 @@ class ExcelExportJob implements ShouldQueue
                 // Define the headers
                 $headerFromExports = [
                     'ID' => 'Number, Required',
-                    'Gross Margin ID' => 'Number, Required',
-                    'Gross Margin Title' => 'Text, Required',
+
                     'Name of Producer' => 'Text',
+                    'Sex' => 'Text',
                     'Season' => 'Text',
                     'Season Dates' => 'Text',
                     'District' => 'Text',
@@ -1477,15 +1480,11 @@ class ExcelExportJob implements ShouldQueue
                     'EPA' => 'Text',
                     'Section' => 'Text',
                     'TA' => 'Text',
-                    'Selling Price Description' => 'Text',
-                    'Selling Price Quantity' => 'Number',
-                    'Selling Price Unit Price' => 'Number',
+                    'Village' => 'Text',
                     'Selling Price' => 'Number',
-                    'Income Price Description' => 'Text',
-                    'Income Price Quantity' => 'Number',
-                    'Income Price Unit Price' => 'Number',
                     'Income Price' => 'Number',
                     'Total Valuable Costs' => 'Number',
+                    'Total Harvest' => 'Number',
                     'Yield' => 'Number',
                     'Break Even Yield' => 'Number',
                     'Break Even Price' => 'Number',
@@ -1498,18 +1497,15 @@ class ExcelExportJob implements ShouldQueue
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
                 $writer->nameCurrentSheet('Gross Margin Report');
 
-                $query =     GrossMarginDetail::query()->with(['grossMargin', 'items', 'user', 'user.organisation'])->join('gross_margins', function ($join) {
-                    $join->on('gross_margins.id', '=', 'gross_margin_details.gross_margin_id');
-                })
+                $query =    GrossMargin::query()
 
                     ->select([
-                        'gross_margin_details.*',
-                        'gross_margins.title',
-                        'gross_margins.enterprise',
+                        'gross_margins.*',
+
 
 
                         DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-                    ]);
+                    ]);;
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $query = $query->where('organisation_id', $this->user->organisation->id);
                 }
@@ -1526,9 +1522,9 @@ class ExcelExportJob implements ShouldQueue
                         }
                         $writer->addRow([
                             $record->rn,
-                            $record->gross_id,
-                            $record->title,
-                            $record->name_of_producer,
+
+                            $record->name,
+                            $record->sex,
                             $record->season,
                             $record->season_dates,
                             $record->district,
@@ -1541,15 +1537,11 @@ class ExcelExportJob implements ShouldQueue
                             $record->epa,
                             $record->section,
                             $record->ta,
-                            $record->selling_price_desc,
-                            $record->selling_price_qty,
-                            $record->selling_price_unit_price,
+                            $record->village,
                             $record->selling_price,
-                            $record->income_price_desc,
-                            $record->income_price_qty,
-                            $record->income_price_unit_price,
                             $record->income_price,
                             $record->total_valuable_costs,
+                            $record->total_harvest,
                             $record->yield,
                             $record->break_even_yield,
                             $record->break_even_price,
@@ -1561,27 +1553,74 @@ class ExcelExportJob implements ShouldQueue
 
                 $writer->addNewSheetAndMakeItCurrent('Valuable Costs');
                 $headers = [
-                    'Gross Margin ID' => 'Number, Required',
+                    'Gross Margin Name of Producer' => 'Text, Required',
                     'Item Name' => 'Text, Required',
-                    'Description' => 'Text',
+                    'Unit' => 'Text',
                     'Quantity' => 'Number',
                     'Unit Price' => 'Number',
                     'Total' => 'Number',
                 ];
                 $writer->addHeader(array_keys($headers));
-                GrossMarginData::query()->with(['grossMarginDetail'])->chunk(2000, function ($recruitments) use ($writer) {
-                    foreach ($recruitments as $recruitment) {
-                        $writer->addRow([
-                            $recruitment->grossMarginDetail->gross_id,
-                            $recruitment->item_name,
-                            $recruitment->description,
-                            $recruitment->quantity,
-                            $recruitment->unit_price,
-                            $recruitment->total
+                GrossMarginItemValue::query()->with(['grossMargin', 'categoryItem'])
 
-                        ]);
-                    }
-                });
+                    ->join('gross_margins', function ($join) {
+                        $join->on('gross_margins.id', '=', 'gross_margin_item_values.gross_margin_id');
+                    })
+                    ->join('gross_margin_category_items', function ($join) {
+                        $join->on('gross_margin_category_items.id', '=', 'gross_margin_item_values.gross_margin_category_item_id');
+                    })
+                    ->select([
+                        'gross_margin_item_values.*',
+                        'gross_margins.name as gross_margin_name',
+                        'gross_margin_category_items.item_name as item_name',
+                        'gross_margin_category_items.unit as unit',
+
+                        DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    ])->chunk(2000, function ($recruitments) use ($writer) {
+                        foreach ($recruitments as $recruitment) {
+                            $writer->addRow([
+                                $recruitment->grossMargin->name,
+                                $recruitment->item_name,
+                                $recruitment->qty,
+                                $recruitment->unit_price,
+                                $recruitment->total
+
+                            ]);
+                        }
+                    });
+
+
+                     $writer->addNewSheetAndMakeItCurrent('Varieties');
+                $headers = [
+                    'Gross Margin Name of Producer' => 'Text, Required',
+                    'Variety' => 'Text, Required',
+
+                    'Quantity' => 'Number',
+                    'Unit Price' => 'Number',
+                    'Total' => 'Number',
+                ];
+                $writer->addHeader(array_keys($headers));
+
+                GrossMarginVariety::query()
+                    ->join('gross_margins', function ($join) {
+                        $join->on('gross_margins.id', '=', 'gross_margin_varieties.gross_margin_id');
+                    })->select([
+                        'gross_margin_varieties.*',
+                        'gross_margins.name as gross_margin_name',
+                    ])->chunk(2000, function ($recruitments) use ($writer) {
+                        foreach ($recruitments as $recruitment) {
+                            $writer->addRow([
+                                $recruitment->gross_margin_name,
+                                $recruitment->name,
+
+                                $recruitment->qty,
+                                $recruitment->unit_price,
+                                $recruitment->total
+
+                            ]);
+                        }
+                    });
+
                 $writer->close(); // Finalize the file
 
                 break;

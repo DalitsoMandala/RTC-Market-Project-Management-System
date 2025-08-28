@@ -68,14 +68,11 @@ final class GrossMarginTable extends PowerGridComponent
     {
 
 
-        return GrossMarginDetail::query()->with(['grossMargin'])->join('gross_margins', function ($join) {
-            $join->on('gross_margins.id', '=', 'gross_margin_details.gross_margin_id');
-        })
+        return GrossMargin::query()
 
             ->select([
-                'gross_margin_details.*',
-                'gross_margins.title',
-                'gross_margins.enterprise',
+                'gross_margins.*',
+
 
 
                 DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
@@ -86,11 +83,12 @@ final class GrossMarginTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('title', function ($model) {
-                return $model->grossMargin->title;
-            })
+->add('date_formatted', fn($model) => Carbon::parse($model->date)->format('d/m/Y'))
+            ->add('sex')
+            ->add('village')
+
             ->add('enterprise')
-            ->add('name_of_producer')
+            ->add('name')
             ->add('season')
             ->add('district')
             ->add('gender')
@@ -107,17 +105,27 @@ final class GrossMarginTable extends PowerGridComponent
                 $data = $model->items->sum('total');
                 return $data;
             })
-            ->add('created_at')
-            ->add('updated_at');
+            ->add('gross_margin')
+            ->add('total_harvest')
+            ->add('selling_price')
+            ->add('income')
+            ->add('yield')
+            ->add('break_even_yield')
+            ->add('break_even_price')
+            ->add('total_variable_cost')
+
+        ;
     }
 
     public function columns(): array
     {
         return [
             Column::make('Id', 'id'),
-            Column::make('Title', 'title')
+
+
+            Column::make('Date', 'date_formatted')
                 ->sortable()
-                ->searchable()->headerAttribute(styleAttr: 'min-width: 300px;'),
+                ->searchable(),
 
             Column::make('Enterprise', 'enterprise', 'gross_margins.enterprise')
                 ->sortable()
@@ -133,7 +141,7 @@ final class GrossMarginTable extends PowerGridComponent
                 ->searchable()->headerAttribute(styleAttr: 'min-width: 300px;')->bodyAttribute('fw-bolder '),
 
 
-            Column::make('Name of Producer', 'name_of_producer')
+            Column::make('Name of Producer', 'name')
                 ->sortable()
                 ->searchable(),
 
@@ -184,39 +192,29 @@ final class GrossMarginTable extends PowerGridComponent
             Column::make('TA', 'ta')
                 ->sortable()
                 ->searchable(),
-            Column::make('Selling Price Desc', 'selling_price_desc')
+            Column::make('Village', 'village')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Selling Price Qty', 'selling_price_qty')
-                ->sortable()
-                ->searchable(),
 
-            Column::make('Selling Price Unit Price', 'selling_price_unit_price')
-                ->sortable()
-                ->searchable(),
+
+
 
             Column::make('Selling Price', 'selling_price')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Income Price Desc', 'income_price_desc')
+
+
+            Column::make('Income Price', 'income')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Income Price Qty', 'income_price_qty')
+            Column::make('Total Harvest', 'total_harvest')
                 ->sortable()
                 ->searchable(),
 
-            Column::make('Income Price Unit Price', 'income_price_unit_price')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Income Price', 'income_price')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Total Valuable Costs', 'total_valuable_costs')
+            Column::make('Total Valuable Costs', 'total_variable_cost')
                 ->sortable()
                 ->searchable(),
 
@@ -248,25 +246,12 @@ final class GrossMarginTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::select('title', 'gross_margins.id')
-                ->dataSource(GrossMargin::all())
-                ->optionLabel('title')
-                ->optionValue('id'),
 
-            Filter::select('season', 'gross_margin_details.season')
-                ->dataSource(GrossMarginDetail::select(['season'])->distinct()->get())
-                ->optionLabel('season')
-                ->optionValue('season'),
-
-            Filter::select('season_dates', 'gross_margin_details.season_dates')
-                ->dataSource(GrossMarginDetail::select(['season_dates'])->distinct()->get())
-                ->optionLabel('season_dates')
-                ->optionValue('season_dates'),
 
             Filter::select('enterprise', 'gross_margins.enterprise')
-                ->dataSource(Crop::select(['name'])->distinct()->get())
-                ->optionLabel('name')
-                ->optionValue('name'),
+                ->dataSource(GrossMargin::select(['enterprise'])->distinct()->get())
+                ->optionLabel('enterprise')
+                ->optionValue('enterprise'),
 
 
         ];
@@ -282,10 +267,11 @@ final class GrossMarginTable extends PowerGridComponent
     {
         return [
             Button::add('details')
-                ->slot('View Valuable Costs <i class="bx bx-chevron-down"></i>')
+                ->slot('View Details  <i class="bx bx-chevron-down"></i>')
                 ->id()
-                ->class('btn btn-warning btn-sm ')
-                ->toggleDetail()
+                ->class('btn btn-warning goLeft btn-sm ')
+                ->toggleDetail(),
+
         ];
     }
 }

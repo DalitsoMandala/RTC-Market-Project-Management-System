@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GrossMarginCategory extends Model
 {
     use HasFactory;
+        protected $guarded = [];
     public function categoryItems()
     {
         return $this->hasMany(GrossMarginCategoryItem::class, 'gross_margin_category_id');

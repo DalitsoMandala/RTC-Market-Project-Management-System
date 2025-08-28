@@ -24,11 +24,9 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
+Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
 
-Route::get('/queue-test', function () {
-    TestJob::dispatch();
-    return 'Test job dispatched!';
-});
+
 Route::get('/logout', function () {
 
 
@@ -118,6 +116,7 @@ Route::middleware([
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('admin-gross-margin-manage-data');
     Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('admin-gross-margin-add-data');
     Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('admin-gross-margin-upload-data');
+ Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('admin-gross-margin-items');
 
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
@@ -171,6 +170,7 @@ Route::middleware([
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('staff-gross-margin-manage-data');
     Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('staff-gross-margin-add-data');
     Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('staff-gross-margin-upload-data');
+ Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('staff-gross-margin-items');
 
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
@@ -196,8 +196,7 @@ Route::middleware([
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project_manager-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('project_manager-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('project_manager-gross-margin-manage-data');
-    Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('project_manager-gross-margin-add-data');
-    Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('project_manager-gross-margin-upload-data');
+ Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project_manager-gross-margin-items');
 
     registerFormRoutes('/forms/{project}', 'project_manager');
 });

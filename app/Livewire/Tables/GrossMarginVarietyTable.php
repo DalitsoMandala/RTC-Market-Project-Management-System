@@ -2,8 +2,7 @@
 
 namespace App\Livewire\tables;
 
-use App\Models\GrossMarginData;
-use App\Models\GrossMarginItemValue;
+use App\Models\GrossMarginVariety;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +17,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
-final class GrossMarginItemTable extends PowerGridComponent
+final class GrossMarginVarietyTable extends PowerGridComponent
 {
     use WithExport;
 public $row;
@@ -28,29 +27,19 @@ public $row;
 
         return [
 
-
-
         ];
     }
 
     public function datasource(): Builder
     {
-        return GrossMarginItemValue::query()->with(['grossMargin','categoryItem'])
-        ->where('gross_margin_id', $this->row->id)
+        return GrossMarginVariety::query() ->where('gross_margin_id', $this->row->id)
         ->join('gross_margins', function ($join) {
-            $join->on('gross_margins.id', '=', 'gross_margin_item_values.gross_margin_id');
+            $join->on('gross_margins.id', '=', 'gross_margin_varieties.gross_margin_id');
 
-        })
-        ->join('gross_margin_category_items', function ($join) {
-            $join->on('gross_margin_category_items.id', '=', 'gross_margin_item_values.gross_margin_category_item_id');
-        })
-        ->select([
-            'gross_margin_item_values.*',
-            'gross_margins.name as gross_margin_name',
-            'gross_margin_category_items.item_name as item_name',
-            'gross_margin_category_items.unit as unit',
-
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        })->select([
+'gross_margin_varieties.*',
+'gross_margins.name as gross_margin_name',
+       DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
     }
 
@@ -59,24 +48,19 @@ public $row;
         return PowerGrid::fields()
             ->add('id')
             ->add('gross_margin_name')
-            ->add('item_name')
-            ->add('unit')
+            ->add('variety')
             ->add('qty')
             ->add('unit_price')
             ->add('total')
-        ;
+            ;
     }
 
     public function columns(): array
     {
         return [
             Column::make('Id', 'rn'),
-Column::make('Name of Producer', 'gross_margin_name','gross_margins.name'),
-            Column::make('Item name', 'item_name')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Unit', 'unit')
+            Column::make('Name of Producer', 'gross_margin_name'),
+            Column::make('Variety', 'variety')
                 ->sortable()
                 ->searchable(),
 

@@ -48,3 +48,22 @@
     </div>
 
 </div>
+@script
+    <script>
+        // Listen to every button click on the page
+        document.querySelectorAll(".goLeft").forEach(btn => {
+            btn.addEventListener("click", function() {
+                // Scroll all elements with .table-responsive back to far left
+                document.querySelectorAll(".table-responsive").forEach(el => {
+                    setTimeout(() => {
+                        el.scrollTo({
+                            left: 0,
+                            behavior: 'smooth'
+                        });
+                    }, 2000);
+
+                });
+            });
+        });
+    </script>
+@endscript

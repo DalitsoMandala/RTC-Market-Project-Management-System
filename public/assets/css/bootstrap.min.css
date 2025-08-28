@@ -459,6 +459,7 @@ svg {
 table {
     caption-side: bottom;
     border-collapse: collapse;
+     font-size: 0.75rem !important;
 }
 
 caption {

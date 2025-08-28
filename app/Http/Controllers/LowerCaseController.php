@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 class LowerCaseController extends Controller
 {
     //
+    
 
     public function setup(){
         foreach(User::all() as $user){

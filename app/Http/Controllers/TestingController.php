@@ -16,8 +16,10 @@ use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\sendReminderToUserJob;
+use App\Models\GrossMarginCategory;
 use Illuminate\Support\Facades\Bus;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\GrossMarginCategoryItem;
 use Illuminate\Support\Facades\Artisan;
 use App\Notifications\SubmissionReminder;
 use App\Jobs\SendExpiredPeriodNotificationJob;
@@ -31,38 +33,59 @@ use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExpo
 class TestingController extends Controller
 {
 
-    use IndicatorsTrait;
-    public function create()
-    {
-        $this->getEndingSoonSubmissionPeriods();
-    }
     public function test()
     {
 
-        $crops = ['Cassava', 'Potato', 'Sweet potato'];
-        $newData = [];
+        $data = [
+            'categories' => [
+                'Seed (Variety)' => [],
+                'Agricultural Operations' => [
+                    'Planting (Kudzala mbeu)' => 'Acre',
+                    'First weeding (Kupalira koyamba)' => 'Acre',
+                    'Second weeding (Kapalira kachiwiri)' => 'Acre',
+                    'Basal fertilizer (Feteleza oyamba)' => 'Acre',
+                    'Top dressing fertilizer (Feteleza wachiwiri)' => 'Acre',
+                    'Manure (Manyowa)' => 'Acre',
+                    'Manure transport (Transipoti yotutira manyowa)' => 'Acre',
+                    'Banding (Kukwezera/Kubandira)' => 'Acre',
+                ],
+                'Pest/Livestock/Theft control' => [
+                    'Fencing (Kumanga mpanda)' => 'Each',
+                    'Guards (Kulipira alonda)' => 'Labour/Materials',
+                    'Pesticides' => 'Acre',
+                    'Fungicides' => 'Acre',
+                    'Hiring knapsack sprayers' => 'Each',
+                    'Spraying (Kupopera mankhwala)' => 'Acre',
+
+                ],
+                'Harvesting (Kukolora)' => [
+                    'Sacks (Matumba)' => 'Bag',
+                    'Labour for harvesting (Aganyu okumba/odula)' => 'Kg/bundle',
+                    'Labour for packing (Aganyu opakira mmatumba)' => 'Kg/bundle',
+                    'Labour for loading and offloading (Aganyu okweza ndi kutsitsa matumba)' => 'Kg/bundle',
+                    'Transport for harvest (Transipoti yotutila zokolola)' => 'Trip',
+
+                ],
+            ]
 
 
-        // foreach ($crops as $crop) {
-        //     $data = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 2, enterprise: 'Potato');
-        //     $newData[$crop] = $data->getDisaggregations();
-        // }
+        ];
+
+        foreach ($data['categories'] as $category => $items) {
+            $cat =   GrossMarginCategory::firstOrCreate([
+                'name' => $category,
+
+            ]);
+            foreach ($items as $item => $unit) {
 
 
-        // return response()->json($newData);
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // 🔴 Disable FIRST
 
-        ReportStatus::find(1)->update([
-            'status' => 'completed',
-            'progress' => 100
-        ]);
-
-        DB::table('system_report_data')->truncate();  // 🔁 Truncate child table first
-        DB::table('system_reports')->truncate();
-        DB::table('additional_report')->truncate();
-
-        Artisan::call('update:information');
-
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // ✅ Re-enable
+                GrossMarginCategoryItem::firstOrCreate([
+                    'gross_margin_category_id' => $cat->id,
+                    'item_name' => $item,
+                    'unit' => $unit,
+                ]);
+            }
+        }
     }
 }
