@@ -3,14 +3,18 @@
 namespace App\Livewire\targets;
 
 use App\Models\User;
+use App\Models\Indicator;
 use Illuminate\Support\Str;
+use App\Models\Organisation;
 use App\Models\SystemReport;
+use App\Models\FinancialYear;
 use Illuminate\Support\Carbon;
 use App\Models\SystemReportData;
 use Livewire\Attributes\Computed;
 use App\Models\OrganisationTarget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -48,29 +52,42 @@ final class TargetTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-
-        if ($user->hasAnyRole('external')) {
-
-            return OrganisationTarget::query()->with([
-                'submissionTarget',
-                'organisation',
-                'submissionTarget.financialYear',
-                'submissionTarget.Indicator',
-                'submissionTarget.Indicator.project',
-                'submissionTarget.Indicator.class'
-            ])->whereHas('organisation', fn($query) => $query->where('id', $organisation_id));
-        }
-        return OrganisationTarget::query()->with([
+        $query = OrganisationTarget::query()->with([
             'submissionTarget',
             'organisation',
             'submissionTarget.financialYear',
             'submissionTarget.Indicator',
             'submissionTarget.Indicator.project',
             'submissionTarget.Indicator.class'
-        ])->select([
+        ])->join('organisations', function ($join) {
+            $join->on('organisation_selected_targets.organisation_id', '=', 'organisations.id');
+        })
+
+        ->join('submission_targets', function ($join) {
+            $join->on('organisation_selected_targets.submission_target_id', '=', 'submission_targets.id');
+        })->join('financial_years', function ($join) {
+            $join->on('submission_targets.financial_year_id', '=', 'financial_years.id');
+        })->join('indicators', function ($join) {
+            $join->on('submission_targets.indicator_id', '=', 'indicators.id');
+        })->join('projects', function ($join) {
+            $join->on('indicators.project_id', '=', 'projects.id');
+        })->join('indicator_classes', function ($join) {
+            $join->on('indicators.id', '=', 'indicator_classes.indicator_id');
+        })->select([
             'organisation_selected_targets.*',
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+            'financial_years.number as year',
+            'indicators.indicator_name',
+            'indicators.indicator_no',
+            'projects.name',
+
 
         ]);
+        if ($user->hasAnyRole('external')) {
+            return $query->whereHas('organisation', fn($query) => $query->where('id', $organisation_id));
+        }
+
+        return $query;
     }
 
     public function fields(): PowerGridFields
@@ -83,7 +100,7 @@ final class TargetTable extends PowerGridComponent
             })
             ->add('indicator', function ($model) {
 
-                return Str::limit($model->submissionTarget->indicator->indicator_name,50);
+                return Str::limit($model->submissionTarget->indicator->indicator_name, 50);
             })
 
             ->add('financial_year', function ($model) {
@@ -148,8 +165,8 @@ final class TargetTable extends PowerGridComponent
         return [
             Column::make('Id', 'id'),
 
-            Column::make('Organisation', 'organisation'),
-            Column::make('Indicator', 'indicator')->bodyAttribute(styleAttr:'max-width:200px; white-space: wrap;'),
+            Column::make('Lead Partner', 'organisation')->bodyAttribute(styleAttr: 'max-width:200px; white-space: wrap;'),
+            Column::make('Indicator', 'indicator')->bodyAttribute(styleAttr: 'max-width:200px; white-space: wrap;'),
 
 
             Column::make('Project year', 'financial_year'),
@@ -159,7 +176,7 @@ final class TargetTable extends PowerGridComponent
             Column::make('Standard Target', 'submission_target_value'),
 
 
-            Column::make('Partner Set Target', 'value')
+            Column::make('Partner Target', 'value')
 
                 ->searchable(),
 
@@ -193,7 +210,38 @@ final class TargetTable extends PowerGridComponent
     }
     public function filters(): array
     {
-        return [];
+        return [
+            Filter::select('financial_year', 'financial_years.number')
+                ->dataSource(FinancialYear::get()->map(function ($year) {
+                    return [
+                        'number' => $year->number,
+                        'name' => 'Year ' . $year->number,
+                    ];
+                }))
+                ->optionLabel('name')
+                ->optionValue('number'),
+
+            Filter::select('indicator', 'indicators.indicator_name')
+                ->dataSource(Indicator::get()->map(function ($indicator) {
+                    return [
+                        'id' => $indicator->id,
+                        'indicator_name' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
+                    ];
+                }))
+                ->optionLabel('indicator_name')
+                ->optionValue('id'),
+
+            Filter::select('submission_target_name', 'submission_targets.target_name')
+                ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
+                ->optionLabel('name')
+                ->optionValue('name'),
+
+                Filter::select('organisation', 'organisations.name')
+                ->dataSource(Organisation::all())
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+        ];
     }
 
     #[\Livewire\Attributes\On('edit')]
