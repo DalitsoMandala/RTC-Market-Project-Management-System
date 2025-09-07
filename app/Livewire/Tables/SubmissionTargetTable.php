@@ -2,9 +2,14 @@
 
 namespace App\Livewire\tables;
 
+use Faker\Core\File;
+use App\Models\Indicator;
 use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Support\Carbon;
 use App\Models\SubmissionTarget;
+use Database\Seeders\DisaggregationSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -25,7 +30,7 @@ final class SubmissionTargetTable extends PowerGridComponent
     public string $sortField = 'updated_at';
 
     public string $sortDirection = 'desc';
-
+ public bool $multiSort = true;
     public function setUp(): array
     {
         //$this->showCheckBox();
@@ -106,7 +111,27 @@ final class SubmissionTargetTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [];
+        return [
+          Filter::select('financial_year', 'financial_years.number')
+            ->dataSource(FinancialYear::get()->map(function ($year) {
+                return [
+                    'number' => $year->number,
+                    'name' => 'Year ' . $year->number,
+                ];
+            }))
+            ->optionLabel('name')
+            ->optionValue('number'),
+
+            Filter::select('indicator', 'indicator_id')
+                ->dataSource(Indicator::all())
+                ->optionLabel('indicator_name')
+                ->optionValue('id'),
+
+                Filter::select('target_name', 'target_name')
+                ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
+                ->optionLabel('name')
+                ->optionValue('name'),
+        ];
     }
 
     #[On('edit')]
