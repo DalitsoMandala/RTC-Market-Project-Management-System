@@ -229,7 +229,7 @@ final class TargetTable extends PowerGridComponent
                     ];
                 }))
                 ->optionLabel('indicator_name')
-                ->optionValue('id'),
+                ->optionValue('indicator_name'),
 
             Filter::select('submission_target_name', 'submission_targets.target_name')
                 ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
