@@ -1,7 +1,7 @@
 @include('layouts.user-navigation')
 
 <div class="d-none">
-@include('layouts.other-navs')
+    @include('layouts.other-navs')
 </div>
 
 
@@ -119,6 +119,10 @@
                                                 <a href="{{ route('admin-std-targets') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Indicator Targets</a>
 
+
+                                                <a href="{{ route('admin-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">View Targets</a>
+
                                                 <a href="{{ route('admin-sources') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Organisation Forms</a>
 
@@ -144,8 +148,6 @@
                                                     data-key="t-range-slider">Submission Periods</a>
                                                 <a href="{{ route('admin-reports') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reports</a>
-                                                <a href="{{ route('admin-targets') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Project Targets</a>
 
                                             </div>
                                         </div>
@@ -269,6 +271,12 @@
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-targets') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">View Targets</span>
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-submissions') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Submissions</span>
 
@@ -362,6 +370,14 @@
 
                                         </a>
 
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('external-targets') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">View Targets</span>
+
+                                        </a>
+
+
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="/external/submission-periods" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Submission Periods</span>
@@ -430,6 +446,14 @@
                                             <span data-key="t-utility">Forms</span>
 
                                         </a>
+
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-staff-targets') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">View Targets</span>
+
+                                        </a>
+
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-staff-submission-period') }}" id="topnav-utility"
                                             role="button">
@@ -443,6 +467,7 @@
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
+
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
@@ -531,6 +556,12 @@
                                             href="{{ route('project_manager-forms') }}" id="topnav-utility"
                                             role="button">
                                             <span data-key="t-utility">Forms</span>
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('project_manager-targets') }}" id="topnav-utility" role="button">
+                                            <span data-key="t-utility">View Targets</span>
 
                                         </a>
 

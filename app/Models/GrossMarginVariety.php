@@ -9,10 +9,7 @@ class GrossMarginVariety extends Model
 {
     use HasFactory;
         protected $guarded = [];
-    public function categoryItem()
-    {
-        return $this->belongsTo(GrossMarginCategoryItem::class, 'gross_margin_category_item_id');
-    }
+
 
     public function grossMargin()
     {

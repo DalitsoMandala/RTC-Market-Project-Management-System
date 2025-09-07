@@ -38,7 +38,15 @@ class TestingController extends Controller
 
         $data = [
             'categories' => [
-                'Seed (Variety)' => [],
+  'Seed (Mbeu/Variety)' => [],
+                'Land Preparation & Planting' => [
+                    'Rent (Lendi ya malo)' => 'Acre',
+                    'Land clearing (Kusosa/kutchetcha m\'munda kapena m\'dimba)' => 'Acre',
+                    'Ploughing (Kugaula/kutipula)' => 'Acre',
+                    'Ridging (Kukonza mizere)' => 'Acre',
+
+                ],
+
                 'Agricultural Operations' => [
                     'Planting (Kudzala mbeu)' => 'Acre',
                     'First weeding (Kupalira koyamba)' => 'Acre',

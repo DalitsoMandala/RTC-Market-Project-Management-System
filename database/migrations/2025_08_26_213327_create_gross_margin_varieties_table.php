@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('gross_margin_varieties', function (Blueprint $table) {
             $table->id();
             $table->foreignId('gross_margin_id')->constrained('gross_margins', 'id')->onDelete('cascade')->onUpdate('cascade');
-$table->string('variety')->nullable();
+            $table->foreignId('gross_margin_category_id')->constrained('gross_margin_categories', 'id')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->string('variety')->nullable();
+            $table->string('unit')->nullable();
             $table->decimal('qty', 12, 2)->default(0);
             $table->decimal('unit_price', 14, 2)->default(0);
             $table->decimal('total', 16, 2)->default(0);

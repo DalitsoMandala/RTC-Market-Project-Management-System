@@ -7,14 +7,22 @@
     </div>
 
 
-    <div class="opacity-25 pe-none">
-        <div class="mb-3 row">
+    <div class="">
+        <div class="mt-4 mb-3 row">
             <!-- Changed gap-3 to g-3 (Bootstrap's standard gutter class) -->
             <!-- Card 1 -->
             <!-- Card 4 -->
             <div class="col-lg-3 col-md-6 col-sm-6 ">
-                <div class=" card bg-soft-secondary bg-gradient placeholder rounded-1 h-100 w-100">
-                    <div class="card-body d-flex align-items-center">
+                <div class="shadow card rounded-1 h-100 w-100">
+                    <div class="card-body">
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-12 "></span>
+                        </h6>
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-7 "></span>
+                        </h6>
+
+
 
                     </div>
                 </div>
@@ -22,8 +30,16 @@
 
             <!-- Card 4 -->
             <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class=" card bg-soft-secondary bg-gradient placeholder rounded-1 h-100 w-100">
-                    <div class="card-body d-flex align-items-center">
+                 <div class="shadow card rounded-1 h-100 w-100">
+                    <div class="card-body">
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-12 "></span>
+                        </h6>
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-7 "></span>
+                        </h6>
+
+
 
                     </div>
                 </div>
@@ -31,8 +47,16 @@
 
             <!-- Card 4 -->
             <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class=" card bg-soft-secondary bg-gradient placeholder rounded-1 h-100 w-100">
-                    <div class="card-body d-flex align-items-center">
+                <div class="shadow card rounded-1 h-100 w-100">
+                    <div class="card-body">
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-12 "></span>
+                        </h6>
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-7 "></span>
+                        </h6>
+
+
 
                     </div>
                 </div>
@@ -40,8 +64,16 @@
 
             <!-- Card 4 -->
             <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class=" card bg-soft-secondary bg-gradient placeholder rounded-1 h-100 w-100">
-                    <div class="card-body d-flex align-items-center">
+                <div class="shadow card rounded-1 h-100 w-100">
+                    <div class="card-body">
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-12 "></span>
+                        </h6>
+                        <h6 class="card-title placeholder-glow ">
+                            <span class="placeholder col-7 "></span>
+                        </h6>
+
+
 
                     </div>
                 </div>

@@ -5,19 +5,22 @@ namespace App\Livewire\Internal\Cip\GrossMargin;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Livewire\Component;
+use App\Models\CropVariety;
 use App\Models\GrossMargin;
 use Livewire\Attributes\On;
 use App\Models\GrossSubmission;
 use Livewire\Attributes\Validate;
+use App\Models\GrossMarginVariety;
 use Illuminate\Support\Facades\DB;
 use App\Models\GrossMarginCategory;
 use Illuminate\Support\Facades\Log;
 use App\Models\GrossMarginItemValue;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\GrossMarginItemOption;
 use Illuminate\Support\Facades\Route;
 use App\Models\GrossMarginCategoryItem;
-use App\Models\GrossMarginVariety;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Exports\GrossMargin\GrossMarginExport;
 
 class AddData extends Component
 {
@@ -63,7 +66,7 @@ class AddData extends Component
     public float $yieldUnit;
     public float $income;
     public  $incomeDesc = 'Kg/bundle';
-    public float $incomeQty = 1;
+    public float $incomeQty;
     public float $incomeUnit;
     public float $breakEvenYield;
     public float $breakEvenPrice;
@@ -75,6 +78,7 @@ class AddData extends Component
     public $sex = 'Male';
     public $date;
     public $village;
+    public $availableVarieties = [];
     protected function rules()
     {
         return [
@@ -84,7 +88,7 @@ class AddData extends Component
             'season' => 'required|string|in:Rainfed,Irrigated',
             'enterprise' => 'required|string|max:255',
             'district' => 'required|string|max:255',
-            'gender' => 'required|string|max:255',
+
             'type_of_produce' => 'required|string|max:255',
             'phone_number' => 'nullable|string|max:255',
             'gps_s' => 'nullable|string|max:255',
@@ -100,6 +104,7 @@ class AddData extends Component
                 }
             },
 
+            'varietyOptions' => 'required|array|min:1',
             'varietyOptions.*.variety' => 'required|string|distinct|max:255',
             'varietyOptions.*.qty' => 'required|numeric|min:0',
             'varietyOptions.*.unit_price' => 'required|numeric|min:0',
@@ -128,13 +133,20 @@ class AddData extends Component
             'items.*.qty' => 'Quantity',
             'items.*.unit_price' => 'Unit Price',
             'items.*.custom_item' => 'Custom Item Name',
-
+            'varietyOptions' => 'Variety/Seed',
             'varietyOptions.*.variety' => 'Variety',
             'varietyOptions.*.qty' => 'Quantity',
             'varietyOptions.*.unit_price' => 'Unit Price',
 
             'totalHarvestQty' => 'Total Harvest Value',
 
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'varietyOptions.required' => 'The :attribute table cannot be empty. please add at least one variety.',
         ];
     }
 
@@ -180,7 +192,7 @@ class AddData extends Component
 
         $this->existingTitles = GrossMargin::get()->toArray();
         $this->selectedTitle = 'Other';
-
+        $this->availableVarieties = CropVariety::whereNot('name', 'other')->pluck('name')->toArray();
         $this->seasonDates();
     }
 
@@ -193,7 +205,7 @@ class AddData extends Component
             'season',
             'sex',
             'district',
-            'gender',
+
             'phone_number',
             'gps_s',
             'gps_e',
@@ -220,6 +232,8 @@ class AddData extends Component
             'breakEvenPrice',
             'grossMargin',
             'totalHarvestQty',
+            'varietyOptions',
+
         ]);
 
         $this->resetErrorBag();
@@ -248,7 +262,10 @@ class AddData extends Component
 
         ];
     }
-
+    public function downloadTemplate()
+    {
+        return Excel::download(new GrossMarginExport, 'gross_margin_form.xlsx');
+    }
     public function redirectUsers()
     {
         $user = User::find(auth()->user()->id);
@@ -339,10 +356,14 @@ class AddData extends Component
                 ]);
             }
 
+
+            $seedCategory = GrossMarginCategory::where('name', 'Seed (Mbeu/Variety)')->first();
             //add for each variety
             foreach ($this->varietyOptions as $variety) {
                 GrossMarginVariety::create([
                     'gross_margin_id' => $grossMargin->id,
+                    'gross_margin_category_id' => $seedCategory->id,
+                    'unit' => 'Kg/bundle',
                     'variety' => $variety['variety'],
                     'qty' => $variety['qty'],
                     'unit_price' => $variety['unit_price'],

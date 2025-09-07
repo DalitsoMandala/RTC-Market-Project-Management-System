@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('gross_margin_category_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('gross_margin_category_id')->constrained('gross_margin_categories', 'id')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('item_name');
-             $table->string('unit');
+           $table->string('item_name');
+            $table->string('unit');
             $table->timestamps();
         });
     }

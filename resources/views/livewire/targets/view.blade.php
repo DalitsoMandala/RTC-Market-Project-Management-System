@@ -13,8 +13,7 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/reports">Reporting</a></li>
-
+               
                             <li class="breadcrumb-item active"> Targets</li>
                         </ol>
                     </div>
@@ -30,15 +29,15 @@
                     <li class="nav-item">
                         <a href="{{ $routePrefix }}/targets" class="nav-link active">View Targets</a>
                     </li>
-
-                    <li class="nav-item">
-                        <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Set Targets</a>
-                    </li>
-
+                    @hasanyrole('admin')
+                        <li class="nav-item">
+                            <a href="{{ $routePrefix }}/standard-targets" class="nav-link ">Set Targets</a>
+                        </li>
+                    @endhasanyrole
                 </ul>
                 <div class="card">
                     <div class="card-body">
-                        <livewire:targets.target-table  />
+                        <livewire:targets.target-table />
                     </div>
                 </div>
 

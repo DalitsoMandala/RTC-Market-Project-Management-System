@@ -37,19 +37,24 @@
         </ul>
         <div class="card">
             <div class="card-body">
+                <div class="d-flex justify-content-end">
+<button class="btn btn-warning btn-sm" wire:click="downloadTemplate" wire:loading.attr="disabled">
+    Download Form <i class="bx bx-download"></i>
+</button>
+                </div>
                 <form wire:submit.prevent="save">
                     {{-- Gross Margin Title --}}
-<div class="row">
-                    <div class="mb-3 col-md-12">
-                        <label class="form-label">Name of Producer</label>
-                        <input type="text" class="form-control @error('name_of_producer') is-invalid @enderror"
-                            wire:model="name_of_producer">
-                        @error('name_of_producer')
-                            <x-error>{{ $message }}</x-error>
-                        @enderror
-                    </div>
+                    <div class="row">
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">Name of Producer</label>
+                            <input type="text" class="form-control @error('name_of_producer') is-invalid @enderror"
+                                wire:model="name_of_producer">
+                            @error('name_of_producer')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
 
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-3">
                             <label class="form-label d-block">Sex</label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input @error('sex') is-invalid @enderror" type="radio"
@@ -65,7 +70,7 @@
                                 <x-error>{{ $message }}</x-error>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-3">
                             <label class="form-label">Phone Number</label>
                             <input type="text" class="form-control @error('phone_number') is-invalid @enderror"
                                 wire:model="phone_number" oninput="this.value = this.value.toUpperCase()"
@@ -76,8 +81,90 @@
                         </div>
 
 
-                        <div class="mb-3 col-md-4">
-                            <label for="" class="form-label ">ENTERPRISE</label>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="date" class="form-label"> Date</label>
+                            <input type="date" wire:model="date"
+                                class="form-control @error('date') is-invalid @enderror" id="date">
+                            @error('date')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="district" class="form-label">District</label>
+                            <select class="form-select @error('district') is-invalid @enderror" wire:model='district'>
+                                @include('layouts.district-options')
+                            </select>
+                            @error('district')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">TA</label>
+                            <input type="text" class="form-control @error('ta') is-invalid @enderror"
+                                wire:model="ta">
+                            @error('ta')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+
+
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">Village</label>
+                            <input type="text" class="form-control @error('village') is-invalid @enderror"
+                                wire:model="village">
+                            @error('section')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">EPA</label>
+                            <input type="text" class="form-control @error('epa') is-invalid @enderror"
+                                wire:model="epa">
+                            @error('epa')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">Section</label>
+                            <input type="text" class="form-control @error('section') is-invalid @enderror"
+                                wire:model="section">
+                            @error('section')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+
+
+
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">GPS SOUTHINGS</label>
+                            <input type="number" step="any"
+                                class="form-control @error('gps_s') is-invalid @enderror" wire:model="gps_s">
+                            @error('gps_s')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">GPS EASTINGS</label>
+                            <input type="number" step="any"
+                                class="form-control @error('gps_e') is-invalid @enderror" wire:model="gps_e">
+                            @error('gps_e')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+                        <div class="mb-3 col-md-3">
+                            <label class="form-label">Elevation</label>
+                            <input type="number" step="any"
+                                class="form-control @error('elevation') is-invalid @enderror" wire:model="elevation">
+                            @error('elevation')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="" class="form-label ">ENTERPRISE/CROP</label>
                             <div class="form-group">
 
                                 <select
@@ -98,119 +185,8 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3 col-md-4">
-                            <label for="date" class="form-label"> Date</label>
-                            <input type="date" wire:model="date"
-                                class="form-control @error('date') is-invalid @enderror" id="date">
-                            @error('date')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">EPA</label>
-                            <input type="text" class="form-control @error('epa') is-invalid @enderror"
-                                wire:model="epa">
-                            @error('epa')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">Section</label>
-                            <input type="text" class="form-control @error('section') is-invalid @enderror"
-                                wire:model="section">
-                            @error('section')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
 
-
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">TA</label>
-                            <input type="text" class="form-control @error('ta') is-invalid @enderror"
-                                wire:model="ta">
-                            @error('ta')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">Village</label>
-                            <input type="text" class="form-control @error('village') is-invalid @enderror"
-                                wire:model="village">
-                            @error('section')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-
-
-
-                        <div class="mb-3 col-md-4">
-                            <label class="mb-3 form-label d-block">Season</label>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input @error('season') is-invalid @enderror" type="radio"
-                                    id="Rainfed" value="Rainfed" wire:model="season">
-                                <label class="form-check-label" for="season">Rainfed</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input @error('season') is-invalid @enderror" type="radio"
-                                    id="Irrigated" value="Irrigated" wire:model="season">
-                                <label class="form-check-label" for="season">Irrigated</label>
-                            </div> <br>
-                            @error('season')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-
-
-                        <div class="mb-3 col-md-4">
-                            <label for="district" class="form-label">District</label>
-                            <select class="form-select @error('district') is-invalid @enderror"
-                                wire:model='district'>
-                                @include('layouts.district-options')
-                            </select>
-                            @error('district')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label for="gender" class="form-label">gender</label>
-                            <select class="form-select @error('gender') is-invalid @enderror" wire:model="gender"
-                                id="gender">
-                                <option value="">-- Select One --</option>
-                                <option selected value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                            @error('gender')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">GPS SOUTHINGS</label>
-                            <input type="number" step="any"
-                                class="form-control @error('gps_s') is-invalid @enderror" wire:model="gps_s">
-                            @error('gps_s')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">GPS EASTINGS</label>
-                            <input type="number" step="any"
-                                class="form-control @error('gps_e') is-invalid @enderror" wire:model="gps_e">
-                            @error('gps_e')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label">Elevation</label>
-                            <input type="number" step="any"
-                                class="form-control @error('elevation') is-invalid @enderror" wire:model="elevation">
-                            @error('elevation')
-                                <x-error>{{ $message }}</x-error>
-                            @enderror
-                        </div>
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-3">
                             <label class="mb-3 form-label d-block">Type of Produce</label>
 
                             <div class="form-check form-check-inline">
@@ -238,8 +214,30 @@
                             @enderror
                         </div>
 
+                        <div class="mb-3 col-md-3">
+                            <label class="mb-3 form-label d-block">Season</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input @error('season') is-invalid @enderror" type="radio"
+                                    id="Rainfed" value="Rainfed" wire:model="season">
+                                <label class="form-check-label" for="season">Rainfed</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input @error('season') is-invalid @enderror" type="radio"
+                                    id="Irrigated" value="Irrigated" wire:model="season">
+                                <label class="form-check-label" for="season">Irrigated</label>
+                            </div> <br>
+                            @error('season')
+                                <x-error>{{ $message }}</x-error>
+                            @enderror
+                        </div>
 
-</div>
+
+
+
+
+
+
+                    </div>
 
                     {{-- Item Table --}}
                     <div class="rounded table-responsive">
@@ -333,21 +331,35 @@
                             <tbody>
 
                                 <tr class="">
-                                    <th colspan="6" class="p-2 ">Seed (Variety)</th>
+                                    <th colspan="6" class="p-2 ">Seed (Mbeu)</th>
                                 </tr>
+
+                                @error('varietyOptions')
+                                    <tr class="table-danger">
+                                        <td colspan="6" class="p-2 text-danger">
+                                            {{ $message }}
+                                        </td>
+                                    </tr>
+                                @enderror
                                 @foreach ($varietyOptions as $index => $variety)
                                     <tr>
                                         <!-- Item -->
                                         <td>
+                                            <select
+                                                class="form-select @error('varietyOptions.' . $index . '.variety') is-invalid @enderror"
+                                                wire:model="varietyOptions.{{ $index }}.variety">
 
+                                                <option value="">-- Select Variety --</option>
+                                                @foreach ($availableVarieties as $variety)
+                                                    <option value="{{ $variety }}">{{ $variety }}</option>
+                                                @endforeach
+                                            </select>
 
-                                            <input type="text"
-                                                class="form-control @error('varietyOptions.' . $index . '.variety') is-invalid @enderror"
-                                                wire:model='varietyOptions.{{ $index }}.variety' />
                                             @error('varietyOptions.' . $index . '.variety')
                                                 <x-error>{{ $message }}</x-error>
                                             @enderror
                                         </td>
+
 
                                         <!-- Description -->
                                         <td>
@@ -488,7 +500,18 @@
                             </thead>
 
                             <tfoot>
-
+                                <tr>
+                                    <td><strong>Total Valuable Costs (MWK):</strong></td>
+                                    <td>
+                                        <input type="hidden" class="form-control" readonly />
+                                    </td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td> <input type="text" class="form-control" readonly /></td>
+                                    <td>
+                                        <input type="text" class="form-control" readonly
+                                            :value="'MWK' + totalValuableCost.toFixed(2)">
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td>
                                         <strong>Total Harvest:</strong>
@@ -517,7 +540,7 @@
                                     </td>
                                     <td>
                                         <input type="number" readonly step="any" class="form-control"
-                                            x-bind:value="totalHarvest.toFixed(2)">
+                                            :value="'MWK' + totalHarvest.toFixed(2)">
                                     </td>
                                 </tr>
 
@@ -536,7 +559,7 @@
 
                                     <!-- Qty -->
                                     <td>
-                                        <input type="number" step="any"
+                                        <input type="number" step="any" readonly
                                             class="form-control @error('sellingPriceQty') is-invalid @enderror"
                                             wire:model="sellingPriceQty">
                                         @error('sellingPriceQty')
@@ -555,7 +578,7 @@
                                     </td>
                                     <td>
                                         <input type="number" readonly step="any" class="form-control"
-                                            x-bind:value="sellingPrice.toFixed(2)">
+                                            :value="'MWK' + sellingPrice.toFixed(2)">
                                     </td>
                                 </tr>
 
@@ -590,21 +613,10 @@
                                     </td>
                                     <td>
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="income.toFixed(2)">
+                                            :value="'MWK' + income.toFixed(2)">
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><strong>Total Valuable Costs (MWK):</strong></td>
-                                    <td>
-                                        <input type="hidden" class="form-control" readonly />
-                                    </td>
-                                    <td> <input type="text" class="form-control" readonly /></td>
-                                    <td> <input type="text" class="form-control" readonly /></td>
-                                    <td>
-                                        <input type="text" class="form-control" readonly
-                                            x-bind:value="totalValuableCost.toFixed(2)">
-                                    </td>
-                                </tr>
+
                                 <tr>
                                     <td><strong>Yield (kg/unit):</strong></td>
                                     <!-- Description -->
@@ -615,7 +627,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td>
                                         <input type="number" step="any" class="form-control" readonly
-                                            x-bind:value="yield.toFixed(2)">
+                                            :value="'MWK' + yield.toFixed(2)">
                                     </td>
                                 </tr>
                                 <tr>
@@ -627,7 +639,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td>
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="breakEvenYield.toFixed(2)">
+                                            :value="'MWK' + breakEvenYield.toFixed(2)">
                                     </td>
                                 </tr>
                                 <tr>
@@ -640,7 +652,7 @@
                                     <td> <input type="text" class="form-control" readonly /></td>
                                     <td>
                                         <input type="text" class="form-control" readonly
-                                            x-bind:value="breakEvenPrice.toFixed(2)">
+                                            :value="'MWK' + breakEvenPrice.toFixed(2)">
                                     </td>
                                 </tr>
                                 <tr class="table-secondary">
@@ -648,7 +660,7 @@
                                             (Profit):</strong></td>
                                     <td>
                                         <input type="text" class="form-control fs-5 fw-bold" readonly
-                                            x-bind:value="grossMargin.toFixed(2)">
+                                           :value="'MWK'+ grossMargin.toFixed(2)">
                                     </td>
                                 </tr>
                             </tfoot>

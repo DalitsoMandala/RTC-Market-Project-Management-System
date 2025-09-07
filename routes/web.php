@@ -140,7 +140,7 @@ Route::middleware([
     Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets-view');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('cip-std-targets');
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
-    Route::get('/indicators-targets', Targets::class)->name('cip-targets');
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('cip-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('cip-markets-submit-data');
@@ -213,7 +213,7 @@ Route::middleware([
     Route::get('/submissions/{batch?}', \App\Livewire\External\Submissions::class)->name('external-submissions');
     Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
-    //   Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
+     Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
     //  Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class);
 
     registerFormRoutes('/forms/{project}', 'external');

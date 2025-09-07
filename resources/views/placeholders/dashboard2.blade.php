@@ -6,7 +6,7 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
- <div class="opacity-25 pe-none">
+ <div class="opacity-100 pe-none">
 
 
         <!-- Volume vs Value by District (Combo Chart) -->

@@ -13,4 +13,9 @@ class GrossMarginCategory extends Model
     {
         return $this->hasMany(GrossMarginCategoryItem::class, 'gross_margin_category_id');
     }
+
+    public function grossItems()
+    {
+        return $this->hasManyThrough(GrossMarginItemValue::class, GrossMarginCategoryItem::class, 'gross_margin_category_id', 'gross_margin_category_item_id');
+    }
 }
