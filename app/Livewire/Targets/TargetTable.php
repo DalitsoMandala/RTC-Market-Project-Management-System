@@ -239,7 +239,7 @@ final class TargetTable extends PowerGridComponent
                 Filter::select('organisation', 'organisations.name')
                 ->dataSource(Organisation::all())
                 ->optionLabel('name')
-                ->optionValue('id'),
+                ->optionValue('name'),
 
         ];
     }
