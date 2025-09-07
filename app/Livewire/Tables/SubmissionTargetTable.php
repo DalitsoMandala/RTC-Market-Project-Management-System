@@ -123,7 +123,12 @@ final class SubmissionTargetTable extends PowerGridComponent
             ->optionValue('number'),
 
             Filter::select('indicator', 'indicator_id')
-                ->dataSource(Indicator::all())
+                ->dataSource(Indicator::get()->map(function ($indicator) {
+                    return [
+                        'id' => $indicator->id,
+                        'indicator_name' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
+                    ];
+                }))
                 ->optionLabel('indicator_name')
                 ->optionValue('id'),
 
