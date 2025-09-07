@@ -221,7 +221,7 @@ final class TargetTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('number'),
 
-            Filter::select('indicator', 'indicators.indicator_name')
+            Filter::select('indicator', 'indicators.id')
                 ->dataSource(Indicator::get()->map(function ($indicator) {
                     return [
                         'id' => $indicator->id,
@@ -229,7 +229,7 @@ final class TargetTable extends PowerGridComponent
                     ];
                 }))
                 ->optionLabel('indicator_name')
-                ->optionValue('indicator_name'),
+                ->optionValue('id'),
 
             Filter::select('submission_target_name', 'submission_targets.target_name')
                 ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
