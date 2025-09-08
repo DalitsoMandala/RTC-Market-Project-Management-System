@@ -1324,7 +1324,7 @@ body[data-layout="horizontal"][data-sidebar-size="sm"] .navbar-brand-box {
         position: fixed;
         left: 0;
         right: 0;
-        top: 70px;
+        top: 180px;
         z-index: 100;
         background: var(--bs-topnav-bg);
         -webkit-box-shadow: var(--bs-box-shadow);

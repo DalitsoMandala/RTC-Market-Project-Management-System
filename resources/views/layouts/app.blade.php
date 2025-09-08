@@ -45,7 +45,25 @@
                 padding: 70px 0 60px 0;
             }
 
+            .topbar-nav .nav-item .nav-link {
+                color: #7b8190 !important;
 
+            }
+
+            .topbar-nav .nav-item .nav-link:hover {
+                color: #FC931D !important;
+                background-color: #ff9d001a !important;
+
+                font-weight: medium;
+            }
+
+            .topbar-nav .nav-item .nav-link:active,
+            .topbar-nav .nav-item .nav-link.active {
+                color: #FC931D !important;
+                background-color: #ff9d001a !important;
+
+                font-weight: medium;
+            }
 
             .topBar {
                 position: fixed;
@@ -57,34 +75,14 @@
 
             #page-topbar {
                 position: fixed;
-                top: 52px;
+                top: 0;
                 /* Adjust depending on height of navbar-top */
                 width: 100%;
 
                 /* just under the first one */
             }
 
-            @media (max-width: 576px) {
 
-                #page-topbar {
-                    top: 92px;
-                    /* Adjust if the top navbar grows taller on mobile */
-                }
-
-                body[data-layout="horizontal"] .page-content {
-                    margin-top: 120px;
-                    padding: 70px 0 60px 0;
-
-                }
-
-                .topnav {
-                    position: fixed;
-
-                    top: 160px;
-
-                }
-
-            }
 
             /* Preloader */
             .preloader {
