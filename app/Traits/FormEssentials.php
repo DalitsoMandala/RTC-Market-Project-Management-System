@@ -406,8 +406,6 @@ trait FormEssentials
             ]
         ],
 
-
-
         'Progress summary Form' => [
             'Progress summary' => [
                 "Indicator Number",
@@ -422,6 +420,87 @@ trait FormEssentials
                 "Y4 Target",
                 "Y4 Achieved"
             ]
-        ]
+        ],
+
+        'Root and Tuber Imports Form' => [
+
+            'ROOTS & TUBER RAW IMPORTS' => [
+                'Entry Border' => 'Required, Text',
+                'Registration Date' => 'Required, Date (dd-mm-yyyy)',
+                'TPIN' => 'Required, Text',
+                'Importer Name' => 'Required, Text',
+                'Year' => 'Required, Year',
+                'HS Code' => 'Required, Text',
+                'Tariff Description' => 'Optional, Text',
+                'Commercial Description' => 'Optional, Text',
+                'Package Kind' => 'Optional, Text',
+                'Number of Packages' => 'Optional, Integer',
+                'Origin' => 'Optional, Text',
+                'Exporter' => 'Optional, Text',
+                'Net Weight (Kgs)' => 'Optional, Decimal',
+                'Foreign Currency' => 'Optional, Decimal',
+                'Currency' => 'Optional, Text',
+                'Exchange Rate' => 'Optional, Decimal',
+                'Value for Duty (MWK)' => 'Optional, Decimal',
+                'Other Information' => 'Optional, Text'
+            ],
+            'ROOTS & TUBER PROCESSED IMPORTS' => [
+                'Entry Border' => 'Required, Text',
+                'Registration Date' => 'Required, Date (dd-mm-yyyy)',
+                'TPIN' => 'Required, Text',
+                'Importer Name' => 'Required, Text',
+                'Year' => 'Required, Year',
+                'HS Code' => 'Required, Text',
+                'Tariff Description' => 'Optional, Text',
+                'Commercial Description' => 'Optional, Text',
+                'Package Kind' => 'Optional, Text',
+                'Number of Packages' => 'Optional, Integer',
+                'Origin' => 'Optional, Text',
+                'Net Weight (Kgs)' => 'Optional, Decimal',
+                'Foreign Currency' => 'Optional, Decimal',
+                'Currency' => 'Optional, Text',
+                'Exchange Rate' => 'Optional, Decimal',
+                'Value for Duty (MWK)' => 'Optional, Decimal',
+                'Other Information' => 'Optional, Text'
+
+            ]
+        ],
+
+        'Root and Tuber Exports Form' => [
+            'ROOTS & TUBER RAW EXPORTS' => [
+                'Registration Date' => 'Required, Date (dd-mm-yyyy)',
+                'Year' => 'Required, Year',
+                'Exporter Name' => 'Required, Text',
+                'Consignee Name' => 'Optional, Text',
+                'Quantity' => 'Optional, Integer',
+                'Package Kind' => 'Optional, Text',
+                'HS Code' => 'Required, Text',
+                'Goods Description' => 'Optional, Text',
+                'Commercial Goods Description' => 'Optional, Text',
+                'Origin Country' => 'Optional, Text',
+                'Exit Border' => 'Optional, Text',
+                'Destination Country' => 'Optional, Text',
+                'Net Weight (Kgs)' => 'Optional, Decimal',
+                'Export Value (MWK)' => 'Optional, Decimal',
+                'Other Information' => 'Optional, Text'
+            ],
+            'ROOTS & TUBER PROCESSED EXPORTS' => [
+                'Registration Date' => 'Required, Date (dd-mm-yyyy)',
+                'Year' => 'Required, Year',
+                'Exporter Name' => 'Required, Text',
+                'Consignee Name' => 'Optional, Text',
+                'Quantity' => 'Optional, Integer',
+                'Package Kind' => 'Optional, Text',
+                'HS Code' => 'Required, Text',
+                'Goods Description' => 'Optional, Text',
+                'Commercial Goods Description' => 'Optional, Text',
+                'Origin Country' => 'Optional, Text',
+                'Exit Border' => 'Optional, Text',
+                'Destination Country' => 'Optional, Text',
+                'Net Weight (Kgs)' => 'Optional, Decimal',
+                'Export Value (MWK)' => 'Optional, Decimal',
+                'Other Information' => 'Optional, Text'
+            ]
+        ],
     ];
 }

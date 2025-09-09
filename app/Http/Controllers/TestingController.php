@@ -26,6 +26,8 @@ use App\Jobs\SendExpiredPeriodNotificationJob;
 use App\Traits\GroupsEndingSoonSubmissionPeriods;
 use App\Notifications\SubmissionPeriodsEndingSoon;
 use App\Exports\rtcmarket\HouseholdExport\HrcExport;
+use App\Exports\RootTuberExport\RootTuberExportTemplate;
+use App\Exports\RootTuberImport\RootTuberImportTemplate;
 use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
@@ -96,4 +98,8 @@ class TestingController extends Controller
             }
         }
     }
+
+public function downloadTemplates(){
+    return Excel::download(new RootTuberImportTemplate(true), 'import.xlsx');
+}
 }

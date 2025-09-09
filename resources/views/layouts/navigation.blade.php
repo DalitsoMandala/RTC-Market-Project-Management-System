@@ -1,5 +1,3 @@
-
-
 <div class="d-none">
     @include('layouts.other-navs')
 </div>
@@ -7,7 +5,7 @@
 
 
 <header id="page-topbar" class="ishorizontal-topbar border-top">
-   <nav class="bg-white border-bottom d-block" x-data x-init="() => {
+    <nav class="bg-white border-bottom d-block" x-data x-init="() => {
 
 
 
@@ -20,7 +18,7 @@
             <!-- Left side: App name -->
             <ul class="nav">
                 <li class="nav-item">
-                    <a href="#"  class="px-2 text-center disabled nav-link fw-bold text-uppercase text-muted">
+                    <a href="#" class="px-2 text-center disabled nav-link fw-bold text-uppercase text-muted">
                         {{ config('app.name') }}
                     </a>
                 </li>
@@ -200,7 +198,8 @@
                                                 <a href="{{ route('admin-indicators') }}" class="dropdown-item"
                                                     data-key="t-lightbox">Indicators</a>
 
-                                                <a class="dropdown-item" href="/admin/baseline" data-key="t-range-slider">
+                                                <a class="dropdown-item" href="/admin/baseline"
+                                                    data-key="t-range-slider">
 
                                                     <span data-key="t-dashboards">Manage Baseline Data</span>
                                                 </a>
@@ -476,7 +475,19 @@
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
+                                        @if (auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT')
+                                            <a class="dropdown-item dropdown-toggle arrow-none"
+                                                href="/external/products/upload-data" id="topnav-utility" role="button">
+                                                <span data-key="t-utility">Upload Products Data</span>
 
+                                            </a>
+
+                                            <a class="dropdown-item dropdown-toggle arrow-none"
+                                                href="/external/products/view-data" id="topnav-utility" role="button">
+                                                <span data-key="t-utility">View Products Data</span>
+
+                                            </a>
+                                        @endif
 
 
                                     </div>
@@ -648,7 +659,8 @@
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('project_manager-targets') }}" id="topnav-utility" role="button">
+                                            href="{{ route('project_manager-targets') }}" id="topnav-utility"
+                                            role="button">
                                             <span data-key="t-utility">View Targets</span>
 
                                         </a>

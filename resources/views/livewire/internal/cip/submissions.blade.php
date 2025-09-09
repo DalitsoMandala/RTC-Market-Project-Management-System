@@ -29,17 +29,18 @@
                 </div>
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
 
-                    <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab" data-bs-toggle="tab"
-                        data-bs-target="#batch-submission" type="button" role="tab" aria-controls="home"
-                        aria-selected="true" wire:ignore.self>
+                    <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab"
+                        data-bs-toggle="tab" data-bs-target="#batch-submission" type="button" role="tab"
+                        aria-controls="home" aria-selected="true" wire:ignore.self>
                         Batch Submissions <span
                             class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
                     </button>
 
 
 
-                    <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="people-tab" data-bs-toggle="tab" data-bs-target="#aggregate-submission"
-                        type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
+                    <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="people-tab"
+                        data-bs-toggle="tab" data-bs-target="#aggregate-submission" type="button" role="tab"
+                        aria-controls="profile" aria-selected="false" wire:ignore.self>
                         Aggregate Submission (Reports) <span
                             class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
                     </button>
@@ -64,6 +65,15 @@
                             type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
                             Market Data Submission </button>
                     @endhasanyrole
+
+                    @if (
+                        (auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT') ||
+                            auth()->user()->hasAnyRole(['admin', 'manager', 'staff']))
+                        <button class="nav-link" id="root-tab" data-bs-toggle="tab" data-bs-target="#root-submission"
+                            type="button" role="tab" aria-controls="profile" aria-selected="false"
+                            wire:ignore.self>
+                            Root & Tuber Exports/Imports Data Submission </button>
+                    @endif
 
                 </ul>
 
@@ -95,7 +105,10 @@
                                 <livewire:tables.market-data-submission-table :userId="auth()->user()->id" />
                             </div>
 
-
+                            <div wire:ignore class="mt-2 tab-pane fade show" id="root-submission" role="tabpanel"
+                                aria-labelledby="root-tab">
+                                <livewire:tables.root-tuber-submission-table :userId="auth()->user()->id" />
+                            </div>
                             <div wire:ignore class="mt-2 tab-pane fade show" id="report-progress" role="tabpanel"
                                 aria-labelledby="profile-tab" x-data="{
                                     show: false,
@@ -519,18 +532,18 @@
                 }
             }
 
-                 const getUserRole = @json(auth()->user()->getRoleNames()->first());
-                    if (getUserRole === 'enumerator') {
-                        const button = document.querySelector(`button[data-bs-target='#market-submission']`);
+            const getUserRole = @json(auth()->user()->getRoleNames()->first());
+            if (getUserRole === 'enumerator') {
+                const button = document.querySelector(`button[data-bs-target='#market-submission']`);
 
-                        if (button) {
-                            setTimeout(() => {
-                                button.click();
-                            })
+                if (button) {
+                    setTimeout(() => {
+                        button.click();
+                    })
 
 
-                        }
-                    }
+                }
+            }
         </script>
     @endscript
 
