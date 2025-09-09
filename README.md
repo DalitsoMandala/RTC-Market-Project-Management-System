@@ -56,6 +56,7 @@ Configure .env for production.
     php artisan key:generate
 
 Add required folders and link
+
     mkdir -p storage/app/public/exports
     mkdir -p storage/app/public/imports
     mkdir -p storage/app/public/profiles
