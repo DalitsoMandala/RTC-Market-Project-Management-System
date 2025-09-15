@@ -40,7 +40,7 @@ class TestingController extends Controller
 
         $data = [
             'categories' => [
-  'Seed (Mbeu/Variety)' => [],
+                'Seed (Mbeu/Variety)' => [],
                 'Land Preparation & Planting' => [
                     'Rent (Lendi ya malo)' => 'Acre',
                     'Land clearing (Kusosa/kutchetcha m\'munda kapena m\'dimba)' => 'Acre',
@@ -81,8 +81,13 @@ class TestingController extends Controller
 
         ];
 
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        GrossMarginCategoryItem::truncate();
+        GrossMarginCategory::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         foreach ($data['categories'] as $category => $items) {
-            $cat =   GrossMarginCategory::firstOrCreate([
+            $cat =   GrossMarginCategory::create([
                 'name' => $category,
 
             ]);
@@ -90,7 +95,7 @@ class TestingController extends Controller
 
 
 
-                GrossMarginCategoryItem::firstOrCreate([
+                GrossMarginCategoryItem::create([
                     'gross_margin_category_id' => $cat->id,
                     'item_name' => $item,
                     'unit' => $unit,
@@ -99,7 +104,8 @@ class TestingController extends Controller
         }
     }
 
-public function downloadTemplates(){
-    return Excel::download(new RootTuberImportTemplate(true), 'import.xlsx');
-}
+    public function downloadTemplates()
+    {
+        return Excel::download(new RootTuberImportTemplate(true), 'import.xlsx');
+    }
 }

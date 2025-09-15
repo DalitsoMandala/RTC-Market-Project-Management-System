@@ -38,9 +38,9 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-end">
-<button class="btn btn-warning btn-sm" wire:click="downloadTemplate" wire:loading.attr="disabled">
-    Download Form <i class="bx bx-download"></i>
-</button>
+                    <button class="btn btn-warning btn-sm" wire:click="downloadTemplate" wire:loading.attr="disabled">
+                        Download Form <i class="bx bx-download"></i>
+                    </button>
                 </div>
                 <form wire:submit.prevent="save">
                     {{-- Gross Margin Title --}}
@@ -331,7 +331,7 @@
                             <tbody>
 
                                 <tr class="">
-                                    <th colspan="6" class="p-2 ">Seed (Mbeu)</th>
+                                    <th colspan="6" class="p-2 ">Seed (Mbeu/Variety)</th>
                                 </tr>
 
                                 @error('varietyOptions')
@@ -660,7 +660,7 @@
                                             (Profit):</strong></td>
                                     <td>
                                         <input type="text" class="form-control fs-5 fw-bold" readonly
-                                           :value="'MWK'+ grossMargin.toFixed(2)">
+                                            :value="'MWK' + grossMargin.toFixed(2)">
                                     </td>
                                 </tr>
                             </tfoot>

@@ -23,8 +23,8 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
-Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
-Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
+// Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
+// Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
 
 
 Route::get('/logout', function () {

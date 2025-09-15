@@ -167,7 +167,7 @@ class AddData extends Component
     public function load()
     {
         // Example: You can later fetch this from DB
-        $this->categoryOptions = GrossMarginCategory::whereNot('name', 'Seed (Variety)')->pluck('name')->toArray();
+        $this->categoryOptions = GrossMarginCategory::whereNot('name', 'Seed (Mbeu/Variety)')->pluck('name')->toArray();
         $this->itemOptions = GrossMarginCategoryItem::with('category')->get()->toArray();
         $this->varietyOptions[] = [
             'variety' => null,

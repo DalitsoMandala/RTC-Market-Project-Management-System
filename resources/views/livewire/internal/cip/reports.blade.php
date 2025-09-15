@@ -264,11 +264,9 @@
 
                         @if ($loadingData)
                             <div class="p-2 my-2 row">
-
-                                <div class="col-12 d-flex justify-content-center ">
-                                    <span class="fw-bold me-2"> Updating data...Please wait</span>
-
-                                    <div x-data wire:poll.5000ms='readCache()'
+                                <div class="col-12 d-flex justify-content-center align-items-center">
+                                    <span class="fw-bold me-2">Updating data... Please wait</span>
+                                    <div wire:poll.5000ms='readCache'
                                         class="d-flex justify-content-center align-items-center">
                                         <div class="spinner-border text-warning spinner-border-sm" role="status">
                                             <span class="visually-hidden">Loading...</span>
@@ -277,6 +275,7 @@
                                 </div>
                             </div>
                         @endif
+
 
 
 
