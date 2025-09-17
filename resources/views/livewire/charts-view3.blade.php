@@ -257,7 +257,7 @@
                                         <td colspan="4" class="text-end"><strong class="fs-5">Gross Margin
                                                 (Profit) %:</strong></td>
                                         <td>{{ number_format(
-                                            (($grossMarginCalculations['income'] / $grossMarginCalculations['total_valuable_cost']) * 100),
+                                            ($grossMarginCalculations['total_valuable_cost'] / $grossMarginCalculations['income']) * 100,
                                             2,
                                             '.',
                                             ',',
