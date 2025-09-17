@@ -123,11 +123,19 @@
                 <div class="my-4 border-0 shadow-sm card rounded-2">
                     <div class="mt-2 border-0 card-header align-items-center d-flex justify-content-between">
                         <span class="fw-semibold text-dark">Gross Margin</span>
-                        <button class=" btn btn-warning btn-sm" @click="downloadTable('grossMargin')">Download Excel</button>
+                        <div>
+                            <button class=" btn btn-warning btn-sm" @click="downloadTable('grossMargin')">Download
+                                Excel</button>
+                            <button class=" btn btn-warning btn-sm" @click="downloadTablePDF('grossMargin')">Download
+                                PDF</button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive rounded-2">
                             <table class="table table-bordered " id="grossMargin">
+                                <thead class="table-secondary">
+                                    <th colspan="5" style="text-align: center">Gross Margin</th>
+                                </thead>
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Item</th>
@@ -140,7 +148,7 @@
                                 <tbody>
                                     @foreach ($grossCategories as $category)
                                         <tr class="table-secondary">
-                                            <td colspan="5"><strong>{{ $category['name'] }}</strong></td>
+                                            <th colspan="5"><strong>{{ $category['name'] }}</strong></td>
                                         </tr>
                                         @if ($category['name'] == 'Seed (Mbeu/Variety)')
                                             @foreach ($grossMarginVarieties as $grossMarginVariety)
@@ -239,19 +247,29 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
+
 
         <div class="row">
             <div class="col-12">
                 <div class="my-4 border-0 shadow-sm card rounded-2">
                     <div class="mt-2 border-0 rounded-2 card-header align-items-center d-flex justify-content-between">
                         <span class="fw-semibold text-dark">Farming Cost</span>
-                        <button class=" btn btn-warning btn-sm" @click="downloadTable('farmingCost')">Download Excel</button>
+                        <div>
+                            <button class=" btn btn-warning btn-sm" @click="downloadTable('farmingCost')">Download
+                                Excel</button>
+                            <button class=" btn btn-warning btn-sm" @click="downloadTablePDF('farmingCost')">Download
+                                PDF</button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive rounded-2">
                             <table class="table table-bordered " id="farmingCost">
+                                <thead class="table-secondary">
+                                    <th colspan="5" style="text-align: center">Farming Cost</th>
+                                </thead>
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Item</th>
@@ -264,7 +282,7 @@
                                 <tbody>
                                     @foreach ($grossCategories as $category)
                                         <tr class="table-secondary">
-                                            <td colspan="5"><strong>{{ $category['name'] }}</strong></td>
+                                            <th colspan="5"><strong>{{ $category['name'] }}</strong></td>
                                         </tr>
                                         @if ($category['name'] == 'Seed (Mbeu/Variety)')
                                             @foreach ($farmingCostVarieties as $grossMarginVariety)
@@ -313,9 +331,7 @@
 
 </div>
 
-@push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-@endpush
+
 @script
     <script>
         Alpine.data('dashboard', () => ({
@@ -355,7 +371,47 @@
 
                 // Export to Excel file
                 XLSX.writeFile(wb, id + ".xlsx");
+            },
+            downloadTablePDF(id) {
+                const doc = new jsPDF("p", "pt", "a4");
+
+                autoTable(doc, {
+                    html: "#" + id,
+                    theme: "grid",
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3,
+
+                        valign: "middle"
+                    },
+                    headStyles: {
+                        fillColor: [220, 220, 220], // light gray header
+                        textColor: [0, 0, 0],
+                        halign: "center",
+                        fontStyle: "bold"
+                    },
+                    footStyles: {
+                        fillColor: [220, 220, 220], // gray footer
+                        textColor: [0, 0, 0],
+                        fontStyle: "bold"
+                    },
+                    didParseCell: function(data) {
+                        // Highlight category headers differently
+                        if (data.cell.raw.tagName === 'TH' && data.cell.colSpan === 5 && data
+                            .section !== 'head') {
+                            data.cell.styles.fillColor = [220, 220, 220];
+                            data.cell.styles.fontStyle = 'bold';
+                            data.cell.styles.halign = 'left';
+                            data.cell.styles.textColor = [0, 0, 0];
+                        }
+                    }
+                });
+
+                doc.save(id + ".pdf");
             }
+
+
+
         }));
     </script>
 @endscript

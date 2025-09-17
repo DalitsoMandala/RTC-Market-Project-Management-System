@@ -40,3 +40,10 @@ const SystemColors = [
     "#d32f2f",
 ];
 window.SystemColors = SystemColors;
+
+import { jsPDF } from "jspdf";
+import {autoTable} from "jspdf-autotable";
+
+window.jsPDF = jsPDF;
+window.autoTable = autoTable;
+

@@ -10,7 +10,7 @@
         <div class="mt-4 mb-2 row">
 
             <!-- Filter Card -->
-            <div class="border-0 shadow-sm card rounded-4" :class="{ 'opacity-50 pe-none': visible === false }">
+            <div class="border-0 shadow-sm card rounded-4" >
 
 
                 <!-- Body -->

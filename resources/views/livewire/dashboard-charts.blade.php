@@ -87,9 +87,7 @@
                             <div class="card">
                                 <div class="py-3 border-0 card-header fw-bold">
                                     <h5>Submissions progress</h5>
-                                    <span class="text-muted small">
-                                        Monthly submissions progress based on different types of forms.
-                                    </span>
+
                                 </div>
                                 <div class="card-body" x-data="{
                                     init() {
@@ -169,9 +167,7 @@
                                     <div class="align-items-center d-flex justify-content-between">
                                         <div class="">
                                             <h4 class="mb-2 card-title flex-grow-1">Current Users</h4>
-                                            <p class="mb-1 text-muted small"> List of active users in the system
 
-                                            </p>
 
                                         </div>
 
@@ -181,7 +177,7 @@
                                     </div>
                                 </div>
 
-                                <div class="overflow-scroll card-body">
+                                <div class="p-0 overflow-scroll card-body" style="max-height: 400px">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-striped table-hover ">
                                             <thead class="table-secondary">
@@ -234,10 +230,9 @@
                                 <div class="card-header fw-bold">
                                     <div class="align-items-center d-flex justify-content-between">
                                         <div>
-                                            <h5>Recent Submissions</h5>
-                                            <span class="text-muted small">
-                                                Latest submissions with details.
-                                            </span>
+
+                                            <h4 class="mb-2 card-title flex-grow-1">Recent Submissions</h4>
+
                                         </div>
 
                                         <a class="btn btn-warning" href="/admin/submissions" role="button"> View More <i
@@ -245,7 +240,7 @@
                                     </div>
 
                                 </div>
-                                <div class=" card-body">
+                                <div class="p-0 overflow-scroll card-body" style="max-height: 400px">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-striped table-hover ">
                                             <thead class="table-secondary">
@@ -262,7 +257,14 @@
                                                 @foreach ($lastSubmission as $item)
                                                     <tr>
                                                         <td scope="row" class="py-4">
-                                                            {{ $item->form->name }}
+                                                            <div class="d-flex align-items-center">
+                                                                <div
+                                                                    class="text-white avatar-sm bg-warning rounded-circle me-1 d-flex align-items-center justify-content-center">
+                                                                    <i class="bx bx-folder-plus"></i></div>
+                                                                <span class="ms-2">
+                                                                    {{ \Str::limit($item->form->name, 20, '...') }}</span>
+                                                            </div>
+
                                                         </td>
                                                         <td>{{ $item->user->organisation->name }}</td>
                                                         <td>{{ $item->user->name }}</td>

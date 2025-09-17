@@ -45,9 +45,33 @@
                 padding: 70px 0 60px 0;
             }
 
+            #topbar {
+                padding: 0.4rem 0rem;
+            }
+
+            .logo {
+                line-height: 0px !important;
+            }
+
+            /* Medium screens (tablets and below) */
+            @media (max-width: 991.98px) {
+                body[data-layout="horizontal"] .page-content {
+                    padding-top: 80px;
+                }
+            }
+
+            /* Small screens (phones and below) */
+            @media (max-width: 767.98px) {
+                body[data-layout="horizontal"] .page-content {
+                    padding-top: 180px;
+                }
+            }
+
             .topbar-nav .nav-item .nav-link {
                 color: #7b8190 !important;
-
+                margin: 0.2rem 0.2rem;
+                padding: 0.3rem 0.5rem;
+                border-radius: 10px;
             }
 
             .topbar-nav .nav-item .nav-link:hover {
@@ -385,6 +409,13 @@
             <script src="https://cdn.jsdelivr.net/npm/jquery-table2excel@1.1.1/dist/jquery.table2excel.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
             <script src="https://cdn.lordicon.com/lordicon.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+                integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <!-- ✅ Global build of jsPDF -->
+
+            <!-- ✅ AutoTable plugin -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
 
             @stack('scripts')

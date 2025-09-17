@@ -162,7 +162,7 @@
             <!-- Establishment Distribution -->
             <div class="col-12 col-xl-6">
                 <div class="shadow-sm card h-100">
-                    <div class="card-header">
+                    <div class="border-0 card-header">
                         <h5 class="card-title">Establishment Distribution</h5>
                     </div>
                     <div class="card-body">
@@ -182,7 +182,7 @@
                 <!-- Gender Distribution -->
 
                 <div class="shadow-sm card h-100">
-                    <div class="card-header">
+                    <div class="border-0 card-header">
                         <h5 class="card-title">Gender Distribution</h5>
                     </div>
                     <div class="card-body">
@@ -200,7 +200,7 @@
                 <!-- Age Group Distribution -->
 
                 <div class="shadow-sm card h-100 ">
-                    <div class="card-header">
+                    <div class="border-0 card-header">
                         <h5 class="card-title">Age Group Distribution</h5>
                     </div>
                     <div class="card-body">
@@ -214,7 +214,7 @@
             <!-- Crop Distribution -->
             <div class="col-12 col-xl-4">
                 <div class="shadow-sm card h-100">
-                    <div class="card-header">
+                    <div class="border-0 card-header">
                         <h5 class="card-title">Crop Distribution</h5>
                     </div>
                     <div class="card-body">
@@ -228,7 +228,7 @@
             <!-- Profession Distribution -->
             <div class="col-12 col-xl-8">
                 <div class="shadow-sm card h-100">
-                    <div class="card-header">
+                    <div class="border-0 card-header ">
                         <h5 class="card-title">Actor Distribution</h5>
                     </div>
                     <div class="card-body">

@@ -22,6 +22,8 @@
         "decimal.js": "^10.4.3",
         "exceljs": "^4.4.0",
         "flatpickr": "^4.6.13",
+        "jspdf": "^3.0.2",
+        "jspdf-autotable": "^5.0.2",
         "litepicker": "^2.0.12",
         "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
     }

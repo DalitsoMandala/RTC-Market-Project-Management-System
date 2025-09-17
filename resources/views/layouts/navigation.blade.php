@@ -5,19 +5,23 @@
 
 
 <header id="page-topbar" class="ishorizontal-topbar border-top">
-    <nav class="bg-white border-bottom d-block" x-data x-init="() => {
-
-
-
-
-
-    }">
-        <div class="container flex-wrap d-flex justify-content-center justify-content-md-between align-items-center"
+    <nav class="bg-white border-bottom d-block " id="topbar" x-data>
+        <div class="container flex-wrap d-flex justify-content-center justify-content-lg-between align-items-center"
             style="max-width: 85%;">
 
             <!-- Left side: App name -->
             <ul class="nav">
-                <li class="nav-item">
+
+                <li class="nav-item d-block d-md-flex align-items-center">
+                    <div class="navbar-brand-box d-flex justify-content-center">
+
+                        <a href="/" class="logo">
+
+                            <span class="logo-xl ">
+                                <x-application-logo width="50" />
+                            </span>
+                        </a>
+                    </div>
                     <a href="#" class="px-2 text-center disabled nav-link fw-bold text-uppercase text-muted">
                         {{ config('app.name') }}
                     </a>
@@ -96,15 +100,7 @@
     <div class="navbar-header">
         <div class="d-flex">
             <!-- LOGO -->
-            <div class="navbar-brand-box">
 
-                <a href="/" class="logo">
-
-                    <span class="logo-xl">
-                        <x-application-logo width="50" />
-                    </span>
-                </a>
-            </div>
 
             @php
                 $routePrefixMain = \Illuminate\Support\Facades\Route::current()->getPrefix();
@@ -133,30 +129,24 @@
 
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
+                                    <a class="nav-link dropdown-toggle" href="#" id="topnav-more" role="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bx bx-file"></i>
                                         <span data-key="t-pages">Manage Users</span>
                                         <div class="arrow-down"></div>
                                     </a>
-                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
-
-
-
-
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('admin-users') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">List Users</span>
-
-                                        </a>
-
-
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('admin-user-roles') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">User Roles</span>
-
-                                        </a>
-                                    </div>
+                                    <ul class="dropdown-menu" aria-labelledby="topnav-more">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin-users') }}">
+                                                <span data-key="t-utility">List Users</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('admin-user-roles') }}">
+                                                <span data-key="t-utility">User Roles</span>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
 
                                 <li class="nav-item dropdown">

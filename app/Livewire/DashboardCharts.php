@@ -27,7 +27,7 @@ class DashboardCharts extends Component
     public $name = null;
     public $financialYears = [];
     public $selectedReportYear = 1;
- public $project;
+    public $project;
     public $indicatorCount;
     public $submissions;
 
@@ -38,7 +38,7 @@ class DashboardCharts extends Component
     public $submissionCategories;
     public $lastSubmission = [];
     public $users = [];
-public $indicatorData = [];
+    public $indicatorData = [];
     public $topData = [
         'users' => null,
         'inactiveUsers' => null,
@@ -64,7 +64,7 @@ public $indicatorData = [];
 
     public function mount()
     {
-               $this->topData['users'] = User::count();
+        $this->topData['users'] = User::count();
         $this->topData['inactiveUsers'] = User::withTrashed()->whereNotNull('deleted_at')->count();
         $this->topData['activeUsers'] = User::withTrashed()->whereNull('deleted_at')->count();
         $this->topData['projects'] = Project::count();
@@ -77,7 +77,7 @@ public $indicatorData = [];
     public function loadData($selectedReportYear = null)
     {
         $records = FinancialYear::where('project_id', 1)->get(); // retrieve all records from database
-        $financialYear = FinancialYear::where('status','active')->first()->number ?? 2;
+        $financialYear = FinancialYear::where('status', 'active')->first()->number ?? 2;
 
 
 
@@ -181,7 +181,6 @@ public $indicatorData = [];
             ->groupBy('year', 'month', 'batch_type')
             ->get()
             ->toArray();
-
     }
 
     private function loadSubmissions()
