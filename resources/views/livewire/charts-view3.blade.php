@@ -155,9 +155,9 @@
                                                 <tr>
                                                     <td>{{ $grossMarginVariety['variety'] }}</td>
                                                     <td>{{ $grossMarginVariety['unit'] }}</td>
-                                                    <td>{{ $grossMarginVariety['avg_qty'] }}</td>
-                                                    <td> {{ $grossMarginVariety['avg_unit_price'] }}</td>
-                                                    <td> {{ $grossMarginVariety['avg_total'] }}</td>
+                                                    <td>{{  number_format($grossMarginVariety['avg_qty'],2,'.',',') }}</td>
+                                                    <td> {{  number_format($grossMarginVariety['avg_unit_price'],2,'.',',') }}</td>
+                                                    <td> {{  number_format($grossMarginVariety['avg_total'],2,'.',',') }}</td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -166,9 +166,9 @@
                                                 <tr>
                                                     <td>{{ $grossData['item_name'] }}</td>
                                                     <td>{{ $grossData['unit'] }}</td>
-                                                    <td>{{ $grossData['avg_qty'] }}</td>
-                                                    <td> {{ $grossData['avg_unit_price'] }}</td>
-                                                    <td> {{ $grossData['avg_total'] }}</td>
+                                                    <td>{{  number_format($grossData['avg_qty'],2,'.',',') }}</td>
+                                                    <td> {{  number_format($grossData['avg_unit_price'],2,'.',',') }}</td>
+                                                    <td> {{  number_format($grossData['avg_total'],2,'.',',') }}</td>
 
                                                 </tr>
                                             @endif
@@ -185,7 +185,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['total_valuable_cost'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['total_valuable_cost'],2,'.',',') }}</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -194,7 +194,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['total_harvest'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['total_harvest'],2,'.',',') }}</td>
                                     </tr>
 
                                     <tr>
@@ -204,7 +204,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['prevailing_selling_price'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['prevailing_selling_price'],2,'.',',') }}</td>
                                     </tr>
 
                                     <tr>
@@ -213,7 +213,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['income'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['income'],2,'.',',') }}</td>
                                     </tr>
 
                                     <tr>
@@ -221,26 +221,26 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['yield'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['yield'],2,'.',',') }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Break-even Yield:</strong></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['break_even_yield'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['break_even_yield'],2,'.',',') }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Break-even Price (MWK):</strong></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ $grossMarginCalculations['break_even_price'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['break_even_price'],2,'.',',') }}</td>
                                     </tr>
                                     <tr class="table-secondary">
                                         <td colspan="4" class="text-end"><strong class="fs-5">Gross Margin
                                                 (Profit) MWK:</strong></td>
-                                        <td>{{ $grossMarginCalculations['gross_margin'] }}</td>
+                                        <td>{{  number_format($grossMarginCalculations['gross_margin'],2,'.',',') }}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -290,8 +290,8 @@
                                                     <td>{{ $grossMarginVariety['variety'] }}</td>
                                                     <td>{{ $grossMarginVariety['unit'] }}</td>
                                                     <td>1</td>
-                                                    <td> {{ $grossMarginVariety['avg_unit_price'] }}</td>
-                                                    <td> {{ $grossMarginVariety['avg_unit_price'] }}</td>
+                                                    <td> {{  number_format($grossMarginVariety['avg_unit_price'],2,'.',',') }}</td>
+                                                    <td> {{  number_format($grossMarginVariety['avg_unit_price'],2,'.',',') }}</td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -301,8 +301,8 @@
                                                     <td>{{ $farmData['item_name'] }}</td>
                                                     <td>{{ $farmData['unit'] }}</td>
                                                     <td>1</td>
-                                                    <td> {{ $farmData['avg_unit_price'] }}</td>
-                                                    <td> {{ $farmData['avg_unit_price'] }}</td>
+                                                    <td> {{  number_format($farmData['avg_unit_price'],2,'.',',') }}</td>
+                                                    <td> {{  number_format($farmData['avg_unit_price'],2,'.',',') }}</td>
 
                                                 </tr>
                                             @endif
@@ -312,7 +312,7 @@
                                     <tr class="table-secondary">
                                         <td colspan="4" class="text-end"><strong class="fs-5">Total Farming Cost
                                                 (MWK):</strong></td>
-                                        <td>{{ $farmingCostCalculations['unit_price_total'] }}</td>
+                                        <td>{{ number_format($farmingCostCalculations['unit_price_total'],2,'.',',') }}</td>
                                     </tr>
                                 </tfoot>
 
