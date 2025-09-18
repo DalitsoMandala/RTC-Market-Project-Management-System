@@ -8,13 +8,13 @@
 
             showContent: $wire.entangle('showContent'),
         }" x-show="showContent">
-            <div class="col">
+            <div class="col-12 col-lg-6">
                 <h2 class="h2">Summary</h2>
                 <p class="text-muted">{{ $name }}</p>
             </div>
-            <div class="col ">
+            <div class="col-12 col-lg-6">
 
-                <div class="d-flex justify-content-end" wire:ignore x-data="{
+                <div class="d-flex justify-content-start justify-content-lg-end" wire:ignore x-data="{
                     visible: true,
                     selectedReportYear: $wire.entangle('selectedReportYear'),
                     financialYears: $wire.entangle('financialYears'),
@@ -166,12 +166,12 @@
                                 <div class="card-header">
                                     <div class="align-items-center d-flex justify-content-between">
                                         <div class="">
-                                            <h4 class="mb-2 card-title flex-grow-1">Current Users</h4>
+                                            <h4 class=" card-title flex-grow-1">Current Users</h4>
 
 
                                         </div>
 
-                                        <a class="btn btn-warning" href="/admin/users" role="button"> View More <i
+                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-users') }}" role="button"> View More <i
                                                 class="bx bx-right-arrow-alt"></i></a>
 
                                     </div>
@@ -231,11 +231,11 @@
                                     <div class="align-items-center d-flex justify-content-between">
                                         <div>
 
-                                            <h4 class="mb-2 card-title flex-grow-1">Recent Submissions</h4>
+                                            <h4 class=" card-title flex-grow-1">Recent Submissions</h4>
 
                                         </div>
 
-                                        <a class="btn btn-warning" href="/admin/submissions" role="button"> View More <i
+                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-submissions') }}" role="button"> View More <i
                                                 class="bx bx-right-arrow-alt"></i></a>
                                     </div>
 

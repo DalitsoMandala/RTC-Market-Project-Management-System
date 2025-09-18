@@ -2,31 +2,19 @@
     @include('layouts.other-navs')
 </div>
 
-
+<style>
+    .custom-container {
+        max-width: 85%;
+    }
+</style>
 
 <header id="page-topbar" class="ishorizontal-topbar border-top">
+
     <nav class="bg-white border-bottom d-block " id="topbar" x-data>
-        <div class="container flex-wrap d-flex justify-content-center justify-content-lg-between align-items-center"
-            style="max-width: 85%;">
-
-            <!-- Left side: App name -->
-            <ul class="nav">
-
-                <li class="nav-item d-block d-md-flex align-items-center">
-                    <div class="navbar-brand-box d-flex justify-content-center">
-
-                        <a href="/" class="logo">
-
-                            <span class="logo-xl ">
-                                <x-application-logo width="50" />
-                            </span>
-                        </a>
-                    </div>
-                    <a href="#" class="px-2 text-center disabled nav-link fw-bold text-uppercase text-muted">
-                        {{ config('app.name') }}
-                    </a>
-                </li>
-            </ul>
+        <div
+            class="container mx-auto custom-container px-4 d-flex flex-column flex-lg-row justify-content-between align-items-center gap-1">
+            <a routerlink="/" class="navbar-brand text-black d-flex align-items-center " href="/">  <x-application-logo width="50"/><span
+                   class="ms-2 fw-medium ">{{ config('app.name') }}</span></a>
 
 
             {{-- URL contains /dashboard --}}
@@ -35,7 +23,7 @@
             @endphp
             @hasanyrole('admin|manager|project_manager|staff')
                 <!-- Right side: Dashboard links -->
-                <ul class="nav align-items-center justify-content-center topbar-nav" x-data="{
+                <ul class="nav align-items-center justify-content-center topbar-nav gap-2" x-data="{
                     role: '{{ Auth::user()->getRoleNames()->first() }}',
                     makeActive(value) {
 
@@ -55,7 +43,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url('/') }}" id="dashboard-one"
-                            class="px-3 nav-link text-secondary {{ request()->is($routePrefix . '/dashboard') ? 'active' : '' }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ? 'btn-outline-warning active' : 'btn-light' }}">
                             Project Report
                         </a>
                     </li>
@@ -64,7 +52,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url($routePrefix . '/dashboard-2') }}" id="dashboard-two"
-                            class="px-3 nav-link text-ligsecondaryht {{ request()->is($routePrefix . '/dashboard-2') ? 'active' : '' }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-2') ?  'btn-outline-warning active' : 'btn-light'  }}">
                             Market Data
                         </a>
                     </li>
@@ -73,7 +61,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url($routePrefix . '/dashboard-3') }}" id="dashboard-three"
-                            class="px-3 nav-link text-secondary {{ request()->is($routePrefix . '/dashboard-3') ? 'active' : '' }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-3') ? 'btn-outline-warning active' : 'btn-light'  }}">
                             Gross Margins
                         </a>
                     </li>
@@ -87,7 +75,7 @@
 
                     <li class="nav-item">
                         <a href="/" id="dashboard-one"
-                            class="px-3 nav-link text-light {{ request()->is($routePrefix . '/dashboard') ? 'active' : '' }} ">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ?  'btn-outline-warning active' : 'btn-light'  }} ">
                             Project Report
                         </a>
                     </li>
@@ -120,39 +108,26 @@
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-dashboard') }}"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-tachometer'></i>
+                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-home mb-1'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
                                 </li>
 
-
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="topnav-more" role="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Manage Users</span>
-                                        <div class="arrow-down"></div>
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-users') }}"
+                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-user mb-1'></i>
+                                        <span data-key="t-dashboards">Manage Users</span>
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="topnav-more">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('admin-users') }}">
-                                                <span data-key="t-utility">List Users</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('admin-user-roles') }}">
-                                                <span data-key="t-utility">User Roles</span>
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </li>
+
+
 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
-                                        <i class="bx bx-file"></i>
+                                        <i class="bx bx-folder mb-1"></i>
                                         <span data-key="t-pages">Data Management</span>
                                         <div class="arrow-down"></div>
                                     </a>
@@ -188,8 +163,7 @@
                                                 <a href="{{ route('admin-indicators') }}" class="dropdown-item"
                                                     data-key="t-lightbox">Indicators</a>
 
-                                                <a class="dropdown-item" href="/admin/baseline"
-                                                    data-key="t-range-slider">
+                                                <a class="dropdown-item" href="/admin/baseline" data-key="t-range-slider">
 
                                                     <span data-key="t-dashboards">Manage Baseline Data</span>
                                                 </a>
@@ -266,28 +240,16 @@
 
 
                                 </li>
-
-
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">System settings</span>
-                                        <div class="arrow-down"></div>
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-setup') }}"
+                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class='bx bx-cog mb-1'></i>
+                                        <span data-key="t-dashboards">Settings</span>
                                     </a>
-                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
-
-
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('admin-setup') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">System setup</span>
-
-                                        </a>
-
-
-
-                                    </div>
                                 </li>
+
+
+
                             </ul>
                         </div>
                     </nav>
@@ -302,7 +264,7 @@
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('cip-dashboard') }}"
                                         id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
-                                        <i class='bx bx-tachometer'></i>
+                                        <i class='bx bx-home mb-1'></i>
                                         <span data-key="t-dashboards">Dashboard</span>
                                     </a>
                                 </li>
@@ -441,8 +403,8 @@
 
 
 
-                                        <a class="dropdown-item dropdown-toggle arrow-none" href="/external/forms"
-                                            id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('external-forms') }}" id="topnav-utility" role="button">
                                             <span data-key="t-utility">Forms</span>
 
                                         </a>
@@ -456,16 +418,18 @@
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="/external/submission-periods" id="topnav-utility" role="button">
+                                            href="{{ route('external-submission-period') }}" id="topnav-utility"
+                                            role="button">
                                             <span data-key="t-utility">Submission Periods</span>
 
                                         </a>
-                                        <a class="dropdown-item dropdown-toggle arrow-none" href="/external/submissions"
-                                            id="topnav-utility" role="button">
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('external-submissions') }}" id="topnav-utility"
+                                            role="button">
                                             <span data-key="t-utility">Submissions</span>
 
                                         </a>
-                                        @if (auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT')
+                                        {{-- @if (auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT')
                                             <a class="dropdown-item dropdown-toggle arrow-none"
                                                 href="/external/products/upload-data" id="topnav-utility" role="button">
                                                 <span data-key="t-utility">Upload Products Data</span>
@@ -477,7 +441,7 @@
                                                 <span data-key="t-utility">View Products Data</span>
 
                                             </a>
-                                        @endif
+                                        @endif --}}
 
 
                                     </div>
@@ -793,7 +757,7 @@
                     id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
                     <img class="rounded-circle header-profile-user"
-                        src="{{ auth()->user()->image != null ? asset('storage/profiles/' . auth()->user()->image) : asset('assets/images/users/usr.png') }}"
+                        src="{{ auth()->user()->image != null || auth()->user()->image != '' ? asset('storage/profiles/' . auth()->user()->image) : asset('assets/images/users/usr.png') }}"
                         alt="Header Avatar">
                 </button>
                 <div class="pt-0 dropdown-menu dropdown-menu-end">

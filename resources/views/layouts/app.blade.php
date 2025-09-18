@@ -54,18 +54,38 @@
             }
 
             /* Medium screens (tablets and below) */
-            @media (max-width: 991.98px) {
+     body[data-layout="horizontal"] .page-content {
+	margin-top: 70px;
+	padding: 70px 30px 60px 30px;
+}
+
+            @media (max-width:576px) {
+                .topnav {
+
+                    top: 230px !important;
+
+                }
+
                 body[data-layout="horizontal"] .page-content {
-                    padding-top: 80px;
+                    padding-top: 200px;
+                }
+
+            }
+
+            @media (min-width: 577px) and (max-width: 992px) {
+                .topnav {
+
+                    top: 162px !important;
+
+                }
+
+                body[data-layout="horizontal"] .page-content {
+                    padding-top: 130px;
                 }
             }
 
-            /* Small screens (phones and below) */
-            @media (max-width: 767.98px) {
-                body[data-layout="horizontal"] .page-content {
-                    padding-top: 180px;
-                }
-            }
+
+
 
             .topbar-nav .nav-item .nav-link {
                 color: #7b8190 !important;
@@ -244,11 +264,13 @@
                 position: relative;
                 cursor: pointer;
                 display: inline-block;
+
             }
 
             /* Custom Tooltip Text Styling */
             .custom-tooltip::after {
                 content: attr(title);
+                font-family: "Be Vietnam", sans-serif;
                 /* Use the data-bs-title attribute */
                 visibility: hidden;
                 opacity: 0;

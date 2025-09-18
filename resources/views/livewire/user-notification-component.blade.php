@@ -4,9 +4,12 @@
             id="page-header-notifications-dropdown" data-bs-toggle="offcanvas" href="#notified" role="button"
             aria-controls="offcanvasExample">
 
-            <i class='bx bx-bell fs-3 text-muted'></i>
+
             @if ($unreadNotifications->count() > 0)
+                <i class='bx bx-bell fs-3 text-muted'></i>
                 <span class="noti-dot bg-danger rounded-pill">{{ $unreadNotifications->count() }}</span>
+            @else
+                <i class='bx bx-bell-off fs-3 text-muted custom-tooltip' title="No Notifications"></i>
             @endif
         </button>
 
@@ -25,7 +28,7 @@
                     @foreach ($notifications->take(5) as $notification)
                         @if ($notification->type == 'failed_submissions')
                             <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
-                                <div class="d-flex border-bottom align-items-start ">
+                                <div class="d-flex rounded align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">
                                             <span
@@ -56,7 +59,7 @@
                         @endif
                         @if ($notification->type == 'submissions')
                             <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
-                                <div class="d-flex border-bottom align-items-start ">
+                                <div class="d-flex rounded align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">
                                             <span
@@ -86,7 +89,7 @@
 
                         @if ($notification->type == 'imports')
                             <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
-                                <div class="d-flex border-bottom align-items-start ">
+                                <div class="d-flex rounded align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">
                                             <span
@@ -116,7 +119,7 @@
 
                         @if ($notification->type == 'failed_imports')
                             <a href="{!! $notification->data['link'] ?? null !!}" class="text-reset notification-item ">
-                                <div class="d-flex border-bottom align-items-start ">
+                                <div class="d-flex rounded align-items-start ">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-3">
                                             <span
