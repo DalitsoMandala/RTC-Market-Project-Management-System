@@ -12,9 +12,9 @@
 
     <nav class="bg-white border-bottom d-block " id="topbar" x-data>
         <div
-            class="container mx-auto custom-container px-4 d-flex flex-column flex-lg-row justify-content-between align-items-center gap-1">
-            <a routerlink="/" class="navbar-brand text-black d-flex align-items-center " href="/">  <x-application-logo width="50"/><span
-                   class="ms-2 fw-medium ">{{ config('app.name') }}</span></a>
+            class="container gap-1 px-4 mx-auto custom-container d-flex flex-column flex-lg-row justify-content-between align-items-center">
+            <a routerlink="/" class="text-black navbar-brand d-flex align-items-center " href="/">
+                <x-application-logo width="50" /><span class="ms-2 fw-medium ">{{ config('app.name') }}</span></a>
 
 
             {{-- URL contains /dashboard --}}
@@ -23,7 +23,7 @@
             @endphp
             @hasanyrole('admin|manager|project_manager|staff')
                 <!-- Right side: Dashboard links -->
-                <ul class="nav align-items-center justify-content-center topbar-nav gap-2" x-data="{
+                <ul class="gap-2 nav align-items-center justify-content-center topbar-nav" x-data="{
                     role: '{{ Auth::user()->getRoleNames()->first() }}',
                     makeActive(value) {
 
@@ -52,7 +52,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url($routePrefix . '/dashboard-2') }}" id="dashboard-two"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-2') ?  'btn-outline-warning active' : 'btn-light'  }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-2') ? 'btn-outline-warning active' : 'btn-light' }}">
                             Market Data
                         </a>
                     </li>
@@ -61,7 +61,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url($routePrefix . '/dashboard-3') }}" id="dashboard-three"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-3') ? 'btn-outline-warning active' : 'btn-light'  }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-3') ? 'btn-outline-warning active' : 'btn-light' }}">
                             Gross Margins
                         </a>
                     </li>
@@ -75,7 +75,7 @@
 
                     <li class="nav-item">
                         <a href="/" id="dashboard-one"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ?  'btn-outline-warning active' : 'btn-light'  }} ">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ? 'btn-outline-warning active' : 'btn-light' }} ">
                             Project Report
                         </a>
                     </li>
@@ -109,37 +109,35 @@
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-dashboard') }}"
                                         id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-home mb-1'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
+                                        <i class='mb-1 bx bx-home'></i>
+                                        Dashboard
                                     </a>
                                 </li>
 
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-users') }}"
                                         id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-user mb-1'></i>
-                                        <span data-key="t-dashboards">Manage Users</span>
+                                        <i class='mb-1 bx bx-user'></i>
+                                        Manage Users
                                     </a>
                                 </li>
 
 
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-folder mb-1"></i>
-                                        <span data-key="t-pages">Data Management</span>
-                                        <div class="arrow-down"></div>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
+
                                     </a>
-                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+                                    <ul class="dropdown-menu">
 
 
 
                                         <div class="dropdown">
-                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Project Management</span>
-                                                <div class="arrow-down"></div>
+                                            <a class="dropdown-item" href="#">
+                                                Project Management
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
 
@@ -155,9 +153,9 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Indicator Management</span>
-                                                <div class="arrow-down"></div>
+                                                role="button" >
+                                                Indicator Management
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('admin-indicators') }}" class="dropdown-item"
@@ -165,7 +163,7 @@
 
                                                 <a class="dropdown-item" href="/admin/baseline" data-key="t-range-slider">
 
-                                                    <span data-key="t-dashboards">Manage Baseline Data</span>
+                                                    <span>Manage Baseline Data</span>
                                                 </a>
                                                 <a href="{{ route('admin-std-targets') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Indicator Targets</a>
@@ -185,9 +183,9 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Operations Management</span>
-                                                <div class="arrow-down"></div>
+                                                role="button" >
+                                                Operations Management
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('admin-forms') }}" class="dropdown-item"
@@ -205,9 +203,9 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Marketing Management</span>
-                                                <div class="arrow-down"></div>
+                                                role="button" >
+                                                Marketing Management
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('admin-markets-manage-data') }}" class="dropdown-item"
@@ -221,9 +219,9 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Gross Management</span>
-                                                <div class="arrow-down"></div>
+                                                role="button" >
+                                                Gross Management
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('admin-gross-margin-manage-data') }}"
@@ -236,15 +234,15 @@
                                             </div>
                                         </div>
 
-                                    </div>
+                                    </ul>
 
 
                                 </li>
                                 <li class="nav-item ">
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-setup') }}"
                                         id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-cog mb-1'></i>
-                                        <span data-key="t-dashboards">Settings</span>
+                                        <i class='mb-1 bx bx-cog'></i>
+                                        <span>Settings</span>
                                     </a>
                                 </li>
 
@@ -264,8 +262,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('cip-dashboard') }}"
                                         id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
-                                        <i class='bx bx-home mb-1'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
+                                        <i class='mb-1 bx bx-home'></i>
+                                        <span>Dashboard</span>
                                     </a>
                                 </li>
                                 <li class="nav-item ">
@@ -273,7 +271,7 @@
                                         href="{{ $routePrefixMain }}/baseline" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
-                                        <span data-key="t-dashboards">Manage Baseline Data</span>
+                                        <span>Manage Baseline Data</span>
                                     </a>
                                 </li>
                                 <li class="nav-item ">
@@ -281,7 +279,7 @@
                                         id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
+                                        <span>Indicators</span>
                                     </a>
                                 </li>
 
@@ -289,8 +287,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
                                         <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Manage Data</span>
-                                        <div class="arrow-down"></div>
+                                        <span>Manage Data</span>
+
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
@@ -324,8 +322,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Marketing Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Marketing Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('cip-markets-manage-data') }}" class="dropdown-item"
@@ -340,8 +338,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Gross Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Gross Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('cip-gross-margin-manage-data') }}"
@@ -362,7 +360,7 @@
                                         id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span data-key="t-dashboards">Reports</span>
+                                        <span>Reports</span>
                                     </a>
                                 </li>
                             </ul>
@@ -379,7 +377,7 @@
                                         href="{{ route('external-dashboard') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
+                                        <span>Dashboard</span>
                                     </a>
                                 </li>
 
@@ -388,7 +386,7 @@
                                         href="{{ route('external-indicators') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
+                                        <span>Indicators</span>
                                     </a>
                                 </li>
 
@@ -396,8 +394,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
                                         <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Manage Data</span>
-                                        <div class="arrow-down"></div>
+                                        <span>Manage Data</span>
+
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
@@ -452,7 +450,7 @@
                                         href="{{ route('external-reports') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span data-key="t-dashboards">Reports</span>
+                                        <span>Reports</span>
                                     </a>
                                 </li>
                             </ul>
@@ -470,7 +468,7 @@
                                         href="{{ route('cip-staff-dashboard') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
+                                        <span>Dashboard</span>
                                     </a>
                                 </li>
 
@@ -479,7 +477,7 @@
                                         href="{{ route('cip-staff-indicators') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
+                                        <span>Indicators</span>
                                     </a>
                                 </li>
 
@@ -487,8 +485,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
                                         <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Manage Data</span>
-                                        <div class="arrow-down"></div>
+                                        <span>Manage Data</span>
+
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
@@ -525,8 +523,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Marketing Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Marketing Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('staff-markets-manage-data') }}" class="dropdown-item"
@@ -541,8 +539,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Gross Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Gross Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('staff-gross-margin-manage-data') }}"
@@ -560,7 +558,7 @@
                                         href="{{ route('cip-staff-reports') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span data-key="t-dashboards">Reports</span>
+                                        <span>Reports</span>
                                     </a>
                                 </li>
                             </ul>
@@ -580,7 +578,7 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
+                                        <span>Dashboard</span>
                                     </a>
                                 </li>
 
@@ -590,7 +588,7 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Indicators</span>
+                                        <span>Indicators</span>
                                     </a>
                                 </li>
 
@@ -598,8 +596,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
                                         <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Manage Data</span>
-                                        <div class="arrow-down"></div>
+                                        <span>Manage Data</span>
+
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
@@ -622,8 +620,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Marketing Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Marketing Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('project_manager-markets-manage-data') }}"
@@ -637,8 +635,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Gross Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Gross Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('project_manager-gross-margin-manage-data') }}"
@@ -658,7 +656,7 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span data-key="t-dashboards">Reports</span>
+                                        <span>Reports</span>
                                     </a>
                                 </li>
                             </ul>
@@ -676,7 +674,7 @@
                                         href="{{ route('enumerator-dashboard') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span data-key="t-dashboards">Dashboard</span>
+                                        <span>Dashboard</span>
                                     </a>
                                 </li>
 
@@ -686,7 +684,7 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span data-key="t-dashboards">Submissions</span>
+                                        <span>Submissions</span>
                                     </a>
                                 </li>
 
@@ -694,8 +692,8 @@
                                     <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
                                         role="button">
                                         <i class="bx bx-file"></i>
-                                        <span data-key="t-pages">Manage Data</span>
-                                        <div class="arrow-down"></div>
+                                        <span>Manage Data</span>
+
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
@@ -706,8 +704,8 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span data-key="t-extendeds">Marketing Management</span>
-                                                <div class="arrow-down"></div>
+                                                <span>Marketing Management</span>
+
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('enumerator-markets-manage-data') }}"

@@ -5930,6 +5930,7 @@ fieldset:disabled .btn {
 .breadcrumb-item:hover :not(.active) {
     color: var(--bs-warning-text-emphasis);
     font-weight: 400;
+
 }
 
 .pagination {

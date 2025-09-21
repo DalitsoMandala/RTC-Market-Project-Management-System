@@ -7,16 +7,18 @@
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Users</h4>
+                <div >
+                    <div class="page-title-box col-12">
 
-                    <div class="page-title-right">
-                        <ol class="m-0 breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manage Users</li>
-                        </ol>
+
+                        <div class="page-title-left">
+                            <ol class="m-0 breadcrumb">
+                                <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Manage Users</li>
+                            </ol>
+                        </div>
+
                     </div>
-
                 </div>
             </div>
         </div>
@@ -341,7 +343,8 @@
                             <form wire:submit="sendEmails">
                                 <div class="mb-3">
                                     <label class="form-label">Subject</label>
-                                    <input type="text" wire:model="subject" class="form-control @error('subject') is-invalid @enderror"
+                                    <input type="text" wire:model="subject"
+                                        class="form-control @error('subject') is-invalid @enderror"
                                         placeholder="Enter email subject">
                                     @error('subject')
                                         <x-error>{{ $message }}</x-error>
@@ -350,10 +353,10 @@
 
                                 <div class="mb-3" wire:ignore>
                                     <label class="form-label">Message</label>
-                                <div id="editor" style="height: 250px;"></div>
+                                    <div id="editor" style="height: 250px;"></div>
                                 </div>
                                 @error('message')
-                                    <x-error >{{ $message }}</x-error>
+                                    <x-error>{{ $message }}</x-error>
                                 @enderror
                                 <div class="mb-3">
                                     <label class="form-label">Exclude Roles</label>
@@ -388,25 +391,29 @@
 
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
- @endpush
+        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    @endpush
     @script
         <script>
-       const  quill = new Quill('#editor', {
+            const quill = new Quill('#editor', {
                 theme: 'snow',
                 placeholder: 'Type your message...',
                 modules: {
                     toolbar: [
                         ['bold', 'italic', 'underline'],
-                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                        [{
+                            'list': 'ordered'
+                        }, {
+                            'list': 'bullet'
+                        }],
                         ['link', 'blockquote', 'code-block']
                     ]
                 }
             });
 
             quill.on('text-change', function(delta, oldDelta, source) {
-$wire.message = quill.root.innerHTML;
+                $wire.message = quill.root.innerHTML;
             });
             $wire.on('edit', () => {
                 window.scrollTo({
