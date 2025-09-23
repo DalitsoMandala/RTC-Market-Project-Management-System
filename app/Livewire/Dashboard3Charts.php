@@ -48,7 +48,8 @@ class Dashboard3Charts extends Component
         'break_even_yield' => 0,
         'break_even_price' => 0,
         'gross_margin' => 0,
-        'unit_price_total' => 0
+        'unit_price_total' => 0,
+        'gross_profit_percentage' => 0
 
     ];
 
@@ -189,6 +190,9 @@ public function load(){
         $this->grossMarginCalculations['gross_margin'] =
             round($this->grossMarginCalculations['income'] - $this->grossMarginCalculations['total_valuable_cost'], 2);
 
+            $this->grossMarginCalculations['gross_margin_percentage'] = $this->grossMarginCalculations['income'] > 0
+            ? round(($this->grossMarginCalculations['total_valuable_cost'] / $this->grossMarginCalculations['income']) * 100, 2)
+            : 0;
         return $data->toArray();
     }
 
@@ -211,14 +215,7 @@ public function load(){
             ->join('gross_margins', 'gross_margin_item_values.gross_margin_id', '=', 'gross_margins.id')
             ->join('gross_margin_category_items', 'gross_margin_item_values.gross_margin_category_item_id', '=', 'gross_margin_category_items.id')
             ->join('gross_margin_categories', 'gross_margin_category_items.gross_margin_category_id', '=', 'gross_margin_categories.id')
-            // ✅ Apply filters dynamically
-            // ->when($this->selectedCrop, fn($q) => $q->where('gross_margins.enterprise', $this->selectedCrop))
-            // ->when($this->selectedSeason, fn($q) => $q->where('gross_margins.season', $this->selectedSeason))
-            // ->when($this->selectedDistrict, fn($q) => $q->where('gross_margins.district', $this->selectedDistrict))
-            // ->when($this->selectedTypeOfProduce, fn($q) => $q->where('gross_margins.type_of_produce', $this->selectedTypeOfProduce))
-            // ->when($this->selectedEPA, fn($q) => $q->where('gross_margins.epa', $this->selectedEPA))
-            // ->when($this->selectedSection, fn($q) => $q->where('gross_margins.section', $this->selectedSection))
-            // ->when($this->selectedSex, fn($q) => $q->where('gross_margins.sex', $this->selectedSex))
+
 
             ->groupBy(
                 'gross_margin_category_items.item_name',
