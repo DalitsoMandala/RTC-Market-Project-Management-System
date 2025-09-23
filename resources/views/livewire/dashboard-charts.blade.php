@@ -35,10 +35,15 @@
                     },
 
                 }">
+
                     <div class="dropdown card-header-dropdown" :class="{ 'opacity-25 pe-none': visible === false }">
-                        <a class="shadow-none dropdown-btn btn btn-warning " href="#" data-bs-toggle="dropdown"
+                        <div class="mb-1 d-flex justify-content-end col-12">
+                             <i class="bx bx-filter fs-5 me-2 text-warning"></i>
+                                <span class="fw-semibold text-dark">Filters</span>
+                        </div>
+                        <a class="shadow-none ps-5 dropdown-btn btn btn-warning " href="#" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                            <i class="bx bx-filter me-5 fw-bold"></i> <span> <span id='report_year'
+                            <span> <span id='report_year'
                                     x-text="'Year ' + selectedReportYear"></span> <i
                                     class="mdi mdi-chevron-down ms-1"></i></span>
 

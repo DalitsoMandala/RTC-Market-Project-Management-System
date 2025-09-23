@@ -10,7 +10,7 @@
             <div class="col-12 col-md-12">
 
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header card-title fw-bold border-bottom-0">
                         <h5 class="card-title">
                             <i class="bx bx-table"></i> Table
                             view

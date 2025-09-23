@@ -9,7 +9,7 @@
         <div class="row gy-1 ">
             <div class="col-12 col-md-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header card-title fw-bold border-bottom-0">
                         <h5 class="card-title">
                             <i class="bx bx-table"></i> Table
                             view
@@ -29,10 +29,10 @@
 
                 <div class="row gy-3 justify-content-center" x-data="dashboard">
 
-                    <div class="text-center col-md-6 col-12">
+                    <div class="col-md-6 col-12">
 
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Crop Distribution</h5>
 
 
@@ -47,10 +47,10 @@
 
 
 
-                    <div class="text-center col-md-6 col-12">
+                    <div class="col-md-6 col-12">
 
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Farmers Distribution</h5>
 
 

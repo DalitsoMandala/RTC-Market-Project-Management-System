@@ -109,9 +109,10 @@ final class FinancialYearTable extends PowerGridComponent
     {
         return [
             Button::add('Active')
-                ->slot('<i class="bx bx-check"></i> Make active')
+                ->slot('<i class="bx bx-check " title="Make active"></i>')
                 ->id()
-                ->class('btn btn-sm btn-success')
+                ->tooltip('Make active')
+                ->class('btn btn-sm btn-success custom-tooltip')
                 ->dispatch('set-active', ['rowId' => $row->id]),
         ];
     }

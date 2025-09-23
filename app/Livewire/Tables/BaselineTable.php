@@ -32,6 +32,8 @@ final class BaselineTable extends PowerGridComponent
 
     public $html;
     public $count = 1;
+    public $newValue;
+    public $oldValue;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -110,6 +112,7 @@ final class BaselineTable extends PowerGridComponent
                             </label>
                             <!-- Input Field -->
                             <input type="text"
+                            readonly
                                 wire:loading.attr="disabled"
                                 wire:loading.class="bg-secondary-subtle"
                                 class="form-control"
@@ -123,11 +126,7 @@ final class BaselineTable extends PowerGridComponent
                             <!-- Error Message -->
                             <div x-show="error" x-text="error" class="mt-1 text-danger"></div>
 
-                            <!-- Buttons -->
-                            <div class="my-2" wire:loading.class="opacity-50 pe-none">
-                                <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
-                                <button class="btn btn-theme-red btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
-                            </div>
+
                         </form>
                         HTML;
                     }
@@ -176,6 +175,7 @@ final class BaselineTable extends PowerGridComponent
                         wire:loading.attr="disabled"
                         wire:loading.class="bg-secondary-subtle"
                         class="form-control"
+                        readonly
                         name="baseline_value"
                         x-model="baseline_value"
                         :class="{
@@ -186,11 +186,7 @@ final class BaselineTable extends PowerGridComponent
                     <!-- Error Message -->
                     <div x-show="error" x-text="error" class="mt-1 text-danger"></div>
 
-                    <!-- Buttons -->
-                    <div class="my-2">
-                        <button class="btn btn-warning btn-sm btn-scroll-top" type="submit">Save</button>
-                        <button class="btn btn-theme-red btn-sm" type="button" @click="baseline_value = initial_value">Cancel</button>
-                    </div>
+
                 </form>
                 HTML;
             });
@@ -232,7 +228,8 @@ final class BaselineTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Indicator', 'indicator_name')
                 ->searchable(),
-            Column::make('Baseline value', 'baseline_value')
+            Column::make('Baseline value', 'baseline_value'),
+            Column::action('Action')
         ];
     }
 
@@ -257,17 +254,26 @@ final class BaselineTable extends PowerGridComponent
         $this->refresh();
     }
 
-    // public function actions($row): array{
-    //     return [
-    //         Button::add('edit')
-    //         ->slot('<i class="bx bx-pen"></i> Edit')
-    //         ->id()
-    //         ->tooltip('Edit Record')
-    //         ->class('btn btn-warning goUp btn-sm my-1')
-    //         ->dispatch('editData', ['rowId' => $row->id]),
 
-    //     ];
-    // }
+
+    public function actions($row): array{
+        return [
+            Button::add('edit')
+            ->slot('<i class="bx bx-pen"></i>')
+            ->id()
+            ->tooltip('Edit Record')
+            ->class('btn btn-warning goUp btn-sm custom-tooltip')
+            ->dispatch('editData', ['indicator_id' => $row->indicator_id, 'name' => 'view-baseline-modal']),
+
+            Button::add('reset')
+            ->slot('<i class="bx bx-refresh"></i>')
+            ->id()
+            ->tooltip('Reset Record')
+            ->class('btn btn-secondary goUp btn-sm custom-tooltip')
+            ->dispatch('resetData', ['id' => $row->id]),
+
+        ];
+    }
 
     /*
      * public function actionRules($row): array

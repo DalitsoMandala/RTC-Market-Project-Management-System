@@ -7,7 +7,7 @@
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
-                <div >
+                <div>
                     <div class="page-title-box col-12">
 
 
@@ -26,19 +26,8 @@
         <div class="row">
             <div class="col-12">
 
-                <ul class=" nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="batch-tab" data-bs-toggle="tab" data-bs-target="#normal"
-                            type="button" role="tab" aria-controls="home" aria-selected="true">
-                            USERS TABLE
-                        </button>
-                    </li>
 
-
-
-
-                </ul>
-                <div class="card" x-data="{
+                <div class="shadow-md card" x-data="{
                     showForm: false,
                     resetForm() {
                         $wire.dispatch('resetForm');
@@ -47,6 +36,9 @@
                     showUploadForm: false,
 
                 }" @edit.window="showForm=true;">
+                    <div class="card-header card-title fw-bold border-bottom-0 ">
+                        Users List
+                    </div>
                     <div class="card-header d-flex justify-content-between align-items-center">
 
                         <div>
@@ -149,7 +141,9 @@
                                         class="form-select @error('role') is-invalid @enderror" x-model="role">
                                         <option value="">Select a role</option>
                                         <template x-for="role in roles">
-                                            <option :value="role"><span x-text="role"></span></option>
+                                            <option :value="role"><span
+                                                    x-text="role === 'project_manager' ? 'project manager' : role"></span>
+                                            </option>
                                         </template>
 
                                     </select>
@@ -324,17 +318,11 @@
         <div class="row">
             <div class="col-12">
                 <div>
-                    <x-tab-component>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="batch-tab" data-bs-toggle="tab"
-                                data-bs-target="#normal" type="button" role="tab" aria-controls="home"
-                                aria-selected="true">
-                                Send Emails
-                            </button>
-                        </li>
-                    </x-tab-component>
-                    <div class=" card">
 
+                    <div class="shadow-md card">
+                        <div class="card-header card-title fw-bold border-bottom-0 ">
+                            Send Emails
+                        </div>
                         <div class="card-body">
                             @if (session()->has('success'))
                                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -355,6 +343,7 @@
                                     <label class="form-label">Message</label>
                                     <div id="editor" style="height: 250px;"></div>
                                 </div>
+
                                 @error('message')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -366,7 +355,7 @@
                                                 <input class="form-check-input" type="checkbox"
                                                     wire:model="excludedRoles" value="{{ $role }}">
                                                 <label class="form-check-label">
-                                                    {{ ucfirst($role) }}
+                                                    {{ $role === 'project_manager' ? 'Project Manager' : ucfirst($role) }}
                                                 </label>
                                             </div>
                                         @endforeach
@@ -413,7 +402,8 @@
             });
 
             quill.on('text-change', function(delta, oldDelta, source) {
-                $wire.message = quill.root.innerHTML;
+                const textContent = quill.getText().trim();
+                $wire.message = textContent;
             });
             $wire.on('edit', () => {
                 window.scrollTo({

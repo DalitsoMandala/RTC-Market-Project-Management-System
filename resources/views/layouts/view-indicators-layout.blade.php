@@ -4,21 +4,21 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between">
-                <h4 class="mb-0">View Indicator</h4>
 
-                <div class="page-title-right">
+
+                <div class="page-title-left col-12">
                     <ol class="m-0 breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                        @hasallroles('cip|admin')
+                        @hasallroles('admin')
                             <li class="breadcrumb-item"><a href="/admin/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('cip|manager')
+                        @hasallroles('manager')
                             <li class="breadcrumb-item"><a href="/cip/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('cip|project_manager')
+                        @hasallroles('project_manager')
                             <li class="breadcrumb-item"><a href="/project_manager/indicators">Indicators</a></li>
                         @endrole
-                        @hasallroles('cip|staff')
+                        @hasallroles('staff')
                             <li class="breadcrumb-item"><a href="/staff/indicators">Indicators</a></li>
                         @endrole
 
@@ -27,7 +27,7 @@
                         @endrole
 
 
-                        <li class="breadcrumb-item active">View Indicator</li>
+                        <li class="breadcrumb-item active">View Indicator ({{ $indicator_no }})</li>
                     </ol>
                 </div>
 
@@ -37,10 +37,13 @@
     <!-- end page title -->
 
     <div class="my-2 row">
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-6">
             <h5 class="mb-3 h3">{{ $indicator_name }} ({{ $indicator_no }} )</h5>
         </div>
-        <div class="flex-wrap col-12 col-md-4 d-flex justify-content-end ">
+        <div class="flex-wrap col-12 col-md-6 d-flex justify-content-end ">
+<div class="mb-1 d-flex justify-content-end col-12">    <i class="bx bx-filter fs-5 me-2 text-warning"></i>
+                                <span class="fw-semibold text-dark">Filters</span></div>
+
             <div class="dropdown mb-1 @if (auth()->user()->hasAnyRole('external')) d-none @endif" x-data="{
                 Organisation: $wire.entangle('selectedOrganisation'),
                 Organisations: $wire.entangle('organisations'),
@@ -60,7 +63,7 @@
             }">
 
 
-                <a class="dropdown-toggle btn btn-soft-warning me-2 fw-bolder" href="#" id="dropdownMenuButton1"
+                <a class="dropdown-toggle btn btn-warning btn-sm me-2 fw-bolder" href="#" id="dropdownMenuButton1"
                     :class="{
                         'opacity-25 pe-none': disable
                     }"
@@ -105,7 +108,7 @@
             }">
 
 
-                <a class="dropdown-toggle btn btn-soft-warning ms-2 fw-bolder" href="#" id="dropdownMenuButton1"
+                <a class="dropdown-toggle btn btn-warning btn-sm ms-2 fw-bolder" href="#" id="dropdownMenuButton1"
                     :class="{
                         'opacity-25 pe-none': disable
                     }"
@@ -152,12 +155,12 @@
             }">
 
 
-                <a class="dropdown-toggle btn btn-soft-warning ms-2 fw-bolder" href="#" id="dropdownMenuButton1"
+                <a class="dropdown-toggle btn btn-warning btn-sm ms-2 fw-bolder" href="#" id="dropdownMenuButton1"
                     :class="{
                         'opacity-25 pe-none': disable
                     }"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="font-size-12 text-uppercase me-3">Crop:</span> <span class="fw-medium">
+                    <span class="font-size-12 text-uppercase me-3">Enterprise:</span> <span class="fw-medium">
                         <span x-text="selectedCrop.name"></span>
 
                         <i class="mdi mdi-chevron-down ms-1"></i></span>

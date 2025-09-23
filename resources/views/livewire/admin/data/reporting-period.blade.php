@@ -8,9 +8,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Reporting periods</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">
@@ -22,10 +22,13 @@
             </div>
         </div>
         <!-- end page title -->
-<x-alpine-alerts />
+        <x-alpine-alerts />
         <!-- Nav tabs -->
         <div class="card">
-            <div class="px-0 card-body">
+            <div class="card-header card-title fw-bold border-bottom-0 ">
+                Project Reporting Periods
+            </div>
+            <div class="card-body">
 
                 <ul class="mx-2 nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -37,7 +40,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
                             type="button" role="tab" aria-controls="profile" aria-selected="false">
-                            Reporting period Details
+                            Reporting period details
                         </button>
                     </li>
 
@@ -58,13 +61,13 @@
                         <livewire:admin.reporting-period-table />
                     </div>
 
-                    <div class="tab-pane" id="financial_year" role="tabpanel" aria-labelledby="profile-tab">
-                        <livewire:admin.financial-year-table />
-                    </div>
+
                     <div class="tab-pane" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <livewire:admin.reporting-months-table />
                     </div>
-
+                    <div class="tab-pane" id="financial_year" role="tabpanel" aria-labelledby="profile-tab">
+                        <livewire:admin.financial-year-table />
+                    </div>
                 </div>
 
 

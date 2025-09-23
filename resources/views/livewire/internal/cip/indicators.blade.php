@@ -9,9 +9,9 @@
         <div class="my-2 row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Indicators</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Indicators</li>
@@ -26,22 +26,25 @@
             <div class="col-12">
                 <x-alerts />
                 <div class="card">
-                    <div class="card-header">
+               <div class="card-header card-title fw-bold border-bottom-0 ">
+                           Indicators
+                        </div>
+                    <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
                                     data-bs-target="#home" type="button" role="tab" aria-controls="home"
                                     aria-selected="true" wire:ignore.self>
-                                    Indicators
+                                    Indicators List
                                 </button>
                             </li>
                             @hasanyrole('admin|manager')
-                                <li class="nav-item " role="presentation">
+                                <li class="nav-item d-none " role="presentation">
                                     <button class="nav-link " id="profile-tab" data-bs-toggle="tab"
                                         data-bs-target="#profile" type="button" role="tab" aria-controls="profile"
                                         aria-selected="false" wire:ignore.self>
-                                        Disaggregations
+                                        Indicator Disaggregations
                                     </button>
                                 </li>
                             @endhasanyrole
@@ -51,68 +54,21 @@
                         <div class="tab-content">
                             <div class="tab-pane active" wire:ignore.self id="home" role="tabpanel"
                                 aria-labelledby="home-tab">
-                                <div class="mt-2 card-header fw-bold">
-                                    <h5 class="card-title">Indicators Table</h5>
-
-                                </div>
-                                <div class="px-0 card-body">
-                                    <livewire:tables.indicatorTable :userId="auth()->user()->id" />
-                                </div>
-                            </div>
-                            <div class="tab-pane" wire:ignore.self id="profile" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <form wire:submit='saveDisaggregations' class="my-3">
-
-                                    <div class="mt-2 row">
-                                        <h5 class="card-title">New Disaggregation</h5>
-                                        <div class="col-12">
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">Name</label>
-                                                <input type="text" wire:loading.attr="disabled" wire:model='name'
-                                                    class="form-control @error('name') is-invalid @enderror">
-                                                @error('name')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="mb-3">
-                                                <label for="" class="form-label">Assigned Indicator</label>
-                                                <select class="form-select " wire:loading.attr="disabled"
-                                                    wire:model.live.debounce.1000ms="selectedIndicator">
-                                                    <option value="">Select one</option>
-                                                    @foreach ($indicators as $indicator)
-                                                        <option value="{{ $indicator->id }}">
-                                                            ({{ $indicator->indicator_no }})
-                                                            {{ $indicator->indicator_name }}</option>
-                                                    @endforeach
-                                                </select>
-
-                                                @error('selectedIndicator')
-                                                    <x-error>{{ $message }}</x-error>
-                                                @enderror
-                                            </div>
-                                            <!-- Horizontal under breakpoint -->
-                                            <ul class="mb-3 list-group" wire:loading.class="opacity-25 pe-nonw">
-                                                <li class="list-group-item bg-warning-subtle">Available Disaggregations
-                                                </li>
-                                                @foreach ($disaggregations as $disaggregation)
-                                                    <li class="list-group-item">{{ $disaggregation->name }}</li>
-                                                @endforeach
-                                            </ul>
-
-                                        </div>
-                                    </div>
 
 
-                                    <button type="submit" class="px-5 btn btn-warning">Submit</button>
-
-                                </form>
+                                <livewire:tables.indicatorTable :userId="auth()->user()->id" />
 
                             </div>
+
+
+
+
+
 
                         </div>
+
                     </div>
+
 
 
                 </div>

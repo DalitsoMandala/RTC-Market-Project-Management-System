@@ -9,7 +9,7 @@
         <div class="row gy-1 ">
             <div class="col-12 col-md-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header card-title fw-bold border-bottom-0">
                         <h5 class="card-title">
                             <i class="bx bx-table"></i> Table
                             view
@@ -30,7 +30,7 @@
                 <div class="row gy-3 justify-content-center" x-data="dashboard">
                     <div class="text-center col-md-4 col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Markets</h5>
 
                             </div>
@@ -44,7 +44,7 @@
                     <div class="text-center col-md-4 col-12">
 
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Imports & Exports Distribution</h5>
 
 
@@ -62,7 +62,7 @@
                     <div class="text-center col-md-4 col-12">
 
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Product Distribution</h5>
 
 

@@ -28,7 +28,7 @@ final class UserTable extends PowerGridComponent
         // $this->showCheckBox();
 
         return [
-            Exportable::make('export')
+            Exportable::make('Users_Export')
                 ->striped()
                 ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
@@ -76,7 +76,8 @@ final class UserTable extends PowerGridComponent
                 return $model->organisation->name;
             })
             ->add('image')
-            ->add('role', function ($model) {
+            ->add('role',fn($model) => $model->roles->pluck('name')->implode(', '))
+            ->add('role_name', function ($model) {
 
                 $roles = $model->roles;
 
@@ -87,26 +88,17 @@ final class UserTable extends PowerGridComponent
                     if ($role->name == 'external') {
 
                         $role->name = '<span class="badge bg-secondary-subtle text-secondary" >External user</span>';
-                    }
-
-                    else if ($role->name == 'manager') {
+                    } else if ($role->name == 'manager') {
                         $role->name = '<span class="badge bg-info-subtle text-info" >Manager</span>';
-                    }
-
-
-
-                  else  if ($role->name == 'admin') {
+                    } else  if ($role->name == 'admin') {
                         $role->name = '<span class="badge bg-success-subtle text-success" >Administrator</span>';
-                    }
-                   else if ($role->name == 'project_manager') {
+                    } else if ($role->name == 'project_manager') {
                         $role->name = '<span class="badge bg-success-subtle text-success" >Project Manager</span>';
-                    }
-                  else  if ($role->name == 'staff') {
+                    } else  if ($role->name == 'staff') {
                         $role->name = '<span class="badge bg-warning-subtle text-warning" >Staff</span>';
-                    }
-                  else  if ($role->name == 'enumerator') {
+                    } else  if ($role->name == 'enumerator') {
                         $role->name = '<span class="badge bg-dark-subtle text-dark" >' . $role->name . '</span>';
-                    }else {
+                    } else {
                         $role->name = '<span class="badge bg-danger-subtle text-danger" >' . $role->name . '</span>';
                     }
 
@@ -114,8 +106,8 @@ final class UserTable extends PowerGridComponent
                 })->pluck('name');
                 return implode(' ', $roleArray->toArray());
             })
-
-            ->add('status', function ($model) {
+            ->add('status',fn($model) => $model->deleted_at ? 'Deleted' : 'Active')
+            ->add('status_set', function ($model) {
 
 
                 if (!$model->deleted_at) {
@@ -134,7 +126,8 @@ final class UserTable extends PowerGridComponent
             Column::make('Id', 'id'),
             Column::make('Name', 'name_image', 'name')
                 ->sortable()
-                ->searchable(),
+                ->searchable()->visibleInExport(false),
+            Column::make('Name', 'name')->hidden()->visibleInExport(true),
 
             Column::make('Email', 'email')
                 ->sortable()
@@ -145,9 +138,12 @@ final class UserTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Organisation', 'organisation')->searchable(),
-            Column::make('Roles', 'role')->bodyAttribute('text-uppercase'),
-            Column::make('Status', 'status', 'deleted_at')->sortable(),
-            Column::action('Action')
+            Column::make('Roles', 'role_name')->bodyAttribute('text-uppercase')->visibleInExport(false),
+            Column::make('Role', 'role')->hidden()->visibleInExport(true),
+            Column::make('Status', 'status_set', 'deleted_at')->sortable()->visibleInExport(false),
+            Column::make('Status', 'status')->hidden()->visibleInExport(true),
+
+            Column::action('Action')->visibleInExport(false)
 
         ];
     }

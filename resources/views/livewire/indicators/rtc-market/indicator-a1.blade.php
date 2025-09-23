@@ -10,7 +10,7 @@
             <div class="col-12 col-md-12">
 
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header card-title fw-bold border-bottom-0">
                         <h5 class="card-title">
                             <i class="bx bx-table"></i> Table
                             view
@@ -34,9 +34,9 @@
 
                 <div class="row gy-3 justify-content-center" x-data="dashboard">
 
-                    <div class="text-center col-md-6 col-12">
+                    <div class="col-md-6 col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Crop Distribution</h5>
 
                                 </h5>
@@ -52,10 +52,10 @@
 
                     </div>
 
-                    <div class="text-center col-md-6 col-12">
+                    <div class="col-md-6 col-12">
 
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Age Group
                                     Distribution</h5>
 
@@ -70,9 +70,9 @@
 
 
                     </div>
-                    <div class="text-center col-md-6 col-12">
+                    <div class="col-md-6 col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title"> Establishment Distribution</h5>
 
                             </div>
@@ -85,9 +85,9 @@
 
 
                     </div>
-                    <div class="text-center col-md-6 col-12">
+                    <div class="col-md-6 col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Gender Distribution</h5>
 
                             </div>
@@ -100,9 +100,9 @@
 
 
                     </div>
-                    <div class="text-center col-md-12 col-12">
+                    <div class="col-md-12 col-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Actor Distribution</h5>
 
                             </div>
