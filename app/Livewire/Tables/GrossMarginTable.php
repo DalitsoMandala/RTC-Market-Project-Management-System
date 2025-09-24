@@ -32,8 +32,7 @@ final class GrossMarginTable extends PowerGridComponent
     use UITrait;
     use ExportTrait;
     public bool $deferLoading = false;
-    public $nameOfTable = 'Gross Margin';
-    public $descriptionOfTable = 'Data for gross margins/profit';
+
 
     public $namedExport = 'gross';
     #[On('export-gross')]

@@ -255,7 +255,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
         return [
 
             Button::add('detail')
-                ->slot('View Details <i class="bx bx-chevron-down"></i>')
+                ->slot('<i class="bx bx-show"></i>')
                 ->class('btn btn-warning btn-sm custom-tooltip')
                 ->tooltip('View Details')
                 ->toggleDetail($row->rn),
@@ -265,7 +265,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->slot('<i class="bx bx-pen"></i>')
                 ->can(User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->class('btn btn-secondary btn-sm custom-tooltip')
-                ->tooltip('Schedule')
+                ->tooltip('Edit Schedule')
                 ->dispatch('edit-period', ['data' => $row]),
 
             // Button::add('delete')

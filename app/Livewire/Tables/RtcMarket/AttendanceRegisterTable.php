@@ -33,8 +33,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
     use UITrait;
     use ExportTrait;
     public bool $deferLoading = false;
-    public $nameOfTable = 'Attendance Register';
-    public $descriptionOfTable = 'Data from the Attendance Registers';
+
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -92,8 +91,8 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('rtcCrop_cassava', fn($model) => $this->booleanUI($model->rtcCrop_cassava, $model->rtcCrop_cassava == 1, true))
             ->add('rtcCrop_potato', fn($model) => $this->booleanUI($model->rtcCrop_potato, $model->rtcCrop_potato == 1, true))
             ->add('rtcCrop_sweet_potato', fn($model) => $this->booleanUI($model->rtcCrop_sweet_potato, $model->rtcCrop_sweet_potato == 1, true))
-            ->add('venue', fn($model) => $model->venue ?? 'NA')
-            ->add('district', fn($model) => $model->district ?? 'NA')
+            ->add('venue', fn($model) => $model->venue ?? null)
+            ->add('district', fn($model) => $model->district ?? null)
             ->add('startDate_formatted', fn($model) => Carbon::parse($model->startDate)->format('d/m/Y'))
             ->add('endDate_formatted', fn($model) => Carbon::parse($model->endDate)->format('d/m/Y'))
             ->add('totalDays', function ($model) {
@@ -102,15 +101,15 @@ final class AttendanceRegisterTable extends PowerGridComponent
             ->add('name', function ($model) {
                 return '
                 <div class="d-flex align-items-center">
-                <img src="' . asset('assets/images/users/usr.png') . '" alt="" class="shadow avatar-sm rounded-1 me-2">
+                <img src="' . asset('assets/images/users/usr.png') . '" alt="" class=" avatar-sm rounded-1 me-2">
                     <span class="text-capitalize">' . strtolower($model->name) . '</span>
                     </div>';
             })
             ->add('sex')
             ->add('organization')
-            ->add('designation', fn($model) => $model->designation ?? 'NA')
-            ->add('phone_number', fn($model) => $model->phone_number ?? 'NA')
-            ->add('email', fn($model) => $model->email ?? 'NA')
+            ->add('designation', fn($model) => $model->designation ?? null)
+            ->add('phone_number', fn($model) => $model->phone_number ?? null)
+            ->add('email', fn($model) => $model->email ?? null)
             ->add('created_at_formatted', function ($model) {
                 return Carbon::parse($model->created_at)->format('d/m/Y');
             })
@@ -137,11 +136,13 @@ final class AttendanceRegisterTable extends PowerGridComponent
     public function columns(): array
     {
         return [
+
             Column::make('ID', 'rn')->sortable(),
-            Column::make('Attendee ID', 'att_id')->searchable(),
+
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),
+                          Column::make('Attendee ID', 'att_id')->searchable(),
 
             Column::make('Sex', 'sex')
                 ->sortable()

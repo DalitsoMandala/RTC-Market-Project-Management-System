@@ -27,8 +27,7 @@ final class RecruitmentsTable extends PowerGridComponent
     use WithExport;
     use ExportTrait;
     use UITrait;
-    public $nameOfTable = "RTC Actor Recruitment Table";
-    public $descriptionOfTable = 'Data from recruitment form';
+
     public function setUp(): array
     {
         //  $this->showCheckBox();
@@ -77,23 +76,23 @@ final class RecruitmentsTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('rn')
             ->add('rc_id')
-            ->add('epa', fn($model) => $model->epa ?? 'NA')
-            ->add('section', fn($model) => $model->section ?? 'NA')
-            ->add('district', fn($model) => $model->district ?? 'NA')
-            ->add('enterprise', fn($model) => $model->enterprise ?? 'NA')
-            ->add('date_of_recruitment_formatted', fn($model) => $model->date_of_recruitment ? Carbon::parse($model->date_of_recruitment)->format('d/m/Y') : 'NA')
-            ->add('name_of_actor', fn($model) => $model->name_of_actor ?? 'NA')
-            ->add('name_of_representative', fn($model) => $model->name_of_representative ?? 'NA')
-            ->add('phone_number', fn($model) => $model->phone_number ?? 'NA')
-            ->add('type', fn($model) => $model->type ?? 'NA')
-            ->add('group', fn($model) => $model->group ?? 'NA')
-            ->add('approach', fn($model) => $model->approach ?? 'NA')
+            ->add('epa', fn($model) => $model->epa ?? null)
+            ->add('section', fn($model) => $model->section ?? null)
+            ->add('district', fn($model) => $model->district ?? null)
+            ->add('enterprise', fn($model) => $model->enterprise ?? null)
+            ->add('date_of_recruitment_formatted', fn($model) => $model->date_of_recruitment ? Carbon::parse($model->date_of_recruitment)->format('d/m/Y') : null)
+            ->add('name_of_actor', fn($model) => $model->name_of_actor ?? null)
+            ->add('name_of_representative', fn($model) => $model->name_of_representative ?? null)
+            ->add('phone_number', fn($model) => $model->phone_number ?? null)
+            ->add('type', fn($model) => $model->type ?? null)
+            ->add('group', fn($model) => $model->group ?? null)
+            ->add('approach', fn($model) => $model->approach ?? null)
             ->add('mem_female_18_35')
             ->add('mem_male_18_35')
             ->add('mem_male_35_plus')
             ->add('mem_female_35_plus')
-            ->add('sector', fn($model) => $model->sector ?? 'NA')
-            ->add('category', fn($model) => $model->sector ?? 'NA')
+            ->add('sector', fn($model) => $model->sector ?? null)
+            ->add('category', fn($model) => $model->sector ?? null)
             ->add('establishment_status', fn($model) => $this->booleanUI(
                 $model->establishment_status,
                 $model->establishment_status === 'New'
@@ -103,8 +102,8 @@ final class RecruitmentsTable extends PowerGridComponent
                 $model->is_registered == 1,
                 true
             ))
-            ->add('registration_body', fn($model) => $model->registration_body ?? 'NA')
-            ->add('registration_number', fn($model) => $model->registration_number ?? 'NA')
+            ->add('registration_body', fn($model) => $model->registration_body ?? null)
+            ->add('registration_number', fn($model) => $model->registration_number ?? null)
             ->add('registration_date_formatted', fn($model) => Carbon::parse($model->registration_date)->format('d/m/Y'))
             ->add('emp_formal_female_18_35')
             ->add('emp_formal_male_18_35')

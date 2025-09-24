@@ -36,8 +36,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
     use UITrait;
     public $routePrefix;
     public bool $deferLoading = false;
-    public $nameOfTable = 'RTC Production Farmers Table';
-    public $descriptionOfTable = 'Data of RTC production farmers';
+
     public function setUp(): array
     {
         //  $this->showCheckBox();

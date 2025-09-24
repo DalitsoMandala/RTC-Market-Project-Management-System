@@ -22,7 +22,7 @@
 
         <div class="d-grid col-12 justify-content-center">
             <button class="px-5 btn btn-warning" type="submit">
-                Submit Data
+                Submit data
             </button>
         </div>
     </form>

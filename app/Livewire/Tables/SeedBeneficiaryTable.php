@@ -30,8 +30,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 
 
     public $namedExport = 'seedBeneficiaries';
-    public $nameOfTable = 'Seed Beneficiaries';
-    public $descriptionOfTable = "Data from seed beneficiaries form";
+
 
     public function setUp(): array
     {

@@ -28,8 +28,7 @@ final class RtcConsumptionTable extends PowerGridComponent
     use WithExport;
     use ExportTrait;
     use UITrait;
-    public $nameOfTable = "RTC Consumption Table";
-    public $descriptionOfTable = "Data of RTC Consumption";
+
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -70,7 +69,7 @@ final class RtcConsumptionTable extends PowerGridComponent
             ->add('district')
             ->add('epa')
             ->add('section')
-            ->add('date_formatted', fn($model) => $model->date ? Carbon::parse($model->date)->format('d/m/Y') : 'NA')
+            ->add('date_formatted', fn($model) => $model->date ? Carbon::parse($model->date)->format('d/m/Y') : null)
             ->add('crop')
             ->add('crop_cassava', fn($model) => $this->booleanUI($model->crop_cassava, $model->crop_cassava == 1))
             ->add('crop_potato', fn($model) => $this->booleanUI($model->crop_potato, $model->crop_potato == 1))

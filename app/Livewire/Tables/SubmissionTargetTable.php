@@ -153,9 +153,10 @@ final class SubmissionTargetTable extends PowerGridComponent
 
         return [
             Button::add('edit')
-                ->slot('View Details <i class="fa fa-eye"></i>')
+                ->slot('<i class="fa fa-eye"></i>')
                 ->id()
-                ->class('btn btn-warning btn-sm')
+                ->tooltip('View Details')
+                ->class('btn btn-warning btn-sm custom-tooltip')
                 ->dispatch('edit', ['rowId' => $row])
         ];
     }

@@ -1,6 +1,6 @@
 <div>
     @section('title')
-        Organisation forms
+        Indicator Sources
     @endsection
     <div class="container-fluid">
 
@@ -8,12 +8,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Organisation forms</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active"> Organisation forms</li>
+                            <li class="breadcrumb-item active"> Indicator Sources</li>
                         </ol>
                     </div>
 
@@ -25,10 +25,8 @@
             <div class="col-12">
                 <x-alerts />
                 <div class="card ">
-                    <div class="card-header">
-                        <h5 class="card-title text-capitalize">Forms & Organisations</h5>
-                    </div>
-                    <div class="px-0 card-body">
+                 <x-card-header>Indicator Sources</x-card-header>
+                    <div class=" card-body">
                         <livewire:admin.organisation-forms-table />
                     </div>
                 </div>
@@ -55,7 +53,7 @@
         })">
 
 
-            <x-modal id="view-modal" title="Edit Record">
+            <x-modal id="view-modal" title="Update Sources">
 
                 <x-alerts />
                 <form wire:submit='save'>
@@ -135,9 +133,10 @@
                     </div>
 
 
-                    <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-warning">Save changes</button>
+                    <div class="modal-footer border-top-0 justify-content-center">
+                           <button type="submit" class="px-5 btn btn-warning">Save changes</button>
+                        <button type="button" class="px-5 btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
 
                     </div>
                 </form>

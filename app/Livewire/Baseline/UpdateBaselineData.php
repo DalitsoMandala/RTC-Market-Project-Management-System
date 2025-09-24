@@ -21,6 +21,7 @@ class UpdateBaselineData extends Component
     public $baselineValues = [];
     public $indicators;
     public $indicator;
+    public $confirmed = false;
 public $multiple = false;
 
     public function mount($baselineDataId = null)
@@ -80,6 +81,7 @@ public $multiple = false;
     try {
    $rules = [
         'indicator_id' => 'required|exists:indicators,id',
+        'confirmed' => 'required|accepted',
     ];
 
     if ($this->multiple) {
@@ -136,6 +138,8 @@ public $multiple = false;
         $this->dispatch('hideModal');
         Log::error($th->getMessage());
     }
+
+    $this->confirmed = false;
 }
 
 

@@ -59,12 +59,12 @@
                 padding: 70px 30px 60px 30px;
             }
 
-                   @media (min-width: 320px) and (max-width: 480px) {
+            @media (min-width: 320px) and (max-width: 480px) {
                 .topnav {
                     top: 200px !important;
                 }
 
-                  body[data-layout="horizontal"] .page-content {
+                body[data-layout="horizontal"] .page-content {
                     padding-top: 140px;
                 }
 
@@ -76,7 +76,7 @@
                     top: 200px !important;
                 }
 
-                  body[data-layout="horizontal"] .page-content {
+                body[data-layout="horizontal"] .page-content {
                     padding-top: 110px;
                 }
 
@@ -298,9 +298,9 @@
                 position: absolute;
                 bottom: 100%;
                 /* Position above the trigger */
-                left: 50%;
+                left: 0;
                 transform: translateX(-50%);
-                z-index: 10;
+
                 transition: opacity 0.3s;
                 /* Smooth fade-in */
                 white-space: nowrap;
@@ -321,6 +321,7 @@
             .custom-tooltip:hover::before {
                 visibility: visible;
                 opacity: 1;
+
             }
 
             .page-title-box .breadcrumb {
@@ -371,6 +372,17 @@
             <!-- Page Content -->
             <div class="main-content">
                 <div class="mb-1 page-content ">
+
+                    @if (\App\Models\SystemDetail::find(1)?->maintenance_mode == 1)
+                        <div class="container-fluid">
+                            <div class="alert alert-secondary ">
+                                <span><i class="bx bx-info-circle"></i></span> <strong>The system is in maintance
+                                    mode!</strong>
+
+                            </div>
+                        </div>
+                    @endif
+
                     {{ $slot }}
 
 

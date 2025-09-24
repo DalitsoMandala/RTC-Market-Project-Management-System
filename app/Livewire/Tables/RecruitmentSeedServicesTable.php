@@ -21,8 +21,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RecruitmentSeedServicesTable extends PowerGridComponent
 {
     use WithExport;
-    public $nameOfTable = 'Seed Services Unit Table';
-    public $descriptionOfTable = 'Data from seed registrations';
+
     public function setUp(): array
     {
 

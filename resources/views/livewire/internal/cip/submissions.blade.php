@@ -20,122 +20,119 @@
                 </div>
             </div>
         </div>
-        <!-- end page title -->
-        <div class="row">
-            <div class="col-12">
-
-                <div>
-                    <x-alerts />
-                </div>
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-
-                    <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab"
-                        data-bs-toggle="tab" data-bs-target="#batch-submission" type="button" role="tab"
-                        aria-controls="home" aria-selected="true" wire:ignore.self>
-                        Batch Submissions <span
-                            class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
-                    </button>
 
 
+        <div>
+            <x-alerts />
+        </div>
+        <div class="card ">
+            <x-card-header>Submissions</x-card-header>
+            <div class=" card-body">
+                <!-- Nav tabs -->
 
-                    <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="people-tab"
-                        data-bs-toggle="tab" data-bs-target="#aggregate-submission" type="button" role="tab"
-                        aria-controls="profile" aria-selected="false" wire:ignore.self>
-                        Aggregate Submission (Reports) <span
-                            class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
-                    </button>
+
+                <!-- Tab panes -->
+                <div class="tab-content mt-2">
+
+
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+
+                        <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab"
+                            data-bs-toggle="tab" data-bs-target="#batch-submission" type="button" role="tab"
+                            aria-controls="home" aria-selected="true" wire:ignore.self>
+                            Batch Submissions <span
+                                class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
+                        </button>
 
 
 
-                    <button class="nav-link " id="progress-tab" data-bs-toggle="tab"
-                        data-bs-target="#submission-progress" type="button" role="tab" aria-controls="profile"
-                        aria-selected="false" wire:ignore.self>
+                        <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="people-tab"
+                            data-bs-toggle="tab" data-bs-target="#aggregate-submission" type="button" role="tab"
+                            aria-controls="profile" aria-selected="false" wire:ignore.self>
+                            Aggregate Submission (Reports) <span
+                                class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
+                        </button>
 
-                        Pending Submissions <span
-                            class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
-                    </button>
 
-                    @hasanyrole('admin|manager')
-                        <button class="nav-link" id="progress-tab" data-bs-toggle="tab" data-bs-target="#report-progress"
-                            type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
-                            Progress Summary </button>
-                    @endhasanyrole
-                    @hasanyrole('admin|manager|staff|enumerator')
-                        <button class="nav-link" id="market-tab" data-bs-toggle="tab" data-bs-target="#market-submission"
-                            type="button" role="tab" aria-controls="profile" aria-selected="false" wire:ignore.self>
-                            Market Data Submission </button>
-                    @endhasanyrole
 
-                    @if (
-                        (auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT') ||
-                            auth()->user()->hasAnyRole(['admin', 'manager', 'staff']))
+                        <button class="nav-link " id="progress-tab" data-bs-toggle="tab"
+                            data-bs-target="#submission-progress" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false" wire:ignore.self>
+
+                            Pending Submissions <span
+                                class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
+                        </button>
+
+                        {{-- @hasanyrole('admin|manager')
+                            <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
+                                data-bs-target="#report-progress" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+                                Progress Summary </button>
+                        @endhasanyrole --}}
+                        @hasanyrole('admin|manager|staff|enumerator')
+                            <button class="nav-link" id="market-tab" data-bs-toggle="tab"
+                                data-bs-target="#market-submission" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+                                Market Data Submission </button>
+                        @endhasanyrole
+
+                        {{-- @if ((auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT') ||
+    auth()->user()->hasAnyRole(['admin', 'manager', 'staff']))
                         <button class="nav-link" id="root-tab" data-bs-toggle="tab" data-bs-target="#root-submission"
                             type="button" role="tab" aria-controls="profile" aria-selected="false"
                             wire:ignore.self>
                             Root & Tuber Exports/Imports Data Submission </button>
-                    @endif
+                    @endif --}}
 
-                </ul>
+                    </ul>
+                    <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
+                        aria-labelledby="home-tab">
+                        <livewire:tables.submission-table :userId="auth()->user()->id" />
+                    </div>
 
-                <div class="card ">
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
+                        aria-labelledby="profile-tab">
+                        <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
+                    </div>
 
-                    <div class=" card-body">
-                        <!-- Nav tabs -->
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="submission-progress" role="tabpanel"
+                        aria-labelledby="profile-tab">
+                        <livewire:tables.job-progress-table :userId="auth()->user()->id" />
+                    </div>
 
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="market-submission" role="tabpanel"
+                        aria-labelledby="market-tab">
+                        <livewire:tables.market-data-submission-table :userId="auth()->user()->id" />
+                    </div>
 
-                        <!-- Tab panes -->
-                        <div class="tab-content">
-                            <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission"
-                                role="tabpanel" aria-labelledby="home-tab">
-                                <livewire:tables.submission-table :userId="auth()->user()->id" />
-                            </div>
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="root-submission" role="tabpanel"
+                        aria-labelledby="root-tab">
+                        <livewire:tables.root-tuber-submission-table :userId="auth()->user()->id" />
+                    </div>
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="report-progress" role="tabpanel"
+                        aria-labelledby="profile-tab" x-data="{
+                            show: false,
+                            toggle() {
+                                this.show = !this.show
+                            }
+                        }">
 
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
-                            </div>
+                        <button class="btn btn-warning" role="button" @click="toggle()"> Import Report
+                        </button>
+                        <div x-show="show">
 
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="submission-progress" role="tabpanel"
-                                aria-labelledby="profile-tab">
-                                <livewire:tables.job-progress-table :userId="auth()->user()->id" />
-                            </div>
-
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="market-submission" role="tabpanel"
-                                aria-labelledby="market-tab">
-                                <livewire:tables.market-data-submission-table :userId="auth()->user()->id" />
-                            </div>
-
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="root-submission" role="tabpanel"
-                                aria-labelledby="root-tab">
-                                <livewire:tables.root-tuber-submission-table :userId="auth()->user()->id" />
-                            </div>
-                            <div wire:ignore class="mt-2 tab-pane fade show" id="report-progress" role="tabpanel"
-                                aria-labelledby="profile-tab" x-data="{
-                                    show: false,
-                                    toggle() {
-                                        this.show = !this.show
-                                    }
-                                }">
-
-                                <button class="btn btn-warning" role="button" @click="toggle()"> Import Report
-                                </button>
-                                <div x-show="show">
-
-                                    <livewire:imports.import-data />
-                                    <hr />
-                                </div>
-
-
-                                <livewire:tables.additional-report-table />
-                            </div>
+                            <livewire:imports.import-data />
+                            <hr />
                         </div>
 
 
+                        <livewire:tables.additional-report-table />
                     </div>
                 </div>
+
+
             </div>
         </div>
-
 
         <div x-data x-init="$wire.on('showModal', (e) => {
             setTimeout(() => {

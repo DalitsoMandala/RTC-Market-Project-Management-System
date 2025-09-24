@@ -8,9 +8,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Forms</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Forms</li>
@@ -25,18 +25,10 @@
 
 
             <div class="col-12">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
-                            type="button" role="tab" aria-controls="home" aria-selected="true">
-                            FORMS TABLE
-                        </button>
-                    </li>
 
-                </ul>
 
-                <div class="card ">
-
+                <div class="card shadow-md ">
+                    <x-card-header>Forms List</x-card-header>
                     <div class="card-body">
                         <livewire:tables.form-table />
                     </div>
@@ -55,7 +47,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);

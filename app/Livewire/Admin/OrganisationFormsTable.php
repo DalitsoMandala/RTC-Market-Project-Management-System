@@ -30,9 +30,7 @@ final class OrganisationFormsTable extends PowerGridComponent
 
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
@@ -130,7 +128,7 @@ final class OrganisationFormsTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('<i class="bx bx-pen"></i>')
                 ->id()
-                ->class('btn btn-warning goUp custom-tooltip')
+                ->class('btn btn-warning btn-sm goUp custom-tooltip')
                 ->tooltip('Edit')
                 ->dispatch('showModal', [
                     'rowId' => $row->id,

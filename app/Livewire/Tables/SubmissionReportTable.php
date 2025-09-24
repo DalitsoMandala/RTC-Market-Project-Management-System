@@ -41,7 +41,11 @@ final class SubmissionReportTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])->where('status', 'approved');
+        $query = SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])
+        ->where('status', 'approved')->select([
+            'submission_reports.*',
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
         $user = User::find(auth()->user()->id);
         $organisation = $user->organisation->id;
 
@@ -123,21 +127,47 @@ final class SubmissionReportTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('Id', 'rn')->sortable(),
+                   Column::make('File', 'file'),
             Column::make('Indicator', 'indicator_id'),
             Column::make('Project year', 'financial_year_id'),
 
-            Column::make('File', 'file'),
+
 
             Column::make('Submitted By', 'user_id'),
 
-            Column::make('Date of Submission', 'date_of_submission'),
+            Column::make('Date of Submission', 'date_of_submission', 'created_at')->sortable(),
         ];
     }
 
     public function filters(): array
     {
         return [];
+    }
+
+    public function relationSearch(): array
+    {
+        return [
+            'indicator' => [ // relationship on dishes model
+                'indicator_name', // column enabled to search
+
+            ],
+            'user' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+            'organisation' => [ // relationship on dishes model
+                'name', // column enabled to search
+
+            ],
+            'financialYear' => [ // relationship on dishes model
+                'number', // column enabled to search
+
+            ],
+
+
+
+        ];
     }
 
     #[\Livewire\Attributes\On('edit')]

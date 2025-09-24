@@ -8,9 +8,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">View Data</h4>
 
-                    <div class="page-title-right" wire:ignore>
+
+                    <div class="page-title-left col-12 " wire:ignore>
                         @php
                             $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
                         @endphp
@@ -26,17 +26,13 @@
         </div>
 
         <x-alerts />
-        <!-- end page title -->
-        <div class="row" x-data="{
-            showCard: false,
-            toggleShow() {
-                this.showCard = !this.showCard;
-        
-            }
-        
-        }" @close-form="showCard = false">
 
-            <div class="col-12">
+
+
+        <div class="card">
+            <x-card-header>Seed Beneficiaries Table</x-card-header>
+
+            <div class="card-body">
                 <ul class=" nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="potato-tab" data-bs-toggle="tab" data-bs-target="#potato"
@@ -56,57 +52,47 @@
                     </li>
 
                 </ul>
-                <div class="card">
 
+                <!-- Tab Content for Livewire tables -->
+                <div class="mt-2 tab-content" id="seedBeneficiaryTabsContent">
+                    <!-- Potato Table -->
+                    <div class="tab-pane fade show active" id="potato" role="tabpanel" aria-labelledby="potato-tab"
+                        wire:ignore.self>
+                        <livewire:tables.seed-beneficiary-table :crop="'Potato'" />
+                    </div>
 
-                    <div class="card-body">
+                    <!-- OFSP Table -->
+                    <div class="tab-pane fade" id="ofsp" role="tabpanel" aria-labelledby="ofsp-tab"
+                        wire:ignore.self>
+                        <livewire:tables.seed-beneficiaries-ofsp-table :crop="'OFSP'" />
+                    </div>
 
-
-                        <!-- Tab Content for Livewire tables -->
-                        <div class="mt-3 tab-content" id="seedBeneficiaryTabsContent">
-                            <!-- Potato Table -->
-                            <div class="tab-pane fade show active" id="potato" role="tabpanel"
-                                aria-labelledby="potato-tab" wire:ignore.self>
-                                <livewire:tables.seed-beneficiary-table :crop="'Potato'" />
-                            </div>
-
-                            <!-- OFSP Table -->
-                            <div class="tab-pane fade" id="ofsp" role="tabpanel" aria-labelledby="ofsp-tab"
-                                wire:ignore.self>
-                                <livewire:tables.seed-beneficiaries-ofsp-table :crop="'OFSP'" />
-                            </div>
-
-                            <!-- Cassava Table -->
-                            <div class="tab-pane fade" id="cassava" role="tabpanel" aria-labelledby="cassava-tab"
-                                wire:ignore.self>
-                                <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
-                            </div>
-                        </div>
+                    <!-- Cassava Table -->
+                    <div class="tab-pane fade" id="cassava" role="tabpanel" aria-labelledby="cassava-tab"
+                        wire:ignore.self>
+                        <livewire:tables.seed-beneficiaries-cassava-table :crop="'Cassava'" />
                     </div>
                 </div>
             </div>
-
         </div>
 
-
-
         <div x-data x-init="$wire.on('edit-showModal', (e) => {
-        
+
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             $wire.setData(e.id);
             myModal.show();
         })
-        
+
         $wire.on('deleteRecord', (e) => {
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             $wire.setData(e.id);
             myModal.show();
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -127,8 +113,7 @@
 
 
                     <div class="mt-5 d-flex border-top-0 justify-content-center" x-data>
-                        <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
-                            data-bs-dismiss="modal">No, cancel</button>
+
                         <button type="submit" wire:loading.attr="disabled" wire:target="deleteDetail"
                             class="btn btn-theme-red"
                             @click=" window.scrollTo({
@@ -136,6 +121,8 @@
                                 behavior: 'smooth'
                             })">Yes,
                             I'm sure</button>
+                                <button type="button" wire:loading.attr="disabled" class="btn btn-secondary ms-2"
+                            data-bs-dismiss="modal">No, cancel</button>
                     </div>
                 </form>
             </x-modal>
@@ -348,44 +335,44 @@
 
 
                             <div class="mb-3 " wire:ignore x-data="{
-                            
+
                                 selectedVarieties: $wire.entangle('selectedVarieties'),
                                 variety_received: $wire.entangle('variety_received'),
                                 varieties: $wire.entangle('varieties'),
                             }" x-init="() => {
-                            
+
                                 $('#select-crop').select2({
                                     width: '100%',
                                     theme: 'bootstrap-5',
                                     containerCssClass: 'select2--small',
                                     dropdownCssClass: 'select2--small',
                                 });
-                            
+
                                 $wire.on('get-varieties', (e) => {
                                     const selectElement = $('#select-crop');
                                     const arrayOfObjects = e.data;
                                     const editVarieties = e.variety_received || [];
                                     selectElement.empty();
-                            
-                            
-                            
+
+
+
                                     arrayOfObjects.forEach(data => {
                                         let name = data.name;
-                            
+
                                         let isSelected = editVarieties.includes(name);
-                            
+
                                         if (isSelected) {
                                             selectedVarieties.push(data);
                                         }
                                         let newOption = new Option(name.replace('_', ' '), data.id, isSelected, isSelected);
-                            
+
                                         selectElement.append(newOption);
                                     });
                                     // Refresh Select2 to reflect changes
                                     selectElement.trigger('change');
-                            
+
                                 })
-                            
+
                                 $('#select-crop').on('select2:select', function(e) {
                                     const data = $(this).select2('data');
                                     selectedVarieties = data.map((item) => {
@@ -394,35 +381,35 @@
                                             name: item.text
                                         }
                                     });
-                            
-                            
-                            
-                            
+
+
+
+
                                 });
-                            
+
                                 $('#select-crop').on('select2:unselect', function(e) {
                                     const data = $(this).select2('data');
                                     if (data.length === 0) {
-                            
+
                                         selectedVarieties = [];
-                            
+
                                     } else {
-                            
+
                                         selectedVarieties = data.map((item) => {
                                             return {
                                                 id: item.id,
                                                 name: item.text
                                             }
                                         });
-                            
+
                                     }
-                            
-                            
-                            
-                            
-                            
+
+
+
+
+
                                 });
-                            
+
                             }">
                                 <label for="" class="form-label">Variety recieved</label>
 
@@ -457,16 +444,16 @@
                                 seed_type = 'Bundles'
                             }
                         })
-                    
+
                         $watch('selectedCrop', (value) => {
-                    
+
                             if (value === 'Potato') {
                                 seed_type = 'Tons/KG';
                             } else {
                                 seed_type = 'Bundles'
                             }
                         })
-                    
+
                     }">
                         <label class="form-label">Amount Of Seed Received <span class="fw-bold"
                                 x-text="'('+seed_type+')'"></span></label>

@@ -21,10 +21,11 @@ use App\Livewire\Internal\Cip\Submissions;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 
+
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 // Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
-// Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
+Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
 
 
 Route::get('/logout', function () {
@@ -99,7 +100,7 @@ Route::middleware([
     Route::get('/indicators', \App\Livewire\Admin\Data\Indicators::class)->name('admin-indicators');
     Route::get('/indicators/view/{id}', \App\Livewire\Admin\Data\ViewIndicators::class)->where('id', '[0-9]+')->name('admin-indicator-view');
     Route::get('/indicators/lead-partners', \App\Livewire\Admin\Data\LeadPartners::class)->name('admin-leads');
-    Route::get('/indicators/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
+    Route::get('/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('admin-sources');
     Route::get('/indicators-targets', \App\Livewire\Admin\Data\IndicatorTargets::class)->name('admin-indicators-targets');
     Route::get('/assigned-targets', \App\Livewire\Admin\Data\AssignedTargets::class)->name('admin-assigned-targets');
     Route::get('/forms', \App\Livewire\Admin\Operations\Forms::class)->name('admin-forms');

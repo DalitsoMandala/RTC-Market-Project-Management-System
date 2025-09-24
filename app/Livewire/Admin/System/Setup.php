@@ -2,16 +2,18 @@
 
 namespace App\Livewire\Admin\System;
 
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Livewire\Component;
-use Livewire\Attributes\On;
 
+use Livewire\Attributes\On;
 use App\Models\SystemDetail;
-use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
 use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Event\Telemetry\System;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Response;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 
@@ -41,7 +43,29 @@ class Setup extends Component
         ];
     }
 
+    public function clearCache()
+    {
+        $pendingJobs = DB::table('jobs')->count();
 
+        if ($pendingJobs === 0) {
+            Artisan::call('cache:clear');
+            session()->flash('success', 'Cache cleared successfully.');
+        }else{
+            session()->flash('error', 'There are still pending jobs in the queue.');
+        }
+    }
+
+    public function exportMantenance()
+    {
+        $date = date('d/m/Y h:i A');
+        $content = "System is now in maintenance mode. Please use this secret key: " . $this->secretKey;
+        $content .= "\n\nTo bypass maintenance mode, Please do not share this key with anyone.";
+        $content .= "\n\nIf you have any questions or need further assistance, please contact our support team.";
+        $content .= "\n\nThank you for your understanding.";
+        $content .= "\n\nDate: {$date}";
+
+        return $content;
+    }
     public function confirmMaintenanceMode()
     {
         $this->confirmingMaintenanceMode = true;
@@ -53,19 +77,27 @@ class Setup extends Component
         if ($systemDetail) {
             $systemDetail->update([
                 'maintenance_mode' => $this->maintenance_mode,
-                'maintenance_message' => $this->maintenance_message,
+                'maintenance_message' => $this->secretKey,
             ]);
-            $this->dispatch('hideModal');
+
 
 
             if ($this->maintenance_mode) {
+                Log::info('Maintenance mode enabled successfully:' . $this->secretKey);
                 Artisan::call('down' . ' --secret=' . $this->secretKey);
                 $user = User::find(auth()->user()->id);
                 $user->notify(new \App\Notifications\MaintenanceNotification($this->secretKey));
                 session()->flash('success', 'Maintenance mode enabled successfully.');
+
+                $this->dispatch('hideModal', data: $this->exportMantenance());
             } else {
                 Artisan::call('up');
+                $systemDetail->update([
+                    'maintenance_mode' => false,
+                    'maintenance_message' => $this->secretKey,
+                ]);
                 session()->flash('success', 'Maintenance mode disabled successfully.');
+                $this->dispatch('hideModal', data: null);
             }
         }
     }

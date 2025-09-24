@@ -173,7 +173,7 @@
                                                     data-key="t-range-slider">View Targets</a>
 
                                                 <a href="{{ route('admin-sources') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Organisation Forms</a>
+                                                    data-key="t-range-slider">Indicator Sources</a>
 
 
                                             </div>

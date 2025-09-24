@@ -26,8 +26,7 @@ final class MarketDataTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
-    public $nameOfTable = 'Market Data';
-    public $descriptionOfTable = 'Data from Enumerator\'s Market Data';
+
     public $namedExport = 'market_data';
     #[On('export-market_data')]
     public function startExport()
@@ -173,7 +172,7 @@ final class MarketDataTable extends PowerGridComponent
 
 
 
-            Column::action('')
+
 
         ];
     }
@@ -189,16 +188,16 @@ final class MarketDataTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('Edit: ' . $row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
-        ];
-    }
+    // public function actions($row): array
+    // {
+    //     return [
+    //         Button::add('edit')
+    //             ->slot('Edit: ' . $row->id)
+    //             ->id()
+    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+    //             ->dispatch('edit', ['rowId' => $row->id])
+    //     ];
+    // }
 
     /*
     public function actionRules($row): array

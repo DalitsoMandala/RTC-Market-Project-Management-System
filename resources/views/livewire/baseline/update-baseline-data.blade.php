@@ -47,7 +47,7 @@
                     //  $wire.setData(e.rowId);
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
-                }, 500);
+                }, 1000);
 
 
             })
@@ -67,65 +67,68 @@
 
 
                 <x-modal id="view-baseline-modal" title="Update baseline value">
-
                     <x-alpine-alerts />
-                    {{ var_export($errors) }}
-                    {{ var_export($baseline_value) }}
-                    <h4 class="mb-5 text-center h4">Please confirm whether you would like to update this baseline?
+
+                    <!-- Title -->
+                    <h4 class="mb-5 text-center h4">
+                        Please confirm whether you would like to update this baseline?
                     </h4>
 
-
-
-
-
+                    <!-- Form -->
                     <form wire:submit="save">
                         <div class="mb-3">
-                            <label for="" class="form-label">Baseline value(s) for <span
-                                    class="fw-bold ">{{ $indicator }}</span></label>
+                            <label class="form-label">
+                                Baseline value(s) for <span class="fw-bold">{{ $indicator }}</span>
+                            </label>
 
                             @if ($multiple)
                                 @foreach ($baselineValues as $index => $value)
-                                <div class="d-block">
-
-
-                                    <label for="" class="form-label">{{ $baselineValues[$index]['name'] }}</label>
-                                    <input type="number" wire:model="baselineValues.{{ $index }}.baseline_value"
-                                        class="form-control @error('baselineValues.' . $index . '.baseline_value') is-invalid @enderror" />
-
-                                    @error('baselineValues.' . $index . '.baseline_value')
-                                        <x-error>{{ $message }}</x-error>
-                                    @enderror
-   </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            {{ $baselineValues[$index]['name'] }}
+                                        </label>
+                                        <input type="number"
+                                            wire:model="baselineValues.{{ $index }}.baseline_value"
+                                            class="form-control @error('baselineValues.' . $index . '.baseline_value') is-invalid @enderror" />
+                                        @error('baselineValues.' . $index . '.baseline_value')
+                                            <x-error>{{ $message }}</x-error>
+                                        @enderror
+                                    </div>
                                 @endforeach
                             @else
-                                <label for="" class="form-label">Value</label>
-                                <input type="number" wire:model="baseline_value"
-                                    class="form-control @error('baseline_value') is-invalid @enderror" />
-                                @error('baseline_value')
-                                    <x-error>{{ $message }}</x-error>
-                                @enderror
+                                <div class="mb-3">
+                                    <label class="form-label">Value</label>
+                                    <input type="number" wire:model="baseline_value"
+                                        class="form-control @error('baseline_value') is-invalid @enderror" />
+                                    @error('baseline_value')
+                                        <x-error>{{ $message }}</x-error>
+                                    @enderror
+                                </div>
                             @endif
+                        </div>
 
+                        <!-- Confirmation Checkbox -->
+                        <div class="form-check mb-4">
+                            <input class="form-check-input @error('confirmed') is-invalid @enderror" type="checkbox"
+                                wire:model="confirmed" />
+                            <label class="form-check-label">
+                                Confirm to update baseline
+                            </label>
 
                         </div>
 
-
-                        <div class="gap-1 d-flex justify-content-center">
-                            <button type="submit"
-                                onclick="  window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });"
-                                wire:loading.attr="disabled" class="btn btn-warning">Update</button>
-                            <button type="button" data-bs-dismiss="modal" wire:loading.attr="disabled"
-                                class="btn btn-secondary me-2"> Cancel</button>
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="submit" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });"
+                                wire:loading.attr="disabled" class="btn btn-warning">
+                                Update
+                            </button>
+                            <button type="button" data-bs-dismiss="modal"  wire:loading.attr="disabled"
+                                class="btn btn-secondary">
+                                Cancel
+                            </button>
                         </div>
-
-
                     </form>
-
-
-
                 </x-modal>
 
             </div>

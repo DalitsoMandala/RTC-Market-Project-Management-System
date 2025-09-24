@@ -13,12 +13,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0"> Submit Market Data</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active"> Submit Market Data</li>
+                            <li class="breadcrumb-item active"> Submit data</li>
 
                        <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/marketing/manage-data"> View Data</a> </li>
 
@@ -33,12 +33,12 @@
             <div class="col-12">
                 <x-alerts />
 
-             
-                <div class="card ">
 
+                <div class="card ">
+<x-card-header>Submit Market Data</x-card-header>
                     <div class="card-body">
                         <div class="">
-                            <h5> Instructions</h5>
+
                             <p class="alert bg-secondary-subtle text-uppercase">Download the template & upload your
                                 data.</p>
 

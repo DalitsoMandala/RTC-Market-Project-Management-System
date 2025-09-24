@@ -18,7 +18,7 @@
                     <div class="page-title-right">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active"> Submit Data</li>
+                            <li class="breadcrumb-item active"> Submit data</li>
 
                        <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/products/upload-data"> Upload Data</a> </li>
 

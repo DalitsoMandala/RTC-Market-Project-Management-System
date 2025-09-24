@@ -1,6 +1,7 @@
 <div class="row bg-soft-secondary">
-    <div class="col-12 ">
 
+    <div class="m-2 card ">
+            <div class="card-body">
         <!-- Nav Tabs -->
         <ul class="my-2 nav nav-tabs" id="gm-table-tabs-{{ $row->id }}" role="tablist">
             <li class="nav-item" role="presentation">
@@ -20,7 +21,7 @@
         </ul>
 
         <!-- Tab Content -->
-        <div class="mt-3 tab-content" id="gm-table-tabs-content-{{ $row->id }}">
+        <div class="mt-2 tab-content" id="gm-table-tabs-content-{{ $row->id }}">
 
             <!-- Items Tab -->
             <div class="tab-pane fade show active" id="items-{{ $row->id }}" role="tabpanel"
@@ -40,6 +41,7 @@
             </div>
 
         </div>
-
+            </div>
     </div>
+
 </div>

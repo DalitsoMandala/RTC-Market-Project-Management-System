@@ -198,14 +198,14 @@ final class SubmissionTable extends PowerGridComponent
                 $html .= '
 
 <!-- Base Example -->
-<div class="accordion" id="default-accordion-example">
-    <div class="shadow accordion-item">
-        <h2 class="accordion-header" id="headingOne">
-            <button class="p-2 accordion-button collapsed " style="font-size:0.75rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                View comment
+<div class="accordion" id="default-accordion-example-' . $model->id . '">
+    <div class="shadow accordion-item custom-tooltip" title="show comments">
+        <h2 class="accordion-header " id="headingOne" >
+            <button class="p-1 accordion-button collapsed " style="font-size:0.55rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
+               Comments
             </button>
         </h2>
-        <div id="collapseOne" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example">
+        <div id="collapse-' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->id . '">
             <div class="accordion-body">
                 ' . $text . '
             </div>

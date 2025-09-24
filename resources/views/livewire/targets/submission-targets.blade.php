@@ -1,6 +1,6 @@
 <div>
     @section('title')
-        Standard Targets
+        Indicator Targets
     @endsection
     <div class="container-fluid">
 
@@ -8,9 +8,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Dashboard</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Indicator
@@ -35,9 +35,7 @@
 
                     <form wire:submit='save'>
                         <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title">Submission Targets Form</h5>
-                            </div>
+                    <x-card-header>Indicator Targets</x-card-header>
                             <div class="card-body" x-data="{
 
                                 showButton: false,
@@ -137,7 +135,7 @@
                                                 <th>Target Name</th>
                                                 <th>Value</th>
 
-                                                <th>Action</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody x-show="targets.length ===0">
@@ -180,10 +178,9 @@
 
 
                                                     <td>
-                                                        <button class="btn btn-danger btn-sm"
+                                                        <button class="btn btn-danger btn-sm custom-tooltip" title="Remove target"
                                                             @if ($targets[$index]['restricted'] == true) disabled @endif
-                                                            wire:click.prevent="removeTarget({{ $index }})">Delete
-                                                            Target <i class="bx bx-trash"></i></button>
+                                                            wire:click.prevent="removeTarget({{ $index }})"> <i class="bx bx-trash"></i></button>
 
                                                     </td>
                                                 </tr>
@@ -202,8 +199,8 @@
                                                         <a wire:click="$dispatch('update-targets')"
                                                             x-show="targets.length > 0" wire:loading.attr='disabled'
                                                             title="Refill targets"
-                                                            class="btn btn-success btn-sm custom-tooltip" href="#"
-                                                            role="button">Restore Targets<i class="bx bx-recycle"></i></a>
+                                                            class="btn btn-secondary btn-sm custom-tooltip" href="#"
+                                                            role="button">Restore Targets <i class="bx bx-recycle"></i></a>
                                                     </div>
 
                                                 </td>
@@ -216,10 +213,10 @@
 
                             </div>
                             <div class="card-footer border-top-0">
-                                <div class="d-flex justify-content-center">
+                                <div class="mb-3 d-flex justify-content-center">
 
                                     <button type="submit" class="px-5 btn btn-warning" wire:loading.attr='disabled'>
-                                        Submit Data
+                                        Submit data
                                     </button>
 
 
@@ -236,10 +233,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card ">
-                    <div class="card-header">
-                        <h5 class="card-title">Submission Targets Table</h5>
-                    </div>
-                    <div class="px-0 card-body">
+                <x-card-header>Indicator Targets List</x-card-header>
+                    <div class=" card-body">
                         <livewire:tables.submission-target-table />
                     </div>
                 </div>
@@ -277,7 +272,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalTitleId">
-                                Assigned Targets
+                                Assign Targets
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
@@ -285,7 +280,8 @@
                         <div class="modal-body">
                             <x-alpine-alerts />
                             <form wire:submit='saveTargets' wire:loading.class='opacity-25 pe-none'>
-                                <table class="table ">
+                                <div class="table-responsive">
+                                <table class="table table-bordered ">
                                     <thead>
                                         <tr>
                                             <th>Partner</th>
@@ -320,12 +316,12 @@
                                     <tfoot>
                                         <tr>
                                             <td colspan="2" class="text-center"> <button type="submit"
-                                                    class="px-5 btn btn-warning">Submit</button>
+                                                    class="px-5 btn btn-warning">Submit data</button>
                                             </td>
                                         </tr>
                                     </tfoot>
                                 </table>
-
+</div>
                             </form>
                         </div>
 
