@@ -36,8 +36,7 @@
                             <a class=" btn btn-warning" href="#" data-bs-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
                                 <i class="bx bx-filter me-5 fw-bold"></i> <span> <span id='report_year'
-                                        x-text="'Year - ' + selectedReportYear"></span> <i
-                                        class="bx bx-chevron-down ms-1"></i></span>
+                                        x-text="'Year - ' + selectedReportYear"></span> <i class="mdi mdi-chevron-down"></i></span>
 
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
@@ -60,7 +59,8 @@
                     <div class="d-flex justify-content-end">
                         <a href="marketing/manage-data" class=" btn btn-warning">
 
-                            View Details <i class="bx bx-arrow-to-right ms-1"></i></a>
+                            View Details <i
+                                                class="bx bx-right-arrow-alt"></i></a>
                     </div>
                 </div>
 

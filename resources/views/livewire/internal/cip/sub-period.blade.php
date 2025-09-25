@@ -522,7 +522,7 @@
             <div class="col-12">
                 <div class="card">
                    <x-card-header>Submission Period List</x-card-header>
-                    <div class="px-0 card-body">
+                    <div class=" card-body">
                         @php
 
                             $route = Route::current()->getPrefix();

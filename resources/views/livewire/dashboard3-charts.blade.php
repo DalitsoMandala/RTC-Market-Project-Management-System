@@ -16,7 +16,8 @@
                     <div>
                         <a href="gross-margin/manage-data" class=" btn btn-warning">
 
-                            View Details <i class="bx bx-arrow-to-right ms-1"></i></a>
+                            View Details <i
+                                                class="bx bx-right-arrow-alt"></i></a>
 
                     </div>
                 </div>

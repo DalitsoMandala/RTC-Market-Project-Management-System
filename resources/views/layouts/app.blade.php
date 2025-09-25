@@ -45,6 +45,15 @@
                 padding: 70px 0 60px 0;
             }
 
+     
+.form-label,label {
+    text-transform: lowercase;
+}
+
+.form-label::first-letter,label::first-letter {
+    text-transform: uppercase;
+}
+
             #topbar {
                 padding: 0.4rem 0rem;
             }

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\ReportingPeriodMonth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Calculation\Financial;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Detail;
@@ -171,7 +172,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
 
 
 
-            Column::make('Dates', 'submission_dates'),
+
 
             Column::make('Start of Submissions', 'date_established_formatted', 'date_established')
                 ->sortable(),
@@ -221,6 +222,49 @@ final class SubmissionPeriodTable extends PowerGridComponent
                 ->dataSource(Indicator::all())
                 ->optionLabel('indicator_name')
                 ->optionValue('id'),
+
+                  Filter::select('date_established', 'date_established')
+                ->dataSource(SubmissionPeriod::select(['date_established'])->distinct()->get()->map(function ($model) {
+                    return [
+                        'date_established' => $model->date_established,
+                        'formatted' => Carbon::parse($model->date_established)->format('d/m/Y'),
+                    ];
+                }))
+                ->optionLabel('formatted')
+                ->optionValue('date_established'),
+
+                Filter::select('date_ending', 'date_ending')
+                ->dataSource(SubmissionPeriod::select(['date_ending'])->distinct()->get()->map(function ($model) {
+
+                    return [
+                        'date_ending' => $model->date_ending,
+                        'formatted' => Carbon::parse($model->date_ending)->format('d/m/Y'),
+                    ];
+                }))
+                ->optionLabel('formatted')
+                ->optionValue('date_ending'),
+
+                Filter::select('financial_year', 'financial_year_id')
+                ->dataSource(SubmissionPeriod::select(['financial_year_id'])->distinct()->get()->map(function ($model) {
+
+                    return [
+                        'financial_year' => $model->financial_year_id,
+                        'formatted' => 'Year ' .FinancialYear::find($model->financial_year_id)?->number, //$model->financial_year,
+                    ];
+                }))
+                ->optionLabel('formatted')
+                ->optionValue('financial_year'),
+
+                Filter::select('month_range', 'month_range_period_id')
+                ->dataSource(SubmissionPeriod::select(['month_range_period_id'])->distinct()->get()->map(function ($model) {
+
+                    return [
+                        'month_range' => $model->month_range_period_id,
+                        'formatted' => ReportingPeriodMonth::find($model->month_range_period_id)->start_month . '-' . ReportingPeriodMonth::find($model->month_range_period_id)->end_month,
+                    ];
+                }))
+                ->optionLabel('formatted')
+                ->optionValue('month_range'),
         ];
     }
 

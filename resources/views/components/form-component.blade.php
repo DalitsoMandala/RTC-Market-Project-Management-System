@@ -16,9 +16,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-block align-items-center justify-content-between">
-                    <h4 class="mb-2">{{ $pageTitle ?? 'Add Data' }}</h4>
+              
 
-                    <div class="page-title-right" wire:ignore>
+                    <div class="page-title-left col-12" wire:ignore>
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item">
                                 <a href="/">Dashboard</a>

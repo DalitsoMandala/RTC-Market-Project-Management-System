@@ -5,8 +5,10 @@
     $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
 
 @endphp
+
+
 <x-form-component :showAlpineAlerts="true" title="Add Recruitment Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission"
-    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" formName="rtc-actor-recruitment-form">
+    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name">
 
     <x-slot name="breadcrumbs">
 
@@ -39,7 +41,7 @@
     </x-slot>
 
     <div class="mb-3">
-        <label for="" class="form-label ">ENTERPRISE</label>
+        <label for="" class="form-label ">Enterprise</label>
         <div class="form-group">
 
             <select class="form-select @error('location_data.enterprise')
@@ -60,7 +62,7 @@
     </div>
 
     <div class="mb-3">
-        <label for="" class="form-label">DISTRICT</label>
+        <label for="" class="form-label">District</label>
         <select class="form-select @error('location_data.district')
         is-invalid
     @enderror"
@@ -73,7 +75,7 @@
     </div>
 
     <div class="mb-3">
-        <label for="" class="form-label">EPA</label>
+        <label for="" class="form-label">Epa</label>
         <x-text-input wire:model='location_data.epa' :class="$errors->has('location_data.epa') ? 'is-invalid' : ''" />
         @error('location_data.epa')
             <x-error>{{ $message }}</x-error>
@@ -81,7 +83,7 @@
     </div>
 
     <div class="mb-3">
-        <label for="" class="form-label">SECTION</label>
+        <label for="" class="form-label">Section</label>
         <x-text-input wire:model='location_data.section' :class="$errors->has('location_data.section') ? 'is-invalid' : ''" />
         @error('location_data.section')
             <x-error>{{ $message }}</x-error>
@@ -92,7 +94,7 @@
 
     <!-- Date of Recruitment -->
     <div class="mb-3">
-        <label for="dateOfRecruitment" class="form-label">Date of
+        <label for="dateOfRecruitment" class="form-label">Date Of
             Recruitment</label>
         <input type="date" class="form-control @error('date_of_recruitment') is-invalid @enderror"
             id="dateOfRecruitment" wire:model='date_of_recruitment' />
@@ -104,7 +106,7 @@
 
     <!-- Name of Actor -->
     <div class="mb-3">
-        <label for="nameOfActor" class="form-label">Name of Actor</label>
+        <label for="nameOfActor" class="form-label">Name Of Actor</label>
         <input type="text" class="form-control @error('name_of_actor') is-invalid @enderror" id="nameOfActor"
             wire:model='name_of_actor'>
         @error('name_of_actor')
@@ -237,9 +239,9 @@
 
         <div class="mb-3">
 
-            <div class="row">
+            <div class="row ">
 
-                <div class="col">
+                <div class="mb-3 col">
                     <label for="female1835">FEMALE 18-35YRS:</label>
                     <input type="number" min="0" step="any"
                         class="form-control @error('number_of_members.female_18_35') is-invalid @enderror"
@@ -248,7 +250,7 @@
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </div>
-                <div class="col">
+                <div class="mb-3 col">
                     <label for="female35plus">FEMALE 35YRS+:</label>
                     <input type="number" min="0" step="any"
                         class="form-control @error('number_of_members.female_35_plus') is-invalid @enderror"
@@ -259,7 +261,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="mb-3 col">
                     <label for="male1835">MALE 18-35YRS:</label>
                     <input type="number" min="0" step="any"
                         class="form-control @error('number_of_members.male_18_35') is-invalid @enderror"
@@ -268,7 +270,7 @@
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </div>
-                <div class="col">
+                <div class="mb-3 col">
                     <label for="male35plus">MALE 35YRS +:</label>
                     <input type="number" min="0" step="any"
                         class="form-control @error('number_of_members.male_35_plus') is-invalid @enderror"
@@ -278,7 +280,7 @@
                     @enderror
                 </div>
 
-                <div class="col-12">
+                <div class="mb-3 col-12">
                     <label for="female1835">Total Members:</label>
                     <input type="number" min="0" step="any"
                         class="form-control bg-light @error('number_of_members.total') is-invalid @enderror"

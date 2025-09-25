@@ -7,9 +7,9 @@
         <div class="mt-4 row">
             <div class="col-12">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header">
-                        Estimated Volume (Kg) vs Value (US$) by District
-                    </div>
+                    <x-card-header> Estimated Volume (Kg) vs Value (US$) by District</x-card-header>
+
+
                     <div class="card-body">
                         <div id="district-combo-chart" x-show="hasDistrictComboData===true" style="height: 500px;"></div>
                         <x-no-data x-show="hasDistrictComboData===false" />
@@ -22,9 +22,9 @@
             <!-- Estimated Demand Chart -->
             <div class="col-md-6">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header ">
+                    <x-card-header>
                         Estimated Demand (Kg) by Variety
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="demand-chart" x-show="hasDemandData===true" style="height: 350px;"></div>
                         <x-no-data x-show="hasDemandData===false" />
@@ -35,9 +35,9 @@
             <!-- Estimated Value Chart -->
             <div class="col-md-6">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header ">
+                    <x-card-header>
                         Estimated Total Value (US$) by Variety
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="value-chart" x-show="hasValueData===true" style="height: 350px;"></div>
                         <x-no-data x-show="hasValueData===false" />
@@ -50,9 +50,9 @@
         <div class="mt-4 row">
             <div class="col-12">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header ">
+                    <x-card-header>
                         Monthly Volume vs Value (May 2024 – Jan 2025)
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="monthly-chart" x-show="hasMonthlyData===true" style="height: 400px;"></div>
                         <x-no-data x-show="hasMonthlyData===false" />
@@ -65,9 +65,9 @@
         <div class="mt-4 row">
             <div class="col-12">
                 <div class="shadow-sm card">
-                    <div class="card-header text-dark fw-bold">
+                    <x-card-header>
                         Monthly Estimated Demand (Kg) by Variety
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="stacked-demand-chart" x-show="hasStackedDemandData===true" style="height: 400px;">
                         </div>
@@ -83,9 +83,9 @@
         <div class="mt-4 row">
             <div class="col-md-6">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header">
+                    <x-card-header>
                         Value Contribution by Country (%)
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="country-value-donut" x-show="hasCountryValueDonutData===true" style="height: 400px;">
                         </div>
@@ -97,9 +97,9 @@
 
             <div class="col-6">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header">
+                    <x-card-header>
                         Estimated Demand (Kg) by Country & Variety
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="country-variety-chart" x-show="hasCountryVarietyData===true" style="height: 400px;">
                         </div>
@@ -114,9 +114,9 @@
         <div class="mt-4 row">
             <div class="col-12">
                 <div class="shadow-sm card">
-                    <div class="text-dark fw-bold card-header">
+                    <x-card-header>
                         Average Price per Kg (MWK) Over Time
-                    </div>
+                    </x-card-header>
                     <div class="card-body">
                         <div id="price-trend-chart" x-show="hasPriceTrendData===true" style="height: 400px;"></div>
                         <x-no-data x-show="hasPriceTrendData===false" />
@@ -557,7 +557,7 @@
                 const filtered = this.data.filter(item => item.name === 'demandByVariety');
 
                 // Check if filtered data exists and has data
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     // Optionally clear the chart area or show a message
 
                     this.hasDemandData = false;
@@ -589,7 +589,7 @@
                 const filtered = this.data.filter(item => item.name === 'valueByVariety');
 
                 // Check if data exists and has entries
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasValueData = false;
                     return;
                 }
@@ -619,7 +619,7 @@
                 const filtered = this.data.filter(item => item.name === 'monthlyVolumeVsValue');
 
                 // Check if data exists and is not empty
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasMonthlyData = false;
                     return;
                 }
@@ -701,7 +701,7 @@
                 const filtered = this.data.filter(item => item.name === 'monthlyDemandByVariety');
 
                 // Check if the data is available and has content
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasStackedDemandData = false;
                     return;
                 }
@@ -756,7 +756,7 @@
                 const filtered = this.data.filter(item => item.name === 'volumeVsValueByDistrict');
 
                 // Check if valid data exists
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasDistrictComboData = false;
                     return;
                 }
@@ -840,7 +840,7 @@
                 const filtered = this.data.filter(item => item.name === 'countryValueShare');
 
                 // Check if data exists and is not empty
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasCountryValueDonutData = false;
                     return;
                 }
@@ -876,7 +876,7 @@
                 const filtered = this.data.filter(item => item.name === 'demandByCountryAndVariety');
 
                 // Check if data exists and is not empty
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasCountryVarietyData = false;
                     return;
                 }
@@ -937,7 +937,7 @@
                 const filtered = this.data.filter(item => item.name === 'priceTrendMWK');
 
                 // Check for valid, non-empty data
-                if (!filtered.length || !filtered[0].data ) {
+                if (!filtered.length || !filtered[0].data) {
                     this.hasPriceTrendData = false;
                     return;
                 }

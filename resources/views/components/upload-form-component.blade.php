@@ -19,9 +19,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-block align-items-center justify-content-between">
-                    <h4 class="mb-2">{{ $pageTitle }}</h4>
 
-                    <div class="page-title-right" wire:ignore>
+
+                    <div class="page-title-left" wire:ignore>
 
 
                         <ol class="m-0 breadcrumb">
@@ -89,34 +89,37 @@
                     </div>
                 @endif
 
-                <div
-                    class="my-2 border shadow-none card card-body @if (!$openSubmission) opacity-25 pe-none @endif">
-                    <h5> Instructions</h5>
-                    <p class="alert bg-secondary-subtle text-uppercase">Download the template & upload your data.</p>
+                <div class="my-2 border shadow-none card @if (!$openSubmission) opacity-25 pe-none @endif">
+                    <x-card-header>Instructions</x-card-header>
+                    <div class="card-body">
+                        <p class="alert bg-secondary-subtle text-uppercase">Download the template & upload your data.
+                        </p>
 
-                    @if ($importing && !$importingFinished)
-                        <div class="alert alert-warning d-flex justify-content-between"
-                            wire:poll.5000ms='checkProgress()'>Importing your file
-                            Please wait....
+                        @if ($importing && !$importingFinished)
+                            <div class="alert alert-warning d-flex justify-content-between"
+                                wire:poll.5000ms='checkProgress()'>Importing your file
+                                Please wait....
 
-                            <div class="d-flex align-content-center">
-                                <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
-                                <div class="spinner-border text-warning spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
+                                <div class="d-flex align-content-center">
+                                    <span class="text-warning fw-bold me-2"> {{ $progress }}%</span>
+                                    <div class="spinner-border text-warning spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div x-data class="my-2 progress progress-sm">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                                role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100">
+                            <div x-data class="my-2 progress progress-sm">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                                    role="progressbar" style="width: {{ $progress . '%' }}" aria-valuenow="25"
+                                    aria-valuemin="0" aria-valuemax="100">
+                                </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
 
 
-                    {{ $slot }}
+                        {{ $slot }}
+                    </div>
+
 
                 </div>
             </div>

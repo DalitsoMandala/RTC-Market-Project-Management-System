@@ -5,10 +5,10 @@
 
         <form wire:submit='submitUpload'>
             <div x-data>
-                <button class="btn btn-soft-warning" type="button" @click="$wire.downloadTemplate()"
+                <button class="btn btn-warning" type="button" @click="$wire.downloadTemplate()"
                     @if ($importing && !$importingFinished) disabled @endif wire:loading.attr='disabled'>
                     <!-- Border spinner -->
-                    <div class="mx-2 opacity-30 spinner-border text-secondary" style="width: 1rem; height: 1rem;"
+                    <div class="mx-2 text-white opacity-30 spinner-border" style="width: 1rem; height: 1rem;"
                         wire:loading wire:target='downloadTemplate' role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
@@ -35,7 +35,7 @@
                             :disabled="disableButton === true || openSubmission === false" class="px-5 btn btn-warning">
                             <!-- Border spinner -->
                             <div class="mx-2 opacity-30 spinner-border text-light" style="width: 1rem; height: 1rem;"
-                                wire:loading wire:target='submitUpload' role="status">
+                                wire:loading wire:target='submitUpload, downloadTemplate' wire:loading.attr='disabled' role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>
                             Submit data

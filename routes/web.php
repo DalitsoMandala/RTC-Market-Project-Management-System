@@ -26,7 +26,7 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 // Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
-Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
+//Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
 
 Route::get('/backup/download/{file}', function ($file) {
     // return response()->json($file);
@@ -82,9 +82,7 @@ if (!function_exists('registerFormRoutes')) {
     }
 }
 // Profile route
-Route::get('/profile', \App\Livewire\Profile\Details::class)
-    ->middleware(['auth'])
-    ->name('profile');
+
 
 // Admin routes
 Route::middleware([
@@ -125,7 +123,9 @@ Route::middleware([
     Route::get('/products/add-data', \App\Livewire\External\Products\AddData::class)->name('admin-products-add-data');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('admin-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('admin-products-upload-data');
-
+Route::get('/profile', \App\Livewire\Profile\Details::class)
+    ->middleware(['auth'])
+    ->name('admin-profile');
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
 });
@@ -158,7 +158,9 @@ Route::middleware([
     Route::get('/products/add-data', \App\Livewire\External\Products\AddData::class)->name('cip-products-add-data');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('cip-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('cip-products-upload-data');
-
+Route::get('/profile', \App\Livewire\Profile\Details::class)
+    ->middleware(['auth'])
+    ->name('manager-profile');
     registerFormRoutes('/forms/{project}', 'manager');
 });
 
@@ -188,7 +190,9 @@ Route::middleware([
 
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
-
+Route::get('/profile', \App\Livewire\Profile\Details::class)
+    ->middleware(['auth'])
+    ->name('staff-profile');
 
     registerFormRoutes('/forms/{project}', 'staff');
 });
@@ -213,7 +217,9 @@ Route::middleware([
     Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project_manager-gross-margin-items');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project_manager-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('project_manager-products-upload-data');
-
+Route::get('/profile', \App\Livewire\Profile\Details::class)
+    ->middleware(['auth'])
+    ->name('project_manager-profile');
     registerFormRoutes('/forms/{project}', 'project_manager');
 });
 // External routes
@@ -246,6 +252,9 @@ Route::middleware([
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
+Route::get('/profile', \App\Livewire\Profile\Details::class)
+    ->middleware(['auth'])
+    ->name('enumerator-profile');
 });
 // Authentication routes
 require __DIR__ . '/auth.php';

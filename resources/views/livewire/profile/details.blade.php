@@ -8,12 +8,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Profile</h4>
 
-                    <div class="page-title-right">
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Profile</li>
+                            <li class="breadcrumb-item active">My Profile</li>
                         </ol>
                     </div>
 
@@ -27,8 +26,9 @@
                 <div class="row">
                     <div class="col-12">
 
-                        <h4>Profile information</h4>
+
                         <div class="card">
+                            <x-card-header>My Profile Information</x-card-header>
                             <div class="card-body">
                                 @if ($form_top)
                                     <x-alerts />
@@ -57,8 +57,8 @@
                                     <div class="mb-3 form-group">
                                         <label for="profile_image">Profile Image</label>
 
-                                        <div class="row ">
-                                            <div class="col-12 ">
+                                        <div class="gap-1 row justify-content-center justify-content-md-start ">
+                                            <div class="col-12 col-xl-1 ">
 
                                                 @if (auth()->user()->image)
                                                     <img src="{{ asset('storage/profiles/' . auth()->user()->image) }}"
@@ -69,7 +69,7 @@
                                                 @endif
                                             </div>
 
-                                            <div class="my-2 col-12">
+                                            <div class="my-2 col-12 col-xl-11">
                                                 <x-profile-image instantUpload="true" type="file"
                                                     class="form-control-file" id="profile_image"
                                                     wire:model="profile_image" />
@@ -90,7 +90,7 @@
                                         @enderror
                                     </div>
 
-                                    <button type="submit" class="btn btn-warning">Save</button>
+                                    <button type="submit" class="btn btn-warning">Save Info</button>
                                 </form>
                             </div>
                         </div>
@@ -101,8 +101,8 @@
                 <div class="row">
                     <div class="col-12">
 
-                        <h4>Security</h4>
                         <div class="card">
+                            <x-card-header>Security Settings</x-card-header>
                             <div class="card-body">
                                 @if (!$form_top)
                                     <x-alerts />
@@ -147,7 +147,7 @@
                                         @enderror
                                     </div>
 
-                                    <button type="submit" class="btn btn-warning">Save</button>
+                                    <button type="submit" class="btn btn-warning">Save Settings</button>
                                 </form>
                             </div>
                         </div>
