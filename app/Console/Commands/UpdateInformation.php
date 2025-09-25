@@ -5,13 +5,14 @@ namespace App\Console\Commands;
 use App\Jobs\ReportJob;
 use Illuminate\Bus\Batch;
 use App\Models\ReportStatus;
+
 use App\Jobs\MarketReportJob;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use App\Jobs\AdditionalReportJob;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache;
 
+use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;
 use App\Jobs\PopulatePreviousValueJob;
 

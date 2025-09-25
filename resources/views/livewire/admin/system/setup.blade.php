@@ -137,10 +137,12 @@
                                     <p class="text-muted">Clear application, config, and route cache.
                                         Recommended during off-peak hours.</p>
 
-                                    <button class="btn btn-warning" onclick="window.scrollTo({
+                                    <button class="btn btn-warning"
+                                        onclick="window.scrollTo({
                      top: 0,
                      behavior: 'smooth'
-                 })" type="submit">
+                 })"
+                                        type="submit">
                                         Clear Cache
                                     </button>
                                 </form>
@@ -154,9 +156,24 @@
                             <x-card-header>Database Backup</x-card-header>
                             <div class="card-body">
                                 <p class="text-muted">Backup the database and export it locally for safekeeping.</p>
-                                <button class="btn btn-danger" wire:click="backupDatabase">
-                                    Backup & Download
+                                @if (session()->has('backup-success'))
+                                    <div class="alert alert-success"> <i class="bx bx-check-circle me-1"></i>{{ session()->get('backup-success') }}</div>
+                                @endif
+                                @if (session()->has('backup-error'))
+                                    <div class="alert alert-error">{{ session()->get('backup-error') }}</div>
+                                @endif
+
+                                <button class="btn btn-warning"   @if($isRunning) disabled @endif wire:click="backupDatabase" wire:loading.attr="disabled">
+
+
+                                    <span class="me-1"> Backup Database </span>
+                                    @if($isRunning)
+                                     <span wire:poll.1000ms="backupProgress" class="spinner-border spinner-border-sm"></span>
+                                    @endif
                                 </button>
+                                <hr>
+
+                                <livewire:tables.database-backup-table />
                             </div>
                         </div>
                     </div>
@@ -180,7 +197,7 @@
              });
 
 
-             if (e.data !== null ) {
+             if (e.data !== null) {
                  let blob = new Blob([e.data], { type: 'text/plain' });
                  let link = document.createElement('a');
                  link.href = window.URL.createObjectURL(blob);

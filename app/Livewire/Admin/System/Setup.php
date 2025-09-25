@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\System;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Livewire\Component;
+use App\Jobs\RunBackupJob;
 
 use Livewire\Attributes\On;
 use App\Models\SystemDetail;
@@ -12,6 +13,7 @@ use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Event\Telemetry\System;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Response;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -29,6 +31,7 @@ class Setup extends Component
     public $maintenance_message;
     public $confirmingMaintenanceMode = false;
     public $secretKey;
+    public $isRunning= false;
 
     protected function rules()
     {
@@ -143,7 +146,29 @@ class Setup extends Component
             $this->secretKey = Uuid::uuid4()->toString();
         }
     }
+public function backupDatabase(){
+    $this->isRunning = true;
 
+    RunBackupJob::dispatch();
+     Cache::put('backup_progress', 0);
+}
+
+public function backupProgress()
+{
+    if (Cache::get('backup_progress') >= 100) {
+        $this->isRunning = false;
+
+        if(Cache::get('backup_error') != null){
+            session()->flash('backup-error', Cache::get('backup_error'));
+        }else{
+            $this->dispatch('refreshDB');
+            session()->flash('backup-success', 'Database backup completed successfully.');
+        }
+
+    }else{
+        $this->isRunning = true;
+    }
+}
 
     public function render()
     {

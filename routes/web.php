@@ -8,12 +8,13 @@ use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Targets;
+use Illuminate\Support\Facades\Storage;
+
 use App\Livewire\External\ViewIndicator;
 
 use App\Livewire\Internal\Cip\Dashboard;
 
 use App\Livewire\Internal\Cip\SubPeriod;
-
 use App\Helpers\MarketReportCalculations;
 use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Assignments;
@@ -27,6 +28,9 @@ Route::get('/', fn() => redirect()->route('login'));
 // Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
 Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
 
+Route::get('/backup/download/{file}', function ($file) {
+    // return response()->json($file);
+})->name('backup.download');
 
 Route::get('/logout', function () {
 
@@ -207,7 +211,7 @@ Route::middleware([
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('project_manager-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('project_manager-gross-margin-manage-data');
     Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project_manager-gross-margin-items');
-   Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project_manager-products-view-data');
+    Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project_manager-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('project_manager-products-upload-data');
 
     registerFormRoutes('/forms/{project}', 'project_manager');
