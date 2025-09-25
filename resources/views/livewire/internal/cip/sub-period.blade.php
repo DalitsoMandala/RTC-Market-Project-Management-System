@@ -7,15 +7,15 @@
         <x-alerts />
     </div>
     <div class="container-fluid " x-data="{
-        showLoadingIndicator: true,
+        showLoadingIndicator: false,
         init() {
 
 
-            setTimeout(() => {
+            // setTimeout(() => {
 
-                this.showLoadingIndicator = false;
+            //     this.showLoadingIndicator = false;
 
-            }, 5000);
+            // }, 1000);
         }
 
     }" x-show="showLoadingIndicator">
@@ -28,14 +28,14 @@
 
     </div>
     <div class="container-fluid" id="load-app" x-data="{
-        showPage: false,
+        showPage: true,
 
         init() {
 
-            setTimeout(() => {
+            // setTimeout(() => {
 
-                this.showPage = true;
-            }, 5000);
+            //     this.showPage = true;
+            // }, 5000);
         }
     }" x-show="showPage">
 

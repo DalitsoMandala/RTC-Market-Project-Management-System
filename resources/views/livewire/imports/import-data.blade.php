@@ -109,7 +109,7 @@
                         </div>
                     @enderror
                     <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false }">
-                        <button type="submit" @uploading-files.window="disableButton = true"
+                        <button type="submit" @uploading-files.window="disableButton = true" wire:loading.attr='disabled'
                             @finished-uploading.window="disableButton = false" :disabled="disableButton === true"
                             class="px-5 btn btn-warning ">
                             Submit data

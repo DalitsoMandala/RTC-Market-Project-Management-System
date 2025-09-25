@@ -4,7 +4,7 @@
 
 
 
-    <h4>Meeting Details</h4>
+    <h4 class="mb-3">Meeting Details</h4>
     <div class="mb-3">
         <label for="meetingTitle" class="form-label">Meeting Title</label>
         <input type="text" wire:model="meetingTitle" class="form-control @error('meetingTitle') is-invalid @enderror"

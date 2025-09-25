@@ -12,8 +12,10 @@ class LowerCaseController extends Controller
 
     public function setup(){
         foreach(User::all() as $user){
-            $user->email = strtolower($user->email);
-            $user->save();
+         
+            User::find($user->id)->update([
+                'email' => strtolower($user->email)
+            ]);
         }
 
         return response()->json([

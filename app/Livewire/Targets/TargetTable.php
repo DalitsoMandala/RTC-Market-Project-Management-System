@@ -172,7 +172,7 @@ final class TargetTable extends PowerGridComponent
             Column::make('Project year', 'financial_year'),
 
 
-            Column::make('Dissagregation', 'submission_target_name')->bodyAttribute('text-uppercase'),
+            Column::make('Dissagregation', 'submission_target_name'),
             Column::make('Standard Target', 'submission_target_value'),
 
 
@@ -210,6 +210,9 @@ final class TargetTable extends PowerGridComponent
     }
     public function filters(): array
     {
+          $user = User::find(auth()->user()->id);
+        $organisation_id = $user->organisation->id;
+
         return [
             Filter::select('financial_year', 'financial_years.number')
                 ->dataSource(FinancialYear::get()->map(function ($year) {
@@ -237,7 +240,7 @@ final class TargetTable extends PowerGridComponent
                 ->optionValue('name'),
 
                 Filter::select('organisation', 'organisations.name')
-                ->dataSource(Organisation::all())
+                ->dataSource($user->hasAnyRole('external') ? Organisation::where('id', $organisation_id)->get() : Organisation::all())
                 ->optionLabel('name')
                 ->optionValue('name'),
 

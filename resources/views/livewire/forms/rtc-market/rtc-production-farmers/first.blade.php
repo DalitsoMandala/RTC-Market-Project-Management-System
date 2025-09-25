@@ -23,7 +23,7 @@
 
 <!-- Area Under Cultivation (Number of Acres) by Variety -->
 <div class="mb-3">
-    <label for="areaUnderCultivation" class="my-3 form-label fw-bold">Area Under
+    <label for="areaUnderCultivation" class="my-3 form-label">Area Under
         Cultivation
         (Number of Acres) by Variety</label>
 
@@ -45,7 +45,7 @@
     }">
 
         <table class="table table-bordered">
-            <thead>
+            <thead class="table-secondary">
                 <tr>
                     <th>Variety</th>
                     <th>Area in Acres</th>
@@ -75,7 +75,7 @@
 
                         <td>
                             <button @click="$wire.removeAreaofCultivation({{ $index }})"
-                                @if (count($area_under_cultivation) <= 1) disabled @endif class="btn btn-danger btn-sm">Remove
+                                @if (count($area_under_cultivation) <= 1) disabled @endif class="btn btn-danger btn-sm custom-tooltip" title="Remove">
                                 <i class="bx bx-trash"></i></button>
                         </td>
                     </tr>
@@ -106,7 +106,7 @@
     number_of_plantlets_produced: $wire.entangle('number_of_plantlets_produced')
 }">
 
-    <label for="numberOfPlantlets" class="my-3 form-label fw-bold">Number of
+    <label for="numberOfPlantlets" class="my-3 form-label">Number of
         Plantlets
         Produced </label>
 
@@ -231,7 +231,7 @@
     }
 
 }">
-    <label for="areaUnderBasicSeed" class="my-3 form-label fw-bold">Area Under
+    <label for="areaUnderBasicSeed" class="my-3 form-label">Area Under
         Basic Seed
         Multiplication (Number of Acres)</label>
     <span class="text-danger fw-bold">[For early generation
@@ -241,7 +241,7 @@
     <div class="px-2 row">
 
         <table class="table table-bordered">
-            <thead>
+            <thead class="table-secondary">
                 <tr>
                     <th>Variety</th>
                     <th>Area in Acres</th>
@@ -271,8 +271,7 @@
 
                         <td>
                             <button @click="$wire.removeBasicSeed({{ $index }})"
-                                @if (count($area_under_basic_seed_multiplication) <= 1) disabled @endif class="btn btn-danger btn-sm">Remove
-                                <i class="bx bx-trash"></i></button>
+                                @if (count($area_under_basic_seed_multiplication) <= 1) disabled @endif class="btn btn-danger btn-sm"><i class="bx bx-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -298,7 +297,7 @@
 
 <!-- Area Under Certified Seed Multiplication -->
 <div class="mb-3">
-    <label for="areaUnderCertifiedSeed" class="my-3 form-label fw-bold">Area Under
+    <label for="areaUnderCertifiedSeed" class="my-3 form-label">Area Under
         Certified
         Seed Multiplication</label>
     <div class="px-2 row" x-data="{
@@ -316,7 +315,7 @@
     }">
 
         <table class="table table-bordered">
-            <thead>
+            <thead class="table-secondary">
                 <tr>
                     <th>Variety</th>
                     <th>Area in Acres</th>
@@ -346,8 +345,7 @@
 
                         <td>
                             <button @click="$wire.removeCertifiedSeed({{ $index }})"
-                                @if (count($area_under_certified_seed_multiplication) <= 1) disabled @endif class="btn btn-danger btn-sm">Remove
-                                <i class="bx bx-trash"></i></button>
+                                @if (count($area_under_certified_seed_multiplication) <= 1) disabled @endif class="btn btn-danger btn-sm"><i class="bx bx-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -418,7 +416,7 @@
     if (v != 1) { $wire.resetValues('registrations'); }
 })" class="px-2">
     <table class="table table-bordered">
-        <thead>
+        <thead class="table-secondary">
             <tr>
                 <th>Variety</th>
                 <th>Reg. Date</th>
@@ -745,7 +743,7 @@
     </div>
 
     <table class="table mt-4 fs-6 table-bordered table-striped table-hover table-responsive">
-        <thead>
+        <thead class="table-secondary">
             <tr class="">
                 <th></th>
                 <th>Type</th>
@@ -1098,7 +1096,7 @@
 
 
     <table class="table mt-4 fs-6 table-bordered table-striped table-hover table-responsive">
-        <thead>
+        <thead class="table-secondary">
             <tr class="">
                 <th></th>
                 <th>Type </th>
@@ -1334,7 +1332,7 @@
         <div class="px-2 row" x-data>
             <label for="" class="form-label">Specify Market Information System</label>
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th>Name</th>
 
@@ -1439,7 +1437,7 @@
         <div class="px-2 row" x-data>
             <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th>Name</th>
 

@@ -251,7 +251,7 @@
     </div>
 
     <table class="table mt-4 fs-6 table-bordered table-striped table-hover table-responsive">
-        <thead>
+        <thead class="table-secondary">
             <tr class="">
                 <th></th>
                 <th>Type</th>
@@ -487,7 +487,7 @@
         <div class="px-2 row" x-data>
             <label for="" class="form-label">Specify Market Information System</label>
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th>Name</th>
 
@@ -591,7 +591,7 @@
         <div class="px-2 row" x-data>
             <label for="totalVolumeSoldThroughAggregation" class="form-label">Specify Aggregation Center</label>
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th>Name</th>
 

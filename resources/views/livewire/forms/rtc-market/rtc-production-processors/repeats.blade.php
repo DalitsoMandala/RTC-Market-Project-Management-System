@@ -130,17 +130,19 @@
                 @if (count($inputTwo) > 1)
                     <button type="button" class="btn btn-danger btn-sm"
                         wire:click='removeInputTwo({{ $index }})'>
-                        Delete Record <i class="bx bx-minus"></i>
+                        Delete Record <i class="bx bx-trash"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputTwo()'>
-                    Add Record <i class="bx bx-plus"></i>
-                </button>
+               
 
             </div>
 
         </div>
     @endforeach
+
+     <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputTwo()'>
+                    Add Record <i class="bx bx-plus"></i>
+                </button>
 </div>
 
 
@@ -280,16 +282,16 @@
                 @if (count($inputThree) > 1)
                     <button type="button" class="btn btn-danger btn-sm"
                         wire:click='removeInputThree({{ $index }})'>
-                        Delete Record <i class="bx bx-minus"></i>
+                        Delete Record <i class="bx bx-trash"></i>
                     </button>
                 @endif
-                <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputThree()'>
-                    Add Record <i class="bx bx-plus"></i>
-                </button>
-
+              
             </div>
 
         </div>
     @endforeach
+  <button type="button" class="btn btn-warning btn-sm" @click='$wire.addInputThree()'>
+                    Add Record <i class="bx bx-plus"></i>
+                </button>
 
 </div>

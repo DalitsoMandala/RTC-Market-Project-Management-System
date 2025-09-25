@@ -4,3 +4,4 @@
     @endsection
     <livewire:internal.cip.indicators />
 </div>
+    

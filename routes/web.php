@@ -25,7 +25,7 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
-// Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
+ Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
 //Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
 
 Route::get('/backup/download/{file}', function ($file) {
@@ -177,7 +177,7 @@ Route::middleware([
     Route::get('/indicators/view/{id}', \App\Livewire\Internal\Staff\ViewIndicators::class)->where('id', '[0-9]+')->name('cip-staff-indicator-view');
     Route::get('/forms', \App\Livewire\Internal\Staff\Forms::class)->name('cip-staff-forms');
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Staff\Submissions::class)->name('cip-staff-submissions');
-    Route::get('/targets', App\Livewire\Targets\View::class);
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-staff-targets');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('staff-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('staff-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('staff-gross-margin-manage-data');
@@ -210,7 +210,7 @@ Route::middleware([
     Route::get('/indicators/view/{id}', \App\Livewire\Internal\Manager\ViewIndicator::class)->where('id', '[0-9]+')->name('project_manager-indicator-view');
     Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');
     Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
-    Route::get('/targets', App\Livewire\Targets\View::class);
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('project_manager-targets');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project_manager-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('project_manager-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('project_manager-gross-margin-manage-data');
@@ -233,7 +233,7 @@ Route::middleware([
     Route::get('/indicators/view/{id}', ViewIndicator::class)->where('id', '[0-9]+')->name('external-indicator-view');
     Route::get('/forms', \App\Livewire\External\Forms::class)->name('external-forms');
     Route::get('/submissions/{batch?}', \App\Livewire\External\Submissions::class)->name('external-submissions');
-    Route::get('/submission-periods', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
+    Route::get('/submission-period', \App\Livewire\External\SubmissionPeriods::class)->name('external-submission-period');
     Route::get('/reports', \App\Livewire\External\Reports::class)->name('external-reports');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('external-targets');
     Route::get('/products/add-data', \App\Livewire\External\Products\AddData::class)->name('external-products-add-data');

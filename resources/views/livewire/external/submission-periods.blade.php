@@ -8,9 +8,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Submission Period</h4>
+                 
 
-                    <div class="page-title-right">
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Submission Period</li>
@@ -24,11 +24,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between ">
-                        <h4 class="card-title">Submission Period Table</h4>
-
-                    </div>
-                    <div class="px-0 card-body">
+                    <x-card-header>Submission Period List</x-card-header>
+                    <div class=" card-body">
                         @php
 
                             $route = Route::current()->getPrefix();

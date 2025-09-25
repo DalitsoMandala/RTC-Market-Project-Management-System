@@ -16,7 +16,7 @@
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
 
                         <strong>Submission are open!</strong> Please submit your data/reports before the closing
-                        dates. <a href="/external/submission-periods" class="alert-link text-decoration-underline">Click
+                        dates. <a href="/staff/submission-period" class="alert-link text-decoration-underline">Click
                             Here</a>
                     </div>
 

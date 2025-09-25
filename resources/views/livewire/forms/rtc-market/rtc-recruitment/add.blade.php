@@ -25,7 +25,7 @@
 
         @role('external')
             <li class="breadcrumb-item"></li>
-            <a href="/external/submission-periods">Submission Periods</a>
+            <a href="/external/submission-period">Submission Periods</a>
             </li>
         @endrole
 
@@ -598,7 +598,7 @@
         if (v != 1) { $wire.resetValues('registrations'); }
     })">
         <table class="table table-bordered">
-            <thead>
+            <thead class="table-secondary">
                 <tr>
                     <th>Variety</th>
                     <th>Reg. Date</th>
@@ -632,8 +632,7 @@
                         </td>
                         <td>
                             <button wire:click.debounce.1000ms="removeRegistration({{ $index }})"
-                                @if (count($registrations) <= 1) disabled @endif class="btn btn-danger btn-sm">Remove
-                                <i class="bx bx-trash"></i></button>
+                                @if (count($registrations) <= 1) disabled @endif class="btn btn-danger btn-sm"><i class="bx bx-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach

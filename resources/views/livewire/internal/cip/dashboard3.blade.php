@@ -7,7 +7,7 @@
         @include('layouts.dashboard-layout')
 
 
-
+   <livewire:dashboard3-charts />
     </div>
 
 </div>

@@ -14,7 +14,7 @@
         <div
             class="container gap-1 px-4 mx-auto custom-container d-flex flex-column flex-lg-row justify-content-between align-items-center">
             <a routerlink="/" class="text-black navbar-brand d-flex align-items-center " href="/">
-                <x-application-logo width="50" /><span class="ms-2 fw-medium ">{{ config('app.name') }}</span></a>
+                <x-application-logo width="50" /><span class="ms-2 fw-medium ">{{ config('app.name') }}</a>
 
 
             {{-- URL contains /dashboard --}}
@@ -26,17 +26,17 @@
                 <ul class="gap-2 nav align-items-center justify-content-center topbar-nav" x-data="{
                     role: '{{ Auth::user()->getRoleNames()->first() }}',
                     makeActive(value) {
-
+                
                         if (value == 1) {
                             document.getElementById('dashboard-one').classList.add('active');
                             document.getElementById('dashboard-two').classList.remove('active');
                         } else if (value == 2) {
                             document.getElementById('dashboard-one').classList.remove('active');
                             document.getElementById('dashboard-two').classList.add('active');
-
+                
                         }
                     },
-
+                
                 }">
 
 
@@ -69,19 +69,7 @@
                 </ul>
             @endhasanyrole
 
-            @hasanyrole('enumerator')
-                <!-- Right side: Dashboard links -->
-                <ul class="nav align-items-center justify-content-center topbar-nav">
-
-                    <li class="nav-item">
-                        <a href="/" id="dashboard-one"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ? 'btn-outline-warning active' : 'btn-light' }} ">
-                            Project Report
-                        </a>
-                    </li>
-
-                </ul>
-            @endhasanyrole
+      
 
         </div>
     </nav>
@@ -153,7 +141,7 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                role="button" >
+                                                role="button">
                                                 Indicator Management
 
                                             </a>
@@ -163,7 +151,7 @@
 
                                                 <a class="dropdown-item" href="/admin/baseline" data-key="t-range-slider">
 
-                                                    <span>Manage Baseline Data</span>
+                                                    Manage Baseline Data
                                                 </a>
                                                 <a href="{{ route('admin-std-targets') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Indicator Targets</a>
@@ -183,7 +171,7 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                role="button" >
+                                                role="button">
                                                 Operations Management
 
                                             </a>
@@ -203,7 +191,7 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                role="button" >
+                                                role="button">
                                                 Marketing Management
 
                                             </a>
@@ -219,7 +207,7 @@
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
-                                                role="button" >
+                                                role="button">
                                                 Gross Management
 
                                             </a>
@@ -242,7 +230,7 @@
                                     <a class="nav-link dropdown-toggle arrow-none " href="{{ route('admin-setup') }}"
                                         id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
                                         <i class='mb-1 bx bx-cog'></i>
-                                        <span>Settings</span>
+                                        Settings
                                     </a>
                                 </li>
 
@@ -263,82 +251,74 @@
                                         id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='mb-1 bx bx-home'></i>
-                                        <span>Dashboard</span>
+                                        Dashboard
                                     </a>
                                 </li>
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ $routePrefixMain }}/baseline" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
-                                        <span>Manage Baseline Data</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('cip-indicators') }}"
-                                        id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span>Indicators</span>
-                                    </a>
-                                </li>
+
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span>Manage Data</span>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
 
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
-
-
-
-
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-forms') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Forms</span>
-
-                                        </a>
-                                        <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-submission-period') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Submission Periods</span>
+                                            href="{{ route('cip-baseline') }}" role="button">
+                                            Baseline Data
 
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-targets') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">View Targets</span>
+                                            href="{{ route('cip-indicators') }}" role="button">
+                                            Indicators
 
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-submissions') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Submissions</span>
+                                            href="{{ route('cip-forms') }}" role="button">
+                                            Forms
+
+                                        </a>
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-submission-period') }}" role="button">
+                                            Submission Periods
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-targets') }}" role="button">
+                                            View Targets
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-submissions') }}" role="button">
+                                            Submissions
 
                                         </a>
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Marketing Management</span>
+                                                Marketing Management< </a>
+                                                    <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                        <a href="{{ route('cip-markets-manage-data') }}"
+                                                            class="dropdown-item" data-key="t-lightbox">Manage Data</a>
+                                                        <a href="{{ route('cip-markets-submit-data') }}"
+                                                            class="dropdown-item" data-key="t-range-slider">Marketing Data
+                                                            Submission</a>
 
-                                            </a>
-                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                                <a href="{{ route('cip-markets-manage-data') }}" class="dropdown-item"
-                                                    data-key="t-lightbox">Manage Data</a>
-                                                <a href="{{ route('cip-markets-submit-data') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Marketing Data Submission</a>
 
-
-                                            </div>
+                                                    </div>
                                         </div>
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Gross Management</span>
+                                                Gross Management
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
@@ -360,7 +340,7 @@
                                         id="topnav-dashboard" role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span>Reports</span>
+                                        Reports
                                     </a>
                                 </li>
                             </ul>
@@ -377,66 +357,61 @@
                                         href="{{ route('external-dashboard') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span>Dashboard</span>
+                                        Dashboard
                                     </a>
                                 </li>
 
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('external-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span>Indicators</span>
-                                    </a>
-                                </li>
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span>Manage Data</span>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
 
                                     </a>
-                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
-
+                                    <div class="dropdown-menu">
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('external-forms') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Forms</span>
+                                            href="{{ route('external-indicators') }}" role="button">
+                                            Indicators
+
+                                        </a>
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('external-forms') }}" role="button">
+                                            Forms
 
                                         </a>
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('external-targets') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">View Targets</span>
+                                            href="{{ route('external-targets') }}" role="button">
+                                            View Targets
 
                                         </a>
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('external-submission-period') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Submission Periods</span>
+                                            href="{{ route('external-submission-period') }}" role="button">
+                                            Submission Periods
 
                                         </a>
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('external-submissions') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Submissions</span>
+                                            href="{{ route('external-submissions') }}" role="button">
+                                            Submissions
 
                                         </a>
                                         {{-- @if (auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT')
                                             <a class="dropdown-item dropdown-toggle arrow-none"
-                                                href="/external/products/upload-data" id="topnav-utility" role="button">
-                                                <span data-key="t-utility">Upload Products Data</span>
+                                                href="/external/products/upload-data"  role="button">
+                                                Upload Products Data
 
                                             </a>
 
                                             <a class="dropdown-item dropdown-toggle arrow-none"
-                                                href="/external/products/view-data" id="topnav-utility" role="button">
-                                                <span data-key="t-utility">View Products Data</span>
+                                                href="/external/products/view-data"  role="button">
+                                                View Products Data
 
                                             </a>
                                         @endif --}}
@@ -450,7 +425,7 @@
                                         href="{{ route('external-reports') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span>Reports</span>
+                                        Reports
                                     </a>
                                 </li>
                             </ul>
@@ -468,54 +443,51 @@
                                         href="{{ route('cip-staff-dashboard') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span>Dashboard</span>
+                                        Dashboard
                                     </a>
                                 </li>
 
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('cip-staff-indicators') }}" id="topnav-dashboard" role="button"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span>Indicators</span>
-                                    </a>
-                                </li>
+
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span>Manage Data</span>
+                                     <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
 
                                     </a>
-                                    <div class="dropdown-menu" aria-labelledby="topnav-more">
+                                    <div class="dropdown-menu">
+
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('cip-staff-indicators') }}" role="button">
+                                            Indicators
+
+                                        </a>
 
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-staff-forms') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">Forms</span>
+                                            href="{{ route('cip-staff-forms') }}" role="button">
+                                            Forms
 
                                         </a>
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-staff-targets') }}" id="topnav-utility" role="button">
-                                            <span data-key="t-utility">View Targets</span>
+                                            href="{{ route('cip-staff-targets') }}" role="button">
+                                            View Targets
 
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-staff-submission-period') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Submission Periods</span>
+                                            href="{{ route('cip-staff-submission-period') }}" role="button">
+                                            Submission Periods
 
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('cip-staff-submissions') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Submissions</span>
+                                            href="{{ route('cip-staff-submissions') }}" role="button">
+                                            Submissions
 
                                         </a>
 
@@ -523,7 +495,7 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Marketing Management</span>
+                                                Marketing Management
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
@@ -539,7 +511,7 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Gross Management</span>
+                                                Gross Management
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
@@ -558,7 +530,7 @@
                                         href="{{ route('cip-staff-reports') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span>Reports</span>
+                                        Reports
                                     </a>
                                 </li>
                             </ul>
@@ -578,49 +550,45 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span>Dashboard</span>
+                                        Dashboard
                                     </a>
                                 </li>
 
-                                <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none "
-                                        href="{{ route('project_manager-indicators') }}" id="topnav-dashboard"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span>Indicators</span>
-                                    </a>
-                                </li>
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span>Manage Data</span>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
 
                                     </a>
+
+
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
+                                        <a class="dropdown-item dropdown-toggle arrow-none"
+                                            href="{{ route('project_manager-indicators') }}" role="button">
+                                            Indicators
+
+                                        </a>
 
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('project_manager-forms') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">Forms</span>
+                                            href="{{ route('project_manager-forms') }}" role="button">
+                                            Forms
 
                                         </a>
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
-                                            href="{{ route('project_manager-targets') }}" id="topnav-utility"
-                                            role="button">
-                                            <span data-key="t-utility">View Targets</span>
+                                            href="{{ route('project_manager-targets') }}" role="button">
+                                            View Targets
 
                                         </a>
 
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Marketing Management</span>
+                                                Marketing Management
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
@@ -635,7 +603,7 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Gross Management</span>
+                                                Gross Management
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
@@ -656,7 +624,7 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-table'></i>
-                                        <span>Reports</span>
+                                        Reports
                                     </a>
                                 </li>
                             </ul>
@@ -674,7 +642,7 @@
                                         href="{{ route('enumerator-dashboard') }}" id="topnav-dashboard" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class='bx bx-tachometer'></i>
-                                        <span>Dashboard</span>
+                                        Dashboard
                                     </a>
                                 </li>
 
@@ -684,17 +652,18 @@
                                         role="button" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
                                         <i class='bx bx-bar-chart-alt-2 '></i>
-                                        <span>Submissions</span>
+                                        Submissions
                                     </a>
                                 </li>
 
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-more"
-                                        role="button">
-                                        <i class="bx bx-file"></i>
-                                        <span>Manage Data</span>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
 
                                     </a>
+
                                     <div class="dropdown-menu" aria-labelledby="topnav-more">
 
 
@@ -704,7 +673,7 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                <span>Marketing Management</span>
+                                                Marketing Management
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
@@ -761,13 +730,13 @@
                 <div class="pt-0 dropdown-menu dropdown-menu-end">
                     <h6 class="dropdown-header">Welcome {{ auth()->user()->name }}</h6>
 
-            @php
-                $routePrefixMain = \Illuminate\Support\Facades\Route::current()->getPrefix();
-            @endphp
+                    @php
+                        $routePrefixMain = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                    @endphp
 
                     <a class="dropdown-item" href="{{ $routePrefixMain . '/profile' }}"><i
                             class='align-middle bx bx-user-circle text-muted font-size-18 me-1'></i> <span
-                            class="align-middle">My Account</span></a>
+                            class="align-middle">My Account</a>
 
                     <div class="dropdown-divider"></div>
 
@@ -779,7 +748,7 @@
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
                             <i class='align-middle bx bx-log-out text-muted font-size-18 me-1'></i> <span
-                                class="align-middle"> {{ __('Log Out') }}</span>
+                                class="align-middle"> {{ __('Log Out') }}
 
                         </a>
                     </form>
