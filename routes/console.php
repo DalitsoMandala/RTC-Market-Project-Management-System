@@ -22,12 +22,12 @@ Schedule::command('update:information')->hourly();
 
 
 //Backup
-Schedule::command('backup:clean')->daily()->at('01:00')->onFailure(function () {
+Schedule::command('clean-db')->daily()->at('01:00')->onFailure(function () {
     Log::error('Backup failed');
 })->onSuccess(function () {
     Log::info("Backup completed");
 });
-Schedule::command('backup:run --only-db')->daily()->at('01:30')->onFailure(function () {
+Schedule::command('backup-db')->daily()->at('01:30')->onFailure(function () {
     Log::error('Backup failed');
 })->onSuccess(function () {
     Log::info("Backup completed");

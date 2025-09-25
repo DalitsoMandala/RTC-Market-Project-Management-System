@@ -160,7 +160,7 @@
                                     <div class="alert alert-success"> <i class="bx bx-check-circle me-1"></i>{{ session()->get('backup-success') }}</div>
                                 @endif
                                 @if (session()->has('backup-error'))
-                                    <div class="alert alert-error">{{ session()->get('backup-error') }}</div>
+                                    <div class="alert alert-danger"> <i class="bx bx-alarm-exclamation me-1"></i>{{ session()->get('backup-error') }}</div>
                                 @endif
 
                                 <button class="btn btn-warning"   @if($isRunning) disabled @endif wire:click="backupDatabase" wire:loading.attr="disabled">
