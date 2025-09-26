@@ -205,6 +205,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Add Data')
+            
 
 
                 ->dispatch('sendData', ['model' => $row]),

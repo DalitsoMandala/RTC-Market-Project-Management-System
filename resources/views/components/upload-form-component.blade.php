@@ -91,7 +91,7 @@
 
                 <div class="my-2 border shadow-none card @if (!$openSubmission) opacity-25 pe-none @endif">
                     <x-card-header>Instructions</x-card-header>
-                    <div class="card-body">
+                    <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                         <p class="alert bg-secondary-subtle text-uppercase">Download the template & upload your data.
                         </p>
 

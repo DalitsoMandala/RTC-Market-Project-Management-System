@@ -19,6 +19,10 @@ class RoleBasedRedirectHelper
         if ($user->hasAnyRole('admin')) {
             return '/admin/dashboard';
         }
+
+        if ($user->hasAnyRole('monitor')) {
+            return '/monitor/dashboard';
+        }
         if ($user->hasAnyRole('staff')) {
             return '/staff/dashboard';
         }
@@ -38,7 +42,7 @@ class RoleBasedRedirectHelper
 
 
         // Check for external users
-        if ($user->hasAnyRole('external') || $user->hasAnyRole('external_manager')) {
+        if ($user->hasAnyRole('external')) {
             return '/external/dashboard';
         }
 

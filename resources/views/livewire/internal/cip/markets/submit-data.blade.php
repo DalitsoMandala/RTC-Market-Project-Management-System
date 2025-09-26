@@ -4,11 +4,11 @@
         Submit Market Data
     @endsection
     <div class="container-fluid">
-  @php
+        @php
 
-        $routePrefix = Route::current()->getPrefix();
+            $routePrefix = Route::current()->getPrefix();
 
-    @endphp
+        @endphp
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
@@ -20,7 +20,8 @@
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active"> Submit data</li>
 
-                       <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/marketing/manage-data"> View Data</a> </li>
+                            <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/marketing/manage-data"> View
+                                    Data</a> </li>
 
                         </ol>
                     </div>
@@ -35,8 +36,8 @@
 
 
                 <div class="card ">
-<x-card-header>Submit Market Data</x-card-header>
-                    <div class="card-body">
+                    <x-card-header>Submit Market Data</x-card-header>
+                    <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif" >
                         <div class="">
 
                             <p class="alert bg-secondary-subtle text-uppercase">Download the template & upload your
@@ -93,7 +94,8 @@
                                         @enderror
 
                                         <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
-                                            <button type="submit" @uploading-files.window="disableButton = true" wire:loading.attr='disabled'
+                                            <button type="submit" @uploading-files.window="disableButton = true"
+                                                wire:loading.attr='disabled'
                                                 @finished-uploading.window="disableButton = false"
                                                 :disabled="disableButton === true || openSubmission === false"
                                                 class="px-5 btn btn-warning">

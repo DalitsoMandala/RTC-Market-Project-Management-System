@@ -2,14 +2,15 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\User;
 use Nette\Utils\Html;
 use App\Models\Baseline;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\BaselineDataMultiple;
-use Illuminate\Support\Facades\Blade;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Eloquent\Builder;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -229,7 +230,7 @@ final class BaselineTable extends PowerGridComponent
             Column::make('Indicator', 'indicator_name')
                 ->searchable(),
             Column::make('Baseline value', 'baseline_value'),
-            Column::action('Action')
+            Column::action('')
         ];
     }
 
@@ -261,16 +262,12 @@ final class BaselineTable extends PowerGridComponent
             Button::add('edit')
             ->slot('<i class="bx bx-pen"></i>')
             ->id()
+            ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
             ->tooltip('Edit Record')
             ->class('btn btn-warning goUp btn-sm custom-tooltip')
             ->dispatch('editData', ['indicator_id' => $row->indicator_id, 'name' => 'view-baseline-modal']),
 
-            Button::add('reset')
-            ->slot('<i class="bx bx-refresh"></i>')
-            ->id()
-            ->tooltip('Reset Record')
-            ->class('btn btn-secondary goUp btn-sm custom-tooltip')
-            ->dispatch('resetData', ['id' => $row->id]),
+
 
         ];
     }

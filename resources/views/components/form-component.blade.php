@@ -16,7 +16,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-block align-items-center justify-content-between">
-              
+
 
                     <div class="page-title-left col-12" wire:ignore>
                         <ol class="m-0 breadcrumb">
@@ -94,7 +94,7 @@
                         <form wire:submit.debounce.1000ms='save' id="mainForm" wire:loading.class="opacity-25 pe-none"
                             x-show="!isLoading" x-transition.duration.500ms>
                             <div class="card col-12 col-md-12">
-                                <div class="card-body">
+                                <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                                     {{ $slot }}
 
                                     @if (!isset($hideSubmitButtons) || !$hideSubmitButtons)

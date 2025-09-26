@@ -62,7 +62,7 @@ class Submissions extends Component
         $this->status = $submission->status === 'pending' ? null : $submission->status;
         $this->comment = $submission->comments;
         $this->statusSet = $submission->status === 'pending' ? false : true;
-        if ($submission->table_name == 'reports') {
+        if ($submission->table_name == 'reports' || $submission->table_name == 'submission_reports') {
             $uuid = $submission->batch_no;
             $reports = SubmissionReport::where('uuid', $uuid)->first();
             $json_data = json_decode($reports->data, true);

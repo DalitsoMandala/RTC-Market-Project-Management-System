@@ -8,9 +8,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Submissions</h4>
 
-                    <div class="page-title-right">
+
+                    <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active">Submissions</li>
@@ -32,7 +32,7 @@
 
 
                 <!-- Tab panes -->
-                <div class="tab-content mt-2">
+                <div class="mt-2 tab-content">
 
 
                     <ul class="nav nav-tabs" id="myTab" role="tablist">

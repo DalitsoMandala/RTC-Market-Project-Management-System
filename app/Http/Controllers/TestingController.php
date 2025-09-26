@@ -15,6 +15,7 @@ use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use App\Jobs\sendReminderToUserJob;
 use App\Models\GrossMarginCategory;
 use Illuminate\Support\Facades\Bus;
@@ -31,10 +32,28 @@ use App\Exports\RootTuberImport\RootTuberImportTemplate;
 use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
+use Illuminate\Support\Facades\Hash;
 
 class TestingController extends Controller
 {
+public function addNewRole(){
+    Role::firstOrCreate([
+        'name' => 'monitor',
+    ]);
 
+    $user = new User();
+    $user->name = 'monitor';
+    $user->email = 'info@monitor.com';
+    $user->password = Hash::make('password');
+    $user->phone_number = '1234567890';
+    $user->organisation_id = 1;
+    $user->save();
+
+    $user->assignRole('monitor');
+
+    return response()->json(['status' => 'success']);
+
+}
     public function test()
     {
 

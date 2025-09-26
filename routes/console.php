@@ -16,19 +16,16 @@ Schedule::command('send:expired-period-notifications')->dailyAt('00:00');
 Schedule::command('check:submission-deadlines')->dailyAt('00:00');
 
 Schedule::command('update:information')->hourly();
-// Schedule::command('send:expired-period-notifications')->everyThirtySeconds(); // testing
-// sleep(10);
-// Schedule::command('check:submission-deadlines')->everyThirtySeconds(); // testing
 
-
-//Backup
-Schedule::command('clean-db')->daily()->at('01:00')->onFailure(function () {
+Schedule::command('clean-db')->dailyAt('01:00')->onFailure(function () {
     Log::error('Backup failed');
 })->onSuccess(function () {
     Log::info("Backup completed");
 });
-Schedule::command('backup-db')->daily()->at('01:30')->onFailure(function () {
+Schedule::command('backup-db')->dailyAt('01:30')->onFailure(function () {
     Log::error('Backup failed');
 })->onSuccess(function () {
     Log::info("Backup completed");
 });
+
+Schedule::command('schedule:test')->everyTenSeconds();

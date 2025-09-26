@@ -143,7 +143,7 @@ final class UserTable extends PowerGridComponent
             Column::make('Status', 'status_set', 'deleted_at')->sortable()->visibleInExport(false),
             Column::make('Status', 'status')->hidden()->visibleInExport(true),
 
-            Column::action('Action')->visibleInExport(false)
+            Column::action('')->visibleInExport(false)
 
         ];
     }
@@ -178,6 +178,7 @@ final class UserTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm goUp custom-tooltip')
                 ->tooltip('Edit')
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
                 ->dispatch('edit', [
                     'rowId' => $row->id,
                     'name' => 'view-edit-modal'
@@ -188,6 +189,7 @@ final class UserTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-theme-red btn-sm goUp  custom-tooltip')
                 ->tooltip('Delete')
+                         ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
                 ->dispatch('showModal-delete', [
                     'rowId' => $row->id,
                     'name' => 'view-delete-modal'
@@ -198,6 +200,7 @@ final class UserTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-success btn-sm goUp  custom-tooltip')
                 ->tooltip('Restore')
+                         ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
                 ->dispatch('showModal-restore', [
                     'rowId' => $row->id,
                     'name' => 'view-restore-modal'

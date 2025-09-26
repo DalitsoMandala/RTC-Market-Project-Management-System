@@ -54,6 +54,9 @@ class NewUserNotification extends Notification implements ShouldQueue
         }
         if ($role === 'manager' || $role === 'admin') {
             $message->line('As a manager, you can now monitor project activity, track submissions, and view progress dashboards as well as other functionalities');
+        }
+        if ($role === 'monitor') {
+            $message->line('As a monitor, you can now monitor system perfomance, system functionality and other functionalities');
         } else {
             $message->line('You can now log in and start submitting your data through the system.');
         }

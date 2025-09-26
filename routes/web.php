@@ -25,8 +25,8 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
-// Route::get('/lusrmgr', [App\Http\Controllers\LowerCaseController::class, 'setup'])->name('lusrmgr');
-//Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'test'])->name('test');
+
+Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'addNewRole'])->name('test');
 
 
 
@@ -121,13 +121,58 @@ Route::middleware([
     Route::get('/products/add-data', \App\Livewire\External\Products\AddData::class)->name('admin-products-add-data');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('admin-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('admin-products-upload-data');
-Route::get('/profile', \App\Livewire\Profile\Details::class)
-    ->middleware(['auth'])
-    ->name('admin-profile');
+    Route::get('/profile', \App\Livewire\Profile\Details::class)
+        ->middleware(['auth'])
+        ->name('admin-profile');
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
 });
 
+
+Route::middleware([
+    'auth',
+    'role:monitor',
+    'verified'
+
+])->prefix('monitor')->group(function () {
+    Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('monitor-dashboard');
+    Route::get('/dashboard-2', \App\Livewire\Admin\Dashboard2::class)->name('monitor-dashboard-2');
+    Route::get('/dashboard-3', \App\Livewire\Admin\Dashboard3::class)->name('monitor-dashboard-3');
+    Route::get('/users', \App\Livewire\Admin\Users\ListUsers::class)->name('monitor-users');
+    Route::get('/system-setup', \App\Livewire\Admin\System\Setup::class)->name('monitor-setup');
+    Route::get('/cgiar-projects', \App\Livewire\Admin\Data\CgiarProjects::class)->name('monitor-cgiar-projects');
+    Route::get('/projects', \App\Livewire\Admin\Data\Projects::class)->name('monitor-projects');
+    Route::get('/reporting-periods', \App\Livewire\Admin\Data\ReportingPeriod::class)->name('monitor-period');
+    Route::get('/indicators', \App\Livewire\Admin\Data\Indicators::class)->name('monitor-indicators');
+    Route::get('/indicators/view/{id}', \App\Livewire\Admin\Data\ViewIndicators::class)->where('id', '[0-9]+')->name('monitor-indicator-view');
+    Route::get('/indicators/lead-partners', \App\Livewire\Admin\Data\LeadPartners::class)->name('monitor-leads');
+    Route::get('/sources', \App\Livewire\Admin\Data\IndicatorSources::class)->name('monitor-sources');
+    Route::get('/indicators-targets', \App\Livewire\Admin\Data\IndicatorTargets::class)->name('monitor-indicators-targets');
+    Route::get('/assigned-targets', \App\Livewire\Admin\Data\AssignedTargets::class)->name('monitor-assigned-targets');
+    Route::get('/forms', \App\Livewire\Admin\Operations\Forms::class)->name('monitor-forms');
+    Route::get('/submissions/{batch?}', \App\Livewire\Admin\Operations\Submissions::class)->name('monitor-submissions');
+    Route::get('/reports', \App\Livewire\Admin\Operations\Reports::class)->name('monitor-reports');
+    Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->name('monitor-baseline');
+    Route::get('/submission-period', \App\Livewire\Admin\Operations\SubmissionPeriod::class)->name('monitor-submission-period');
+    Route::get('/queues-monitor', \App\Livewire\Admin\Operations\Jobs::class)->name('monitor-jobs');
+    Route::get('/targets', App\Livewire\Targets\View::class)->name('monitor-targets');
+    Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('monitor-std-targets');
+    Route::get('/user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('monitor-user-roles');
+    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('monitor-markets-manage-data');
+    Route::get('/marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('monitor-markets-submit-data');
+    Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('monitor-gross-margin-manage-data');
+    Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('monitor-gross-margin-add-data');
+    Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('monitor-gross-margin-upload-data');
+    Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('monitor-gross-margin-items');
+    Route::get('/products/add-data', \App\Livewire\External\Products\AddData::class)->name('monitor-products-add-data');
+    Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('monitor-products-view-data');
+    Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('monitor-products-upload-data');
+    Route::get('/profile', \App\Livewire\Profile\Details::class)
+        ->middleware(['auth'])
+        ->name('admin-profile');
+    // Form routes
+    registerFormRoutes('/forms/{project}', 'monitor');
+});
 // CIP Internal routes
 Route::middleware([
     'auth',
@@ -156,9 +201,9 @@ Route::middleware([
     Route::get('/products/add-data', \App\Livewire\External\Products\AddData::class)->name('cip-products-add-data');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('cip-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('cip-products-upload-data');
-Route::get('/profile', \App\Livewire\Profile\Details::class)
-    ->middleware(['auth'])
-    ->name('manager-profile');
+    Route::get('/profile', \App\Livewire\Profile\Details::class)
+        ->middleware(['auth'])
+        ->name('manager-profile');
     registerFormRoutes('/forms/{project}', 'manager');
 });
 
@@ -188,9 +233,9 @@ Route::middleware([
 
     Route::get('/reports', \App\Livewire\Internal\Staff\Reports::class)->name('cip-staff-reports');
     Route::get('/submission-period', \App\Livewire\Internal\Staff\SubPeriod::class)->name('cip-staff-submission-period');
-Route::get('/profile', \App\Livewire\Profile\Details::class)
-    ->middleware(['auth'])
-    ->name('staff-profile');
+    Route::get('/profile', \App\Livewire\Profile\Details::class)
+        ->middleware(['auth'])
+        ->name('staff-profile');
 
     registerFormRoutes('/forms/{project}', 'staff');
 });
@@ -215,9 +260,9 @@ Route::middleware([
     Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project_manager-gross-margin-items');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project_manager-products-view-data');
     Route::get('products/upload-data', \App\Livewire\External\Products\UploadData::class)->name('project_manager-products-upload-data');
-Route::get('/profile', \App\Livewire\Profile\Details::class)
-    ->middleware(['auth'])
-    ->name('project_manager-profile');
+    Route::get('/profile', \App\Livewire\Profile\Details::class)
+        ->middleware(['auth'])
+        ->name('project_manager-profile');
     registerFormRoutes('/forms/{project}', 'project_manager');
 });
 // External routes
@@ -250,9 +295,9 @@ Route::middleware([
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
-Route::get('/profile', \App\Livewire\Profile\Details::class)
-    ->middleware(['auth'])
-    ->name('enumerator-profile');
+    Route::get('/profile', \App\Livewire\Profile\Details::class)
+        ->middleware(['auth'])
+        ->name('enumerator-profile');
 });
 // Authentication routes
 require __DIR__ . '/auth.php';

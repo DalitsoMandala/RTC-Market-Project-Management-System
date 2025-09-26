@@ -112,6 +112,7 @@ final class FinancialYearTable extends PowerGridComponent
                 ->slot('<i class="bx bx-check " title="Make active"></i>')
                 ->id()
                 ->tooltip('Make active')
+                ->can(\App\Models\User::find(auth()->user()->id)->hasAnyRole('admin') )
                 ->class('btn btn-sm btn-success custom-tooltip')
                 ->dispatch('set-active', ['rowId' => $row->id]),
         ];

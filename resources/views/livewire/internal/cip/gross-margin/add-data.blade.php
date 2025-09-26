@@ -33,7 +33,7 @@
         <x-alerts />
 
 
-        <div class="card" x-data="{
+        <div class="card " x-data="{
             items: @entangle('items'),
             varietyOptions: @entangle('varietyOptions'),
             sellingPrice: @entangle('sellingPrice'),
@@ -104,7 +104,7 @@
         }">
             <x-card-header>Add Gross Margin</x-card-header>
 
-            <div class="card-body">
+            <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                 <form wire:submit.prevent="save">
                     <div class=" table-responsive">
                         <table class="table mb-0 align-middle table-hover table-bordered table-sm ">

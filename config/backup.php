@@ -152,7 +152,7 @@ return [
              */
             'disks' => [
                 'public_backups',
-                
+
             ],
         ],
 
@@ -212,11 +212,11 @@ return [
         'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
 
         'mail' => [
-            'to' => 'your@example.com',
+            'to' => [env('MAIL_FROM_ADDRESS'),env('MAIL_MONITOR')],
 
             'from' => [
-                'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-                'name' => env('MAIL_FROM_NAME', 'Example'),
+                'address' => env('MAIL_FROM_ADDRESS', 'cip-rtcmarketconsultant@cgiar.org'),
+                'name' => env('MAIL_FROM_NAME', 'Administrator'),
             ],
         ],
 

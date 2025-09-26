@@ -3,11 +3,12 @@
 namespace App\Livewire\admin;
 
 use App\Models\Form;
+use App\Models\User;
+use App\Models\Source;
 use App\Models\Indicator;
 use App\Models\Organisation;
 use Illuminate\Support\Carbon;
 use App\Models\ResponsiblePerson;
-use App\Models\Source;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -111,7 +112,7 @@ final class OrganisationFormsTable extends PowerGridComponent
 
 
 
-            Column::action('Action')
+            Column::action('')
         ];
     }
 
@@ -130,6 +131,7 @@ final class OrganisationFormsTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm goUp custom-tooltip')
                 ->tooltip('Edit')
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
                 ->dispatch('showModal', [
                     'rowId' => $row->id,
                     'name' => 'view-modal'

@@ -2,11 +2,12 @@
 
 namespace App\Livewire\Tables;
 
-use DB;
+
 use App\Models\User;
 use App\Models\Indicator;
 use App\Models\Organisation;
 use App\Models\Cgiar_Project;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -44,7 +45,7 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin') || $user->hasAnyRole('project_manager') || $user->hasAnyRole('staff')) {
+        if ($user->hasAnyRole('manager') ||$user->hasAnyRole('monitor')|| $user->hasAnyRole('admin') || $user->hasAnyRole('project_manager') || $user->hasAnyRole('staff')) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
@@ -124,7 +125,12 @@ final class IndicatorTable extends PowerGridComponent
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-                } else {
+                }
+                 else if ($user->hasAnyRole('monitor')) {
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('monitor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                }
+
+                else {
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
             })
@@ -182,7 +188,7 @@ final class IndicatorTable extends PowerGridComponent
                 ->bodyAttribute(styleAttr: "white-space:wrap")
         ];
 
-        $user = Auth::user();
+        $user = User::find(auth()->user()->id);
         if ($user->hasAnyRole('manager')) {
             $columns[] = Column::make('Sources', 'sources');
             //   $columns[] = Column::action('Action');
@@ -223,7 +229,7 @@ final class IndicatorTable extends PowerGridComponent
 
             Rule::button('edit')
                 ->when(function ($row) {
-                    $user = Auth::user();
+           $user = User::find(auth()->user()->id);
 
                     if ($user->hasAnyRole('external')) {
 

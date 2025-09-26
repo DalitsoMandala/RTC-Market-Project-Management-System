@@ -2,16 +2,17 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\User;
 use Faker\Core\File;
 use App\Models\Indicator;
 use Livewire\Attributes\On;
 use App\Models\FinancialYear;
-use App\Models\IndicatorDisaggregation;
 use Illuminate\Support\Carbon;
 use App\Models\SubmissionTarget;
-use Database\Seeders\DisaggregationSeeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\IndicatorDisaggregation;
 use Illuminate\Database\Eloquent\Builder;
+use Database\Seeders\DisaggregationSeeder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -97,7 +98,7 @@ final class SubmissionTargetTable extends PowerGridComponent
             Column::make('Indicator', 'indicator'),
             Column::make('Disaggregation', 'target_name'),
             Column::make('Value', 'target_value')->bodyAttribute('fw-bold'),
-            Column::action('Action')
+            Column::action('')
 
 
         ];
@@ -157,6 +158,7 @@ final class SubmissionTargetTable extends PowerGridComponent
                 ->id()
                 ->tooltip('View Details')
                 ->class('btn btn-warning btn-sm custom-tooltip')
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('edit', ['rowId' => $row])
         ];
     }

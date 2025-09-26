@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-               
+
 
                     <div class="page-title-left col-12" wire:ignore>
                         <ol class="m-0 breadcrumb">
@@ -29,11 +29,11 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="mb-3" x-data="{
-                        
+
                         }">
                             <label for="" class="form-label">Indicator for reports (select one) <sup
                                     class="text-danger">*</sup></label>
-                            <select class="form-select" name="" id=""
+                            <select class="form-select" wire:loading.attr='disabled' name="" id=""
                                 wire:model.live.debounce.1000ms='selectedReportIndicator'>
 
                                 @foreach ($reportIndicators as $indicators)
@@ -70,7 +70,7 @@
                         <h4 class="card-title">Enter your data for : <span
                                 class="text-warning">{{ $indicator->indicator_name }}</span> </h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                         @php
                             $componentMap = [
                                 'Percentage increase in value of formal RTC exports' => 'indicator-b2',

@@ -21,22 +21,22 @@
             @php
                 $routePrefix = trim(\Illuminate\Support\Facades\Route::current()->getPrefix(), '/');
             @endphp
-            @hasanyrole('admin|manager|project_manager|staff')
+            @hasanyrole('admin|manager|project_manager|staff|monitor')
                 <!-- Right side: Dashboard links -->
                 <ul class="gap-2 nav align-items-center justify-content-center topbar-nav" x-data="{
                     role: '{{ Auth::user()->getRoleNames()->first() }}',
                     makeActive(value) {
-                
+
                         if (value == 1) {
                             document.getElementById('dashboard-one').classList.add('active');
                             document.getElementById('dashboard-two').classList.remove('active');
                         } else if (value == 2) {
                             document.getElementById('dashboard-one').classList.remove('active');
                             document.getElementById('dashboard-two').classList.add('active');
-                
+
                         }
                     },
-                
+
                 }">
 
 
@@ -69,7 +69,7 @@
                 </ul>
             @endhasanyrole
 
-      
+
 
         </div>
     </nav>
@@ -241,6 +241,160 @@
                     </nav>
                 @endhasallroles
 
+
+                @hasallroles('monitor')
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('monitor-dashboard') }}"
+                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class='mb-1 bx bx-home'></i>
+                                        Dashboard
+                                    </a>
+                                </li>
+
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('monitor-users') }}"
+                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class='mb-1 bx bx-user'></i>
+                                        Manage Users
+                                    </a>
+                                </li>
+
+
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        aria-expanded="false">
+                                        <i class="mb-1 bx bx-folder"></i>
+                                        Data Management
+
+                                    </a>
+                                    <ul class="dropdown-menu">
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item" href="#">
+                                                Project Management
+
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+
+
+                                                <a href="{{ route('monitor-period') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Reporting Periods</a>
+
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                role="button">
+                                                Indicator Management
+
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('monitor-indicators') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Indicators</a>
+
+                                                <a class="dropdown-item" href="/monitor/baseline"
+                                                    data-key="t-range-slider">
+
+                                                    Manage Baseline Data
+                                                </a>
+                                                <a href="{{ route('monitor-std-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Indicator Targets</a>
+
+
+                                                <a href="{{ route('monitor-targets') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">View Targets</a>
+
+                                                <a href="{{ route('monitor-sources') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Indicator Sources</a>
+
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                role="button">
+                                                Operations Management
+
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('monitor-forms') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Forms</a>
+
+                                                <a href="{{ route('monitor-submissions') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Submissions</a>
+                                                <a href="{{ route('monitor-submission-period') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Submission Periods</a>
+                                                <a href="{{ route('monitor-reports') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Reports</a>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                role="button">
+                                                Marketing Management
+
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('monitor-markets-manage-data') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('monitor-markets-submit-data') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Marketing Data Submission</a>
+
+
+                                            </div>
+                                        </div>
+
+                                        <div class="dropdown">
+                                            <a class="dropdown-item dropdown-toggle arrow-none" href="#"
+                                                role="button">
+                                                Gross Management
+
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('monitor-gross-margin-manage-data') }}"
+                                                    class="dropdown-item" data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('monitor-gross-margin-add-data') }}"
+                                                    class="dropdown-item" data-key="t-range-slider">Gross Data
+                                                    Submission</a>
+
+
+                                            </div>
+                                        </div>
+
+                                    </ul>
+
+
+                                </li>
+                                <li class="nav-item ">
+                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('monitor-setup') }}"
+                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class='mb-1 bx bx-cog'></i>
+                                        Settings
+                                    </a>
+                                </li>
+
+
+
+                            </ul>
+                        </div>
+                    </nav>
+                @endhasallroles
                 @hasallroles('manager')
                     <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
@@ -450,7 +604,7 @@
 
 
                                 <li class="nav-item dropdown">
-                                     <a class="nav-link dropdown-toggle" href="#" role="button"
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
                                         aria-expanded="false">
                                         <i class="mb-1 bx bx-folder"></i>
                                         Data Management

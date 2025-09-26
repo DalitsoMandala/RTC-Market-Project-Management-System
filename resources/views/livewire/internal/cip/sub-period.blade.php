@@ -77,7 +77,7 @@
 
 
 
-                        <form
+                        <form  class="@if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif"
                             @edit-period.window="$wire.fillData($event.detail.data);window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
