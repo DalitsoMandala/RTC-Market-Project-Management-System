@@ -17,7 +17,7 @@ Ensure the following software is installed on your system:
 
 ## Development Setup
 
-1. **Clone the Repository**
+Clone the Repository
 
     ```bash
     git clone <repository-url>
@@ -75,10 +75,24 @@ Ensure the storage and bootstrap/cache directories are writable:
 Configure the Web Server
 Point the web server's document root to the public directory of the application.
 
-Scheduler:
-Add this cron job:
+**Scheduler**
 
-    * * * * * php /path-to-your-project/artisan schedule:run >> /dev/null 2>&1
+Open the crontab editor for your web user (in your case, probably cdms or rtcmarket):
+
+    crontab -e -u rtcmarket
+
+where <rtcmarket> is the username to which the app is assigned to or to which the file permissions are assigned to not the root user.
+
+
+Add this line at the bottom:
+
+    * * * * * cd /home/path-to-project && php artisan schedule:run >> /dev/null 2>&1
+
+Save and exit (CTRL+O, ENTER, CTRL+X in nano).
+
+    crontab -l -u rtcmarket
+
+Verify your cron job is installed.
 
 Application Optimization
 Run the following commands to optimize the application for production:
