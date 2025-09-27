@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.4",
         "maatwebsite/excel": "^3.1",
+        "opcodesio/log-viewer": "^3.19",
         "openspout/openspout": "^4.24",
         "power-components/livewire-powergrid": "^5.10",
         "ramsey/uuid": "^4.7",
