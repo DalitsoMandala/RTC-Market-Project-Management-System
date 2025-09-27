@@ -15,7 +15,7 @@ Schedule::command('send:expired-period-notifications')->dailyAt('00:00');
 
 Schedule::command('check:submission-deadlines')->dailyAt('00:00');
 
-Schedule::command('update:information')->hourly();
+Schedule::command('update:information')->everyMinute();
 
 Schedule::command('clean-db')->dailyAt('01:00')->onFailure(function () {
     Log::error('Backup failed');
