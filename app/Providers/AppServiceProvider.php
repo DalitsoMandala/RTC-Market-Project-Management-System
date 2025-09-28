@@ -10,7 +10,9 @@ use Illuminate\Support\ServiceProvider;
 use App\Helpers\RoleBasedRedirectHelper;
 use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
-
+use Illuminate\Support\Facades\Gate;
+use Opcodes\LogViewer\LogFile;
+use Opcodes\LogViewer\LogFolder;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -46,5 +48,26 @@ class AppServiceProvider extends ServiceProvider
 
             return false;
         });
+
+
+
+    /**
+     * The deleteLogFile gate determines if a user can delete an individual log file.
+     * By returning false, you disable the delete button for all users.
+     */
+    Gate::define('deleteLogFile', function (?User $user, LogFile $file) {
+        // Return false to prevent ALL log files from being deleted.
+        return false;
+    });
+
+    /**
+     * The deleteLogFolder gate determines if a user can delete a log group (folder).
+     * This is also important to secure.
+     */
+    Gate::define('deleteLogFolder', function (?User $user, LogFolder $folder) {
+        // Return false to prevent ALL log folders/groups from being deleted.
+        return false;
+    });
+
     }
 }
