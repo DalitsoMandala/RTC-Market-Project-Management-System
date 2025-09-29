@@ -41,22 +41,23 @@
                     </div>
 
 
-                        <div class="card-header d-flex justify-content-between align-items-center @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+                    <div
+                        class="card-header d-flex justify-content-between align-items-center @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
 
-                            <div>
-                                <button class="px-3 btn" :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }"
-                                    :disabled="showUploadForm" @click="showForm= !showForm; resetForm()">
-                                    <span x-show="showForm">Cancel <i class="bx bx-x"></i></span> <span
-                                        x-show="!showForm">Add New User <i class="bx bx-plus"></i></span></span>
-                                </button>
-                                <button class="px-3 btn"
-                                    :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }"
-                                    :disabled="showForm" @click="showUploadForm= !showUploadForm;">
-                                    <span x-show="showUploadForm">Cancel <i class="bx bx-x"></i></span><span
-                                        x-show="!showUploadForm">Upload
-                                        <i class="bx bx-upload"></i></button>
-                            </div>
+                        <div>
+                            <button class="px-3 btn" :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }"
+                                :disabled="showUploadForm" @click="showForm= !showForm; resetForm()">
+                                <span x-show="showForm">Cancel <i class="bx bx-x"></i></span> <span
+                                    x-show="!showForm">Add New User <i class="bx bx-plus"></i></span></span>
+                            </button>
+                            <button class="px-3 btn"
+                                :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }"
+                                :disabled="showForm" @click="showUploadForm= !showUploadForm;">
+                                <span x-show="showUploadForm">Cancel <i class="bx bx-x"></i></span><span
+                                    x-show="!showUploadForm">Upload
+                                    <i class="bx bx-upload"></i></button>
                         </div>
+                    </div>
 
                     <div class="card-header" x-show="showForm">
                         <x-alerts />
@@ -317,7 +318,7 @@
 
         </div>
 
-        <div class="row @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+        <div class="row @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
             <div class="col-12">
                 <div>
 
@@ -405,7 +406,16 @@
 
             quill.on('text-change', function(delta, oldDelta, source) {
                 const textContent = quill.getText().trim();
-                $wire.message = textContent;
+
+                const htmlContent = quill.root.innerHTML;
+                if (textContent.length > 0) {
+                    $wire.message = htmlContent;
+                } else {
+                    $wire.message = null;
+
+
+                }
+
             });
             $wire.on('edit', () => {
                 window.scrollTo({

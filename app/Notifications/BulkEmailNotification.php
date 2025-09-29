@@ -40,11 +40,11 @@ class BulkEmailNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-        ->greeting('')
-            ->subject($this->subject)
-            ->line(new HtmlString($this->message))
-            ->action('Access System', url('/'))
-            ->line('Thank you for using our application!');
+        ->subject($this->subject)
+        ->markdown('emails.notify', [
+            'data' => $this->message,
+            'url'  => url('/'),
+        ]);
     }
 
     /**
