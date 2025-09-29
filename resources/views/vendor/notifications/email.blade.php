@@ -1,6 +1,6 @@
 <x-mail::message>
 {{-- Greeting --}}
-@if (! empty($greeting))
+@if (!empty($greeting))
 # {{ $greeting }}
 @else
 @if ($level === 'error')
@@ -36,7 +36,7 @@
 @endforeach
 
 {{-- Salutation --}}
-@if (! empty($salutation))
+@if (!empty($salutation))
 {{ $salutation }}
 @else
 @lang('Regards'),<br>
