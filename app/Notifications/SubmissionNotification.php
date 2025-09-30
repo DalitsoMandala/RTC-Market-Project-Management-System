@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class SubmissionNotification extends Notification
+class SubmissionNotification extends Notification implements ShouldQueue
 {
     use Queueable;
     public $status;

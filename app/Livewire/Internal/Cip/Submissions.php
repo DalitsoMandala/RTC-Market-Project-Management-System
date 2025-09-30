@@ -114,7 +114,7 @@ class Submissions extends Component
             $link = route('admin-submissions', [
                 'batch' => $submission->batch_no
             ]) . $type;
-        } elseif (User::find($user_id)->hasAnyrole('enumarator')) {
+        } elseif (User::find($user_id)->hasAnyrole('enumerator')) {
             $link = route('enumerator-submissions', [
                 'batch' => $submission->batch_no
             ]) . $type;

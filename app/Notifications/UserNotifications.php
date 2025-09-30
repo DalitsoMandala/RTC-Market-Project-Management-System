@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class UserNotifications extends Notification
+class UserNotifications extends Notification 
 {
     use Queueable;
     public $type, $message;

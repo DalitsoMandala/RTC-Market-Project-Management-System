@@ -101,7 +101,7 @@ class UpdateInformation extends Command
             new ReportJob(),
             new PopulatePreviousValueJob(),
             new AdditionalReportJob(),
-            new MarketReportJob(),
+            new \App\Jobs\MarketReportJob(),
             function () use ($reportStatus) {
                 $reportStatus->update([
                     'status' => 'completed',
