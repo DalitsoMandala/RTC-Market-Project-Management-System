@@ -429,8 +429,9 @@
 
                             <div class="mb-3">
                                 <label for="start-period" class="form-label">Start of submissions</label>
-                                <x-text-input :class="$errors->has('start_period') ? 'is-invalid' : ''" id="start-period"
-                                    wire:model.debounce.700ms='start_period' type="date" />
+                                <x-flatpickr :enableTime="true" :class="$errors->has('start_period') ? 'is-invalid' : ''" id="start-period"
+                                    wire:model.debounce.700ms='start_period' type="date" :time="'00:00:00'" />
+
                                 @error('start_period')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
@@ -438,8 +439,9 @@
 
                             <div class="mb-3">
                                 <label for="end-period" class="form-label">End of submissions</label>
-                                <x-text-input :class="$errors->has('end_period') ? 'is-invalid' : ''" id="end-period" wire:model.debounce.700ms='end_period'
-                                    type="date" />
+                                <x-flatpickr :enableTime="true" :class="$errors->has('end_period') ? 'is-invalid' : ''" id="end-period"
+                                    wire:model.debounce.700ms='end_period' type="date" :time="'23:59:59'" />
+
                                 @error('end_period')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror

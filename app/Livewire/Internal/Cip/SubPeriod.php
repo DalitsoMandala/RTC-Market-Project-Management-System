@@ -179,8 +179,8 @@ class SubPeriod extends Component
 
 
 
-        $this->start_period = Carbon::parse($row->date_established)->format('Y-m-d');
-        $this->end_period = Carbon::parse($row->date_ending)->format('Y-m-d');
+        $this->start_period = Carbon::parse($row->date_established)->format('Y-m-d H:i:s');
+        $this->end_period = Carbon::parse($row->date_ending)->format('Y-m-d H:i:s');
         $this->status = $row->is_open;
         $this->selectedMonth = $row->month_range_period_id;
         $this->selectedFinancialYear = $row->financial_year_id;
@@ -335,7 +335,7 @@ class SubPeriod extends Component
 
         if (Carbon::parse($this->end_period)->format('H:i:s') === '00:00:00') {
             $this->end_period = Carbon::parse($this->end_period)
-                ->setTime(23, 59, 0)  // Sets to 11:59:00 PM
+                ->setTime(23, 59, 59)  // Sets to 11:59:00 PM
                 ->format('Y-m-d H:i:s'); // Convert back to string if needed
         }
         return [

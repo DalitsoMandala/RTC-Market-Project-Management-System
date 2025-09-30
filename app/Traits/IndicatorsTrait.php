@@ -160,7 +160,9 @@ trait IndicatorsTrait
                 // Mark as expired
 
                 $update = SubmissionPeriod::where('date_ending', $period->date_ending)
-                    ->where('date_established', $period->date_established)->where('is_expired', false)->update(['is_expired' => true]);
+                    ->where('date_established', $period->date_established)->where('is_expired', false)->update(
+                        ['is_expired' => true, 'is_open' => false]
+                    );
 
                 if ($update) {
                     $this->sendNotification($period->toArray(), 'expired');

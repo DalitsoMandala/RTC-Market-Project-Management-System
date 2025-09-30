@@ -23,7 +23,7 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 class ListUsers extends Component
 {
     use LivewireAlert;
-use WithFileUploads;
+    use WithFileUploads;
     public $name;
     public $email;
     public $phone;
@@ -38,7 +38,7 @@ use WithFileUploads;
     public $changePassword = false;
     public $disableValue;
     public $disableAll = false;
-       public $subject;
+    public $subject;
     public $message;
     public $excludedRoles = [];
     public $allRoles = [];
@@ -73,10 +73,10 @@ use WithFileUploads;
     {
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::all()->toArray();
-          $this->allRoles = Role::pluck('name')->toArray();
-          foreach ($this->allRoles as $role) {
-              $this->excludedRoles[] = $role;
-          }
+        $this->allRoles = Role::pluck('name')->toArray();
+        foreach ($this->allRoles as $role) {
+            $this->excludedRoles[] = $role;
+        }
     }
 
     #[On('edit')]
@@ -96,15 +96,62 @@ use WithFileUploads;
         $role = $user->roles[0]->name;
         $this->dispatch('update-org', role: $role, organisation: $user->organisation->id);
     }
-public function sendEmails()
+
+    public $restrictedPhrase = '';
+    public $hasRestrictedContent = false;
+
+    protected $restrictedPhrases = [
+        // Greetings
+        'hello',
+        'dear',
+        'hi ',
+        'hie ',
+        'greetings',
+        'good morning',
+        'good afternoon',
+        'good evening',
+        'hey',
+        'hi there',
+        'to whom it may concern',
+
+        // Closings
+        'regards',
+        'best regards',
+        'kind regards',
+        'sincerely',
+
+    ];
+
+    public function checkContent()
+    {
+        $this->hasRestrictedContent = false;
+        $this->restrictedPhrase = '';
+
+        $cleanContent = strtolower(strip_tags($this->message));
+
+        foreach ($this->restrictedPhrases as $phrase) {
+            if (str_contains($cleanContent, $phrase)) {
+                $this->hasRestrictedContent = true;
+                $this->restrictedPhrase = $phrase;
+                break;
+            }
+        }
+    }
+    public function sendEmails()
     {
         $this->validate([
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
         ]);
 
-        $users = User::
-            whereDoesntHave('roles', function ($q) {
+        $this->checkContent();
+
+        if ($this->hasRestrictedContent) {
+            $this->addError('message', "Please remove '{$this->restrictedPhrase}' - greetings and signatures are automatically added.");
+            return;
+        }
+
+        $users = User::whereDoesntHave('roles', function ($q) {
                 $q->whereIn('name', $this->excludedRoles);
             })
             ->get();
@@ -116,8 +163,7 @@ public function sendEmails()
 
 
         session()->flash('success', 'Notifications sent successfully to ' . $users->count() . ' users.');
-   $this->redirect(url()->previous());
-
+        $this->redirect(url()->previous());
     }
 
     #[On('showModal-delete')]
