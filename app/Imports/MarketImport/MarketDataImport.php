@@ -116,17 +116,17 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'Buyer Location' => 'nullable|string|max:255',
             'Variety Demanded' => 'nullable|string|max:255',
             'Quality/Size' => 'nullable|string|max:255',
-            'Quantity' => 'nullable|numeric|min:0',
+            'Quantity' => 'sometimes|nullable|numeric|min:0',
             'Units' => 'nullable|max:255',
-            'Estimated Demand (Kg)' => 'nullable|numeric|min:0',
-            'Agreed Price per Kg (MWK)' => 'nullable|numeric|min:0',
+            'Estimated Demand (Kg)' => 'sometimes|nullable|numeric|min:0',
+            'Agreed Price per Kg (MWK)' => 'sometimes|nullable|numeric|min:0',
             'Market Ordered From' => 'nullable|string|max:255',
             'Final Market' => 'nullable|string|max:255',
             'Final Market District' => 'nullable|string|max:255',
             'Final Market Country' => 'nullable|string|max:255',
             'Supply Frequency' => 'nullable|max:255',
-            'Estimated Total Value (MWK)' => 'nullable|numeric|min:0',
-            'Estimated Total Value (USD)' => 'nullable|numeric|min:0',
+            'Estimated Total Value (MWK)' => 'sometimes|nullable|numeric|min:0',
+            'Estimated Total Value (USD)' => 'sometimes|nullable|numeric|min:0',
         ];
     }
 

@@ -135,11 +135,11 @@ class RawImportSheet implements ToModel, WithHeadingRow, WithValidation, SkipsOn
             'Number of Packages' => 'nullable|integer|min:0',
             'Origin' => 'nullable|string|max:100',
             'Exporter' => 'nullable|string|max:255',
-            'Net Weight (Kgs)' => 'nullable|numeric|min:0',
-            'Foreign Currency' => 'nullable|numeric|min:0',
+            'Net Weight (Kgs)' => 'sometimes|nullable|numeric|min:0',
+            'Foreign Currency' => 'sometimes|nullable|numeric|min:0',
             'Currency' => 'nullable|string|max:10',
-            'Exchange Rate' => 'nullable|numeric|min:0',
-            'Value for Duty (MWK)' => 'nullable|numeric|min:0',
+            'Exchange Rate' => 'sometimes|nullable|numeric|min:0',
+            'Value for Duty (MWK)' => 'sometimes|nullable|numeric|min:0',
             'Other Information' => 'nullable|string',
         ];
     }

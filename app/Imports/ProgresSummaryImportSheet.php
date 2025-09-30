@@ -120,14 +120,14 @@ class ProgresSummaryImportSheet implements ToModel, WithHeadingRow, WithValidati
             'Indicator Number' => 'required|string', // Allow null values
             'Indicator' => 'required|string',
             'Disaggregation' => 'required|string',
-            'Y1 Target' => 'nullable|numeric|min:0',
-            'Y1 Achieved' => 'nullable|numeric|min:0',
-            'Y2 Target' => 'nullable|numeric|min:0',
-            'Y2 Achieved' => 'nullable|numeric|min:0',
-            'Y3 Target' => 'nullable|numeric|min:0',
-            'Y3 Achieved' => 'nullable|numeric|min:0',
-            'Y4 Target' => 'nullable|numeric|min:0',
-            'Y4 Achieved' => 'nullable|numeric|min:0',
+            'Y1 Target' => 'sometimes|nullable|numeric|min:0',
+            'Y1 Achieved' => 'sometimes|nullable|numeric|min:0',
+            'Y2 Target' => 'sometimes|nullable|numeric|min:0',
+            'Y2 Achieved' => 'sometimes|nullable|numeric|min:0',
+            'Y3 Target' => 'sometimes|nullable|numeric|min:0',
+            'Y3 Achieved' => 'sometimes|nullable|numeric|min:0',
+            'Y4 Target' => 'sometimes|nullable|numeric|min:0',
+            'Y4 Achieved' => 'sometimes|nullable|numeric|min:0',
         ];
     }
 

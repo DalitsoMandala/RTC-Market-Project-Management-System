@@ -73,7 +73,7 @@ class RpmfAreaCultivationImport implements ToModel, WithHeadingRow, WithValidati
         return [
             'Farmer ID' => 'exists:rtc_production_farmers,id', // Validate Farmer ID
             'Variety' => 'string|max:255',
-            'Area' => 'nullable|numeric|min:0',
+            'Area' => 'sometimes|nullable|numeric|min:0',
         ];
     }
 

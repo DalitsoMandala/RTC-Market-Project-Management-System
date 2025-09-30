@@ -128,8 +128,8 @@ class RawExportSheet implements ToModel, WithHeadingRow, WithValidation, SkipsOn
             'Origin Country' => 'nullable|string|max:100',
             'Exit Border' => 'nullable|string|max:100',
             'Destination Country' => 'nullable|string|max:100',
-            'Net Weight (Kgs)' => 'nullable|numeric|min:0',
-            'Export Value (MWK)' => 'nullable|numeric|min:0',
+            'Net Weight (Kgs)' => 'sometimes|nullable|numeric|min:0',
+            'Export Value (MWK)' => 'sometimes|nullable|numeric|min:0',
             'Other Information' => 'nullable|string',
         ];
     }

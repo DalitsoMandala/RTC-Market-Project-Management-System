@@ -69,7 +69,7 @@ class MotherPlotImport implements ToModel, WithHeadingRow, WithValidation, WithC
             'Village' => 'nullable|string|max:255',
             'GPS S' => 'nullable|max:255',
             'GPS E' => 'nullable|max:255',
-            'Elevation' => 'nullable|numeric|min:0',
+            'Elevation' => 'sometimes|nullable|numeric|min:0',
             'Season' => 'nullable|in:1,2', // 1=Rainfed, 2=Winter
             'Date of Planting' => 'nullable|date|date_format:d-m-Y', // Ensure date is in YYYY-MM-DD format
             'Name of Farmer' => 'nullable|string|max:255',

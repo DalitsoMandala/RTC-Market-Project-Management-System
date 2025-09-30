@@ -85,8 +85,8 @@ class RpmProcessorDomMarketsImport implements ToModel, WithHeadingRow, WithValid
             'District' => 'nullable|string|max:255',
             'Date of Maximum Sale' => 'nullable|date|date_format:d-m-Y',
             'Product Type' => 'nullable|string|max:255|in:Seed,Ware,Value added products,Fresh',
-            'Volume Sold Previous Period' => 'nullable|numeric|min:0',
-            'Financial Value of Sales' => 'nullable|numeric|min:0',
+            'Volume Sold Previous Period' => 'sometimes|nullable|numeric|min:0',
+            'Financial Value of Sales' => 'sometimes|nullable|numeric|min:0',
         ];
     }
 

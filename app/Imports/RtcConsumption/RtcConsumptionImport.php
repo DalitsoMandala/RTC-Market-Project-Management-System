@@ -110,7 +110,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'Sweet Potato Crop' => 'nullable|boolean',
             'Male Count' => 'required|numeric|min:0',
             'Female Count' => 'required|numeric|min:0',
-            'Number of Households' => 'nullable|numeric|min:0',
+            'Number of Households' => 'sometimes|nullable|numeric|min:0',
             // 'Total' => 'required|numeric|min:0',
         ];
     }
