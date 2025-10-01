@@ -9,6 +9,7 @@ use App\Models\Submission;
 use App\Models\MailingList;
 use App\Models\SubmissionPeriod;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use App\Mail\SubmissionReminderMail;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubmissionNotificationMail;
@@ -143,36 +144,52 @@ trait IndicatorsTrait
     }
 
 
-    public function notifyExpiredSubmissionPeriods()
-    {
-        $now = Carbon::now();
+public function notifyExpiredSubmissionPeriods()
+{
+    $submissionPeriods = SubmissionPeriod::query()
+        ->selectRaw('
+            ROW_NUMBER() OVER (ORDER BY date_established) AS rn,
+            COUNT(id) AS count,
+            date_established,
+            date_ending,
+            is_open,
+            is_expired,
+            financial_year_id,
+            month_range_period_id
+        ')
+        ->groupBy(
+            'date_established',
+            'date_ending',
+            'is_open',
+            'is_expired',
+            'financial_year_id',
+            'month_range_period_id'
+        )
+        ->get();
 
-        $submissionPeriods = SubmissionPeriod::query()
-            ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
-            ->groupBy('date_established', 'date_ending', 'is_open', 'is_expired', 'financial_year_id', 'month_range_period_id');
-        $dates = $submissionPeriods->get();
+    foreach ($submissionPeriods as $period) {
+        if ($period->date_ending && Carbon::parse($period->date_ending)->isPast()) {
 
+            // Only update if not already expired
+            $updated = SubmissionPeriod::where('date_established', $period->date_established)
+                ->where('date_ending', $period->date_ending)
+                ->where('is_expired', false)
+                ->update([
+                    'is_expired' => true,
+                    'is_open'    => false,
+                ]);
 
-        foreach ($dates as $period) {
-            $endingDate = Carbon::parse($period->date_ending);
-
-            if ($endingDate->isPast()) {
-                // Mark as expired
-
-                $update = SubmissionPeriod::where('date_ending', $period->date_ending)
-                    ->where('date_established', $period->date_established)->where('is_expired', false)->update(
-                        ['is_expired' => true, 'is_open' => false]
-                    );
-
-                if ($update) {
-                    $this->sendNotification($period->toArray(), 'expired');
-                }
+            if ($updated) {
+                $this->sendNotification($period->toArray(), 'expired');
             }
         }
     }
+}
+
 
     public function sendNotification(array $period, $notificationType)
     {
+
         $users = User::with('roles')->whereHas('roles', function ($query) {
             $query->whereIn('name', ['staff', 'external']);
         })->get();

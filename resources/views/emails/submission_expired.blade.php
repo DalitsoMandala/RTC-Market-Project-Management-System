@@ -11,7 +11,7 @@
 {{ \Carbon\Carbon::parse($submissionPeriod['date_ending'])->format('d-m-Y H:i:A') }}</li>
 </ul>
 
-<p>Please ensure you complete and submit all required data before the deadline.</p>
+
 <p>If you have any questions or need assistance, feel free to contact our M&E team.</p>
  <p>Best regards,<br>
 @php

@@ -26,7 +26,7 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-//Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'addNewRole'])->name('test');
+Route::get('/test-test', [App\Http\Controllers\TestingController::class, 'testSubmissions'])->name('test');
 
 
 

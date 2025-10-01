@@ -10,7 +10,7 @@ use App\Models\Organisation;
 use App\Models\ReportStatus;
 use Illuminate\Http\Request;
 use App\Models\FinancialYear;
-use App\Traits\IndicatorsTrait;
+
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
@@ -33,9 +33,15 @@ use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
 use Illuminate\Support\Facades\Hash;
+use App\Traits\IndicatorsTrait;
 
 class TestingController extends Controller
 {
+    use IndicatorsTrait;
+
+    public function testSubmissions(){
+        return $this->notifyExpiredSubmissionPeriods();
+    }
 public function addNewRole(){
     Role::firstOrCreate([
         'name' => 'monitor',
