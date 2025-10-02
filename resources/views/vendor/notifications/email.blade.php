@@ -1,7 +1,5 @@
 <x-mail::message>
-@if(!empty($greeting))
-# {{ $greeting }}
-@endif
+
 
 {{-- Intro Lines --}}
 @foreach ($introLines as $line)
@@ -31,7 +29,6 @@
 @if (!empty($salutation))
 {{ $salutation }}
 @else
-@lang('Regards'),<br>
 
 @if(\App\Models\SystemDetail::find(1))
 <p style="color:#FF6600;font-weight: bold;padding-bottom: 0;margin-bottom: 0;">

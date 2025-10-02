@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col-12">
 
-
+  <x-alerts />
                 <div class="shadow-md card" x-data="{
                     showForm: false,
                     resetForm() {
@@ -60,7 +60,7 @@
                     </div>
 
                     <div class="card-header" x-show="showForm">
-                        <x-alerts />
+
                         <form wire:submit="save">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
@@ -327,9 +327,7 @@
                             Send Emails
                         </div>
                         <div class="card-body">
-                            @if (session()->has('success'))
-                                <div class="alert alert-success">{{ session('success') }}</div>
-                            @endif
+
 
                             <form wire:submit="sendEmails">
                                 <div class="mb-3">
@@ -344,25 +342,67 @@
 
                                 <div class="mb-3" wire:ignore>
                                     <label class="form-label">Message</label>
+                                    <p class="p-1 fs-6 bg-info-subtle">Use <span class="fw-bold">_email_name_</span> to display the user's name when sending the email
+                                       [<em>example: Hello _email_name_</em>] and it will display like this: <span class="fw-bold">Hello John Doe</span>
+
+                                    </p>
                                     <div id="editor" style="height: 250px;"></div>
                                 </div>
 
                                 @error('message')
                                     <x-error>{{ $message }}</x-error>
                                 @enderror
+
                                 <div class="mb-3">
-                                    <label class="form-label">Exclude Roles</label>
-                                    <div class="flex-wrap gap-3 d-flex">
-                                        @foreach ($allRoles as $role)
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox"
-                                                    wire:model="excludedRoles" value="{{ $role }}">
-                                                <label class="form-check-label">
-                                                    {{ $role === 'project_manager' ? 'Project Manager' : ucfirst($role) }}
-                                                </label>
+
+                                    <div x-data="{
+                                        usersByRole: @entangle('usersByRole'),
+                                        removeUser(role, userId) {
+                                            this.usersByRole[role] = this.usersByRole[role].filter(u => u.id !== userId);
+                                        }
+                                    }" x-init="$watch('usersByRole',(v)=>{
+                                    console.log(v)
+                                    })" class="space-y-4">
+                                        <!-- Role Checkboxes -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Select Roles</label>
+                                            <div class="flex-wrap gap-3 d-flex">
+                                                @foreach ($allRoles as $role)
+                                                    <div class="form-check">
+                                                        <input class="form-check-input @error('selectedRoles') is-invalid
+
+                                                        @enderror" type="checkbox"
+                                                            wire:model.live="selectedRoles"
+                                                            value="{{ $role }}">
+                                                        <label class="form-check-label">
+                                                            {{ $role === 'project_manager' ? 'Project Manager' : ucfirst($role) }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        @endforeach
+                                            @error('selectedRoles')
+                                          <x-error>{{ $message }}</x-error>
+
+                                            @enderror
+                                        </div>
+
+
+                                        <!-- User Chips -->
+                                        <template x-for="[role, users] in Object.entries(usersByRole)"
+                                            :key="role">
+                                            <div class="role-group">
+                                                <h4 x-text="role.charAt(0).toUpperCase() + role.slice(1)"></h4>
+                                                <div class="user-chips">
+                                                    <template x-for="user in users" :key="user.id">
+                                                        <button class="chip"
+                                                            @click.prevent="removeUser(role, user.id)"
+                                                            x-text="`${user.name} (${user.organisation})  <${user.email}> ✕`"></button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
                                     </div>
+
                                 </div>
 
                                 <div class="d-flex justify-content-between">

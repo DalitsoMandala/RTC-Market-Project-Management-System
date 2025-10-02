@@ -14,6 +14,7 @@ class BulkEmailNotification extends Notification implements ShouldQueue
     use Queueable;
     public $subject;
     public $message;
+    public $user_name;
     /**
      * Create a new notification instance.
      */
@@ -23,6 +24,7 @@ class BulkEmailNotification extends Notification implements ShouldQueue
         $this->subject = $subject;
         $this->message = $message;
     }
+
 
     /**
      * Get the notification's delivery channels.
@@ -39,9 +41,12 @@ class BulkEmailNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+
+        if (str_contains($this->message, '_email_name_')) {
+            $this->message = str_replace('_email_name_', $notifiable->name, $this->message);
+        }
         return (new MailMessage)
             ->subject($this->subject)
-            ->greeting('Hello ' . $notifiable->name . ',')
             ->line(new HtmlString($this->message))
             ->action('Go to website', url('/'));
     }

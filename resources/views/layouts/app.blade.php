@@ -45,14 +45,16 @@
                 padding: 70px 0 60px 0;
             }
 
-     
-.form-label,label {
-    text-transform: lowercase;
-}
 
-.form-label::first-letter,label::first-letter {
-    text-transform: uppercase;
-}
+            .form-label,
+            label {
+                text-transform: lowercase;
+            }
+
+            .form-label::first-letter,
+            label::first-letter {
+                text-transform: uppercase;
+            }
 
             #topbar {
                 padding: 0.4rem 0rem;
@@ -361,6 +363,41 @@
 
                 --bs-table-bg: rgb(241 241 241/1) !important;
                 --bs-table-border-color: #e5e7eb !important;
+            }
+
+            .role-group {
+                margin-bottom: 1rem;
+                border: 1px solid #ddd;
+                padding: 0.5rem;
+                border-radius: 6px;
+            }
+
+            .role-group h4 {
+                margin: 0 0 0.5rem 0;
+                font-size: 14px;
+                color: #444;
+            }
+
+            .user-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                background: #f3f4f6;
+                border: 1px solid #ccc;
+                border-radius: 20px;
+                padding: 0.3rem 0.8rem;
+                font-size: 14px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .chip:hover {
+                background: #e5e7eb;
             }
         </style>
         <!-- Scripts -->

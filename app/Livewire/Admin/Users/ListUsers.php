@@ -41,7 +41,9 @@ class ListUsers extends Component
     public $subject;
     public $message;
     public $excludedRoles = [];
+    public $selectedRoles = [];
     public $allRoles = [];
+    public $usersByRole = [];
     public function rules()
     {
         $rules = [
@@ -74,9 +76,7 @@ class ListUsers extends Component
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::all()->toArray();
         $this->allRoles = Role::pluck('name')->toArray();
-        foreach ($this->allRoles as $role) {
-            $this->excludedRoles[] = $role;
-        }
+
     }
 
     #[On('edit')]
@@ -139,30 +139,30 @@ class ListUsers extends Component
     }
     public function sendEmails()
     {
-        $this->validate([
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string',
-        ]);
-
-        $this->checkContent();
-
-        if ($this->hasRestrictedContent) {
-            $this->addError('message', "Please remove '{$this->restrictedPhrase}' - greetings and signatures are automatically added.");
-            return;
-        }
-
-        $users = User::whereDoesntHave('roles', function ($q) {
-                $q->whereIn('name', $this->excludedRoles);
-            })
-            ->get();
-
-        foreach ($users as $user) {
-
-            $user->notify(new BulkEmailNotification($this->subject, $this->message));
+        try {
+            $this->validate([
+                'subject' => 'required|string|max:255',
+                'message' => 'required|string',
+                'selectedRoles' => 'required|array|min:1',
+            ]);
+        } catch (\Throwable $th) {
+            session()->flash('validation_error', 'There are errors in the form.');
+            throw $th;
         }
 
 
-        session()->flash('success', 'Notifications sent successfully to ' . $users->count() . ' users.');
+
+
+        foreach ($this->usersByRole as $userGroup) {
+         foreach ($userGroup as $user) {
+
+            User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
+         }
+
+        }
+
+
+        session()->flash('success', 'Emails successfully sent to users.');
         $this->redirect(url()->previous());
     }
 
@@ -346,6 +346,33 @@ class ListUsers extends Component
         }
     }
 
+  public function updatedSelectedRoles()
+    {
+        $this->usersByRole = [];
+
+        foreach ($this->selectedRoles as $role) {
+            $this->usersByRole[$role] = User::with('roles')->whereHas('roles', fn($q) => $q->where('name', $role))
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->roles->first()->name,
+                        'organisation' => $user->organisation->name
+                    ];
+                })
+                ->toArray();
+        }
+    }
+
+    public function removeUser($role, $userId)
+    {
+        $this->usersByRole[$role] = array_filter(
+            $this->usersByRole[$role],
+            fn($u) => $u['id'] !== $userId
+        );
+    }
 
 
 
