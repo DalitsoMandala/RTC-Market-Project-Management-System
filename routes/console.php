@@ -18,9 +18,9 @@ Schedule::command('check:submission-deadlines')->dailyAt('00:00');
 Schedule::command('update:information')->hourly();
 
 Schedule::command('clean-db')->dailyAt('01:00')->onFailure(function () {
-    Log::error('Backup failed');
+    Log::error('Backup clean-up failed');
 })->onSuccess(function () {
-    Log::info("Backup completed");
+    Log::info("Backup clean-up completed");
 });
 Schedule::command('backup-db')->dailyAt('01:30')->onFailure(function () {
     Log::error('Backup failed');

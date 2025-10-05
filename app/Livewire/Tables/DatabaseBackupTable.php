@@ -32,6 +32,7 @@ final class DatabaseBackupTable extends PowerGridComponent
     $collection = collect($files)->map(function ($file, $index) {
         return [
             'id'         => $index + 1,
+            'database_version' => 'db_backup_' . $index + 1,
             'name'       => basename($file),
             'path'       => $file, // relative path
             'size'       => round(Storage::disk('public_backups')->size($file) / 1024 / 1024, 2) . ' MB',
@@ -62,6 +63,9 @@ final class DatabaseBackupTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('name')
+            ->add('database_version', function ($entry) {
+                return "<span class='badge bg-success-subtle text-success'>" . $entry->database_version . "</span>";
+            })
             ->add('size')
             ->add('created_at_formatted', function ($entry) {
 
@@ -81,7 +85,11 @@ final class DatabaseBackupTable extends PowerGridComponent
             //     ->searchable()
             //     ->sortable(),
 
-            Column::make('Name', 'name')
+            Column::make('Database Version', 'database_version')
+                ->searchable()
+                ->sortable(),
+
+            Column::make('File Name', 'name')
                 ->searchable()
                 ->sortable(),
             Column::make('Size', 'size')
@@ -135,6 +143,9 @@ final class DatabaseBackupTable extends PowerGridComponent
                 ->tooltip('Download Backup')
                 ->class('btn btn-warning goUp btn-sm custom-tooltip')
                 ->dispatch('downloadBackup', ['file' => $row['path']]),
+
+
+
 
 
         ];
