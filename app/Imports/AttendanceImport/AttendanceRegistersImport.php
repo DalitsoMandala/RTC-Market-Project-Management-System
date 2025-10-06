@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use App\Exceptions\ExcelValidationException;
+use App\Traits\DataValidator;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -58,7 +59,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'district' => $row['District'],
             'startDate' => Carbon::parse($row['Start Date'])->format('Y-m-d'),
             'endDate' => Carbon::parse($row['End Date'])->format('Y-m-d'),
-            'totalDays' => $row['Total Days'] ?? 1,
+            'totalDays' => $row['Total Days'] ?? 0,
             'name' => $row['Name'],
             'sex' => $row['Sex'],
             'organization' => $row['Organization'],
@@ -88,6 +89,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
 
 
     use excelDateFormat;
+    use DataValidator;
     public function prepareForValidation(array $row)
     {
 
@@ -98,10 +100,13 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             $row['End Date'] = $this->convertExcelDate($row['End Date']);
         }
 
-        $row['EPA'] = $row['EPA'] ?? 'NA';
-        $row['Section'] = $row['Section'] ?? 'NA';
-        $row['District'] = $row['District'] ?? 'NA';
-
+        $row['EPA'] = $row['EPA'] ?? '';
+        $row['Section'] = $row['Section'] ?? '';
+        $row['District'] = $row['District'] ?? '';
+        $this->validateNumeric($row['Total Days']);
+        $this->validateNumeric($row['Cassava']);
+        $this->validateNumeric($row['Potato']);
+        $this->validateNumeric($row['Sweet Potato']);
 
         return $row;
     }

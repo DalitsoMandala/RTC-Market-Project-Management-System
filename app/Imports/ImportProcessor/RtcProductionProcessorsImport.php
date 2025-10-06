@@ -137,9 +137,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         $row['Production Value USD Rate'] = 0;  // for now
         $row['Production Value USD Value'] = 0;  // for now
 
-        $row['EPA'] = $row['EPA'] ?? 'NA';
-        $row['Section'] = $row['Section'] ?? 'NA';
-        $row['District'] = $row['District'] ?? 'NA';
+        $row['EPA'] = $row['EPA'] ?? '';
+        $row['Section'] = $row['Section'] ?? '';
+        $row['District'] = $row['District'] ?? '';
         return $row;
     }
 

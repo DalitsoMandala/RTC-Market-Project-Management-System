@@ -58,7 +58,7 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
     {
         // Fetch users with roles 'admin' or 'manager'
         $users = User::with('roles')->whereHas('roles', function ($role) {
-            $role->whereIn('name', ['admin', 'manager','monitor']);
+            $role->whereIn('name', ['admin', 'manager']);
         })->get();
 
         // Notify each user
@@ -72,9 +72,7 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
                 case 'manager':
                     $prefix = '/cip';
                     break;
-                case 'monitor':
-                    $prefix = '/monitor';
-                    break;
+
                 default:
                     $prefix = '/';
             }

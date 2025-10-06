@@ -158,11 +158,11 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
 
 
         if (!$row['National ID']) {
-            $row['National ID'] = 'NA';
+            $row['National ID'] = '';
         }
 
         if (!$row['Phone Number']) {
-            $row['Phone Number'] = 'NA';
+            $row['Phone Number'] = '';
         }
         if (!$row['Household Size']) {
             $row['Household Size'] = 0;
@@ -175,30 +175,30 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
             $row['Children Under 5 in HH'] = 0;
         }
         if (!$row['Village']) {
-            $row['Village'] = 'NA';
+            $row['Village'] = '';
         }
 
         if (!$row['AEDO Phone Number']) {
-            $row['AEDO Phone Number'] = 'NA';
+            $row['AEDO Phone Number'] = '';
         }
 
 
         if (!$row['Name of AEDO']) {
-            $row['Name of AEDO'] = 'NA';
+            $row['Name of AEDO'] = '';
         }
         if (!$row['Name of Recipient']) {
-            $row['Name of Recipient'] = 'NA';
+            $row['Name of Recipient'] = '';
         }
-        $row['EPA'] = $row['EPA'] ?? 'NA';
-        $row['Section'] = $row['Section'] ?? 'NA';
-        $row['District'] = $row['District'] ?? 'NA';
+        $row['EPA'] = $row['EPA'] ?? '';
+        $row['Section'] = $row['Section'] ?? '';
+        $row['District'] = $row['District'] ?? '';
 
         if (!$row['Season Type']) {
-            $row['Season Type'] = 'NA';
+            $row['Season Type'] = '';
         }
 
         if (!$row['Variety Received']) {
-            $row['Variety Received'] = 'NA';
+            $row['Variety Received'] = '';
         }
 
         if (!$row['Year Of Distribution']) {

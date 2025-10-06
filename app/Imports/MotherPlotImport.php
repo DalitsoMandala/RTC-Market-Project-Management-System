@@ -135,7 +135,7 @@ class MotherPlotImport implements ToModel, WithHeadingRow, WithValidation, WithC
     {
         $row['Date of Planting'] = $this->convertExcelDate($row['Date of Planting']);
         if (!$row['Nat ID / Phone #']) {
-            $row['Nat ID / Phone #'] = 'NA';
+            $row['Nat ID / Phone #'] = '';
         }
 
         if (!$row['Variety Received']) {
@@ -159,16 +159,16 @@ class MotherPlotImport implements ToModel, WithHeadingRow, WithValidation, WithC
         }
 
         if (!$row['EPA']) {
-            $row['EPA'] = 'NA';
+            $row['EPA'] = '';
         }
         if (!$row['District']) {
-            $row['District'] = 'NA';
+            $row['District'] = '';
         }
         if (!$row['Section']) {
-            $row['Section'] = 'NA';
+            $row['Section'] = '';
         }
         if (!$row['Village']) {
-            $row['Village'] = 'NA';
+            $row['Village'] = '';
         }
 
         if (!$row['Season']) {

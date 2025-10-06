@@ -86,14 +86,14 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'village' => $row['Village'],
                 'sex' => $row['Sex'],
                 'age' => $row['Age'],
-                'marital_status' => $row['Marital Status'] ?? 'NA',
-                'hh_head' => $row['Household Head'] ?? 'NA',
+                'marital_status' => $row['Marital Status'] ?? '',
+                'hh_head' => $row['Household Head'] ?? '',
                 'household_size' => $row['Household Size'] ?? 0,
                 'children_under_5' => $row['Children Under 5 in HH'] ?? 0,
                 'variety_received' => strtolower($row['Variety Received']),
                 'bundles_received' => $row['Amount of Seed Received in KGs'] ?? 0,
                 'phone_number' => $row['Phone Number'],
-                'national_id' => $row['National ID'] ?? 'NA',
+                'national_id' => $row['National ID'] ?? '',
                 'user_id' => $this->submissionDetails['user_id'],
                 'year' => $row['Year Of Distribution'],
                 'organisation_id' => $this->submissionDetails['organisation_id'],
@@ -156,11 +156,11 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
 
         if (!$row['National ID']) {
-            $row['National ID'] = 'NA';
+            $row['National ID'] = '';
         }
 
         if (!$row['Phone Number']) {
-            $row['Phone Number'] = 'NA';
+            $row['Phone Number'] = '';
         }
         if (!$row['Household Size']) {
             $row['Household Size'] = 0;
@@ -173,30 +173,30 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             $row['Children Under 5 in HH'] = 0;
         }
         if (!$row['Village']) {
-            $row['Village'] = 'NA';
+            $row['Village'] = '';
         }
 
         if (!$row['AEDO Phone Number']) {
-            $row['AEDO Phone Number'] = 'NA';
+            $row['AEDO Phone Number'] = '';
         }
 
 
         if (!$row['Name of AEDO']) {
-            $row['Name of AEDO'] = 'NA';
+            $row['Name of AEDO'] = '';
         }
         if (!$row['Name of Recipient']) {
-            $row['Name of Recipient'] = 'NA';
+            $row['Name of Recipient'] = '';
         }
-        $row['EPA'] = $row['EPA'] ?? 'NA';
-        $row['Section'] = $row['Section'] ?? 'NA';
-        $row['District'] = $row['District'] ?? 'NA';
+        $row['EPA'] = $row['EPA'] ?? '';
+        $row['Section'] = $row['Section'] ?? '';
+        $row['District'] = $row['District'] ?? '';
 
         if (!$row['Season Type']) {
-            $row['Season Type'] = 'NA';
+            $row['Season Type'] = '';
         }
 
         if (!$row['Variety Received']) {
-            $row['Variety Received'] = 'NA';
+            $row['Variety Received'] = '';
         }
 
         if (!$row['Year Of Distribution']) {

@@ -132,9 +132,9 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
 
 
 
-        $row['EPA'] = $row['EPA'] ?? 'NA';
-        $row['Section'] = $row['Section'] ?? 'NA';
-        $row['District'] = $row['District'] ?? 'NA';
+        $row['EPA'] = $row['EPA'] ?? '';
+        $row['Section'] = $row['Section'] ?? '';
+        $row['District'] = $row['District'] ?? '';
         return $row;
     }
 

@@ -54,9 +54,9 @@ class HouseholdSheetImport implements ToModel, WithHeadingRow, WithValidation, W
             $row['Date of Assessment'] = $this->convertExcelDate($row['Date of Assessment']);
         }
 
-        $row['EPA'] = $row['EPA'] ?? 'NA';
-        $row['Section'] = $row['Section'] ?? 'NA';
-        $row['District'] = $row['District'] ?? 'NA';
+        $row['EPA'] = $row['EPA'] ?? '';
+        $row['Section'] = $row['Section'] ?? '';
+        $row['District'] = $row['District'] ?? '';
         return $row;
     }
 
