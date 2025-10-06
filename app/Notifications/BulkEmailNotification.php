@@ -48,7 +48,9 @@ class BulkEmailNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject($this->subject)
             ->line(new HtmlString($this->message))
-            ->action('Go to website', url('/'));
+            ->action('Go to website', url('/')
+
+        );
     }
 
     /**

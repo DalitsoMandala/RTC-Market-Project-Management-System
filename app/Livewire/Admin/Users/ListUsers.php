@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Users;
 
+use App\Mail\SendEmails;
 use App\Models\User;
 use Livewire\Component;
 use Illuminate\Support\Str;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\NewUserNotification;
 use App\Notifications\BulkEmailNotification;
@@ -154,9 +156,16 @@ class ListUsers extends Component
 
 
         foreach ($this->usersByRole as $userGroup) {
+
+
          foreach ($userGroup as $user) {
 
-            User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
+           // User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
+           try{
+            Mail::to($user['email'])->send(new SendEmails($this->subject, $this->message,$user['name']));
+           }catch (\Throwable $th) {
+            Log::error($th);
+           }
          }
 
         }
