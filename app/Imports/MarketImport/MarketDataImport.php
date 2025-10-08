@@ -42,6 +42,8 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
 
         $usd = $this->calculateUsdValue($row['Entry Month'], $row['Estimated Total Value (MWK)']);
 
+
+
         $record = MarketData::firstOrCreate([
             'uuid' => $this->cacheKey,
             'entry_date' => Carbon::parse($row['Entry Month'])->format('Y-m-d'),
@@ -60,7 +62,7 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'final_market_country' => $row['Final Market Country'],
             'supply_frequency' => $row['Supply Frequency'],
             'estimated_total_value_mwk' => $row['Estimated Total Value (MWK)'],
-            'estimated_total_value_usd' =>$usd,
+            'estimated_total_value_usd' =>$usd['usd_value'],
             'user_id' => $this->submissionDetails['user_id'],
             'organisation_id' => $this->submissionDetails['organisation_id'],
             'status' => $status
