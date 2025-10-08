@@ -197,6 +197,7 @@ final class TargetTable extends PowerGridComponent
 
         $reportIds = SystemReport::where('financial_year_id', $financialYear)
             ->where('project_id', $project)
+            ->whereNull('crop')
             ->where('organisation_id', $organisation)->where('indicator_id', $indicatorId)->pluck('id');
 
 
@@ -204,6 +205,8 @@ final class TargetTable extends PowerGridComponent
             Log::error("ReportId missing: No report found for this organisation");
             return 0;
         }
+
+
 
         $data = SystemReportData::whereIn('system_report_id', $reportIds)->where('name', $model->submissionTarget->target_name)->sum('value');
         return $data;
