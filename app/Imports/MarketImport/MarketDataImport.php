@@ -40,9 +40,9 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
         }
 
 
+        $usd = $this->calculateUsdValue($row['Entry Month'], $row['Estimated Total Value (MWK)']);
 
-
-        $record = MarketData::create([
+        $record = MarketData::firstOrCreate([
             'uuid' => $this->cacheKey,
             'entry_date' => Carbon::parse($row['Entry Month'])->format('Y-m-d'),
             'off_taker_name_vehicle_reg_number' => $row['Off-taker Name/Vehicle Reg Number'],
@@ -60,7 +60,7 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             'final_market_country' => $row['Final Market Country'],
             'supply_frequency' => $row['Supply Frequency'],
             'estimated_total_value_mwk' => $row['Estimated Total Value (MWK)'],
-            'estimated_total_value_usd' => $row['Estimated Total Value (USD)'],
+            'estimated_total_value_usd' =>$usd,
             'user_id' => $this->submissionDetails['user_id'],
             'organisation_id' => $this->submissionDetails['organisation_id'],
             'status' => $status
@@ -145,7 +145,22 @@ class MarketDataImport implements ToModel,  WithHeadingRow, WithValidation, Skip
             throw new \App\Exceptions\UserErrorException($errorMessage);
         }
     }
+    private function calculateUsdValue(?string $date, ?float $mwkValue): array
+    {
+        if (!$date || !$mwkValue) {
+            return ['rate' => 0, 'usd_value' => 0];
+        }
 
+        try {
+            $helper = new \App\Helpers\ExchangeRateHelper();
+            $rate = $helper->getRate($mwkValue, $date);
+            $usdValue = $rate ? round($mwkValue / $rate, 2) : 0;
+            return ['rate' => $rate, 'usd_value' => $usdValue];
+        } catch (\Exception $e) {
+            Log::error("Exchange rate calc error: " . $e->getMessage());
+            return ['rate' => 0, 'usd_value' => 0];
+        }
+    }
     public function startRow(): int
     {
         return 3;

@@ -49,7 +49,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
 
 
 
-        $attendanceRecord = AttendanceRegister::create([
+        $attendanceRecord = AttendanceRegister::firstOrCreate([
             'meetingTitle' => $row['Meeting Title'],
             'meetingCategory' => $row['Meeting Category'],
             'rtcCrop_cassava' => $row['Cassava'] ?? 0,

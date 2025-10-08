@@ -47,7 +47,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
 
     public function model(array $row)
     {
-        // Create RtcProductionFarmer record without storing the 'ID' column in the database
+        // firstOrCreate RtcProductionFarmer record without storing the 'ID' column in the database
 
         $user = User::find($this->data['user_id']);
         $status = 'pending';
@@ -59,7 +59,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         $prodCalc = $this->calculateUsdValue($row['Production Value Date of Max Sales'], $row['Production Value Total']);
         $irrCalc = $this->calculateUsdValue($row['Irrigation Production Value Date of Max Sales'], $row['Irrigation Production Value Total']);
 
-        $farmerRecord = RtcProductionFarmer::create([
+        $farmerRecord = RtcProductionFarmer::firstOrCreate([
             'group_name' => $row['Group Name'],
             'date_of_followup' => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
             'epa' => $row['EPA'],

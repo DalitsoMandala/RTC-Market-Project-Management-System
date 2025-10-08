@@ -37,7 +37,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
     public function model(array $row)
     {
         // Create SchoolRtcConsumption record
-        $schoolRecord = RtcConsumption::create([
+        $schoolRecord = RtcConsumption::firstOrCreate([
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],

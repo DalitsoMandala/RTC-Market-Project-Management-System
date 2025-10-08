@@ -47,7 +47,7 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
         if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
             $status = 'approved';
         }
-        $farmerRecord = Recruitment::create([
+        $farmerRecord = Recruitment::firstOrCreate([
 
             'epa' => $row['EPA'],
             'section' => $row['Section'],

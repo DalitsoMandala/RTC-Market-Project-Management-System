@@ -51,7 +51,7 @@
             <div class="col-12">
                 <div class="shadow-sm card">
                     <x-card-header>
-                        Monthly Volume vs Value (May 2024 – Jan 2025)
+                        Monthly Volume vs Value
                     </x-card-header>
                     <div class="card-body">
                         <div id="monthly-chart" x-show="hasMonthlyData===true" style="height: 400px;"></div>

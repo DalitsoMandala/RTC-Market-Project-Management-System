@@ -378,10 +378,10 @@ class Submissions extends Component
             $link = $this->getLink($submission, '#market-submission');
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(
-                    'denied',
-                    $submission->batch_no,
-                    $this->comment,
-                    $link,
+                     status: 'denied',
+                        denialMessage: $this->comment,
+                        batchId: $submission->batch_no,
+                        link: $link
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
