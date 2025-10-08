@@ -184,23 +184,42 @@
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
                 ];
 
-                const usdValues = data.map(item => safeParseFloat(item.usd_value));
-                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
-                const months = data.map((item, index) => {
+                // Group data by month-year
+                const groupedData = data.reduce((acc, item) => {
                     if (item.entry_date) {
                         const date = new Date(item.entry_date);
-                        const month = monthNames[date.getMonth()];
-                        const year = String(date.getFullYear()).slice(-2); // last two digits
-                        return `${month}-${year}`;
-                    } else {
-                        return `Unknown ${index + 1}`;
+                        const month = date.getMonth();
+                        const year = date.getFullYear();
+                        const key = `${year}-${String(month + 1).padStart(2, '0')}`; // Sortable key
+                        const displayKey = `${monthNames[month]}-${String(year).slice(-2)}`;
+
+                        if (!acc[key]) {
+                            acc[key] = {
+                                displayKey,
+                                usd_value: 0,
+                                volume_kg: 0,
+                                date: date // store for sorting
+                            };
+                        }
+
+                        acc[key].usd_value += safeParseFloat(item.usd_value);
+                        acc[key].volume_kg += safeParseFloat(item.volume_kg);
                     }
-                });
+                    return acc;
+                }, {});
+
+                // Sort by date and extract arrays
+                const sortedEntries = Object.entries(groupedData)
+                    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+
+                const months = sortedEntries.map(([_, value]) => value.displayKey);
+                const usdValues = sortedEntries.map(([_, value]) => value.usd_value);
+                const volumesKg = sortedEntries.map(([_, value]) => value.volume_kg);
 
                 return {
-                    volumesKg: volumesKg,
-                    usdValues: usdValues,
-                    months: months
+                    months,
+                    usdValues,
+                    volumesKg
                 };
             },
             hasStackedDemandData: true,
@@ -210,40 +229,65 @@
             },
 
             stackedChartCollection(rawData) {
-                // Step 1: Extract all unique varieties
+                console.log(rawData);
+
+                // Step 1: Group by month-year and collect all unique varieties
+                const monthlyData = {};
                 const uniqueVarieties = new Set();
-                for (const entry of Object.values(rawData)) {
-                    for (const key of Object.keys(entry)) {
-                        uniqueVarieties.add(key.trim()); // normalize keys
+
+                for (const [dateStr, varieties] of Object.entries(rawData)) {
+                    if (dateStr) {
+                        const date = new Date(dateStr);
+                        const month = date.getMonth(); // 0-11
+                        const year = date.getFullYear();
+                        const monthYearKey =
+                            `${year}-${String(month + 1).padStart(2, '0')}`; // "2020-05" for sorting
+                        const displayKey =
+                            `${date.toLocaleString('en-US', { month: 'short' })}-${String(year).slice(-2)}`; // "May-20"
+
+                        // Initialize month entry if it doesn't exist
+                        if (!monthlyData[monthYearKey]) {
+                            monthlyData[monthYearKey] = {
+                                displayDate: displayKey,
+                                date: date,
+                                varieties: {}
+                            };
+                        }
+
+                        // Add varieties and sum values (in case of multiple entries per month)
+                        for (const [variety, value] of Object.entries(varieties)) {
+                            const trimmedVariety = variety.trim();
+                            uniqueVarieties.add(trimmedVariety);
+
+                            if (!monthlyData[monthYearKey].varieties[trimmedVariety]) {
+                                monthlyData[monthYearKey].varieties[trimmedVariety] = 0;
+                            }
+                            monthlyData[monthYearKey].varieties[trimmedVariety] += Number(value) || 0;
+                        }
                     }
                 }
 
-                // Step 2: Prepare empty arrays for each variety
+                // Step 2: Sort months chronologically
+                const sortedMonthKeys = Object.keys(monthlyData).sort();
+
+                // Step 3: Prepare arrays for charting
+                const formattedDates = sortedMonthKeys.map(key => monthlyData[key].displayDate);
+
+                // Initialize series map with zeros for all months
                 const seriesMap = {};
                 for (const variety of uniqueVarieties) {
-                    seriesMap[variety] = [];
+                    seriesMap[variety] = new Array(sortedMonthKeys.length).fill(0);
                 }
 
-                // Step 3: Sort dates and populate data
-                const dates = Object.keys(rawData).sort();
-                const formattedDates = dates.map(dateStr => {
-                    const date = new Date(dateStr);
-                    return date.toLocaleString('en-US', {
-                        month: 'short',
-                        year: '2-digit'
-                    }); // e.g. "May-24"
+                // Populate series data
+                sortedMonthKeys.forEach((monthKey, index) => {
+                    const monthData = monthlyData[monthKey];
+                    for (const [variety, value] of Object.entries(monthData.varieties)) {
+                        seriesMap[variety][index] = value;
+                    }
                 });
 
-                for (const date of dates) {
-                    const entry = rawData[date];
-                    for (const variety of uniqueVarieties) {
-                        const matchKey = Object.keys(entry).find(k => k.trim() === variety);
-                        const value = matchKey ? entry[matchKey] : 0;
-                        seriesMap[variety].push(value);
-                    }
-                }
-
-                // Step 4: Convert seriesMap to ApexCharts format
+                // Step 4: Convert to ApexCharts format
                 const series = Array.from(uniqueVarieties).map(variety => ({
                     name: variety,
                     data: seriesMap[variety]
@@ -329,6 +373,8 @@
                 instance: null,
                 data: []
             },
+
+
             priceTrendChartCollection(data) {
                 const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
 
@@ -336,17 +382,48 @@
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
                 ];
 
-                const avgPrice = data.map(item => safeParseFloat(item.avg_price_per_kg));
-                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
-                const months = data.map((item, index) => {
+                // Group data by month-year
+                const monthlyData = data.reduce((acc, item) => {
                     if (item.entry_date) {
                         const date = new Date(item.entry_date);
-                        const month = monthNames[date.getMonth()];
-                        const year = String(date.getFullYear()).slice(-2); // last two digits
-                        return `${month}-${year}`;
-                    } else {
-                        return `Unknown ${index + 1}`;
+                        const month = date.getMonth();
+                        const year = date.getFullYear();
+                        const monthYearKey =
+                        `${year}-${String(month + 1).padStart(2, '0')}`; // "2020-05" for sorting
+                        const displayKey = `${monthNames[month]}-${String(year).slice(-2)}`; // "May-20"
+
+                        if (!acc[monthYearKey]) {
+                            acc[monthYearKey] = {
+                                displayDate: displayKey,
+                                date: date,
+                                totalVolume: 0,
+                                weightedPriceSum: 0,
+                                count: 0
+                            };
+                        }
+
+                        const volume = safeParseFloat(item.volume_kg);
+                        const avgPrice = safeParseFloat(item.avg_price_per_kg);
+
+                        // Calculate weighted average for price
+                        acc[monthYearKey].totalVolume += volume;
+                        acc[monthYearKey].weightedPriceSum += (volume * avgPrice);
+                        acc[monthYearKey].count += 1;
                     }
+                    return acc;
+                }, {});
+
+                // Sort months chronologically
+                const sortedMonthKeys = Object.keys(monthlyData).sort();
+
+                // Extract arrays for charting
+                const months = sortedMonthKeys.map(key => monthlyData[key].displayDate);
+                const volumesKg = sortedMonthKeys.map(key => monthlyData[key].totalVolume);
+                const avgPrice = sortedMonthKeys.map(key => {
+                    const monthData = monthlyData[key];
+                    // Calculate weighted average price for the month
+                    return monthData.totalVolume > 0 ? monthData.weightedPriceSum / monthData
+                        .totalVolume : 0;
                 });
 
                 return {
