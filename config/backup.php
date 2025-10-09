@@ -212,7 +212,7 @@ return [
         'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
 
         'mail' => [
-            'to' => [env('MAIL_FROM_ADDRESS'),env('MAIL_MONITOR')],
+            'to' => [env('MAIL_FROM_ADDRESS'),env('MAIL_MONITOR'),'cdms.cip@gmail.com'],
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'cip-rtcmarketconsultant@cgiar.org'),
