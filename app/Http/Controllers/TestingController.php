@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\Reports\ReportSheet;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Indicator;
@@ -127,6 +128,11 @@ public function addNewRole(){
                 ]);
             }
         }
+    }
+
+
+    public function export(){
+        return Excel::download(new ReportSheet(), 'report.xlsx');
     }
 
     public function downloadTemplates()
