@@ -27,8 +27,42 @@
             <div class="col-12">
 
 
-                <div class="card shadow-md ">
-                    <x-card-header>Forms List</x-card-header>
+                <div class="shadow-md card ">
+                   <x-card-header class="d-flex align-items-center justify-content-between">
+    <div>Forms List</div>
+
+    @hasanyrole('monitor|admin|manager')
+        <div class="text-end">
+            {{-- Download Button --}}
+            <button
+                class="btn btn-warning btn-sm {{ $downloading ? 'disabled' : '' }}"
+                wire:click="downloadForms"
+                wire:loading.attr="disabled"
+                wire:target="downloadForms"
+            >
+                <i class="bx bx-download"></i>
+                <span class="mx-1">
+                    {{ $downloading ? 'Exporting...' : 'Download Forms' }}
+                </span>
+            </button>
+
+            {{-- Download Ready Notice --}}
+            @if ($downloadReady)
+                <div class="mt-2">
+                    <a href="#" wire:click="downloadFile" class="btn btn-success btn-sm">
+                        <i class="bx bx-check"></i> Download Ready - Click Here
+                    </a>
+                </div>
+            @endif
+
+            {{-- Polling while exporting --}}
+            @if ($downloading)
+                <div wire:poll.2000ms="pollForDownload"></div>
+            @endif
+        </div>
+    @endhasanyrole
+</x-card-header>
+
                     <div class="card-body">
                         <livewire:tables.form-table />
                     </div>

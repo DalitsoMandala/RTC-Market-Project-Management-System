@@ -476,6 +476,39 @@
             </script>
             <script src="https://cdn.jsdelivr.net/npm/filepond@4.31.1/dist/filepond.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+            <script>
+                window.Apex = {
+                    chart: {
+                        toolbar: {
+                            show: true,
+                            tools: {
+                                download: true,
+                                selection: true,
+                                zoom: true,
+                                zoomin: true,
+                                zoomout: true,
+                                pan: true,
+                                reset: true,
+                            },
+                            export: {
+                                csv: {
+                                    filename: 'chart-data',
+                                    columnDelimiter: ',',
+                                    headerCategory: 'Category',
+                                    headerValue: 'Value',
+                                },
+                                svg: {
+                                    filename: 'chart'
+                                },
+                                png: {
+                                    filename: 'chart'
+                                },
+                            },
+                        },
+                    },
+                };
+            </script>
             <script src="{{ asset('assets/libs/choicesjs/scripts/choices.min.js') }}"></script>
             <script>
                 FilePond.registerPlugin(FilePondPluginFileValidateSize);

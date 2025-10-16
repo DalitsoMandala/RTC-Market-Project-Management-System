@@ -322,9 +322,7 @@
                     chart: {
                         type: 'bar',
                         height: 300,
-                        toolbar: {
-                            show: false, // Disables the entire toolbar including the download button
-                        },
+
                     },
                     plotOptions: {
                         bar: {
@@ -366,9 +364,7 @@
                     chart: {
                         type: 'bar',
                         height: 300,
-                        toolbar: {
-                            show: false, // Disables the entire toolbar including the download button
-                        },
+                      
                     },
                     plotOptions: {
                         bar: {
