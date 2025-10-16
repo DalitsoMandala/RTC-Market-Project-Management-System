@@ -709,9 +709,7 @@
                         height: 400,
                         type: 'line',
                         stacked: false,
-                        toolbar: {
-                            show: false
-                        }
+
                     },
                     series: [{
                             name: 'Volume',
@@ -791,9 +789,7 @@
                     chart: {
                         type: 'line',
                         height: 400,
-                        toolbar: {
-                            show: false
-                        }
+
                     },
                     series: data.series,
                     xaxis: {
@@ -849,9 +845,7 @@
                     chart: {
                         height: 500,
                         type: 'line',
-                        toolbar: {
-                            show: false
-                        }
+
                     },
                     stroke: {
                         width: [0, 4]
@@ -966,9 +960,7 @@
                         type: 'bar',
                         height: 400,
                         stacked: false,
-                        toolbar: {
-                            show: false
-                        }
+
                     },
                     plotOptions: {
                         bar: {
@@ -1026,9 +1018,7 @@
                     chart: {
                         type: 'area',
                         height: 400,
-                        toolbar: {
-                            show: false
-                        }
+
                     },
                     series: [{
                         name: 'Average Price (MWK/kg)',

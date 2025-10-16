@@ -27,17 +27,22 @@
                                 <form class="gap-2 d-inline-flex" method="POST" action="{{ route('logout') }}">
                                     @csrf
 
-                                    <a class="btn btn-warning waves-effect waves-light" href="/"> Back to
-                                        Dashboard</a>
-
-                                    <button type="button" class="btn btn-secondary"
-                                        onclick="event.preventDefault();
+                                    <a class="btn btn-warning waves-effect waves-light" href="/">
+                                    @if(Auth::check())
+                                        {{ __('Back to Dashboard') }}
+                                    @else
+                                        {{ __('Back to Home') }}
+                                    @endif
+                                    </a>
+                                    @if (Auth::check())
+                                        <button type="button" class="btn btn-secondary"
+                                            onclick="event.preventDefault();
                                         this.closest('form').submit();">
 
-                                        {{ __('Log Out') }}
+                                            {{ __('Log Out') }}
 
-                                    </button>
-
+                                        </button>
+                                    @endif
                                 </form>
                             @endif
                         </div>

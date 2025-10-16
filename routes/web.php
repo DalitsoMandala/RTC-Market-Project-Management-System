@@ -19,7 +19,9 @@ use App\Helpers\MarketReportCalculations;
 use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Submissions;
+use App\Http\Controllers\TestingController;
 use App\Livewire\Internal\Cip\ViewIndicators;
+use App\Http\Controllers\FormsExportController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 
 
@@ -27,8 +29,8 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 Route::get('/', fn() => redirect()->route('login'));
 
 
-
-
+Route::get('/export', [TestingController::class, 'export']);
+Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {
 
