@@ -6,14 +6,20 @@ use App\Models\Form;
 use App\Models\User;
 use App\Models\Indicator;
 use App\Models\Submission;
+use Livewire\Attributes\On;
 use App\Models\Organisation;
 use App\Helpers\TruncateText;
+use App\Models\FinancialYear;
 use Illuminate\Support\Carbon;
 use App\Models\SubmissionPeriod;
 use Illuminate\Support\Facades\DB;
+use App\Models\ReportingPeriodMonth;
+use App\Traits\DownloadImportTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -29,19 +35,22 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class SubmissionTable extends PowerGridComponent
 {
 
+    use LivewireAlert;
     //Batch Submission Table
+    use DownloadImportTrait;
     use WithExport;
     public $filter;
     public $userId;
     public bool $showFilters = true;
     public $batch;
     public $row = 1;
-    public string $sortField = 'id';
-
+    public string $sortField = 'submission_id';
+    public string $primaryKey = 'submission_id';
     public string $sortDirection = 'desc';
+
     public function setUp(): array
     {
-        // $this->showCheckBox();
+        $this->showCheckBox();
         $route = Route::current();
         $parameters = $route->parameters();
         $collection = collect($parameters);
@@ -54,31 +63,47 @@ final class SubmissionTable extends PowerGridComponent
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage()->pageName('submissionPage')
                 ->showRecordCount(),
         ];
     }
 
+
+
+
+
+
     public function datasource(): Builder
     {
-        $query = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
-            ->where('batch_type', 'batch');
+        $query = Submission::query()
+            ->join('forms', 'forms.id', '=', 'submissions.form_id')
+            ->join('submission_periods', 'submissions.period_id', '=', 'submission_periods.id')
+            ->join('users', 'users.id', '=', 'submissions.user_id')
+            ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
+            ->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
+            ->where('batch_type', 'batch')->select([
+                'submissions.*',
+                'submissions.id as submission_id',
+                'users.name as username',
+                'forms.name as form_name',
+                'organisations.name as organisation_name',
+                'organisations.id as organisation_id',
+                'submission_periods.id as period_id',
+                'submission_periods.month_range_period_id as month_range_period_id',
+
+
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            ]);
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
 
-            return $query->where('user_id', $user->id)->select([
-                '*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-            ]);
+            return $query->where('user_id', $user->id);
         }
 
-        return $query->select([
-            '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-        ]);
+        return $query;
     }
 
     public function filters(): array
@@ -88,15 +113,68 @@ final class SubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
 
-                    return $submission->get();
+                    return $submission->get()->map(function ($submission) {
+
+                        return [
+                            'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
+                            'value' => $submission->status
+                        ];
+                    });
                 })
                 ->optionLabel('status')
-                ->optionValue('status'),
+                ->optionValue('value'),
+
+            Filter::select('form_name', 'forms.id')
+                ->dataSource(function () {
+                    $submission = Form::select(['name', 'id'])->distinct();
+
+                    return $submission->get();
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+            Filter::select('organisation_formatted', 'organisations.id')
+                ->dataSource(function () {
+                    $submission = Organisation::select(['name', 'id'])->distinct();
+
+                    return $submission->get();
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
 
 
-            //     Filter::inputText('batch_no_formatted', 'batch_no'),
-            //      Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
-            //      Filter::inputText('organisation_formatted')->filterRelation('user.organisation', 'name'),
+
+            Filter::select('month_range', 'submission_periods.month_range_period_id')
+                ->dataSource(function () {
+                    $submission = ReportingPeriodMonth::select(['start_month', 'end_month', 'id'])->distinct();
+
+                    return $submission->get()->map(function ($submission) {
+
+                        return [
+                            'name' => $submission->start_month . ' - ' . $submission->end_month,
+                            'id' => $submission->id
+                        ];
+                    });
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+            Filter::select('financial_year', 'submission_periods.financial_year_id')
+                ->dataSource(function () {
+                    $submission = FinancialYear::select(['id', 'number'])->distinct();
+
+                    return $submission->get()->map(function ($submission) {
+
+                        return [
+                            'number' => 'Year ' . $submission->number,
+                            'id' => $submission->id
+                        ];
+                    });
+                })
+                ->optionLabel('number')
+                ->optionValue('id'),
+
+
         ];
     }
     public function relationSearch(): array
@@ -166,7 +244,7 @@ final class SubmissionTable extends PowerGridComponent
             ->add('batch_type')
             ->add('record_filter', function ($model) {})
             ->add('status_formatted', function ($model) {
-
+                $model->status = $model->status === 'denied' ? 'disapproved' : $model->status;
                 if ($model->status === 'approved') {
                     return '<span class="badge bg-success-subtle text-success">' . $model->status . '</span>';
                 } else if ($model->status === 'pending') {
@@ -270,15 +348,13 @@ final class SubmissionTable extends PowerGridComponent
         return [
             Column::make('#', 'rn')->sortable(),
             Column::make('File', 'file_link'),
+            Column::make('Form name', 'form_name')->searchable(),
 
-            Column::make('Batch no', 'batch_no_formatted')
-                ->sortable()
-                ->searchable(),
+
 
             Column::make('SUBMITTED BY', 'username')->searchable(),
 
             Column::make('Organisation', 'organisation_formatted')->searchable(),
-            Column::make('Form name', 'form_name')->searchable(),
 
 
 
@@ -298,6 +374,10 @@ final class SubmissionTable extends PowerGridComponent
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
 
+            Column::make('Batch no', 'batch_no_formatted')
+                ->sortable()
+                ->searchable()->hidden(),
+
             Column::action('Action'),
             // Column::make('Created at', 'created_at')
             //     ->sortable()
@@ -312,8 +392,12 @@ final class SubmissionTable extends PowerGridComponent
         $this->refresh();
     }
 
+
+
     public function actions($row): array
     {
+
+
 
         return [
             Button::add('edit')
@@ -345,7 +429,7 @@ final class SubmissionTable extends PowerGridComponent
         ];
     }
 
-    public function actionRules($row): array
+    public function actionRules(): array
     {
         $user = User::find(auth()->user()->id);
 
@@ -368,6 +452,10 @@ final class SubmissionTable extends PowerGridComponent
             Rule::rows()
                 ->when(fn($row) => $row->batch_no === $this->batch)
                 ->setAttribute('class', 'table-secondary'),
+
+            Rule::button('bulk-download')
+                ->when(fn() => true)
+                ->disable(),
 
         ];
     }

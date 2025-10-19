@@ -87,12 +87,12 @@
                     </ul>
                     <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
                         aria-labelledby="home-tab">
-                        <livewire:tables.submission-table :userId="auth()->user()->id" />
+                        <livewire:tables.submission-table :tableName="'SubmissionTable'"  :userId="auth()->user()->id" />
                     </div>
 
                     <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
                         aria-labelledby="profile-tab">
-                        <livewire:tables.aggregate-submission-table :userId="auth()->user()->id" />
+                        <livewire:tables.aggregate-submission-table :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
                     <div wire:ignore class="mt-2 tab-pane fade show" id="submission-progress" role="tabpanel"

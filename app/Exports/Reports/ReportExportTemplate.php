@@ -31,6 +31,9 @@ class ReportExportTemplate
                 '',
                 '',
                 '',
+                '',
+                '',
+                '',
                 'LOP targets',
                 'Achievement to date',
                 '% Achieved to date',
@@ -41,14 +44,17 @@ class ReportExportTemplate
                 '',
                 '',
                 '',
+                'Y1 Target',
                 'Y1 Achieved',
-                'Y2 target',
+                'Y1 % Achieved',
+                'Y2 Target',
                 'Y2 Achieved',
                 'Y2 % Achieved',
-                'Y3 target',
+                'Y3 Target',
                 'Y3 Achieved',
                 'Y3 % Achieved',
-                'Y4 target',
+                'Y4 Target',
+                'Y4 Achieved',
                 'Y4 % Achieved',
                 '',
                 '',
@@ -64,25 +70,32 @@ class ReportExportTemplate
         $sheet->mergeCells('B1:B2');
         $sheet->mergeCells('C1:C2');
         $sheet->mergeCells('D1:D2');
-        $sheet->mergeCells('E1:M1');
-        $sheet->mergeCells('N1:N2');
-        $sheet->mergeCells('O1:O2');
-        $sheet->mergeCells('P1:P2');
+        $sheet->mergeCells('E1:P1');
         $sheet->mergeCells('Q1:Q2');
+        $sheet->mergeCells('R1:R2');
+        $sheet->mergeCells('S1:S2');
+        $sheet->mergeCells('T1:T2');
 
         // Center align headers
-        $sheet->getStyle('A1:Q2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:Q2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('A1:Q2')->getFont()->setBold(true);
+        $sheet->getStyle('A1:T2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:T2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A1:T2')->getFont()->setBold(true);
+        $sheet->getStyle('A1:T6')->applyFromArray([
+            'font' => [
 
-    // Header fill colors
-    $sheet->getStyle('A1:Q1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFD966'); // Gold
-    $sheet->getStyle('A2:Q2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFF2CC'); // Light yellow
+                'color' => ['rgb' => '000000'],
+                'size' => 12,
+                'name' => 'Bahnschrift Condensed',
+            ],
+        ]);
+        // Header fill colors
+        $sheet->getStyle('A1:T1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFD966'); // Gold
+        $sheet->getStyle('A2:T2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFF2CC'); // Light yellow
 
 
 
         // Add borders
-        $sheet->getStyle('A1:Q300')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $sheet->getStyle('A1:T300')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         return [];
     }
