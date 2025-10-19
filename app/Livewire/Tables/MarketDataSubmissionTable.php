@@ -50,7 +50,7 @@ final class MarketDataSubmissionTable extends PowerGridComponent
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage()->pageName('marketDataPage')
                 ->showRecordCount(),
         ];
     }

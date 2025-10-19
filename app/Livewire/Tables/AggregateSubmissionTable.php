@@ -2,43 +2,53 @@
 
 namespace App\Livewire\tables;
 
-use App\Helpers\TruncateText;
 use App\Models\Form;
+use App\Models\User;
 use App\Models\Indicator;
-use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
+use App\Models\Organisation;
+use App\Helpers\TruncateText;
+use App\Models\FinancialYear;
+use Illuminate\Support\Carbon;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Traits\DownloadImportTrait;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Carbon;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Illuminate\Database\Eloquent\Builder;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class AggregateSubmissionTable extends PowerGridComponent
 {
     use WithExport;
-
+    use DownloadImportTrait;
+    use LivewireAlert;
     public $filter;
     public $userId;
     public bool $showFilters = true;
     public $row = 1;
     public $batch;
-    public string $sortField = 'id';
+    public string $sortField = 'submission_id';
     public string $sortDirection = 'desc';
+    public string $primaryKey = 'submission_id';
 
+    public function updatedCheckboxValues($values)
+    {
+        // logger('Selected IDs: ', $values);
+    }
     public function setUp(): array
     {
         $route = Route::current();
@@ -48,35 +58,70 @@ final class AggregateSubmissionTable extends PowerGridComponent
             $this->batch = $collection->get('batch');
         }
 
+        $this->showCheckBox('submission_id');
+        $this->setLocation('exports');
         return [
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
-                ->showPerPage()
+                ->showPerPage()->pageName('AggregatePage')
                 ->showRecordCount(),
         ];
     }
 
     public function datasource(): Builder
     {
+        // $query = Submission::query()
+        //     ->with(['period.indicator', 'user.organisation', 'user', 'period.reportingMonths', 'form', 'period.financialYears'])
+        //     ->where('batch_type', 'aggregate');
+
+        // $user = User::find(auth()->user()->id);
+        // $organisation_id = $user->organisation->id;
+
+        // if ($user->hasAnyRole('external')) {
+        //     return $query->where('user_id', $user->id);
+        // }
+
+        // return $query->select([
+        //     '*',
+        //     DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        // ]);
+
         $query = Submission::query()
-            ->with(['period.indicator', 'user.organisation', 'user', 'period.reportingMonths', 'form', 'period.financialYears'])
-            ->where('batch_type', 'aggregate');
+            ->join('forms', 'forms.id', '=', 'submissions.form_id')
+            ->join('submission_periods', 'submissions.period_id', '=', 'submission_periods.id')
+            ->join('users', 'users.id', '=', 'submissions.user_id')
+            ->join('submission_reports', 'submissions.batch_no', '=', 'submission_reports.uuid')
+            ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
+            ->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
+            ->where('batch_type', 'aggregate')->select([
+                'submissions.*',
+                'submissions.id as submission_id',
+                'users.name as username',
+                'forms.name as form_name',
+                'organisations.name as organisation_name',
+                'organisations.id as organisation_id',
+                'submission_periods.id as period_id',
+                'submission_periods.month_range_period_id as month_range_period_id',
+
+
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn')
+            ]);
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
+
             return $query->where('user_id', $user->id);
         }
 
-        return $query->select([
-            '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-        ]);
+        return $query;
     }
+
+
 
     public function relationSearch(): array
     {
@@ -109,13 +154,68 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
 
-                    return $submission->get();
+                    return $submission->get()->map(function ($submission) {
+
+                        return [
+                            'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
+                            'value' => $submission->status
+                        ];
+                    });
                 })
                 ->optionLabel('status')
-                ->optionValue('status'),
-            //     Filter::inputText('batch_no_formatted', 'batch_no'),
-            //      Filter::inputText('indicator')->filterRelation('period.indicator', 'indicator_name'),
-            //      Filter::inputText('organisation_formatted')->filterRelation('user.organisation', 'name'),
+                ->optionValue('value'),
+
+            Filter::select('form_name', 'forms.id')
+                ->dataSource(function () {
+                    $submission = Form::select(['name', 'id'])->distinct();
+
+                    return $submission->get();
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+            Filter::select('organisation_formatted', 'organisations.id')
+                ->dataSource(function () {
+                    $submission = Organisation::select(['name', 'id'])->distinct();
+
+                    return $submission->get();
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+
+
+            Filter::select('month_range', 'submission_periods.month_range_period_id')
+                ->dataSource(function () {
+                    $submission = ReportingPeriodMonth::select(['start_month', 'end_month', 'id'])->distinct();
+
+                    return $submission->get()->map(function ($submission) {
+
+                        return [
+                            'name' => $submission->start_month . ' - ' . $submission->end_month,
+                            'id' => $submission->id
+                        ];
+                    });
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+            Filter::select('financial_year', 'submission_periods.financial_year_id')
+                ->dataSource(function () {
+                    $submission = FinancialYear::select(['id', 'number'])->distinct();
+
+                    return $submission->get()->map(function ($submission) {
+
+                        return [
+                            'number' => 'Year ' . $submission->number,
+                            'id' => $submission->id
+                        ];
+                    });
+                })
+                ->optionLabel('number')
+                ->optionValue('id'),
+
+
         ];
     }
 
@@ -139,7 +239,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 $project = str_replace(' ', '-', strtolower($form->project->name));
 
                 // return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-                return $form->name;
+                return $form->name . '-' . $model->id;
             })
             ->add('organisation')
             ->add('organisation_formatted', function ($model) {
@@ -169,7 +269,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 }
             })
             ->add('comments')
-           ->add('comments_truncated', function ($model) {
+            ->add('comments_truncated', function ($model) {
 
                 if (!$model->comments) {
                     return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
@@ -253,11 +353,14 @@ final class AggregateSubmissionTable extends PowerGridComponent
             Column::make('File', 'file_link'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
-                ->searchable(),
+                ->searchable()->hidden(),
+
+
+            Column::make('Form name', 'form_name')->searchable(),
+            Column::make('Indicator', 'indicator')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap"),
             Column::make('SUBMITTED BY', 'username')->searchable(),
             Column::make('Organisation', 'organisation_formatted')->searchable(),
-            Column::make('Form name', 'form_name')->searchable(),
-            Column::make('Indicator', 'indicator')->searchable(),
             Column::make('SUBMISSION PERIOD', 'month_range')->searchable(),
             Column::make('Project Year', 'financial_year')->searchable(),
             Column::make('Status', 'status_formatted')

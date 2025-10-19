@@ -2,3 +2,6 @@
 
 
 @import "./../../node_modules/animate.css/animate.min.css";
+/* resources/js/app.css */
+
+@import "./../../node_modules/tom-select/dist/css/tom-select.bootstrap5.css";
