@@ -30,6 +30,11 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/export', [TestingController::class, 'export']);
+
+Route::get('/info',function () {
+    $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 2);
+return response()->json($indicatorClass->getDisaggregations());
+});
 Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {
