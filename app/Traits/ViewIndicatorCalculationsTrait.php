@@ -65,8 +65,8 @@ trait ViewIndicatorCalculationsTrait
         $groupedData = $reportData->groupBy('name');
 
         // Get disaggregation keys with default value 0
-        $disaggregations = IndicatorDisaggregation::where('indicator_id', $this->indicator_id)->pluck('name')->unique();
-        $data = $disaggregations->mapWithKeys(fn($name) => [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : 0]);
+            $disaggregations = IndicatorDisaggregation::where('indicator_id', $this->indicator_id)->pluck('name')->unique();
+            $data = $disaggregations->mapWithKeys(fn($name) => [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : 0]);
 
         // Assign results
         $this->data = $data->toArray();

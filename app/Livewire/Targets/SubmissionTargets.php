@@ -228,8 +228,11 @@ class SubmissionTargets extends Component
                         'target_value' => $target['value']
                     ]);
                 }
-                $this->targets = [];
+
             }
+
+            $this->targets = [];
+               $this->dispatch('update-targets');
             session()->flash('success', 'Targets saved successfully');
 
 

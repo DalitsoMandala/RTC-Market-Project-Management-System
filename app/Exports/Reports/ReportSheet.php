@@ -17,41 +17,12 @@ class ReportSheet implements WithMultipleSheets
 
         Auth::check() == false ? abort(403) : '';
 
-        $crops = Crop::where('name', '!=', 'Cassava')->pluck('name')->toArray();
 
-        $organisations = Organisation::get()->transform(function ($org) {
-            if ($org->name == 'CIP') {
-                $org->name = 'Sweet potato + Potato';
-            }
-            return $org;
-        })->pluck('name')->toArray();
-        $this->sheets = [...$crops, ...$organisations];
-        if (auth()->user()->hasAnyRole('external')) {
-            $filterByOrganisation = collect(
-                $this->sheets
-            )->filter(function ($sheet) {
-
-                return $sheet == Auth::user()->organisation->name;
-            })->toArray();
-            $this->sheets = $filterByOrganisation;
-        }
     }
     public function sheets(): array
     {
-       $sheets = [];
-
-       foreach ($this->sheets as $sheet) {
-
-        if($sheet == 'Cassava' || $sheet == 'Sweet potato' || $sheet == 'Potato' || $sheet == 'Sweet potato + Potato' )
-        {
-            $sheets[] = new ReportExport($sheet,'crop',[]);
-        }else{
-            $sheets[] = new ReportExport($sheet,'organisation',[]);
-        }
-
-       }
-
-
-        return $sheets;
+     return [
+        'Consolidated' => new ReportExport('Consolidated'),
+     ];
     }
 }
