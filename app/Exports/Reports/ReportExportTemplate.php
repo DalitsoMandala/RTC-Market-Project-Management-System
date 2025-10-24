@@ -64,6 +64,8 @@ class ReportExportTemplate
             ],
         ];
     }
+
+
     public function styles(Worksheet $sheet)
     {
         // Merge header cells
@@ -76,7 +78,18 @@ class ReportExportTemplate
         $sheet->mergeCells('R1:R2');
         $sheet->mergeCells('S1:S2');
         $sheet->mergeCells('T1:T2');
-$sheet->getColumnDimension('B')->setWidth(18);
+  foreach (range('A', 'D') as $col) {
+                    $sheet->getColumnDimension($col)->setWidth(40);
+                }
+
+                  foreach (range('E', 'T') as $col) {
+                    $sheet->getColumnDimension($col)->setWidth(20);
+                }
+
+                // 2️⃣ Enable wrap text for all used cells
+                $sheet->getStyle(
+                    $sheet->calculateWorksheetDimension()
+                )->getAlignment()->setWrapText(true);
         // Center align headers
         $sheet->getStyle('A1:T2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1:T2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);

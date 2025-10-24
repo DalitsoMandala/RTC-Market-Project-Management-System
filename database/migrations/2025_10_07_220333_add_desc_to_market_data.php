@@ -15,6 +15,31 @@ return new class extends Migration
             //
             $table->text('description')->nullable()->after('status');
         });
+
+         Schema::table('submissions', function (Blueprint $table) {
+            //
+            $table->text('description')->nullable()->after('status');
+        });
+
+          Schema::table('gross_submissions', function (Blueprint $table) {
+            //
+            $table->text('description')->nullable()->after('status');
+        });
+
+          Schema::table('submissions', function (Blueprint $table) {
+            //
+            $table->text('description')->nullable()->after('status');
+        });
+
+          Schema::table('root_tuber_submissions', function (Blueprint $table) {
+            //
+            $table->text('description')->nullable()->after('status');
+        });
+
+          Schema::table('progress_submissions', function (Blueprint $table) {
+            //
+            $table->text('description')->nullable()->after('status');
+        });
     }
 
     /**
@@ -26,5 +51,31 @@ return new class extends Migration
             //
             $table->dropColumn('description');
         });
+
+         Schema::table('submissions', function (Blueprint $table) {
+            //
+            $table->dropColumn('description');
+        });
+
+          Schema::table('gross_submissions', function (Blueprint $table) {
+            //
+            $table->dropColumn('description');
+        });
+
+          Schema::table('submissions', function (Blueprint $table) {
+            //
+            $table->dropColumn('description');
+        });
+
+          Schema::table('root_tuber_submissions', function (Blueprint $table) {
+            //
+            $table->dropColumn('description');
+        });
+
+          Schema::table('progress_submissions', function (Blueprint $table) {
+            //
+            $table->dropColumn('description');
+        });
+
     }
 };
