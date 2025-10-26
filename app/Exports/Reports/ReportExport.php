@@ -31,6 +31,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
     private array $lopTargets;
     private ?Project $project;
 
+
     public function __construct(string $sheetName, string $type = 'crop', array $data = [])
     {
         $this->sheetName = $sheetName;
@@ -128,7 +129,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
     /**
      * Get yearly targets with validation and error handling
      */
-    private function getYearlyTargets(?string $disaggregation, ?string $indicatorName): array
+    private function getYearlyTargets(?string $disaggregation, ?string $indicatorName, $organisationId = null): array
     {
         try {
             $yearTargets = [
@@ -152,13 +153,25 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
 
             foreach ($financialYears as $year) {
                 $financialYear = $year->number;
-                $target = SubmissionTarget::where([
+                $target = SubmissionTarget::with('organisationTargets')->where([
                     'target_name' => $disaggregation,
                     'financial_year_id' => $year->id,
                     'indicator_id' => $indicator->id,
                 ])->first();
 
-                $yearTargets['Year' . $financialYear] = $target->target_value ?? null;
+                if ($target && $target->organisationTargets->isNotEmpty()) {
+                    $target = $target->organisationTargets->where('organisation_id', $organisationId)->first();
+                }else{
+                    Log::warning('Target not found', [
+                        'target_name' => $disaggregation,
+                        'financial_year_id' => $year->id,
+                        'indicator_id' => $indicator->id
+                    ]);
+                    
+                }
+
+
+                $yearTargets['Year' . $financialYear] = $target->value ?? null;
             }
 
             return $yearTargets;
@@ -319,37 +332,63 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
     /**
      * Route to appropriate sheet data handler
      */
-    private function getSheetData($item, string $indicatorNo, string $indicatorName, string $baselineValue, string $indicatorId): array
-    {
-        $sheetHandlers = [
-            'Consolidated' => fn() => $this->consolidatedData(
-                $item,
-                $indicatorNo,
-                $indicatorName,
-                $baselineValue,
-                [
-                    'crop' => 'All',
-                    'organisationId' => null,
-                    'indicatorId' => $indicatorId
-                ]
-            ),
-            'Sweet potato' => fn() => [],
-            'Cassava' => fn() => [],
-            'Potato' => fn() => [],
-            'IITA' => fn() => [],
-            'ACE' => fn() => [],
-            'DCD' => fn() => [],
-            'DAES' => fn() => [],
-            'MINISTRY OF TRADE' => fn() => [],
-            'TRADELINE' => fn() => [],
-            'DARS' => fn() => [],
-            'RTCDT' => fn() => [],
-            'LUANAR' => fn() => [],
-        ];
+  /**
+ * Route to proper handler based on sheet name
+ */
+private function getSheetData(
+    $item,
+    string $indicatorNo,
+    string $indicatorName,
+    string $baselineValue,
+    string $indicatorId
+): array {
+    // Define crops and organizations that need handling
+    $crops = [
+        'Consolidated'   => 'All',
+        'Sweet potato'   => 'Sweet potato',
+        'Cassava'        => 'Cassava',
+        'Potato'         => 'Potato',
+    ];
 
-        $handler = $sheetHandlers[$this->sheetName] ?? fn() => [];
-        return $handler();
+    $organisations = [
+        'IITA', 'ACE', 'DCD', 'DAES', 'MINISTRY OF TRADE',
+        'TRADELINE', 'DARS', 'RTCDT', 'LUANAR',
+    ];
+
+    // Handle crop-based sheets
+    if (isset($crops[$this->sheetName])) {
+        return $this->consolidatedData(
+            $item,
+            $indicatorNo,
+            $indicatorName,
+            $baselineValue,
+            [
+                'crop' => $crops[$this->sheetName],
+                'organisationId' => null,
+                'indicatorId' => $indicatorId,
+            ]
+        );
     }
+
+    // Handle organization-based sheets (future logic placeholder)
+    if (in_array($this->sheetName, $organisations, true)) {
+        $organisationId = Organisation::where('name', $this->sheetName)->first()->id ?? null;
+        return $this->organisationalData(
+            $item,
+            $indicatorNo,
+            $indicatorName,
+            $baselineValue,
+            [
+                'crop' => null,
+                'organisationId' => $organisationId,
+                'indicatorId' => $indicatorId,
+            ]);
+    }
+
+    // Default: empty dataset
+    return [];
+}
+
 
     public function calculatePercentage(float $numerator, float $denominator): float
     {
@@ -416,6 +455,47 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
         }
     }
 
+    public function organisationalData($item, $indicatorNo, $indicatorName, $baselineValue, array $yearlyData = []): array
+    {
+        try {
+
+            $yearData = $this->populateYearlyValues(...array_values($yearlyData));
+            $sumYearlyData = $this->sumOfYearlyData($yearData);
+
+            $yearlyTargets = $this->getYearlyTargets($item->name, $item->indicator->indicator_name, $yearlyData['organisationId'] ?? null);
+       //     Log::info("Indicator-".$yearlyData['indicatorId'], $yearData);
+            return [
+                $indicatorNo, // Indicator No
+                $indicatorName, // Indicator Name
+                $baselineValue, // Baseline
+                $item->name, // Disaggregation
+                (string) ($yearlyTargets['Year1'] ?? ''), // Year 1 target
+                (string) ($yearData['Year1'][$item->name] ?? ''), // Year 1 achieved
+                (string) $this->calculatePercentage($yearData['Year1'][$item->name] ?? 0, $yearlyTargets['Year1'] ?? 0) . '%', // Year 1 % Achieved
+                (string) ($yearlyTargets['Year2'] ?? ''), // Year 2 target
+                (string) ($yearData['Year2'][$item->name] ?? ''), // Year 2 achieved
+                (string) $this->calculatePercentage($yearData['Year2'][$item->name] ?? 0, $yearlyTargets['Year2'] ?? 0). '%', // Year 2 % Achieved
+                (string) ($yearlyTargets['Year3'] ?? ''), // Year 3 target
+                (string) ($yearData['Year3'][$item->name] ?? ''), // Year 3 achieved
+                (string) $this->calculatePercentage($yearData['Year3'][$item->name] ?? 0, $yearlyTargets['Year3'] ?? 0). '%', // Year 3 % Achieved
+                (string) ($yearlyTargets['Year4'] ?? ''), // Year 4 target
+                (string) ($yearData['Year4'][$item->name] ?? ''), // Year 4 achieved
+                (string) $this->calculatePercentage($yearData['Year4'][$item->name] ?? 0, $yearlyTargets['Year4'] ?? 0). '%', // Year 4 % Achieved
+                (string) ($this->lopTargets[$yearlyData['indicatorId']][$item->name] ?? ''), // LOP targets
+                (string) ($sumYearlyData[$item->name] ?? ''), // Achievement to Date
+                (string) $this->calculatePercentage($sumYearlyData[$item->name] ?? 0, $this->lopTargets[$yearlyData['indicatorId']][$item->name] ?? 0). '%', // Achievement % to Date
+                (string) '', // Comments
+            ];
+        } catch (Exception $e) {
+            Log::error('Failed to generate consolidated data', [
+                'error' => $e->getMessage(),
+                'indicator_id' => $yearData,
+                'sheet' => $this->sheetName
+            ]);
+            return array_fill(0, 20, 'Error');
+        }
+    }
+
     public function consolidatedData($item, $indicatorNo, $indicatorName, $baselineValue, array $yearlyData = []): array
     {
         try {
@@ -462,3 +542,4 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
         return $this->sheetName;
     }
 }
+
