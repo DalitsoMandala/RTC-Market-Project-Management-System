@@ -167,7 +167,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
                         'financial_year_id' => $year->id,
                         'indicator_id' => $indicator->id
                     ]);
-                    
+
                 }
 
 
@@ -260,7 +260,7 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
                 ->unique();
 
             $data = $disaggregationNames->mapWithKeys(
-                fn($name) => [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : null]
+                fn($name) => [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : 0]
             );
 
             return $data->toArray();
