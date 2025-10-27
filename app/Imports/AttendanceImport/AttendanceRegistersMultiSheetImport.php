@@ -80,6 +80,7 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
+
                 $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
                 $reader = IOFactory::createReaderForFile($this->filePath);
                 $spreadsheet = $reader->load($this->filePath);
@@ -159,7 +160,8 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'attendance_registers',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                          'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -181,7 +183,8 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'attendance_registers',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -203,7 +206,8 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'attendance_registers',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -223,7 +227,8 @@ class AttendanceRegistersMultiSheetImport implements WithMultipleSheets, WithChu
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'attendance_registers',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,

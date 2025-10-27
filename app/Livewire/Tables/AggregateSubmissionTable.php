@@ -369,6 +369,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
             Column::make('Comments', 'comments_truncated'),
+                 Column::make('Description', 'description')->searchable(),
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
             Column::action('Action'),

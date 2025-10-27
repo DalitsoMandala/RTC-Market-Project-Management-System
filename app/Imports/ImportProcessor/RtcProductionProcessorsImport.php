@@ -168,9 +168,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
         return [
             'Group Name' => 'required|string|max:255',
             'Date Of Follow Up' => 'required|date|date_format:d-m-Y',
-            'EPA' => 'required|string|max:255',
-            'Section' => 'required|string|max:255',
-            'District' => 'required|string|max:255',
+            'EPA' => 'nullable|string|max:255',
+            'Section' => 'nullable|string|max:255',
+            'District' => 'nullable|string|max:255',
             'Enterprise' => 'required|string|max:255',
             'Market Segment Fresh' => 'nullable|boolean',
             'Market Segment Processed' => 'nullable|boolean',

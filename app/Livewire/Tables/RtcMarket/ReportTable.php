@@ -2,6 +2,7 @@
 
 namespace App\Livewire\tables\rtcMarket;
 
+use App\Jobs\ReportSummaryJob;
 use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
 use App\Models\ReportingPeriodMonth;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Bus;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
@@ -49,7 +51,7 @@ final class ReportTable extends PowerGridComponent
         return [
             Header::make()
                 ->showSearchInput()
-                ->includeViewOnTop('components.export-component'),
+                ->includeViewOnTop('components.report-header'),
             // ->includeViewOnBottom('components.import-button'),
             Footer::make()
                 ->showPerPage(10)
@@ -57,19 +59,36 @@ final class ReportTable extends PowerGridComponent
         ];
     }
 
+
+
     public $namedExport = 'report';
 
     #[On('export-report')]
     public function startExport()
     {
+        $this->namedExport = 'report';
         $this->execute($this->namedExport);
         $this->performExport();
+    }
+
+
+    #[On('export-report')]
+    public function startProgressExport()
+    {
+         $this->namedExport = 'summary';
+        $this->execute($this->namedExport);
+        $this->performExport();
+       // Bus::dispatch(new ReportSummaryJob(auth()->user()));
     }
 
 
     #[On('download-export')]
     public function downloadExport()
     {
+
+        if (!Storage::exists('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx')) {
+            return;
+        }
         return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
 

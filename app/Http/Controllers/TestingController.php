@@ -132,7 +132,11 @@ public function addNewRole(){
 
 
     public function export(){
-        return Excel::download(new ReportSheet(), 'report.xlsx');
+        $user = auth()->user();
+          Excel::store(new ReportSheet($user),'public.xlsx','public');
+          
+
+       // return Excel::download(new ReportSheet($user), 'report.xlsx');
     }
 
     public function downloadTemplates()

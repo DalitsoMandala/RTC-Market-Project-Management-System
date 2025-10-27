@@ -100,8 +100,8 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             $row['End Date'] = $this->convertExcelDate($row['End Date']);
         }
 
-        $row['EPA'] = $row['EPA'] ?? '';
-        $row['Section'] = $row['Section'] ?? '';
+       // $row['EPA'] = $row['EPA'] ?? '';
+    //    $row['Section'] = $row['Section'] ?? '';
         $row['District'] = $row['District'] ?? '';
         $this->validateNumeric($row['Total Days']);
         $this->validateNumeric($row['Cassava']);
@@ -119,7 +119,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'Potato' => 'boolean',
             'Sweet Potato' => 'boolean',
             'Venue' => 'required|string|max:255',
-            'District' => 'required|string|max:255',
+            'District' => 'nullable|string|max:255',
             'Start Date' => 'required|date|date_format:d-m-Y',
             'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
             'Total Days' => 'sometimes|nullable|numeric|min:0',

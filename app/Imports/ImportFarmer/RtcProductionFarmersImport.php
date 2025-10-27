@@ -230,9 +230,9 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         return [
             'Group Name' => 'required|string|max:255',
             'Date Of Follow Up' => 'required|date|date_format:d-m-Y',
-            'EPA' => 'required|string|max:255',
-            'Section' => 'required|string|max:255',
-            'District' => 'required|string|max:255',
+            'EPA' => 'nullable|string|max:255',
+            'Section' => 'nullable|string|max:255',
+            'District' => 'nullable|string|max:255',
             'Enterprise' => 'required|string|max:255',
             'Number of Plantlets Produced Cassava' => 'required|numeric|min:0',
             'Number of Plantlets Produced Potato' => 'required|numeric|min:0',

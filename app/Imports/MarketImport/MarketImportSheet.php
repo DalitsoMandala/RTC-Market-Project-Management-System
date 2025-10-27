@@ -154,7 +154,8 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                         'submitted_user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -172,7 +173,8 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                         'submitted_user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -190,7 +192,8 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                         'submitted_user_id' => $this->submissionDetails['user_id'],
                         'status' => 'pending',
                         'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -206,7 +209,8 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                         'submitted_user_id' => $this->submissionDetails['user_id'],
                         'status' => 'approved',
                         'table_name' => 'marketing_data',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,

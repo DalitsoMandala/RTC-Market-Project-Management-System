@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\MarketData;
 use App\Models\GrossMargin;
 use App\Models\Recruitment;
+use Illuminate\Support\Str;
 use App\Models\Organisation;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -23,8 +24,11 @@ use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerDomMarket;
 use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
+use Illuminate\Support\Facades\Log;
+use App\Exports\Reports\ReportSheet;
 use App\Models\GrossMarginItemValue;
 use App\Models\RpmFarmerInterMarket;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\RpmProcessorDomMarket;
 use App\Models\FarmerSeedRegistration;
 use App\Models\RpmFarmerCertifiedSeed;
@@ -77,6 +81,7 @@ class ExcelExportJob implements ShouldQueue
         if (! Storage::exists($directory)) {
             Storage::makeDirectory($directory);
         }
+
         switch ($this->name) {
 
             case 'rpmf':
@@ -1590,7 +1595,7 @@ class ExcelExportJob implements ShouldQueue
                     });
 
 
-                     $writer->addNewSheetAndMakeItCurrent('Varieties');
+                $writer->addNewSheetAndMakeItCurrent('Varieties');
                 $headers = [
                     'Gross Margin Name of Producer' => 'Text, Required',
                     'Variety' => 'Text, Required',
@@ -1624,8 +1629,29 @@ class ExcelExportJob implements ShouldQueue
                 $writer->close(); // Finalize the file
 
                 break;
+            case 'summary':
+
+
+                try {
+
+                 //   $filename = 'project_progress_report_' . $this->user->id . '_' . Str::random(10) . '.xlsx'; // Unique filename
+                 $filename = 'exports/' . $this->name . '_' . $this->uniqueID . '.xlsx';
+                 Excel::store(new ReportSheet($this->user), $filename, 'public');
+                    //   Cache::put($cacheKey, 100);
+                    // Optionally, notify the user of success
+                } catch (\Exception $e) {
+                    //    Cache::put($cacheKey, 100);
+                    Log::error("Report generation failed for user {$this->user->id}: " . $e->getMessage(), [
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+
+                    return;
+                }
+
+                break;
             default:
                 $this->fail('Invalid model name! Naming of the excel export is unknown.');
+                throw new \Exception('Invalid model name! Naming of the excel export is unknown.');
                 return;
                 break;
         }

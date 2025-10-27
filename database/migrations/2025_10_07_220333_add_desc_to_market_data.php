@@ -15,6 +15,7 @@ return new class extends Migration
             //
             $table->text('description')->nullable()->after('status');
         });
+
     }
 
     /**
@@ -26,5 +27,8 @@ return new class extends Migration
             //
             $table->dropColumn('description');
         });
+
+
+
     }
 };

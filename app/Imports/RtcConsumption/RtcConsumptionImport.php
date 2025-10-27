@@ -98,9 +98,9 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
     public function rules(): array
     {
         return [
-            'EPA' => 'required|string|max:255',
-            'Section' => 'required|string|max:255',
-            'District' => 'required|string|max:255',
+            'EPA' => 'nullable|string|max:255',
+            'Section' => 'nullable|string|max:255',
+            'District' => 'nullable|string|max:255',
             'Entity Name' => 'required|string|max:255',
             'Entity Type' => 'required|string|max:255',
             'Date' => 'nullable|date|date_format:d-m-Y',

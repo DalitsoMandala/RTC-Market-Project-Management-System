@@ -47,6 +47,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
 
     public function __construct($cacheKey, $filePath, $submissionDetails)
     {
+
         $this->cacheKey = $cacheKey;
         $this->filePath = $filePath;
         $this->submissionDetails = $submissionDetails;
@@ -151,7 +152,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'seed_beneficiaries',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -172,7 +174,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'seed_beneficiaries',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                              'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -191,7 +194,8 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'seed_beneficiaries',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                              'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

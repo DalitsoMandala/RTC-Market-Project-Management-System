@@ -164,7 +164,8 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'rtc_production_processors',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -185,7 +186,8 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'rtc_production_processors',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -203,7 +205,8 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'rtc_production_processors',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                                'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
