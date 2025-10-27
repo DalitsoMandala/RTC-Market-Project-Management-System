@@ -142,7 +142,8 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'rtc_consumptions',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -164,7 +165,8 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'rtc_consumptions',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
                     $user->notify(new ImportSuccessNotification(
                         $this->cacheKey,
@@ -183,7 +185,8 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'rtc_consumptions',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

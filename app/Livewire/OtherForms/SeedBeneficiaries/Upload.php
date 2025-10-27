@@ -66,60 +66,69 @@ class Upload extends Component
     public $currentRoute;
     public function submitUpload()
     {
-
         try {
-
-            $this->validate([
-                'upload' => 'required|file|mimes:xlsx,csv',
-            ]);
-            $name = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
-            $directory = 'public/imports';
-            if (!Storage::exists($directory)) {
-                Storage::makeDirectory($directory);
-            }
-
-            $this->upload->storeAs($directory, $name);
-            $path = storage_path('app/public/imports/' . $name);
-            try {
-
-
-                Excel::import(new SeedBeneficiariesImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
-
-                    'submission_period_id' => $this->submissionPeriodId,
-                    'organisation_id' => Auth::user()->organisation->id,
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'period_month_id' => $this->selectedMonth,
-                    'form_id' => $this->selectedForm,
-                    'user_id' => Auth::user()->id,
-                    'batch_type' => 'batch',
-                    'table_name' => 'household_rtc_consumption',
-                    'is_complete' => 1,
-                    'file_link' => $name,
-                    'batch_no' => $this->importId,
-                    'route' => $this->currentRoute
-
-
-
-                ]), $path);
-                $this->checkProgress();
-            } catch (ExcelValidationException $th) {
-
-                $this->reset('upload');
-                session()->flash('error', $th->getMessage());
-                Log::error($th);
-            }
-        } catch (Throwable $e) {
+            $this->validate();
+        } catch (\Throwable $e) {
+            $this->dispatch('errorRemove');
             session()->flash('validation_error', 'There are errors in the form.');
             throw $e;
         }
+        try {
+            //code...
+
+            $userId = auth()->user()->id;
+            $user = User::find($userId);
 
 
+            if ($this->upload) {
 
-        // Use Excel import (Assumes you have set up an Import for SeedBeneficiaries)
+
+                $name = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $directory = 'public/imports';
+                if (!Storage::exists($directory)) {
+                    Storage::makeDirectory($directory);
+                }
+
+                $this->upload->storeAs($directory, $name);
+                $path = storage_path('app/public/imports/' . $name);
+              
+                try {
 
 
-        session()->flash('message', 'Batch uploaded successfully.');
-        $this->reset('upload'); // Clear the file input after upload
+                    Excel::import(new SeedBeneficiariesImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
+
+                        'submission_period_id' => $this->submissionPeriodId,
+                        'organisation_id' => Auth::user()->organisation->id,
+                        'financial_year_id' => $this->selectedFinancialYear,
+                        'period_month_id' => $this->selectedMonth,
+                        'form_id' => $this->selectedForm,
+                        'user_id' => Auth::user()->id,
+                        'batch_type' => 'batch',
+                        'table_name' => 'household_rtc_consumption',
+                        'is_complete' => 1,
+                        'file_link' => $name,
+                        'batch_no' => $this->importId,
+                        'route' => $this->currentRoute,
+                        'description' => $this->description
+
+
+                    ]), $path);
+                    $this->checkProgress();
+                } catch (ExcelValidationException $th) {
+
+
+                    session()->flash('error', $th->getMessage());
+                    Log::error($th);
+                    $this->redirect(url()->previous());
+                }
+            }
+        } catch (\Exception $th) {
+            //throw $th;
+
+            session()->flash('error', 'Something went wrong!');
+            Log::error($th);
+            $this->redirect(url()->previous());
+        }
     }
 
     public function downloadTemplate()

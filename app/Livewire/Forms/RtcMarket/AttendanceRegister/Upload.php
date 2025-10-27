@@ -92,13 +92,15 @@ class Upload extends Component
 
             if ($this->upload) {
                 $name = 'att' . time() . '.' . $this->upload->getClientOriginalExtension();
-                $directory = 'public/imports';
+                   $directory = 'public/imports';
                 if (!Storage::exists($directory)) {
                     Storage::makeDirectory($directory);
                 }
 
                 $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
+
+
                 try {
 
 
@@ -116,6 +118,7 @@ class Upload extends Component
                         'file_link' => $name,
                         'batch_no' => $this->importId,
                         'route' => $this->currentRoute,
+                        'description' => $this->description
 
 
                     ]), $path);
@@ -136,7 +139,7 @@ class Upload extends Component
             $this->redirect(url()->previous());
         }
 
-        $this->removeTemporaryFile();
+
     }
 
 

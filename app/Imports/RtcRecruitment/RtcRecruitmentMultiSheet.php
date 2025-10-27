@@ -170,7 +170,8 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'recruitments',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -192,7 +193,8 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'recruitments',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(
@@ -214,7 +216,8 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'recruitments',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -234,7 +237,8 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
                         'batch_type' => 'batch',
                         'is_complete' => 1,
                         'table_name' => 'recruitments',
-                        'file_link' => $this->submissionDetails['file_link']
+                        'file_link' => $this->submissionDetails['file_link'],
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

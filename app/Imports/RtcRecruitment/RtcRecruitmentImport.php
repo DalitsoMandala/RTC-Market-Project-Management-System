@@ -143,9 +143,9 @@ class RtcRecruitmentImport implements ToModel, WithHeadingRow, WithValidation, S
     {
         return [
             'ID' => 'required|numeric',
-            'EPA' => 'required|string|max:255',
-            'Section' => 'required|string|max:255',
-            'District' => 'required|string|max:255',
+            'EPA' => 'nullable|string|max:255',
+            'Section' => 'nullable|string|max:255',
+            'District' => 'nullable|string|max:255',
             'Enterprise' => 'required|string|max:255|in:Cassava,Potato,Sweet potato',
             'Date of Recruitment' => 'required|date|date_format:d-m-Y',
             'Name of Actor' => 'nullable|string|max:255',

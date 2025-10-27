@@ -20,7 +20,7 @@
             <div class="row justify-content-center">
                 <div class="col-12 @if ($importing) pe-none opacity-25 @endif ">
 
-                    <x-filepond-single instantUpload="true" wire:model='upload' />
+                    <x-filepond-single  instantUpload="true" wire:model='upload' />
 
 
                     @error('upload')
@@ -28,6 +28,22 @@
                             <x-error class="text-center">{{ $message }}</x-error>
                         </div>
                     @enderror
+
+                     <div class="mb-3">
+                         <label for="" class="form-label">Description @hasanyrole('external|staff|enumerator')
+                                 (optional)
+                             @endhasanyrole
+                         </label>
+                         <textarea wire:model="description"
+                             class="form-control @error('description')
+                             is-invalid
+                         @enderror"
+                             name="" id="" rows="3"></textarea>
+                         @error('description')
+                             <x-error>{{ $message }}</x-error>
+                         @enderror
+                     </div>
+
 
                     <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
                         <button type="submit" @uploading-files.window="disableButton = true" wire:loading.attr='disabled'

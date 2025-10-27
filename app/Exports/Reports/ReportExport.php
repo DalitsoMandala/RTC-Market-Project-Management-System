@@ -161,13 +161,6 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
 
                 if ($target && $target->organisationTargets->isNotEmpty()) {
                     $target = $target->organisationTargets->where('organisation_id', $organisationId)->first();
-                }else{
-                    Log::warning('Target not found', [
-                        'target_name' => $disaggregation,
-                        'financial_year_id' => $year->id,
-                        'indicator_id' => $indicator->id
-                    ]);
-
                 }
 
 

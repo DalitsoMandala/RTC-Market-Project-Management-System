@@ -46,7 +46,7 @@ $wire.on('removeUploadedFile', function() {
 $wire.on('errorRemove', function() {
 
 
-    pond.removeFiles({ revert: true });
+   // pond.removeFiles({ revert: true });
 
 
 });
@@ -67,5 +67,5 @@ pond.on('processfiles', () => {
 
 
     <!-- An unexamined life is not worth living. - Socrates -->
-    <input type="file" class="form-control" x-ref="input" wire:loading.attr='disabled' />
+    <input type="file"  {{ $attributes->merge(['class' =>'form-control']) }} x-ref="input" wire:loading.attr='disabled' />
 </div>

@@ -82,11 +82,6 @@ class Upload extends Component
             Log::error($e);
             session()->flash('error', 'Something went wrong!');
             $this->redirect(url()->previous());
-        } finally {
-            if (isset($fileName)) {
-                // Use the trait method to remove the temporary file
-                $this->removeTemporaryFile($fileName);
-            }
         }
     }
 

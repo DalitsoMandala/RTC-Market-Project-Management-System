@@ -123,7 +123,7 @@ class Upload extends Component
                         'file_link' => $name,
                         'batch_no' => $this->importId,
                         'route' => $this->currentRoute,
-
+'description' => $this->description
 
                     ]), $path);
                     $this->checkProgress();
@@ -142,7 +142,7 @@ class Upload extends Component
             $this->redirect(url()->previous());
         }
 
-        $this->removeTemporaryFile();
+
     }
 
 

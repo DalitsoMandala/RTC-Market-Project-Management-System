@@ -22,6 +22,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Validators\ValidationException;
 
+use Illuminate\Validation\Rule;
 trait UploadDataTrait
 {
     //
@@ -63,10 +64,22 @@ trait UploadDataTrait
     public $importId;
 
     public $queue = false;
-
+    public $description;
 
     public $currentRoute;
 
+    protected function rules(){
+
+        return [
+         'description' => [
+                'nullable', // Or 'required' if it's always required
+                Rule::requiredIf(function () {
+                    return User::find(auth()->user()->id)->hasAnyRole(['manager', 'admin']);
+                }),
+            ],
+    ];
+
+}
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
         // Validate required IDs
@@ -209,6 +222,8 @@ trait UploadDataTrait
                     'file_link' => $name,
                     'batch_no' => $this->importId,
                     'route' => $this->currentRoute,
+                    'description' => $this->description
+
                 ]
             ),
             $path

@@ -78,18 +78,18 @@ class ReportExportTemplate
         $sheet->mergeCells('R1:R2');
         $sheet->mergeCells('S1:S2');
         $sheet->mergeCells('T1:T2');
-  foreach (range('A', 'D') as $col) {
-                    $sheet->getColumnDimension($col)->setWidth(40);
-                }
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setWidth(40);
+        }
 
-                  foreach (range('E', 'T') as $col) {
-                    $sheet->getColumnDimension($col)->setWidth(20);
-                }
+        foreach (range('E', 'T') as $col) {
+            $sheet->getColumnDimension($col)->setWidth(20);
+        }
 
-                // 2️⃣ Enable wrap text for all used cells
-                $sheet->getStyle(
-                    $sheet->calculateWorksheetDimension()
-                )->getAlignment()->setWrapText(true);
+        // 2️⃣ Enable wrap text for all used cells
+        $sheet->getStyle(
+            $sheet->calculateWorksheetDimension()
+        )->getAlignment()->setWrapText(true);
         // Center align headers
         $sheet->getStyle('A1:T2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1:T2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
@@ -106,10 +106,10 @@ class ReportExportTemplate
         $sheet->getStyle('A1:T1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFD966'); // Gold
         $sheet->getStyle('A2:T2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFF2CC'); // Light yellow
 
-//Number formats
-$sheet->getStyle('E:P')
-      ->getNumberFormat()
-      ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        //Number formats
+        $sheet->getStyle('E:P')
+            ->getNumberFormat()
+            ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
 
         // Add borders
         $sheet->getStyle('A1:T300')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
