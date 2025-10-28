@@ -115,7 +115,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
         if ($user->hasAnyRole('external')) {
 
-            return $query->where('user_id', $user->id);
+            return $query->where('users.id', $user->id);
         }
 
         return $query;
