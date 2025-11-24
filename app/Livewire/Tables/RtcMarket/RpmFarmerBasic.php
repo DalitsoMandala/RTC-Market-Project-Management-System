@@ -115,6 +115,7 @@ final class RpmFarmerBasic extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                   return null;
             })
             ->add('variety');
     }

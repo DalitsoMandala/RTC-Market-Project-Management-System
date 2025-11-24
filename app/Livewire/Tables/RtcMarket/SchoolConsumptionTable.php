@@ -83,6 +83,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                return null;
             })
             ->add('updated_at');
     }

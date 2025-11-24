@@ -56,7 +56,7 @@ final class RecruitmentsTable extends PowerGridComponent
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = Recruitment::query()->with([
-            'user',
+             'user' => fn($q) => $q->withTrashed(),
             'user.organisation'
         ])->select([
             'recruitments.*',
@@ -127,7 +127,7 @@ final class RecruitmentsTable extends PowerGridComponent
             ->add('uuid')
             ->add('user_id')
             ->add('submitted_by', function ($model) {
-                return $model->user->name . '(' . $model->user->organisation->name . ')';
+                return $model->user?->name . '(' . $model->user?->organisation->name . ')';
             })
             ->add('submission_period_id')
             ->add('organisation_id')

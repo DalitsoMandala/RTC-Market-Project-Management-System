@@ -109,6 +109,8 @@ final class RpmProcessorMIS extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+
+                   return null;
             })
 
             ->add('name', function ($model) {

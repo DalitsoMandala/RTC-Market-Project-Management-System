@@ -1,35 +1,33 @@
 <?php
-
 namespace App\Livewire\tables;
 
-use App\Models\Form;
-use App\Models\User;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\Organisation;
 use App\Helpers\TruncateText;
 use App\Models\FinancialYear;
-use Illuminate\Support\Carbon;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\Organisation;
+use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use App\Traits\DownloadImportTrait;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class AggregateSubmissionTable extends PowerGridComponent
 {
@@ -39,11 +37,11 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public $filter;
     public $userId;
     public bool $showFilters = true;
-    public $row = 1;
+    public $row              = 1;
     public $batch;
-    public string $sortField = 'submission_id';
+    public string $sortField     = 'submission_id';
     public string $sortDirection = 'desc';
-    public string $primaryKey = 'submission_id';
+    public string $primaryKey    = 'submission_id';
 
     public function updatedCheckboxValues($values)
     {
@@ -51,7 +49,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     }
     public function setUp(): array
     {
-        $route = Route::current();
+        $route      = Route::current();
         $parameters = $route->parameters();
         $collection = collect($parameters);
         if ($collection->has('batch')) {
@@ -90,27 +88,29 @@ final class AggregateSubmissionTable extends PowerGridComponent
         // ]);
 
         $query = Submission::query()
+
             ->join('forms', 'forms.id', '=', 'submissions.form_id')
             ->join('submission_periods', 'submissions.period_id', '=', 'submission_periods.id')
-            ->join('users', 'users.id', '=', 'submissions.user_id')
+            ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
             ->join('submission_reports', 'submissions.batch_no', '=', 'submission_reports.uuid')
             ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
-            ->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
+            ->with(['period.indicator',
+                'user' => fn($q) => $q->withTrashed(),
+                'user.organisation', 'period.reportingMonths', 'form', 'period.financialYears'])
             ->where('batch_type', 'aggregate')->select([
-                'submissions.*',
-                'submissions.id as submission_id',
-                'users.name as username',
-                'forms.name as form_name',
-                'organisations.name as organisation_name',
-                'organisations.id as organisation_id',
-                'submission_periods.id as period_id',
-                'submission_periods.month_range_period_id as month_range_period_id',
+            'submissions.*',
+            'submissions.id as submission_id',
+            'users.name as username',
+            'forms.name as form_name',
+            'organisations.name as organisation_name',
+            'organisations.id as organisation_id',
+            'submission_periods.id as period_id',
+            'submission_periods.month_range_period_id as month_range_period_id',
 
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn'),
+        ]);
 
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn')
-            ]);
-
-        $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
@@ -121,26 +121,24 @@ final class AggregateSubmissionTable extends PowerGridComponent
         return $query;
     }
 
-
-
     public function relationSearch(): array
     {
         return [
-            'period.indicator' => [  // relationship on dishes model
-                'indicator_name',  // column enabled to search
+            'period.indicator'       => [ // relationship on dishes model
+                'indicator_name',             // column enabled to search
             ],
-            'user.organisation' => [
+            'user.organisation'      => [
                 'name',
             ],
-            'user' => [
-                'name'
+            'user'                   => [
+                'name',
             ],
             'period.reportingMonths' => [
                 'start_month',
                 'end_month',
-                'financialYears.number'
+                'financialYears.number',
             ],
-            'form' => [
+            'form'                   => [
                 'name',
             ],
 
@@ -158,7 +156,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
                         return [
                             'status' => $submission->status === 'denied' ? 'disapproved' : $submission->status,
-                            'value' => $submission->status
+                            'value'  => $submission->status,
                         ];
                     });
                 })
@@ -183,8 +181,6 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-
-
             Filter::select('month_range', 'submission_periods.month_range_period_id')
                 ->dataSource(function () {
                     $submission = ReportingPeriodMonth::select(['start_month', 'end_month', 'id'])->distinct();
@@ -193,7 +189,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
                         return [
                             'name' => $submission->start_month . ' - ' . $submission->end_month,
-                            'id' => $submission->id
+                            'id'   => $submission->id,
                         ];
                     });
                 })
@@ -208,13 +204,12 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
                         return [
                             'number' => 'Year ' . $submission->number,
-                            'id' => $submission->id
+                            'id'     => $submission->id,
                         ];
                     });
                 })
                 ->optionLabel('number')
                 ->optionValue('id'),
-
 
         ];
     }
@@ -229,23 +224,21 @@ final class AggregateSubmissionTable extends PowerGridComponent
             })
             ->add('user_id')
             ->add('username', function ($model) {
-                return User::find($model->user_id)->name;
+                return $model->user?->name;
             })
             ->add('form_id')
             ->add('form_name', function ($model) {
                 $form = Form::find($model->form_id);
 
                 $form_name = str_replace(' ', '-', strtolower($form->name));
-                $project = str_replace(' ', '-', strtolower($form->project->name));
+                $project   = str_replace(' ', '-', strtolower($form->project->name));
 
                 // return '<a  href="forms/' . $project . '/' . $form_name . '/view" >' . $form->name . '</a>';
-                return $form->name . '-' . $model->id;
+                return $form->name;
             })
             ->add('organisation')
             ->add('organisation_formatted', function ($model) {
-                $user = User::find($model->user_id);
-
-                return $user->organisation->name;
+                return $model->user?->organisation?->name;
             })
             ->add('status')
             ->add('batch_type')
@@ -271,12 +264,12 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('comments')
             ->add('comments_truncated', function ($model) {
 
-                if (!$model->comments) {
+                if (! $model->comments) {
                     return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
                 }
-                $text = $model->comments;
+                $text  = $model->comments;
                 $trunc = new TruncateText($text, 30);
-                $html = '';
+                $html  = '';
                 $html .= '
 
 <!-- Base Example -->
@@ -309,7 +302,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('indicator', function ($model) {
 
                 $period = SubmissionReport::with('indicator')->where('uuid', $model->batch_no)->first();
-                return $period?->indicator->indicator_name;
+                return $period?->indicator?->indicator_no . ' - ' . $period?->indicator?->indicator_name;
             })
             ->add('month_range', function ($model) {
                 $model = SubmissionPeriod::find($model->period_id);
@@ -355,8 +348,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable()->hidden(),
 
-
-            Column::make('Form name', 'form_name')->searchable(),
+          //  Column::make('Form name', 'form_name')->searchable(),
             Column::make('Indicator', 'indicator')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap"),
             Column::make('SUBMITTED BY', 'username')->searchable(),
@@ -369,7 +361,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             //     ->sortable()
             //     ->searchable(),
             Column::make('Comments', 'comments_truncated'),
-                 Column::make('Description', 'description')->searchable(),
+            Column::make('Description', 'description')->searchable(),
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
             Column::action('Action'),
@@ -395,8 +387,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->tooltip('Edit Data')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('showAggregate', [
-                    'id' => $row->id,
-                    'name' => 'view-aggregate-modal'
+                    'id'   => $row->id,
+                    'name' => 'view-aggregate-modal',
                 ]),
             Button::add('show')
                 ->slot('<i class="fas fa-eye"></i>')
@@ -404,8 +396,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('View Data')
                 ->dispatch('showDataAggregate', [
-                    'id' => $row->id,
-                    'name' => 'view-data-agg-modal'
+                    'id'   => $row->id,
+                    'name' => 'view-data-agg-modal',
                 ]),
             Button::add('delete')
                 ->slot('<i class="bx bx-trash-alt"></i>')
@@ -414,8 +406,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->tooltip('Delete Data')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('deleteAggregate', [
-                    'id' => $row->id,
-                    'name' => 'delete-aggregate-modal'
+                    'id'   => $row->id,
+                    'name' => 'delete-aggregate-modal',
                 ]),
         ];
     }
@@ -438,8 +430,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 ->disable(),
 
             Rule::button('delete')
-                ->when(fn($row) => !$user->hasAnyRole('manager')
-                    || !$user->hasAnyRole('admin'))
+                ->when(fn($row) => ! $user->hasAnyRole('manager')
+                    || ! $user->hasAnyRole('admin'))
                 ->disable(),
 
             Rule::rows()

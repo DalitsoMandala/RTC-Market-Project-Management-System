@@ -86,7 +86,7 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
-
+   return null;
             })
 
             ->add('market_segment_processed', function ($model) {

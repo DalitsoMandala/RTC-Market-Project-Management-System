@@ -64,8 +64,8 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = RtcProductionFarmer::query()->with([
-            'user',
-            'user.organisation'
+               'user' => fn($q) => $q->withTrashed(),
+        'user.organisation',
         ])->select([
             'rtc_production_farmers.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
@@ -237,6 +237,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                   return null;
             })
         ;
     }

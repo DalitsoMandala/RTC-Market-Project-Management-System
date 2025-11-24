@@ -49,7 +49,12 @@ final class RtcConsumptionTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = RtcConsumption::query()->select([
+        $query = RtcConsumption::query()->with(
+            [
+                'user' => fn($q) => $q->withTrashed(),
+                'user.organisation',
+            ]
+        )->select([
             'rtc_consumptions.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -91,6 +96,7 @@ final class RtcConsumptionTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                return null;
             })
             ->add('updated_at');
     }

@@ -112,6 +112,7 @@ final class RpmFarmerCultivation extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                   return null;
             })
             ->add('variety');
     }

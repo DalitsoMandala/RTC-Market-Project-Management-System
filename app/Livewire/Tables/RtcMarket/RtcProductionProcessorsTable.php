@@ -178,17 +178,10 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                return null;
             })
 
-            ->add('submitted_by', function ($model) {
-                $user = User::find($model->user_id);
-                if ($user) {
-                    $organisation = $user->organisation->name;
-                    $name = $user->name;
 
-                    return $name . " (" . $organisation . ")";
-                }
-            })
             // ->add('aggregation_centers_specify', function ($model) {
             //     $aggregation_centers = json_decode($model->aggregation_centers);
             //     return $aggregation_centers->specify ?? null;

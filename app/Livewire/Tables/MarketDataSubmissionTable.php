@@ -122,7 +122,7 @@ final class MarketDataSubmissionTable extends PowerGridComponent
             })
             ->add('submitted_user_id')
             ->add('username', function ($model) {
-                return User::find($model->submitted_user_id)->name;
+                return User::find($model->submitted_user_id)?->name;
             })
 
             ->add('status')

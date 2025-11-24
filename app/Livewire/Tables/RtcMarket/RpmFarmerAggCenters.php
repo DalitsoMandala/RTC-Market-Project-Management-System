@@ -113,6 +113,7 @@ final class RpmFarmerAggCenters extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                return null;
             })
 
             ->add('name', function ($model) {

@@ -53,7 +53,10 @@ final class AttendanceRegisterTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = AttendanceRegister::query()->select([
+        $query = AttendanceRegister::query()->with([
+              'user' => fn($q) => $q->withTrashed(),
+        'user.organisation',
+        ])->select([
             'attendance_registers.*',
             DB::raw(' ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
@@ -114,14 +117,8 @@ final class AttendanceRegisterTable extends PowerGridComponent
                 return Carbon::parse($model->created_at)->format('d/m/Y');
             })
 
-            ->add('submitted_by', function ($model) {
-                $user = User::find($model->user_id);
-                if ($user) {
-                    $organisation = $user->organisation->name;
-                    $name = $user->name;
-
-                    return $name . " (" . $organisation . ")";
-                }
+         ->add('submitted_by', function ($model) {
+                return $model->user?->name . '(' . $model->user?->organisation->name . ')';
             })
             ->add('updated_at');
     }

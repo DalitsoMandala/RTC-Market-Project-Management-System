@@ -66,7 +66,10 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = SeedBeneficiary::query()->with('user')->where('crop', 'Potato')->join('users', function ($user) {
+        $query = SeedBeneficiary::query()->with([
+                      'user' => fn($q) => $q->withTrashed(),
+        'user.organisation',
+        ])->where('crop', 'Potato')->leftJoin('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select([
             'seed_beneficiaries.*',
@@ -127,7 +130,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             ->add('season_type')
             ->add('crop')
             ->add('user_id')
-            ->add('user', fn($model) => $model->user->name)
+            ->add('user', fn($model) => $model->user?->name)
             ->add('created_at')
             ->add('updated_at');
     }

@@ -78,9 +78,16 @@ final class SubmissionTable extends PowerGridComponent
         $query = Submission::query()
             ->join('forms', 'forms.id', '=', 'submissions.form_id')
             ->join('submission_periods', 'submissions.period_id', '=', 'submission_periods.id')
-            ->join('users', 'users.id', '=', 'submissions.user_id')
+            ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
             ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
-            ->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])
+            ->with([
+                'period.indicator',
+                'user' => fn($q) => $q->withTrashed(),
+                'user.organisation',
+                'period.reportingMonths',
+                'form',
+                'period.financialYears'
+            ])
             ->where('batch_type', 'batch')->select([
                 'submissions.*',
                 'submissions.id as submission_id',
@@ -224,7 +231,8 @@ final class SubmissionTable extends PowerGridComponent
             })
             ->add('user_id')
             ->add('username', function ($model) {
-                return User::find($model->user_id)->name;
+
+                return $model->user?->name;
             })
             ->add('form_id')
             ->add('form_name', function ($model) {
@@ -236,9 +244,7 @@ final class SubmissionTable extends PowerGridComponent
             ->add('organisation')
             ->add('organisation_formatted', function ($model) {
 
-                $user = User::find($model->user_id);
-
-                return $user->organisation->name;
+                return $model->user?->organisation?->name;
             })
             ->add('status')
             ->add('batch_type')
@@ -370,7 +376,7 @@ final class SubmissionTable extends PowerGridComponent
             //     ->searchable(),
 
             Column::make('Comments', 'comments_truncated'),
-     Column::make('Description', 'description')->searchable(),
+            Column::make('Description', 'description')->searchable(),
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
 

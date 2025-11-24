@@ -93,6 +93,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
 
                     return $name . " (" . $organisation . ")";
                 }
+                return null;
             })
             ->add('updated_at');
     }
