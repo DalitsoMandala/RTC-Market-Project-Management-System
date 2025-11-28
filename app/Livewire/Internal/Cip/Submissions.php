@@ -70,7 +70,7 @@ class Submissions extends Component
         }
         $this->tableName = $submission->table_name;
         $userId = $submission->user_id;
-        $user = User::find($userId);
+        $user = User::withTrashed()->find($userId);
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
@@ -85,7 +85,7 @@ class Submissions extends Component
         $this->statusSet = $submission->status === 'pending' ? false : true;
         $this->tableName = $submission->table_name;
         $userId = $submission->submitted_user_id;
-        $user = User::find($userId);
+        $user = User::withTrashed()->find($userId);
         $this->isManager = $user->hasAnyRole('manager') || $user->hasAnyRole('admin'); //
     }
 
@@ -102,19 +102,19 @@ class Submissions extends Component
         $link = '';
 
 
-        if (User::find($user_id)->hasAnyRole('manager')) {
+        if (User::withTrashed()->find($user_id)->hasAnyRole('manager')) {
             $link = route('cip-submissions', [
                 'batch' => $submission->batch_no
             ]) . $type;
-        } else if (User::find($user_id)->hasAnyRole('staff')) {
+        } else if (User::withTrashed()->find($user_id)->hasAnyRole('staff')) {
             $link = route('cip-staff-submissions', [
                 'batch' => $submission->batch_no
             ]) . $type;
-        } else if (User::find($user_id)->hasAnyrole('admin')) {
+        } else if (User::withTrashed()->find($user_id)->hasAnyrole('admin')) {
             $link = route('admin-submissions', [
                 'batch' => $submission->batch_no
             ]) . $type;
-        } elseif (User::find($user_id)->hasAnyrole('enumerator')) {
+        } elseif (User::withTrashed()->find($user_id)->hasAnyrole('enumerator')) {
             $link = route('enumerator-submissions', [
                 'batch' => $submission->batch_no
             ]) . $type;
@@ -139,7 +139,7 @@ class Submissions extends Component
 
         try {
             $submission = Submission::findOrFail($this->rowId);
-            $user = User::find($submission->user_id);
+            $user = User::withTrashed()->find($submission->user_id);
                 $link = $this->getLink($submission,'#batch-submission');
             // Perform actions based on status
             if ($this->status === 'approved') {
@@ -328,7 +328,7 @@ class Submissions extends Component
                 'status' => 'approved',
             ]);
             session()->flash('success', 'Successfully approved market data submission');
-            $user = User::find($submission->submitted_user_id);
+            $user = User::withTrashed()->find($submission->submitted_user_id);
 
             $link = $this->getLink($submission, '#market-submission');
 
@@ -373,7 +373,7 @@ class Submissions extends Component
 
 
             session()->flash('success', 'Successfully disapproved market data submission');
-            $user = User::find($submission->submitted_user_id);
+            $user = User::withTrashed()->find($submission->submitted_user_id);
 
             $link = $this->getLink($submission, '#market-submission');
             Bus::chain([
@@ -409,7 +409,7 @@ class Submissions extends Component
                 'status' => 'approved',
             ]);
             session()->flash('success', 'Successfully approved aggregate submission');
-            $user = User::find($submission->user_id);
+            $user = User::withTrashed()->find($submission->user_id);
             $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
 
@@ -452,7 +452,7 @@ class Submissions extends Component
                 'status' => 'denied',
             ]);
             session()->flash('success', 'Successfully disapproved aggregate submission');
-            $user = User::find($submission->user_id);
+            $user = User::withTrashed()->find($submission->user_id);
 
             $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
@@ -566,13 +566,13 @@ class Submissions extends Component
         $pendingJob = JobProgress::where('user_id', auth()->user()->id)
             ->where('status', 'processing')->count();
 
-        if (User::find(auth()->user()->id)->hasAnyRole('external')) {
+        if (User::withTrashed()->find(auth()->user()->id)->hasAnyRole('external')) {
             $batch = $batch->where('user_id', auth()->user()->id);
             $manual = $manual->where('user_id', auth()->user()->id);
             $aggregate = $aggregate->where('user_id', auth()->user()->id);
         }
 
-         if (User::find(auth()->user()->id)->hasAnyRole('enumerator')) {
+         if (User::withTrashed()->find(auth()->user()->id)->hasAnyRole('enumerator')) {
             $market = $market->where('submitted_user_id', auth()->user()->id);
         }
         return view('livewire.internal.cip.submissions', [

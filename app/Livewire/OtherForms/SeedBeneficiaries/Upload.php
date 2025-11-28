@@ -91,7 +91,7 @@ class Upload extends Component
 
                 $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
-              
+
                 try {
 
 

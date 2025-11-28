@@ -58,6 +58,8 @@ class Add extends Component
     public $approach;  // For Producer organisations only
     public $sector;
     public $group;
+    public $category;
+
 
     public $area_under_cultivation = [
         [
@@ -187,6 +189,9 @@ class Add extends Component
             'location_data.enterprise' => 'Enterprise',
             'location_data.section' => 'Section',
             'location_data.group_name' => 'Group Name',
+            'group' => 'required',
+            'sector' => 'required',
+            'category' => 'nullable',
             'date_of_followup' => 'Date of Followup',
             'market_segment' => 'Market Segment',
             'aggregation_center_sales.*.name' => 'Aggregation Center Sales',

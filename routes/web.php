@@ -29,7 +29,7 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 Route::get('/', fn() => redirect()->route('login'));
 
 
-Route::get('/export', [TestingController::class, 'export']);
+Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
 Route::get('/info',function () {
     $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 2);

@@ -63,7 +63,7 @@ class Add extends Component
     public $type;
     public $approach;  // For producer organizations only
     public $sector;
-
+    public $category;
     public $number_of_members = [
         //   'total' => null,
         'female_18_35' => null,
@@ -327,7 +327,6 @@ class Add extends Component
             'number_of_employees.informal.male_35_plus' => 'Informal Employees Male 35+',
             'is_registered' => 'formally registered entity',
             'is_registered_seed_producer' => 'registered seed producer',
-
             'number_of_members.female_18_35' => 'Female Members 18-35',
             'number_of_members.female_35_plus' => 'Female Members 35+',
             'number_of_members.male_18_35' => 'Male Members 18-35',
@@ -354,6 +353,9 @@ class Add extends Component
             'registrations.*.variety' => 'variety',
             'registrations.*.reg_date' => 'registration date',
             'registrations.*.reg_no' => 'registration number',
+            'group' => 'required',
+            'sector' => 'required',
+            'category' => 'required',
         ];
     }
 
@@ -754,6 +756,9 @@ class Add extends Component
                 'section' => $this->location_data['section'],
                 'enterprise' => $this->location_data['enterprise'],
                 'group_name' => $this->location_data['group_name'],
+                'group' => $this->group,
+                'category' => $this->category,
+                'sector' => $this->sector,
                 'date_of_followup' => $this->date_of_followup,
                 'number_of_plantlets_produced_cassava' => $this->number_of_plantlets_produced['cassava'] ?? 0,
                 'number_of_plantlets_produced_potato' => $this->number_of_plantlets_produced['potato'] ?? 0,
@@ -812,6 +817,7 @@ class Add extends Component
                 'status' => 'approved',
                 'sells_to_aggregation_centers' => $this->sells_to_aggregation_centers,
                 'total_vol_aggregation_center_sales' => $this->total_vol_aggregation_center_sales,  // Previous season volume in metric tonnes
+
                 ...$bundlesData
             ];
 

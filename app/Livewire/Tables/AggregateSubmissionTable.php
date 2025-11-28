@@ -381,10 +381,10 @@ final class AggregateSubmissionTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-analyse"></i>')
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
-                ->tooltip('Edit Data')
+                ->tooltip('Review Submission')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('showAggregate', [
                     'id'   => $row->id,
@@ -422,7 +422,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             //     ->when(fn($row) => ($row->status === 'pending')) // if admin or manager hide the show button
             //     ->disable(),
             Rule::button('edit')
-                ->when(fn($row) => $row->status === 'denied')
+                ->when(fn($row) => $row->status === 'denied' || $row->status === 'disapproved')
                 ->disable(),
 
             Rule::button('delete')

@@ -66,6 +66,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'section' => $row['Section'],
             'district' => $row['District'],
             'enterprise' => $row['Enterprise'],
+
             'number_of_plantlets_produced_cassava' => $row['Number of Plantlets Produced Cassava'] ?? 0,
             'number_of_plantlets_produced_potato' => $row['Number of Plantlets Produced Potato'] ?? 0,
             'number_of_plantlets_produced_sweet_potato' => $row['Number of Plantlets Produced Sweet Potato'] ?? 0,
@@ -119,6 +120,9 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
             'status' => $status,
+            'group' => $row['Group'],
+            'sector' => $row['Sector'],
+            'category' => $row['Category'],
             'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seed'] / self::BUNDLE_MULTIPLIER) : 0,
             'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
             'total_vol_irrigation_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Irrigation Production Seeed'] / self::BUNDLE_MULTIPLIER) : 0,
@@ -209,21 +213,21 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         return ($value ?? 0) * self::BUNDLE_MULTIPLIER;
     }
 
-   public function calculateTotalProduction($produce, $producePrevailingPrice, $seed, $seedPrevailingPrice, $cuttings, $cuttingsPrevailingPrice)
-{
-    $produce = (float) ($produce ?? 0);
-    $producePrevailingPrice = (float) ($producePrevailingPrice ?? 0);
-    $seed = (float) ($seed ?? 0);
-    $seedPrevailingPrice = (float) ($seedPrevailingPrice ?? 0);
-    $cuttings = (float) ($cuttings ?? 0);
-    $cuttingsPrevailingPrice = (float) ($cuttingsPrevailingPrice ?? 0);
+    public function calculateTotalProduction($produce, $producePrevailingPrice, $seed, $seedPrevailingPrice, $cuttings, $cuttingsPrevailingPrice)
+    {
+        $produce = (float) ($produce ?? 0);
+        $producePrevailingPrice = (float) ($producePrevailingPrice ?? 0);
+        $seed = (float) ($seed ?? 0);
+        $seedPrevailingPrice = (float) ($seedPrevailingPrice ?? 0);
+        $cuttings = (float) ($cuttings ?? 0);
+        $cuttingsPrevailingPrice = (float) ($cuttingsPrevailingPrice ?? 0);
 
-    $totalProduction = ($produce * $producePrevailingPrice)
-        + ($seed * $seedPrevailingPrice)
-        + ($cuttings * $cuttingsPrevailingPrice);
+        $totalProduction = ($produce * $producePrevailingPrice)
+            + ($seed * $seedPrevailingPrice)
+            + ($cuttings * $cuttingsPrevailingPrice);
 
-    return $totalProduction;
-}
+        return $totalProduction;
+    }
 
     public function rules(): array
     {
@@ -234,6 +238,9 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Section' => 'nullable|string|max:255',
             'District' => 'nullable|string|max:255',
             'Enterprise' => 'required|string|max:255',
+            'Group' => 'nullable|string|max:255|in:Producer organization (PO),Large scale farm,Large scale processor,Small medium enterprise (SME),Other',
+            'Sector' => 'nullable|string|max:255|in:Private,Public',
+            'Category' => 'nullable|string|max:255|in:Early generation seed producer,Seed multiplier,RTC producer',
             'Number of Plantlets Produced Cassava' => 'required|numeric|min:0',
             'Number of Plantlets Produced Potato' => 'required|numeric|min:0',
             'Number of Plantlets Produced Sweet Potato' => 'required|numeric|min:0',

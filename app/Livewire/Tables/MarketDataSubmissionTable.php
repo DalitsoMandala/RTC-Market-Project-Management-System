@@ -242,11 +242,11 @@ final class MarketDataSubmissionTable extends PowerGridComponent
 
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
+                ->slot('<i class="bx bx-analyse"></i>')
                 ->id()
                 ->class('btn btn-warning my-1 custom-tooltip btn-sm')
                 ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('manager') || User::find(auth()->user()->id)->hasAnyRole('admin'))
-                ->tooltip('Submit Approval')
+                ->tooltip('Review Submission')
                 ->dispatch('showMarket', [
                     'id' => $row->id,
                     'name' => 'view-market-modal',
@@ -278,7 +278,7 @@ final class MarketDataSubmissionTable extends PowerGridComponent
             //  Hide button edit for ID 1
 
             Rule::button('edit')
-                ->when(fn($row) => $row->status === 'denied')
+                ->when(fn($row) => $row->status === 'denied' || $row->status === 'disapproved')
                 ->disable(),
 
             Rule::button('delete')

@@ -63,6 +63,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'section' => $row['Section'],
             'district' => $row['District'],
             'enterprise' => $row['Enterprise'],
+            'group' => $row['Group'],
+            'sector' => $row['Sector'],
+            'category' => $row['Category'],
             'market_segment_fresh' => $row['Market Segment Fresh'] ?? 0,
             'market_segment_processed' => $row['Market Segment Processed'] ?? 0,
             'has_rtc_market_contract' => $row['Has RTC Market Contract'] ?? 0,
@@ -92,6 +95,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
             'status' => $status,
+
             'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seeed'] / self::BUNDLE_MULTIPLIER) : 0,
             'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
 
@@ -172,6 +176,9 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Section' => 'nullable|string|max:255',
             'District' => 'nullable|string|max:255',
             'Enterprise' => 'required|string|max:255',
+            'Group' => 'nullable|string|max:255|in:Producer organization (PO),Large scale farm,Large scale processor,Small medium enterprise (SME),Other',
+            'Sector' => 'nullable|string|max:255|in:Private,Public',
+            'Category' => 'nullable|string|max:255|in:Early generation seed producer,Seed multiplier,RTC producer',
             'Market Segment Fresh' => 'nullable|boolean',
             'Market Segment Processed' => 'nullable|boolean',
             'Has RTC Market Contract' => 'nullable|boolean',

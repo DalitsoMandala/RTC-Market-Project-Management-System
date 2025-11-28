@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\Reports\ReportSheet;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Indicator;
@@ -11,6 +10,7 @@ use App\Models\Organisation;
 use App\Models\ReportStatus;
 use Illuminate\Http\Request;
 use App\Models\FinancialYear;
+use App\Traits\IndicatorsTrait;
 
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
@@ -20,6 +20,9 @@ use Spatie\Permission\Models\Role;
 use App\Jobs\sendReminderToUserJob;
 use App\Models\GrossMarginCategory;
 use Illuminate\Support\Facades\Bus;
+use App\Exports\Reports\ReportSheet;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\GrossMarginCategoryItem;
 use Illuminate\Support\Facades\Artisan;
@@ -33,8 +36,6 @@ use App\Exports\RootTuberImport\RootTuberImportTemplate;
 use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
-use Illuminate\Support\Facades\Hash;
-use App\Traits\IndicatorsTrait;
 
 class TestingController extends Controller
 {
@@ -134,9 +135,42 @@ public function addNewRole(){
     public function export(){
         $user = auth()->user();
           Excel::store(new ReportSheet($user),'public.xlsx','public');
-          
+
 
        // return Excel::download(new ReportSheet($user), 'report.xlsx');
+    }
+
+    public function correctPeriods(){
+        $periods = ReportingPeriodMonth::with(['reportingPeriod'])->whereHas('reportingPeriod', function($q){
+            $q->where('name', 'QUARTERLY');
+        })->get();
+        foreach ($periods as $period) {
+            if($period->type =='QUARTER 1'){
+                $period->update([
+                    'start_month' => 'MAY',
+                    'end_month' => 'JULY'
+                ]);
+            }
+            if($period->type =='QUARTER 2'){
+                $period->update([
+                    'start_month' => 'AUGUST',
+                    'end_month' => 'OCTOBER'
+                ]);
+            }
+            if($period->type =='QUARTER 3'){
+                $period->update([
+                    'start_month' => 'NOVEMBER',
+                    'end_month' => 'JANUARY'
+                ]);
+            }
+            if($period->type =='QUARTER 4'){
+                $period->update([
+                    'start_month' => 'FEBRUARY',
+                    'end_month' => 'APRIL'
+                ]);
+            }
+
+        }
     }
 
     public function downloadTemplates()

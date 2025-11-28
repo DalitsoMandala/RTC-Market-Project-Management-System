@@ -175,7 +175,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                         'is_complete' => 1,
                         'table_name' => 'seed_beneficiaries',
                         'file_link' => $this->submissionDetails['file_link'],
-                              'description' => $this->submissionDetails['description']
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(
@@ -195,7 +195,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                         'is_complete' => 1,
                         'table_name' => 'seed_beneficiaries',
                         'file_link' => $this->submissionDetails['file_link'],
-                              'description' => $this->submissionDetails['description']
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

@@ -177,7 +177,7 @@
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('admin-forms') }}" class="dropdown-item"
-                                                    data-key="t-lightbox">Forms</a>
+                                                    data-key="t-lightbox">Form Data</a>
 
                                                 <a href="{{ route('admin-submissions') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Submissions</a>
@@ -332,7 +332,7 @@
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                 <a href="{{ route('monitor-forms') }}" class="dropdown-item"
-                                                    data-key="t-lightbox">Forms</a>
+                                                    data-key="t-lightbox">Form Data</a>
 
                                                 <a href="{{ route('monitor-submissions') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Submissions</a>
@@ -433,7 +433,7 @@
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-forms') }}" role="button">
-                                            Forms
+                                            Form Data
 
                                         </a>
                                         <a class="dropdown-item dropdown-toggle arrow-none"
@@ -534,7 +534,7 @@
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('external-forms') }}" role="button">
-                                            Forms
+                                            Form Data
 
                                         </a>
 
@@ -622,7 +622,7 @@
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('cip-staff-forms') }}" role="button">
-                                            Forms
+                                            Form Data
 
                                         </a>
 
@@ -729,7 +729,7 @@
 
                                         <a class="dropdown-item dropdown-toggle arrow-none"
                                             href="{{ route('project_manager-forms') }}" role="button">
-                                            Forms
+                                            Form Data
 
                                         </a>
 

@@ -99,6 +99,40 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
                     'Cassava'
                 ];
                 $this->setDataValidations($dropdownOptions, 'G3', $sheet);
+
+
+                $dropdownOptions = [
+
+                    'Producer organization (PO)',
+                    'Large scale farm',
+                    'Large scale processor',
+                    'Small medium enterprise (SME)',
+                    'Other'
+
+
+                ]; // Includes an empty option
+
+                //Group
+                $this->setDataValidations($dropdownOptions, 'H3', $sheet);
+
+                $dropdownOptions = [
+                    'Early generation seed producer',
+                    'Seed multiplier',
+                    'RTC producer'
+
+                ];
+
+                //Category
+                $this->setDataValidations($dropdownOptions, 'I3', $sheet);
+
+
+                $dropdownOptions = [
+                    'Private',
+                    'Public'
+                ];
+
+                //Sector
+                $this->setDataValidations($dropdownOptions, 'J3', $sheet);
             },
         ];
     }

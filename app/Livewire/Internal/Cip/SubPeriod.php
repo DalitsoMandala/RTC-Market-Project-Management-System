@@ -367,7 +367,9 @@ class SubPeriod extends Component
                     'is_open' => $this->status,
                     'date_ending' => $this->end_period,
                     'date_established' => $this->start_period,
-                    'is_expired' => $this->status ? false : true
+                    'is_expired' => $this->status ? false : true,
+                    'month_range_period_id' => $this->selectedMonth,
+                    'financial_year_id' => $this->selectedFinancialYear
 
                 ]);
 
