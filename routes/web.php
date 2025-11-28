@@ -29,13 +29,13 @@ use App\Livewire\External\Dashboard as ExternalDashboard;
 Route::get('/', fn() => redirect()->route('login'));
 
 
-Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
+////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
-Route::get('/info',function () {
-    $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 2);
-return response()->json($indicatorClass->getDisaggregations());
-});
-Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
+// Route::get('/info',function () {
+//     $indicatorClass = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 2);
+// return response()->json($indicatorClass->getDisaggregations());
+// });
+////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {
 
@@ -45,7 +45,7 @@ Route::get('/logout', function () {
 
 
 
-Route::get('/download-templates', [App\Http\Controllers\FormsExportController::class, 'export'])->name('download-templates');
+////Route::get('/download-templates', [App\Http\Controllers\FormsExportController::class, 'export'])->name('download-templates');
 
 
 if (!function_exists('registerFormRoutes')) {
