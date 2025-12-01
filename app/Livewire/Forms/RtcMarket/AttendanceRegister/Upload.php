@@ -14,6 +14,7 @@ use Livewire\Attributes\On;
 use App\Models\FinancialYear;
 use Livewire\WithFileUploads;
 use App\Traits\UploadDataTrait;
+use Illuminate\Validation\Rule;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\ResponsiblePerson;
@@ -72,7 +73,17 @@ class Upload extends Component
     public $currentRoute;
     public function save() {}
     public $form_name;
+   protected function rules(){
 
+        return [
+         'description' => [
+                'nullable', // Or 'required' if it's always required
+                Rule::requiredIf(function () {
+                    return User::find(auth()->user()->id)->hasAnyRole(['manager', 'admin']);
+                }),
+            ],
+    ];
+    }
     public function submitUpload()
     {
 

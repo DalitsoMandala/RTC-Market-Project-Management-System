@@ -39,7 +39,7 @@ class SubmitData extends Component
     public $importingFinished = false;
 
     public $importProgress = 0;
-
+public $description;
 
     public function checkProgress()
     {
