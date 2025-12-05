@@ -31,10 +31,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
-Route::get('/info',function () {
-    $indicatorClass = new MarketReportCalculations();
-$indicatorClass->run();
-});
+// Route::get('/info',function () {
+//     $indicatorClass = new MarketReportCalculations();
+// $indicatorClass->run();
+// });
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {
