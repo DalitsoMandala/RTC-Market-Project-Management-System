@@ -41,7 +41,7 @@
                         <a class="shadow-none dropdown-btn btn btn-warning " href="#" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
 
-                            <span>       <i class="bx bx-filter me-5 fw-bold"></i> <span id='report_year'
+                            <span> <i class="bx bx-filter me-5 fw-bold"></i> <span id='report_year'
                                     x-text="'Year ' + selectedReportYear"></span> <i
                                     class="mdi mdi-chevron-down ms-1"></i></span>
 
@@ -88,7 +88,7 @@
                     <div class="mt-2 row">
                         <div class="col-12">
                             <div class="card">
-                         <x-card-header>Submissions progress</x-card-header>
+                                <x-card-header>Submissions progress</x-card-header>
                                 <div class="card-body" x-data="{
                                     init() {
                                         let chartData = @js($submissions); // Data from backend
@@ -131,8 +131,9 @@
                                         // ApexCharts options
                                         let options = {
                                             chart: {
-                                                type: 'area',
-                                                height: '400px'
+                                                type: 'line',
+                                                height: '400px',
+
                                             },
                                             series: [
                                                 { name: 'Batch Submission', data: batch },
@@ -140,9 +141,11 @@
                                                 { name: 'Aggregate Submission', data: aggregate },
                                             ],
                                             dataLabels: { enabled: false },
-                                            stroke: { curve: 'smooth' },
+                                            stroke: { curve: 'smooth', width: 1.5 },
                                             xaxis: { categories: categories },
-                                            colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                                            colors: SystemColors,
+
+
                                         };
 
                                         let chart = new ApexCharts($refs.chart, options);
@@ -171,8 +174,8 @@
 
                                         </div>
 
-                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-users') }}" role="button"> View More <i
-                                                class="bx bx-right-arrow-alt"></i></a>
+                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-users') }}" role="button">
+                                            View More <i class="bx bx-right-arrow-alt"></i></a>
 
                                     </div>
                                 </div>
@@ -235,8 +238,8 @@
 
                                         </div>
 
-                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-submissions') }}" role="button"> View More <i
-                                                class="bx bx-right-arrow-alt"></i></a>
+                                        <a class="btn btn-warning btn-sm" href="{{ route('admin-submissions') }}"
+                                            role="button"> View More <i class="bx bx-right-arrow-alt"></i></a>
                                     </div>
 
                                 </div>
@@ -260,7 +263,8 @@
                                                             <div class="d-flex align-items-center">
                                                                 <div
                                                                     class="text-white avatar-sm bg-warning rounded-circle me-1 d-flex align-items-center justify-content-center">
-                                                                    <i class="bx bx-folder-plus"></i></div>
+                                                                    <i class="bx bx-folder-plus"></i>
+                                                                </div>
                                                                 <span class="ms-2">
                                                                     {{ \Str::limit($item->form->name, 20, '...') }}</span>
                                                             </div>

@@ -7,14 +7,14 @@
         }" x-show="showContent">
             <div class="col-12">
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h2 class="h2">Gross Margin Overview</h2>
                         <p class="text-muted">This is a summary of gross margin</p>
                     </div>
 
                     <div>
-                        <a href="gross-margin/manage-data" class=" btn btn-warning">
+                        <a href="gross-margin/manage-data" class="mb-3 btn btn-warning">
 
                             View Details <i
                                                 class="bx bx-right-arrow-alt"></i></a>
@@ -188,7 +188,7 @@
 
                             <!-- Footer / Buttons -->
                             <div
-                                class="gap-2 border-0 card-footer bg-light d-flex justify-content-end rounded-bottom-4">
+                                class="gap-2 mb-3 border-0 card-footer bg-light d-flex justify-content-end rounded-bottom-4">
                                 <button class="btn btn-sm btn-warning fw-semibold" @click="filterData">
                                     <i class="bx bx-check-circle me-1"></i> Apply
                                 </button>

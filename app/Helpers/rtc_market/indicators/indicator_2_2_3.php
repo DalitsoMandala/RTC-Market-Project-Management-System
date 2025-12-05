@@ -35,22 +35,49 @@ class indicator_2_2_3
     {
 
         // Use builderFarmer with specified crop and filter by type
-        return $this->builderRecruitment($crop)
+        return $this->builderFarmer($crop)
 
             ->where('group', 'Producer organization (PO)')
             ->count();
     }
 
-    public function getCategoryIndividualFarmers($crop = null)
+    public function getCategoryNotIndividualFarmers($crop = null)
     {
         // Use builderFarmer with specified crop and filter by type
-        return $this->builderRecruitment($crop)
+        return $this->builderFarmer($crop)
+
+            ->where('group', 'Other')
+            ->count();
+    }
+
+
+    public function getCategorySeedMultipliers($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
+
+            ->where('category', 'Seed multiplier')
+            ->count();
+    }
+
+    public function getCategoryLargeScaleFarmers($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
 
             ->where('group', 'Large scale farm')
             ->count();
     }
 
 
+    public function getCategorySME($crop = null)
+    {
+        // Use builderFarmer with specified crop and filter by type
+        return $this->builderFarmer($crop)
+
+            ->where('group', 'Small medium enterprise (SME)')
+            ->count();
+    }
 
     public function builderFarmer($crop = null): Builder
     {
@@ -137,6 +164,16 @@ class indicator_2_2_3
         return $indicator;
     }
 
+    public function getBasicSeed()
+    {
+        return $this->builderFarmer()->where('category', 'Early generation seed producer')->count();
+    }
+
+    public function getCertifiedSeed()
+    {
+        return $this->builderFarmer()->where('category', 'Seed multiplier')->count();
+    }
+
     public function getDisaggregations()
     {
         $cropData = $this->getCrop();
@@ -148,12 +185,15 @@ class indicator_2_2_3
 
         // Calculate totals
         $totalFarmers = $cassavaCount + $potatoCount + $sweetPotatoCount;
-        $totalBasic = ($cropData['cassava']['basic_seed'] ?? 0)
-            + ($cropData['potato']['basic_seed'] ?? 0)
-            + ($cropData['sweet_potato']['basic_seed'] ?? 0);
-        $totalCertified = ($cropData['cassava']['certified_seed'] ?? 0)
-            + ($cropData['potato']['certified_seed'] ?? 0)
-            + ($cropData['sweet_potato']['certified_seed'] ?? 0);
+        // $totalBasic = ($cropData['cassava']['basic_seed'] ?? 0)
+        //     + ($cropData['potato']['basic_seed'] ?? 0)
+        //     + ($cropData['sweet_potato']['basic_seed'] ?? 0);
+        // $totalCertified = ($cropData['cassava']['certified_seed'] ?? 0)
+        //     + ($cropData['potato']['certified_seed'] ?? 0)
+        //     + ($cropData['sweet_potato']['certified_seed'] ?? 0);
+
+        $totalBasic = $this->getBasicSeed();
+        $totalCertified = $this->getCertifiedSeed();
 
 
         // Prepare base response structure
@@ -164,12 +204,12 @@ class indicator_2_2_3
             'Sweet potato' => $sweetPotatoCount,
             'Basic' => $totalBasic,
             'Certified' => $totalCertified,
-            'POs' => 0,
-            'Individual farmers not in POs' => 0,
+            'POs' => $this->getCategoryPos(),
+            'Individual farmers not in POs' => $this->getCategoryNotIndividualFarmers(),
             'Registered' => $this->builderFarmer()->count(),
-            'Seed multipliers' => 0,
-            'Large scale' => 0,
-            'Small scale' => 0
+            'Seed multipliers' => $this->getCategorySeedMultipliers(),
+            'Large scale' => $this->getCategoryLargeScaleFarmers(),
+            'Small scale' => $this->getCategorySME(),
         ];
 
         // If enterprise is filtered, keep all keys but zero out non-matching crops

@@ -2,9 +2,12 @@
 
 namespace App\Helpers;
 
+use Carbon\Carbon;
+use App\Models\Project;
+
 use App\Models\MarketData;
 use App\Models\ReportStatus;
-
+use App\Models\FinancialYear;
 use App\Models\MarketDataReport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,18 +18,33 @@ class MarketReportCalculations
 {
     //
     protected  $years = [];
-
+    protected  $financialYears = [];
     public function __construct()
     {
         //
 
-        $getYears = MarketData::query()->select([
-            DB::raw('YEAR(entry_date) as year')
-        ])->groupBy('year')->get();
-
-        foreach ($getYears as $year) {
-            $this->years[] = $year->year;
+        $project = Project::where('name', 'RTC MARKET')->first();
+        if (!$project) {
+            return;
         }
+
+        $financialYears = FinancialYear::where('project_id', $project->id);
+
+        foreach ($financialYears->get() as $financialYear) {
+            $this->financialYears[] = Carbon::parse($financialYear->start_date)->year . '/' . Carbon::parse($financialYear->end_date)->year;
+        }
+
+        // $getYears = MarketData::query()->select([
+        //     DB::raw('YEAR(entry_date) as year')
+        // ])->groupBy('year')->get();
+
+
+
+        // foreach ($getYears as $year) {
+        //     $this->years[] = $year->year;
+        // }
+
+        $this->years = $this->financialYears;
     }
 
     public function run()
@@ -64,6 +82,8 @@ class MarketReportCalculations
                 }
             }
         } catch (\Throwable $e) {
+
+            dd($e);
             # code...
             Log::error($e);
         }
@@ -190,10 +210,16 @@ class MarketReportCalculations
         $result = [];
 
         foreach ($years as $year) {
-            $grouped = [];
+            $yearlyData = [];
 
-            $builderCallback()
-                ->whereYear('entry_date', $year)
+            [$year1, $year2] = explode('/', $year);
+            $grouped = [];
+            $builder = $builderCallback();
+            $builder
+                ->where(function ($q) use ($year1, $year2) {
+                    $q->whereYear('entry_date', $year1)
+                        ->orWhereYear('entry_date', $year2);
+                })
                 ->chunk(1000, function ($rows) use (&$grouped) {
                     foreach ($rows as $row) {
                         $date = $row->entry_date;
@@ -255,8 +281,16 @@ class MarketReportCalculations
         foreach ($years as $year) {
             $yearlyData = [];
 
-            $builderCallback()
-                ->whereYear('entry_date', $year)
+            $yearlyData = [];
+
+            [$year1, $year2] = explode('/', $year);
+
+           $builderCallback()
+
+                ->where(function ($q) use ($year1, $year2) {
+                    $q->whereYear('entry_date', $year1)
+                        ->orWhereYear('entry_date', $year2);
+                })
                 ->chunk(1000, function ($rows) use (&$yearlyData) {
                     foreach ($rows as $row) {
                         $yearlyData[] = $row->toArray();
@@ -288,8 +322,18 @@ class MarketReportCalculations
         foreach ($years as $year) {
             $grouped = [];
 
-            $builderCallback()
-                ->whereYear('entry_date', $year)
+            $yearlyData = [];
+
+            [$year1, $year2] = explode('/', $year);
+
+            // Always get a fresh builder per loop
+            $builder = $builderCallback();
+
+            // Group conditions properly
+            $builder->where(function ($q) use ($year1, $year2) {
+                $q->whereYear('entry_date', $year1)
+                    ->orWhereYear('entry_date', $year2);
+            })
                 ->chunk(1000, function ($rows) use (&$grouped) {
                     foreach ($rows as $row) {
                         $variety = $row->variety_demanded;
@@ -346,8 +390,11 @@ class MarketReportCalculations
         foreach ($years as $year) {
             $yearlyData = [];
 
-            $builderCallback()
-                ->whereYear('entry_date', $year)
+            [$year1, $year2] = explode('/', $year);
+            $builder = $builderCallback();
+
+            $builder->whereYear('entry_date', $year)
+                ->orWhereYear('entry_date', $year2)
                 ->chunk(1000, function ($rows) use (&$yearlyData) {
                     foreach ($rows as $row) {
                         $yearlyData[] = $row->toArray();
@@ -382,8 +429,18 @@ class MarketReportCalculations
             $totalUSD = 0;
 
             // Step 1: Get total USD value (from all groups)
-            $builderCallback()
-                ->whereYear('entry_date', $year)
+
+
+            [$year1, $year2] = explode('/', $year);
+
+            // Always get a fresh builder per loop
+            $builder = $builderCallback();
+
+            // Group conditions properly
+            $builder->where(function ($q) use ($year1, $year2) {
+                $q->whereYear('entry_date', $year1)
+                    ->orWhereYear('entry_date', $year2);
+            })
                 ->chunk(1000, function ($rows) use (&$totalUSD) {
                     foreach ($rows as $row) {
                         $totalUSD += (float) $row->usd_value;
@@ -391,8 +448,14 @@ class MarketReportCalculations
                 });
 
             // Step 2: Collect share per country
-            $builderCallback()
-                ->whereYear('entry_date', $year)
+
+            $builder = $builderCallback();
+
+            // Group conditions properly
+            $builder->where(function ($q) use ($year1, $year2) {
+                $q->whereYear('entry_date', $year1)
+                    ->orWhereYear('entry_date', $year2);
+            })
                 ->chunk(1000, function ($rows) use (&$yearlyData, $totalUSD) {
                     foreach ($rows as $row) {
                         $yearlyData[] = [

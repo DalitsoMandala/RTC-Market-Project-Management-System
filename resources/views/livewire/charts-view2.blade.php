@@ -229,7 +229,7 @@
             },
 
             stackedChartCollection(rawData) {
-                console.log(rawData);
+
 
                 // Step 1: Group by month-year and collect all unique varieties
                 const monthlyData = {};
@@ -389,7 +389,7 @@
                         const month = date.getMonth();
                         const year = date.getFullYear();
                         const monthYearKey =
-                        `${year}-${String(month + 1).padStart(2, '0')}`; // "2020-05" for sorting
+                            `${year}-${String(month + 1).padStart(2, '0')}`; // "2020-05" for sorting
                         const displayKey = `${monthNames[month]}-${String(year).slice(-2)}`; // "May-20"
 
                         if (!acc[monthYearKey]) {
@@ -656,7 +656,43 @@
                     xaxis: {
                         categories: data.varieties
                     },
-                    colors: SystemColors
+                   colors: ['#FFEAD8'],
+                    dataLabels: {
+                        enabled: true,
+
+                        style: {
+                            colors: [SystemColors[3]]
+                        },
+
+                         background: {
+                             enabled: true,
+
+
+                         },
+
+                        offsetX: 0,
+                        dropShadow: {
+                            enabled: false
+                        }
+                    },
+                        plotOptions: {
+                        bar: {
+                            columnWidth: '35%',
+
+                        }
+                    },
+                    legend: {
+                        show: true,
+                        position: 'bottom',
+                        showForSingleSeries: true,
+
+                    },
+                       // Stroke: outline for bars + line color
+                    stroke: {
+                        width: [1, 1], // bar border, line width
+                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                    },
+
                 });
 
                 this.demandChart.render();
@@ -686,7 +722,8 @@
                             formatter: val => "$" + val.toLocaleString()
                         }
                     },
-                    colors: SystemColors
+                    colors: SystemColors,
+
                 });
 
                 this.valueChart.render();
@@ -722,12 +759,37 @@
                             data: data.usdValues
                         }
                     ],
+
+                      // BAR = white, LINE = red
+                    colors: ['#FFEAD8', '#FF5656'],
+
+                    // Stroke: outline for bars + line color
+                    stroke: {
+                        width: [1, 1], // bar border, line width
+                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '35%',
+
+                        }
+                    },
+
+                    // Fill white for bars, solid line for line
+                    fill: {
+                        type: ['solid', 'solid'],
+                        opacity: [1, 1] // bar is solid (white), line is solid
+                    },
+
                     xaxis: {
                         categories: data.months,
                         title: {
                             text: 'Month'
                         }
                     },
+
+
                     yaxis: [{
                             title: {
                                 text: 'Volume'
@@ -746,7 +808,7 @@
                             }
                         }
                     ],
-                    colors: SystemColors,
+
                     dataLabels: {
                         enabled: true,
                         enabledOnSeries: [1],
@@ -819,7 +881,8 @@
                     },
                     dataLabels: {
                         enabled: false
-                    }
+                    },
+                          stroke: { width: 1.5 },
                 });
 
                 this.stackedDemandChart.render();
@@ -845,11 +908,9 @@
                     chart: {
                         height: 500,
                         type: 'line',
+                        foreColor: '#000000',
+                    },
 
-                    },
-                    stroke: {
-                        width: [0, 4]
-                    },
                     series: [{
                             name: 'Volume (Kg)',
                             type: 'column',
@@ -861,18 +922,51 @@
                             data: data.usdValues
                         }
                     ],
+
+                    // BAR = white, LINE = red
+                    colors: ['#FFEAD8', '#FF5656'],
+
+                    // Stroke: outline for bars + line color
+                    stroke: {
+                        width: [1, 1], // bar border, line width
+                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '35%',
+
+                        }
+                    },
+
+                    // Fill white for bars, solid line for line
+                    fill: {
+                        type: ['solid', 'solid'],
+                        opacity: [1, 1] // bar is solid (white), line is solid
+                    },
+
                     xaxis: {
                         categories: data.districts,
                         labels: {
-                            rotate: -45,
+                            rotateAlways: true,
+                            rotate: -45, // slants labels
                             style: {
-                                fontSize: '12px'
+                                fontSize: '12px',
+
                             }
                         },
-                        title: {
-                            text: 'District'
-                        }
+
+                        axisBorder: {
+                            show: true,
+                            color: '#F97316', // orange line
+                            height: 1.5, // thickness
+                            width: '100%', // full width
+                            offsetX: 0,
+                            offsetY: 0
+                        },
+
                     },
+
                     yaxis: [{
                             title: {
                                 text: 'Volume (Kg)'
@@ -891,18 +985,20 @@
                             }
                         }
                     ],
+
                     tooltip: {
                         shared: true,
                         intersect: false
                     },
-                    colors: SystemColors,
                     dataLabels: {
                         enabled: false
                     },
                     legend: {
                         position: 'top'
-                    }
+                    },
+
                 });
+
 
                 this.districtComboChart.instance.render();
             },
@@ -1016,7 +1112,7 @@
 
                 this.priceTrendChart = new ApexCharts(document.querySelector("#price-trend-chart"), {
                     chart: {
-                        type: 'area',
+                        type: 'line',
                         height: 400,
 
                     },
@@ -1035,6 +1131,7 @@
                             }
                         }
                     },
+
                     yaxis: {
                         title: {
                             text: 'MWK per Kg'
@@ -1052,8 +1149,8 @@
                         enabled: false
                     },
                     stroke: {
-                        curve: 'smooth',
-                        width: 3
+
+                        width: 1.5
                     },
                     colors: SystemColors,
                     markers: {

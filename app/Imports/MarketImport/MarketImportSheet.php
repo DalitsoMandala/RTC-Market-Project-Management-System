@@ -207,7 +207,7 @@ class MarketImportSheet implements WithMultipleSheets, WithChunkReading, WithEve
                     MarketDataSubmission::create([
                         'batch_no' => $this->submissionDetails['batch_no'],
                         'submitted_user_id' => $this->submissionDetails['user_id'],
-                        'status' => 'approved',
+                        'status' => 'pending',
                         'table_name' => 'marketing_data',
                         'file_link' => $this->submissionDetails['file_link'],
                         'description' => $this->submissionDetails['description']

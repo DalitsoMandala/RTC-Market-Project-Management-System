@@ -35,8 +35,9 @@
                         <div class="dropdown card-header-dropdown" :class="{ 'opacity-25 pe-none': visible === false }">
                             <a class=" btn btn-warning" href="#" data-bs-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
-                                <i class="bx bx-filter me-5 fw-bold"></i> <span> <span id='report_year'
-                                        x-text="'Year - ' + selectedReportYear"></span> <i class="mdi mdi-chevron-down"></i></span>
+                                <i class="bx bx-filter me-5 fw-bold"></i>
+                                <span id='report_year' x-text="selectedReportYear"></span>
+
 
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
@@ -46,7 +47,7 @@
                                         :class="{
                                             'disabled': value.number === selectedReportYear
                                         }"
-                                        x-text="'Year - ' + value.number"></a>
+                                        x-text="value.number"></a>
                                 </template>
 
                             </div>
@@ -57,10 +58,9 @@
                 </div>
                 <div>
                     <div class="d-flex justify-content-end">
-                        <a href="marketing/manage-data" class=" btn btn-warning">
+                        <a href="marketing/manage-data" class="pb-2 btn btn-warning">
 
-                            View Details <i
-                                                class="bx bx-right-arrow-alt"></i></a>
+                            View Details <i class="bx bx-right-arrow-alt"></i></a>
                     </div>
                 </div>
 

@@ -2,8 +2,12 @@
 
 namespace App\Livewire;
 
+use FFI;
+use Carbon\Carbon;
+use App\Models\Project;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use App\Models\FinancialYear;
 use App\Models\MarketDataReport;
 use Livewire\Attributes\Validate;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,27 +35,29 @@ class Dashboard2Charts extends Component
 
     public function mount()
     {
-        $years = $this->builder()->distinct('date')->pluck('date');
-        $formatYears = [];
-        foreach ($years as $key => $year) {
-            $formatYears[] = [
-                'id' => $key + 1,
-                'number' => $year
+
+        $project = Project::where('name', 'RTC MARKET')->first();
+        if (!$project) {
+            return;
+        }
+
+        $financialYears = FinancialYear::where('project_id', $project->id);
+
+        foreach ($financialYears->get() as $financialYear) {
+            $this->financialYears[] = [
+                'id' => $financialYear->id,
+                'number' => Carbon::parse($financialYear->start_date)->year . '/' . Carbon::parse($financialYear->end_date)->year,
+                'active' => $financialYear->status === 'active'
             ];
         }
 
-        $this->financialYears = count($formatYears) > 0 ? $formatYears : [
-            [
-                'id' => 1,
-                'number' => 'All'
-            ]
-        ];
-        $this->selectedReportYear = 'All';
+
+
+        $this->selectedReportYear =  collect($this->financialYears)->where('active', true)->first()['number'];
 
         $data = $this->load();
 
-
-        $this->marketData = $this->filterByDate($data, 'All');
+        $this->marketData = $this->filterByDate($data, $this->selectedReportYear);
 
     }
 
@@ -59,24 +65,25 @@ class Dashboard2Charts extends Component
     #[On('updateReportYear2')]
     public function sendData($year)
     {
-         $this->showContent = false;
+
+        $this->showContent = false;
         $this->selectedReportYear = $year;
         $data = $this->load();
         $this->marketData = $this->filterByDate($data, $year);
-$this->refreshData();
 
+        $this->refreshData();
     }
 
-public function refreshData(){
-
-    $this->dispatch('update-chart',data: $this->marketData);
-}
-    public function filterByDate($array, $year)
+    public function refreshData()
     {
 
-
-        return collect($array)->get($year, []);
+        $this->dispatch('update-chart', data: $this->marketData);
     }
+public function filterByDate($array, $year)
+{
+
+    return collect($array)->get($year,[]);
+}
 
     private function load()
     {
@@ -86,7 +93,7 @@ public function refreshData(){
                 return [
                     'name' => $item->name,
                     'date' => $item->date,
-                    'data' => json_decode($item->data,true)
+                    'data' => json_decode($item->data, true)
                 ];
             })
             ->groupBy('date')

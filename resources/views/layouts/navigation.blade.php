@@ -21,7 +21,7 @@
             @php
                 $routePrefix = trim(\Illuminate\Support\Facades\Route::current()->getPrefix(), '/');
             @endphp
-            @hasanyrole('admin|manager|project_manager|staff|monitor')
+            @hasanyrole('admin|manager|project_manager|staff|monitor|enumerator')
                 <!-- Right side: Dashboard links -->
                 <ul class="gap-2 nav align-items-center justify-content-center topbar-nav" x-data="{
                     role: '{{ Auth::user()->getRoleNames()->first() }}',

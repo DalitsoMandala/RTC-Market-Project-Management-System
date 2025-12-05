@@ -4200,7 +4200,7 @@ a.ck.ck-button:not(.ck-disabled):hover {
 }
 .apexcharts-tooltip * {
     font-family: var(--bs-font-sans-serif) !important;
-    color: #74788d !important;
+
 }
 .apexcharts-tooltip.apexcharts-theme-dark * {
     color: #fff !important;
@@ -4213,7 +4213,7 @@ a.ck.ck-button:not(.ck-disabled):hover {
     stroke: #f8f9fa;
 }
 .apexcharts-legend-text {
-    color: #74788d !important;
+    color: #000000 !important;
     font-family: var(--bs-font-sans-serif) !important;
     font-size: 13px !important;
 }
@@ -4222,12 +4222,12 @@ a.ck.ck-button:not(.ck-disabled):hover {
 }
 .apexcharts-subtitle-text,
 .apexcharts-title-text {
-    fill: #adb5bd;
+    fill: #000000;
 }
 .apexcharts-xaxis text,
 .apexcharts-yaxis text {
     font-family: var(--bs-font-sans-serif) !important;
-    fill: #adb5bd;
+    fill: #000000;
 }
 .apexcharts-yaxis-title {
     font-weight: 500;

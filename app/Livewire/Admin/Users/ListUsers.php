@@ -78,7 +78,6 @@ class ListUsers extends Component
         $this->roles = Role::all()->pluck('name'); // Fetch all roles from the database
         $this->organisations = Organisation::all()->toArray();
         $this->allRoles = Role::pluck('name')->toArray();
-
     }
 
     #[On('edit')]
@@ -158,16 +157,15 @@ class ListUsers extends Component
         foreach ($this->usersByRole as $userGroup) {
 
 
-         foreach ($userGroup as $user) {
+            foreach ($userGroup as $user) {
 
-           // User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
-           try{
-            Mail::to($user['email'])->send(new SendEmails($this->subject, $this->message,$user['name']));
-           }catch (\Throwable $th) {
-            Log::error($th);
-           }
-         }
-
+                // User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
+                try {
+                    Mail::to($user['email'])->send(new SendEmails($this->subject, $this->message, $user['name']));
+                } catch (\Throwable $th) {
+                    Log::error($th);
+                }
+            }
         }
 
 
@@ -329,7 +327,7 @@ class ListUsers extends Component
                 session()->flash('success', 'User successfully updated!');
                 $this->resetForm();
             } else {
-
+                $this->password = $this->password ?? Str::random(10); // Generate a random password if not provided
                 $user = User::create([
                     'name' => $this->name,
                     'email' => strtolower(trim($this->email)),
@@ -355,7 +353,7 @@ class ListUsers extends Component
         }
     }
 
-  public function updatedSelectedRoles()
+    public function updatedSelectedRoles()
     {
         $this->usersByRole = [];
 

@@ -4,7 +4,7 @@
 
         <div class="row">
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-theme-red bg-gradient">
+                <div class="card bg-gradient" style="background-color: #FFA239 !important;">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data.Total"></h2>
@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background: #FC931D">
+                <div class="card bg-gradient" style="background: #DE8F5F">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data.Potato"></h2>
@@ -83,7 +83,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background: #FA7070">
+                <div class="card bg-gradient" style="background: #FE7743">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data['Sweet potato']"></h2>
@@ -103,7 +103,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background: #DE8F5F">
+                <div class="card bg-gradient" style="background: #FF5656">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text='data.Cassava'></h2>
@@ -295,7 +295,7 @@
                         type: 'pie',
                         height: 300
                     },
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    colors: SystemColors,
                     legend: {
                         position: 'bottom'
                     },
@@ -312,7 +312,7 @@
                     legend: {
                         position: 'bottom'
                     },
-                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    colors: SystemColors,
                     series: this.ageGroupChart,
                     labels: ['Youth (18-35 yrs)', 'Not Youth (35yrs+)']
                 });
@@ -327,17 +327,45 @@
                     plotOptions: {
                         bar: {
                             distributed: true,
-                            endingShape: 'rounded', // Rounded bar ends
-                            borderRadius: 4,
-                            borderRadiusApplication: 'end',
+
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+
+                        style: {
+                            colors: [SystemColors[3]]
+                        },
+
+                        background: {
+                            enabled: true,
+
+
+                        },
+
+                        offsetX: 0,
+                        dropShadow: {
+                            enabled: false
                         }
                     },
                     series: [{
                         name: 'Value',
                         data: this.professionChart
                     }],
-                    fill: {
-                        colors: ['#FC931D', '#FA7070', '#DE8F5F', '#FE7743', '#eb5a3c', '#d32f2f']
+                       // BAR = white, LINE = red
+                    colors: ['#FFEAD8', '#FF5656'],
+
+                    // Stroke: outline for bars + line color
+                    stroke: {
+                        width: [1, 1], // bar border, line width
+                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '35%',
+
+                        }
                     },
                     xaxis: {
                         categories: ['Farmers', 'Processors', 'Traders'],
@@ -353,7 +381,7 @@
                         type: 'pie',
                         height: 300
                     },
-                    colors: ['#DE8F5F', '#FC931D', '#FA7070'],
+                    colors: SystemColors,
                     series: this.cropChart,
                     labels: ['Cassava', 'Potato', 'Sweet Potato']
                 });
@@ -364,19 +392,47 @@
                     chart: {
                         type: 'bar',
                         height: 300,
-                      
+
+                    },
+     dataLabels: {
+                        enabled: true,
+
+                        style: {
+                            colors: [SystemColors[3]]
+                        },
+
+                        background: {
+                            enabled: true,
+
+
+                        },
+
+                        offsetX: 0,
+                        dropShadow: {
+                            enabled: false
+                        }
                     },
                     plotOptions: {
                         bar: {
                             distributed: true,
-                            endingShape: 'rounded', // Rounded bar ends
-                            borderRadius: 4,
-                            borderRadiusApplication: 'end',
+
                         }
                     },
 
-                    fill: {
-                        colors: ['#FC931D', '#FA7070', '#DE8F5F']
+                      // BAR = white, LINE = red
+                    colors: ['#FFEAD8', '#FF5656'],
+
+                    // Stroke: outline for bars + line color
+                    stroke: {
+                        width: [1, 1], // bar border, line width
+                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                    },
+
+                    plotOptions: {
+                        bar: {
+                            columnWidth: '35%',
+
+                        }
                     },
                     series: [{
                         name: 'Value',

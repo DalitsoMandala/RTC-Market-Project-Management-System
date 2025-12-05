@@ -401,7 +401,7 @@
             }
         </style>
         <!-- Scripts -->
-        @vite(['resources/js/app.js','resources/css/app.css'])
+        @vite(['resources/js/app.js', 'resources/css/app.css'])
     </head>
 
     <body data-layout="horizontal" data-topbar="light">
@@ -480,8 +480,10 @@
             <script>
                 window.Apex = {
                     chart: {
+
                         toolbar: {
                             show: true,
+
                             tools: {
                                 download: true,
                                 selection: true,
@@ -507,6 +509,38 @@
                             },
                         },
                     },
+
+                    xaxis: {
+
+                        labels: {
+                            rotateAlways: true,
+                            rotate: -45, // slants labels
+                            style: {
+                                fontSize: '12px',
+
+                            }
+                        },
+
+                        axisBorder: {
+                            show: true,
+                            color: '#F97316', // orange line
+                            height: 1.5, // thickness
+                            width: '100%', // full width
+                            offsetX: 0,
+                            offsetY: 0
+                        },
+
+                    },
+
+                    grid: {
+                        row: {
+                            colors: ['#EEEEEE',
+                                'transparent'
+                            ], // takes an array which will be repeated on columns
+                            opacity: 0.5
+                        },
+                    },
+
                 };
             </script>
             <script src="{{ asset('assets/libs/choicesjs/scripts/choices.min.js') }}"></script>

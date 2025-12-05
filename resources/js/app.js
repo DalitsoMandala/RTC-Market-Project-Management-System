@@ -26,12 +26,12 @@ import draftObject from "./alpine/formDraft";
 window.draftObject = draftObject;
 
 const SystemColors = [
-    "#FC931D",
-    "#FA7070",
+    "#FFA239",
+
     "#DE8F5F",
     "#FE7743",
-    "#eb5a3c",
-    "#d32f2f",
+
+    "#FF5656",
 ];
 window.SystemColors = SystemColors;
 
