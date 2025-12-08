@@ -177,6 +177,7 @@ public function notifyExpiredSubmissionPeriods()
                 ->update([
                     'is_expired' => true,
                     'is_open'    => false,
+                    'is_restricted' => false
                 ]);
 
             if ($updated) {

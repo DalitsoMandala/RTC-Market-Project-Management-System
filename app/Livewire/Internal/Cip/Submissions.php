@@ -140,7 +140,7 @@ class Submissions extends Component
         try {
             $submission = Submission::findOrFail($this->rowId);
             $user = User::withTrashed()->find($submission->user_id);
-                $link = $this->getLink($submission,'#batch-submission');
+            $link = $this->getLink($submission, '#batch-submission');
             // Perform actions based on status
             if ($this->status === 'approved') {
                 $this->approveSubmission($submission, [$this->tableName]);
@@ -150,9 +150,12 @@ class Submissions extends Component
                         status: $this->status,
                         denialMessage: null,
                         batchId: $submission->batch_no,
-                        link: $link
+                        link: $link,
+                        form: $this->getFormName($this->tableName)
                     )),
                 ])->dispatch();
+
+                session()->flash('success', 'Successfully approved batch submission');
             } else {
                 $this->denySubmission($submission, [$this->tableName]);
 
@@ -163,16 +166,18 @@ class Submissions extends Component
                         status: 'denied',
                         denialMessage: $this->comment,
                         batchId: $submission->batch_no,
-
-                        link: $link
+                        link: $link,
+                        form: $this->getFormName($this->tableName)
                     )),
                 ])->dispatch();
+
+                session()->flash('success', 'Successfully disapproved batch submission');
             }
 
 
 
 
-            session()->flash('success', 'Successfully updated');
+
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
         } catch (\Throwable $th) {
@@ -269,6 +274,19 @@ class Submissions extends Component
             Log::error($th);
         }
     }
+
+    private function getFormName($tableName)
+    {
+        return  match ($tableName) {
+            'rtc_production_processors' => "RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS FORM",
+            'rtc_production_farmers' => "RTC PRODUCTION AND MARKETING FORM FARMERS AND TRADERS FORM",
+            "attendance_registers" => "ATTENDANCE REGISTER",
+            "recruitments" => "RTC ACTOR RECRUITMENT FORM",
+            "seed_beneficiaries" => "SEED BENEFICIARIES FORM",
+            "rtc_consumptions" => "RTC CONSUMPTION FORM",
+            default => null
+        };
+    }
     public function deleteProgress()
     {
 
@@ -335,10 +353,11 @@ class Submissions extends Component
             Bus::chain([
 
                 fn() => $user->notify(new SubmissionNotification(
-                    'approved',
-                    null,
-                    $submission->batch_no,
-                    $link
+                    status: 'approved',
+                    denialMessage: null,
+                    batchId: $submission->batch_no,
+                    link: $link,
+                    form: "MARKETING FORM"
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
@@ -378,10 +397,12 @@ class Submissions extends Component
             $link = $this->getLink($submission, '#market-submission');
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(
-                     status: 'denied',
-                        denialMessage: $this->comment,
-                        batchId: $submission->batch_no,
-                        link: $link
+                    status: 'denied',
+                    denialMessage: $this->comment,
+                    batchId: $submission->batch_no,
+                    link: $link,
+                    form: "MARKETING FORM"
+
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
@@ -414,10 +435,11 @@ class Submissions extends Component
             Bus::chain([
 
                 fn() => $user->notify(new SubmissionNotification(
-                    'approved',
-                    null,
-                    $submission->batch_no,
-                    $link
+                    status: 'approved',
+                    denialMessage: null,
+                    batchId: $submission->batch_no,
+                    link: $link,
+                    form: "REPORT FORM"
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
@@ -457,10 +479,11 @@ class Submissions extends Component
             $link = $this->getLink($submission, '#aggregate-submission');
             Bus::chain([
                 fn() => $user->notify(new SubmissionNotification(
-                    'denied',
-                    $submission->batch_no,
-                    $this->comment,
-                    $link,
+                    status: 'denied',
+                    batchId: $submission->batch_no,
+                    denialMessage: $this->comment,
+                    link: $link,
+                    form: "REPORT FORM"
                 )),
             ])->dispatch();
             $this->dispatch('hideModal');
@@ -572,7 +595,7 @@ class Submissions extends Component
             $aggregate = $aggregate->where('user_id', auth()->user()->id);
         }
 
-         if (User::withTrashed()->find(auth()->user()->id)->hasAnyRole('enumerator')) {
+        if (User::withTrashed()->find(auth()->user()->id)->hasAnyRole('enumerator')) {
             $market = $market->where('submitted_user_id', auth()->user()->id);
         }
         return view('livewire.internal.cip.submissions', [

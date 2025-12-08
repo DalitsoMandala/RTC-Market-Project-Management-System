@@ -5,6 +5,7 @@ namespace App\Imports\ImportProcessor;
 use App\Models\JobProgress;
 use App\Models\RtcProductionProcessor;
 use App\Models\User;
+use App\Traits\EnsureNumericTrait;
 use App\Traits\excelDateFormat;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ HeadingRowFormatter::default('none');
 
 class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithStartRow
 {
+    use EnsureNumericTrait;
     protected $data;
     protected $cacheKey;
     protected $totalRows = 0;
@@ -96,7 +98,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'period_month_id' => $this->data['period_month_id'],
             'status' => $status,
 
-            'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seeed'] / self::BUNDLE_MULTIPLIER) : 0,
+            'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seed'] / self::BUNDLE_MULTIPLIER) : 0,
             'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
 
         ]);
@@ -116,36 +118,48 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     }
 
     use excelDateFormat;
-
-    public function prepareForValidation(array $row)
-    {
-        if (!empty($row['Date Of Follow Up'])) {
-            $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
-        }
-
-        $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'];
-        if ($row['Enterprise'] && $row['Enterprise'] != 'Potato') {
-            /** Convert the bundles to metric tonnes and use the multiplier */
-            $row['Total Volume Production Seeed'] = $this->convertToMetricTonnes($row['Total Volume Production Seeed']);
-        }
-        $row['Total Volume Production'] = ($row['Total Volume Production Produce'] ?? 0) + ($row['Total Volume Production Seeed'] ?? 0) + ($row['Total Volume Production Cuttings'] ?? 0);
-
-        $row['Production Value Total'] = $this->calculateTotalProduction(
-            $row['Production Value Produce'],
-            $row['Production Value Produce Prevailing Price'],
-            $row['Production Value Seed'],
-            $row['Production Value Seed Prevailing Price'],
-            $row['Production Value Cuttings'],
-            $row['Production Value Cuttings Prevailing Price']
-        );
-        $row['Production Value USD Rate'] = 0;  // for now
-        $row['Production Value USD Value'] = 0;  // for now
-
-        $row['EPA'] = $row['EPA'] ?? '';
-        $row['Section'] = $row['Section'] ?? '';
-        $row['District'] = $row['District'] ?? '';
-        return $row;
+public function prepareForValidation(array $row)
+{
+    if (!empty($row['Date Of Follow Up'])) {
+        $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
     }
+
+    $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'] ?? null;
+
+    if (!empty($row['Enterprise']) && $row['Enterprise'] != 'Potato') {
+        // Ensure numeric value before conversion
+        $seedVolume = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
+        $row['Total Volume Production Seed'] = $this->convertToMetricTonnes($seedVolume);
+    } else {
+        // Ensure numeric even if not converting
+        $row['Total Volume Production Seed'] = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
+    }
+
+    // Calculate total volume with proper type casting
+    $row['Total Volume Production'] =
+        $this->ensureNumeric($row['Total Volume Production Produce'] ?? 0) +
+        $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0) +
+        $this->ensureNumeric($row['Total Volume Production Cuttings'] ?? 0);
+
+    $row['Production Value Total'] = $this->calculateTotalProduction(
+        $this->ensureNumeric($row['Production Value Produce'] ?? 0),
+        $this->ensureNumeric($row['Production Value Produce Prevailing Price'] ?? 0),
+        $this->ensureNumeric($row['Production Value Seed'] ?? 0),
+        $this->ensureNumeric($row['Production Value Seed Prevailing Price'] ?? 0),
+        $this->ensureNumeric($row['Production Value Cuttings'] ?? 0),
+        $this->ensureNumeric($row['Production Value Cuttings Prevailing Price'] ?? 0)
+    );
+
+    $row['Production Value USD Rate'] = 0;
+    $row['Production Value USD Value'] = 0;
+
+    $row['EPA'] = (string)($row['EPA'] ?? '');
+    $row['Section'] = (string)($row['Section'] ?? '');
+    $row['District'] = (string)($row['District'] ?? '');
+
+    return $row;
+}
+
 
     public function convertToMetricTonnes($value)
     {
@@ -170,6 +184,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     public function rules(): array
     {
         return [
+            'ID' => 'required|numeric',
             'Group Name' => 'required|string|max:255',
             'Date Of Follow Up' => 'required|date|date_format:d-m-Y',
             'EPA' => 'nullable|string|max:255',
@@ -182,26 +197,26 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'Market Segment Fresh' => 'nullable|boolean',
             'Market Segment Processed' => 'nullable|boolean',
             'Has RTC Market Contract' => 'nullable|boolean',
-            'Total Volume Production' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Production Produce' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Production Seeed' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Production Cuttings' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Total' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Produce' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Seed' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Cuttings' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Produce Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Seed Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Cuttings Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production Produce' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production Seeed' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production Cuttings' => 'sometimes|nullable|numeric|min:0',
+            'Total Volume Production' => 'nullable|numeric|min:0',
+            'Total Volume Production Produce' => 'nullable|numeric|min:0',
+            'Total Volume Production Seed' => 'nullable|numeric|min:0',
+            'Total Volume Production Cuttings' => 'nullable|numeric|min:0',
+            'Production Value Total' => 'nullable|numeric|min:0',
+            'Production Value Produce' => 'nullable|numeric|min:0',
+            'Production Value Seed' => 'nullable|numeric|min:0',
+            'Production Value Cuttings' => 'nullable|numeric|min:0',
+            'Production Value Produce Prevailing Price' => 'nullable|numeric|min:0',
+            'Production Value Seed Prevailing Price' => 'nullable|numeric|min:0',
+            'Production Value Cuttings Prevailing Price' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Produce' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Seed' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Cuttings' => 'nullable|numeric|min:0',
             'Sells to Domestic Markets' => 'nullable|boolean',
             'Sells to International Markets' => 'nullable|boolean',
             'Uses Market Info Systems' => 'nullable|boolean',
             'Sells to Aggregation Centers' => 'nullable|boolean',
-            'Total Volume Aggregation Center Sales' => 'sometimes|nullable|numeric|min:0'
+            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0'
         ];
     }
     private function calculateUsdValue(?string $date, ?float $mwkValue): array

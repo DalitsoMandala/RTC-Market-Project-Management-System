@@ -52,6 +52,7 @@ class Dashboard extends Component
         ])
             ->whereIn('indicator_id', $myIndicators)
             ->where('is_open', true)
+            ->whereNot('is_restricted', true)
             ->count();
     }
 

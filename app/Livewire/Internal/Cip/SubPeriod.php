@@ -39,7 +39,7 @@ class SubPeriod extends Component
     public $rowId;
     public $rowData = [];
     public $forms = [];
-    public $status = true;
+    public $status = false;
 
     #[Validate('required', as: 'start of submissions')]
     public $start_period;
@@ -69,6 +69,7 @@ class SubPeriod extends Component
     public $organisations = [];
     public $selectedOrganisation;
     public $selectedOrganisations = [];
+    public $is_restricted = false;
 
     #[Validate('required')]
     public $selectedIndicator;
@@ -184,6 +185,7 @@ class SubPeriod extends Component
         $this->status = $row->is_open;
         $this->selectedMonth = $row->month_range_period_id;
         $this->selectedFinancialYear = $row->financial_year_id;
+        $this->is_restricted = $row->is_restricted;
     }
 
     public function updateProjectRelatedData($project)
@@ -356,26 +358,29 @@ class SubPeriod extends Component
 
 
         $rowData = (object) $this->rowData;
+
         if ($rowData) {
+
             SubmissionPeriod::where('month_range_period_id', $rowData->month_range_period_id)
                 ->where('financial_year_id', $rowData->financial_year_id)
+
                 ->where('date_established', $rowData->date_established)
                 ->where('date_ending', $rowData->date_ending)
-                ->where('is_open', $rowData->is_open)
-                ->where('is_expired', $rowData->is_expired)
+
                 ->update([
                     'is_open' => $this->status,
                     'date_ending' => $this->end_period,
                     'date_established' => $this->start_period,
-                    'is_expired' => $this->status ? false : true,
+                    'is_expired' => $this->status,
                     'month_range_period_id' => $this->selectedMonth,
-                    'financial_year_id' => $this->selectedFinancialYear
+                    'financial_year_id' => $this->selectedFinancialYear,
+                    'is_restricted' => $this->is_restricted
 
                 ]);
 
             session()->flash('success', 'Updated Successfully');
             $this->resetData();
-            $this->dispatch('timeout');
+            $this->dispatch('refresh');
         }
     }
 
@@ -385,8 +390,10 @@ class SubPeriod extends Component
             ->where('financial_year_id', $this->selectedFinancialYear)
             ->where('indicator_id', $this->selectedIndicator)
             ->whereIn('form_id', $this->selectedForm)
-            ->where('is_expired', false)
-            ->where('is_open', true)
+            ->where('date_established', $this->start_period)
+            ->where('date_ending', $this->end_period)
+            // ->where('is_expired', false)
+            // ->where('is_open', true)
             ->exists();
         $selectedPeriods = [];
 

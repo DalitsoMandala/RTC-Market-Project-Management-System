@@ -5,6 +5,7 @@ namespace App\Imports\ImportFarmer;
 use App\Models\JobProgress;
 use App\Models\RtcProductionFarmer;
 use App\Models\User;
+use App\Traits\EnsureNumericTrait;
 use App\Traits\excelDateFormat;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,7 +32,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
 {
     use RegistersEventListeners;
     use Importable, SkipsFailures;
-
+    use EnsureNumericTrait;
     protected $data;
     protected $cacheKey;
     protected $totalRows = 0;
@@ -96,7 +97,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'prod_value_previous_season_usd_value' => $prodCalc['usd_value'] ?? 0,
             'total_vol_irrigation_production_previous_season' => $row['Total Volume Irrigation Production'] ?? 0,
             'total_vol_irrigation_production_previous_season_produce' => $row['Total Volume Irrigation Production Produce'] ?? 0,
-            'total_vol_irrigation_production_previous_season_seed' => $row['Total Volume Irrigation Production Seeed'] ?? 0,
+            'total_vol_irrigation_production_previous_season_seed' => $row['Total Volume Irrigation Production Seed'] ?? 0,
             'total_vol_irrigation_production_previous_season_cuttings' => $row['Total Volume Irrigation Production Cuttings'] ?? 0,
             'irr_prod_value_previous_season_total' => $row['Irrigation Production Value Total'] ?? 0,
             'irr_prod_value_previous_season_produce' => $row['Irrigation Production Value Produce'] ?? 0,
@@ -125,7 +126,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'category' => $row['Category'],
             'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seed'] / self::BUNDLE_MULTIPLIER) : 0,
             'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
-            'total_vol_irrigation_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Irrigation Production Seeed'] / self::BUNDLE_MULTIPLIER) : 0,
+            'total_vol_irrigation_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Irrigation Production Seed'] / self::BUNDLE_MULTIPLIER) : 0,
             'irr_prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Irrigation Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
         ]);
 
@@ -158,7 +159,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
 
     public function prepareForValidation(array $row)
     {
-
+        // Convert dates first
         if (!empty($row['Date Of Follow Up'])) {
             $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
         }
@@ -166,47 +167,66 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             $row['Seed Producer Registration Date'] = $this->convertExcelDate($row['Seed Producer Registration Date']);
         }
 
+        // Assign date values
+        $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'] ?? null;
+        $row['Irrigation Production Value Date of Max Sales'] = $row['Date Of Follow Up'] ?? null;
 
-        $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'];
-        $row['Irrigation Production Value Date of Max Sales'] = $row['Date Of Follow Up'];
-
-        if ($row['Enterprise'] && $row['Enterprise'] != 'Potato') {
-            /** Convert the bundles to metric tonnes and use the multiplier */
-            $row['Total Volume Production Seed'] = $this->convertToMetricTonnes($row['Total Volume Production Seed']);
-            $row['Total Volume Irrigation Production Seeed'] = $this->convertToMetricTonnes($row['Total Volume Irrigation Production Seeed']);
+        // Convert volumes for non-potato enterprises
+        if (!empty($row['Enterprise']) && $row['Enterprise'] != 'Potato') {
+            // Ensure values are numeric before conversion
+            $row['Total Volume Production Seed'] = $this->convertToMetricTonnes(
+                $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0)
+            );
+            $row['Total Volume Irrigation Production Seed'] = $this->convertToMetricTonnes(
+                $this->ensureNumeric($row['Total Volume Irrigation Production Seed'] ?? 0)
+            );
         }
 
-        $row['Total Volume Production'] = ($row['Total Volume Production Produce'] ?? 0) + ($row['Total Volume Production Seed'] ?? 0) + ($row['Total Volume Production Cuttings'] ?? 0);
-        $row['Total Volume Irrigation Production'] = ($row['Total Volume Irrigation Production Produce'] ?? 0) + ($row['Total Volume Irrigation Production Seeed'] ?? 0) + ($row['Total Volume Irrigation Production Cuttings'] ?? 0);
+        // Calculate total volumes with proper type safety
+        $row['Total Volume Production'] =
+            $this->ensureNumeric($row['Total Volume Production Produce'] ?? 0) +
+            $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0) +
+            $this->ensureNumeric($row['Total Volume Production Cuttings'] ?? 0);
 
+        $row['Total Volume Irrigation Production'] =
+            $this->ensureNumeric($row['Total Volume Irrigation Production Produce'] ?? 0) +
+            $this->ensureNumeric($row['Total Volume Irrigation Production Seed'] ?? 0) +
+            $this->ensureNumeric($row['Total Volume Irrigation Production Cuttings'] ?? 0);
+
+        // Calculate production values with type safety
         $row['Production Value Total'] = $this->calculateTotalProduction(
-            $row['Production Value Produce'],
-            $row['Production Value Produce Prevailing Price'],
-            $row['Production Value Seed'],
-            $row['Production Value Seed Prevailing Price'],
-            $row['Production Value Cuttings'],
-            $row['Production Value Cuttings Prevailing Price']
+            $this->ensureNumeric($row['Production Value Produce'] ?? 0),
+            $this->ensureNumeric($row['Production Value Produce Prevailing Price'] ?? 0),
+            $this->ensureNumeric($row['Production Value Seed'] ?? 0),
+            $this->ensureNumeric($row['Production Value Seed Prevailing Price'] ?? 0),
+            $this->ensureNumeric($row['Production Value Cuttings'] ?? 0),
+            $this->ensureNumeric($row['Production Value Cuttings Prevailing Price'] ?? 0)
         );
 
         $row['Irrigation Production Value Total'] = $this->calculateTotalProduction(
-            $row['Irrigation Production Value Produce'],
-            $row['Irrigation Production Value Produce Prevailing Price'],
-            $row['Irrigation Production Value Seed'],
-            $row['Irrigation Production Value Seed Prevailing Price'],
-            $row['Irrigation Production Value Cuttings'],
-            $row['Irrigation Production Value Cuttings Prevailing Price']
+            $this->ensureNumeric($row['Irrigation Production Value Produce'] ?? 0),
+            $this->ensureNumeric($row['Irrigation Production Value Produce Prevailing Price'] ?? 0),
+            $this->ensureNumeric($row['Irrigation Production Value Seed'] ?? 0),
+            $this->ensureNumeric($row['Irrigation Production Value Seed Prevailing Price'] ?? 0),
+            $this->ensureNumeric($row['Irrigation Production Value Cuttings'] ?? 0),
+            $this->ensureNumeric($row['Irrigation Production Value Cuttings Prevailing Price'] ?? 0)
         );
-        $row['Production Value USD Rate'] = 0;  // for now
-        $row['Production Value USD Value'] = 0;  // for now
-        $row['Irrigation Production Value USD Rate'] = 0;  // for now
-        $row['Irrigation Production Value USD Value'] = 0;  // for now
 
+        // Set USD values
+        $row['Production Value USD Rate'] = 0;
+        $row['Production Value USD Value'] = 0;
+        $row['Irrigation Production Value USD Rate'] = 0;
+        $row['Irrigation Production Value USD Value'] = 0;
 
-        $row['EPA'] = $row['EPA'] ?? '';
-        $row['Section'] = $row['Section'] ?? '';
-        $row['District'] = $row['District'] ?? '';
+        // Ensure string fields have defaults
+        $row['EPA'] = (string)($row['EPA'] ?? '');
+        $row['Section'] = (string)($row['Section'] ?? '');
+        $row['District'] = (string)($row['District'] ?? '');
+
         return $row;
     }
+
+
 
     public function convertToMetricTonnes($value)
     {
@@ -232,6 +252,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
     public function rules(): array
     {
         return [
+            'ID' => 'required|numeric',
             'Group Name' => 'required|string|max:255',
             'Date Of Follow Up' => 'required|date|date_format:d-m-Y',
             'EPA' => 'nullable|string|max:255',
@@ -241,12 +262,12 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Group' => 'nullable|string|max:255|in:Producer organization (PO),Large scale farm,Large scale processor,Small medium enterprise (SME),Other',
             'Sector' => 'nullable|string|max:255|in:Private,Public',
             'Category' => 'nullable|string|max:255|in:Early generation seed producer,Seed multiplier,RTC producer',
-            'Number of Plantlets Produced Cassava' => 'required|numeric|min:0',
-            'Number of Plantlets Produced Potato' => 'required|numeric|min:0',
-            'Number of Plantlets Produced Sweet Potato' => 'required|numeric|min:0',
-            'Screen House Vines Harvested' => 'required|numeric|min:0',
-            'Screen House Min Tubers Harvested' => 'required|numeric|min:0',
-            'SAH Plants Produced' => 'required|numeric|min:0',
+            'Number of Plantlets Produced Cassava' => 'numeric|min:0',
+            'Number of Plantlets Produced Potato' => 'numeric|min:0',
+            'Number of Plantlets Produced Sweet Potato' => 'numeric|min:0',
+            'Screen House Vines Harvested' => 'numeric|min:0',
+            'Screen House Min Tubers Harvested' => 'numeric|min:0',
+            'SAH Plants Produced' => 'numeric|min:0',
             'Is Registered Seed Producer' => 'nullable|boolean',
             'Uses Certified Seed' => 'nullable|boolean',
             'Market Segment Fresh' => 'nullable|boolean',
@@ -254,33 +275,33 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Market Segment Seed' => 'nullable|boolean',
             'Market Segment Cuttings' => 'nullable|boolean',
             'Has RTC Market Contract' => 'nullable|boolean',
-            'Total Volume Production' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Production Produce' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Production Seed' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Production Cuttings' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Total' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Produce' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Seed' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Cuttings' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Produce Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Seed Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Production Value Cuttings Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production Produce' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production Seeed' => 'sometimes|nullable|numeric|min:0',
-            'Total Volume Irrigation Production Cuttings' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Total' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Produce' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Seed' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Cuttings' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Produce Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Seed Prevailing Price' => 'sometimes|nullable|numeric|min:0',
-            'Irrigation Production Value Cuttings Prevailing Price' => 'sometimes|nullable|numeric|min:0',
+            'Total Volume Production' => 'nullable|numeric|min:0',
+            'Total Volume Production Produce' => 'nullable|numeric|min:0',
+            'Total Volume Production Seed' => 'nullable|numeric|min:0',
+            'Total Volume Production Cuttings' => 'nullable|numeric|min:0',
+            'Production Value Total' => 'nullable|numeric|min:0',
+            'Production Value Produce' => 'nullable|numeric|min:0',
+            'Production Value Seed' => 'nullable|numeric|min:0',
+            'Production Value Cuttings' => 'nullable|numeric|min:0',
+            'Production Value Produce Prevailing Price' => 'nullable|numeric|min:0',
+            'Production Value Seed Prevailing Price' => 'nullable|numeric|min:0',
+            'Production Value Cuttings Prevailing Price' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Produce' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Seed' => 'nullable|numeric|min:0',
+            'Total Volume Irrigation Production Cuttings' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Total' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Produce' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Seed' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Cuttings' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Produce Prevailing Price' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Seed Prevailing Price' => 'nullable|numeric|min:0',
+            'Irrigation Production Value Cuttings Prevailing Price' => 'nullable|numeric|min:0',
             'Sells to Domestic Markets' => 'nullable|boolean',
             'Sells to International Markets' => 'nullable|boolean',
             'Uses Market Information Systems' => 'nullable|boolean',
             'Sells to Aggregation Centers' => 'nullable|boolean',
-            'Total Volume Aggregation Center Sales' => 'sometimes|nullable|numeric|min:0'
+            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0'
         ];
     }
 

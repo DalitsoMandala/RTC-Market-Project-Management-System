@@ -72,41 +72,39 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
         $dateOfAssessment = Carbon::parse($row['Date of Distribution'])->format('Y-m-d');
         // Create SeedBeneficiary record
-        $beneficiary = SeedBeneficiary::create(
-            [
-                'crop' => $this->cropType,
-                'district' => $row['District'],
-                'epa' => $row['EPA'],
-                'section' => $row['Section'],
-                'name_of_aedo' => $row['Name of AEDO'],
-                'aedo_phone_number' => $row['AEDO Phone Number'],
-                'date' => $dateOfAssessment,
-                'name_of_recipient' => $row['Name of Recipient'],
-                'group_name' => $row['Group Name'],
-                'village' => $row['Village'],
-                'sex' => $row['Sex'],
-                'age' => $row['Age'],
-                'marital_status' => $row['Marital Status'] ?? '',
-                'hh_head' => $row['Household Head'] ?? '',
-                'household_size' => $row['Household Size'] ?? 0,
-                'children_under_5' => $row['Children Under 5 in HH'] ?? 0,
-                'variety_received' => strtolower($row['Variety Received']),
-                'bundles_received' => $row['Amount of Seed Received in KGs'] ?? 0,
-                'phone_number' => $row['Phone Number'],
-                'national_id' => $row['National ID'] ?? '',
-                'user_id' => $this->submissionDetails['user_id'],
-                'year' => $row['Year Of Distribution'],
-                'organisation_id' => $this->submissionDetails['organisation_id'],
-                'submission_period_id' => $this->submissionDetails['submission_period_id'],
-                'financial_year_id' => $this->submissionDetails['financial_year_id'],
-                'period_month_id' => $this->submissionDetails['period_month_id'],
-                'uuid' => $this->cacheKey,
-                'status' => $status,  // Fixed value
-                'season_type' => $row['Season Type'],
-                'type_of_actor' => $row['Type of Actor'],
-                'type_of_plot' => $row['Type of Plot'],
-            ]
-        );
+        $beneficiary = SeedBeneficiary::create([
+            'crop' => (string) $this->cropType,
+            'district' => (string) $row['District'],
+            'epa' => (string) $row['EPA'],
+            'section' => (string) $row['Section'],
+            'name_of_aedo' => (string) $row['Name of AEDO'],
+            'aedo_phone_number' => (string) $row['AEDO Phone Number'],
+        'date' =>  $dateOfAssessment,
+            'name_of_recipient' => (string) $row['Name of Recipient'],
+            'group_name' => (string) $row['Group Name'],
+            'village' => (string) $row['Village'],
+            'sex' => (string) $row['Sex'],
+            'age' => (float) $row['Age'],
+            'marital_status' => (string) ($row['Marital Status'] ?? ''),
+            'hh_head' => (string) ($row['Household Head'] ?? ''),
+            'household_size' => (float) ($row['Household Size'] ?? 0),
+            'children_under_5' => (float) ($row['Children Under 5 in HH'] ?? 0),
+            'variety_received' => strtolower((string) $row['Variety Received']),
+            'bundles_received' => (float) ($row['Amount of Seed Received in KGs'] ?? 0),
+            'phone_number' => (string) $row['Phone Number'],
+            'national_id' => (string) ($row['National ID'] ?? ''),
+            'user_id' => (int) $this->submissionDetails['user_id'],
+            'year' => (string) $row['Year Of Distribution'],
+            'organisation_id' => (int) $this->submissionDetails['organisation_id'],
+            'submission_period_id' => (int) $this->submissionDetails['submission_period_id'],
+            'financial_year_id' => (int) $this->submissionDetails['financial_year_id'],
+            'period_month_id' => (int) $this->submissionDetails['period_month_id'],
+            'uuid' => (string) $this->cacheKey,
+            'status' => (string) $status,
+            'season_type' => (string) $row['Season Type'],
+            'type_of_actor' => (string) $row['Type of Actor'],
+            'type_of_plot' => (string) $row['Type of Plot'],
+        ]);
 
         // Update JobProgress tracking
         $jobProgress = JobProgress::where('cache_key', $this->cacheKey)->first();
@@ -122,21 +120,21 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function rules(): array
     {
         return [
-            'EPA' => 'required|string|max:255',
-            'Section' => 'required|string|max:255',
+            'EPA' => 'nullable|string|max:255',
+            'Section' => 'nullable|string|max:255',
             'Name of AEDO' => 'nullable|string|max:255',
             'AEDO Phone Number' => 'nullable|max:255',
             'Date of Distribution' => 'nullable|date|date_format:d-m-Y',
-            'Year of Distribution' => 'nullable|integer',
+            'Year of Distribution' => 'nullable|numeric',
             'Name of Recipient' => 'nullable|string|max:255',
             'Village' => 'nullable|string|max:255',
             'National ID' => 'nullable|max:255',
             'District' => 'required|string|max:255',
-            'Age' => 'nullable|integer|min:1',
-            'Marital Status' => 'required|in:Single,Married,Separated,Widowed,Polygamy,Divorced',
+            'Age' => 'nullable|numeric|min:1',
+            'Marital Status' => 'nullable|in:Single,Married,Separated,Widowed,Polygamy,Divorced',
             'Household Head' => 'nullable|in:FHH,MHH,CHH',
-            'Household Size' => 'nullable|integer|min:1',
-            'Children Under 5 in HH' => 'required|integer|min:0',
+            'Household Size' => 'nullable|numeric|min:0',
+            'Children Under 5 in HH' => 'nullable|numeric|min:0',
             'Sex' => 'nullable|in:Male,Female',
             'Group Name' => 'nullable|max:255',
             'Variety Received' => ['nullable', 'max:255'],
@@ -166,6 +164,10 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             $row['Household Size'] = 0;
         }
 
+        // Ensure string fields have defaults
+        $row['EPA'] = (string)($row['EPA'] ?? '');
+        $row['Section'] = (string)($row['Section'] ?? '');
+        $row['District'] = (string)($row['District'] ?? '');
 
 
 

@@ -49,7 +49,7 @@
                                 </li>
                             @endrole
 
-                            <li class="breadcrumb-item "> <a href="{{ $addDataRoute }}">Add Data</a></li>
+                            {{-- <li class="breadcrumb-item "> <a href="{{ $addDataRoute }}">Add Data</a></li> --}}
                             <li class="breadcrumb-item active">
                                 Upload Data
                             </li>
@@ -117,7 +117,7 @@
                         @endif
 
 
-                 
+
 
                         {{ $slot }}
                     </div>

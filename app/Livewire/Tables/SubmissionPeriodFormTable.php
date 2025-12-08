@@ -205,7 +205,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Add Data')
-            
+
 
 
                 ->dispatch('sendData', ['model' => $row]),
@@ -297,7 +297,9 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         $endDate = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
+        $restricted = $this->submissionPeriodRow['is_restricted'];
 
+        $withinDateRange = $restricted ? true : false;
 
 
 

@@ -1,9 +1,15 @@
 <x-mail::message>
 
 
+{{-- Greeting --}}
+@if (! empty($greeting))
+# {{ $greeting }}
+
+@endif
+
 {{-- Intro Lines --}}
 @foreach ($introLines as $line)
-{{ $line }}
+{{ $line }} <br/>
 @endforeach
 
 {{-- Action Button --}}
@@ -21,7 +27,8 @@
 
 {{-- Outro Lines --}}
 @foreach ($outroLines as $line)
-{{ $line }}
+{{ $line }}<br/>
+
 
 @endforeach
 

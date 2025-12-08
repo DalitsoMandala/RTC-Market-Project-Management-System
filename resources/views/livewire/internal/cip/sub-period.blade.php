@@ -471,11 +471,24 @@
 
                             <div class="mb-3 " dir="ltr" x-data="{ switchOn: $wire.entangle('status'), row: $wire.entangle('rowId') }" x-show="row">
 
-                                <label for="">Open for submissions ?</label>
+                                <label for="">Open for submissions </label>
                                 <div class="square-switch d-flex align-items-baseline">
                                     <input type="checkbox" x-model="switchOn" :checked="switchOn"
                                         id="square-switch1" switch="none">
                                     <label for="square-switch1" data-on-label="Yes" data-off-label="No"></label>
+
+                                </div>
+
+
+                            </div>
+
+                              <div class="mb-3 " dir="ltr" x-data="{ is_restricted: $wire.entangle('is_restricted'), row: $wire.entangle('rowId') }" x-show="row">
+
+                                <label for="">Restricted (Only Admins/Managers can submit)</label>
+                                <div class="square-switch d-flex align-items-baseline">
+                                    <input type="checkbox" x-model="is_restricted" :checked="is_restricted"
+                                        id="square-switch2" switch="none">
+                                    <label for="square-switch2" data-on-label="Yes" data-off-label="No"></label>
 
                                 </div>
 

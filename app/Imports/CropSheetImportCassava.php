@@ -80,7 +80,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
                 'section' => $row['Section'],
                 'name_of_aedo' => $row['Name of AEDO'],
                 'aedo_phone_number' => $row['AEDO Phone Number'],
-                'date' => $dateOfAssessment,
+              'date' =>  $dateOfAssessment,
                 'name_of_recipient' => $row['Name of Recipient'],
                 'group_name' => $row['Group Name'],
                 'village' => $row['Village'],
@@ -169,6 +169,10 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
         }
 
 
+        // Ensure string fields have defaults
+        $row['EPA'] = (string)($row['EPA'] ?? '');
+        $row['Section'] = (string)($row['Section'] ?? '');
+        $row['District'] = (string)($row['District'] ?? '');
 
 
         if (!$row['Children Under 5 in HH']) {

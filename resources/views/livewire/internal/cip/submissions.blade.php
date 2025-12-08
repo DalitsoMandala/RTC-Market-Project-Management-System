@@ -54,6 +54,16 @@
                         </button>
 
 
+                        @hasanyrole('admin|manager|staff|enumerator')
+                            <button class="nav-link" id="market-tab" data-bs-toggle="tab"
+                                data-bs-target="#market-submission" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+                                Market Data Submission <span
+                                    class="badge bg-theme-red @if ($market == 0) d-none @endif">{{ $market }}</span>
+
+                            </button>
+                        @endhasanyrole
+
 
                         <button class="nav-link " id="progress-tab" data-bs-toggle="tab"
                             data-bs-target="#submission-progress" type="button" role="tab" aria-controls="profile"
@@ -63,31 +73,12 @@
                                 class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
                         </button>
 
-                        {{-- @hasanyrole('admin|manager')
-                            <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
-                                data-bs-target="#report-progress" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
-                                Progress Summary </button>
-                        @endhasanyrole --}}
-                        @hasanyrole('admin|manager|staff|enumerator')
-                            <button class="nav-link" id="market-tab" data-bs-toggle="tab"
-                                data-bs-target="#market-submission" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
-                                Market Data Submission </button>
-                        @endhasanyrole
 
-                        {{-- @if ((auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name === 'RTCDT') ||
-    auth()->user()->hasAnyRole(['admin', 'manager', 'staff']))
-                        <button class="nav-link" id="root-tab" data-bs-toggle="tab" data-bs-target="#root-submission"
-                            type="button" role="tab" aria-controls="profile" aria-selected="false"
-                            wire:ignore.self>
-                            Root & Tuber Exports/Imports Data Submission </button>
-                    @endif --}}
 
                     </ul>
                     <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
                         aria-labelledby="home-tab">
-                        <livewire:tables.submission-table :tableName="'SubmissionTable'"  :userId="auth()->user()->id" />
+                        <livewire:tables.submission-table :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
                     <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
@@ -294,8 +285,10 @@
                     <input type="hidden" wire:model="status">
                     <div class="mt-4 mb-3">
                         <label for="">Comment</label>
-                        <textarea wire:model="comment" rows="5" class=" form-control @error('comment') is-invalid @enderror"></textarea>
-
+                        <input wire:model='comment'
+                            class="  form-control @error('comment') is-invalid @enderror"
+                            placeholder="Enter comment..." />
+                        <small class="my-1 text-muted">Enter NA if no comment.</small><br/>
                         @error('comment')
                             <x-error>{{ $message }}</x-error>
                         @enderror
@@ -357,16 +350,16 @@
                 <div class="mt-4 mb-3">
                     <label for="">Comment</label>
 
-                    <textarea name="" id="" cols="30" rows="5" wire:model="comment"
-                        class="form-control @error('comment') is-invalid @enderror" placeholder="Write a comment..."></textarea>
-                    @error('comment')
+                    <input wire:model='comment' class="  form-control @error('comment') is-invalid @enderror"
+                        placeholder="Enter comment..." />
+                           <small class="my-1 text-muted">Enter NA if no comment.</small><br/> @error('comment')
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </div>
 
                 <!-- Hidden input to store the status -->
                 <input type="hidden" wire:model="status">
-
+`
                 <div class="d-flex border-top-0 justify-content-center">
                     <form wire:submit.debounce.1000ms="disapproveBatchSubmission">
 
@@ -397,8 +390,9 @@
                 <input type="hidden" wire:model="status">
                 <div class="mt-4 mb-3">
                     <label for="">Comment</label>
-                    <textarea wire:model="comment" rows="5" class=" form-control @error('comment') is-invalid @enderror"></textarea>
-
+                    <input wire:model='comment' class="  form-control @error('comment') is-invalid @enderror"
+                        placeholder="Enter comment..." />
+                           <small class="my-1 text-muted">Enter NA if no comment.</small><br/>
                     @error('comment')
                         <x-error>{{ $message }}</x-error>
                     @enderror
