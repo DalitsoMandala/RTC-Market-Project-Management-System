@@ -2,24 +2,25 @@
 
 namespace App\Jobs;
 
-use App\Helpers\CoreFunctions;
 use App\Models\Crop;
-use App\Models\FinancialYear;
 use App\Models\Indicator;
-use App\Models\IndicatorClass;
 use App\Models\Organisation;
-use App\Models\ReportingPeriodMonth;
 use App\Models\ReportStatus;
-use App\Models\ResponsiblePerson;
 use App\Models\SystemReport;
+use App\Models\FinancialYear;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use App\Helpers\CoreFunctions;
+use App\Models\IndicatorClass;
+use App\Models\ResponsiblePerson;
+use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 class ReportJob implements ShouldQueue
 {
@@ -91,28 +92,41 @@ class ReportJob implements ShouldQueue
                                                 $indicators = ResponsiblePerson::where('organisation_id', $organisation)->pluck('indicator_id');
 
                                                 if ($indicators->contains($Indicator_class->indicator_id)) {
-                                                    // Use updateOrCreate to handle updates
-
-                                                    $report = SystemReport::updateOrCreate(
-                                                        [
-                                                            'reporting_period_id' => $period,
-                                                            'financial_year_id'   => $financialYear,
-                                                            'organisation_id'     => $organisation,
-                                                            'project_id'          => $project->id,
-                                                            'indicator_id'        => $Indicator_class->indicator_id,
-                                                            'crop'                => $crop,
-                                                        ],
-                                                        [
-                                                            'reporting_period_id' => $period,
-                                                            'financial_year_id'   => $financialYear,
-                                                            'organisation_id'     => $organisation,
-                                                            'project_id'          => $project->id,
-                                                            'indicator_id'        => $Indicator_class->indicator_id,
-                                                            'crop'                => $crop,
-                                                        ]
-                                                    );
-
+                                                    // Get disaggregations first
                                                     $disaggregations = $class->getDisaggregations();
+
+                                                    // Find existing data (excluding reporting_period_id which can change)
+                                                    $existingReport = SystemReport::where([
+                                                        'financial_year_id'   => $financialYear,
+                                                        'organisation_id'     => $organisation,
+                                                        'project_id'          => $project->id,
+                                                        'indicator_id'        => $Indicator_class->indicator_id,
+                                                        'crop'                => $crop,
+                                                    ])->first();
+
+                                                    if ($existingReport) {
+                                                        // Data exists - update the reporting period if it changed
+                                                        $existingReport->update([
+                                                            'reporting_period_id' => $period,
+                                                            'crop'                => $crop,
+                                                            'indicator_id'        => $Indicator_class->indicator_id,
+                                                            'project_id'          => $project->id,
+                                                            'organisation_id'     => $organisation,
+                                                            'financial_year_id'   => $financialYear,
+
+                                                        ]);
+                                                        $report = $existingReport;
+                                                    } else {
+                                                        // No existing data - create new record
+                                                        $report = SystemReport::create([
+                                                            'reporting_period_id' => $period,
+                                                            'financial_year_id'   => $financialYear,
+                                                            'organisation_id'     => $organisation,
+                                                            'project_id'          => $project->id,
+                                                            'indicator_id'        => $Indicator_class->indicator_id,
+                                                            'crop'                => $crop,
+                                                        ]);
+                                                    }
 
                                                     // Delete removed disaggregations
                                                     $existing = $report->data()->pluck('name')->toArray();
@@ -129,8 +143,9 @@ class ReportJob implements ShouldQueue
                                                     }
                                                 }
                                             } catch (\Exception $e) {
-
+                                                Artisan::call('clear-lock');
                                                 Log::error($e);
+
                                             }
                                         }
                                     }
