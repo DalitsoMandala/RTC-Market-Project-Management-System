@@ -30,7 +30,16 @@ class ClearLock extends Command
     {
 
         $this->info('Clearing Cache Lock...');
+        $reportStatus = ReportStatus::find(1);
 
+        if ($reportStatus) {
+            $reportStatus->update([
+                'status' => 'completed',
+                'progress' => 100,
+            ]);
+            Cache::put('report_progress', 100);
+            Cache::put('report_status', 'completed');
+        }
         Cache::forget('report_lock');  //
 
 
