@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 
 class PopulatePreviousValueJob implements ShouldQueue
 {
@@ -35,6 +36,9 @@ class PopulatePreviousValueJob implements ShouldQueue
     {
         //
 
+        try {
+            # code...
+
         $class = new PopulatePreviousValue();
         $project = Project::where('name', 'RTC MARKET')->first();
         $project ? $class->start($project->id) : null; // percentages
@@ -43,5 +47,10 @@ class PopulatePreviousValueJob implements ShouldQueue
             'status'   => 'pending',
             'progress' => 66,
         ]);
+        } catch (\Throwable $e) {
+            # code...
+            Log::error("PopulatePreviousValueJob failed: " . $e);
+        }
+
     }
 }

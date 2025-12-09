@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;
 use App\Jobs\PopulatePreviousValueJob;
+use App\Jobs\SyncronizeTableJob;
 
 class UpdateInformation extends Command
 {
@@ -98,6 +99,7 @@ class UpdateInformation extends Command
     private function runReportJobs($reportStatus)
     {
         Bus::chain([
+            new SyncronizeTableJob(),
             new ReportJob(),
             new PopulatePreviousValueJob(),
             new AdditionalReportJob(),

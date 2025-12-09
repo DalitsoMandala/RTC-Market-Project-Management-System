@@ -2,12 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Helpers\MarketReportCalculations;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Helpers\MarketReportCalculations;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class MarketReportJob implements ShouldQueue
 {
@@ -28,7 +29,15 @@ class MarketReportJob implements ShouldQueue
     {
         //
 
-        $report = new MarketReportCalculations();
+        try {
+            # code...
+             $report = new MarketReportCalculations();
         $report->run();
+        } catch (\Throwable $e) {
+            # code...
+            Log::error("MarketReportJob failed: " . $e->getMessage() );
+        }
+
+
     }
 }

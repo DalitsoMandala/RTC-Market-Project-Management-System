@@ -41,9 +41,14 @@ class AdditionalReportJob implements ShouldQueue
     public function handle(): void
     {
 
+
+        try {
+            # code...
+
+
         //This is to add additional report
         // Fetch all indicators with their disaggregations
-        $indicators = Indicator::with('disaggregations')->get();
+
         $indicators = Indicator::with('disaggregations')->get();
         $reportingPeriodId = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->pluck(
             'id'
@@ -124,5 +129,10 @@ class AdditionalReportJob implements ShouldQueue
             'status'   => 'pending',
             'progress' => 99,
         ]);
+
+          } catch (\Throwable $e) {
+            # code...
+            Log::error("AdditionalReportJob failed: " . $e->getMessage());
+        }
     }
 }
