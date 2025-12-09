@@ -34,29 +34,21 @@ class SyncronizeTableJob implements ShouldQueue
 
             $ReportingPeriodMonths = \App\Models\ReportingPeriodMonth::with(['submissions', 'reportingPeriod'])->get();
             foreach ($ReportingPeriodMonths as $ReportingPeriodMonth) {
-                if ($ReportingPeriodMonth->submissions->isNotEmpty()) {
-                    $submissions = $ReportingPeriodMonth->submissions;
-                    $submissionsByTable = $submissions->groupBy('table_name');
+                $submissions = $ReportingPeriodMonth->submissions->isNotEmpty() ? $ReportingPeriodMonth->submissions : [];
+                if (count($submissions) > 1) {
+                    foreach ($submissions as $submission) {
+                        $uuid = $submission->batch_no;
+                        $tableName = $submission->table_name;
 
-                    foreach ($submissionsByTable as $tableName => $tableSubmissions) {
-                        // Process in chunks to prevent memory issues with large datasets
-                        $tableSubmissions->chunk(100)->each(function ($chunk) use ($tableName, $ReportingPeriodMonth) {
+                        if ($submission->status == 'denied') {
 
+                            DB::table($tableName)->where('uuid', $uuid)->delete();
+                        } else if ($submission->status == 'approved') {
+                            DB::table($tableName)->where('uuid', $uuid)->update([
+                                'period_month_id' => $ReportingPeriodMonth->id
 
-                            $batchNos = $chunk->pluck('batch_no')->toArray();
-                            $batchNosWithDisapprovals = $chunk->where('status', 'denied')->pluck('batch_no')->toArray();
-
-                            DB::table($tableName)
-                                ->whereIn('uuid', $batchNosWithDisapprovals)
-                                ->delete();
-
-
-
-                            DB::table($tableName)
-                                ->whereIn('uuid', $batchNos)
-                                ->where('status', 'approved')
-                                ->update(['period_month_id' => $ReportingPeriodMonth->id]);
-                        });
+                            ]);
+                        }
                     }
                 }
             }

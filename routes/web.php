@@ -34,8 +34,7 @@ Route::get('/', fn() => redirect()->route('login'));
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
 Route::get('/info', function () {
-
-
+   
 });
 
 
