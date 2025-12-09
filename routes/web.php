@@ -4,16 +4,18 @@
 
 
 use App\Jobs\TestJob;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Internal\Cip\Reports;
+
 use App\Livewire\Internal\Cip\Targets;
+
 use Illuminate\Support\Facades\Storage;
 
 use App\Livewire\External\ViewIndicator;
-
 use App\Livewire\Internal\Cip\Dashboard;
-
 use App\Livewire\Internal\Cip\SubPeriod;
 use App\Helpers\MarketReportCalculations;
 use App\Livewire\Internal\Cip\Indicators;
@@ -31,10 +33,13 @@ Route::get('/', fn() => redirect()->route('login'));
 
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
-// Route::get('/info',function () {
-//     $indicatorClass = new MarketReportCalculations();
-// $indicatorClass->run();
-// });
+Route::get('/info', function () {
+
+
+});
+
+
+
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {
