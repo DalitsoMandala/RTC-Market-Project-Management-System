@@ -37,12 +37,13 @@ class ReportSheet implements WithMultipleSheets
     {
         if (!isset($this->user)) {
             Log::error('User not found');
-throw new \Exception('User not found');
+            throw new \Exception('User not found');
         }
         return [
             'Consolidated' => new ReportExport('Consolidated'),
             'Sweet potato' => new ReportExport('Sweet potato'),
             'Potato' => new ReportExport('Potato'),
+            'CIP' => new ReportExport('CIP'),
             'IITA' => new ReportExport('IITA'),
             'ACE' => new ReportExport('ACE'),
             'DCD' => new ReportExport('DCD'),
