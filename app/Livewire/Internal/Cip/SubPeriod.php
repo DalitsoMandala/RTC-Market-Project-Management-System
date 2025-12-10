@@ -70,7 +70,7 @@ class SubPeriod extends Component
     public $selectedOrganisation;
     public $selectedOrganisations = [];
     public $is_restricted = false;
-
+    public $notifyUsers = true;
     #[Validate('required')]
     public $selectedIndicator;
 
@@ -280,7 +280,8 @@ class SubPeriod extends Component
                     }
 
 
-                    if (count($periods) > 0) {
+
+                    if (count($periods) > 0 && $this->notifyUsers) {
 
                         Bus::chain([
                             new sendAllIndicatorNotificationJob($user,  $indicators)
@@ -288,12 +289,10 @@ class SubPeriod extends Component
                     }
                 }
 
-                if (count($periods) > 0) {
-                    $this->setMailingList($periods, $usersWithData);
                     session()->flash('success', 'Successfully added submission periods.');
                     $this->redirect(url()->previous());
-                    return;
-                }
+
+
             }
 
 

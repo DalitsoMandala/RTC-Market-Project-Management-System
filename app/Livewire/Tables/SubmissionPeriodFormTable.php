@@ -51,7 +51,6 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ->where('is_open', $data['is_open'])
             ->where('financial_year_id', $data['financial_year_id'])
             ->where('month_range_period_id', $data['month_range_period_id'])
-
             ->pluck('form_id')
             ->unique()
             ->values()->toArray();
@@ -297,9 +296,6 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         $endDate = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
-        $restricted = $this->submissionPeriodRow['is_restricted'];
-
-        $withinDateRange = $restricted ? true : false;
 
 
 
@@ -308,24 +304,14 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() =>  !$withinDateRange)
+                ->when(fn() =>  !$row->id)
                 ->disable(),
 
             // Rules for uploading data
             Rule::button('upload')
-                ->when(fn($row) => ($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])) || !$withinDateRange)
+                ->when(fn($row) => ($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])) )
                 ->disable(),
         ];
     }
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+
 }
