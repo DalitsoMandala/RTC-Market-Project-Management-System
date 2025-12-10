@@ -30,6 +30,8 @@ class ReportSheet implements WithMultipleSheets
             throw new \Exception('User not found');
             return;
         }
+
+        ini_set('memory_limit', '512M');
     }
 
 
