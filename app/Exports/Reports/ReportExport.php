@@ -344,7 +344,7 @@ private function getSheetData(
     ];
 
     $organisations = [
-        'IITA', 'ACE', 'DCD', 'DAES', 'MINISTRY OF TRADE',
+       'CIP', 'IITA', 'ACE', 'DCD', 'DAES', 'MINISTRY OF TRADE',
         'TRADELINE', 'DARS', 'RTCDT', 'LUANAR',
     ];
 
