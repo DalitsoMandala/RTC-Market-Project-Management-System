@@ -77,7 +77,7 @@
 
 
 
-                        <form  class="@if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif"
+                        <form class="@if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif"
                             @edit-period.window="$wire.fillData($event.detail.data);window.scrollTo({
                                             top: 0,
                                             behavior: 'smooth'
@@ -482,13 +482,26 @@
 
                             </div>
 
-                              <div class="mb-3 " dir="ltr" x-data="{ is_restricted: $wire.entangle('is_restricted'), row: $wire.entangle('rowId') }" x-show="row">
+                            <div class="mb-3 " dir="ltr" x-data="{ is_restricted: $wire.entangle('is_restricted'), row: $wire.entangle('rowId') }" x-show="row">
 
                                 <label for="">Restricted (Only Admins/Managers can submit)</label>
                                 <div class="square-switch d-flex align-items-baseline">
                                     <input type="checkbox" x-model="is_restricted" :checked="is_restricted"
                                         id="square-switch2" switch="none">
                                     <label for="square-switch2" data-on-label="Yes" data-off-label="No"></label>
+
+                                </div>
+
+
+                            </div>
+
+                            <div class="mb-3 " dir="ltr" x-data="{ notifyUsers: $wire.entangle('notifyUsers'), row: $wire.entangle('rowId') }" >
+
+                                <label for="">Notify Users</label>
+                                <div class="square-switch d-flex align-items-baseline">
+                                    <input type="checkbox" x-model="notifyUsers" :checked="notifyUsers"
+                                        id="square-switch3" switch="none">
+                                    <label for="square-switch3" data-on-label="Yes" data-off-label="No"></label>
 
                                 </div>
 
@@ -513,8 +526,8 @@
                                             behavior: 'smooth'
                                         })">
                                 {{ $rowId ? 'Update' : 'Submit' }}</button>
-                            <button class="btn btn-secondary" type="button"
-                                wire:click.debounce.1000ms='resetData' wire:loading.attr='disabled'>Reset</button>
+                            <button class="btn btn-secondary" type="button" wire:click.debounce.1000ms='resetData'
+                                wire:loading.attr='disabled'>Reset</button>
                         </form>
 
 
@@ -536,7 +549,7 @@
 
             <div class="col-12">
                 <div class="card">
-                   <x-card-header>Submission Period List</x-card-header>
+                    <x-card-header>Submission Period List</x-card-header>
                     <div class=" card-body">
                         @php
 
