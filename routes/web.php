@@ -25,7 +25,7 @@ use App\Http\Controllers\TestingController;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Http\Controllers\FormsExportController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
-
+use App\Models\MarketData;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -34,7 +34,9 @@ Route::get('/', fn() => redirect()->route('login'));
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
 Route::get('/info', function () {
-   
+
+
+
 });
 
 

@@ -115,7 +115,7 @@
             <div class="col-12">
                 <div class="shadow-sm card">
                     <x-card-header>
-                        Average Price per Kg (MWK) Over Time
+                        Average Price per Kg (USD) Over Time
                     </x-card-header>
                     <div class="card-body">
                         <div id="price-trend-chart" x-show="hasPriceTrendData===true" style="height: 400px;"></div>
@@ -573,6 +573,12 @@
             },
             updateDistrictComboChart(data) {
 
+                // Move "Other (Int.)" to the end of the districts array
+                data.districts = data.districts.sort((a, b) => {
+                    if (a === "Other (Int.)") return 1;
+                    if (b === "Other (Int.)") return -1;
+                    return a.localeCompare(b);
+                });
 
                 this.districtComboChart.instance.updateOptions({
                     series: [{
@@ -656,7 +662,7 @@
                     xaxis: {
                         categories: data.varieties
                     },
-                   colors: ['#FFEAD8'],
+                    colors: ['#FFEAD8'],
                     dataLabels: {
                         enabled: true,
 
@@ -664,18 +670,18 @@
                             colors: [SystemColors[3]]
                         },
 
-                         background: {
-                             enabled: true,
+                        background: {
+                            enabled: true,
 
 
-                         },
+                        },
 
                         offsetX: 0,
                         dropShadow: {
                             enabled: false
                         }
                     },
-                        plotOptions: {
+                    plotOptions: {
                         bar: {
                             columnWidth: '35%',
 
@@ -687,7 +693,7 @@
                         showForSingleSeries: true,
 
                     },
-                       // Stroke: outline for bars + line color
+                    // Stroke: outline for bars + line color
                     stroke: {
                         width: [1, 1], // bar border, line width
                         colors: ['#F97316', '#FF5656'] // orange border, red line
@@ -760,7 +766,7 @@
                         }
                     ],
 
-                      // BAR = white, LINE = red
+                    // BAR = white, LINE = red
                     colors: ['#FFEAD8', '#FF5656'],
 
                     // Stroke: outline for bars + line color
@@ -882,7 +888,9 @@
                     dataLabels: {
                         enabled: false
                     },
-                          stroke: { width: 1.5 },
+                    stroke: {
+                        width: 1.5
+                    },
                 });
 
                 this.stackedDemandChart.render();
@@ -902,6 +910,14 @@
 
                 // Store chart data for potential later use
                 this.districtComboChart.data = data;
+
+                // Move "Other (Int.)" to the end of the districts array
+                data.districts = data.districts.sort((a, b) => {
+                    if (a === "Other (Int.)") return 1;
+                    if (b === "Other (Int.)") return -1;
+                    return a.localeCompare(b);
+                });
+
 
                 this.districtComboChart.instance = new ApexCharts(document.querySelector(
                     "#district-combo-chart"), {
@@ -1117,7 +1133,7 @@
 
                     },
                     series: [{
-                        name: 'Average Price (MWK/kg)',
+                        name: 'Average Price ($/kg)',
                         data: data.avgPrice
                     }],
                     xaxis: {
@@ -1134,15 +1150,15 @@
 
                     yaxis: {
                         title: {
-                            text: 'MWK per Kg'
+                            text: '$ per Kg'
                         },
                         labels: {
-                            formatter: val => 'MWK ' + val.toFixed(2)
+                            formatter: val => '$ ' + val.toFixed(2)
                         }
                     },
                     tooltip: {
                         y: {
-                            formatter: val => 'MWK ' + val.toFixed(2)
+                            formatter: val => '$ ' + val.toFixed(2)
                         }
                     },
                     dataLabels: {

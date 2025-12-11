@@ -532,14 +532,7 @@
 
                     },
 
-                    grid: {
-                        row: {
-                            colors: ['#EEEEEE',
-                                'transparent'
-                            ], // takes an array which will be repeated on columns
-                            opacity: 0.5
-                        },
-                    },
+
 
                 };
             </script>

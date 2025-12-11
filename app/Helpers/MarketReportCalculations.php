@@ -34,21 +34,41 @@ class MarketReportCalculations
             $this->financialYears[] = Carbon::parse($financialYear->start_date)->year . '/' . Carbon::parse($financialYear->end_date)->year;
         }
 
-        // $getYears = MarketData::query()->select([
-        //     DB::raw('YEAR(entry_date) as year')
-        // ])->groupBy('year')->get();
-
-
-
-        // foreach ($getYears as $year) {
-        //     $this->years[] = $year->year;
-        // }
 
         $this->years = $this->financialYears;
     }
 
     public function run()
     {
+
+        $market = MarketData::get();
+        $market->each(function ($m) {
+            if ($m->final_market_district == 'Liwonde' || $m->final_market_district == 'Nselema' || $m->final_market_district == 'Mchinga') {
+                $m->update([
+                    'final_market_district' => 'Machinga'
+                ]);
+            }
+
+            if ($m->final_market_district == 'Nkhata Bay' || $m->final_market_district == 'Mkhata Bay') {
+                $m->update([
+                    'final_market_district' => 'Nkhatabay'
+                ]);
+            }
+
+            if ($m->final_market_district == 'Magochi') {
+
+                $m->update([
+                    'final_market_district' => 'Mangochi'
+                ]);
+            }
+
+            if ($m->final_market_district == 'Mozambique' || $m->final_market_district == 'Zambia') {
+
+                $m->update([
+                    'final_market_district' => 'Other (Int.)'
+                ]);
+            }
+        });
 
         try {
             # code...
@@ -198,8 +218,8 @@ class MarketReportCalculations
                 ->select([
                     'entry_date',
                     DB::raw('SUM(estimated_demand_kg) as volume_kg'),
-                    DB::raw('SUM(agreed_price_per_kg) as total_price'),
-                    DB::raw('ROUND(SUM(agreed_price_per_kg) / NULLIF(SUM(estimated_demand_kg), 0), 2) as avg_price_per_kg')
+                    DB::raw('SUM(estimated_total_value_usd) as total_price'),
+                    DB::raw('ROUND(SUM(estimated_total_value_usd) / NULLIF(SUM(estimated_demand_kg), 0), 2) as avg_price_per_kg')
                 ])
                 ->groupBy('entry_date')
                 ->orderBy('entry_date');
@@ -285,7 +305,7 @@ class MarketReportCalculations
 
             [$year1, $year2] = explode('/', $year);
 
-           $builderCallback()
+            $builderCallback()
 
                 ->where(function ($q) use ($year1, $year2) {
                     $q->whereYear('entry_date', $year1)
