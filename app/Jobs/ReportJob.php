@@ -108,9 +108,9 @@ class ReportJob implements ShouldQueue
                                 /** Instantiate indicator helper ONCE per combination */
                                 $class = new $indicatorClass->class(
                                     reporting_period: $period,
-                                    financial_year:  $year,
+                                    financial_year: $year,
                                     organisation_id: $org,
-                                    enterprise:       $crop
+                                    enterprise: $crop
                                 );
 
                                 $indicator = Indicator::find($indicatorClass->indicator_id);
@@ -131,6 +131,7 @@ class ReportJob implements ShouldQueue
                                 $disaggregations = $class->getDisaggregations();
 
                                 /** DELETE REMOVED ITEMS */
+                                // Make sure we only delete from THIS report's data
                                 $existing = $report->data()->pluck('name')->toArray();
                                 $toDelete = array_diff($existing, array_keys($disaggregations));
 
@@ -141,11 +142,13 @@ class ReportJob implements ShouldQueue
                                 /** UPSERT ALL DISAGGREGATIONS */
                                 foreach ($disaggregations as $key => $value) {
                                     $report->data()->updateOrCreate(
-                                        ['name' => $key],
+                                        [
+                                            'system_report_id' => $report->id, // CRITICAL: Link to parent report
+                                            'name' => $key,
+                                        ],
                                         ['value' => $value]
                                     );
                                 }
-
                             } catch (\Exception $e) {
                                 Log::error("Report Error: " . $e->getMessage());
                             }

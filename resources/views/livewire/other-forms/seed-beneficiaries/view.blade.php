@@ -64,7 +64,7 @@
                     <!-- OFSP Table -->
                     <div class="tab-pane fade" id="ofsp" role="tabpanel" aria-labelledby="ofsp-tab"
                         wire:ignore.self>
-                        <livewire:tables.seed-beneficiaries-ofsp-table :crop="'OFSP'" />
+                        <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'OFSP'" />
                     </div>
 
                     <!-- Cassava Table -->

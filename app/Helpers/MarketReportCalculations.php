@@ -43,62 +43,12 @@ class MarketReportCalculations
 
         $market = MarketData::get();
         $market->each(function ($m) {
-            if ($m->final_market_district == 'Liwonde' || $m->final_market_district == 'Nselema' || $m->final_market_district == 'Mchinga') {
+            if ($m->final_market_district == 'Mzuzu' ) {
                 $m->update([
-                    'final_market_district' => 'Machinga'
+                    'final_market_district' => 'Mzimba'
                 ]);
             }
 
-            if ($m->final_market_district == 'Nkhata Bay' || $m->final_market_district == 'Mkhata Bay') {
-                $m->update([
-                    'final_market_district' => 'Nkhatabay'
-                ]);
-            }
-
-            if ($m->final_market_district == 'Magochi') {
-
-                $m->update([
-                    'final_market_district' => 'Mangochi'
-                ]);
-            }
-
-            if ($m->final_market_district == 'Mozambique' || $m->final_market_district == 'Zambia') {
-
-                $m->update([
-                    'final_market_district' => 'Other (Int.)'
-                ]);
-            }
-
-            if ($m->entry_date == '2025-03-09') {
-                $m->update([
-                    'entry_date' => '2025-09-03'
-                ]);
-            }
-
-              if ($m->entry_date == '2025-04-10') {
-
-                $m->update([
-                    'entry_date' => '2025-10-04'
-                ]);
-            }
-
-            if ($m->entry_date == '2025-08-11') {
-                $m->update([
-                    'entry_date' => '2025-11-08'
-                ]);
-            }
-
-              if ($m->entry_date == '2025-04-11') {
-                $m->update([
-                    'entry_date' => '2025-11-04'
-                ]);
-            }
-
-              if ($m->entry_date == '2025-11-06') {
-                $m->update([
-                    'entry_date' => '2025-06-11'
-                ]);
-            }
         });
 
         try {
@@ -134,7 +84,7 @@ class MarketReportCalculations
             }
         } catch (\Throwable $e) {
 
-            dd($e);
+
             # code...
             Log::error($e);
         }

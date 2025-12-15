@@ -24,6 +24,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SeedBeneficiariesOFSPTable extends PowerGridComponent
 {
+
     use WithExport;
     use ExportTrait;
     public $crop;

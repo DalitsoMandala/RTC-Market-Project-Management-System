@@ -29,6 +29,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public $crop;
 
 
+
     public $namedExport = 'seedBeneficiaries';
 
 
