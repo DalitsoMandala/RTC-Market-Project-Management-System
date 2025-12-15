@@ -54,22 +54,22 @@ class LoginRequest extends FormRequest
 
 
 
-        if (!$user) {
-            RateLimiter::hit($this->throttleKey());
-
-            throw ValidationException::withMessages([
-                'login' => __('auth.failed'),
-            ]);
-        }
-
-
-        // if (!$user || !Hash::check($password, $user->password)) {
+        // if (!$user) {
         //     RateLimiter::hit($this->throttleKey());
 
         //     throw ValidationException::withMessages([
         //         'login' => __('auth.failed'),
         //     ]);
         // }
+
+
+        if (!$user || !Hash::check($password, $user->password)) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => __('auth.failed'),
+            ]);
+        }
 
         Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
