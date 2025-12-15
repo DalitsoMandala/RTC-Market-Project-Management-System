@@ -37,7 +37,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
     public function model(array $row)
     {
         // Create SchoolRtcConsumption record
-        $schoolRecord = RtcConsumption::firstOrCreate([
+        $schoolRecord = RtcConsumption::create([
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],
@@ -110,7 +110,7 @@ class RtcConsumptionImport implements ToModel, WithHeadingRow, WithValidation, S
             'Sweet Potato Crop' => 'nullable|boolean',
             'Male Count' => 'required|numeric|min:0',
             'Female Count' => 'required|numeric|min:0',
-            'Number of Households' => 'sometimes|nullable|numeric|min:0',
+            'Number of Households' => 'nullable|numeric|min:0',
             // 'Total' => 'required|numeric|min:0',
         ];
     }

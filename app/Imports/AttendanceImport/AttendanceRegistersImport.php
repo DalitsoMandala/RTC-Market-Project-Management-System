@@ -49,7 +49,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
 
 
 
-        $attendanceRecord = AttendanceRegister::firstOrCreate([
+        $attendanceRecord = AttendanceRegister::create([
             'meetingTitle' => $row['Meeting Title'],
             'meetingCategory' => $row['Meeting Category'],
             'rtcCrop_cassava' => $row['Cassava'] ?? 0,
@@ -122,7 +122,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
             'District' => 'nullable|string|max:255',
             'Start Date' => 'required|date|date_format:d-m-Y',
             'End Date' => 'required|date|after_or_equal:Start Date|date_format:d-m-Y',
-            'Total Days' => 'sometimes|nullable|numeric|min:0',
+            'Total Days' => 'nullable|numeric|min:0',
             'Name' => 'required|string|max:255',
             'Sex' => 'required|in:Male,Female',
             'Organization' => 'nullable|string|max:255',

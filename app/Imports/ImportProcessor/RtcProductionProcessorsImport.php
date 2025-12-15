@@ -58,7 +58,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
 
         $prodCalc = $this->calculateUsdValue($row['Production Value Date of Max Sales'], $row['Production Value Total']);
 
-        $processorRecord = RtcProductionProcessor::firstOrCreate([
+        $processorRecord = RtcProductionProcessor::create([
             'group_name' => $row['Group Name'],
             'date_of_followup' => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
             'epa' => $row['EPA'],
