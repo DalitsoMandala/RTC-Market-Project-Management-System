@@ -382,7 +382,7 @@ final class SubmissionTable extends PowerGridComponent
 
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
-                ->searchable()->hidden(),
+                ->searchable(),
 
             Column::action('Action'),
             // Column::make('Created at', 'created_at')

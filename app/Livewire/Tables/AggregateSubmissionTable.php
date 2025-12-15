@@ -345,7 +345,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             Column::make('File', 'file_link'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
-                ->searchable()->hidden(),
+                ->searchable(),
 
           //  Column::make('Form name', 'form_name')->searchable(),
             Column::make('Indicator', 'indicator')->searchable()->headerAttribute(styleAttr: "min-width:350px;")

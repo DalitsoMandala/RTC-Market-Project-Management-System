@@ -136,7 +136,7 @@ class ReportJob implements ShouldQueue
                                 $toDelete = array_diff($existing, array_keys($disaggregations));
 
                                 if ($toDelete) {
-                                    $report->data()->whereIn('name', $toDelete)->delete();
+                                    $report->data()->whereIn('name', $toDelete)->where('system_report_id', $report->id)->delete();
                                 }
 
                                 /** UPSERT ALL DISAGGREGATIONS */
