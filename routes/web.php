@@ -4,16 +4,17 @@
 
 
 use App\Jobs\TestJob;
+use App\Models\MarketData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
+
 use App\Livewire\Internal\Cip\Reports;
 
 use App\Livewire\Internal\Cip\Targets;
 
 use Illuminate\Support\Facades\Storage;
-
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\SubPeriod;
@@ -24,8 +25,8 @@ use App\Livewire\Internal\Cip\Submissions;
 use App\Http\Controllers\TestingController;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Http\Controllers\FormsExportController;
+use App\Http\Controllers\AddDisaggregationController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
-use App\Models\MarketData;
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -33,12 +34,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
-Route::get('/info', function () {
-
-$market = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year:2,organisation_id:2);
-
-
-});
+Route::get('/info', [AddDisaggregationController::class, 'add'])->name('info');
 
 
 

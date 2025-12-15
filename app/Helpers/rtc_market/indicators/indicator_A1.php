@@ -264,6 +264,8 @@ class indicator_A1
             'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
             'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
             'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
+            'Aggregators' => $this->getTotalSum(type: 'Aggregators')['employees'] + $this->getTotalSum(type: 'Aggregators')['members'],
+            'Transporters' => $this->getTotalSum(type: 'Transporters')['employees'] + $this->getTotalSum(type: 'Transporters')['members'],
             'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
             'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
         ]);
