@@ -35,9 +35,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/info', function () {
 
-$market = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year:2,organisation_id:9);
+$market = new \App\Helpers\rtc_market\indicators\indicator_A1(financial_year:2,organisation_id:2);
 
-dd($market->getDisaggregations());
+
 });
 
 
