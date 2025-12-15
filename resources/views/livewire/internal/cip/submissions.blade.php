@@ -285,13 +285,25 @@
                     <input type="hidden" wire:model="status">
                     <div class="mt-4 mb-3">
                         <label for="">Comment</label>
-                        <input wire:model='comment'
-                            class="  form-control @error('comment') is-invalid @enderror"
+                        <input wire:model='comment' class="  form-control @error('comment') is-invalid @enderror"
                             placeholder="Enter comment..." />
-                        <small class="my-1 text-muted">Enter NA if no comment.</small><br/>
+                        <small class="my-1 text-muted">Enter NA if no comment.</small><br />
                         @error('comment')
                             <x-error>{{ $message }}</x-error>
                         @enderror
+                    </div>
+
+                    <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
+
+                        <label for="">Notify User</label>
+                        <div class="square-switch d-flex align-items-baseline">
+                            <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                                switch="none">
+                            <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                        </div>
+
+
                     </div>
 
 
@@ -352,14 +364,26 @@
 
                     <input wire:model='comment' class="  form-control @error('comment') is-invalid @enderror"
                         placeholder="Enter comment..." />
-                           <small class="my-1 text-muted">Enter NA if no comment.</small><br/> @error('comment')
+                    <small class="my-1 text-muted">Enter NA if no comment.</small><br /> @error('comment')
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </div>
 
                 <!-- Hidden input to store the status -->
                 <input type="hidden" wire:model="status">
-`
+
+                <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
+
+                    <label for="">Notify User</label>
+                    <div class="square-switch d-flex align-items-baseline">
+                        <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                            switch="none">
+                        <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                    </div>
+
+
+                </div>
                 <div class="d-flex border-top-0 justify-content-center">
                     <form wire:submit.debounce.1000ms="disapproveBatchSubmission">
 
@@ -392,12 +416,23 @@
                     <label for="">Comment</label>
                     <input wire:model='comment' class="  form-control @error('comment') is-invalid @enderror"
                         placeholder="Enter comment..." />
-                           <small class="my-1 text-muted">Enter NA if no comment.</small><br/>
+                    <small class="my-1 text-muted">Enter NA if no comment.</small><br />
                     @error('comment')
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </div>
+                <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
 
+                    <label for="">Notify User</label>
+                    <div class="square-switch d-flex align-items-baseline">
+                        <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                            switch="none">
+                        <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                    </div>
+
+
+                </div>
 
                 <div class="mt-5 d-flex border-top-0 justify-content-center">
                     <form wire:submit.debounce.1000ms="DisapproveMarketSubmission">
@@ -429,7 +464,18 @@
 
                 <form wire:submit='deleteAGG'>
 
+                    <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
 
+                        <label for="">Notify User</label>
+                        <div class="square-switch d-flex align-items-baseline">
+                            <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                                switch="none">
+                            <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                        </div>
+
+
+                    </div>
 
                     <div class="mt-5 d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
@@ -449,7 +495,18 @@
 
                 <form wire:submit='deleteBatch'>
 
+                    <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
 
+                        <label for="">Notify User</label>
+                        <div class="square-switch d-flex align-items-baseline">
+                            <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                                switch="none">
+                            <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                        </div>
+
+
+                    </div>
 
                     <div class="mt-5 d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
@@ -469,7 +526,18 @@
 
                 <form wire:submit='deleteMarket'>
 
+                    <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
 
+                        <label for="">Notify User</label>
+                        <div class="square-switch d-flex align-items-baseline">
+                            <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                                switch="none">
+                            <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                        </div>
+
+
+                    </div>
 
                     <div class="mt-5 d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
@@ -496,6 +564,19 @@
                         <x-error>{{ $message }}</x-error>
                     @enderror
 
+
+                    <div class="mb-3 " dir="ltr" x-data="{ notify: $wire.entangle('notify'), }">
+
+                        <label for="">Notify User</label>
+                        <div class="square-switch d-flex align-items-baseline">
+                            <input type="checkbox" x-model="notify" :checked="notify" id="square-switch4"
+                                switch="none">
+                            <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                        </div>
+
+
+                    </div>
                     <div class="mt-5 d-flex border-top-0 justify-content-center">
                         <button type="button" wire:loading.attr="disabled" class="btn btn-secondary me-2"
                             data-bs-dismiss="modal">No, cancel</button>

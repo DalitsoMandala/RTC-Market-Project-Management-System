@@ -40,6 +40,7 @@ class SubPeriod extends Component
     public $rowData = [];
     public $forms = [];
     public $status = false;
+    public $expired = false;
 
     #[Validate('required', as: 'start of submissions')]
     public $start_period;
@@ -63,7 +64,6 @@ class SubPeriod extends Component
     #[Validate('required')]
     public $selectedProject;
 
-    public $expired;
     public $disaggregations = [];
     public $indicators = [];
     public $organisations = [];
@@ -82,6 +82,7 @@ class SubPeriod extends Component
     protected $rules = [];
     public $selectAllIndicators = true;
     public $skipTargets = true;
+    public bool $bypassNotifications = false;
 
     protected function rules()
     {
@@ -179,13 +180,13 @@ class SubPeriod extends Component
 
 
 
-
         $this->start_period = Carbon::parse($row->date_established)->format('Y-m-d H:i:s');
         $this->end_period = Carbon::parse($row->date_ending)->format('Y-m-d H:i:s');
         $this->status = $row->is_open;
         $this->selectedMonth = $row->month_range_period_id;
         $this->selectedFinancialYear = $row->financial_year_id;
         $this->is_restricted = $row->is_restricted;
+        $this->bypassNotifications = $row->bypass_notification;
     }
 
     public function updateProjectRelatedData($project)
@@ -270,6 +271,7 @@ class SubPeriod extends Component
                                 $submissionPeriod->date_established = $this->start_period;
                                 $submissionPeriod->date_ending = $this->end_period;
                                 $submissionPeriod->is_open = true;
+                                $submissionPeriod->bypass_notification = $this->bypassNotifications;
                                 $submissionPeriod->save();
                                 $periods[] = $submissionPeriod->id;
                             } else {
@@ -362,18 +364,17 @@ class SubPeriod extends Component
 
             SubmissionPeriod::where('month_range_period_id', $rowData->month_range_period_id)
                 ->where('financial_year_id', $rowData->financial_year_id)
-
                 ->where('date_established', $rowData->date_established)
                 ->where('date_ending', $rowData->date_ending)
-
                 ->update([
                     'is_open' => $this->status,
                     'date_ending' => $this->end_period,
                     'date_established' => $this->start_period,
-                    'is_expired' => $this->status,
+                    'is_expired' => $this->status ? false : $this->expired,
                     'month_range_period_id' => $this->selectedMonth,
                     'financial_year_id' => $this->selectedFinancialYear,
-                    'is_restricted' => $this->is_restricted
+                    'is_restricted' => $this->is_restricted,
+                    'bypass_notification' => $this->bypassNotifications
 
                 ]);
 

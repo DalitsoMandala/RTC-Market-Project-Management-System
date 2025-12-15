@@ -52,7 +52,7 @@
                                             <x-input-label for="password" :value="__('Password')" />
 
                                             <x-text-input id="password" class="" type="password" name="password"
-                                                placeholder="Enter your password" required
+                                                placeholder="Enter your password"
                                                 autocomplete="current-password" />
 
                                             <x-input-error :messages="$errors->get('password')" class="mt-2" />

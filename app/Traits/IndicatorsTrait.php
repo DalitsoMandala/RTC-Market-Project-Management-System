@@ -115,9 +115,18 @@ trait IndicatorsTrait
         $endDate = Carbon::now()->copy()->addDays(2)->endOfDay();
 
         $submissionPeriods = SubmissionPeriod::query()
-            ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id')
+            ->selectRaw('ROW_NUMBER() OVER (ORDER BY date_established) AS rn ,COUNT(id) as count, date_established, date_ending, is_open,is_expired,financial_year_id,month_range_period_id', 'bypass_notification')
+            ->where('bypass_notification', false)
             ->whereBetween('date_ending', [$startDate, $endDate])
-            ->groupBy('date_established', 'date_ending', 'is_open', 'is_expired', 'financial_year_id', 'month_range_period_id');
+            ->groupBy(
+                'date_established',
+                'date_ending',
+                'is_open',
+                'is_expired',
+                'financial_year_id',
+                'month_range_period_id',
+                'bypass_notification'
+            );
         $dates = $submissionPeriods->get();
 
         foreach ($dates as $period) {
@@ -144,10 +153,10 @@ trait IndicatorsTrait
     }
 
 
-public function notifyExpiredSubmissionPeriods()
-{
-    $submissionPeriods = SubmissionPeriod::query()
-        ->selectRaw('
+    public function notifyExpiredSubmissionPeriods()
+    {
+        $submissionPeriods = SubmissionPeriod::query()
+            ->selectRaw('
             ROW_NUMBER() OVER (ORDER BY date_established) AS rn,
             COUNT(id) AS count,
             date_established,
@@ -157,35 +166,35 @@ public function notifyExpiredSubmissionPeriods()
             financial_year_id,
             month_range_period_id
         ')
-        ->groupBy(
-            'date_established',
-            'date_ending',
-            'is_open',
-            'is_expired',
-            'financial_year_id',
-            'month_range_period_id'
-        )
-        ->get();
+            ->groupBy(
+                'date_established',
+                'date_ending',
+                'is_open',
+                'is_expired',
+                'financial_year_id',
+                'month_range_period_id'
+            )
+            ->get();
 
-    foreach ($submissionPeriods as $period) {
-        if ($period->date_ending && Carbon::parse($period->date_ending)->isPast()) {
+        foreach ($submissionPeriods as $period) {
+            if ($period->date_ending && Carbon::parse($period->date_ending)->isPast()) {
 
-            // Only update if not already expired
-            $updated = SubmissionPeriod::where('date_established', $period->date_established)
-                ->where('date_ending', $period->date_ending)
-                ->where('is_expired', false)
-                ->update([
-                    'is_expired' => true,
-                    'is_open'    => false,
-                    'is_restricted' => false
-                ]);
+                // Only update if not already expired
+                $updated = SubmissionPeriod::where('date_established', $period->date_established)
+                    ->where('date_ending', $period->date_ending)
+                    ->where('bypass_notification', false)
+                    ->update([
+                        'is_expired' => true,
+                        'is_open'    => false,
+                        'is_restricted' => false
+                    ]);
 
-            if ($updated) {
-                $this->sendNotification($period->toArray(), 'expired');
+                if ($updated) {
+                    $this->sendNotification($period->toArray(), 'expired');
+                }
             }
         }
     }
-}
 
 
     public function sendNotification(array $period, $notificationType)

@@ -44,7 +44,7 @@
 
 
                             @role('external')
-                                <li class="breadcrumb-item"></li>
+                                <li class="breadcrumb-item">
                                 <a href="/external/submission-period">Submission Periods</a>
                                 </li>
                             @endrole

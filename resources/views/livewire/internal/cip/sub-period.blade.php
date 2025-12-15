@@ -495,7 +495,7 @@
 
                             </div>
 
-                            <div class="mb-3 " dir="ltr" x-data="{ notifyUsers: $wire.entangle('notifyUsers'), row: $wire.entangle('rowId') }" >
+                            <div class="mb-3 " dir="ltr" x-data="{ notifyUsers: $wire.entangle('notifyUsers'), row: $wire.entangle('rowId') }">
 
                                 <label for="">Notify Users</label>
                                 <div class="square-switch d-flex align-items-baseline">
@@ -508,17 +508,33 @@
 
                             </div>
 
-                            <div class="mb-3 form-check form-switch form-switch-lg d-none" dir="ltr"
-                                x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row !== null">
-                                <input type="checkbox" x-model="expired" class="form-check-input"
-                                    id="expire-switch">
-                                <label class="form-check-label" for="expire-switch">Cancel/Set to
-                                    Expire</label>
-                                <br>
-                                <small class="text-danger fs-6">Warning: This will make the submission
-                                    period
-                                    inaccessible for updates</small>
+                            <div class="mb-3 " dir="ltr" x-data="{ bypassNotifications: $wire.entangle('bypassNotifications'), row: $wire.entangle('rowId') }">
+
+                                <label for="">Bypass Notifications</label>
+                                <div class="square-switch d-flex align-items-baseline">
+                                    <input type="checkbox" x-model="bypassNotifications"
+                                        :checked="bypassNotifications" id="square-switch4" switch="none">
+                                    <label for="square-switch4" data-on-label="Yes" data-off-label="No"></label>
+
+                                </div>
+
+
                             </div>
+
+                            <div class="mb-3 " dir="ltr"  x-data="{ expired: $wire.entangle('expired'), row: $wire.entangle('rowId') }" x-show="row">
+
+                                <label for="">Cancel/Set to
+                                    Expire</label>
+                                <div class="square-switch d-flex align-items-baseline">
+                                    <input type="checkbox" x-model="expired"
+                                        :checked="expired" id="square-switch5" switch="none">
+                                    <label for="square-switch5" data-on-label="Yes" data-off-label="No"></label>
+
+                                </div>
+
+
+                            </div>
+
 
                             <button x-data class="btn btn-warning" type="submit" wire:loading.attr='disabled'
                                 @click="  window.scrollTo({

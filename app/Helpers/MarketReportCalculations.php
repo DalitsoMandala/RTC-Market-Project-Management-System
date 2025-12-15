@@ -68,6 +68,37 @@ class MarketReportCalculations
                     'final_market_district' => 'Other (Int.)'
                 ]);
             }
+
+            if ($m->entry_date == '2025-03-09') {
+                $m->update([
+                    'entry_date' => '2025-09-03'
+                ]);
+            }
+
+              if ($m->entry_date == '2025-04-10') {
+
+                $m->update([
+                    'entry_date' => '2025-10-04'
+                ]);
+            }
+
+            if ($m->entry_date == '2025-08-11') {
+                $m->update([
+                    'entry_date' => '2025-11-08'
+                ]);
+            }
+
+              if ($m->entry_date == '2025-04-11') {
+                $m->update([
+                    'entry_date' => '2025-11-04'
+                ]);
+            }
+
+              if ($m->entry_date == '2025-11-06') {
+                $m->update([
+                    'entry_date' => '2025-06-11'
+                ]);
+            }
         });
 
         try {
@@ -161,10 +192,11 @@ class MarketReportCalculations
             return $this->builder()
                 ->select([
                     'entry_date',
+                    DB::raw('DATE_FORMAT(entry_date, "%b-%y") AS formatted_date'),
                     DB::raw('SUM(estimated_demand_kg) AS volume_kg'),
                     DB::raw('SUM(estimated_total_value_usd) AS usd_value'),
                 ])
-                ->groupBy('entry_date')
+                ->groupBy('entry_date', 'formatted_date')
                 ->orderBy('entry_date');
         }, $this->years);
     }
@@ -177,9 +209,10 @@ class MarketReportCalculations
                 ->select([
                     'variety_demanded',
                     'entry_date',
+                    DB::raw('DATE_FORMAT(entry_date, "%b-%y") AS formatted_date'),
                     DB::raw('SUM(estimated_demand_kg) as volume_kg'),
                 ])
-                ->groupBy('entry_date', 'variety_demanded')
+                ->groupBy('entry_date', 'variety_demanded', 'formatted_date')
                 ->orderBy('entry_date');
         }, $this->years);
     }
@@ -217,11 +250,13 @@ class MarketReportCalculations
             return MarketData::query()
                 ->select([
                     'entry_date',
+                    DB::raw('DATE_FORMAT(entry_date, "%b-%y") AS formatted_date'),
                     DB::raw('SUM(estimated_demand_kg) as volume_kg'),
                     DB::raw('SUM(estimated_total_value_usd) as total_price'),
                     DB::raw('ROUND(SUM(estimated_total_value_usd) / NULLIF(SUM(estimated_demand_kg), 0), 2) as avg_price_per_kg')
                 ])
-                ->groupBy('entry_date')
+                ->groupBy('entry_date', 'formatted_date')
+                ->groupBy('entry_date', 'formatted_date')
                 ->orderBy('entry_date');
         }, $this->years);
     }

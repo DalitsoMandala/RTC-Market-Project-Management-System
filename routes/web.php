@@ -35,8 +35,8 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/info', function () {
 
-
-
+$market = new MarketReportCalculations();
+$market->run();
 });
 
 

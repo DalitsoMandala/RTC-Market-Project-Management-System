@@ -45,6 +45,7 @@ class Submissions extends Component
     public $statusSet = false;
     public $tableName;
     public $isManager = false;
+    public $notify = true;
 
     public $confirmDeleteProgress;
     public function messages()
@@ -52,6 +53,10 @@ class Submissions extends Component
         return [
             'comment.required_if' => 'A comment is required when the status is disapproved.',
         ];
+    }
+
+    public function mount(){
+
     }
     #[On('set')]
     public function setData($id)
@@ -143,33 +148,40 @@ class Submissions extends Component
             $link = $this->getLink($submission, '#batch-submission');
             // Perform actions based on status
             if ($this->status === 'approved') {
+
                 $this->approveSubmission($submission, [$this->tableName]);
                 // Dispatch notification using Bus::chain
-                Bus::chain([
-                    fn() => $user->notify(new SubmissionNotification(
-                        status: $this->status,
-                        denialMessage: null,
-                        batchId: $submission->batch_no,
-                        link: $link,
-                        form: $this->getFormName($this->tableName)
-                    )),
-                ])->dispatch();
+
+                if ($this->notify) {
+                    Bus::chain([
+                        fn() => $user->notify(new SubmissionNotification(
+                            status: $this->status,
+                            denialMessage: null,
+                            batchId: $submission->batch_no,
+                            link: $link,
+                            form: $this->getFormName($this->tableName)
+                        )),
+                    ])->dispatch();
+                }
+
 
                 session()->flash('success', 'Successfully approved batch submission');
             } else {
                 $this->denySubmission($submission, [$this->tableName]);
 
 
+                if ($this->notify) {
+                    Bus::chain([
+                        fn() => $user->notify(new SubmissionNotification(
+                            status: 'denied',
+                            denialMessage: $this->comment,
+                            batchId: $submission->batch_no,
+                            link: $link,
+                            form: $this->getFormName($this->tableName)
+                        )),
+                    ])->dispatch();
+                }
 
-                Bus::chain([
-                    fn() => $user->notify(new SubmissionNotification(
-                        status: 'denied',
-                        denialMessage: $this->comment,
-                        batchId: $submission->batch_no,
-                        link: $link,
-                        form: $this->getFormName($this->tableName)
-                    )),
-                ])->dispatch();
 
                 session()->flash('success', 'Successfully disapproved batch submission');
             }
@@ -349,17 +361,19 @@ class Submissions extends Component
             $user = User::withTrashed()->find($submission->submitted_user_id);
 
             $link = $this->getLink($submission, '#market-submission');
+            if ($this->notify) {
+                Bus::chain([
 
-            Bus::chain([
+                    fn() => $user->notify(new SubmissionNotification(
+                        status: 'approved',
+                        denialMessage: null,
+                        batchId: $submission->batch_no,
+                        link: $link,
+                        form: "MARKETING FORM"
+                    )),
+                ])->dispatch();
+            }
 
-                fn() => $user->notify(new SubmissionNotification(
-                    status: 'approved',
-                    denialMessage: null,
-                    batchId: $submission->batch_no,
-                    link: $link,
-                    form: "MARKETING FORM"
-                )),
-            ])->dispatch();
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
         } catch (\Throwable $e) {
@@ -395,16 +409,20 @@ class Submissions extends Component
             $user = User::withTrashed()->find($submission->submitted_user_id);
 
             $link = $this->getLink($submission, '#market-submission');
-            Bus::chain([
-                fn() => $user->notify(new SubmissionNotification(
-                    status: 'denied',
-                    denialMessage: $this->comment,
-                    batchId: $submission->batch_no,
-                    link: $link,
-                    form: "MARKETING FORM"
 
-                )),
-            ])->dispatch();
+            if ($this->notify) {
+                Bus::chain([
+                    fn() => $user->notify(new SubmissionNotification(
+                        status: 'denied',
+                        denialMessage: $this->comment,
+                        batchId: $submission->batch_no,
+                        link: $link,
+                        form: "MARKETING FORM"
+
+                    )),
+                ])->dispatch();
+            }
+
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
         } catch (\Throwable $e) {
@@ -432,16 +450,20 @@ class Submissions extends Component
             session()->flash('success', 'Successfully approved aggregate submission');
             $user = User::withTrashed()->find($submission->user_id);
             $link = $this->getLink($submission, '#aggregate-submission');
-            Bus::chain([
 
-                fn() => $user->notify(new SubmissionNotification(
-                    status: 'approved',
-                    denialMessage: null,
-                    batchId: $submission->batch_no,
-                    link: $link,
-                    form: "REPORT FORM"
-                )),
-            ])->dispatch();
+            if ($this->notify) {
+                Bus::chain([
+
+                    fn() => $user->notify(new SubmissionNotification(
+                        status: 'approved',
+                        denialMessage: null,
+                        batchId: $submission->batch_no,
+                        link: $link,
+                        form: "REPORT FORM"
+                    )),
+                ])->dispatch();
+            }
+
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
         } catch (\Throwable $e) {
@@ -477,15 +499,19 @@ class Submissions extends Component
             $user = User::withTrashed()->find($submission->user_id);
 
             $link = $this->getLink($submission, '#aggregate-submission');
-            Bus::chain([
-                fn() => $user->notify(new SubmissionNotification(
-                    status: 'denied',
-                    batchId: $submission->batch_no,
-                    denialMessage: $this->comment,
-                    link: $link,
-                    form: "REPORT FORM"
-                )),
-            ])->dispatch();
+
+            if ($this->notify) {
+                Bus::chain([
+                    fn() => $user->notify(new SubmissionNotification(
+                        status: 'denied',
+                        batchId: $submission->batch_no,
+                        denialMessage: $this->comment,
+                        link: $link,
+                        form: "REPORT FORM"
+                    )),
+                ])->dispatch();
+            }
+
             $this->dispatch('hideModal');
             $this->dispatch('refresh');
         } catch (\Throwable $e) {

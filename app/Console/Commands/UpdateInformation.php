@@ -99,11 +99,11 @@ class UpdateInformation extends Command
     private function runReportJobs($reportStatus)
     {
         Bus::chain([
-            new SyncronizeTableJob(),
-            new ReportJob(),
-            new PopulatePreviousValueJob(),
-            new AdditionalReportJob(),
-            new \App\Jobs\MarketReportJob(),
+           new SyncronizeTableJob(),
+           new ReportJob(),
+           new PopulatePreviousValueJob(),
+           new AdditionalReportJob(),
+            new MarketReportJob(),
             function () use ($reportStatus) {
                 $reportStatus->update([
                     'status' => 'completed',

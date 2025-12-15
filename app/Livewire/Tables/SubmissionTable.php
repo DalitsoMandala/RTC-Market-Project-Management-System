@@ -61,7 +61,7 @@ final class SubmissionTable extends PowerGridComponent
             // Exportable::make('export')
             //     ->striped()
             //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
+            Header::make()->showSearchInput()->showToggleColumns(),
             Footer::make()
                 ->showPerPage()->pageName('submissionPage')
                 ->showRecordCount(),
@@ -116,7 +116,7 @@ final class SubmissionTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            Filter::select('status_formatted', 'status')
+            Filter::select('status_formatted', 'submissions.status')
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
 
@@ -256,7 +256,7 @@ final class SubmissionTable extends PowerGridComponent
                 } else if ($model->status === 'pending') {
                     return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
                 } else {
-                    return '<span class="badge bg-danger-subtle text-danger">' . $model->status . '</span>';
+                     return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
                 }
             })
 

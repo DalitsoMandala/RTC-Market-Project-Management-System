@@ -34,11 +34,11 @@ class LoginRequest extends FormRequest
                 'string',
 
             ],
-            'password' => ['required', 'string'],
+          //  'password' => ['required', 'string'],
         ];
     }
 
-    
+
 
     public function authenticate(): void
     {
@@ -54,13 +54,22 @@ class LoginRequest extends FormRequest
 
 
 
-        if (!$user || !Hash::check($password, $user->password)) {
+          if (!$user ) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'login' => __('auth.failed'),
             ]);
         }
+
+
+        // if (!$user || !Hash::check($password, $user->password)) {
+        //     RateLimiter::hit($this->throttleKey());
+
+        //     throw ValidationException::withMessages([
+        //         'login' => __('auth.failed'),
+        //     ]);
+        // }
 
         Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
