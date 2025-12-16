@@ -57,6 +57,7 @@ class Dashboard2Charts extends Component
 
         $data = $this->load();
 
+
         $this->marketData = $this->filterByDate($data, $this->selectedReportYear);
 
     }

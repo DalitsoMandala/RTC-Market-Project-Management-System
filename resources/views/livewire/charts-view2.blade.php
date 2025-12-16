@@ -307,15 +307,29 @@
             districtComboChartCollection(data) {
                 const safeParseFloat = val => isNaN(parseFloat(val)) ? 0 : parseFloat(val);
 
-                const usdValues = data.map(item => safeParseFloat(item.usd_value));
-                const volumesKg = data.map(item => safeParseFloat(item.volume_kg));
-                const districts = data.map((item, index) => item.final_market_district ??
-                    `District ${index + 1}`);
+                const OTHER_DISTRICTS = ['Other (Int.)', 'Other (local)'];
+
+                // Sort with "Other" districts pushed to the end
+                const sortedData = [...data].sort((a, b) => {
+                    const aIsOther = OTHER_DISTRICTS.includes(a.final_market_district);
+                    const bIsOther = OTHER_DISTRICTS.includes(b.final_market_district);
+
+                    if (aIsOther && !bIsOther) return 1;
+                    if (!aIsOther && bIsOther) return -1;
+
+                    return 0; // preserve original order otherwise
+                });
+
+                const usdValues = sortedData.map(item => safeParseFloat(item.usd_value));
+                const volumesKg = sortedData.map(item => safeParseFloat(item.volume_kg));
+                const districts = sortedData.map((item, index) =>
+                    item.final_market_district ?? `District ${index + 1}`
+                );
 
                 return {
-                    volumesKg: volumesKg,
-                    usdValues: usdValues,
-                    districts: districts
+                    volumesKg,
+                    usdValues,
+                    districts
                 };
             },
             hasCountryValueDonutData: true,
@@ -908,15 +922,17 @@
                 const arr = filtered[0].data;
                 const data = this.districtComboChartCollection(arr);
 
+                console.log(data);
+
                 // Store chart data for potential later use
                 this.districtComboChart.data = data;
 
-                // Move "Other (Int.)" to the end of the districts array
-                data.districts = data.districts.sort((a, b) => {
-                    if (a === "Other (Int.)") return 1;
-                    if (b === "Other (Int.)") return -1;
-                    return a.localeCompare(b);
-                });
+                // // Move "Other (Int.)" to the end of the districts array
+                // data.districts = data.districts.sort((a, b) => {
+                //     if (a === "Other (Int.)") return 1;
+                //     if (b === "Other (Int.)") return -1;
+                //     return a.localeCompare(b);
+                // });
 
 
                 this.districtComboChart.instance = new ApexCharts(document.querySelector(

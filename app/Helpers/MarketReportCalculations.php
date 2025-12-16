@@ -41,15 +41,7 @@ class MarketReportCalculations
     public function run()
     {
 
-        $market = MarketData::get();
-        $market->each(function ($m) {
-            if ($m->final_market_district == 'Mzuzu' ) {
-                $m->update([
-                    'final_market_district' => 'Mzimba'
-                ]);
-            }
 
-        });
 
         try {
             # code...
@@ -210,70 +202,47 @@ class MarketReportCalculations
                 ->orderBy('entry_date');
         }, $this->years);
     }
+
     private function getGroupedVarietyByYear(callable $builderCallback, array $years): array
     {
         $result = [];
 
         foreach ($years as $year) {
-            $yearlyData = [];
-
             [$year1, $year2] = explode('/', $year);
+
+            $startDate = Carbon::create($year1)->startOfYear();
+            $endDate   = Carbon::create($year2)->endOfYear();
+
             $grouped = [];
-            $builder = $builderCallback();
-            $builder
-                ->where(function ($q) use ($year1, $year2) {
-                    $q->whereYear('entry_date', $year1)
-                        ->orWhereYear('entry_date', $year2);
-                })
+
+            $builderCallback()
+                ->whereBetween('entry_date', [$startDate, $endDate])
                 ->chunk(1000, function ($rows) use (&$grouped) {
                     foreach ($rows as $row) {
-                        $date = $row->entry_date;
+                        $date    = $row->entry_date;
                         $variety = $row->variety_demanded;
-                        $volume = (float)$row->volume_kg;
+                        $volume  = (float) $row->volume_kg;
 
                         if (!isset($grouped[$date])) {
                             $grouped[$date] = [];
                         }
 
                         if (!isset($grouped[$date][$variety])) {
-                            $grouped[$date][$variety] = [];
+                            $grouped[$date][$variety] = 0;
                         }
 
-                        $grouped[$date][$variety] = +$volume;
+                        // Accumulate volume correctly
+                        $grouped[$date][$variety] += $volume;
                     }
                 });
 
             $result[$year] = $grouped;
         }
 
-
-
-        // 'All' (no year filter)
-        $groupedAll = [];
-
-        $builderCallback()
-            ->chunk(1000, function ($rows) use (&$groupedAll) {
-                foreach ($rows as $row) {
-                    $date = $row->entry_date;
-                    $variety = $row->variety_demanded;
-                    $volume = (float)$row->volume_kg;
-
-                    if (!isset($groupedAll[$date])) {
-                        $groupedAll[$date] = [];
-                    }
-
-                    if (!isset($groupedAll[$date][$variety])) {
-                        $groupedAll[$date][$variety] = [];
-                    }
-
-                    $groupedAll[$date][$variety] = +$volume;
-                }
-            });
-
-        $result['All'] = $groupedAll;
-
         return $result;
     }
+
+
 
 
 
@@ -286,16 +255,13 @@ class MarketReportCalculations
         foreach ($years as $year) {
             $yearlyData = [];
 
-            $yearlyData = [];
-
             [$year1, $year2] = explode('/', $year);
 
-            $builderCallback()
+            $startDate = Carbon::create($year1)->startOfYear();
+            $endDate   = Carbon::create($year2)->endOfYear();
 
-                ->where(function ($q) use ($year1, $year2) {
-                    $q->whereYear('entry_date', $year1)
-                        ->orWhereYear('entry_date', $year2);
-                })
+            $builderCallback()
+                ->whereBetween('entry_date', [$startDate, $endDate])
                 ->chunk(1000, function ($rows) use (&$yearlyData) {
                     foreach ($rows as $row) {
                         $yearlyData[] = $row->toArray();
@@ -305,20 +271,12 @@ class MarketReportCalculations
             $results[$year] = $yearlyData;
         }
 
-        // All years combined
-        $allData = [];
-
-        $builderCallback()
-            ->chunk(1000, function ($rows) use (&$allData) {
-                foreach ($rows as $row) {
-                    $allData[] = $row->toArray();
-                }
-            });
-
-        $results['All'] = $allData;
 
         return $results;
     }
+
+
+
 
     private function getGroupedVarietyCountryByYear(callable $builderCallback, array $years): array
     {
@@ -327,23 +285,19 @@ class MarketReportCalculations
         foreach ($years as $year) {
             $grouped = [];
 
-            $yearlyData = [];
-
             [$year1, $year2] = explode('/', $year);
 
-            // Always get a fresh builder per loop
-            $builder = $builderCallback();
+            $startDate = Carbon::create($year1)->startOfYear();
+            $endDate   = Carbon::create($year2)->endOfYear();
 
-            // Group conditions properly
-            $builder->where(function ($q) use ($year1, $year2) {
-                $q->whereYear('entry_date', $year1)
-                    ->orWhereYear('entry_date', $year2);
-            })
+            // Always get a fresh builder per loop
+            $builderCallback()
+                ->whereBetween('entry_date', [$startDate, $endDate])
                 ->chunk(1000, function ($rows) use (&$grouped) {
                     foreach ($rows as $row) {
                         $variety = $row->variety_demanded;
                         $country = $row->final_market_country;
-                        $volume = (float) $row->volume_kg;
+                        $volume  = (float) $row->volume_kg;
 
                         if (!isset($grouped[$variety])) {
                             $grouped[$variety] = [];
@@ -360,32 +314,11 @@ class MarketReportCalculations
             $results[$year] = $grouped;
         }
 
-        // "All" years (no filter)
-        $groupedAll = [];
 
-        $builderCallback()
-            ->chunk(1000, function ($rows) use (&$groupedAll) {
-                foreach ($rows as $row) {
-                    $variety = $row->variety_demanded;
-                    $country = $row->final_market_country;
-                    $volume = (float) $row->volume_kg;
-
-                    if (!isset($groupedAll[$variety])) {
-                        $groupedAll[$variety] = [];
-                    }
-
-                    if (!isset($groupedAll[$variety][$country])) {
-                        $groupedAll[$variety][$country] = 0;
-                    }
-
-                    $groupedAll[$variety][$country] += $volume;
-                }
-            });
-
-        $results['All'] = $groupedAll;
 
         return $results;
     }
+
 
 
     private function getDataGroupedByYear(callable $builderCallback, array $years): array
@@ -393,36 +326,23 @@ class MarketReportCalculations
         $results = [];
 
         foreach ($years as $year) {
-            $yearlyData = [];
-
             [$year1, $year2] = explode('/', $year);
-            $builder = $builderCallback();
 
-            $builder->whereYear('entry_date', $year)
-                ->orWhereYear('entry_date', $year2)
-                ->chunk(1000, function ($rows) use (&$yearlyData) {
-                    foreach ($rows as $row) {
-                        $yearlyData[] = $row->toArray();
-                    }
-                });
+            $startDate = Carbon::create($year1)->startOfYear();
+            $endDate   = Carbon::create($year2)->endOfYear();
 
-            $results[$year] = $yearlyData;
+            $results[$year] = $builderCallback()
+                ->whereBetween('entry_date', [$startDate, $endDate])
+                ->get()
+                ->toArray();
         }
 
-        // "All" dataset (no year filter)
-        $allData = [];
 
-        $builderCallback()
-            ->chunk(1000, function ($rows) use (&$allData) {
-                foreach ($rows as $row) {
-                    $allData[] = $row->toArray();
-                }
-            });
-
-        $results['All'] = $allData;
 
         return $results;
     }
+
+
 
 
     private function getGroupedCountryShareGroupedByYear(callable $builderCallback, array $years): array
@@ -433,39 +353,34 @@ class MarketReportCalculations
             $yearlyData = [];
             $totalUSD = 0;
 
-            // Step 1: Get total USD value (from all groups)
-
-
             [$year1, $year2] = explode('/', $year);
 
-            // Always get a fresh builder per loop
-            $builder = $builderCallback();
+            $startDate = Carbon::create($year1)->startOfYear();
+            $endDate   = Carbon::create($year2)->endOfYear();
 
-            // Group conditions properly
-            $builder->where(function ($q) use ($year1, $year2) {
-                $q->whereYear('entry_date', $year1)
-                    ->orWhereYear('entry_date', $year2);
-            })
+            /*
+         * Step 1: Get total USD for the period
+         */
+            $builderCallback()
+                ->whereBetween('entry_date', [$startDate, $endDate])
                 ->chunk(1000, function ($rows) use (&$totalUSD) {
                     foreach ($rows as $row) {
                         $totalUSD += (float) $row->usd_value;
                     }
                 });
 
-            // Step 2: Collect share per country
-
-            $builder = $builderCallback();
-
-            // Group conditions properly
-            $builder->where(function ($q) use ($year1, $year2) {
-                $q->whereYear('entry_date', $year1)
-                    ->orWhereYear('entry_date', $year2);
-            })
+            /*
+         * Step 2: Calculate country share
+         */
+            $builderCallback()
+                ->whereBetween('entry_date', [$startDate, $endDate])
                 ->chunk(1000, function ($rows) use (&$yearlyData, $totalUSD) {
                     foreach ($rows as $row) {
                         $yearlyData[] = [
                             'country' => $row->final_market_country,
-                            'share' => $totalUSD > 0 ? round($row->usd_value / $totalUSD * 100, 2) : 0,
+                            'share'   => $totalUSD > 0
+                                ? round(($row->usd_value / $totalUSD) * 100, 2)
+                                : 0,
                         ];
                     }
                 });
@@ -473,30 +388,6 @@ class MarketReportCalculations
             $results[$year] = $yearlyData;
         }
 
-        // Handle "All" years
-        $totalUSDAll = 0;
-        $allData = [];
-
-        // Step 1: Sum usd_value
-        $builderCallback()
-            ->chunk(1000, function ($rows) use (&$totalUSDAll) {
-                foreach ($rows as $row) {
-                    $totalUSDAll += (float) $row->usd_value;
-                }
-            });
-
-        // Step 2: Calculate share
-        $builderCallback()
-            ->chunk(1000, function ($rows) use (&$allData, $totalUSDAll) {
-                foreach ($rows as $row) {
-                    $allData[] = [
-                        'country' => $row->final_market_country,
-                        'share' => $totalUSDAll > 0 ? round($row->usd_value / $totalUSDAll * 100, 2) : 0,
-                    ];
-                }
-            });
-
-        $results['All'] = $allData;
 
         return $results;
     }

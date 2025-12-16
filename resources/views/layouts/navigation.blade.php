@@ -457,7 +457,7 @@
                                         <div class="dropdown">
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
-                                                Marketing Management< </a>
+                                                Marketing Management </a>
                                                     <div class="dropdown-menu" aria-labelledby="topnav-form">
                                                         <a href="{{ route('cip-markets-manage-data') }}"
                                                             class="dropdown-item" data-key="t-lightbox">Manage Data</a>
