@@ -65,70 +65,70 @@ public function addNewRole(){
     public function test()
     {
 
-        $data = [
-            'categories' => [
-                'Seed (Mbeu/Variety)' => [],
-                'Land Preparation & Planting' => [
-                    'Rent (Lendi ya malo)' => 'Acre',
-                    'Land clearing (Kusosa/kutchetcha m\'munda kapena m\'dimba)' => 'Acre',
-                    'Ploughing (Kugaula/kutipula)' => 'Acre',
-                    'Ridging (Kukonza mizere)' => 'Acre',
+        // $data = [
+        //     'categories' => [
+        //         'Seed (Mbeu/Variety)' => [],
+        //         'Land Preparation & Planting' => [
+        //             'Rent (Lendi ya malo)' => 'Acre',
+        //             'Land clearing (Kusosa/kutchetcha m\'munda kapena m\'dimba)' => 'Acre',
+        //             'Ploughing (Kugaula/kutipula)' => 'Acre',
+        //             'Ridging (Kukonza mizere)' => 'Acre',
 
-                ],
+        //         ],
 
-                'Agricultural Operations' => [
-                    'Planting (Kudzala mbeu)' => 'Acre',
-                    'First weeding (Kupalira koyamba)' => 'Acre',
-                    'Second weeding (Kapalira kachiwiri)' => 'Acre',
-                    'Basal fertilizer (Feteleza oyamba)' => 'Acre',
-                    'Top dressing fertilizer (Feteleza wachiwiri)' => 'Acre',
-                    'Manure (Manyowa)' => 'Acre',
-                    'Manure transport (Transipoti yotutira manyowa)' => 'Acre',
-                    'Banding (Kukwezera/Kubandira)' => 'Acre',
-                ],
-                'Pest/Livestock/Theft control' => [
-                    'Fencing (Kumanga mpanda)' => 'Each',
-                    'Guards (Kulipira alonda)' => 'Labour/Materials',
-                    'Pesticides' => 'Acre',
-                    'Fungicides' => 'Acre',
-                    'Hiring knapsack sprayers' => 'Each',
-                    'Spraying (Kupopera mankhwala)' => 'Acre',
+        //         'Agricultural Operations' => [
+        //             'Planting (Kudzala mbeu)' => 'Acre',
+        //             'First weeding (Kupalira koyamba)' => 'Acre',
+        //             'Second weeding (Kapalira kachiwiri)' => 'Acre',
+        //             'Basal fertilizer (Feteleza oyamba)' => 'Acre',
+        //             'Top dressing fertilizer (Feteleza wachiwiri)' => 'Acre',
+        //             'Manure (Manyowa)' => 'Acre',
+        //             'Manure transport (Transipoti yotutira manyowa)' => 'Acre',
+        //             'Banding (Kukwezera/Kubandira)' => 'Acre',
+        //         ],
+        //         'Pest/Livestock/Theft control' => [
+        //             'Fencing (Kumanga mpanda)' => 'Each',
+        //             'Guards (Kulipira alonda)' => 'Labour/Materials',
+        //             'Pesticides' => 'Acre',
+        //             'Fungicides' => 'Acre',
+        //             'Hiring knapsack sprayers' => 'Each',
+        //             'Spraying (Kupopera mankhwala)' => 'Acre',
 
-                ],
-                'Harvesting (Kukolora)' => [
-                    'Sacks (Matumba)' => 'Bag',
-                    'Labour for harvesting (Aganyu okumba/odula)' => 'Kg/bundle',
-                    'Labour for packing (Aganyu opakira mmatumba)' => 'Kg/bundle',
-                    'Labour for loading and offloading (Aganyu okweza ndi kutsitsa matumba)' => 'Kg/bundle',
-                    'Transport for harvest (Transipoti yotutila zokolola)' => 'Trip',
+        //         ],
+        //         'Harvesting (Kukolora)' => [
+        //             'Sacks (Matumba)' => 'Bag',
+        //             'Labour for harvesting (Aganyu okumba/odula)' => 'Kg/bundle',
+        //             'Labour for packing (Aganyu opakira mmatumba)' => 'Kg/bundle',
+        //             'Labour for loading and offloading (Aganyu okweza ndi kutsitsa matumba)' => 'Kg/bundle',
+        //             'Transport for harvest (Transipoti yotutila zokolola)' => 'Trip',
 
-                ],
-            ]
-
-
-        ];
-
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        GrossMarginCategoryItem::truncate();
-        GrossMarginCategory::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
-        foreach ($data['categories'] as $category => $items) {
-            $cat =   GrossMarginCategory::create([
-                'name' => $category,
-
-            ]);
-            foreach ($items as $item => $unit) {
+        //         ],
+        //     ]
 
 
+        // ];
 
-                GrossMarginCategoryItem::create([
-                    'gross_margin_category_id' => $cat->id,
-                    'item_name' => $item,
-                    'unit' => $unit,
-                ]);
-            }
-        }
+        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // GrossMarginCategoryItem::truncate();
+        // GrossMarginCategory::truncate();
+        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // foreach ($data['categories'] as $category => $items) {
+        //     $cat =   GrossMarginCategory::create([
+        //         'name' => $category,
+
+        //     ]);
+        //     foreach ($items as $item => $unit) {
+
+
+
+        //         GrossMarginCategoryItem::create([
+        //             'gross_margin_category_id' => $cat->id,
+        //             'item_name' => $item,
+        //             'unit' => $unit,
+        //         ]);
+        //     }
+        // }
     }
 
 
@@ -176,5 +176,10 @@ public function addNewRole(){
     public function downloadTemplates()
     {
         return Excel::download(new RootTuberImportTemplate(true), 'import.xlsx');
+    }
+    use IndicatorsTrait;
+    public function notify(){
+      //return  $this->getEndingSoonSubmissionPeriods();
+
     }
 }
