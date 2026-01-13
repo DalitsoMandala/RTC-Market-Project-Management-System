@@ -4,6 +4,7 @@ namespace App\Exports\MarketingExport;
 
 use App\Models\MarketData;
 use App\Models\MarketingData;
+use App\Helpers\DistrictObject;
 use App\Traits\ExportStylingTrait;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -60,6 +61,12 @@ class MarketingDataExport implements FromCollection, WithHeadings, WithTitle, Wi
                 ]);
 
                 $sheet = $event->sheet->getDelegate();
+
+                $dropdownOptions = [...DistrictObject::districts()]; // Includes an empty option
+                $this->setDataValidations($dropdownOptions, 'M3', $sheet);
+                $dropdownOptions = [...DistrictObject::countries()]; // Includes an empty option
+
+                $this->setDataValidations($dropdownOptions, 'N3', $sheet);
             },
         ];
     }

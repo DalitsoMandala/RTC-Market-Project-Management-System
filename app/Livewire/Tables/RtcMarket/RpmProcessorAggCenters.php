@@ -30,7 +30,7 @@ final class RpmProcessorAggCenters extends PowerGridComponent
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = RpmProcessorAggregationCenter::query()->with('processors')->select([
-            'rpmf_aggregation_centers.*',
+            'rpmp_aggregation_centers.*',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
         if ($user->hasAnyRole('external')) {
