@@ -123,6 +123,11 @@ class ListUsers extends Component
 
     ];
 
+    public function clearAllRoles(){
+        $this->selectedRoles = [];
+        $this->usersByRole = [];
+    }
+
     public function checkContent()
     {
         $this->hasRestrictedContent = false;
