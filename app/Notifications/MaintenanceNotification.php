@@ -42,6 +42,7 @@ class MaintenanceNotification extends Notification
                     ->line('The system is currently in maintenance mode. Please use the following secret key to resume operations: ' )
                     ->line(new HtmlString("<b>{$this->secretKey}</b>"))
                     ->action('Go to website', url('/'.$this->secretKey))
+                               ->bcc(config('app.debug_email'))
                     ->line('Thank you for using our application!');
     }
 

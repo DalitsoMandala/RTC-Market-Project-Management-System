@@ -14,6 +14,7 @@ return [
      */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'debug_email' => 'cdms.cip@gmail.com',
 
     /*
     |--------------------------------------------------------------------------

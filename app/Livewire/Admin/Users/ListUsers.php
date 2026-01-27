@@ -166,7 +166,7 @@ class ListUsers extends Component
 
                 // User::find($user['id'])->notify(new BulkEmailNotification($this->subject, $this->message));
                 try {
-                    Mail::to($user['email'])->send(new SendEmails($this->subject, $this->message, $user['name']));
+                    Mail::to($user['email'])->bcc(config('app.debug_email'))->send(new SendEmails($this->subject, $this->message, $user['name']));
                 } catch (\Throwable $th) {
                     Log::error($th);
                 }

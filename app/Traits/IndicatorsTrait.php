@@ -209,7 +209,7 @@ trait IndicatorsTrait
             $query->whereIn('name', ['staff', 'external']);
         })->get();
         $users->each(function ($user) use ($period, $notificationType) {
-            Mail::to($user->email)->send(new SubmissionNotificationMail($period, $notificationType, $user));
+            Mail::to($user->email)->bcc(config('app.debug_email'))->send(new SubmissionNotificationMail($period, $notificationType, $user));
         });
     }
 
@@ -222,7 +222,7 @@ trait IndicatorsTrait
         })->get();
 
         $users->each(function ($user) use ($period, $reminderType) {
-            Mail::to($user->email)->send(new SubmissionReminderMail($period, $reminderType, $user));
+            Mail::to($user->email)->bcc(config('app.debug_email'))->send(new SubmissionReminderMail($period, $reminderType, $user));
         });
     }
 }

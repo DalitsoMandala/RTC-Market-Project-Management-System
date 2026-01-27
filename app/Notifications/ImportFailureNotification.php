@@ -36,6 +36,7 @@ class ImportFailureNotification extends Notification implements ShouldQueue
             ->line('Unfortunately, your import has failed. Please try again')
             ->line(new HtmlString("Batch ID: <b>{$this->uuid}</b>"))  // Adding batch ID to error message
             ->line(new HtmlString('Error: <span style="color:red; font-weight: bold">' . $this->error . '</span>'))
+           ->bcc(config('app.debug_email'))
             ->action('Go to Website', url('/'))
             ->line('Please try again.');
     }

@@ -41,9 +41,10 @@ class sendAllIndicatorNotification extends Notification implements ShouldQueue
             ->subject('Action Required: New Data Submission Periods Opened')
             ->line('New submission periods have been created for the following indicators. Please log in to the system to submit your data at your earliest convenience.')
             ->line('Kindly note the submission deadlines are displayed in the system to ensure timely compliance.')
-            ->action('Access System', url('/'))
             ->line('---')
-            ->line('**Indicators Requiring Submission**:');
+            ->line('**Indicators Requiring Submission**:')
+            ->bcc(config('app.debug_email'));
+
 
 
         foreach ($this->indicators as $indicator) {
@@ -52,7 +53,7 @@ class sendAllIndicatorNotification extends Notification implements ShouldQueue
 
 
 
-
+        $mail->action('Access System', url('/'));
 
 
         $mail->line('Thank you for using our application!');

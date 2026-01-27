@@ -55,6 +55,7 @@ class SubmissionNotification extends Notification implements ShouldQueue
                 ->subject('Submission Accepted')
                 ->line('Congratulations! Your submission has been **accepted!**')
                 ->line('Batch No. ' . $this->batchId)
+                ->bcc(config('app.debug_email'))
                 ->line('Form: ' . $this->typeOfForm)
                 ->action('Go to website', $this->link);
         } else {
@@ -63,6 +64,7 @@ class SubmissionNotification extends Notification implements ShouldQueue
                 $mailMessage
                     ->greeting('Hello ' . $notifiable->name . ',')
                     ->subject('Submission Denied')
+                    ->bcc(config('app.debug_email'))
                     // Use Markdown for bold/underline (which looks like **bold** in plain text)
                     ->line('We regret to inform you that your submission has been **disapproved!**')
                     // ->line() automatically creates new paragraphs, ensuring a break here
@@ -80,6 +82,7 @@ class SubmissionNotification extends Notification implements ShouldQueue
                 ->line('**' . $this->denialMessage . '**')
                 // Laravel converts this new paragraph into clean HTML spacing:
                 ->line('Form: ' . $this->typeOfForm)
+                ->bcc(config('app.debug_email'))
                 ->action('Go to website', $this->link)
             ;
         }

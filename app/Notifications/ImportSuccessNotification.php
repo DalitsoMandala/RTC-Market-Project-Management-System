@@ -39,6 +39,7 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
             ->subject('Import Successful')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line($this->message)
+                       ->bcc(config('app.debug_email'))
             ->action('View Details', $this->link) // Adjust URL
             ->line('Thank you for using our application!');
     }

@@ -51,6 +51,7 @@ class NewSubmissionNotification extends Notification implements ShouldQueue
             ->subject('New Submission for Review')
             ->line('A new submission has been made that requires your review.')
             ->action('Review Submission', url($this->prefix . '/submissions'))
+                       ->bcc(config('app.debug_email'))
             ->line('Thank you for using our application!');
     }
 
