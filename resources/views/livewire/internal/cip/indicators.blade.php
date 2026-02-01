@@ -26,9 +26,9 @@
             <div class="col-12">
                 <x-alerts />
                 <div class="card">
-               <div class="card-header card-title fw-bold border-bottom-0 ">
-                           Indicators
-                        </div>
+                    <div class="card-header card-title fw-bold border-bottom-0 ">
+                        Indicators
+                    </div>
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -39,12 +39,21 @@
                                     Indicators List
                                 </button>
                             </li>
+
+
                             @hasanyrole('admin|manager')
                                 <li class="nav-item d-none " role="presentation">
                                     <button class="nav-link " id="profile-tab" data-bs-toggle="tab"
                                         data-bs-target="#profile" type="button" role="tab" aria-controls="profile"
                                         aria-selected="false" wire:ignore.self>
                                         Indicator Disaggregations
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link " id="manage-indicators-tab" data-bs-toggle="tab"
+                                        data-bs-target="#manage-indicators" type="button" role="tab"
+                                        aria-controls="home" aria-selected="true" wire:ignore.self>
+                                        Manage Indicators (Developer Only)
                                     </button>
                                 </li>
                             @endhasanyrole
@@ -60,6 +69,13 @@
 
                             </div>
 
+                            <div class="tab-pane " wire:ignore.self id="manage-indicators" role="tabpanel"
+                                aria-labelledby="home-tab">
+                            <livewire:admin.data.manage-indicators />
+
+
+
+                            </div>
 
 
 
