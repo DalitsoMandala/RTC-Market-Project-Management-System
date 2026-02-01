@@ -43,26 +43,23 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
-        $arr = $this->only('email', 'password');
-        $email = strtolower(trim($arr['email']));
-        $password = $arr['password'];
 
-        $user = User::where(function ($user) use ($email, $password) {
-            $user->where('email', $email)
-                ->orWhere('name', $email);
+        $credentials = $this->only('email', 'password');
+        $login = strtolower(trim($credentials['email']));
+        $password = $credentials['password'];
+
+        $user = User::where(function ($query) use ($login) {
+            $query->where('email', $login)
+                ->orWhere('name', $login);
         })->first();
 
+        if (! $user || ! Hash::check($password, $user->password)) {
+            RateLimiter::hit($this->throttleKey());
 
-
-        // if (!$user) {
-        //     RateLimiter::hit($this->throttleKey());
-
-        //     throw ValidationException::withMessages([
-        //         'login' => __('auth.failed'),
-        //     ]);
-        // }
-
-
+            throw ValidationException::withMessages([
+                'login' => __('auth.failed'),
+            ]);
+        }
 
         Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
