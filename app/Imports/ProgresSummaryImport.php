@@ -4,14 +4,17 @@ namespace App\Imports;
 
 use App\Models\Submission;
 use App\Models\JobProgress;
+use App\Traits\FormEssentials;
 use App\Helpers\ExcelValidator;
 use App\Models\AdditionalReport;
+use App\Traits\ChecksBlankSheets;
 use App\Models\ProgressSubmission;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\SheetNamesValidator;
 use Illuminate\Support\Facades\Cache;
 use App\Notifications\JobNotification;
+use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Events\AfterImport;
 use App\Imports\ProgresSummaryImportSheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -23,8 +26,6 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
-use App\Traits\FormEssentials;
-use Illuminate\Support\Facades\Artisan;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -32,7 +33,7 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 HeadingRowFormatter::default('none');
 class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, WithEvents
 {
-    use FormEssentials;
+    use FormEssentials, ChecksBlankSheets;
     public $filePath;
     public $expectedSheetNames = [
         'Progress summary',
@@ -82,49 +83,18 @@ class ProgresSummaryImport implements WithMultipleSheets, WithChunkReading, With
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
-
-                // Validate expected and unexpected sheet names
-                foreach ($this->expectedSheetNames as $expectedSheetName) {
-                    if (!in_array($expectedSheetName, $sheetNames)) {
-                        Log::error("Missing expected sheet: {$expectedSheetName}");
-                        throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing.");
-                    }
-                }
-
-
-
-
-
-                // Check if the first sheet is blank
-                $firstSheetName = $this->expectedSheetNames[0];
-                $sheets = $event->reader->getTotalRows();
-
-                foreach ($sheets as $key => $sheet) {
-
-                    if ($sheet <= 1 && $key == $firstSheetName) {
-
-                        Log::error("The sheet '{$firstSheetName}' is blank.");
-                        throw new ExcelValidationException(
-                            "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                        );
-                    }
-                }
-
-
-                $filePath = $this->filePath;
-                $expectedSheetNames = $this->expectedSheetNames;
-                $expectedHeaders = $this->expectedHeaders;
-
-                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
-                $message = $validator->validateHeaders();
-
-                if ($message) {
-                    throw new ExcelValidationException($message->getMessage());
-                }
-
-                // Get total rows from all sheets and initialize JobProgress
                 $rowCounts = $event->reader->getTotalRows();
+                $this->assertBlankSheetRules(
+                    rowCounts: $rowCounts,
+                    required: [
+                        'Progress summary' => 2,
+                    ],
+                    optional: [
+
+                    ],
+
+                );
+
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 1) ?? 0); // excluding headers
                 }, 0);

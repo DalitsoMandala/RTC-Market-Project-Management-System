@@ -25,11 +25,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use App\Exports\RtcConsumption\RtcConsumptionExport;
 use App\Models\RtcConsumption;
+use App\Traits\ChecksBlankSheets;
 use App\Traits\FormEssentials;
 
 class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
-    use FormEssentials;
+    use FormEssentials, ChecksBlankSheets;
     protected $expectedSheetNames = ['Rtc Consumption'];
     protected $expectedHeaders = [];
     protected $cacheKey;
@@ -67,50 +68,19 @@ class RtcConsumptionMultiSheet implements WithMultipleSheets, WithChunkReading, 
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
-                $reader = IOFactory::createReaderForFile($this->filePath);
-                $spreadsheet = $reader->load($this->filePath);
-                $sheetNames = $spreadsheet->getSheetNames();
-
-
-                $workBook = $event->reader->getTotalRows();
-
-                foreach ($workBook as $sheetName => $totalRows) {
-                    // Check if the sheet is blank
-                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
-                        if ($sheetName === $firstSheetName) {
-                            // Log error if the first sheet is blank
-                            Log::error("The sheet '{$firstSheetName}' is blank.");
-                            throw new ExcelValidationException(
-                                "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                            );
-                        }
-                    }
-                }
-
-
-
-
-                // Validate headers and missing sheet names
-                foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
-                    // Check if sheet exists
-                    if (!in_array($sheetName, $sheetNames)) {
-                        throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
-                    }
-
-                    // Get the sheet by name
-                    $sheet = $spreadsheet->getSheetByName($sheetName);
-
-                    // Validate headers
-                    $actualHeaders = $this->getSheetHeaders($sheet);
-                    //dd($actualHeaders, $expectedHeaders);
-                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
-                        throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
-                    }
-                }
 
                 // Get total rows from all sheets and initialize JobProgress
+
                 $rowCounts = $event->reader->getTotalRows();
+                $this->assertBlankSheetRules(
+                    rowCounts: $rowCounts,
+                    required: [
+                        'Rtc Consumption' => 2,
+                    ],
+                    optional: [],
+
+                );
+
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 2) ?? 0); // excluding headers
                 }, 0);

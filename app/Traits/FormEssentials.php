@@ -4,6 +4,7 @@ namespace App\Traits;
 
 trait FormEssentials
 {
+       protected $ignoredSheetNames = ['ValidationLists'];
     //
     public $forms = [
         'Rtc Recruitment Form' => [

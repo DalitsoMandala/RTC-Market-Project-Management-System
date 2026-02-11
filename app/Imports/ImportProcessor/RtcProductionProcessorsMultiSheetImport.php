@@ -2,43 +2,44 @@
 
 namespace App\Imports\ImportProcessor;
 
-use App\Exceptions\ExcelValidationException;
-use App\Helpers\ExcelValidator;
-use App\Helpers\SheetNamesValidator;
-use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
-use App\Imports\ImportProcessor\RpmpMisImport;
-use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
-use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
-use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
-use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
-use App\Models\JobProgress;
-use App\Models\RtcProductionProcessor;
-use App\Models\Submission;
 use App\Models\User;
+use App\Models\Submission;
+use App\Models\JobProgress;
+use App\Traits\FormEssentials;
+use App\Helpers\ExcelValidator;
+use App\Traits\ChecksBlankSheets;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\SheetNamesValidator;
+use Illuminate\Support\Facades\Cache;
+use App\Models\RtcProductionProcessor;
+use App\Notifications\JobNotification;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\BeforeSheet;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeImport;
+use Maatwebsite\Excel\Events\ImportFailed;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Exceptions\ExcelValidationException;
+use App\Imports\ImportProcessor\RpmpMisImport;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
-use App\Notifications\JobNotification;
-use App\Traits\FormEssentials;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Events\AfterImport;
-use Maatwebsite\Excel\Events\BeforeImport;
-use Maatwebsite\Excel\Events\BeforeSheet;
-use Maatwebsite\Excel\Events\ImportFailed;
-use Maatwebsite\Excel\Validators\ValidationException;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Validators\ValidationException;
+use App\Imports\ImportProcessor\RpmpAggregationCentersImport;
+use App\Imports\ImportProcessor\RpmProcessorDomMarketsImport;
+use App\Imports\ImportProcessor\RtcProductionProcessorsImport;
+use App\Imports\ImportProcessor\RpmProcessorInterMarketsImport;
+use App\Imports\ImportProcessor\RpmProcessorConcAgreementsImport;
 
 class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable;
-    use FormEssentials;
+    use FormEssentials, ChecksBlankSheets;
 
     protected $expectedSheetNames = [
         'Production Processors',
@@ -97,43 +98,21 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $firstSheetName = $this->expectedSheetNames[0];  // Get first sheet from the expected list
-                $reader = IOFactory::createReaderForFile($this->filePath);
-                $spreadsheet = $reader->load($this->filePath);
-                $sheetNames = $spreadsheet->getSheetNames();
-
-                $workBook = $event->reader->getTotalRows();
-
-                foreach ($workBook as $sheetName => $totalRows) {
-                    // Check if the sheet is blank
-                    if ($totalRows <= 2) {  // Adjust this if you want to consider 0 rows as blank, 3rd row is validation
-                        if ($sheetName === $firstSheetName) {
-                            // Log error if the first sheet is blank
-                            Log::error("The sheet '{$firstSheetName}' is blank.");
-                            throw new ExcelValidationException(
-                                "The sheet '{$firstSheetName}' is blank. Please ensure it contains data before importing."
-                            );
-                        }
-                    }
-                }
-
-                // Validate headers and missing sheet names
-                foreach ($this->expectedHeaders as $sheetName => $expectedHeaders) {
-                    // Check if sheet exists
-                    if (!in_array($sheetName, $sheetNames)) {
-                        throw new ExcelValidationException("Sheet '{$sheetName}' is missing in the uploaded file.");
-                    }
-
-                    // Get the sheet by name
-                    $sheet = $spreadsheet->getSheetByName($sheetName);
-
-                    // Validate headers
-                    $actualHeaders = $this->getSheetHeaders($sheet);
-                    if (!$this->validateHeaders($actualHeaders, $expectedHeaders)) {
-                        throw new ExcelValidationException("Headers in sheet '{$sheetName}' do not match the expected format.");
-                    }
-                }
                 $rowCounts = $event->reader->getTotalRows();
+                $this->assertBlankSheetRules(
+                    rowCounts: $rowCounts,
+                    required: [
+                        'Production Processors' => 2,
+                    ],
+                    optional: [
+                        'Contractual Agreements' => 2,
+                        'Domestic Markets' => 2,
+                        'International Markets' => 2,
+                        'Market Information Systems' => 2,
+                        'Aggregation Centers' => 2,
+                    ],
+
+                );
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 2) ?? 0);  // exclude headers
                 }, 0);
@@ -206,7 +185,7 @@ class RtcProductionProcessorsMultiSheetImport implements WithMultipleSheets, Wit
                         'is_complete' => 1,
                         'table_name' => 'rtc_production_processors',
                         'file_link' => $this->submissionDetails['file_link'],
-                                'description' => $this->submissionDetails['description']
+                        'description' => $this->submissionDetails['description']
                     ]);
 
                     $user->notify(new ImportSuccessNotification(

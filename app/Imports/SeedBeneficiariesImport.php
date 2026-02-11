@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Notifications\ImportFailureNotification;
 use App\Notifications\ImportSuccessNotification;
 use App\Notifications\JobNotification;
+use App\Traits\ChecksBlankSheets;
 use App\Traits\FormEssentials;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Cache;
@@ -33,7 +34,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
         'Cassava'
     ];
 
-    use FormEssentials;
+    use FormEssentials, ChecksBlankSheets;
 
     protected $expectedHeaders = [];
 
@@ -69,59 +70,20 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     {
         return [
             BeforeImport::class => function (BeforeImport $event) {
-                $sheetNames = SheetNamesValidator::getSheetNames($this->filePath);
-
-                // Validate expected and unexpected sheet names
-                foreach ($this->expectedSheetNames as $expectedSheetName) {
-                    if (!in_array($expectedSheetName, $sheetNames)) {
-                        Log::error("Missing expected sheet: {$expectedSheetName}");
-                        throw new ExcelValidationException("The sheet '{$expectedSheetName}' is missing.");
-                    }
-                }
-
-                foreach ($sheetNames as $sheetName) {
-                    if (!in_array($sheetName, $this->expectedSheetNames)) {
-                        Log::error("Unexpected sheet name: {$sheetName}");
-                        throw new ExcelValidationException("Unexpected sheet: '{$sheetName}' in file.");
-                    }
-                }
-
-                // Check if the first sheet is blank
-                $sheetNames = $this->expectedSheetNames;
-                $sheets = $event->reader->getTotalRows();
-
-                $countBlanks = 0;
-
-                foreach ($sheets as $key => $sheet) {
-                    if (
-                        ($key == $sheetNames[0] && $sheet <= 1) ||
-                        ($key == $sheetNames[1] && $sheet <= 2) ||
-                        ($key == $sheetNames[2] && $sheet <= 3)
-                    ) {
-                        $countBlanks++;
-                    }
-                }
-
-                if ($countBlanks == 3) {
-                    Log::error('The sheets are all blank.');
-                    throw new ExcelValidationException(
-                        'The sheets are all blank. Please ensure your file contains data before importing.'
-                    );
-                }
-
-                $filePath = $this->filePath;
-                $expectedSheetNames = $this->expectedSheetNames;
-                $expectedHeaders = $this->expectedHeaders;
-
-                $validator = new ExcelValidator($filePath, $expectedSheetNames, $expectedHeaders);
-                $message = $validator->validateHeaders();
-
-                if ($message) {
-                    throw new ExcelValidationException($message->getMessage());
-                }
-
-                // Get total rows from all sheets and initialize JobProgress
                 $rowCounts = $event->reader->getTotalRows();
+
+                $this->assertBlankSheetRules(
+                    rowCounts: $rowCounts,
+                    required: [
+
+                    ],
+                    optional: [
+                        'Potato' => 2, // 2 header rows,
+                        'OFSP' => 2,
+                        'Cassava' => 2
+                    ],
+
+                );
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 2) ?? 0);  // excluding headers
                 }, 0);
