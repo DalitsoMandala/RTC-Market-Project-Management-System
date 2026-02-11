@@ -51,7 +51,8 @@ class LoginRequest extends FormRequest
         $user = User::where(function ($query) use ($login) {
             $query->where('email', $login)
                 ->orWhere('name', $login);
-        })->first();
+        })->where('is_active', true)
+            ->first();
 
         if (! $user || ! Hash::check($password, $user->password)) {
             RateLimiter::hit($this->throttleKey());

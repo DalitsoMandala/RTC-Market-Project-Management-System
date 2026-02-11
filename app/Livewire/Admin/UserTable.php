@@ -106,14 +106,14 @@ final class UserTable extends PowerGridComponent
                 })->pluck('name');
                 return implode(' ', $roleArray->toArray());
             })
-            ->add('status',fn($model) => $model->deleted_at ? 'Deleted' : 'Active')
+            ->add('status',fn($model) => !$model->is_active ? 'Deleted' : 'Active')
             ->add('status_set', function ($model) {
 
 
-                if (!$model->deleted_at) {
+                if ($model->is_active) {
                     return '<span class="badge bg-success-subtle text-success" >Active</span>';
                 } else {
-                    return '<span class="badge bg-danger=subtle text-danger" >Deleted</span>';
+                    return '<span class="badge bg-danger-subtle text-danger" >Deleted</span>';
                 }
             })
             ->add('created_at')
@@ -219,7 +219,7 @@ final class UserTable extends PowerGridComponent
                 ->hide(),
 
             Rule::button('edit')
-                ->when(fn($row) => $user->deleted_at !== null)
+                ->when(fn($row) => $user->is_active == false)
                 ->disable(),
 
             // Hide the delete button for users with the 'admin' role
@@ -228,7 +228,7 @@ final class UserTable extends PowerGridComponent
                 ->hide(),
 
             Rule::button('delete')
-                ->when(fn($row) => $user->deleted_at !== null)
+                ->when(fn($row) => $user->is_active == false)
                 ->disable(),
 
             // Hide the restore button for users with the 'admin' role

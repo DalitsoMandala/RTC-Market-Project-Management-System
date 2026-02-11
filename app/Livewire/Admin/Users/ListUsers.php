@@ -186,14 +186,15 @@ class ListUsers extends Component
 
     public function deleteUser()
     {
-        User::find($this->rowId)->delete();
+      $user =  User::find($this->rowId)->update(['is_active' => false]);
+
         $this->alert('success', 'User successfully deleted!');
         $this->dispatch('refresh');
     }
 
     public function restoreUser()
     {
-        User::withTrashed()->find($this->rowId)->restore();
+        User::find($this->rowId)->update(['is_active' => true]);
         $this->alert('success', 'User successfully restored!');
         $this->dispatch('refresh');
     }
