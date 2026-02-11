@@ -497,7 +497,7 @@
 
                             <div class="mb-3 " dir="ltr" x-data="{ notifyUsers: $wire.entangle('notifyUsers'), row: $wire.entangle('rowId') }">
 
-                                <label for="">Notify Users</label>
+                                <label for="">Notify Users (Send Email Notification)</label>
                                 <div class="square-switch d-flex align-items-baseline">
                                     <input type="checkbox" x-model="notifyUsers" :checked="notifyUsers"
                                         id="square-switch3" switch="none">
