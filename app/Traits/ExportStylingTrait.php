@@ -6,6 +6,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+
 trait ExportStylingTrait
 {
     public function styles($sheet, $highestColumn) {}
@@ -78,10 +79,11 @@ trait ExportStylingTrait
         // 6. Create and configure the validation object
         $validation = new DataValidation();
         $validation->setType(DataValidation::TYPE_LIST)
-                   ->setErrorStyle(DataValidation::STYLE_STOP)
-                   ->setAllowBlank(true)
-                   ->setShowDropDown(true)
-                   ->setFormula1($formula);
+            ->setErrorStyle(DataValidation::STYLE_STOP)
+            ->setAllowBlank(true)
+            ->setShowErrorMessage(true)
+            ->setShowDropDown(true)
+            ->setFormula1($formula);
 
         // 7. Apply to the target range (M3:M10000) using setSqref (efficient)
         $cellLetter = preg_replace('/[0-9]/', '', $cell);
@@ -92,6 +94,4 @@ trait ExportStylingTrait
         $validation->setSqref($range);
         $sheet->setDataValidation($range, $validation);
     }
-
-
 }

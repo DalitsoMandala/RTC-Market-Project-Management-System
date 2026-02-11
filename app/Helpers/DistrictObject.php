@@ -330,7 +330,7 @@ class DistrictObject
         ];
     }
 
-    public static function varieties(): array
+    public static function varieties($uppercase = false): array
     {
         $varieties = [
             'violet' => true,
@@ -352,6 +352,39 @@ class DistrictObject
             'anaakwanire' => true,
             'other' => false,
         ];
+        if($uppercase){
+            return array_map('ucfirst', array_keys($varieties));
+        }
         return array_keys($varieties);
     }
+
+     public static function varietiesExport($uppercase = false): array
+    {
+        $varieties = [
+            'violet' => true,
+            'rosita' => false,
+            'chuma' => true,
+            'mwai' => false,
+            'zikomo' => true,
+            'thandizo' => false,
+            'royal choice' => true,
+            'kaphulira' => false,
+            'chipika' => true,
+            'mathuthu' => false,
+            'kadyaubwelere' => true,
+            'sungani' => false,
+            'kajiyani' => true,
+            'mugamba' => false,
+            'kenya' => true,
+            'nyamoyo' => false,
+            'anaakwanire' => true,
+            'other' => false,
+        ];
+        if($uppercase){
+            return array_map('ucfirst', array_keys($varieties));
+        }
+        return array_keys($varieties);
+    }
+
+
 }

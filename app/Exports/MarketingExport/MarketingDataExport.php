@@ -61,7 +61,8 @@ class MarketingDataExport implements FromCollection, WithHeadings, WithTitle, Wi
                 ]);
 
                 $sheet = $event->sheet->getDelegate();
-
+                $dropdownOptions = [...DistrictObject::varietiesExport(true)]; // Includes an empty option
+                $this->setDataValidations($dropdownOptions, 'E3', $sheet);
                 $dropdownOptions = [...DistrictObject::districts()]; // Includes an empty option
                 $this->setDataValidations($dropdownOptions, 'M3', $sheet);
                 $dropdownOptions = [...DistrictObject::countries()]; // Includes an empty option
