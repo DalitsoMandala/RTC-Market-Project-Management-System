@@ -495,7 +495,7 @@
 
                             </div>
 
-                            <div class="mb-3 " dir="ltr" x-data="{ notifyUsers: $wire.entangle('notifyUsers'), row: $wire.entangle('rowId') }">
+                            <div class="mb-3 @if($rowId) pe-none opacity-50 @endif" dir="ltr" x-data="{ notifyUsers: $wire.entangle('notifyUsers'), row: $wire.entangle('rowId') }">
 
                                 <label for="">Notify Users (Send Email Notification)</label>
                                 <div class="square-switch d-flex align-items-baseline">

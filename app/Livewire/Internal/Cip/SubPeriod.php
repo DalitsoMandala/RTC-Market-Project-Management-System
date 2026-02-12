@@ -70,7 +70,7 @@ class SubPeriod extends Component
     public $selectedOrganisation;
     public $selectedOrganisations = [];
     public $is_restricted = false;
-    public $notifyUsers = false;
+    public $notifyUsers = true;
     #[Validate('required')]
     public $selectedIndicator;
 
