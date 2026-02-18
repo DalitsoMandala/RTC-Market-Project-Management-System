@@ -80,7 +80,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
                 'section' => $row['Section'],
                 'name_of_aedo' => $row['Name of AEDO'],
                 'aedo_phone_number' => $row['AEDO Phone Number'],
-              'date' =>  $dateOfAssessment,
+                'date' =>  $dateOfAssessment,
                 'name_of_recipient' => $row['Name of Recipient'],
                 'group_name' => $row['Group Name'],
                 'village' => $row['Village'],
@@ -134,8 +134,7 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
             'National ID' => 'nullable|max:255',
             'District' => 'required|string|max:255',
             'Age' => 'nullable|integer|min:1',
-            'Marital Status' => 'required|in:Single,Married,Separated,Widowed,Polygamy,Divorced',
-
+            'Marital Status' => 'nullable|string|max:255',
             'Household Head' => 'nullable|in:FHH,MHH,CHH',
             'Household Size' => 'nullable|integer|min:1',
             'Children Under 5 in HH' => 'required|integer|min:0',
@@ -212,6 +211,9 @@ class CropSheetImportCassava implements ToModel, WithHeadingRow, WithValidation,
         $row['Date of Distribution'] = $date;
         $row['Season Type'] = $row['Season Type'] ?? 'Rainfed';
 
+        if (!$row['Marital Status']) {
+            $row['Marital Status'] = '';
+        }
 
         return $row;
     }

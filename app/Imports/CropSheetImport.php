@@ -79,7 +79,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'section' => (string) $row['Section'],
             'name_of_aedo' => (string) $row['Name of AEDO'],
             'aedo_phone_number' => (string) $row['AEDO Phone Number'],
-        'date' =>  $dateOfAssessment,
+            'date' =>  $dateOfAssessment,
             'name_of_recipient' => (string) $row['Name of Recipient'],
             'group_name' => (string) $row['Group Name'],
             'village' => (string) $row['Village'],
@@ -131,7 +131,7 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             'National ID' => 'nullable|max:255',
             'District' => 'required|string|max:255',
             'Age' => 'nullable|numeric|min:1',
-            'Marital Status' => 'nullable|in:Single,Married,Separated,Widowed,Polygamy,Divorced',
+            'Marital Status' => 'nullable|string|max:255',
             'Household Head' => 'nullable|in:FHH,MHH,CHH',
             'Household Size' => 'nullable|numeric|min:0',
             'Children Under 5 in HH' => 'nullable|numeric|min:0',
@@ -207,7 +207,9 @@ class CropSheetImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
 
         $row['Date of Distribution'] = $date;
         $row['Season Type'] = $row['Season Type'] ?? 'Rainfed';
-
+        if (!$row['Marital Status']) {
+            $row['Marital Status'] = '';
+        }
 
         return $row;
     }

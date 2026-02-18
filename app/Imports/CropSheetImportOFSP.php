@@ -132,7 +132,7 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
             'National ID' => 'nullable|max:255',
             'District' => 'required|string|max:255',
             'Age' => 'nullable|numeric|min:1',
-            'Marital Status' => 'nullable|in:Single,Married,Separated,Widowed,Polygamy,Divorced',
+            'Marital Status' => 'nullable|string|max:255',
             'Household Head' => 'nullable|in:FHH,MHH,CHH',
             'Household Size' => 'nullable|numeric|min:0',
             'Children Under 5 in HH' => 'nullable|numeric|min:0',
@@ -213,7 +213,9 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
         $row['EPA'] = (string)($row['EPA'] ?? '');
         $row['Section'] = (string)($row['Section'] ?? '');
         $row['District'] = (string)($row['District'] ?? '');
-
+        if (!$row['Marital Status']) {
+            $row['Marital Status'] = '';
+        }
         return $row;
     }
 

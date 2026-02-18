@@ -2,9 +2,7 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\FromCollection;
+
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class ProgresSummaryExport implements WithMultipleSheets
