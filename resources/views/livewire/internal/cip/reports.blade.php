@@ -26,6 +26,14 @@
         <div class="row">
             <div class="col">
                 <x-alerts />
+    <div class="alert alert-success alert-border-left" x-ref="warningAlert" x-data x-init="() => {
+
+                let object = $($refs.warningAlert);
+                object.fadeTo(30000, 0).slideUp(500);
+            }">
+                <strong>Notice!</strong>
+             Please note that we have updated this section of the system. You can now filter the report using the filters inside the table.
+            </div>
             </div>
         </div>
 
@@ -37,7 +45,7 @@
                 <div x-data="{ show: $wire.entangle('loadingData') }" :class="{ 'pe-none opacity-25': show === true }">
                     <form wire:submit.debounce.1000ms='filter' x-data="{ show: $wire.entangle('loadingData') }"
                         :class="{ 'pe-none opacity-25': show === true }">
-                        <div class=" row">
+                        <div class=" row d-none">
                             <div class="col">
 
                                 <div class="mb-3">
@@ -203,9 +211,9 @@
 
                             </div>
                         </div>
-                        <div class="mt-3 row align-items-end">
+                        <div class=" row align-items-end">
 
-                            <div class="col">
+                            <div class="col d-none">
                                 <div class="mb-1 d-flex justify-content-start" x-data>
                                     <button type="submit"
                                         class="btn btn-warning @if ($loadingData) disabled @endif me-2">
@@ -217,14 +225,14 @@
 
                             </div>
 
-                            @hasanyrole('admin|manager')
+                            @hasanyrole('admin')
                                 <div class="col">
-                                    <div class="mb-1 d-flex justify-content-end">
+                                    <div class=" d-flex justify-content-start">
                                         <div class="text-end">
-                                            <button type="button"
-                                                class="btn btn-secondary  @if ($loadingData) disabled @endif "
+                                            <button type="button" title="Update"
+                                                class="btn btn-warning custom-tooltip @if ($loadingData) disabled @endif "
                                                 wire:click='load' wire:loading.attr='disabled'>
-                                                <i class="bx bx-refresh"></i> Update Data
+                                                <i class="bx bx-refresh"></i>
                                             </button> <br>
 
                                         </div>

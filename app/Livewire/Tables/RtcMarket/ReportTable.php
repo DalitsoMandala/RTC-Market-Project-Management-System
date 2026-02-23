@@ -3,8 +3,11 @@
 namespace App\Livewire\tables\rtcMarket;
 
 use App\Jobs\ReportSummaryJob;
+use App\Models\Crop;
+use App\Models\FinancialYear;
 use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ResponsiblePerson;
 use App\Models\SystemReport;
@@ -12,22 +15,22 @@ use App\Models\SystemReportData;
 use App\Models\User;
 use App\Traits\ExportTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Bus;
 use Livewire\Attributes\On;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class ReportTable extends PowerGridComponent
 {
@@ -42,7 +45,8 @@ final class ReportTable extends PowerGridComponent
     public $disaggregation;
     public $crop;
     public bool $withSortStringNumber = true;
-    //  public string $sortField = 'system_reports.crop';
+  public string $sortField = 'system_reports.indicator_id';
+
 
     public function setUp(): array
     {
@@ -50,7 +54,7 @@ final class ReportTable extends PowerGridComponent
         $timestamp = Carbon::now();
         return [
             Header::make()
-                ->showSearchInput()
+               // ->showSearchInput()
                 ->includeViewOnTop('components.report-header'),
             // ->includeViewOnBottom('components.import-button'),
             Footer::make()
@@ -75,10 +79,10 @@ final class ReportTable extends PowerGridComponent
     #[On('export-report')]
     public function startProgressExport()
     {
-         $this->namedExport = 'summary';
+        $this->namedExport = 'summary';
         $this->execute($this->namedExport);
         $this->performExport();
-       // Bus::dispatch(new ReportSummaryJob(auth()->user()));
+        // Bus::dispatch(new ReportSummaryJob(auth()->user()));
     }
 
 
@@ -141,6 +145,80 @@ final class ReportTable extends PowerGridComponent
     /**
      * Apply filters to the query.
      */
+
+    public function filters(): array
+    {
+        return [
+            Filter::select('indicator_name', 'indicators.id')
+                ->dataSource(function () {
+                    $indicators = Indicator::distinct()->get();
+                    return $indicators->map(function ($indicator) {
+                        return [
+                            'id' => $indicator->id,
+                            'number' => $indicator->indicator_no,
+                            'indicator_name' => $indicator->indicator_name,
+                            'name' => "({$indicator->indicator_no}) {$indicator->indicator_name}",
+                        ];
+                    });
+                })->optionLabel('name')
+                ->optionValue('id'),
+
+            Filter::select('name', 'system_report_data.name')
+                ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
+                ->optionLabel('name')
+                ->optionValue('name'),
+
+            Filter::select('crop', 'system_reports.crop')
+                ->dataSource(Crop::select(['name'])->distinct()->get())
+                ->optionLabel('name')
+                ->optionValue('name'),
+            Filter::select('financial_year', 'financial_years.id')
+                ->dataSource(
+                    FinancialYear::query()
+                        ->whereHas('project', function ($query) {
+                            $query->where('name', 'RTC Market');
+                        })
+                        ->get()
+                        ->map(function ($year) {
+                            return [
+                                'number' => $year->number,
+                                'name'   => 'Year ' . $year->number,
+                                'id'     => $year->id,
+                            ];
+                        })
+                )
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+            Filter::select('report_period', 'system_reports.reporting_period_id')
+                ->dataSource(function () {
+                    return ReportingPeriodMonth::with('reportingPeriod')
+                        ->whereHas('reportingPeriod', function ($query) {
+                            $query->where('name', 'QUARTERLY');
+                        })
+                        ->distinct()
+                        ->get()
+                        ->map(function ($months) {
+                            $start_month = $months->start_month;
+                            $end_month = $months->end_month;
+                            $unspecified = $months->start_month == $months->end_month ? $months->start_month : "{$start_month}-{$end_month}";
+
+                            return [
+                                'id'   => $months->id,
+                                'name' => $unspecified ,
+                            ];
+                        });
+                })
+                ->optionLabel('name')
+                ->optionValue('id'),
+Filter::select('organisation_name', 'organisations.id')
+                ->dataSource(Organisation::select(['name', 'id'])->distinct()->get())
+                ->optionLabel('name')
+                ->optionValue('id'),
+
+
+        ];
+    }
     private function applyFilters(Builder $query): void
     {
         // Filter by disaggregation if set
@@ -217,7 +295,9 @@ final class ReportTable extends PowerGridComponent
             })
             ->add('indicator_name', function ($model) {
                 // Handle null for systemReport and indicator
-                return $model->systemReport->indicator->indicator_name ?? null;
+                $indicatorName = $model->systemReport->indicator->indicator_name ?? null;
+                $indicatorNumber = $model->systemReport->indicator->indicator_no ?? null;
+                return  '(' . $indicatorNumber . ') ' . $indicatorName;
             })
             ->add('name', function ($model) {
 
@@ -263,9 +343,11 @@ final class ReportTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id')->hidden()->visibleInExport(false),
-            Column::make('Indicator #', 'number', 'indicator_no')
-                ->searchable(),
+            // Column::make('Indicator #', 'number', 'indicator_no')
+            //     ->searchable(),
             Column::make('Indicator Name', 'indicator_name')
+                ->headerAttribute(styleAttr: "min-width:350px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap")
                 ->searchable()
                 ->sortable(),
             Column::make('Disaggregation', 'name')
