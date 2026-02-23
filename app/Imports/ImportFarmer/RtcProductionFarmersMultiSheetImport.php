@@ -63,7 +63,8 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
         'Aggregation Centers',
         'Basic Seed',
         'Certified Seed',
-        'Area Cultivation'
+        'Area Cultivation',
+        'Seed Services Unit'
     ];
     protected $expectedHeaders = [];
 
