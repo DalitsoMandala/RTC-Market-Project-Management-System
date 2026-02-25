@@ -364,7 +364,7 @@ class ListUsers extends Component
         $this->usersByRole = [];
 
         foreach ($this->selectedRoles as $role) {
-            $this->usersByRole[$role] = User::with('roles')->whereHas('roles', fn($q) => $q->where('name', $role))
+            $this->usersByRole[$role] = User::with('roles')->where('is_active', 1)->with('organisation')->whereHas('roles', fn($q) => $q->where('name', $role))
                 ->get()
                 ->map(function ($user) {
                     return [

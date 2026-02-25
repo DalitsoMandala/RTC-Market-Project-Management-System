@@ -33,7 +33,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
     use UITrait;
     use ExportTrait;
     public bool $deferLoading = false;
-
+public bool $multiSort = false;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -216,8 +216,36 @@ final class AttendanceRegisterTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-            // Filter::datepicker('startDate'),
-            // Filter::datepicker('endDate'),
+            //    Filter::datepicker('date'),
+
+            Filter::select('rtcCrop_cassava', 'rtcCrop_cassava')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })->optionLabel('name')->optionValue('value'),
+
+            Filter::select('rtcCrop_potato', 'rtcCrop_potato')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('rtcCrop_sweet_potato', 'rtcCrop_sweet_potato')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
         ];
     }
 

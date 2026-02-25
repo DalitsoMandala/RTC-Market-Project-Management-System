@@ -62,6 +62,13 @@
                                     class="badge bg-theme-red @if ($market == 0) d-none @endif">{{ $market }}</span>
 
                             </button>
+
+                            <button class="nav-link" id="additional-report-tab" data-bs-toggle="tab"
+                                data-bs-target="#additional-report" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+                                Additional Report Submission
+
+                            </button>
                         @endhasanyrole
 
 
@@ -100,16 +107,21 @@
                         aria-labelledby="root-tab">
                         <livewire:tables.root-tuber-submission-table :userId="auth()->user()->id" />
                     </div>
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="report-progress" role="tabpanel"
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="additional-report" role="tabpanel"
                         aria-labelledby="profile-tab" x-data="{
                             show: false,
                             toggle() {
                                 this.show = !this.show
                             }
                         }">
+                        <div class="flex-1 gap-1 d-flex">
+                            <button class="btn btn-warning" :disabled="show" role="button" @click="toggle()">
+                                Import Report
+                            </button>
+                            <button x-show="show" class="btn btn-secondary" :disabled="!show" role="button" @click="show=false">
+                                Close
+                        </div>
 
-                        <button class="btn btn-warning" role="button" @click="toggle()"> Import Report
-                        </button>
                         <div x-show="show">
 
                             <livewire:imports.import-data />

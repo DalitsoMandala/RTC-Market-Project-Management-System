@@ -120,7 +120,26 @@ final class RtcProductionProcessorDomMarkets extends PowerGridComponent
         // Get the data as a collection
         return $this->datasource()->get();
     }
+  public function relationSearch(): array
+    {
+        return [
 
+            'user' => [
+                'name',
+
+            ],
+
+            'user.organisation' => [
+                'name'
+            ],
+
+            'processors' => [
+                'name_of_actor',
+                'pp_id'
+            ],
+
+        ];
+    }
 
 
     public function columns(): array

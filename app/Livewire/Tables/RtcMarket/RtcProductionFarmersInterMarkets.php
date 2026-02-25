@@ -174,7 +174,11 @@ final class RtcProductionFarmersInterMarkets extends PowerGridComponent
 
             'user.organisation' => [
                 'name'
-            ]
+            ],
+
+            'farmers' => [
+                'pf_id',
+            ],
 
         ];
     }

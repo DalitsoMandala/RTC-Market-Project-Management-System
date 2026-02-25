@@ -25,6 +25,8 @@ trait ExportTrait
 
     public $Modelname;
 
+    public array $excelData = [];
+
 
     public function execute($Modelname)
     {
@@ -39,8 +41,9 @@ trait ExportTrait
         $this->exportFailed = false;
         $id = Str::random();
         $this->exportUniqueId = $id;
+
         $batch = Bus::batch([
-            new ExcelExportJob($this->Modelname, $id, $user),
+            new ExcelExportJob($this->Modelname, $id, $user, null, $this->excelData),
         ])->dispatch();
 
         $this->batchID = $batch->id;
@@ -91,6 +94,11 @@ trait ExportTrait
                             ]);
                         }
                     }
+                }
+
+                if ($this->Modelname === 'seedBeneficiaries' && !empty($this->excelData) && array_key_exists('crop_type', $this->excelData)) {
+                    $this->dispatch('download-export' . '_'.str_replace(' ', '_', $this->excelData['crop_type']));
+                    return;
                 }
                 $this->dispatch('download-export');
             }

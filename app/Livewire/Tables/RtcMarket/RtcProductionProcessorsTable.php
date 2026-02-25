@@ -32,6 +32,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
 
     use ExportTrait;
     use UITrait;
+    public bool $multiSort = true;
     public $routePrefix;
     public function setUp(): array
     {
@@ -261,11 +262,111 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         ];
     }
 
-    public function filters(): array
+  public function filters(): array
     {
-        return [];
-    }
+        return [
+            //    Filter::datepicker('date'),
 
+            Filter::select('is_registered_seed_producer', 'is_registered_seed_producer')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })->optionLabel('name')->optionValue('value'),
+
+            Filter::select('uses_certified_seed', 'uses_certified_seed')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('market_segment_fresh', 'market_segment_fresh')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('market_segment_processed', 'market_segment_processed')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('market_segment_cuttings', 'market_segment_cuttings')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('has_rtc_market_contract', 'has_rtc_market_contract')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('sells_to_domestic_markets', 'sells_to_domestic_markets')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('sells_to_international_markets', 'sells_to_international_markets')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('uses_market_information_systems', 'uses_market_information_systems')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('sells_to_aggregation_centers', 'sells_to_aggregation_centers')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+        ];
+    }
 
     #[On('edit')]
     public function edit($rowId): void

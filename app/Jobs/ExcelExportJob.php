@@ -60,15 +60,19 @@ class ExcelExportJob implements ShouldQueue
     public $statusKey;
     public $user;
     public $filePath;
+
+    public array $data = [];
     /**
      * Create a new job instance.
      */
-    public function __construct($name, $uniqueID, $user = null)
+    public function __construct($name, $uniqueID, $user = null, $filePath = null, $data = [])
     {
+
         $this->name     = $name;
         $this->uniqueID = $uniqueID;
         $this->user     = $user;
         $this->filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+        $this->data = $data;
     }
 
     /**
@@ -1087,16 +1091,26 @@ class ExcelExportJob implements ShouldQueue
 
                 break;
             case 'seedBeneficiaries':
-                $filePath  = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-                $cropTypes = [
-                    'Potato',
-                    'OFSP',
-                    'Cassava',
+                $data = $this->data;
 
-                ];
+                // Normalize crop_type
+                if ($data['crop_type'] === 'All') {
+                    $data['crop_type'] = null;
+                }
+
+                $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
+
+                // Build crop list based on selected crop_type
+                if (!empty($data['crop_type'])) {
+                    // Export only the selected crop sheet
+                    $cropTypes = [$data['crop_type']];
+                } else {
+                    // Export all sheets
+                    $cropTypes = ['Potato', 'OFSP', 'Cassava'];
+                }
+
                 // Define the headers
                 $OFSPHeaders = [
-
                     'District',
                     'EPA',
                     'Section',
@@ -1121,8 +1135,8 @@ class ExcelExportJob implements ShouldQueue
                     'Season Type',
                     'Submitted By'
                 ];
-                $PotatoHeaders = [
 
+                $PotatoHeaders = [
                     'District',
                     'EPA',
                     'Section',
@@ -1146,9 +1160,8 @@ class ExcelExportJob implements ShouldQueue
                     'Season Type',
                     'Submitted By'
                 ];
-                // Define crop types
-                $CassavaHeaders = [
 
+                $CassavaHeaders = [
                     'District',
                     'EPA',
                     'Section',
@@ -1173,26 +1186,22 @@ class ExcelExportJob implements ShouldQueue
                     'Submitted By'
                 ];
 
-                // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath);
 
                 foreach ($cropTypes as $index => $crop) {
                     if ($index > 0) {
-                        // Create a new sheet for each crop type after the first sheet
                         $writer->addNewSheetAndMakeItCurrent();
                     }
 
-                    // Name the current sheet with the crop type and add headers
-                    if ($crop == 'OFSP') {
+                    if ($crop === 'OFSP') {
                         $writer->nameCurrentSheet($crop)->addHeader($OFSPHeaders);
-                    } else if ($crop == 'Potato') {
+                    } elseif ($crop === 'Potato') {
                         $writer->nameCurrentSheet($crop)->addHeader($PotatoHeaders);
                     } else {
                         $writer->nameCurrentSheet($crop)->addHeader($CassavaHeaders);
                     }
 
-                    $query =  // Process data in chunks for the current crop
-                        SeedBeneficiary::with(['user', 'user.organisation'])
+                    $query = SeedBeneficiary::with(['user', 'user.organisation'])
                         ->where('crop', $crop)
                         ->select([
                             'seed_beneficiaries.crop',
@@ -1218,59 +1227,105 @@ class ExcelExportJob implements ShouldQueue
                             'seed_beneficiaries.type_of_plot',
                             'seed_beneficiaries.type_of_actor',
                             'seed_beneficiaries.season_type',
-                            'users.name as user_name',                 // Assuming the table name for the user model is 'users'
-                            'organisations.name as organisation_name', // Assuming the table name for the organisation model is 'organisations'
+                            'users.name as user_name',
+                            'organisations.name as organisation_name',
                         ])
-                        ->join('users', 'seed_beneficiaries.user_id', '=', 'users.id')            // Assuming the foreign key is 'user_id'
-                        ->join('organisations', 'seed_beneficiaries.organisation_id', '=', 'organisations.id') // Assuming the foreign key is 'organisation_id'
-                    ;
+                        ->join('users', 'seed_beneficiaries.user_id', '=', 'users.id')
+                        ->join('organisations', 'seed_beneficiaries.organisation_id', '=', 'organisations.id');
 
                     if ($this->user && $this->user->hasAnyRole('external')) {
-                        $user         = $this->user;
+                        $user = $this->user;
                         $organisation = User::find($user->id)->organisation;
                         $query->where('organisation_id', $organisation->id);
                     }
 
-                    $query->chunk(2000, function ($seedBeneficiaries) use ($writer) {
+                    $query->chunk(2000, function ($seedBeneficiaries) use ($writer, $crop) {
                         foreach ($seedBeneficiaries as $record) {
-
-
-
-
                             $submittedBy = $record->user_name . ' (' . $record->organisation_name . ')';
 
-                            $writer->addRow([
-
-                                $record->district,
-                                $record->epa,
-                                $record->section,
-                                $record->name_of_aedo,
-                                $record->aedo_phone_number,
-                                $record->date,
-                                $record->name_of_recipient,
-                                $record->group_name,
-                                $record->village,
-                                $record->sex,
-                                $record->age,
-                                $record->marital_status,
-                                $record->hh_head,
-                                $record->household_size,
-                                $record->children_under_5,
-                                $record->variety_received,
-                                $record->bundles_received,
-                                $record->phone_number,
-                                $record->national_id,
-                                $record->type_of_plot,
-                                $record->type_of_actor,
-                                $record->season_type,
-                                $submittedBy
-                            ]);
+                            // Handle column difference per crop
+                            if ($crop === 'Potato') {
+                                $writer->addRow([
+                                    $record->district,
+                                    $record->epa,
+                                    $record->section,
+                                    $record->name_of_aedo,
+                                    $record->aedo_phone_number,
+                                    $record->date,
+                                    $record->name_of_recipient,
+                                    $record->group_name,
+                                    $record->village,
+                                    $record->sex,
+                                    $record->age,
+                                    $record->marital_status,
+                                    $record->hh_head,
+                                    $record->household_size,
+                                    $record->children_under_5,
+                                    $record->variety_received,
+                                    $record->bundles_received, // If this is actually tons/kg, consider renaming field in DB/model later
+                                    $record->national_id,
+                                    $record->type_of_plot,
+                                    $record->type_of_actor,
+                                    $record->season_type,
+                                    $submittedBy
+                                ]);
+                            } elseif ($crop === 'Cassava') {
+                                $writer->addRow([
+                                    $record->district,
+                                    $record->epa,
+                                    $record->section,
+                                    $record->name_of_aedo,
+                                    $record->aedo_phone_number,
+                                    $record->date,
+                                    $record->name_of_recipient,
+                                    $record->group_name,
+                                    $record->village,
+                                    $record->sex,
+                                    $record->age,
+                                    $record->marital_status,
+                                    $record->hh_head,
+                                    $record->household_size,
+                                    $record->children_under_5,
+                                    $record->variety_received,
+                                    $record->bundles_received,
+                                    $record->national_id,
+                                    $record->type_of_plot,
+                                    $record->type_of_actor,
+                                    $record->season_type,
+                                    $submittedBy
+                                ]);
+                            } else { // OFSP
+                                $writer->addRow([
+                                    $record->district,
+                                    $record->epa,
+                                    $record->section,
+                                    $record->name_of_aedo,
+                                    $record->aedo_phone_number,
+                                    $record->date,
+                                    $record->name_of_recipient,
+                                    $record->group_name,
+                                    $record->village,
+                                    $record->sex,
+                                    $record->age,
+                                    $record->marital_status,
+                                    $record->hh_head,
+                                    $record->household_size,
+                                    $record->children_under_5,
+                                    $record->variety_received,
+                                    $record->bundles_received,
+                                    $record->phone_number,
+                                    $record->national_id,
+                                    $record->type_of_plot,
+                                    $record->type_of_actor,
+                                    $record->season_type,
+                                    $submittedBy
+                                ]);
+                            }
                         }
                     });
                 }
 
-                $writer->close(); // Finalize the file
-
+                $writer->close();
                 break;
 
             case 'recruits':
@@ -1646,9 +1701,9 @@ class ExcelExportJob implements ShouldQueue
 
                 try {
 
-                 //   $filename = 'project_progress_report_' . $this->user->id . '_' . Str::random(10) . '.xlsx'; // Unique filename
-                 $filename = 'exports/' . $this->name . '_' . $this->uniqueID . '.xlsx';
-                 Excel::store(new ReportSheet($this->user), $filename, 'public');
+                    //   $filename = 'project_progress_report_' . $this->user->id . '_' . Str::random(10) . '.xlsx'; // Unique filename
+                    $filename = 'exports/' . $this->name . '_' . $this->uniqueID . '.xlsx';
+                    Excel::store(new ReportSheet($this->user), $filename, 'public');
                     //   Cache::put($cacheKey, 100);
                     // Optionally, notify the user of success
                 } catch (\Exception $e) {

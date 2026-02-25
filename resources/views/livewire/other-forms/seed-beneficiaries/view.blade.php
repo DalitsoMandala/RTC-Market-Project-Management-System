@@ -34,19 +34,19 @@
 
             <div class="card-body">
                 <ul class=" nav nav-tabs" id="seedBeneficiaryTabs" role="tablist" wire:ignore>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="potato-tab" data-bs-toggle="tab" data-bs-target="#potato"
+                    <li class="nav-item " role="presentation">
+                        <button class="nav-link active {{ auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name ==='IITA' ? 'disabled' : '' }}" id="potato-tab" data-bs-toggle="tab" data-bs-target="#potato"
                             type="button" role="tab" aria-controls="potato" aria-selected="true">Potato
                             Beneficiaries</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="ofsp-tab" data-bs-toggle="tab" data-bs-target="#ofsp"
+                        <button class="nav-link  {{ auth()->user()->hasAnyRole('external') && auth()->user()->organisation->name ==='IITA' ? 'disabled' : '' }}" id="ofsp-tab" data-bs-toggle="tab" data-bs-target="#ofsp"
                             type="button" role="tab" aria-controls="ofsp" aria-selected="false">OFSP
                             Beneficiaries</button>
                     </li>
 
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="cassava-tab" data-bs-toggle="tab" data-bs-target="#cassava"
+                        <button class="nav-link " id="cassava-tab" data-bs-toggle="tab" data-bs-target="#cassava"
                             type="button" role="tab" aria-controls="cassava" aria-selected="false">Cassava
                             Beneficiaries</button>
                     </li>
@@ -66,6 +66,8 @@
                         wire:ignore.self>
                         <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'OFSP'" />
                     </div>
+
+
 
                     <!-- Cassava Table -->
                     <div class="tab-pane fade" id="cassava" role="tabpanel" aria-labelledby="cassava-tab"

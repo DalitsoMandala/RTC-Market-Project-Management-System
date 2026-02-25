@@ -123,7 +123,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
     {
 
         return [
-            'farmers' => [ // relationship on dishes model
+            'processors' => [ // relationship on dishes model
 
 
                 'name_of_actor',

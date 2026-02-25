@@ -3,6 +3,7 @@
 
 
 
+use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Jobs\TestJob;
 use App\Models\MarketData;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +36,7 @@ Route::get('/', fn() => redirect()->route('login'));
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
 
-//Route::get('/info', [TestingController::class, 'notify'])->name('info');
+
 
 
 

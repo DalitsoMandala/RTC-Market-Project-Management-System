@@ -45,6 +45,7 @@ final class RecruitmentSeedServicesTable extends PowerGridComponent
             $join->on('recruitments.id', '=', 'recruit_seed_registrations.recruitment_id');
         })->select([
             'recruit_seed_registrations.*',
+            'recruitments.rc_id as rc_id',
             DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
         ]);
         if ($user->hasAnyRole('external')) {
@@ -60,6 +61,7 @@ final class RecruitmentSeedServicesTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('recruitment_id')
+            ->add('rc_id', fn($model) => $model->rc_id ?? null)
             ->add('variety')
             ->add('reg_date_formatted', fn($model) => $model->reg_date ? Carbon::parse($model->reg_date)->format('d/m/Y') : 'NA')
             ->add('reg_no')
@@ -71,7 +73,8 @@ final class RecruitmentSeedServicesTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'rn')->sortable(),
-            Column::make('Recruitment id', 'recruitment_id'),
+            Column::make('Recruitment id', 'rc_id')
+            ->searchable(),
             Column::make('Variety', 'variety')
                 ->sortable()
                 ->searchable(),
@@ -91,6 +94,15 @@ final class RecruitmentSeedServicesTable extends PowerGridComponent
     {
         return [];
     }
+
+ public function relationSearch(): array
+    {
+        return [
+            'recruitments' => [ // relationship on dishes model
+                'rc_id', // column enabled to search
+            ],
+        ];
+ }
 
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void

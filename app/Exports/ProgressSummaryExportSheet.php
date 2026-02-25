@@ -26,7 +26,10 @@ class ProgressSummaryExportSheet implements FromCollection, WithHeadings, WithTi
 
         if ($this->template) {
             $data = [];
-            $indiccatorDisaggregation = IndicatorDisaggregation::with(['indicator'])->get();
+            $indiccatorDisaggregation = IndicatorDisaggregation::with(['indicator'])
+            ->join('indicators', 'indicator_disaggregations.indicator_id', '=', 'indicators.id')
+            ->select('indicator_disaggregations.*', 'indicators.indicator_no', 'indicators.indicator_name')
+            ->orderBy('indicators.id')->get();
             $submissionTargetsDisaggregations = SubmissionTarget::all();
             $collectDisaggregations = collect();
 

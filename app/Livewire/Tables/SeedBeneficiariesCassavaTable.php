@@ -27,11 +27,12 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
     use WithExport;
     use ExportTrait;
     public $crop;
-
-
+    public function __construct()
+    {
+        $this->excelData['crop_type'] = 'Cassava';
+    }
     public $namedExport = 'seedBeneficiaries';
-    public $nameOfTable = 'Seed Beneficiaries';
-    public $descriptionOfTable = "Data from seed beneficiaries form";
+
 
     public function setUp(): array
     {
@@ -39,7 +40,7 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
 
         return [
 
-            Header::make()->showSearchInput(),
+            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->pageName("{$this->crop}_page")
@@ -48,6 +49,19 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
     }
 
 
+    #[On('export-seedBeneficiaries')]
+    public function startExport()
+    {
+        $this->execute($this->namedExport);
+        $this->performExport();
+    }
+
+ #[On("download-export_{crop}")]
+    public function downloadExport()
+    {
+
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
 
     public function datasource(): Builder
     {

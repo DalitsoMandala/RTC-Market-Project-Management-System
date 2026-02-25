@@ -131,14 +131,7 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
                 'pf_id'
 
             ],
-            // 'user' => [
-            //     'name',
 
-            // ],
-
-            // 'user.organisation' => [
-            //     'name'
-            // ]
         ];
     }
 
@@ -183,8 +176,8 @@ final class RtcProductionFarmersConcAgreement extends PowerGridComponent
     public function filters(): array
     {
         return [
-            // Filter::datepicker('date_recorded'),
-            // Filter::datepicker('date_of_maximum_sale'),
+
+
         ];
     }
 

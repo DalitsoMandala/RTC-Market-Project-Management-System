@@ -28,7 +28,11 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     use ExportTrait;
     public $crop;
 
+public function __construct()
+    {
+        $this->excelData['crop_type'] = 'Potato';
 
+}
 
     public $namedExport = 'seedBeneficiaries';
 
@@ -54,7 +58,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
         $this->performExport();
     }
 
-    #[On('download-export')]
+ #[On("download-export_{crop}")]
     public function downloadExport()
     {
 

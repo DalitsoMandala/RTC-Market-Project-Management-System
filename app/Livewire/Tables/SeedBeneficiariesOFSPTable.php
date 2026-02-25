@@ -31,16 +31,19 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
 
 
     public $namedExport = 'seedBeneficiaries';
-    public $nameOfTable = 'Seed Beneficiaries';
-    public $descriptionOfTable = "Data from seed beneficiaries form";
 
+public function __construct()
+    {
+        $this->excelData['crop_type'] = 'OFSP';
+
+}
     public function setUp(): array
     {
 
 
         return [
 
-            Header::make()->showSearchInput(),
+            Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
                 ->pageName("{$this->crop}_page")
@@ -69,6 +72,20 @@ final class SeedBeneficiariesOFSPTable extends PowerGridComponent
         return $query;
     }
 
+    #[On('export-seedBeneficiaries')]
+    public function startExport()
+    {
+
+        $this->execute($this->namedExport);
+        $this->performExport();
+    }
+
+ #[On("download-export_{crop}")]
+    public function downloadExport()
+    {
+
+        return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
+    }
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()

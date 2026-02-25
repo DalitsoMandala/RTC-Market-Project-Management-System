@@ -176,7 +176,12 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
 
             'user.organisation' => [
                 'name'
-            ]
+            ],
+
+            'processors' => [
+                'name_of_actor',
+                'pp_id'
+            ],
 
         ];
     }

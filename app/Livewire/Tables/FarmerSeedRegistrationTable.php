@@ -97,7 +97,20 @@ final class FarmerSeedRegistrationTable extends PowerGridComponent
     {
         $this->js('alert(' . $rowId . ')');
     }
+  public function relationSearch(): array
+    {
 
+        return [
+            'productionFarmers' => [ // relationship on dishes model
+
+
+
+                'pf_id'
+
+            ],
+
+        ];
+    }
 
     /*
     public function actionRules($row): array

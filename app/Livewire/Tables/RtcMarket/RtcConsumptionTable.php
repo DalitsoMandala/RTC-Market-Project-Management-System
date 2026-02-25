@@ -29,6 +29,7 @@ final class RtcConsumptionTable extends PowerGridComponent
     use ExportTrait;
     use UITrait;
 
+    public bool $multiSort = true;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -189,6 +190,34 @@ final class RtcConsumptionTable extends PowerGridComponent
     {
         return [
             //    Filter::datepicker('date'),
+
+            Filter::select('crop_cassava', 'crop_cassava')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })->optionLabel('name')->optionValue('value'),
+
+            Filter::select('crop_potato', 'crop_potato')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
+
+            Filter::select('crop_sweet_potato', 'crop_sweet_potato')
+                ->dataSource(function () {
+                    return [
+                        ['name' => 'Yes', 'value' => 1],
+                        ['name' => 'No', 'value' => 0],
+                    ];
+                })
+                ->optionLabel('name')
+                ->optionValue('value'),
         ];
     }
 
