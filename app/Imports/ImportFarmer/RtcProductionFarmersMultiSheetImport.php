@@ -134,6 +134,7 @@ class RtcProductionFarmersMultiSheetImport implements WithMultipleSheets, WithCh
                     ],
 
                 );
+                
                 $this->totalRows = array_reduce($this->expectedSheetNames, function ($sum, $sheetName) use ($rowCounts) {
                     return $sum + (($rowCounts[$sheetName] - 2) ?? 0); // exclude headers
                 }, 0);

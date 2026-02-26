@@ -46,7 +46,6 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
     protected $expectedSheetNames = [
         'RTC Actor Recruitment',
         'Seed Services Unit',
-
     ];
 
     protected $expectedHeaders = [];
@@ -91,6 +90,7 @@ class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, 
             BeforeImport::class => function (BeforeImport $event) {
 
                 $rowCounts = $event->reader->getTotalRows();
+
                 $this->assertBlankSheetRules(
                     rowCounts: $rowCounts,
                     required: [
