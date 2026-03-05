@@ -86,6 +86,7 @@ final class RtcConsumptionTable extends PowerGridComponent
 
                 return ($model->male_count + $model->female_count) ?? 0;
             })
+            ->add('number_of_households')
             ->add('uuid')
             ->add('user_id')
             ->add('created_at')
@@ -158,6 +159,10 @@ final class RtcConsumptionTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Total', 'total', 'total')
+                ->sortable()
+                ->searchable(),
+
+                    Column::make('Number of households', 'number_of_households', 'number_of_households')
                 ->sortable()
                 ->searchable(),
             Column::make('Submitted by', 'submitted_by')

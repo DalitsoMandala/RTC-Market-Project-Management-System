@@ -1,7 +1,7 @@
 <x-form-component :showAlpineAlerts="true" title="Add Rtc Consumption Data" pageTitle="Add Data" :formTitle="$form_name"
     :openSubmission="$openSubmission" :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name">
     <div x-data="{
-    
+
         location_data: $wire.entangle('location_data'),
         enterprise: null,
         entity_name: null,
@@ -11,19 +11,19 @@
         section: null,
         showHousehold: false,
         init() {
-    
+
             this.$watch('enterprise', (value) => {
                 this.location_data.enterprise = value;
             });
             this.$watch('entity_name', (value) => {
                 this.location_data.entity_name = value;
-    
+
             });
             this.$watch('entity_type', (value) => {
                 this.location_data.entity_type = value;
-    
+
                 if (value === 'Nutrition intervention group') {
-    
+
                     this.showHousehold = true;
                     $wire.female_count = 0;
                     $wire.male_count = 0;
@@ -65,9 +65,7 @@
 
             <div class="mb-3">
                 <label for="" class="form-label">Entity Type</label>
-                <select class="form-select @error('entity_type') is-invalid
-
-        @enderror"x-model="entity_type">
+                <select class="form-select @error('entity_type') is-invalid @enderror" x-model="entity_type">
                     <option selected value="">Select one</option>
                     <option>School</option>
                     <option>Nutrition intervention group</option>
