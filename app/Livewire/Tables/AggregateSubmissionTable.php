@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Livewire\tables;
 
 use App\Helpers\TruncateText;
@@ -94,21 +95,26 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
             ->join('submission_reports', 'submissions.batch_no', '=', 'submission_reports.uuid')
             ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
-            ->with(['period.indicator',
+            ->with([
+                'period.indicator',
                 'user' => fn($q) => $q->withTrashed(),
-                'user.organisation', 'period.reportingMonths', 'form', 'period.financialYears'])
+                'user.organisation',
+                'period.reportingMonths',
+                'form',
+                'period.financialYears'
+            ])
             ->where('batch_type', 'aggregate')->select([
-            'submissions.*',
-            'submissions.id as submission_id',
-            'users.name as username',
-            'forms.name as form_name',
-            'organisations.name as organisation_name',
-            'organisations.id as organisation_id',
-            'submission_periods.id as period_id',
-            'submission_periods.month_range_period_id as month_range_period_id',
+                'submissions.*',
+                'submissions.id as submission_id',
+                'users.name as username',
+                'forms.name as form_name',
+                'organisations.name as organisation_name',
+                'organisations.id as organisation_id',
+                'submission_periods.id as period_id',
+                'submission_periods.month_range_period_id as month_range_period_id',
 
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn'),
-        ]);
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY submissions.id) AS rn'),
+            ]);
 
         $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
@@ -219,7 +225,34 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('id', fn($model) => $this->row++)
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
-                return $model->batch_no;
+
+
+                $text = $model->batch_no;
+
+                $html = '';
+
+                $html .= '
+
+<div>
+<div class="accordion accordion-flush" id="default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
+    <div class="border accordion-item custom-tooltip" title="show batch number">
+        <h2 class=" accordion-header" id="headingOne" >
+            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->batch_no . '_' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->batch_no . '_' . $model->id . '">
+<i class="bx bx-dots-horizontal-rounded"></i>
+            </button>
+        </h2>
+        <div id="collapse-' . $model->batch_no . '_' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
+            <div class="accordion-body">
+                ' . $text . '
+            </div>
+        </div>
+        </div>
+
+</div>
+</div>
+';
+                return $html;
+                // return $model->batch_no;
             })
             ->add('user_id')
             ->add('username', function ($model) {
@@ -248,7 +281,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
                 } else if ($model->status === 'pending') {
                     return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
                 } else {
-                                       return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
+                    return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
                 }
             })
             ->add('period_id')
@@ -263,20 +296,19 @@ final class AggregateSubmissionTable extends PowerGridComponent
             ->add('comments')
             ->add('comments_truncated', function ($model) {
 
-                if (! $model->comments) {
-                    return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
-                }
-                $text  = $model->comments;
+
+                $text = $model->comments;
                 $trunc = new TruncateText($text, 30);
-                $html  = '';
+                $html = '';
+                $disabled = !$model->comments ? 'pe-none opacity-25' : '';
                 $html .= '
 
-<!-- Base Example -->
-<div class="accordion" id="default-accordion-example-' . $model->id . '">
-    <div class="shadow accordion-item custom-tooltip" title="show comments">
-        <h2 class="accordion-header " id="headingOne" >
-            <button class="p-1 accordion-button collapsed " style="font-size:0.55rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
-               Comments
+<div class="' . $disabled . '">
+<div class="accordion accordion-flush" id="default-accordion-example-' . $model->id . '">
+    <div class="border accordion-item custom-tooltip " title="show comments">
+        <h2 class=" accordion-header" id="headingOne" >
+            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
+<i class="bx bx-dots-horizontal-rounded"></i>
             </button>
         </h2>
         <div id="collapse-' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->id . '">
@@ -287,7 +319,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
         </div>
 
 </div>
-
+</div>
 ';
                 return $html;
             })
@@ -341,13 +373,13 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable()->hidden(),
             Column::make('File', 'file_link'),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
 
-          //  Column::make('Form name', 'form_name')->searchable(),
+            //  Column::make('Form name', 'form_name')->searchable(),
             Column::make('Indicator', 'indicator')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap"),
             Column::make('SUBMITTED BY', 'username')->searchable(),

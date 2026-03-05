@@ -36,12 +36,14 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     public array $submissionPeriodRow;
     public $currentRoutePrefix;
 
+    public $organisation_id;
+
     public function setUp(): array
     {
 
         $data = $this->submissionPeriodRow;
-
-
+        $user = User::find(auth()->user()->id);
+        $this->organisation_id = $user->organisation->id;
 
 
 
@@ -99,7 +101,8 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             })
             ->add('submisssions', function ($model) {
                 $data = $this->submissionPeriodRow;
-                $submissions = Submission::with(['form', 'period'])->whereHas(
+            $organisation_id = auth()->user()->organisation->id;
+                $submissions = Submission::with(['form', 'period','user.organisation'])->whereHas(
                     'form',
                     function (Builder $query) use ($model) {
                         $query->where('id', $model->id);
@@ -111,7 +114,13 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                         ->where('is_open', $data['is_open'])
                         ->where('financial_year_id', $data['financial_year_id'])
                         ->where('month_range_period_id', $data['month_range_period_id']);
-                })->get();
+                })
+                ->whereHas('user.organisation', function ($query) use ($organisation_id ) {
+                    $query->where('id', $organisation_id);
+                })
+                ->get();
+
+
                 $counts = $submissions->groupBy('batch_type')->map->count();
 
                 $batch = $counts['batch'] ?? 0;
@@ -178,7 +187,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             Column::make('Id', 'rn')->headerAttribute('table-secondary table-bordered'),
             Column::make('Name', 'name')->headerAttribute('table-secondary table-bordered'),
             Column::make('Submission Status', 'status')->headerAttribute('table-secondary table-bordered'),
-            Column::make('Submissions', 'submisssions')->headerAttribute('table-secondary table-bordered'),
+            Column::make('Submissions (Per Organisation)', 'submisssions')->headerAttribute('table-secondary table-bordered'),
             Column::action('')->headerAttribute('table-secondary table-bordered'),
 
         ];

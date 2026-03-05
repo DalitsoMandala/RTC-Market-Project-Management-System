@@ -41,7 +41,7 @@ use App\Traits\FormEssentials;
 class RtcRecruitmentMultiSheet implements WithMultipleSheets, WithChunkReading, WithEvents, ShouldQueue
 {
     use Importable, RegistersEventListeners;
-    use FormEssentials,ChecksBlankSheets;
+    use FormEssentials, ChecksBlankSheets;
 
     protected $expectedSheetNames = [
         'RTC Actor Recruitment',

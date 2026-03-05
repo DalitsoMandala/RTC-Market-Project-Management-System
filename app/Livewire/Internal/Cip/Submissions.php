@@ -55,9 +55,7 @@ class Submissions extends Component
         ];
     }
 
-    public function mount(){
-
-    }
+    public function mount() {}
     #[On('set')]
     public function setData($id)
     {
@@ -602,36 +600,64 @@ class Submissions extends Component
         }
     }
 
+    private function getOrganisationUserIds(User $user)
+    {
+        return User::whereHas('organisation', function ($query) use ($user) {
+            $query->where('organisation_id', $user->organisation->id);
+        })->pluck('id');
+    }
 
     public function render()
     {
-        $batch = \App\Models\Submission::where('batch_type', 'batch')
-            ->where('status', 'pending');
-        $manual = \App\Models\Submission::where('batch_type', 'manual')
-            ->where('status', 'pending');
-        $aggregate = \App\Models\Submission::where('batch_type', 'aggregate')
-            ->where('status', 'pending');
-        $market = \App\Models\MarketDataSubmission::where('status', 'pending');
-        $pendingJob = JobProgress::where('user_id', auth()->user()->id)
-            ->where('status', 'processing')->count();
+        $user = User::withTrashed()->find(auth()->id());
 
-        if (User::withTrashed()->find(auth()->user()->id)->hasAnyRole('external')) {
-            $batch = $batch->where('user_id', auth()->user()->id);
-            $manual = $manual->where('user_id', auth()->user()->id);
-            $aggregate = $aggregate->where('user_id', auth()->user()->id);
+        $activeYear = FinancialYear::where('status', 'active')->first();
+
+        $subPeriods = SubmissionPeriod::query()
+            ->where('is_open', true)
+            ->where('financial_year_id', $activeYear->id)
+            ->pluck('id');
+
+        $myOrgsUserIds = $this->getOrganisationUserIds($user);
+
+        // Base Queries
+        $batch = Submission::where('batch_type', 'batch')
+            ->where('status', 'pending');
+
+        $manual = Submission::where('batch_type', 'manual')
+            ->whereIn('period_id', $subPeriods)
+            ->where('status', 'approved');
+
+        $aggregate = Submission::where('batch_type', 'aggregate')
+            ->where('status', 'pending');
+
+        $market = MarketDataSubmission::where('status', 'pending');
+
+        $pendingJob = JobProgress::where('user_id', $user->id)
+            ->where('status', 'processing')
+            ->count();
+
+        // Role logic
+        if (!$user->hasAnyRole('external')) {
+            $manual->whereIn('user_id', $myOrgsUserIds);
         }
 
-        if (User::withTrashed()->find(auth()->user()->id)->hasAnyRole('enumerator')) {
-            $market = $market->where('submitted_user_id', auth()->user()->id);
+        if ($user->hasAnyRole('external')) {
+            $batch->whereIn('user_id', $myOrgsUserIds);
+            $manual->whereIn('user_id', $myOrgsUserIds);
+            $aggregate->whereIn('user_id', $myOrgsUserIds);
         }
+
+        if ($user->hasAnyRole('enumerator')) {
+            $market->whereIn('submitted_user_id', $myOrgsUserIds);
+        }
+
         return view('livewire.internal.cip.submissions', [
             'batch' => $batch->count(),
             'manual' => $manual->count(),
             'aggregate' => $aggregate->count(),
             'pendingJob' => $pendingJob,
             'market' => $market->count(),
-
-
         ]);
     }
 }

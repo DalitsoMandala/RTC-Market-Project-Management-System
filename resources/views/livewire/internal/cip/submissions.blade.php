@@ -1,3 +1,28 @@
+<style>
+    .accordion-button::after {
+        background-image: none !important;
+        /* Removes the icon */
+    }
+
+    .accordion-button:not(.collapsed)::after {
+        background-image: none !important;
+        /* Keeps it gone when open */
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        /* Removes focus outline */
+    }
+
+
+
+    .accordion-button:hover {
+        background-color: #e5e5e5 !important;
+        /* Replace with your desired hover color */
+        color: black;
+    }
+</style>
+
 <div>
     @section('title')
         Submissions
@@ -63,6 +88,14 @@
 
                             </button>
 
+
+                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
+                                data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+                                Manual Submission <span
+                                    class="badge bg-success @if ($manual == 0) d-none @endif">{{ $manual }}</span>
+
+                            </button>
                             <button class="nav-link" id="additional-report-tab" data-bs-toggle="tab"
                                 data-bs-target="#additional-report" type="button" role="tab" aria-controls="profile"
                                 aria-selected="false" wire:ignore.self>
@@ -118,7 +151,8 @@
                             <button class="btn btn-warning" :disabled="show" role="button" @click="toggle()">
                                 Import Report
                             </button>
-                            <button x-show="show" class="btn btn-secondary" :disabled="!show" role="button" @click="show=false">
+                            <button x-show="show" class="btn btn-secondary" :disabled="!show" role="button"
+                                @click="show=false">
                                 Close
                         </div>
 
@@ -131,6 +165,13 @@
 
                         <livewire:tables.additional-report-table />
                     </div>
+
+
+                    <div wire:ignore class="mt-2 tab-pane fade show" id="manual-submission" role="tabpanel"
+                        aria-labelledby="root-tab">
+                        <livewire:tables.manual-sumission-table :userId="auth()->user()->id" />
+                    </div>
+
                 </div>
 
 

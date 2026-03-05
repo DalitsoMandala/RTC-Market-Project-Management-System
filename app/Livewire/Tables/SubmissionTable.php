@@ -227,7 +227,33 @@ final class SubmissionTable extends PowerGridComponent
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
 
-                return $model->batch_no;
+
+                $text = $model->batch_no;
+
+                $html = '';
+
+                $html .= '
+
+<div>
+<div class="accordion accordion-flush" id="default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
+    <div class="border accordion-item custom-tooltip" title="show batch number">
+        <h2 class=" accordion-header" id="headingOne" >
+            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->batch_no . '_' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->batch_no . '_' . $model->id . '">
+<i class="bx bx-dots-horizontal-rounded"></i>
+            </button>
+        </h2>
+        <div id="collapse-' . $model->batch_no . '_' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
+            <div class="accordion-body">
+                ' . $text . '
+            </div>
+        </div>
+        </div>
+
+</div>
+</div>
+';
+                return $html;
+                // return $model->batch_no;
             })
             ->add('user_id')
             ->add('username', function ($model) {
@@ -256,7 +282,7 @@ final class SubmissionTable extends PowerGridComponent
                 } else if ($model->status === 'pending') {
                     return '<span class="badge bg-warning-subtle text-warning">' . $model->status . '</span>';
                 } else {
-                     return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
+                    return '<span class="badge bg-danger-subtle text-danger">disapproved</span>';
                 }
             })
 
@@ -273,20 +299,19 @@ final class SubmissionTable extends PowerGridComponent
             ->add('comments')
             ->add('comments_truncated', function ($model) {
 
-                if (!$model->comments) {
-                    return '<span class="badge bg-success-subtle text-success">No comment</span></span>';
-                }
+
                 $text = $model->comments;
                 $trunc = new TruncateText($text, 30);
                 $html = '';
+                $disabled = !$model->comments ? 'pe-none opacity-25' : '';
                 $html .= '
 
-<!-- Base Example -->
-<div class="accordion" id="default-accordion-example-' . $model->id . '">
-    <div class="shadow accordion-item custom-tooltip" title="show comments">
-        <h2 class="accordion-header " id="headingOne" >
-            <button class="p-1 accordion-button collapsed " style="font-size:0.55rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
-               Comments
+<div class="' . $disabled . '">
+<div class="accordion accordion-flush" id="default-accordion-example-' . $model->id . '">
+    <div class="border accordion-item custom-tooltip " title="show comments">
+        <h2 class=" accordion-header" id="headingOne" >
+            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->id . '">
+<i class="bx bx-dots-horizontal-rounded"></i>
             </button>
         </h2>
         <div id="collapse-' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->id . '">
@@ -297,7 +322,7 @@ final class SubmissionTable extends PowerGridComponent
         </div>
 
 </div>
-
+</div>
 ';
                 return $html;
             })
@@ -352,8 +377,12 @@ final class SubmissionTable extends PowerGridComponent
     {
 
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable()->hidden(),
             Column::make('File', 'file_link'),
+
+            Column::make('Batch no', 'batch_no_formatted')
+                ->sortable()
+                ->searchable(),
             Column::make('Form name', 'form_name')->searchable(),
 
 
@@ -380,9 +409,6 @@ final class SubmissionTable extends PowerGridComponent
             Column::make('Date of submission', 'date_of_submission', 'created_at')
                 ->sortable(),
 
-            Column::make('Batch no', 'batch_no_formatted')
-                ->sortable()
-                ->searchable(),
 
             Column::action('Action'),
             // Column::make('Created at', 'created_at')
