@@ -313,7 +313,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() =>  ($row->id && !in_array(Form::find($row->id)->name, ['REPORT FORM'])))
+                ->when(fn() =>  false)
                 ->disable(),
 
             // Rules for uploading data
