@@ -11,21 +11,21 @@ use App\Console\Commands\FetchExchangeRates;
 
 
 
-Schedule::command('send:expired-period-notifications')->dailyAt('00:00');
+Schedule::command('send:expired-period-notifications')->dailyAt('00:00')->evenInMaintenanceMode();
 
-Schedule::command('check:submission-deadlines')->dailyAt('00:00');
+Schedule::command('check:submission-deadlines')->dailyAt('00:00')->evenInMaintenanceMode();
 
-Schedule::command('update:information')->hourly();
+Schedule::command('update:information')->hourly()->evenInMaintenanceMode();
 
 Schedule::command('clean-db')->dailyAt('01:00')->onFailure(function () {
     Log::error('Backup clean-up failed');
 })->onSuccess(function () {
     Log::info("Backup clean-up completed");
-});
+})->evenInMaintenanceMode();
 Schedule::command('backup-db')->dailyAt('01:30')->onFailure(function () {
     Log::error('Backup failed');
 })->onSuccess(function () {
     Log::info("Backup completed");
-});
+})->evenInMaintenanceMode();
 
-Schedule::command('schedule:test')->everyMinute();
+Schedule::command('schedule:test')->everyMinute()->evenInMaintenanceMode();
