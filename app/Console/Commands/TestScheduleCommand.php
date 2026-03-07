@@ -29,7 +29,7 @@ class TestScheduleCommand extends Command
         $message = '✅ Scheduler executed at: ' . now();
 
         // log to storage/logs/laravel.log
-
+        Log::info($message);
 
         // also show in terminal if run manually
         $this->info($message);
