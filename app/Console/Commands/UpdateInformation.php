@@ -41,6 +41,7 @@ class UpdateInformation extends Command
     public function handle()
     {
         ini_set('max_execution_time', 0);
+        Artisan::call('clear-lock');
         $this->info('Checking report status...');
 
         // Optional: prevent parallel executions
