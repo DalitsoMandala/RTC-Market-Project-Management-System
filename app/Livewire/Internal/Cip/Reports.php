@@ -163,7 +163,7 @@ class Reports extends Component
     public function load()
     {
         $this->loadingData = true;
-
+          Artisan::call('clear-lock');
         Artisan::call('update:information');
         $this->readCache();
     }

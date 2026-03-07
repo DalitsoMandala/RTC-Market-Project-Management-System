@@ -2,20 +2,21 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ReportJob;
-use Illuminate\Bus\Batch;
-use App\Models\ReportStatus;
-
-use App\Jobs\MarketReportJob;
-use Illuminate\Support\Carbon;
-use Illuminate\Console\Command;
-use App\Jobs\AdditionalReportJob;
-use Illuminate\Support\Facades\Bus;
-
-use Illuminate\Support\Facades\Cache;
 use App\Helpers\PopulatePreviousValue;
+use App\Jobs\AdditionalReportJob;
+use App\Jobs\MarketReportJob;
+
 use App\Jobs\PopulatePreviousValueJob;
+use App\Jobs\ReportJob;
 use App\Jobs\SyncronizeTableJob;
+use App\Models\ReportStatus;
+use Illuminate\Bus\Batch;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 
 class UpdateInformation extends Command
 {
@@ -49,6 +50,7 @@ class UpdateInformation extends Command
             $this->warn('Another instance is already processing the report.');
             return;
         }
+
 
         try {
             $reportStatus = ReportStatus::find(1);
@@ -99,10 +101,10 @@ class UpdateInformation extends Command
     private function runReportJobs($reportStatus)
     {
         Bus::chain([
-           new SyncronizeTableJob(),
-           new ReportJob(),
-           new PopulatePreviousValueJob(),
-           new AdditionalReportJob(),
+            new SyncronizeTableJob(),
+            new ReportJob(),
+            new PopulatePreviousValueJob(),
+            new AdditionalReportJob(),
             new MarketReportJob(),
             function () use ($reportStatus) {
                 $reportStatus->update([
