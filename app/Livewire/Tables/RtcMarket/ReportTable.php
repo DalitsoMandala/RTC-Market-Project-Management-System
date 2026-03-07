@@ -43,9 +43,8 @@ final class ReportTable extends PowerGridComponent
     public $organisation_id;
     public $indicator;
     public $disaggregation;
-    public $crop;
     public bool $withSortStringNumber = true;
-  public string $sortField = 'system_reports.indicator_id';
+    public string $sortField = 'system_reports.indicator_id';
 
 
     public function setUp(): array
@@ -54,7 +53,7 @@ final class ReportTable extends PowerGridComponent
         $timestamp = Carbon::now();
         return [
             Header::make()
-               // ->showSearchInput()
+                // ->showSearchInput()
                 ->includeViewOnTop('components.report-header'),
             // ->includeViewOnBottom('components.import-button'),
             Footer::make()
@@ -115,9 +114,8 @@ final class ReportTable extends PowerGridComponent
 
             ]);
 
-        // Apply filters if any are provided
-        if ($this->hasFilters()) {
-            $this->applyFilters($query);
+        if (request()->get('filters')['crop'] ?? null === 'null') {
+            dd('sss');
         }
 
         $user = User::find(auth()->user()->id);
@@ -125,6 +123,8 @@ final class ReportTable extends PowerGridComponent
         if ($user->hasAnyRole('external')) {
             $query->where('system_reports.organisation_id', $user->organisation->id);
         }
+
+
         return $query->orderBy('system_reports.crop', 'asc')
             ->orderBy('system_reports.indicator_id', 'asc');
     }
@@ -167,11 +167,23 @@ final class ReportTable extends PowerGridComponent
                 ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
                 ->optionLabel('name')
                 ->optionValue('name'),
-
-            Filter::select('crop', 'system_reports.crop')
-                ->dataSource(Crop::select(['name'])->distinct()->get())
+            Filter::select('crop')
+                ->dataSource([
+                    ['name' => 'All crops', 'value' => 'null'],
+                    ['name' => 'Cassava', 'value' => 'Cassava'],
+                    ['name' => 'Potato', 'value' => 'Potato'],
+                    ['name' => 'Sweet potato', 'value' => 'Sweet potato'],
+                ])
                 ->optionLabel('name')
-                ->optionValue('name'),
+                ->optionValue('value')
+                ->builder(function (Builder $query, $value) {
+
+                    if ($value === 'null') {
+                        $query->whereNull('system_reports.crop');
+                    } else {
+                        $query->where('system_reports.crop', $value);
+                    }
+                }),
             Filter::select('financial_year', 'financial_years.id')
                 ->dataSource(
                     FinancialYear::query()
@@ -205,13 +217,13 @@ final class ReportTable extends PowerGridComponent
 
                             return [
                                 'id'   => $months->id,
-                                'name' => $unspecified ,
+                                'name' => $unspecified,
                             ];
                         });
                 })
                 ->optionLabel('name')
                 ->optionValue('id'),
-Filter::select('organisation_name', 'organisations.id')
+            Filter::select('organisation_name', 'organisations.id')
                 ->dataSource(Organisation::select(['name', 'id'])->distinct()->get())
                 ->optionLabel('name')
                 ->optionValue('id'),
@@ -219,60 +231,8 @@ Filter::select('organisation_name', 'organisations.id')
 
         ];
     }
-    private function applyFilters(Builder $query): void
-    {
-        // Filter by disaggregation if set
-        if (!is_null($this->disaggregation)) {
-            $query->where('system_report_data.name', $this->disaggregation);
-        }
 
-        // Get indicators associated with the organisation if organisation_id is set
-        $indicators = [];
-        if (!is_null($this->organisation_id)) {
-            $indicators = ResponsiblePerson::where('organisation_id', $this->organisation_id)
-                ->pluck('indicator_id')
-                ->toArray();
-        }
 
-        // Apply filters to the systemReport relationship
-        $query->whereHas('systemReport', function ($query) use ($indicators) {
-            if (!is_null($this->organisation_id)) {
-                $query->where('organisation_id', $this->organisation_id);
-            }
-
-            if (!is_null($this->financial_year)) {
-                $query->where('financial_year_id', $this->financial_year);
-            }
-
-            if (!is_null($this->reporting_period)) {
-                $query->where('reporting_period_id', $this->reporting_period);
-            }
-
-            if (!empty($indicators)) {
-                $this->applyIndicatorFilter($query, $indicators);
-            }
-
-            if (!is_null($this->crop)) {
-                $query->where('crop', $this->crop);
-            } else {
-                $query->whereNull('crop');
-            }
-        });
-    }
-
-    /**
-     * Apply indicator filter to the query.
-     */
-    private function applyIndicatorFilter(Builder $query, array $indicators): void
-    {
-        if (!is_null($this->indicator)) {
-            // Filter indicators to match the specific indicator if provided
-            $query->whereIn('indicator_id', array_filter($indicators, fn($value) => $value === intval($this->indicator)));
-        } else {
-            // Otherwise, filter by all indicators associated with the organisation
-            $query->whereIn('indicator_id', $indicators);
-        }
-    }
 
     public function relationSearch(): array
     {
@@ -367,27 +327,6 @@ Filter::select('organisation_name', 'organisations.id')
         ];
     }
 
-    #[On('filtered-data')]
-    public function getData($data)
-    {
-        //   $this->project = $data['project_id'];
-        $this->indicator = $data['indicator'];
-        // $this->start_date = $data['start_date'];
-        // $this->end_date = $data['end_date'];
-        $this->reporting_period = $data['reporting_period'];
-        $this->financial_year = $data['financial_year'];
-        $this->organisation_id = $data['organisation_id'];
-        $this->disaggregation = $data['disaggregation'];
-        $this->crop = $data['crop'];
-    }
-
-    #[On('reset-filters')]
-    public function resetData()
-    {
-        $this->reset('organisation_id', 'reporting_period', 'financial_year', 'indicator', 'disaggregation', 'project', 'crop');
-        $this->resetPage();
-        $this->refresh();
-    }
 
     /*
      * public function actionRules($row): array

@@ -1,28 +1,3 @@
-<style>
-    .accordion-button::after {
-        background-image: none !important;
-        /* Removes the icon */
-    }
-
-    .accordion-button:not(.collapsed)::after {
-        background-image: none !important;
-        /* Keeps it gone when open */
-    }
-
-    .accordion-button:focus {
-        box-shadow: none;
-        /* Removes focus outline */
-    }
-
-
-
-    .accordion-button:hover {
-        background-color: #e5e5e5 !important;
-        /* Replace with your desired hover color */
-        color: black;
-    }
-</style>
-
 <div>
     @section('title')
         Submissions
@@ -80,6 +55,12 @@
 
 
                         @hasanyrole('admin|manager|staff|enumerator')
+                            <button class="nav-link" id="manual-submission-tab" data-bs-toggle="tab"
+                                data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
+                                aria-selected="false" wire:ignore.self>
+                                Manual Submission
+
+                            </button>
                             <button class="nav-link" id="market-tab" data-bs-toggle="tab"
                                 data-bs-target="#market-submission" type="button" role="tab" aria-controls="profile"
                                 aria-selected="false" wire:ignore.self>
@@ -88,14 +69,6 @@
 
                             </button>
 
-
-                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
-                                data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
-                                Manual Submission <span
-                                    class="badge bg-success @if ($manual == 0) d-none @endif">{{ $manual }}</span>
-
-                            </button>
                             <button class="nav-link" id="additional-report-tab" data-bs-toggle="tab"
                                 data-bs-target="#additional-report" type="button" role="tab" aria-controls="profile"
                                 aria-selected="false" wire:ignore.self>
@@ -119,6 +92,12 @@
                     <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
                         aria-labelledby="home-tab">
                         <livewire:tables.submission-table :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
+                    </div>
+
+                    <div wire:ignore class="mt-2 tab-pane active fade show" id="manual-submission" role="tabpanel"
+                        aria-labelledby="home-tab">
+
+                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
                     <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
@@ -165,13 +144,6 @@
 
                         <livewire:tables.additional-report-table />
                     </div>
-
-
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="manual-submission" role="tabpanel"
-                        aria-labelledby="root-tab">
-                        <livewire:tables.manual-sumission-table :userId="auth()->user()->id" />
-                    </div>
-
                 </div>
 
 

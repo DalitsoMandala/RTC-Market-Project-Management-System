@@ -43,18 +43,18 @@ class ReportSheet implements WithMultipleSheets
         }
         return [
             'Consolidated' => new ReportExport('Consolidated'),
-            'Sweet potato' => new ReportExport('Sweet potato'),
-            'Potato' => new ReportExport('Potato'),
-            'CIP' => new ReportExport('CIP'),
-            'IITA' => new ReportExport('IITA'),
-            'ACE' => new ReportExport('ACE'),
-            'DCD' => new ReportExport('DCD'),
-            'DAES' => new ReportExport('DAES'),
-            'MINISTRY OF TRADE' => new ReportExport('MINISTRY OF TRADE'),
-            'TRADELINE' => new ReportExport('TRADELINE'),
-            'DARS' => new ReportExport('DARS'),
-            'RTCDT' => new ReportExport('RTCDT'),
-            'LUANAR' => new ReportExport('LUANAR'),
+            // 'Sweet potato' => new ReportExport('Sweet potato'),
+            // 'Potato' => new ReportExport('Potato'),
+             'CIP' => new ReportExport('CIP'),
+             'IITA' => new ReportExport('IITA'),
+             'ACE' => new ReportExport('ACE'),
+             'DCD' => new ReportExport('DCD'),
+             'DAES' => new ReportExport('DAES'),
+             'MINISTRY OF TRADE' => new ReportExport('MINISTRY OF TRADE'),
+             'TRADELINE' => new ReportExport('TRADELINE'),
+             'DARS' => new ReportExport('DARS'),
+             'RTCDT' => new ReportExport('RTCDT'),
+             'LUANAR' => new ReportExport('LUANAR'),
 
 
         ];

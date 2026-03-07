@@ -129,60 +129,102 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
     /**
      * Get yearly targets with validation and error handling
      */
-    private function getYearlyTargets(?string $disaggregation, ?string $indicatorName, $organisationId = null): array
-    {
-        try {
-            $yearTargets = [
-                'Year1' => null,
-                'Year2' => null,
-                'Year3' => null,
-                'Year4' => null
-            ];
+private function getYearlyTargets(?string $disaggregation, ?string $indicatorName, $organisationId = null): array
+{
+    try {
 
-            if (!$disaggregation || !$indicatorName) {
-                return $yearTargets;
-            }
+        $yearTargets = [
+            'Year1' => null,
+            'Year2' => null,
+            'Year3' => null,
+            'Year4' => null
+        ];
 
-            $indicator = Indicator::where('indicator_name', $indicatorName)->first();
-            if (!$indicator) {
-                Log::warning('Indicator not found', ['indicator_name' => $indicatorName]);
-                return $yearTargets;
-            }
+        if (!$disaggregation || !$indicatorName) {
+            return $yearTargets;
+        }
 
-            $financialYears = FinancialYear::where('project_id', $this->project->id)->get();
+        /*
+        |--------------------------------------------------------------------------
+        | Crop sheets should not show targets
+        |--------------------------------------------------------------------------
+        */
 
-            foreach ($financialYears as $year) {
-                $financialYear = $year->number;
-                $target = SubmissionTarget::with('organisationTargets')->where([
+        // $cropSheets = ['Sweet potato', 'Cassava', 'Potato'];
+
+        // if (in_array($this->sheetName, $cropSheets, true)) {
+        //     return $yearTargets;
+        // }
+
+        $indicator = Indicator::where('indicator_name', $indicatorName)->first();
+
+        if (!$indicator) {
+            return $yearTargets;
+        }
+
+        $financialYears = FinancialYear::where('project_id', $this->project->id)->get();
+
+        foreach ($financialYears as $year) {
+
+            $target = SubmissionTarget::with('organisationTargets')
+                ->where([
                     'target_name' => $disaggregation,
                     'financial_year_id' => $year->id,
                     'indicator_id' => $indicator->id,
-                ])->first();
+                ])
+                ->first();
 
-                if ($target && $target->organisationTargets->isNotEmpty()) {
-                    $target = $target->organisationTargets->where('organisation_id', $organisationId)->first();
-                }
-
-
-                $yearTargets['Year' . $financialYear] = $target->value ?? null;
+            if (!$target) {
+                continue;
             }
 
-            return $yearTargets;
-        } catch (Exception $e) {
-            Log::error('Failed to get yearly targets', [
-                'error' => $e->getMessage(),
-                'disaggregation' => $disaggregation,
-                'indicator_name' => $indicatorName,
-                'sheet' => $this->sheetName
-            ]);
-            return [
-                'Year1' => null,
-                'Year2' => null,
-                'Year3' => null,
-                'Year4' => null
-            ];
+            /*
+            |--------------------------------------------------------------------------
+            | Consolidated sheet
+            |--------------------------------------------------------------------------
+            */
+
+            if ($this->sheetName === 'Consolidated' || $this->sheetName === 'Cassava' || $this->sheetName === 'Sweet potato' || $this->sheetName === 'Potato') {
+
+                $value = $target->target_value;
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Organisation sheets
+            |--------------------------------------------------------------------------
+            */
+
+            else {
+
+                $orgTarget = $target->organisationTargets
+                    ->where('organisation_id', $organisationId)
+                    ->first();
+
+                $value = $orgTarget->value ?? null;
+            }
+
+            $yearTargets['Year' . $year->number] = $value;
         }
+
+        return $yearTargets;
+
+    } catch (Exception $e) {
+
+        Log::error('Failed to get yearly targets', [
+            'error' => $e->getMessage(),
+            'sheet' => $this->sheetName
+        ]);
+
+        return [
+            'Year1' => null,
+            'Year2' => null,
+            'Year3' => null,
+            'Year4' => null
+        ];
     }
+}
 
     /**
      * Apply filters with validation
@@ -348,6 +390,7 @@ private function getSheetData(
         'TRADELINE', 'DARS', 'RTCDT', 'LUANAR',
     ];
 
+
     // Handle crop-based sheets
     if (isset($crops[$this->sheetName])) {
         return $this->consolidatedData(
@@ -453,6 +496,7 @@ private function getSheetData(
         try {
 
             $yearData = $this->populateYearlyValues(...array_values($yearlyData));
+
             $sumYearlyData = $this->sumOfYearlyData($yearData);
 
             $yearlyTargets = $this->getYearlyTargets($item->name, $item->indicator->indicator_name, $yearlyData['organisationId'] ?? null);
@@ -494,6 +538,7 @@ private function getSheetData(
         try {
 
             $yearData = $this->populateYearlyValues(...array_values($yearlyData));
+
             $sumYearlyData = $this->sumOfYearlyData($yearData);
 
             $yearlyTargets = $this->getYearlyTargets($item->name, $item->indicator->indicator_name ?? null);
