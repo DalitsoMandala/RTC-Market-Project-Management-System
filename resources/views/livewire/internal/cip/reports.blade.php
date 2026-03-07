@@ -41,13 +41,7 @@
 
             <div class="row" x-data="{
             message: null
-            }" @export-fail.window="message = $event.detail.message" x-show="message"
-            x-ref="reportAlert" x-init="() => {
-
-                    let object = $($refs.reportAlert);
-                    object.fadeTo(1000, 0).slideUp(500);
-                }"
-            >
+            }" @export-fail.window="message = $event.detail.message" x-show="message">
                 <div class="col">
                     <div class="alert alert-warning alert-border-left">
                         <strong>Notice!</strong>
