@@ -32,6 +32,6 @@ class TestScheduleCommand extends Command
         Log::info($message);
 
         // also show in terminal if run manually
-        $this->info($message);
+
     }
 }

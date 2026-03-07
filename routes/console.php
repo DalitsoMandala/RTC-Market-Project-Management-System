@@ -28,4 +28,4 @@ Schedule::command('backup-db')->dailyAt('01:30')->onFailure(function () {
     Log::info("Backup completed");
 });
 
-Schedule::command('schedule:test')->everyTenSeconds();
+Schedule::command('schedule:test')->everySeconds();
