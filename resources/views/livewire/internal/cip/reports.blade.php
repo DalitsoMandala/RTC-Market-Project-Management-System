@@ -294,3 +294,14 @@
 
 
 </div>
+@script
+
+<script>
+    window.onload = () => {
+        setTimeout(() => {
+            $wire.dispatch('read-cache');
+        }, 1000);
+    }
+</script>
+
+@endscript

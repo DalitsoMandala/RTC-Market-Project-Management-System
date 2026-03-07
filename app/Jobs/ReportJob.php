@@ -84,12 +84,12 @@ class ReportJob implements ShouldQueue
 
         $current = 0;
 
-
+        $indicators = Indicator::get()->keyBy('id');
         /** ------------------------------------------------------
          * 3. MAIN LOOP (optimized – no dangerous chunk nesting)
          * ------------------------------------------------------ */
         foreach ($indicatorClasses as $indicatorClass) {
-
+            $indicator = $indicators[$indicatorClass->indicator_id] ?? null;
             foreach ($reportingPeriods as $period) {
                 foreach ($financialYears as $year) {
                     foreach ($organisations as $org) {
@@ -108,12 +108,10 @@ class ReportJob implements ShouldQueue
                                 /** Instantiate indicator helper ONCE per combination */
                                 $class = new $indicatorClass->class(
                                     reporting_period: $period,
-                                    financial_year:  $year,
+                                    financial_year: $year,
                                     organisation_id: $org,
-                                    enterprise:       $crop
+                                    enterprise: $crop
                                 );
-
-                                $indicator = Indicator::find($indicatorClass->indicator_id);
 
                                 /** MAIN REPORT RECORD */
                                 $report = SystemReport::updateOrCreate(
@@ -124,6 +122,9 @@ class ReportJob implements ShouldQueue
                                         'project_id'          => $indicator->project_id,
                                         'indicator_id'        => $indicator->id,
                                         'crop'                => $crop,
+                                    ],
+                                    [
+                                        'updated_at' => now()
                                     ]
                                 );
 
@@ -145,7 +146,6 @@ class ReportJob implements ShouldQueue
                                         ['value' => $value]
                                     );
                                 }
-
                             } catch (\Exception $e) {
                                 Log::error("Report Error: " . $e->getMessage());
                             }

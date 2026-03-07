@@ -186,6 +186,8 @@ class Reports extends Component
         }
     }
 
+
+    #[On('read-cache')]
     public function readCache()
     {
         $this->loadingData = true;
