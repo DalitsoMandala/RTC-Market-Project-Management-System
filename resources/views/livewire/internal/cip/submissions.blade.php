@@ -25,129 +25,134 @@
         <div>
             <x-alerts />
         </div>
-        <div class="card ">
+
+        <div class="card">
             <x-card-header>Submissions</x-card-header>
-            <div class=" card-body">
-                <!-- Nav tabs -->
 
 
-                <!-- Tab panes -->
-                <div class="mt-2 tab-content">
+            <div class="card-body">
 
+                <!-- Tabs -->
+                <ul class="nav nav-tabs" id="submissionTabs" role="tablist">
 
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link active @hasanyrole('enumerator') disabled @endhasanyrole" id="batch-tab"
                             data-bs-toggle="tab" data-bs-target="#batch-submission" type="button" role="tab"
-                            aria-controls="home" aria-selected="true" wire:ignore.self>
-                            Batch Submissions <span
-                                class="badge bg-theme-red @if ($batch == 0) d-none @endif">{{ $batch }}</span>
+                            aria-controls="batch-submission" aria-selected="true">
+                            Batch Submissions
+                            <span class="badge bg-theme-red @if ($batch == 0) d-none @endif">
+                                {{ $batch }}
+                            </span>
                         </button>
+                    </li>
 
-
-
-                        <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="people-tab"
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @hasanyrole('enumerator') disabled @endhasanyrole" id="aggregate-tab"
                             data-bs-toggle="tab" data-bs-target="#aggregate-submission" type="button" role="tab"
-                            aria-controls="profile" aria-selected="false" wire:ignore.self>
-                            Aggregate Submission (Reports) <span
-                                class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">{{ $aggregate }}</span>
+                            aria-controls="aggregate-submission" aria-selected="false">
+                            Aggregate Submission (Reports)
+                            <span class="badge bg-theme-red @if ($aggregate == 0) d-none @endif">
+                                {{ $aggregate }}
+                            </span>
                         </button>
+                    </li>
 
-
-                        @hasanyrole('admin|manager|staff|enumerator')
-                            <button class="nav-link" id="manual-submission-tab" data-bs-toggle="tab"
-                                data-bs-target="#manual-submission" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
+                    @hasanyrole('admin|manager|staff|enumerator')
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
+                                data-bs-target="#manual-submission" type="button" role="tab"
+                                aria-controls="manual-submission">
                                 Manual Submission
-
                             </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="market-tab" data-bs-toggle="tab"
-                                data-bs-target="#market-submission" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
-                                Market Data Submission <span
-                                    class="badge bg-theme-red @if ($market == 0) d-none @endif">{{ $market }}</span>
-
+                                data-bs-target="#market-submission" type="button" role="tab"
+                                aria-controls="market-submission">
+                                Market Data Submission
+                                <span class="badge bg-theme-red @if ($market == 0) d-none @endif">
+                                    {{ $market }}
+                                </span>
                             </button>
+                        </li>
 
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="additional-report-tab" data-bs-toggle="tab"
-                                data-bs-target="#additional-report" type="button" role="tab" aria-controls="profile"
-                                aria-selected="false" wire:ignore.self>
+                                data-bs-target="#additional-report" type="button" role="tab"
+                                aria-controls="additional-report">
                                 Additional Report Submission
-
                             </button>
-                        @endhasanyrole
+                        </li>
+                    @endhasanyrole
 
-
-                        <button class="nav-link " id="progress-tab" data-bs-toggle="tab"
-                            data-bs-target="#submission-progress" type="button" role="tab" aria-controls="profile"
-                            aria-selected="false" wire:ignore.self>
-
-                            Pending Submissions <span
-                                class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">{{ $pendingJob }}</span>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
+                            data-bs-target="#submission-progress" type="button" role="tab"
+                            aria-controls="submission-progress">
+                            Pending Submissions
+                            <span class="badge bg-theme-red @if ($pendingJob == 0) d-none @endif">
+                                {{ $pendingJob }}
+                            </span>
                         </button>
+                    </li>
 
+                </ul>
 
+                <!-- Tab content -->
+                <div class="mt-3 tab-content">
 
-                    </ul>
-                    <div wire:ignore class="mt-2 tab-pane active fade show" id="batch-submission" role="tabpanel"
-                        aria-labelledby="home-tab">
+                    <div class="tab-pane fade show active" id="batch-submission" role="tabpanel"
+                        aria-labelledby="batch-tab" wire:ignore>
                         <livewire:tables.submission-table :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
-                    <div wire:ignore class="mt-2 tab-pane active fade show" id="manual-submission" role="tabpanel"
-                        aria-labelledby="home-tab">
-
-                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :userId="auth()->user()->id" />
-                    </div>
-
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="aggregate-submission" role="tabpanel"
-                        aria-labelledby="profile-tab">
+                    <div class="tab-pane fade" id="aggregate-submission" role="tabpanel" aria-labelledby="aggregate-tab"
+                        wire:ignore>
                         <livewire:tables.aggregate-submission-table :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="submission-progress" role="tabpanel"
-                        aria-labelledby="profile-tab">
-                        <livewire:tables.job-progress-table :userId="auth()->user()->id" />
+                    <div class="tab-pane fade" id="manual-submission" role="tabpanel" aria-labelledby="manual-tab"
+                        wire:ignore>
+                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="market-submission" role="tabpanel"
-                        aria-labelledby="market-tab">
+                    <div class="tab-pane fade" id="market-submission" role="tabpanel" aria-labelledby="market-tab"
+                        wire:ignore>
                         <livewire:tables.market-data-submission-table :userId="auth()->user()->id" />
                     </div>
 
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="root-submission" role="tabpanel"
-                        aria-labelledby="root-tab">
-                        <livewire:tables.root-tuber-submission-table :userId="auth()->user()->id" />
+                    <div class="tab-pane fade" id="submission-progress" role="tabpanel" aria-labelledby="progress-tab"
+                        wire:ignore>
+                        <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                     </div>
-                    <div wire:ignore class="mt-2 tab-pane fade show" id="additional-report" role="tabpanel"
-                        aria-labelledby="profile-tab" x-data="{
-                            show: false,
-                            toggle() {
-                                this.show = !this.show
-                            }
-                        }">
-                        <div class="flex-1 gap-1 d-flex">
-                            <button class="btn btn-warning" :disabled="show" role="button" @click="toggle()">
+
+                    <div class="tab-pane fade" id="additional-report" role="tabpanel"
+                        aria-labelledby="additional-report-tab" wire:ignore x-data="{ show: false }">
+
+                        <div class="gap-2 mb-3 d-flex">
+                            <button class="btn btn-warning" :disabled="show" @click="show=true">
                                 Import Report
                             </button>
-                            <button x-show="show" class="btn btn-secondary" :disabled="!show" role="button"
-                                @click="show=false">
+
+                            <button class="btn btn-secondary" x-show="show" @click="show=false">
                                 Close
+                            </button>
                         </div>
 
-                        <div x-show="show">
-
+                        <div x-show="show" class="mb-3">
                             <livewire:imports.import-data />
-                            <hr />
+                            <hr>
                         </div>
-
 
                         <livewire:tables.additional-report-table />
                     </div>
+
                 </div>
 
-
             </div>
+
+
         </div>
 
         <div x-data x-init="$wire.on('showModal', (e) => {
