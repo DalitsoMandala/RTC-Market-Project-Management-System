@@ -9,6 +9,7 @@ use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
 use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
+use App\Models\ReportStatus;
 use App\Models\ResponsiblePerson;
 use App\Models\SystemReport;
 use App\Models\SystemReportData;
@@ -69,6 +70,10 @@ final class ReportTable extends PowerGridComponent
     #[On('export-report')]
     public function startExport()
     {
+         if (!$this->checkReport()) {
+            $this->dispatch('export-fail', message:'Data is updating, please try again later.');
+            return;
+        }
         $this->namedExport = 'report';
         $this->execute($this->namedExport);
         $this->performExport();
@@ -78,13 +83,26 @@ final class ReportTable extends PowerGridComponent
     #[On('export-report')]
     public function startProgressExport()
     {
+        if (!$this->checkReport()) {
+            $this->dispatch('export-fail', message:'Data is updating, please try again later.');
+            return;
+        }
         $this->namedExport = 'summary';
         $this->execute($this->namedExport);
         $this->performExport();
         // Bus::dispatch(new ReportSummaryJob(auth()->user()));
     }
 
+    public function checkReport()
+    {
 
+        $check = ReportStatus::where('status', 'completed')->exists();
+
+        if ($check) {
+            return true;
+        }
+        return false;
+    }
     #[On('download-export')]
     public function downloadExport()
     {

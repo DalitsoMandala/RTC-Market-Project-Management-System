@@ -26,16 +26,37 @@
         <div class="row">
             <div class="col">
                 <x-alerts />
-    <div class="alert alert-success alert-border-left" x-ref="warningAlert" x-data x-init="() => {
+                <div class="alert alert-success alert-border-left" x-ref="warningAlert" x-data x-init="() => {
 
-                let object = $($refs.warningAlert);
-                object.fadeTo(30000, 0).slideUp(500);
-            }">
-                <strong>Notice!</strong>
-             Please note that we have updated this section of the system. You can now filter the report using the filters inside the table.
-            </div>
+                    let object = $($refs.warningAlert);
+                    object.fadeTo(30000, 0).slideUp(500);
+                }">
+                    <strong>Notice!</strong>
+                    Please note that we have updated this section of the system. You can now filter the report using the
+                    filters inside the table.
+                </div>
             </div>
         </div>
+
+
+            <div class="row" x-data="{
+            message: null
+            }" @export-fail.window="message = $event.detail.message" x-show="message"
+            x-ref="reportAlert" x-init="() => {
+
+                    let object = $($refs.reportAlert);
+                    object.fadeTo(1000, 0).slideUp(500);
+                }"
+            >
+                <div class="col">
+                    <div class="alert alert-warning alert-border-left">
+                        <strong>Notice!</strong>
+                        <span x-text="message"></span>
+                    </div>
+                </div>
+            </div>
+
+
 
         <div class="card ">
             <x-card-header>Reports</x-card-header>
@@ -294,14 +315,4 @@
 
 
 </div>
-@script
 
-<script>
-    window.onload = () => {
-        setTimeout(() => {
-            $wire.dispatch('read-cache');
-        }, 1000);
-    }
-</script>
-
-@endscript

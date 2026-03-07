@@ -114,7 +114,7 @@ class ReportJob implements ShouldQueue
                                 );
 
                                 /** MAIN REPORT RECORD */
-                                $report = SystemReport::updateOrCreate(
+                                $report = SystemReport::firstOrCreate(
                                     [
                                         'reporting_period_id' => $period,
                                         'financial_year_id'   => $year,
@@ -122,11 +122,7 @@ class ReportJob implements ShouldQueue
                                         'project_id'          => $indicator->project_id,
                                         'indicator_id'        => $indicator->id,
                                         'crop'                => $crop,
-                                    ],
-                                    [
-                                        'updated_at' => now()
-                                    ]
-                                );
+                                    ]);
 
                                 /** GET DISAGGREGATIONS */
                                 $disaggregations = $class->getDisaggregations();
