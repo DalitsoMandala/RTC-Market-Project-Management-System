@@ -60,29 +60,10 @@ class UpdateInformation extends Command
                 $this->error('ReportStatus with ID 1 not found.');
                 return;
             }
-
-
-
-            $lastUpdate = $reportStatus->updated_at;
-            $isStale = Carbon::parse($lastUpdate)->diffInDays(Carbon::now()) > 1 && $reportStatus->status === 'pending';
-
-            if ($isStale) {
-                $this->info("Stale report detected. Resetting...");
-                $this->resetReportStatus($reportStatus);
-                $this->runReportJobs($reportStatus);
-                return;
-            }
-
-            if ($reportStatus->status === 'pending') {
-                $this->comment("Report is already running at {$reportStatus->progress}%.");
-                Cache::put('report_progress', $reportStatus->progress);
-                Cache::put('report_status', 'pending');
-                return;
-            }
-
             // Fresh run
             $this->info("Starting fresh report job chain...");
             $this->resetReportStatus($reportStatus);
+
             $this->runReportJobs($reportStatus);
         } finally {
             $lock->release();
