@@ -28,4 +28,4 @@ Schedule::command('backup-db')->dailyAt('01:30')->onFailure(function () {
     Log::info("Backup completed");
 })->evenInMaintenanceMode();
 
-Schedule::command('schedule:test')->everyMinute()->evenInMaintenanceMode();
+//Schedule::command('schedule:test')->everyMinute()->evenInMaintenanceMode();
