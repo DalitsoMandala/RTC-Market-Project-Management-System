@@ -45,7 +45,7 @@ class ReportSheet implements WithMultipleSheets
             'Consolidated' => new ReportExport('Consolidated'),
              'Sweet potato' => new ReportExport('Sweet potato'),
              'Potato' => new ReportExport('Potato'),
-             'CIP' => new ReportExport('CIP'),
+             //'CIP' => new ReportExport('CIP'),
              'IITA' => new ReportExport('IITA'),
              'ACE' => new ReportExport('ACE'),
              'DCD' => new ReportExport('DCD'),
