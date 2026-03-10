@@ -163,7 +163,7 @@ class Reports extends Component
     public function load()
     {
         $this->loadingData = true;
-          Artisan::call('clear-lock');
+        Artisan::call('clear-lock');
         Artisan::call('update:information');
         $this->readCache();
     }
@@ -191,15 +191,21 @@ class Reports extends Component
     public function readCache()
     {
         $this->loadingData = true;
-        $check = ReportStatus::where('status', 'completed')->exists();
+        $ReportStatus = ReportStatus::where('status', 'completed')->first();
 
-        if ($check) {
+        if ($ReportStatus) {
+
+
+            $ReportStatus->update([
+                'status' => 'pending',
+                'progress' => 0,
+            ]);
+            Cache::put('report_progress', 0);
+            Cache::put('report_status', 'pending');
             $this->loadingData = false;
-            $this->dispatch('reset-filters');
-            cache()->clear();
         }
 
-        $this->progress = ReportStatus::find(1)->progress;
+        $this->progress = ReportStatus::find(1)?->progress;
     }
 
     public function render()
