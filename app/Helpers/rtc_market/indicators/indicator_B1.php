@@ -107,6 +107,7 @@ class indicator_B1
 
 
         $crop = $this->findCropCount();
+
         $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
         $indicator = $this->findIndicator();
         $baseline = $indicator->baseline->baseline_value ?? 0;
@@ -123,30 +124,25 @@ class indicator_B1
 
         return $indicator;
     }
+
+
+
+
     public function getDisaggregations()
     {
         $crop = $this->findCropCount();
 
         // Define all possible crops with default 0 values
-        $allCrops = [
-            'Cassava' => 0,
-            'Sweet potato' => 0,
-            'Potato' => 0,
-        ];
-
-        // Merge actual values (if they exist)
-        foreach ($allCrops as $key => $value) {
-            $snakeKey = strtolower(str_replace(' ', '_', $key));
-            if (isset($crop[$snakeKey])) {
-                $allCrops[$key] = round($crop[$snakeKey], 2);
-            }
-        }
-
+        $crops = [
+        'Cassava'      => round($crop['cassava'] ?? 0, 2),
+        'Sweet potato' => round($crop['sweet_potato'] ?? 0, 2),
+        'Potato'       => round($crop['potato'] ?? 0, 2),
+    ];
 
 
         return [
             'Total (% Percentage)' => 0,
-            ...$allCrops,
+            ...$crops,
             'Traders' => 0,
             'Farmers' => 0,
             'Processors' => 0,

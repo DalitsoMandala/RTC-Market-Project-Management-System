@@ -84,19 +84,12 @@ class indicator_3_2_1
         $crop = $this->getCropTotal();
 
         // Define all possible crops with default 0 values
-        $allCrops = [
-            'Cassava' => 0,
-            'Sweet potato' => 0,
-            'Potato' => 0,
-        ];
 
-        // Merge actual values (if they exist)
-        foreach ($allCrops as $key => $value) {
-            $snakeKey = strtolower(str_replace(' ', '_', $key));
-            if (isset($crop[$snakeKey])) {
-                $allCrops[$key] = round($crop[$snakeKey], 2);
-            }
-        }
+        $allCrops = [
+            'Cassava'      => round($crop['cassava'] ?? 0, 2),
+            'Sweet potato' => round($crop['sweet_potato'] ?? 0, 2),
+            'Potato'       => round($crop['potato'] ?? 0, 2),
+        ];
 
 
         $total = array_sum($allCrops);
