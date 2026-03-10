@@ -84,7 +84,7 @@ class UpdateInformation extends Command
     {
         Bus::chain([
             new SyncronizeTableJob(),
-            new ReportJob(),
+         //   new ReportJob(),
             new PopulatePreviousValueJob(),
             new AdditionalReportJob(),
             new MarketReportJob(),
