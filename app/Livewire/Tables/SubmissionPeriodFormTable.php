@@ -252,15 +252,15 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         $project  = str($form->project->name)->lower()->replace(' ', '-');
 
         if ($upload) {
-            $route = "{$routePrefix}/forms/{$project}/{$formName}/upload/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}/" . \Ramsey\Uuid\Uuid::uuid4();
+            $route = "/{$routePrefix}/forms/{$project}/{$formName}/upload/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}/" . \Ramsey\Uuid\Uuid::uuid4();
 
             return $this->redirect($route);
         }
 
         if ($form->name === 'REPORT FORM') {
-            $route = "{$routePrefix}/forms/{$project}/aggregate/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
+            $route = "/{$routePrefix}/forms/{$project}/aggregate/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
         } else {
-            $route = "{$routePrefix}/forms/{$project}/{$formName}/add/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
+            $route = "/{$routePrefix}/forms/{$project}/{$formName}/add/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
         }
 
         return $this->redirect($route);
