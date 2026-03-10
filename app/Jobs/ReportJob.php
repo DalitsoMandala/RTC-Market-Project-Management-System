@@ -157,12 +157,6 @@ class ReportJob implements ShouldQueue
             }
         }
 
-        /** Final progress */
-        Cache::put('report_progress', 100);
 
-        ReportStatus::find(1)->update([
-            'status'   => 'completed',
-            'progress' => 100,
-        ]);
     }
 }
