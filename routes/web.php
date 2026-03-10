@@ -4,6 +4,7 @@
 
 
 use App\Helpers\rtc_market\indicators\indicator_A1;
+use App\Helpers\rtc_market\indicators\indicator_B1;
 use App\Jobs\TestJob;
 use App\Models\MarketData;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +40,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 
-
+Route::get('/test', function () {
+    $class = new indicator_B1(null, 3, 2, 'Cassava');
+    dd($class->getDisaggregations());
+})->name('testing');
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
