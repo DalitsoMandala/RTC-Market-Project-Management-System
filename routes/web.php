@@ -101,7 +101,7 @@ Route::middleware([
     'role:admin',
     'verified'
 
-])->prefix('/admin')->group(function () {
+])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
     Route::get('/dashboard-2', \App\Livewire\Admin\Dashboard2::class)->name('admin-dashboard-2');
     Route::get('/dashboard-3', \App\Livewire\Admin\Dashboard3::class)->name('admin-dashboard-3');
@@ -147,7 +147,7 @@ Route::middleware([
     'role:monitor',
     'verified'
 
-])->prefix('/monitor')->group(function () {
+])->prefix('monitor')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('monitor-dashboard');
     Route::get('/dashboard-2', \App\Livewire\Admin\Dashboard2::class)->name('monitor-dashboard-2');
     Route::get('/dashboard-3', \App\Livewire\Admin\Dashboard3::class)->name('monitor-dashboard-3');
@@ -191,7 +191,7 @@ Route::middleware([
     'auth',
     'role:manager',
     'check_baseline'
-])->prefix('/cip')->group(function () {
+])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-dashboard');
     Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('cip-dashboard-2');
     Route::get('/dashboard-3', \App\Livewire\Internal\Manager\Dashboard3::class)->name('cip-dashboard-3');
@@ -225,7 +225,7 @@ Route::middleware([
     'auth',
     'role:staff',
 
-])->prefix('/staff')->group(function () {
+])->prefix('staff')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Staff\Dashboard::class)->name('cip-staff-dashboard');
     Route::get('/dashboard-2', \App\Livewire\Internal\Staff\Dashboard2::class)->name('cip-staff-dashboard-2');
     Route::get('/dashboard-3', \App\Livewire\Internal\Staff\Dashboard3::class)->name('cip-staff-dashboard-3');
@@ -258,7 +258,7 @@ Route::middleware([
     'auth',
     'role:project_manager',
 
-])->prefix('/cip/project-manager')->group(function () {
+])->prefix('cip/project-manager')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Manager\Dashboard::class)->name('project_manager-dashboard');
     Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('project_manager-dashboard-2');
     Route::get('/dashboard-3', \App\Livewire\Internal\Manager\Dashboard3::class)->name('project_manager-dashboard-3');
@@ -283,7 +283,7 @@ Route::middleware([
     'auth',
     'role:external',
 
-])->prefix('/external')->group(function () {
+])->prefix('external')->group(function () {
     Route::get('/dashboard', ExternalDashboard::class)->name('external-dashboard');
     Route::get('/indicators', \App\Livewire\External\Indicators::class)->name('external-indicators');
     Route::get('/indicators/view/{id}', ViewIndicator::class)->where('id', '[0-9]+')->name('external-indicator-view');
@@ -305,7 +305,7 @@ Route::middleware([
     'auth',
     'role:enumerator',
 
-])->prefix('/enumerator')->group(function () {
+])->prefix('enumerator')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Enumerator\Dashboard::class)->name('enumerator-dashboard');
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
     Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
