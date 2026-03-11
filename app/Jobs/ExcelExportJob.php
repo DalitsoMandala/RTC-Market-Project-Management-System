@@ -1133,6 +1133,7 @@ class ExcelExportJob implements ShouldQueue
                     'Type of Plot',
                     'Type of Actor',
                     'Season Type',
+                    'Financial Year',
                     'Submitted By'
                 ];
 
@@ -1158,6 +1159,7 @@ class ExcelExportJob implements ShouldQueue
                     'Type of Plot',
                     'Type of Actor',
                     'Season Type',
+                    'Financial Year',
                     'Submitted By'
                 ];
 
@@ -1183,6 +1185,7 @@ class ExcelExportJob implements ShouldQueue
                     'Type of Plot',
                     'Type of Actor',
                     'Season Type',
+                    'Financial Year',
                     'Submitted By'
                 ];
 
@@ -1201,7 +1204,7 @@ class ExcelExportJob implements ShouldQueue
                         $writer->nameCurrentSheet($crop)->addHeader($CassavaHeaders);
                     }
 
-                    $query = SeedBeneficiary::with(['user', 'user.organisation'])
+                    $query = SeedBeneficiary::with(['user', 'user.organisation','financial_year'])
                         ->where('crop', $crop)
                         ->select([
                             'seed_beneficiaries.crop',
@@ -1229,6 +1232,7 @@ class ExcelExportJob implements ShouldQueue
                             'seed_beneficiaries.season_type',
                             'users.name as user_name',
                             'organisations.name as organisation_name',
+
                         ])
                         ->join('users', 'seed_beneficiaries.user_id', '=', 'users.id')
                         ->join('organisations', 'seed_beneficiaries.organisation_id', '=', 'organisations.id');
@@ -1267,6 +1271,7 @@ class ExcelExportJob implements ShouldQueue
                                     $record->type_of_plot,
                                     $record->type_of_actor,
                                     $record->season_type,
+                                    $record->financial_year->number,
                                     $submittedBy
                                 ]);
                             } elseif ($crop === 'Cassava') {
@@ -1292,6 +1297,7 @@ class ExcelExportJob implements ShouldQueue
                                     $record->type_of_plot,
                                     $record->type_of_actor,
                                     $record->season_type,
+                                    $record->financial_year->number,
                                     $submittedBy
                                 ]);
                             } else { // OFSP
@@ -1318,6 +1324,7 @@ class ExcelExportJob implements ShouldQueue
                                     $record->type_of_plot,
                                     $record->type_of_actor,
                                     $record->season_type,
+                                    $record->financial_year->number,
                                     $submittedBy
                                 ]);
                             }

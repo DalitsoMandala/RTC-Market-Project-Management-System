@@ -20,4 +20,10 @@ class SeedBeneficiary extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+
+    public function financial_year()
+    {
+        return $this->belongsTo(FinancialYear::class, 'financial_year_id');
+    }
 }
