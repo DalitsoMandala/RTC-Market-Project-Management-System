@@ -48,8 +48,8 @@ Route::get('/test', function () {
 
 
     $class = new DisaggregationAppend('Percentage Increase in the volume of RTC produced');
-    $postsQuery = SeedBeneficiary::query()->with('users')->first();
-    $sql = $postsQuery->toRawSql();
+    $postsQuery = SeedBeneficiary::query()->with('financial_year')->first();
+    $sql = $postsQuery;
     dd($sql);
 })->name('testing');
 

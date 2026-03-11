@@ -64,7 +64,7 @@ class UpdateInformation extends Command
             $this->info("Starting fresh report job chain...");
             $this->resetReportStatus($reportStatus);
 
-            $this->runReportJobs($reportStatus);
+            $this->runReportJobs();
         } finally {
             $lock->release();
         }
@@ -80,8 +80,9 @@ class UpdateInformation extends Command
         Cache::put('report_status', 'pending');
     }
 
-    private function runReportJobs($reportStatus)
+    private function runReportJobs()
     {
+           $reportStatus = ReportStatus::find(1);
         Bus::chain([
             new SyncronizeTableJob(),
           new ReportJob(),
