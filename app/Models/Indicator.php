@@ -61,7 +61,17 @@ public function submissionTargets(){
 
     return $this->hasMany(SubmissionTarget::class, 'indicator_id');
 }
-
+  protected static function booted()
+    {
+        static::deleting(function ($indicator) {
+            // This will automatically delete related records
+            $indicator->submissionTargets()->each(function ($submissionTarget) {
+                $submissionTarget->organisationTargets()->delete();
+            });
+            $indicator->submissionTargets()->delete();
+            $indicator->disaggregations()->delete();
+        });
+    }
     /**
      * Get the baseline associated with the Indicator
      *

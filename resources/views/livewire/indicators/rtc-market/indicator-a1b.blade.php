@@ -53,6 +53,24 @@
                     </div>
 
                     <div class="col-md-6 col-12">
+
+                        <div class="card">
+                            <div class="card-header card-title fw-bold border-bottom-0">
+                                <h5 class="card-title">Age Group
+                                    Distribution</h5>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div id="ageGroupChart" x-show="!hasZeroValues(ageGroupChart)"></div>
+
+                                <x-no-data x-show='hasZeroValues(ageGroupChart)' />
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-md-6 col-12">
                         <div class="card">
                             <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title"> Establishment Distribution</h5>
@@ -135,7 +153,7 @@
 
 
                 this.genderChart = [data.Female, data.Male];
-
+                this.ageGroupChart = [data['Youth (18-35 yrs)'], data['Not youth (35yrs+)']];
                 this.professionChart = [data.Farmers, data.Processors, data.Traders];
                 this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
                 this.establishmentChart = [
@@ -168,6 +186,19 @@
                 });
                 genderChartInstance.render();
 
+                const ageGroupChartInstance = new ApexCharts(document.querySelector("#ageGroupChart"), {
+                    chart: {
+                        type: 'donut',
+                        height: 300
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    colors: ['#FC931D', '#FA7070', '#DE8F5F'],
+                    series: this.ageGroupChart,
+                    labels: ['Youth (18-35 yrs)', 'Not Youth (35yrs+)']
+                });
+                ageGroupChartInstance.render();
 
                 const professionChartInstance = new ApexCharts(document.querySelector("#professionChart"), {
                     chart: {

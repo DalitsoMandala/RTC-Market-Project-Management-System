@@ -4,6 +4,7 @@
 
 
 use App\Helpers\DisaggregationAppend;
+use App\Helpers\IndicatorsAppend;
 use App\Helpers\MarketReportCalculations;
 use App\Helpers\rtc_market\indicators\indicator_2_3_2;
 use App\Helpers\rtc_market\indicators\indicator_A1;
@@ -12,12 +13,12 @@ use App\Helpers\rtc_market\indicators\indicator_B5;
 use App\Http\Controllers\AddDisaggregationController;
 use App\Http\Controllers\FormsExportController;
 use App\Http\Controllers\TestingController;
+
 use App\Jobs\TestJob;
 
 use App\Livewire\External\Dashboard as ExternalDashboard;
 
 use App\Livewire\External\ViewIndicator;
-
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Dashboard;
 use App\Livewire\Internal\Cip\Forms;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\Storage;
 
 
 
+
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -47,8 +49,50 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function () {
+    $addIndicator = new IndicatorsAppend();
 
-})->name('testing');
+    $disaggregations = [
+        'Total',
+        'Male',
+        'Female',
+        'Youth (18-35 yrs)',
+        'Not youth (35yrs+)',
+        'Employees on RTC establishment',
+        'Cassava',
+        'Potato',
+        'Sweet potato',
+        'Farmers',
+        'Traders',
+        'Processors',
+        'Aggregators',
+        'Transporters',
+        'New establishment',
+        'Old establishment'
+    ];
+
+
+    $removeDisaggregation = new DisaggregationAppend('Number of actors profitability engaged in commercialization of RTC',[
+ 'Male',
+        'Female',
+        'Youth (18-35 yrs)',
+        'Not youth (35yrs+)',
+    ],false);
+
+//     $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1(null,3,null,null);
+// dd($indicatorFile->getDisaggregations());
+    dd($addIndicator->addIndicator(
+        'Number of unique entities participating in RTC activities',
+        'A1b',
+        $disaggregations,
+        true,
+        'Number of actors profitability engaged in commercialization of RTC',
+        false,
+        'App\Helpers\rtc_market\indicators\indicator_A1b'
+    ),
+    $removeDisaggregation->updateDisaggregations(),
+    );
+
+});
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 

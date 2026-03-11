@@ -3,6 +3,10 @@
 namespace App\Helpers;
 
 use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\OrganisationTarget;
+use App\Models\Project;
+use App\Models\SubmissionTarget;
 use Illuminate\Database\Eloquent\Builder;
 
 class DisaggregationAppend
@@ -16,6 +20,7 @@ class DisaggregationAppend
         $this->indicator_name = $indicator_name;
         $this->data = $data;
         $this->add = $add;
+
     }
     public static function getIndicators(): Builder
     {
@@ -29,7 +34,7 @@ class DisaggregationAppend
             ->first();
     }
 
-    public function sync()
+    private function sync()
     {
         $indicator = $this->findIndicator();
 
@@ -59,7 +64,7 @@ class DisaggregationAppend
         return $existingDisaggregations;
     }
 
-    public function remove()
+    private function remove()
     {
         $indicator = $this->findIndicator();
 
@@ -131,7 +136,7 @@ class DisaggregationAppend
             ];
         }
     }
-    public function restoreToOriginal()
+    private function restoreToOriginal()
     {
         $originalData = $this->databaseArray();
         $indicator = $this->findIndicator();
@@ -166,6 +171,8 @@ class DisaggregationAppend
             'current' => $originalDisaggregations
         ];
     }
+
+
     public function databaseArray()
     {
         return [

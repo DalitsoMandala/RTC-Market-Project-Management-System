@@ -232,66 +232,152 @@ class indicator_A1
 
         return $totals;
     }
-    public function getDisaggregations()
-    {
-        // Base totals without filters
-        $baseTotals = $this->getTotalSum();
 
-        // Initialize result with base totals
-        $result = [
-            'Total' => $baseTotals['employees'] + $baseTotals['members'],
-            'Male' => $baseTotals['male'],
-            'Female' => $baseTotals['female'],
-            'Youth (18-35 yrs)' => $baseTotals['youth'],
-            'Not youth (35yrs+)' => $baseTotals['not_youth'],
-            'Employees on RTC establishment' => $baseTotals['employees'],
-        ];
+public function getDisaggregations()
+{
+    // Get base totals (already filtered by enterprise if applicable)
+    $baseTotals = $this->getTotalSum();
 
-        // Only calculate these if no enterprise filter is set
-        if (!$this->enterprise) {
-            $result = array_merge($result, [
-            'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
-            'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
-            'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
-            ]);
-        } else {
-            // Add filtered enterprise with original key name
-            $result[$this->enterprise] = $baseTotals['employees'] + $baseTotals['members'];
-        }
+    // Get people counts for each actor type except traders
+    $farmersPeople = $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'];
+    $processorsPeople = $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'];
+    $aggregatorsPeople = $this->getTotalSum(type: 'Aggregators')['employees'] + $this->getTotalSum(type: 'Aggregators')['members'];
+    $transportersPeople = $this->getTotalSum(type: 'Transporters')['employees'] + $this->getTotalSum(type: 'Transporters')['members'];
 
-        // Always include these categories
-        $result = array_merge($result, [
-            'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
-            'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
-            'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
-            'Aggregators' => $this->getTotalSum(type: 'Aggregators')['employees'] + $this->getTotalSum(type: 'Aggregators')['members'],
-            'Transporters' => $this->getTotalSum(type: 'Transporters')['employees'] + $this->getTotalSum(type: 'Transporters')['members'],
-            'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
-            'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
-        ]);
+    // For traders, only count the number of trader establishments
+      $tradersCount = $this->builder()
+        ->where('type', 'Traders')
+        ->count();
 
-        return $result;
-    }
-    // public function getDisaggregations()
+    // Calculate total people across all actor types, excluding traders if you only want people
+    $totalPeople = $farmersPeople + $processorsPeople + $aggregatorsPeople + $transportersPeople + $tradersCount;
+
+    // Get crop totals (already filtered by any existing filters)
+    $cassavaPeople = $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'];
+    $potatoPeople = $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'];
+    $sweetPotatoPeople = $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'];
+
+    $result = [
+        'Total' => $totalPeople,
+        'Employees on RTC establishment' => $baseTotals['employees'],
+        'Cassava' => $cassavaPeople,
+        'Potato' => $potatoPeople,
+        'Sweet potato' => $sweetPotatoPeople,
+        'Farmers' => $farmersPeople,
+        'Traders' => $tradersCount, // Only counting traders
+        'Processors' => $processorsPeople,
+        'Aggregators' => $aggregatorsPeople,
+        'Transporters' => $transportersPeople,
+        'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
+        'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
+    ];
+
+    return $result;
+}
+
+    //     public function getDisaggregations()
     // {
+    //     // Get establishment counts for each actor type
+    //     $farmersCount = $this->builder()->where('type', 'Farmers')->count();
+    //     $tradersCount = $this->builder()->where('type', 'Traders')->count();
+    //     $processorsCount = $this->builder()->where('type', 'Processors')->count();
+    //     $aggregatorsCount = $this->builder()->where('type', 'Aggregators')->count();
+    //     $transportersCount = $this->builder()->where('type', 'Transporters')->count();
 
+    //     // Calculate total establishments
+    //     $totalEstablishments = $farmersCount + $tradersCount + $processorsCount + $aggregatorsCount + $transportersCount;
 
+    //     // Get establishment counts by crop
+    //     $cassavaCount = $this->builder()->where('enterprise', 'Cassava')->count();
+    //     $potatoCount = $this->builder()->where('enterprise', 'Potato')->count();
+    //     $sweetPotatoCount = $this->builder()->where('enterprise', 'Sweet potato')->count();
 
-    //     return [
-    //         'Total' => $this->getTotalSum()['employees'] + $this->getTotalSum()['members'],
-    //         'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
-    //         'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
-    //         'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
-    //         'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
-    //         'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
-    //         'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
-    //         'Male' => $this->getTotalSum()['male'],
-    //         'Female' => $this->getTotalSum()['female'],
-    //         'Youth (18-35 yrs)' => $this->getTotalSum()['youth'],
-    //         'Not youth (35yrs+)' => $this->getTotalSum()['not_youth'],
-    //         'Employees on RTC establishment' => $this->getTotalSum()['employees'],
+    //     // Get establishment counts by status
+    //     $newCount = $this->builder()->where('establishment_status', 'New')->count();
+    //     $oldCount = $this->builder()->where('establishment_status', 'Old')->count();
+
+    //     // Get total employees (this remains a sum of people)
+    //     $baseTotals = $this->getTotalSum();
+
+    //     $result = [
+    //         'Total' => $totalEstablishments,
+    //         'Employees on RTC establishment' => $baseTotals['employees'],
+    //         'Cassava' => $cassavaCount,
+    //         'Potato' => $potatoCount,
+    //         'Sweet potato' => $sweetPotatoCount,
+    //         'Farmers' => $farmersCount,
+    //         'Traders' => $tradersCount,
+    //         'Processors' => $processorsCount,
+    //         'Aggregators' => $aggregatorsCount,
+    //         'Transporters' => $transportersCount,
+    //         'New establishment' => $newCount,
+    //         'Old establishment' => $oldCount,
+    //     ];
+
+    //     return $result;
+    // }
+    //  public function getDisaggregations()
+    // {
+    //     // Get base totals
+    //     $baseTotals = $this->getTotalSum();
+
+    //     // Get people counts for actor types that sum individuals
+    //     $farmersPeople = $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'];
+    //     $processorsPeople = $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'];
+    //     $aggregatorsPeople = $this->getTotalSum(type: 'Aggregators')['employees'] + $this->getTotalSum(type: 'Aggregators')['members'];
+    //     $transportersPeople = $this->getTotalSum(type: 'Transporters')['employees'] + $this->getTotalSum(type: 'Transporters')['members'];
+
+    //     // Get count of traders (number of establishments)
+    //     $tradersCount = $this->builder()
+    //         ->where('type', 'Traders')
+    //         ->count();
+
+    //     // Calculate total
+    //     $total = $farmersPeople + $tradersCount + $processorsPeople + $aggregatorsPeople + $transportersPeople;
+
+    //     // For crop totals, we need to calculate them consistently
+    //     // For each crop, sum: Farmers(people) + Traders(count) + Processors(people) + Aggregators(people) + Transporters(people)
+
+    //     $cassavaFarmers = $this->getTotalSum(type: 'Farmers', enterprise: 'Cassava')['employees'] + $this->getTotalSum(type: 'Farmers', enterprise: 'Cassava')['members'];
+    //     $cassavaTraders = $this->builder()->where('type', 'Traders')->where('enterprise', 'Cassava')->count();
+    //     $cassavaProcessors = $this->getTotalSum(type: 'Processors', enterprise: 'Cassava')['employees'] + $this->getTotalSum(type: 'Processors', enterprise: 'Cassava')['members'];
+    //     $cassavaAggregators = $this->getTotalSum(type: 'Aggregators', enterprise: 'Cassava')['employees'] + $this->getTotalSum(type: 'Aggregators', enterprise: 'Cassava')['members'];
+    //     $cassavaTransporters = $this->getTotalSum(type: 'Transporters', enterprise: 'Cassava')['employees'] + $this->getTotalSum(type: 'Transporters', enterprise: 'Cassava')['members'];
+
+    //     $cassavaTotal = $cassavaFarmers + $cassavaTraders + $cassavaProcessors + $cassavaAggregators + $cassavaTransporters;
+
+    //     // Similar for Potato and Sweet potato
+    //     $potatoFarmers = $this->getTotalSum(type: 'Farmers', enterprise: 'Potato')['employees'] + $this->getTotalSum(type: 'Farmers', enterprise: 'Potato')['members'];
+    //     $potatoTraders = $this->builder()->where('type', 'Traders')->where('enterprise', 'Potato')->count();
+    //     $potatoProcessors = $this->getTotalSum(type: 'Processors', enterprise: 'Potato')['employees'] + $this->getTotalSum(type: 'Processors', enterprise: 'Potato')['members'];
+    //     $potatoAggregators = $this->getTotalSum(type: 'Aggregators', enterprise: 'Potato')['employees'] + $this->getTotalSum(type: 'Aggregators', enterprise: 'Potato')['members'];
+    //     $potatoTransporters = $this->getTotalSum(type: 'Transporters', enterprise: 'Potato')['employees'] + $this->getTotalSum(type: 'Transporters', enterprise: 'Potato')['members'];
+
+    //     $potatoTotal = $potatoFarmers + $potatoTraders + $potatoProcessors + $potatoAggregators + $potatoTransporters;
+
+    //     $sweetPotatoFarmers = $this->getTotalSum(type: 'Farmers', enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(type: 'Farmers', enterprise: 'Sweet potato')['members'];
+    //     $sweetPotatoTraders = $this->builder()->where('type', 'Traders')->where('enterprise', 'Sweet potato')->count();
+    //     $sweetPotatoProcessors = $this->getTotalSum(type: 'Processors', enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(type: 'Processors', enterprise: 'Sweet potato')['members'];
+    //     $sweetPotatoAggregators = $this->getTotalSum(type: 'Aggregators', enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(type: 'Aggregators', enterprise: 'Sweet potato')['members'];
+    //     $sweetPotatoTransporters = $this->getTotalSum(type: 'Transporters', enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(type: 'Transporters', enterprise: 'Sweet potato')['members'];
+
+    //     $sweetPotatoTotal = $sweetPotatoFarmers + $sweetPotatoTraders + $sweetPotatoProcessors + $sweetPotatoAggregators + $sweetPotatoTransporters;
+
+    //     $result = [
+    //         'Total' => $total,
+    //         'Employees on RTC establishment' => $baseTotals['employees'],
+    //         'Cassava' => $cassavaTotal,
+    //         'Potato' => $potatoTotal,
+    //         'Sweet potato' => $sweetPotatoTotal,
+    //         'Farmers' => $farmersPeople,
+    //         'Traders' => $tradersCount,
+    //         'Processors' => $processorsPeople,
+    //         'Aggregators' => $aggregatorsPeople,
+    //         'Transporters' => $transportersPeople,
     //         'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
     //         'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
     //     ];
+
+    //     return $result;
     // }
 }

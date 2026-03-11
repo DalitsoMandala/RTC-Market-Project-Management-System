@@ -8,6 +8,9 @@ class IndicatorService
         'Number of actors profitability engaged in commercialization of RTC' => [
             'RTC MARKET' => 'indicators.rtc-market.indicator-a1',
         ],
+        'Number of unique entities participating in RTC activities' =>[
+            'RTC MARKET' => 'indicators.rtc-market.indicator-a1b',
+        ],
         'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities' => [
             'RTC MARKET' => 'indicators.rtc-market.indicator-b1',
         ],

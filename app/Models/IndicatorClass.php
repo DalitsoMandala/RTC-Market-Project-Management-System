@@ -10,7 +10,7 @@ class IndicatorClass extends Model
 {
     use HasFactory;
 
-
+protected $guarded = [];
     public function indicator()
     {
         return $this->belongsTo(Indicator::class, 'indicator_id');

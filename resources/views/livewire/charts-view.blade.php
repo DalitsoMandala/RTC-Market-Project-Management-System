@@ -159,58 +159,7 @@
             </div>
         </div>
         <div class="row gx-2 gy-2">
-            <!-- Establishment Distribution -->
-            <div class="col-12 col-xl-6">
-                <div class="shadow-sm card h-100">
-                    <div class="border-0 card-header">
-                        <h5 class="card-title">Establishment Distribution</h5>
-                    </div>
-                    <div class="card-body">
 
-                        <div id="establishmentChart" x-show="!hasZeroValues(establishmentChart)"></div>
-                        <x-no-data x-show="hasZeroValues(establishmentChart)" />
-                    </div>
-                </div>
-
-            </div>
-
-
-
-
-            <div class="col-12 col-xl-3">
-
-                <!-- Gender Distribution -->
-
-                <div class="shadow-sm card h-100">
-                    <div class="border-0 card-header">
-                        <h5 class="card-title">Gender Distribution</h5>
-                    </div>
-                    <div class="card-body">
-
-                        <div id="genderChart" x-show="!hasZeroValues(genderChart)"></div>
-                        <x-no-data x-show="hasZeroValues(genderChart)" />
-                    </div>
-                </div>
-
-
-
-            </div>
-
-            <div class="col-12 col-xl-3">
-                <!-- Age Group Distribution -->
-
-                <div class="shadow-sm card h-100 ">
-                    <div class="border-0 card-header">
-                        <h5 class="card-title">Age Group Distribution</h5>
-                    </div>
-                    <div class="card-body">
-
-                        <div id="ageGroupChart" x-show="!hasZeroValues(ageGroupChart)"></div>
-                        <x-no-data x-show="hasZeroValues(ageGroupChart)" />
-                    </div>
-                </div>
-
-            </div>
             <!-- Crop Distribution -->
             <div class="col-12 col-xl-4">
                 <div class="shadow-sm card h-100">
@@ -238,6 +187,27 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Establishment Distribution -->
+            <div class="col-12 col-xl-12">
+                <div class="shadow-sm card h-100">
+                    <div class="border-0 card-header">
+                        <h5 class="card-title">Establishment Distribution</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <div id="establishmentChart" x-show="!hasZeroValues(establishmentChart)"></div>
+                        <x-no-data x-show="hasZeroValues(establishmentChart)" />
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+
+
 
 
         </div>
@@ -270,8 +240,8 @@
             setData(data) {
 
 
-                this.genderChart = [data.Female, data.Male];
-                this.ageGroupChart = [data['Youth (18-35 yrs)'], data['Not youth (35yrs+)']];
+
+
                 this.professionChart = [data.Farmers, data.Processors, data.Traders];
                 this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
                 this.establishmentChart = [
@@ -302,7 +272,7 @@
                     series: this.genderChart,
                     labels: ['Female', 'Male']
                 });
-                this.genderChartInstance.render();
+
 
                 this.ageGroupChartInstance = new ApexCharts(document.querySelector('#ageGroupChart'), {
                     chart: {
@@ -316,7 +286,7 @@
                     series: this.ageGroupChart,
                     labels: ['Youth (18-35 yrs)', 'Not Youth (35yrs+)']
                 });
-                this.ageGroupChartInstance.render();
+
 
                 this.professionChartInstance = new ApexCharts(document.querySelector('#professionChart'), {
                     chart: {

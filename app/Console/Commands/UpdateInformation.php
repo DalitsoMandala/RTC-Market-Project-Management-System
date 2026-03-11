@@ -84,7 +84,7 @@ class UpdateInformation extends Command
     {
            $reportStatus = ReportStatus::find(1);
         Bus::chain([
-            new SyncronizeTableJob(),
+
           new ReportJob(),
             new PopulatePreviousValueJob(),
             new AdditionalReportJob(),
