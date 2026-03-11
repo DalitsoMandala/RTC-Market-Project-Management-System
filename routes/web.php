@@ -3,32 +3,34 @@
 
 
 
+use App\Helpers\DisaggregationAppend;
+use App\Helpers\MarketReportCalculations;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B1;
+use App\Http\Controllers\AddDisaggregationController;
+use App\Http\Controllers\FormsExportController;
+use App\Http\Controllers\TestingController;
 use App\Jobs\TestJob;
+
+use App\Livewire\External\Dashboard as ExternalDashboard;
+
+use App\Livewire\External\ViewIndicator;
+
+use App\Livewire\Internal\Cip\Assignments;
+use App\Livewire\Internal\Cip\Dashboard;
+use App\Livewire\Internal\Cip\Forms;
+use App\Livewire\Internal\Cip\Indicators;
+use App\Livewire\Internal\Cip\Reports;
+use App\Livewire\Internal\Cip\Submissions;
+use App\Livewire\Internal\Cip\SubPeriod;
+use App\Livewire\Internal\Cip\Targets;
+use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Models\MarketData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Livewire\Internal\Cip\Forms;
 use Illuminate\Support\Facades\Route;
-
-use App\Livewire\Internal\Cip\Reports;
-
-use App\Livewire\Internal\Cip\Targets;
-
 use Illuminate\Support\Facades\Storage;
-use App\Livewire\External\ViewIndicator;
-use App\Livewire\Internal\Cip\Dashboard;
-use App\Livewire\Internal\Cip\SubPeriod;
-use App\Helpers\MarketReportCalculations;
-use App\Livewire\Internal\Cip\Indicators;
-use App\Livewire\Internal\Cip\Assignments;
-use App\Livewire\Internal\Cip\Submissions;
-use App\Http\Controllers\TestingController;
-use App\Livewire\Internal\Cip\ViewIndicators;
-use App\Http\Controllers\FormsExportController;
-use App\Http\Controllers\AddDisaggregationController;
-use App\Livewire\External\Dashboard as ExternalDashboard;
+
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
@@ -41,8 +43,11 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function () {
-    $class = new indicator_B1(null, 3, 2, 'Cassava');
-    dd($class->getDisaggregations());
+    //   $class = new indicator_B1(null, 3, 2, 'Cassava');
+    //  dd($class->getDisaggregations());
+
+    $class = new DisaggregationAppend('Percentage Increase in the volume of RTC produced');
+    dd($class->appendDisaggregations());
 })->name('testing');
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
