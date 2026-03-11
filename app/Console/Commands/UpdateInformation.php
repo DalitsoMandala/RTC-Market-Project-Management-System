@@ -108,6 +108,6 @@ class UpdateInformation extends Command
                 Cache::put('report_progress', 100);
                 Cache::put('report_status', 'completed');
             })
-            ->dispatch();
+            ->dispatch()->onQueue('reports');
     }
 }
