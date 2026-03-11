@@ -85,6 +85,7 @@ class ReportJob implements ShouldQueue
         $current = 0;
 
         $indicators = Indicator::get()->keyBy('id');
+
         /** ------------------------------------------------------
          * 3. MAIN LOOP (optimized – no dangerous chunk nesting)
          * ------------------------------------------------------ */
@@ -113,16 +114,30 @@ class ReportJob implements ShouldQueue
                                     enterprise: $crop
                                 );
 
-                                /** MAIN REPORT RECORD */
-                                $report = SystemReport::firstOrCreate(
-                                    [
-                                        'reporting_period_id' => $period,
-                                        'financial_year_id'   => $year,
-                                        'organisation_id'     => $org,
-                                        'project_id'          => $indicator->project_id,
-                                        'indicator_id'        => $indicator->id,
-                                        'crop'                => $crop,
-                                    ]);
+                                /**
+                                 * FIXED: First check if report exists for this combination
+                                 * This replaces your incomplete code
+                                 */
+
+                                // Check if a report already exists for this combination
+                                $existingReport = SystemReport::where([
+                                    'reporting_period_id' => $period,
+                                    'financial_year_id' => $year,
+                                    'organisation_id' => $org,
+                                    'project_id' => $indicator->project_id,
+                                    'indicator_id' => $indicator->id,
+                                    'crop' => $crop,
+                                ])->first();
+
+                                /** MAIN REPORT RECORD - Create only if it doesn't exist */
+                                $report = $existingReport ?? SystemReport::create([
+                                    'reporting_period_id' => $period,
+                                    'financial_year_id'   => $year,
+                                    'organisation_id'     => $org,
+                                    'project_id'          => $indicator->project_id,
+                                    'indicator_id'        => $indicator->id,
+                                    'crop'                => $crop,
+                                ]);
 
                                 /** GET DISAGGREGATIONS */
                                 $disaggregations = $class->getDisaggregations();
@@ -156,7 +171,5 @@ class ReportJob implements ShouldQueue
                 }
             }
         }
-
-
     }
 }
