@@ -58,10 +58,14 @@ class SubmitAggregateData
                 ->where('indicator_id', $selectedIndicator)
                 ->where('organisation_id', $organisationId)
                 ->where('user_id', auth()->user()->id)
+                ->where('status','approved')
                 ->first();
 
             if ($checkSubmission) {
                 session()->flash('error', 'You have already submitted your data for this period and indicator!');
+                Log::info('error',[
+
+                ]);
                 return false;
             }
 
