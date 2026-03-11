@@ -163,8 +163,11 @@ class Reports extends Component
     public function load()
     {
         $this->loadingData = true;
+
+        ReportStatus::find(1)->update(['status' => 'completed', 'progress' => 100]);
         Artisan::call('clear-lock');
         Artisan::call('update:information');
+
         $this->readCache();
     }
 
@@ -188,25 +191,31 @@ class Reports extends Component
 
 
 
-public function readCache()
-{
-    $this->loadingData = true;
+    public function readCache()
+    {
+        // Get the report status once and reuse it
+        $reportStatus = ReportStatus::find(1);
 
-    $ReportStatus = ReportStatus::where('status', 'completed')->first();
+        if ($reportStatus && $reportStatus->status === 'completed') {
+            // No need to update if it's already completed (unless you need to ensure progress is 100)
+            if ($reportStatus->progress != 100) {
+                $reportStatus->update([
+                    'status' => 'completed',
+                    'progress' => 100,
+                ]);
+            }
 
-    if ($ReportStatus) {
-        $ReportStatus->update([
-            'status' => 'pending',
-            'progress' => 0,
-        ]);
+            Cache::put('report_progress', 100);
+            Cache::put('report_status', 'completed');
+            $this->loadingData = false;
+        } else {
+            // Only set loadingData to true if report is NOT completed
+            $this->loadingData = true;
+        }
 
-        Cache::put('report_progress', 0);
-        Cache::put('report_status', 'pending');
+        // Get progress from cache first, then fallback to database
+        $this->progress = $reportStatus?->progress;
     }
-
-    $this->loadingData = false;
-    $this->progress = ReportStatus::find(1)?->progress;
-}
 
     public function render()
     {

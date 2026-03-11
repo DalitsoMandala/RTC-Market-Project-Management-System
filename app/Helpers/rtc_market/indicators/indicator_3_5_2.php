@@ -47,9 +47,7 @@ class indicator_3_5_2
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
-
-
-        return $this->applyFilters($query);
+        return $this->applyFilters($query,true);
     }
 
     public function getTotals()

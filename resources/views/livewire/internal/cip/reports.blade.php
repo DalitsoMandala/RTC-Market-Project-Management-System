@@ -64,7 +64,7 @@
 
 
                     @hasanyrole('admin')
-                        <form>
+
                             <div class="col">
                                 <div class=" d-flex justify-content-start">
                                     <div class="text-end">
@@ -78,7 +78,7 @@
 
                                 </div>
                             </div>
-                        </form>
+
                     @endhasanyrole
 
                 </div>

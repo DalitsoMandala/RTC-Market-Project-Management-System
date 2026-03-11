@@ -36,7 +36,7 @@ class indicator_3_5_3
     public function builder(): Builder
     {
 
-    
+
         $indicator = Indicator::where('indicator_name', 'Percentage increase in households consuming RTCs as the main foodstuff (OC)')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
@@ -44,7 +44,7 @@ class indicator_3_5_3
 
 
 
-        return $this->applyFilters($query);
+        return $this->applyFilters($query,true);
     }
 
     public function getTotals()
