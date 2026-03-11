@@ -45,12 +45,22 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function () {
+    //   $class = new indicator_B1(null, 3, 2, 'Cassava');
+    //  dd($class->getDisaggregations());
 
+    $handler = new DisaggregationAppend('Percentage Increase in the volume of RTC produced', [
+        'Seed',
+        'Cuttings',
+        'Produce'
+    ], true);
+    $result1 = $handler->updateDisaggregations();
 
-    $class = new DisaggregationAppend('Percentage Increase in the volume of RTC produced');
-    $postsQuery = SeedBeneficiary::query()->with('financial_year')->first();
-    $sql = $postsQuery;
-    dd($sql);
+    $handler = new DisaggregationAppend('Number of stakeholder engagement events that focus on RTC development', [
+        'Policy'
+    ]);
+    $result2 = $handler->updateDisaggregations();
+
+    dd($result1, $result2);
 })->name('testing');
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
