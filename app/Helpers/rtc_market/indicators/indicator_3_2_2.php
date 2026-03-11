@@ -25,49 +25,21 @@ class indicator_3_2_2
         $this->organisation_id = $organisation_id;
         $this->enterprise = $enterprise;
     }
-    // public function builder(): Builder
-    // {
 
-    //     $indicator = Indicator::where('indicator_name', 'Number of individuals trained in RTC related topics (seed multiplication, production, processing, entrepreneurship etc.)')->where('indicator_no', '3.2.2')->first();
-
-    //     $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
-    //     // Check if both reporting period and financial year are set
-    //     if ($this->reporting_period || $this->financial_year) {
-    //         // Apply filter for reporting period if it's set
-    //         if ($this->reporting_period) {
-    //             $query->where('period_month_id', $this->reporting_period);
-    //         }
-
-    //         // Apply filter for financial year if it's set
-    //         if ($this->financial_year) {
-    //             $query->where('financial_year_id', $this->financial_year);
-    //         }
-
-    //         // If no data is found, return an empty result
-    //         if (!$query->exists()) {
-    //             $query->whereIn('id', []); // Empty result filter
-    //         }
-    //     }
-
-    //     // Filter by organization if set
-    //     if ($this->organisation_id) {
-    //         $query->where('organisation_id', $this->organisation_id);
-    //     }
-
-
-
-
-    //     return $query;
-    // }
 
     public function builder(): Builder
     {
-
-        $query = AttendanceRegister::query()->where('status', 'approved');
-
-
-
+        $query = AttendanceRegister::query()
+            ->where('status', 'approved')
+            ->where('category','!=','Other')
+            ->select([
+                'rtcCrop_cassava',
+                'rtcCrop_potato',
+                'rtcCrop_sweet_potato',
+                'category',
+                'id',
+            ])
+            ;
 
 
 
@@ -118,39 +90,71 @@ class indicator_3_2_2
     }
 
 
-    public function getDisaggregations()
-    {
+ public function getDisaggregations()
+{
+    $records = $this->builder()->get();
 
+    // Unique individuals
+    $uniquePeople = $records->unique('id');
 
+    // Initialize crop counts
+    $cassava = $potato = $sweetPotato = 0;
 
-        $crop = $this->getCropType();
-
-        // Define all possible crops with default 0 values
-
-        $allCrops = [
-            'Cassava'      => round($crop['cassava'] ?? 0, 2),
-            'Sweet potato' => round($crop['sweet_potato'] ?? 0, 2),
-            'Potato'       => round($crop['potato'] ?? 0, 2),
+    if ($this->enterprise) {
+        $enterpriseMap = [
+            'Cassava' => 'rtcCrop_cassava',
+            'Potato' => 'rtcCrop_potato',
+            'Sweet potato' => 'rtcCrop_sweet_potato'
         ];
 
-        $farmers = $this->getCategory()['Farmers'];
-        $processors = $this->getCategory()['Processors'];
-        $traders = $this->getCategory()['Traders'];
-        $partners = $this->getCategory()['Partners'];
-        $staff = $this->getCategory()['Staff'];
-        $aggregators = $this->getCategory()['Aggregators'];
-        $transporters = $this->getCategory()['Transporters'];
+        if (isset($enterpriseMap[$this->enterprise])) {
+            $cropField = $enterpriseMap[$this->enterprise];
+            $count = $records->where($cropField, true)->unique('id')->count();
 
-        return [
-            'Total' => $staff + $farmers + $processors + $traders + $partners,
-            ...$allCrops,
-            'Farmers' => $farmers,
-            'Processors' => $processors,
-            'Traders' => $traders,
-            'Partner' => $partners,
-            'Staff' => $staff,
-            'Aggregators' => $aggregators,
-            'Transporters' => $transporters
-        ];
+            // Set the selected crop, leave others 0
+            switch ($this->enterprise) {
+                case 'Cassava':
+                    $cassava = $count;
+                    break;
+                case 'Potato':
+                    $potato = $count;
+                    break;
+                case 'Sweet potato':
+                    $sweetPotato = $count;
+                    break;
+            }
+        }
+    } else {
+        // Count all crops normally
+        $cassava = $records->where('rtcCrop_cassava', true)->unique('id')->count();
+        $potato = $records->where('rtcCrop_potato', true)->unique('id')->count();
+        $sweetPotato = $records->where('rtcCrop_sweet_potato', true)->unique('id')->count();
     }
+
+    // Category counts (unique individuals per category)
+    $farmers = $records->where('category', 'Farmer')->unique('id')->count();
+    $processors = $records->where('category', 'Processor')->unique('id')->count();
+    $traders = $records->where('category', 'Trader')->unique('id')->count();
+    $partners = $records->where('category', 'Partner')->unique('id')->count();
+    $staff = $records->where('category', 'Staff')->unique('id')->count();
+    $aggregators = $records->where('category', 'Aggregator')->unique('id')->count();
+    $transporters = $records->where('category', 'Transporter')->unique('id')->count();
+
+    // Total unique individuals
+    $total = $uniquePeople->count();
+
+    return [
+        'Total' => $total,
+        'Cassava' => $cassava,
+        'Sweet potato' => $sweetPotato,
+        'Potato' => $potato,
+        'Farmers' => $farmers,
+        'Processors' => $processors,
+        'Traders' => $traders,
+        'Partner' => $partners,
+        'Staff' => $staff,
+        'Aggregators' => $aggregators,
+        'Transporters' => $transporters
+    ];
+}
 }

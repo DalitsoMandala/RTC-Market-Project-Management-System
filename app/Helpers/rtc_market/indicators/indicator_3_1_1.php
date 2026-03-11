@@ -2,33 +2,25 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Models\Recruitment;
 use App\Traits\FilterableQuery;
-
-use App\Models\Submission;
-use App\Models\SubmissionPeriod;
-use App\Models\RpmFarmerFollowUp;
-use App\Models\RpmFarmerDomMarket;
-use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
-use App\Models\RpmFarmerInterMarket;
-use App\Models\RpmProcessorFollowUp;
-use App\Models\RpmProcessorDomMarket;
-use App\Models\RpmFarmerConcAgreement;
 use App\Models\RtcProductionProcessor;
-use App\Models\RpmProcessorInterMarket;
-use App\Models\RpmProcessorConcAgreement;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class indicator_3_1_1
 {
-
     use FilterableQuery;
-    protected $financial_year, $reporting_period, $project;
-    protected $organisation_id;
 
+    protected $financial_year;
+    protected $reporting_period;
+    protected $organisation_id;
     protected $enterprise;
+
+    protected $crops = [
+        'Cassava',
+        'Potato',
+        'Sweet potato'
+    ];
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
@@ -38,293 +30,189 @@ class indicator_3_1_1
         $this->enterprise = $enterprise;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Builders
+    |--------------------------------------------------------------------------
+    */
 
     public function builder(): Builder
     {
-        $query = RtcProductionFarmer::query()->where('status', 'approved')
+        $query = RtcProductionFarmer::query()
+            ->where('status', 'approved')
+            ->whereIn('group', ['Producer organization (PO)', 'Large scale farm'])
+            ->where('sector', 'Private');
 
-            ->where(function ($model) {
-
-            $model->where('group', 'Producer organization (PO)')
-                ->OrWhere('group', 'Large scale farm');
-            })->where('sector', 'Private');
-
-
-
-
+        if ($this->enterprise) {
+            $query->where('enterprise', $this->enterprise);
+        }
 
         return $this->applyFilters($query);
     }
 
     public function builderProcessor(): Builder
     {
-        $query = RtcProductionProcessor::query()->where('status', 'approved')->where(function ($query) {
+        $query = RtcProductionProcessor::query()
+            ->where('status', 'approved')
+            ->whereIn('group', ['Producer organization (PO)', 'Large scale farm'])
+            ->where('sector', 'Private');
 
-            $query->where('group', 'Producer organization (PO)')->orWhere('group', 'Large scale farm');
-        })->where('sector', 'Private');;
-
-
+        if ($this->enterprise) {
+            $query->where('enterprise', $this->enterprise);
+        }
 
         return $this->applyFilters($query);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Agreements / Markets
+    |--------------------------------------------------------------------------
+    */
+
     public function getFarmerContractual()
     {
-        return $this->builder()->with('agreements')->whereHas('agreements');
+        return $this->builder()->whereHas('agreements');
     }
 
     public function getFarmerDom()
     {
-        return $this->builder()->with('doms')->whereHas('doms');
+        return $this->builder()->whereHas('doms');
     }
 
     public function getFarmerInter()
     {
-        return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
+        return $this->builder()->whereHas('intermarkets');
     }
 
     public function getProcessorContractual()
     {
-        return $this->builderProcessor()->with('agreements')->whereHas('agreements');
+        return $this->builderProcessor()->whereHas('agreements');
     }
 
     public function getProcessorDom()
     {
-
-        return $this->builderProcessor()->with('doms')->whereHas('doms');
+        return $this->builderProcessor()->whereHas('doms');
     }
 
     public function getProcessorInter()
     {
-        return $this->builderProcessor()->with('intermarkets')->whereHas('intermarkets');
+        return $this->builderProcessor()->whereHas('intermarkets');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Crop Totals
+    |--------------------------------------------------------------------------
+    */
 
-    public function getCropTotal()
+    private function cropCounts(Builder $builder)
     {
-        $builder = $this->builder();
+        $totals = array_fill_keys($this->crops, 0);
 
-
-
-        // Initialize all crops with 0 values
-        $totals = [
-            'Potato' => 0,
-            'Cassava' => 0,
-            'Sweet potato' => 0,
-
-        ];
-
-
-        // If enterprise is set, only count for that specific crop
         if ($this->enterprise) {
-            $enterpriseKey = $this->enterprise;
-            $totals[$enterpriseKey] = (clone $builder)
-                ->where('enterprise', $enterpriseKey)
+            $totals[$this->enterprise] = (clone $builder)
+                ->where('enterprise', $this->enterprise)
                 ->count();
-        }
-        // Otherwise count for all crops
-        else {
-            $totals['Potato'] = (clone $builder)
-                ->where('enterprise', 'Potato')
-                ->count();
-
-            $totals['Cassava'] = (clone $builder)
-                ->where('enterprise', 'Cassava')
-                ->count();
-
-            $totals['Sweet potato'] = (clone $builder)
-                ->where('enterprise', 'Sweet potato')
-                ->count();
+            return $totals;
         }
 
-        return $totals;
-    }
-   public function getCropTotal2()
-    {
-        $builder = $this->builderProcessor();
-
-
-
-        // Initialize all crops with 0 values
-        $totals = [
-            'Potato' => 0,
-            'Cassava' => 0,
-            'Sweet potato' => 0,
-
-        ];
-
-
-        // If enterprise is set, only count for that specific crop
-        if ($this->enterprise) {
-            $enterpriseKey = $this->enterprise;
-            $totals[$enterpriseKey] = (clone $builder)
-                ->where('enterprise', $enterpriseKey)
-                ->count();
-        }
-        // Otherwise count for all crops
-        else {
-            $totals['Potato'] = (clone $builder)
-                ->where('enterprise', 'Potato')
-                ->count();
-
-            $totals['Cassava'] = (clone $builder)
-                ->where('enterprise', 'Cassava')
-                ->count();
-
-            $totals['Sweet potato'] = (clone $builder)
-                ->where('enterprise', 'Sweet potato')
+        foreach ($this->crops as $crop) {
+            $totals[$crop] = (clone $builder)
+                ->where('enterprise', $crop)
                 ->count();
         }
 
         return $totals;
     }
 
-
-
-    public function getMarketSegment()
+    public function getCropTotals()
     {
-        $builder = $this->builder();
+        $farmer = $this->cropCounts($this->builder());
+        $processor = $this->cropCounts($this->builderProcessor());
 
-        if ($this->enterprise) {
-        return [
-                'Fresh' => [
-                    $this->enterprise => (clone $builder)
-                        ->where('enterprise', $this->enterprise)
-                        ->where('market_segment_fresh', true)
-                        ->count(),
-                ],
-                'Processed' => [
-                    $this->enterprise => (clone $builder)
-                        ->where('enterprise', $this->enterprise)
-                        ->where('market_segment_processed', true)
-                        ->count(),
-                ],
-        ];
+        $totals = [];
+
+        foreach ($this->crops as $crop) {
+            $totals[$crop] = ($farmer[$crop] ?? 0) + ($processor[$crop] ?? 0);
+        }
+
+        return $totals;
     }
 
-        return [
-            'Fresh' => [
-                'Cassava' => (clone $builder)
-                    ->where('enterprise', 'Cassava')
-                    ->where('market_segment_fresh', true)
-                    ->count(),
-                'Potato' => (clone $builder)
-                    ->where('enterprise', 'Potato')
-                    ->where('market_segment_fresh', true)
-                    ->count(),
-                'Sweet potato' => (clone $builder)
-                    ->where('enterprise', 'Sweet potato')
-                    ->where('market_segment_fresh', true)
-                    ->count(),
-            ],
-            'Processed' => [
-                'Cassava' => (clone $builder)
-                    ->where('enterprise', 'Cassava')
-                    ->where('market_segment_processed', true)
-                    ->count(),
-                'Potato' => (clone $builder)
-                    ->where('enterprise', 'Potato')
-                    ->where('market_segment_processed', true)
-                    ->count(),
-                'Sweet potato' => (clone $builder)
-                    ->where('enterprise', 'Sweet potato')
-                    ->where('market_segment_processed', true)
-                    ->count(),
-            ]
-        ];
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Market Segments
+    |--------------------------------------------------------------------------
+    */
 
-    public function getMarketSegment2()
+    private function marketSegments(Builder $builder)
     {
-        $builder = $this->builderProcessor();
-
-        if ($this->enterprise) {
-        return [
-                'Fresh' => [
-                    $this->enterprise => (clone $builder)
-                        ->where('enterprise', $this->enterprise)
-                        ->where('market_segment_fresh', true)
-                        ->count(),
-                ],
-                'Processed' => [
-                    $this->enterprise => (clone $builder)
-                        ->where('enterprise', $this->enterprise)
-                        ->where('market_segment_processed', true)
-                        ->count(),
-                ],
+        $result = [
+            'Fresh' => array_fill_keys($this->crops, 0),
+            'Processed' => array_fill_keys($this->crops, 0),
         ];
-    }
 
-        return [
-            'Fresh' => [
-                'Cassava' => (clone $builder)
-                    ->where('enterprise', 'Cassava')
-                    ->where('market_segment_fresh', true)
-                    ->count(),
-                'Potato' => (clone $builder)
-                    ->where('enterprise', 'Potato')
-                    ->where('market_segment_fresh', true)
-                    ->count(),
-                'Sweet potato' => (clone $builder)
-                    ->where('enterprise', 'Sweet potato')
-                    ->where('market_segment_fresh', true)
-                    ->count(),
-            ],
-            'Processed' => [
-                'Cassava' => (clone $builder)
-                    ->where('enterprise', 'Cassava')
-                    ->where('market_segment_processed', true)
-                    ->count(),
-                'Potato' => (clone $builder)
-                    ->where('enterprise', 'Potato')
-                    ->where('market_segment_processed', true)
-                    ->count(),
-                'Sweet potato' => (clone $builder)
-                    ->where('enterprise', 'Sweet potato')
-                    ->where('market_segment_processed', true)
-                    ->count(),
-            ]
-        ];
+        foreach ($this->crops as $crop) {
+
+            if ($this->enterprise && $crop !== $this->enterprise) {
+                continue;
+            }
+
+            $result['Fresh'][$crop] = (clone $builder)
+                ->where('enterprise', $crop)
+                ->where('market_segment_fresh', true)
+                ->count();
+
+            $result['Processed'][$crop] = (clone $builder)
+                ->where('enterprise', $crop)
+                ->where('market_segment_processed', true)
+                ->count();
+        }
+
+        return $result;
     }
 
     public function getMarketSegmentTotal()
-{
-    $seg1 = $this->getMarketSegment();
-    $seg2 = $this->getMarketSegment2();
+    {
+        $farmer = $this->marketSegments($this->builder());
+        $processor = $this->marketSegments($this->builderProcessor());
 
-    $total = [
-        'Fresh' => [],
-        'Processed' => [],
-    ];
+        $total = [
+            'Fresh' => [],
+            'Processed' => []
+        ];
 
-    foreach (['Fresh', 'Processed'] as $type) {
-        foreach ($seg1[$type] as $enterprise => $count1) {
-            $count2 = $seg2[$type][$enterprise] ?? 0;
+        foreach ($this->crops as $crop) {
+            $total['Fresh'][$crop] =
+                ($farmer['Fresh'][$crop] ?? 0) +
+                ($processor['Fresh'][$crop] ?? 0);
 
-            $total[$type][$enterprise] = $count1 + $count2;
+            $total['Processed'][$crop] =
+                ($farmer['Processed'][$crop] ?? 0) +
+                ($processor['Processed'][$crop] ?? 0);
         }
+
+        return $total;
     }
 
-    return $total;
-}
+    /*
+    |--------------------------------------------------------------------------
+    | Final Disaggregation
+    |--------------------------------------------------------------------------
+    */
 
     public function getDisaggregations()
     {
-        $cropTotals = $this->getCropTotal() + $this->getCropTotal2();
+        $cropTotals = $this->getCropTotals();
         $marketSegments = $this->getMarketSegmentTotal();
 
-
-        // Initialize the basic structure we want
-        $result = [
+        return [
             'Cassava' => $cropTotals['Cassava'],
             'Potato' => $cropTotals['Potato'],
             'Sweet potato' => $cropTotals['Sweet potato'],
-            'Fresh' => collect($marketSegments['Fresh'])->reduce(fn($carry, $item) => $carry + $item, 0) ?? 0,
-            'Processed' => collect($marketSegments['Processed'])->reduce(fn($carry, $item) => $carry + $item, 0) ?? 0
+            'Fresh' => array_sum($marketSegments['Fresh']),
+            'Processed' => array_sum($marketSegments['Processed']),
         ];
-
-
-
-        return $result;
     }
 }

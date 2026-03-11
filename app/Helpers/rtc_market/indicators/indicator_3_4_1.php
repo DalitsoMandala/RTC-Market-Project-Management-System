@@ -55,7 +55,7 @@ class indicator_3_4_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->where('indicator_no', '3.4.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -95,7 +95,8 @@ class indicator_3_4_1
         $totals = $this->getTotals()->toArray();
 
         // Subtotal based on Cassava, Potato, and Sweet potato
-        $subTotal = $totals['Farmers'] + $totals['Processors'];
+        $subTotal = $totals['Farmers'] + $totals['Processors'] + $totals['Large scale processors'] + $totals['SME'];
+
         $totals['Total'] = $subTotal;
         return $totals;
     }
