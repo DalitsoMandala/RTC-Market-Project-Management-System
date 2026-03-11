@@ -22,4 +22,9 @@ protected $fillable = ['status'];
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    public function seeds()
+    {
+        return $this->hasMany(SeedBeneficiary::class,'financial_year_id');
+    }
+
 }

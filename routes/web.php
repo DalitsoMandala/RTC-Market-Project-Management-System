@@ -26,10 +26,12 @@ use App\Livewire\Internal\Cip\SubPeriod;
 use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\Internal\Cip\ViewIndicators;
 use App\Models\MarketData;
+use App\Models\SeedBeneficiary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+
 
 
 // Redirect root to login
@@ -43,11 +45,12 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function () {
-    //   $class = new indicator_B1(null, 3, 2, 'Cassava');
-    //  dd($class->getDisaggregations());
+
 
     $class = new DisaggregationAppend('Percentage Increase in the volume of RTC produced');
-    dd($class->appendDisaggregations());
+    $postsQuery = SeedBeneficiary::query()->with('users')->first();
+    $sql = $postsQuery->toRawSql();
+    dd($sql);
 })->name('testing');
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');

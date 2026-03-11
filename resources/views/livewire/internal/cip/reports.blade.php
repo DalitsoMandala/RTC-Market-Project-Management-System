@@ -58,6 +58,32 @@
             <div class=" card-body">
 
 
+                        <div class=" row align-items-end">
+
+
+
+                            @hasanyrole('admin')
+                                <div class="col">
+                                    <div class=" d-flex justify-content-start">
+                                        <div class="text-end">
+                                            <button type="button" title="Update"
+                                                class="btn btn-warning custom-tooltip @if ($loadingData) disabled @endif "
+                                                wire:click='load' wire:loading.attr='disabled'>
+                                                <i class="bx bx-refresh"></i>
+                                            </button> <br>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            @endhasanyrole
+
+                        </div>
+
+
+
+
+                </div>
                 <hr>
 
                 @if ($loadingData)
@@ -77,10 +103,10 @@
 
 
 
-                <div x-data="{ show: $wire.entangle('loadingData') }" :class="{ 'pe-none opacity-25': show === true }">
+
+                <div class="@if($loadingData) pe-none opacity-50 @endif">
                     <livewire:tables.rtc-market.report-table />
                 </div>
-
 
 
 

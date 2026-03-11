@@ -1243,8 +1243,10 @@ class ExcelExportJob implements ShouldQueue
                         $query->where('organisation_id', $organisation->id);
                     }
 
+                    dd($query->first());
                     $query->chunk(2000, function ($seedBeneficiaries) use ($writer, $crop) {
                         foreach ($seedBeneficiaries as $record) {
+
                             $submittedBy = $record->user_name . ' (' . $record->organisation_name . ')';
 
                             // Handle column difference per crop
