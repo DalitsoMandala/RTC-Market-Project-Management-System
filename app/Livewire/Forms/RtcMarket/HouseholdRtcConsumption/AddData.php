@@ -333,7 +333,9 @@ class AddData extends Component
 
                 try {
                     $checkSubmissions = Submission::where('period_id', $this->submissionPeriodId)
-                        ->where('batch_type', 'aggregate')->where('user_id', $userId)->first();
+                        ->where('batch_type', 'aggregate')->where('user_id', $userId)
+                        ->where('status', 'approved')
+                        ->first();
 
                     if ($checkSubmissions) {
                         session()->flash('error', 'You have already submitted your data for this indicator.');
