@@ -187,26 +187,26 @@ class Reports extends Component
     }
 
 
-    #[On('read-cache')]
-    public function readCache()
-    {
-        $this->loadingData = true;
-        $ReportStatus = ReportStatus::where('status', 'completed')->first();
+ #[On('read-cache')]
+public function readCache()
+{
+    $this->loadingData = true;
 
-        if ($ReportStatus) {
+    $ReportStatus = ReportStatus::where('status', 'completed')->first();
 
+    if ($ReportStatus) {
+        $ReportStatus->update([
+            'status' => 'pending',
+            'progress' => 0,
+        ]);
 
-            $ReportStatus->update([
-                'status' => 'pending',
-                'progress' => 0,
-            ]);
-            Cache::put('report_progress', 0);
-            Cache::put('report_status', 'pending');
-            $this->loadingData = false;
-        }
-
-        $this->progress = ReportStatus::find(1)?->progress;
+        Cache::put('report_progress', 0);
+        Cache::put('report_status', 'pending');
     }
+
+    $this->loadingData = false;
+    $this->progress = ReportStatus::find(1)?->progress;
+}
 
     public function render()
     {

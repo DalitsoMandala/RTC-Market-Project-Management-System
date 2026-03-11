@@ -104,7 +104,7 @@
 
 
 
-                <div class="@if($loadingData) pe-none opacity-50 @endif">
+                <div class=" @if($loadingData) pe-none opacity-50 @endif ">
                     <livewire:tables.rtc-market.report-table />
                 </div>
 
