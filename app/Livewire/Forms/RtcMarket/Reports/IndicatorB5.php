@@ -64,9 +64,9 @@ class IndicatorB5 extends Component
     public $cassava = null;
     public $potato = null;
     public $sweet_potato = null;
-    public $certified_seed_produce = null;
-    public $value_added_rtc_products = null;
-
+    public $produce = null;
+    public $seed = null;
+    public $cuttings = null;
     // Readonly fields
     public $yearNumber = 1;
 
@@ -75,8 +75,9 @@ class IndicatorB5 extends Component
         'cassava' => 'required|numeric',
         'potato' => 'required|numeric',
         'sweet_potato' => 'required|numeric',
-        'certified_seed_produce' => 'required|numeric',
-        'value_added_rtc_products' => 'required|numeric',
+        'produce' => 'required|numeric',
+        'seed' => 'required|numeric',
+        'cuttings' => 'required|numeric',
         'baseline' => 'required|numeric',
     ];
 
@@ -85,8 +86,9 @@ class IndicatorB5 extends Component
         'cassava' => 'Cassava',
         'potato' => 'Potato',
         'sweet_potato' => 'Sweet Potato',
-        'certified_seed_produce' => 'Certified Seed Produce',
-        'value_added_rtc_products' => 'Value Added RTC Products',
+        'produce' => 'Produce',
+        'seed' => 'Seed',
+        'cuttings' => 'Cuttings',
         'baseline' => 'Previous value',
     ];
 
@@ -101,12 +103,12 @@ class IndicatorB5 extends Component
 
         $data = [
             'Total(% Percentage)' => $this->total_percentage,
-            'Volume(Metric Tonnes)' => $this->volume,
-            'Financial value ($)' => $this->financial_value,
-            '(Formal) Cassava' => $this->formal_cassava,
-            '(Formal) Potato' => $this->formal_potato,
-            '(Formal) Sweet potato' => $this->formal_sweet_potato,
-            'Formal imports' => $this->formal_imports,
+            'Cassava' => $this->cassava,
+            'Potato' => $this->potato,
+            'Sweet potato' => $this->sweet_potato,
+            'Seed' => $this->seed,
+            'Cuttings' => $this->cuttings,
+            'Produce' => $this->produce,
             'Annual value' => $this->annual_value,
             'Baseline' => $this->baseline,
         ];

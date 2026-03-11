@@ -53,7 +53,7 @@
 
         <div class="row">
 
-            <div class="col">
+            <div class="col d-none">
                 <label for="projectYear" class="form-label">Project year</label>
                 <input type="number" readonly id="project_year" wire:model="yearNumber"
                     class="form-control @error('project_year') is-invalid @enderror" min="0">

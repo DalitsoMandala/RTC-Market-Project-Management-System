@@ -2,16 +2,17 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
-
-use Illuminate\Support\Facades\Log;
-use App\Models\Indicator;
-use Illuminate\Support\Facades\DB;
 use App\Helpers\IncreasePercentage;
-use App\Models\SchoolRtcConsumption;
+
 use App\Models\HouseholdRtcConsumption;
+use App\Models\Indicator;
+use App\Models\SchoolRtcConsumption;
+use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as Logger;
+use Illuminate\Support\Facades\Log;
 
 
 class indicator_3_5_2
@@ -36,101 +37,67 @@ class indicator_3_5_2
         $this->organisation_id = $organisation_id;
         $this->enterprise = $enterprise;
     }
+
     public function builder(): Builder
     {
-        $query = HouseholdRtcConsumption::query()->where('status', 'approved');
+
+
+        $indicator = Indicator::where('indicator_name', 'Frequency of RTC consumption by households per week (OC)')->first();
+
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-
-        return $this->applyFilters($query, true);
+        return $this->applyFilters($query);
     }
 
-
-    public function builderSchool(): Builder
+    public function getTotals()
     {
-        $query = SchoolRtcConsumption::query()->where('status', 'approved');
+
+        $builder = $this->builder()->get();
+
+        $indicator = Indicator::where('indicator_name', 'Frequency of RTC consumption by households per week (OC)')->first();
+        $disaggregations = $indicator->disaggregations;
+        $data = collect([]);
+        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
+            $data->put($item, 0);
+        });
 
 
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
+        $this->builder()->chunk(1000, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
+                $json = collect(json_decode($model->data, true));
 
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
+                // Add the values for each key to the totals
+                foreach ($data as $key => $dt) {
+                    // Always process non-enterprise keys
+                    $isEnterpriseKey = str_contains($key, 'Cassava') ||
+                        str_contains($key, 'Potato') ||
+                        str_contains($key, 'Sweet potato');
 
-        //     }
+                    // If enterprise is set, only process matching keys or non-enterprise keys
+                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                        if ($json->has($key)) {
+                            $data->put($key, $data->get($key) + $json[$key]);
+                        }
+                    }
+                }
+            });
+        });
 
-
-        return $query;
-    }
-    public function getFrequency()
-    {
-        // Optimized household query: using `value()` instead of `first()->toArray()` for a single aggregate.
-        $householdTotal = $this->builder()
-            ->select(DB::raw('SUM(rtc_consumption_frequency) as Total'))
-            ->value('Total'); // Directly get the summed value.
-
-
-        // $totalFrequencySum = 0; // Initialize the total frequency sum
-        // $this->builderSchool()
-        //     ->select(
-        //         'school_name',
-        //         DB::raw('COUNT(CASE WHEN crop IN ("Cassava", "Potato", "Sweet Potato") THEN 1 END) as total_frequency')
-        //     )
-        //     ->groupBy('school_name')
-        //     ->orderBy('school_name') // Add orderBy to ensure consistent chunking
-        //     ->chunk(1000, function ($schoolFrequencies) use (&$totalFrequencySum) {
-        //         // Loop through each chunk of results
-        //         foreach ($schoolFrequencies as $school) {
-        //             $totalFrequencySum += $school->total_frequency; // Add the frequency to the total sum
-        //         }
-        //     });
-        return [
-            'Total' => $householdTotal
-        ];
-    }
-
-
-    public function findIndicator()
-    {
-        $indicator = Indicator::where('indicator_name', 'Frequency of RTC consumption by households per week (OC)')->where('indicator_no', '3.5.2')->first();
-        return $indicator ?? Logger::error('Indicator not found');
+        return $data;
     }
 
 
     public function getDisaggregations()
     {
-        $subTotal = $this->getFrequency()['Total'];
-        // Retrieve the indicator
-        $indicator = $this->findIndicator();
-
-        // Get the baseline value, defaulting to 0 if the indicator or baseline doesn't exist
-        $baseline = $indicator->baseline->baseline_value ?? 0;
-
-        // Calculate the percentage increase based on the subtotal and baseline
-        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
-        $finalTotalPercentage = $percentageIncrease->percentage();
-
-        $this->getFrequency();
+       $totals = $this->getTotals()->toArray();
         return [
-            'Total' => $finalTotalPercentage,
+            'Total' => $totals['Total'],
         ];
     }
 }

@@ -93,6 +93,8 @@ class Add extends Component
             $this->indicator = $getFirstIndicator;
             $this->array['indicator_id'] = $this->selectedIndicator;
             $this->selectedReportIndicator = $getFirstIndicator->id;
+            $this->selectedFinancialYear = $financial_year_id;
+            $this->selectedMonth = $month_period_id;
         }
     }
 

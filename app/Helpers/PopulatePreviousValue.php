@@ -117,6 +117,11 @@ class PopulatePreviousValue
             case 'Percentage Increase in the volume of RTC produced':
             case 'Percentage increase in adoption of new RTC technologies':
             case 'Percentage seed multipliers with formal registration':
+              return $this->sumDisaggregations($data, $disaggregation_name, [
+                    'Cassava',
+                    'Potato',
+                    'Sweet potato'
+                ]);
                 //  case 'Percentage business plans for the production of different classes of RTC seeds that are executed':
             case 'Percentage increase in households consuming RTCs as the main foodstuff (OC)':
                 return $this->sumDisaggregations($data, $disaggregation_name, [

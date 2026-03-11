@@ -39,16 +39,17 @@
         </div>
 
 
-            <div class="row" x-data="{
+        <div class="row" x-data="{
             message: null
-            }" @export-fail.window="message = $event.detail.message" x-show="message">
-                <div class="col">
-                    <div class="alert alert-warning alert-border-left">
-                        <strong>Notice!</strong>
-                        <span x-text="message"></span>
-                    </div>
+        }" @export-fail.window="message = $event.detail.message"
+            x-show="message">
+            <div class="col">
+                <div class="alert alert-warning alert-border-left">
+                    <strong>Notice!</strong>
+                    <span x-text="message"></span>
                 </div>
             </div>
+        </div>
 
 
 
@@ -58,66 +59,67 @@
             <div class=" card-body">
 
 
-                        <div class=" row align-items-end">
+                <div class=" row align-items-end">
 
 
 
-                            @hasanyrole('admin')
-                                <div class="col">
-                                    <div class=" d-flex justify-content-start">
-                                        <div class="text-end">
-                                            <button type="button" title="Update"
-                                                class="btn btn-warning custom-tooltip @if ($loadingData) disabled @endif "
-                                                wire:click='load' wire:loading.attr='disabled'>
-                                                <i class="bx bx-refresh"></i>
-                                            </button> <br>
-
-                                        </div>
+                    @hasanyrole('admin')
+                        <form>
+                            <div class="col">
+                                <div class=" d-flex justify-content-start">
+                                    <div class="text-end">
+                                        <button type="submit" title="Update"
+                                            class="btn btn-warning custom-tooltip @if ($loadingData) disabled @endif "
+                                            wire:click='load' wire:loading.attr='disabled'>
+                                            <i class="bx bx-refresh"></i>
+                                        </button> <br>
 
                                     </div>
-                                </div>
-                            @endhasanyrole
 
-                        </div>
-
-
-
-
-                </div>
-                <hr>
-
-                @if ($loadingData)
-                    <div class="p-2 my-2 row">
-                        <div class="col-12 d-flex justify-content-center align-items-center">
-                            <span class="fw-bold me-2">Updating data... Please wait</span>
-                            <div wire:poll.5000ms='readCache'
-                                class="d-flex justify-content-center align-items-center">
-                                <div class="spinner-border text-warning spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                @endif
+                        </form>
+                    @endhasanyrole
 
-
-
-
-
-                <div class=" @if($loadingData) pe-none opacity-50 @endif ">
-                    <livewire:tables.rtc-market.report-table />
                 </div>
-
-
-
 
 
 
 
             </div>
-        </div>
+            <hr>
 
+            @if ($loadingData)
+                <div class="p-2 my-2 row">
+                    <div class="col-12 d-flex justify-content-center align-items-center">
+                        <span class="fw-bold me-2">Updating data... Please wait</span>
+                        <div wire:poll.5000ms='readCache' class="d-flex justify-content-center align-items-center">
+                            <div class="spinner-border text-warning spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+
+
+
+
+            <div class=" @if ($loadingData) pe-none opacity-50 @endif ">
+                <livewire:tables.rtc-market.report-table />
+            </div>
+
+
+
+
+
+
+
+        </div>
     </div>
+
+</div>
 
 
 
@@ -130,4 +132,3 @@
 
 
 </div>
-

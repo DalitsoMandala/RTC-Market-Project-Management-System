@@ -2,9 +2,12 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
 
 use App\Models\HouseholdRtcConsumption;
+
+use App\Models\Indicator;
+use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -32,19 +35,64 @@ class indicator_3_5_3
     }
     public function builder(): Builder
     {
-        $query = HouseholdRtcConsumption::query()->where('status', 'approved');
 
+    
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in households consuming RTCs as the main foodstuff (OC)')->first();
+
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
 
 
         return $this->applyFilters($query);
     }
+
+    public function getTotals()
+    {
+
+        $builder = $this->builder()->get();
+
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in households consuming RTCs as the main foodstuff (OC)')->first();
+        $disaggregations = $indicator->disaggregations;
+        $data = collect([]);
+        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
+            $data->put($item, 0);
+        });
+
+
+
+
+        $this->builder()->chunk(1000, function ($models) use (&$data) {
+            $models->each(function ($model) use (&$data) {
+                // Decode the JSON data from the model
+                $json = collect(json_decode($model->data, true));
+
+                // Add the values for each key to the totals
+                foreach ($data as $key => $dt) {
+                    // Always process non-enterprise keys
+                    $isEnterpriseKey = str_contains($key, 'Cassava') ||
+                        str_contains($key, 'Potato') ||
+                        str_contains($key, 'Sweet potato');
+
+                    // If enterprise is set, only process matching keys or non-enterprise keys
+                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                        if ($json->has($key)) {
+                            $data->put($key, $data->get($key) + $json[$key]);
+                        }
+                    }
+                }
+            });
+        });
+
+        return $data;
+    }
     public function getDisaggregations()
     {
-        $total = $this->builder()->count();
+        $totals = $this->getTotals()->toArray();
         return [
-            'Total (% Percentage)' => 0
+            'Total (% Percentage)' => 0,
+            'Total' => $totals['Total'] ?? 0
+
         ];
     }
 }

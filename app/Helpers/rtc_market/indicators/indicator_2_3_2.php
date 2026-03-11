@@ -94,7 +94,11 @@ class indicator_2_3_2
         $totals = $this->getTotals()->toArray();
 
         return [
-            'Total' => $totals['Total']
+            'Total' => $totals['Total'] ??0,
+            'Seed production' => $totals['Seed production'] ??0,
+            'Seed multiplication' => $totals['Seed multiplication'] ??0,
+            'Seed processing' => $totals['Seed processing'] ??0,
+            'Policy' => $totals['Policy'] ??0,
         ];
     }
 }

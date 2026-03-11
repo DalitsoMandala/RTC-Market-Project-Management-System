@@ -2,29 +2,31 @@
 
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
-use App\Traits\NotifyAdmins;
+use App\Exceptions\UserErrorException;
+use App\Helpers\SubmitAggregateData;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionReport;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use App\Exceptions\UserErrorException;
-use App\Models\IndicatorDisaggregation;
-use App\Traits\reportDefaultValuesTrait;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
+use App\Models\User;
 use App\Notifications\ManualDataAddedNotification;
+use App\Traits\NotifyAdmins;
+use App\Traits\reportDefaultValuesTrait;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 
 class Indicator353 extends Component
 {
+
     use LivewireAlert;
     use NotifyAdmins;
     use reportDefaultValuesTrait;
@@ -56,7 +58,93 @@ class Indicator353 extends Component
 
     public $formData = [];
 
+    // Form data
+    public $total_percentage = 0;
+    public $annual_value = 0;
+    public $baseline = null;
+    public $cassava = null;
+    public $potato = null;
+    public $sweet_potato = null;
+    public $produce = null;
+    public $seed = null;
+    public $total = null;
+    // Readonly fields
+    public $yearNumber = 1;
 
+    protected $rules = [
+        'total_percentage' => 'required|numeric|min:0|max:100',
+        'total' => 'required|numeric',
+        'baseline' => 'required|numeric',
+    ];
+
+    protected $validationAttributes = [
+        'total_percentage' => 'Total (% Percentage)',
+        'cassava' => 'Cassava',
+        'potato' => 'Potato',
+        'sweet_potato' => 'Sweet Potato',
+        'produce' => 'Produce',
+        'seed' => 'Seed',
+        'cuttings' => 'Cuttings',
+        'baseline' => 'Previous value',
+    ];
+
+
+
+    public function save()
+    {
+        $this->validate();
+
+        $user = User::find(Auth::user()->id);
+        $submit = new SubmitAggregateData;
+
+        $data = [
+            'Total(% Percentage)' => $this->total_percentage,
+            'Total' => $this->total,
+            'Annual value' => $this->annual_value,
+            'Baseline' => $this->baseline,
+        ];
+
+        $this->notifyAdminsAndManagers();
+
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('admin')) {
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                $user->hasAnyRole('admin') ? route('admin-submissions') : route('cip-submissions'),
+                'manager'
+            );
+        } else if ($user->hasAnyRole('external')) {
+
+
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('external-submissions'),
+                'external'
+            );
+        } else if ($user->hasAnyRole('staff')) {
+
+
+            $submit->submit_aggregate_data(
+                $data,
+                $user,
+                $this->submissionPeriodId,
+                $this->selectedForm,
+                $this->selectedIndicator,
+                $this->selectedFinancialYear,
+                route('cip-staff-submissions'),
+                'staff'
+            );
+        }
+    }
 
 
     public function render()

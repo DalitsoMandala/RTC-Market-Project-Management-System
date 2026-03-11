@@ -2,19 +2,18 @@
     cassava: $wire.entangle('cassava'),
     potato: $wire.entangle('potato'),
     sweetPotato: $wire.entangle('sweet_potato'),
-    certifiedSeedProduce: $wire.entangle('certified_seed_produce'),
-    valueAddedRTCProducts: $wire.entangle('value_added_rtc_products'),
+    produce: $wire.entangle('produce'),
+    seed: $wire.entangle('seed'),
+    cuttings: $wire.entangle('cuttings'),
     totalPercentage: $wire.entangle('total_percentage'),
     annualValue: $wire.entangle('annual_value'),
     baselineValue: $wire.entangle('baseline'),
 
     updateTotalPercentage() {
         let totalValue =
-            (isNaN(parseFloat(this.cassava)) ? 0 : parseFloat(this.cassava)) +
-            (isNaN(parseFloat(this.potato)) ? 0 : parseFloat(this.potato)) +
-            (isNaN(parseFloat(this.sweetPotato)) ? 0 : parseFloat(this.sweetPotato)) +
-            (isNaN(parseFloat(this.certifiedSeedProduce)) ? 0 : parseFloat(this.certifiedSeedProduce)) +
-            (isNaN(parseFloat(this.valueAddedRTCProducts)) ? 0 : parseFloat(this.valueAddedRTCProducts));
+            (isNaN(parseFloat(this.seed)) ? 0 : parseFloat(this.seed)) +
+            (isNaN(parseFloat(this.cuttings)) ? 0 : parseFloat(this.cuttings)) +
+            (isNaN(parseFloat(this.produce)) ? 0 : parseFloat(this.produce)) ;
 
         this.annualValue = totalValue; // Set annual value as sum of inputs
 
@@ -33,8 +32,7 @@
     $watch('cassava', () => updateTotalPercentage());
     $watch('potato', () => updateTotalPercentage());
     $watch('sweetPotato', () => updateTotalPercentage());
-    $watch('certifiedSeedProduce', () => updateTotalPercentage());
-    $watch('valueAddedRTCProducts', () => updateTotalPercentage());
+
         $watch('baselineValue', (v) => { updateFinancialValue() });
 }">
 
@@ -98,19 +96,28 @@
         </div>
 
         <div class="mb-3">
-            <label for="certified_seed_produce" class="form-label">Certified Seed Produce</label>
-            <input type="number" id="certified_seed_produce" x-model="certifiedSeedProduce"
-                class="form-control @error('certified_seed_produce') is-invalid @enderror">
-            @error('certified_seed_produce')
+            <label for="produce" class="form-label">Produce</label>
+            <input type="number" id="produce" x-model="produce"
+                class="form-control @error('produce') is-invalid @enderror">
+            @error('produce')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>
 
         <div class="mb-3">
-            <label for="value_added_rtc_products" class="form-label">Value Added RTC Products</label>
-            <input type="number" id="value_added_rtc_products" x-model="valueAddedRTCProducts"
-                class="form-control @error('value_added_rtc_products') is-invalid @enderror">
-            @error('value_added_rtc_products')
+            <label for="seed" class="form-label">Seed</label>
+            <input type="number" id="seed" x-model="seed"
+                class="form-control @error('seed') is-invalid @enderror">
+            @error('seed')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+             <div class="mb-3">
+            <label for="seed" class="form-label">Cuttings</label>
+            <input type="number" id="seed" x-model="cuttings"
+                class="form-control @error('cuttings') is-invalid @enderror">
+            @error('cuttings')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>

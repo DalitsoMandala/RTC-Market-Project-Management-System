@@ -5,8 +5,10 @@
 
 use App\Helpers\DisaggregationAppend;
 use App\Helpers\MarketReportCalculations;
+use App\Helpers\rtc_market\indicators\indicator_2_3_2;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B1;
+use App\Helpers\rtc_market\indicators\indicator_B5;
 use App\Http\Controllers\AddDisaggregationController;
 use App\Http\Controllers\FormsExportController;
 use App\Http\Controllers\TestingController;
@@ -45,22 +47,7 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function () {
-    //   $class = new indicator_B1(null, 3, 2, 'Cassava');
-    //  dd($class->getDisaggregations());
 
-    $handler = new DisaggregationAppend('Percentage Increase in the volume of RTC produced', [
-        'Seed',
-        'Cuttings',
-        'Produce'
-    ], true);
-    $result1 = $handler->updateDisaggregations();
-
-    $handler = new DisaggregationAppend('Number of stakeholder engagement events that focus on RTC development', [
-        'Policy'
-    ]);
-    $result2 = $handler->updateDisaggregations();
-
-    dd($result1, $result2);
 })->name('testing');
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');

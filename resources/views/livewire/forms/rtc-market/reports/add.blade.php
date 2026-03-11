@@ -24,6 +24,11 @@
         </div>
         <!-- end page title -->
         <div class="row">
+               @isset($selectedMonth, $selectedFinancialYear)
+                    <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
+                @endisset
+        </div>
+        <div class="row">
 
             <div class="col-12">
                 <div class="card">
@@ -55,9 +60,6 @@
 
                 <x-alerts />
 
-                @if (!$targetSet)
-                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
-                @endif
 
                 @if ($openSubmission === false)
                     <div class="alert alert-warning" role="alert">
@@ -70,12 +72,13 @@
                         <h4 class="card-title">Enter your data for : <span
                                 class="text-warning">{{ $indicator->indicator_name }}</span> </h4>
                     </div>
-                    <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+                    <div class="card-body @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                         @php
                             $componentMap = [
                                 'Percentage increase in value of formal RTC exports' => 'indicator-b2',
                                 'Percentage of value ($) of formal RTC imports substituted through local production' =>
                                     'indicator-b3',
+                                    'Percentage Increase in the volume of RTC produced' => 'indicator-b5',
                                 'Percentage increase in RTC investment' => 'indicator-b6',
                                 'Percentage increase in adoption of new RTC technologies' => 'indicator-114',
                                 'Percentage seed multipliers with formal registration' => 'indicator-223',
@@ -83,7 +86,9 @@
                                     'indicator-231',
                                 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)' =>
                                     'indicator-325',
+                                    'Percentage increase in households consuming RTCs as the main foodstuff (OC)' => 'indicator-353'
                             ];
+
 
                             $componentName = $componentMap[$indicator->indicator_name] ?? 'number-indicators';
 

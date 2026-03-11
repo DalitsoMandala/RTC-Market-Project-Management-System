@@ -51,8 +51,7 @@ class indicator_B5
     public function Processorbuilder(): Builder
     {
 
-        $query = RtcProductionProcessor::query()->with('followups')
-            ->where('rtc_production_processors.status', 'approved');
+        $query = RtcProductionProcessor::query();
 
         return $this->applyFilters($query);
     }
@@ -91,33 +90,91 @@ class indicator_B5
 
 
     public function findCropCount()
-    {
-        // If enterprise is set in constructor, return only that enterprise's total
-        if ($this->enterprise) {
-            $farmerTotal = $this->builderFarmer()->sum('prod_value_previous_season_usd_value');
-            $processorTotal = $this->Processorbuilder()->sum('prod_value_previous_season_usd_value');
+{
+    if ($this->enterprise) {
 
-            return [
-                strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal + $processorTotal,
-            ];
+        $farmerTotal =
+            $this->builderFarmer()->sum('total_vol_production_previous_season_cuttings') +
+            $this->builderFarmer()->sum('total_vol_production_previous_season_seed') +
+            $this->builderFarmer()->sum('total_vol_production_previous_season_produce');
+
+        $processorTotal =
+            $this->Processorbuilder()->sum('total_vol_production_previous_season_cuttings') +
+            $this->Processorbuilder()->sum('total_vol_production_previous_season_seed') +
+            $this->Processorbuilder()->sum('total_vol_production_previous_season_produce');
+
+        return [
+            strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal + $processorTotal,
+        ];
+    }
+
+    $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
+    $result = [];
+
+    foreach ($enterprises as $enterprise) {
+
+        $farmerTotal =
+            $this->builderFarmer()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_cuttings') +
+            $this->builderFarmer()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_seed') +
+            $this->builderFarmer()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_produce');
+
+        $processorTotal =
+            $this->Processorbuilder()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_cuttings') +
+            $this->Processorbuilder()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_seed') +
+            $this->Processorbuilder()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_produce');
+
+        $result[strtolower(str_replace(' ', '_', $enterprise))] = $farmerTotal + $processorTotal;
+    }
+
+    return $result;
+}
+    public function findTypeCount()
+    {
+        $results = [
+            'Cuttings' => 0,
+            'Seed' => 0,
+            'Produce' => 0
+        ];
+
+        // If enterprise is specified
+        if ($this->enterprise) {
+
+            $results['Cuttings'] =
+                $this->builderFarmer()->sum('total_vol_production_previous_season_cuttings') +
+                $this->Processorbuilder()->sum('total_vol_production_previous_season_cuttings');
+
+            $results['Seed'] =
+                $this->builderFarmer()->sum('total_vol_production_previous_season_seed') +
+                $this->Processorbuilder()->sum('total_vol_production_previous_season_seed');
+
+            $results['Produce'] =
+                $this->builderFarmer()->sum('total_vol_production_previous_season_produce') +
+                $this->Processorbuilder()->sum('total_vol_production_previous_season_produce');
+
+            return $results;
         }
 
-        // Otherwise, return totals for all enterprises
+        // All enterprises
         $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
-        $result = [];
 
         foreach ($enterprises as $enterprise) {
-            $farmerTotal = $this->builderFarmer()->where('enterprise', $enterprise)
-                ->sum('total_vol_production_previous_season');
 
-            $processorTotal = $this->Processorbuilder()->where('enterprise', $enterprise)
-                ->sum('total_vol_production_previous_season');
+            $results['Cuttings'] +=
+                $this->builderFarmer()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_cuttings') +
+                $this->Processorbuilder()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_cuttings');
 
-            $result[strtolower(str_replace(' ', '_', $enterprise))] = $farmerTotal + $processorTotal;
+            $results['Seed'] +=
+                $this->builderFarmer()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_seed') +
+                $this->Processorbuilder()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_seed');
+
+            $results['Produce'] +=
+                $this->builderFarmer()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_produce') +
+                $this->Processorbuilder()->where('enterprise', $enterprise)->sum('total_vol_production_previous_season_produce');
         }
 
-        return $result;
+        return $results;
     }
+
 
 
 
@@ -138,6 +195,7 @@ class indicator_B5
     {
         $crop = $this->findCropCount();
 
+        $seed = $this->findTypeCount();
         // Define all possible crops with default 0 values
 
         $allCrops = [
@@ -146,10 +204,18 @@ class indicator_B5
             'Potato'       => round($crop['potato'] ?? 0, 2),
         ];
 
+        $allSeeds = [
+            'Cuttings' => round($seed['Cuttings'] ?? 0, 2),
+            'Seed' => round($seed['Seed'] ?? 0, 2),
+            'Produce' => round($seed['Produce'] ?? 0, 2),
+        ];
+
 
         return [
             'Total (% Percentage)' => 0,
-            ...$allCrops
+            ...$allCrops,
+            ...$allSeeds,
+
             //  'Certified seed produce' => $this->getCertifiedSeed(),
             //  'Value added RTC products' => $this->getValueAddedProducts()
         ];
