@@ -54,30 +54,25 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
-    (new DatabaseAppend('rtc_production_farmers', [
-            'type' => fn($table) =>    $table->string('type')->nullable(),
 
-        ]))->append();
-        (new DatabaseAppend('rtc_production_processors', [
-            'type' => fn($table) =>    $table->string('type')->nullable(),
-
-        ]))->append();
 
 
     try {
         DB::beginTransaction();
-        DB::table('rtc_production_farmers')->where('uuid', '190760fc-4c78-4b9f-8150-5a52c4b7f71d')->update([
+
+
+        DB::table('rtc_production_farmers')->where('uuid', '6dc20f54-16c6-4594-9ce1-da5d3f0a5c9e')->update([
             'type' => 'Farmers'
         ]);
-        DB::table('rtc_production_farmers')->where('uuid', 'a7343377-b47b-4c61-88db-2569edfc6bed')->update([
+        DB::table('rtc_production_farmers')->where('uuid', '32af9ce6-d941-473d-8454-32d3f13d7a70')->update([
             'type' => 'Farmers'
         ]);
 
-        DB::table('rtc_production_processors')->where('uuid', '9de1c397-3aa6-4727-878c-ed43d9c9af50')->update([
-            'type' => 'Traders'
+        DB::table('rtc_production_processors')->where('uuid', '54bb797d-f823-430c-9a2e-2c97b36b0b52')->update([
+            'type' => 'Processors'
         ]);
 
-        DB::table('rtc_production_processors')->where('uuid', 'fe813354-ce93-4337-b8ee-26ffea072d85')->update([
+        DB::table('rtc_production_processors')->where('uuid', '809a78e2-673d-4233-bd85-a96e26f3b1aa')->update([
             'type' => 'Traders'
         ]);
         DB::commit();
