@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -93,7 +94,8 @@ trait DownloadImportTrait
                         $extension = pathinfo($submission->file_link, PATHINFO_EXTENSION);
 
                         // Create new filename
-                        $newFilename = "file_{$submission->table_name}_{$submission->batch_no}.{$extension}";
+                        $user = User::find($submission->user_id);
+                        $newFilename = "file_{$submission->table_name}_{$submission->batch_no}_{$user->name}.{$extension}";
                         $zip->addFile(Storage::path($filePath), $newFilename);
                     }
                 }
