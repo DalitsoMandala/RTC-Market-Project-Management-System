@@ -11,9 +11,9 @@
 
     updateTotalPercentage() {
         let totalValue =
-            (isNaN(parseFloat(this.seed)) ? 0 : parseFloat(this.seed)) +
-            (isNaN(parseFloat(this.cuttings)) ? 0 : parseFloat(this.cuttings)) +
-            (isNaN(parseFloat(this.produce)) ? 0 : parseFloat(this.produce)) ;
+            (isNaN(parseFloat(this.cassava)) ? 0 : parseFloat(this.cassava)) +
+            (isNaN(parseFloat(this.potato)) ? 0 : parseFloat(this.potato)) +
+            (isNaN(parseFloat(this.sweetPotato)) ? 0 : parseFloat(this.sweetPotato)) ;
 
         this.annualValue = totalValue; // Set annual value as sum of inputs
 
