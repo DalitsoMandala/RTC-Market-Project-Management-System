@@ -47,7 +47,7 @@ final class SubmissionTable extends PowerGridComponent
     public string $sortField = 'submission_id';
     public string $primaryKey = 'submission_id';
     public string $sortDirection = 'desc';
-
+    public string $tableName = 'SubmissionsTable';
     public function setUp(): array
     {
         $this->showCheckBox();

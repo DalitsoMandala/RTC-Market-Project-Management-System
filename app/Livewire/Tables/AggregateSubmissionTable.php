@@ -43,7 +43,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public string $sortField     = 'submission_id';
     public string $sortDirection = 'desc';
     public string $primaryKey    = 'submission_id';
-
+public string $tableName = 'AggregateSubmissionTable';
     public function updatedCheckboxValues($values)
     {
         // logger('Selected IDs: ', $values);
@@ -57,7 +57,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
             $this->batch = $collection->get('batch');
         }
 
-        $this->showCheckBox('submission_id');
+      //  $this->showCheckBox('submission_id');
         $this->setLocation('exports');
         return [
             // Exportable::make('export')
@@ -72,21 +72,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        // $query = Submission::query()
-        //     ->with(['period.indicator', 'user.organisation', 'user', 'period.reportingMonths', 'form', 'period.financialYears'])
-        //     ->where('batch_type', 'aggregate');
 
-        // $user = User::find(auth()->user()->id);
-        // $organisation_id = $user->organisation->id;
-
-        // if ($user->hasAnyRole('external')) {
-        //     return $query->where('user_id', $user->id);
-        // }
-
-        // return $query->select([
-        //     '*',
-        //     DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-        // ]);
 
         $query = Submission::query()
 
@@ -374,7 +360,7 @@ final class AggregateSubmissionTable extends PowerGridComponent
     {
         return [
             Column::make('#', 'rn')->sortable()->hidden(),
-            Column::make('File', 'file_link'),
+            Column::make('File', 'file_link')->hidden(),
             Column::make('Batch no', 'batch_no_formatted')
                 ->sortable()
                 ->searchable(),
