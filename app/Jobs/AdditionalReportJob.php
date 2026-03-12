@@ -124,10 +124,10 @@ class AdditionalReportJob implements ShouldQueue
         });
 
 
-        Cache::put('report_progress', 99);
+        Cache::put('report_progress', 74);
         ReportStatus::find(1)->update([
             'status'   => 'pending',
-            'progress' => 99,
+            'progress' => 74,
         ]);
 
           } catch (\Throwable $e) {

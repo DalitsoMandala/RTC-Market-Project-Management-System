@@ -165,7 +165,9 @@ class ReportJob implements ShouldQueue
                             /** PROGRESS */
                             $current++;
                             if ($current % 100 === 0) {
-                                Cache::put('report_progress', round(($current / $totalIterations) * 100));
+                                // Multiply the total progress by 0.3 to cap the "sum up" at 30%
+                                $progress = round(($current / $totalIterations) * 100 * 0.3);
+                                Cache::put('report_progress', $progress);
                             }
                         }
                     }

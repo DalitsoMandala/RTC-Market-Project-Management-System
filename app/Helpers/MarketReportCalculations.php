@@ -63,7 +63,7 @@ class MarketReportCalculations
 
             foreach ($dataArray as $dataName => $yearArray) {
 
-                foreach ($yearArray as $year => $data) {
+                foreach ($yearArray as $year => $data) {    
 
                     MarketDataReport::updateOrCreate([
                         'name' => $dataName,
@@ -74,6 +74,12 @@ class MarketReportCalculations
                     ]);
                 }
             }
+
+            Cache::put('report_progress', 96);
+            ReportStatus::find(1)->update([
+                'status'   => 'pending',
+                'progress' => 96,
+            ]);
         } catch (\Throwable $e) {
 
 
