@@ -53,9 +53,7 @@ class ReportJob implements ShouldQueue
         /** ------------------------------------------------------
          * 1. SMART FILTERING (BEST PRACTICE)
          * ------------------------------------------------------ */
-        $indicatorClasses = IndicatorClass::when($this->indicator_id, function ($q) {
-            return $q->where('indicator_id', $this->indicator_id);
-        })->get();
+        $indicatorClasses = IndicatorClass::get();
 
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
@@ -90,6 +88,7 @@ class ReportJob implements ShouldQueue
          * 3. MAIN LOOP (optimized – no dangerous chunk nesting)
          * ------------------------------------------------------ */
         foreach ($indicatorClasses as $indicatorClass) {
+
             $indicator = $indicators[$indicatorClass->indicator_id] ?? null;
             foreach ($reportingPeriods as $period) {
                 foreach ($financialYears as $year) {
@@ -107,6 +106,8 @@ class ReportJob implements ShouldQueue
 
                             try {
                                 /** Instantiate indicator helper ONCE per combination */
+
+
                                 $class = new $indicatorClass->class(
                                     reporting_period: $period,
                                     financial_year: $year,

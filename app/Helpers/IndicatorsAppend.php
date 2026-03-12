@@ -5,8 +5,10 @@ namespace App\Helpers;
 use App\Models\Indicator;
 use App\Models\IndicatorClass;
 use App\Models\IndicatorDisaggregation;
+use App\Models\IndicatorForm;
 use App\Models\OrganisationTarget;
 use App\Models\Project;
+use App\Models\ResponsiblePerson;
 use App\Models\SubmissionTarget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -83,7 +85,11 @@ class IndicatorsAppend
             // Handle copy if needed
             if ($copy && $copyIndicatorName) {
                 $this->copyIndicatorTargets($copyIndicatorName, $indicator->id);
-            }
+             $this->copyIndicatorForms($copyIndicatorName, $indicator->id);
+
+                $this->copyResponsiblePeople($copyIndicatorName, $indicator->id);
+
+                }
 
             DB::commit();
 
@@ -137,6 +143,42 @@ class IndicatorsAppend
                     'value' => $orgTarget->value,
                 ]);
             }
+        }
+    }
+
+    private function copyResponsiblePeople(string $sourceIndicatorName, int $newIndicatorId)
+    {
+        $sourceIndicator = Indicator::where('indicator_name', $sourceIndicatorName)->first();
+
+        if (!$sourceIndicator) {
+            throw new \Exception('Source indicator not found: ' . $sourceIndicatorName);
+        }
+
+        $responsiblePeople = ResponsiblePerson::where('indicator_id', $sourceIndicator->id)->get();
+
+        foreach ($responsiblePeople as $responsiblePerson) {
+            ResponsiblePerson::create([
+                'indicator_id' => $newIndicatorId,
+               'organisation_id' => $responsiblePerson->organisation_id
+            ]);
+        }
+    }
+
+    private function copyIndicatorForms(string $sourceIndicatorName, int $newIndicatorId)
+    {
+        $sourceIndicator = Indicator::where('indicator_name', $sourceIndicatorName)->first();
+
+        if (!$sourceIndicator) {
+            throw new \Exception('Source indicator not found: ' . $sourceIndicatorName);
+        }
+
+        $indicatorForms = IndicatorForm::where('indicator_id', $sourceIndicator->id)->get();
+
+        foreach ($indicatorForms as $indicatorForm) {
+            IndicatorForm::create([
+                'indicator_id' => $newIndicatorId,
+                'form_id' => $indicatorForm->form_id
+            ]);
         }
     }
 }
