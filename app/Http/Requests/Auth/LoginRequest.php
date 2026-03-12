@@ -54,7 +54,15 @@ class LoginRequest extends FormRequest
         })->where('is_active', true)
             ->first();
 
-        if (! $user || ! Hash::check($password, $user->password)) {
+        // if (! $user || ! Hash::check($password, $user->password)) {
+        //     RateLimiter::hit($this->throttleKey());
+
+        //     throw ValidationException::withMessages([
+        //         'login' => __('auth.failed'),
+        //     ]);
+        // }
+
+           if (! $user ) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

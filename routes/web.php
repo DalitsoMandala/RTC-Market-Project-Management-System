@@ -58,24 +58,24 @@ Route::get('/test', function () {
 
 
     try {
-        DB::beginTransaction();
+        // DB::beginTransaction();
 
 
-        DB::table('rtc_production_farmers')->where('uuid', '6dc20f54-16c6-4594-9ce1-da5d3f0a5c9e')->update([
-            'type' => 'Farmers'
-        ]);
-        DB::table('rtc_production_farmers')->where('uuid', '32af9ce6-d941-473d-8454-32d3f13d7a70')->update([
-            'type' => 'Farmers'
-        ]);
+        // DB::table('rtc_production_farmers')->where('uuid', '6dc20f54-16c6-4594-9ce1-da5d3f0a5c9e')->update([
+        //     'type' => 'Farmers'
+        // ]);
+        // DB::table('rtc_production_farmers')->where('uuid', '32af9ce6-d941-473d-8454-32d3f13d7a70')->update([
+        //     'type' => 'Farmers'
+        // ]);
 
-        DB::table('rtc_production_processors')->where('uuid', '54bb797d-f823-430c-9a2e-2c97b36b0b52')->update([
-            'type' => 'Processors'
-        ]);
+        // DB::table('rtc_production_processors')->where('uuid', '54bb797d-f823-430c-9a2e-2c97b36b0b52')->update([
+        //     'type' => 'Processors'
+        // ]);
 
-        DB::table('rtc_production_processors')->where('uuid', '809a78e2-673d-4233-bd85-a96e26f3b1aa')->update([
-            'type' => 'Traders'
-        ]);
-        DB::commit();
+        // DB::table('rtc_production_processors')->where('uuid', '809a78e2-673d-4233-bd85-a96e26f3b1aa')->update([
+        //     'type' => 'Traders'
+        // ]);
+        // DB::commit();
         return response()->json(['success' => true]);
     } catch (\Throwable $th) {
         DB::rollBack();
