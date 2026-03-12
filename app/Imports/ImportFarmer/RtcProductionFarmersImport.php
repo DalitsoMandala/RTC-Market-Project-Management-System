@@ -62,12 +62,12 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
 
         $farmerRecord = RtcProductionFarmer::create([
             'group_name' => $row['Group Name'],
-            'date_of_followup' => \Carbon\Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
+            'date_of_followup' => Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
             'epa' => $row['EPA'],
             'section' => $row['Section'],
             'district' => $row['District'],
             'enterprise' => $row['Enterprise'],
-
+            'type' => $row['Type'],
             'number_of_plantlets_produced_cassava' => $row['Number of Plantlets Produced Cassava'] ?? 0,
             'number_of_plantlets_produced_potato' => $row['Number of Plantlets Produced Potato'] ?? 0,
             'number_of_plantlets_produced_sweet_potato' => $row['Number of Plantlets Produced Sweet Potato'] ?? 0,
@@ -106,7 +106,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'irr_prod_value_produce_prevailing_price' => $row['Irrigation Production Value Produce Prevailing Price'] ?? 0,
             'irr_prod_value_seed_prevailing_price' => $row['Irrigation Production Value Seed Prevailing Price'] ?? 0,
             'irr_prod_value_cuttings_prevailing_price' => $row['Irrigation Production Value Cuttings Prevailing Price'] ?? 0,
-            'irr_prod_value_previous_season_date_of_max_sales' => \Carbon\Carbon::parse($row['Irrigation Production Value Date of Max Sales'])->format('Y-m-d'),
+            'irr_prod_value_previous_season_date_of_max_sales' => Carbon::parse($row['Irrigation Production Value Date of Max Sales'])->format('Y-m-d'),
             'irr_prod_value_previous_season_usd_rate' => $irrCalc['rate'] ?? 0,
             'irr_prod_value_previous_season_usd_value' => $irrCalc['usd_value'] ?? 0,
             'sells_to_domestic_markets' => $row['Sells to Domestic Markets'] ?? 0,
@@ -301,7 +301,8 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
             'Sells to International Markets' => 'nullable|boolean',
             'Uses Market Information Systems' => 'nullable|boolean',
             'Sells to Aggregation Centers' => 'nullable|boolean',
-            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0'
+            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0',
+            'Type' => 'nullable|string|max:255|in:Farmers,Processors,Traders,Aggregators,Transporters',
         ];
     }
 

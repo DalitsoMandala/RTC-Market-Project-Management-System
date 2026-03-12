@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait FormEssentials
 {
-       protected $ignoredSheetNames = ['ValidationLists'];
+    protected $ignoredSheetNames = ['ValidationLists'];
     //
     public $forms = [
         'Rtc Recruitment Form' => [
@@ -63,6 +63,7 @@ trait FormEssentials
                 'Group' => 'Text, (Choose one option)',
                 'Category' => 'Text, (Choose one option)',
                 'Sector' => 'Text, (Choose one option)',
+                'Type' => 'Text, (Choose one option)',
                 'Number of Plantlets Produced Cassava' => 'Number (>=0)',
                 'Number of Plantlets Produced Potato' => 'Number (>=0)',
                 'Number of Plantlets Produced Sweet Potato' => 'Number (>=0)',
@@ -177,6 +178,7 @@ trait FormEssentials
                 'Group' => 'Text, (Choose one option)',
                 'Category' => 'Text, (Choose one option)',
                 'Sector' => 'Text, (Choose one option)',
+                'Type' => 'Text, (Choose one option)',
                 'Market Segment Fresh' => 'Boolean (1/0)',
                 'Market Segment Processed' => 'Boolean (1/0)',
                 'Has RTC Market Contract' => 'Boolean (1/0)',
@@ -194,6 +196,7 @@ trait FormEssentials
                 'Uses Market Info Systems' => 'Boolean (1/0)',
                 'Sells to Aggregation Centers' => 'Boolean (1/0)',
                 'Total Volume Aggregation Center Sales' => 'Number (>=0)',
+
             ],
             'Contractual Agreements' => [
                 'Processor ID' => 'Number, Exists in Production Processors Sheet',

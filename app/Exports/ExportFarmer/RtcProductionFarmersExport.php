@@ -133,6 +133,17 @@ class RtcProductionFarmersExport implements FromCollection, WithHeadings, WithMa
 
                 //Sector
                 $this->setDataValidations($dropdownOptions, 'J3', $sheet);
+
+                  $dropdownOptions = [
+                 'Farmers',
+                    'Processors',
+                    'Traders',
+                    'Aggregators',
+                    'Transporters'
+                ];
+
+                //Type
+                $this->setDataValidations($dropdownOptions, 'K3', $sheet);
             },
         ];
     }

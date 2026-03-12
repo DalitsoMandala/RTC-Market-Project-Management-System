@@ -3,6 +3,7 @@
 
 
 
+use App\Helpers\DatabaseAppend;
 use App\Helpers\DisaggregationAppend;
 use App\Helpers\IndicatorsAppend;
 use App\Helpers\MarketReportCalculations;
@@ -12,12 +13,12 @@ use App\Helpers\rtc_market\indicators\indicator_B1;
 use App\Helpers\rtc_market\indicators\indicator_B5;
 use App\Http\Controllers\AddDisaggregationController;
 use App\Http\Controllers\FormsExportController;
+
 use App\Http\Controllers\TestingController;
 
 use App\Jobs\TestJob;
 
 use App\Livewire\External\Dashboard as ExternalDashboard;
-
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Assignments;
 use App\Livewire\Internal\Cip\Dashboard;
@@ -40,6 +41,7 @@ use Illuminate\Support\Facades\Storage;
 
 
 
+
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -51,68 +53,79 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 Route::get('/test', function () {
-    $addIndicator = new IndicatorsAppend();
 
-    $disaggregations  = [
-        'Total',
-        'Male',
-        'Female',
-        'Youth (18-35 yrs)',
-        'Not youth (35yrs+)',
-        'Employees on RTC establishment',
-        'Cassava',
-        'Potato',
-        'Sweet potato',
-        'Farmers',
-        'Traders',
-        'Processors',
-        'Aggregators',
-        'Transporters',
-        'New establishment',
-        'Old establishment'
-    ];
+    dd((new DatabaseAppend('rtc_production_farmers', [
+            'type' => fn($table) =>    $table->string('type')->nullable(),
 
-    $addDisaggregation = new DisaggregationAppend('Number of unique entities participating in RTC activities', [
-        'Total',
-        'Male',
-        'Female',
-        'Youth (18-35 yrs)',
-        'Not youth (35yrs+)',
-        'Employees on RTC establishment',
-        'Cassava',
-        'Potato',
-        'Sweet potato',
-        'Farmers',
-        'Traders',
-        'Processors',
-        'Aggregators',
-        'Transporters',
-        'New establishment',
-        'Old establishment'
-    ], true);
-    $removeDisaggregation = new DisaggregationAppend('Number of actors profitability engaged in commercialization of RTC', [
-        'Male',
-        'Female',
-        'Youth (18-35 yrs)',
-        'Not youth (35yrs+)',
-    ], false);
+        ]))->append(),
+        (new DatabaseAppend('rtc_production_processors', [
+            'type' => fn($table) =>    $table->string('type')->nullable(),
+
+        ]))->append()
+    );
+
+    // $addIndicator = new IndicatorsAppend();
+
+    // $disaggregations  = [
+    //     'Total',
+    //     'Male',
+    //     'Female',
+    //     'Youth (18-35 yrs)',
+    //     'Not youth (35yrs+)',
+    //     'Employees on RTC establishment',
+    //     'Cassava',
+    //     'Potato',
+    //     'Sweet potato',
+    //     'Farmers',
+    //     'Traders',
+    //     'Processors',
+    //     'Aggregators',
+    //     'Transporters',
+    //     'New establishment',
+    //     'Old establishment'
+    // ];
+
+    // $addDisaggregation = new DisaggregationAppend('Number of unique entities participating in RTC activities', [
+    //     'Total',
+    //     'Male',
+    //     'Female',
+    //     'Youth (18-35 yrs)',
+    //     'Not youth (35yrs+)',
+    //     'Employees on RTC establishment',
+    //     'Cassava',
+    //     'Potato',
+    //     'Sweet potato',
+    //     'Farmers',
+    //     'Traders',
+    //     'Processors',
+    //     'Aggregators',
+    //     'Transporters',
+    //     'New establishment',
+    //     'Old establishment'
+    // ], true);
+    // $removeDisaggregation = new DisaggregationAppend('Number of actors profitability engaged in commercialization of RTC', [
+    //     'Male',
+    //     'Female',
+    //     'Youth (18-35 yrs)',
+    //     'Not youth (35yrs+)',
+    // ], false);
 
 
-    // dd(IndicatorClass::where('class','App\Helpers\rtc_market\indicators\indicator_A1b')->first());
-    //     $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1(null,3,null,null);
-    //dd($indicatorFile->getDisaggregations());
-    // dd(
-    //     $addIndicator->addIndicator(
-    //         'Number of unique entities participating in RTC activities',
-    //         'A1b',
-    //         $disaggregations,
-    //         true,
-    //         'Number of actors profitability engaged in commercialization of RTC',
-    //         true,
-    //         'App\Helpers\rtc_market\indicators\indicator_A1b'
-    //     ),
-    //     $addDisaggregation->updateDisaggregations(),
-    // );
+    // // dd(IndicatorClass::where('class','App\Helpers\rtc_market\indicators\indicator_A1b')->first());
+    // //     $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1(null,3,null,null);
+    // //dd($indicatorFile->getDisaggregations());
+    // // dd(
+    // //     $addIndicator->addIndicator(
+    // //         'Number of unique entities participating in RTC activities',
+    // //         'A1b',
+    // //         $disaggregations,
+    // //         true,
+    // //         'Number of actors profitability engaged in commercialization of RTC',
+    // //         true,
+    // //         'App\Helpers\rtc_market\indicators\indicator_A1b'
+    // //     ),
+    // //     $addDisaggregation->updateDisaggregations(),
+    // // );
 });
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');

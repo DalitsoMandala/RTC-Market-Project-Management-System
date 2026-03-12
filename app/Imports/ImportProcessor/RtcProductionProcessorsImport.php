@@ -97,7 +97,7 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
             'financial_year_id' => $this->data['financial_year_id'],
             'period_month_id' => $this->data['period_month_id'],
             'status' => $status,
-
+            'type' => $row['Type'],
             'total_vol_production_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Total Volume Production Seed'] / self::BUNDLE_MULTIPLIER) : 0,
             'prod_value_previous_season_seed_bundle' => $row['Enterprise'] != 'Potato' ? ($row['Production Value Seed'] / self::BUNDLE_MULTIPLIER) : 0,
 
@@ -118,47 +118,47 @@ class RtcProductionProcessorsImport implements ToModel, WithHeadingRow, WithVali
     }
 
     use excelDateFormat;
-public function prepareForValidation(array $row)
-{
-    if (!empty($row['Date Of Follow Up'])) {
-        $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
+    public function prepareForValidation(array $row)
+    {
+        if (!empty($row['Date Of Follow Up'])) {
+            $row['Date Of Follow Up'] = $this->convertExcelDate($row['Date Of Follow Up']);
+        }
+
+        $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'] ?? null;
+
+        if (!empty($row['Enterprise']) && $row['Enterprise'] != 'Potato') {
+            // Ensure numeric value before conversion
+            $seedVolume = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
+            $row['Total Volume Production Seed'] = $this->convertToMetricTonnes($seedVolume);
+        } else {
+            // Ensure numeric even if not converting
+            $row['Total Volume Production Seed'] = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
+        }
+
+        // Calculate total volume with proper type casting
+        $row['Total Volume Production'] =
+            $this->ensureNumeric($row['Total Volume Production Produce'] ?? 0) +
+            $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0) +
+            $this->ensureNumeric($row['Total Volume Production Cuttings'] ?? 0);
+
+        $row['Production Value Total'] = $this->calculateTotalProduction(
+            $this->ensureNumeric($row['Production Value Produce'] ?? 0),
+            $this->ensureNumeric($row['Production Value Produce Prevailing Price'] ?? 0),
+            $this->ensureNumeric($row['Production Value Seed'] ?? 0),
+            $this->ensureNumeric($row['Production Value Seed Prevailing Price'] ?? 0),
+            $this->ensureNumeric($row['Production Value Cuttings'] ?? 0),
+            $this->ensureNumeric($row['Production Value Cuttings Prevailing Price'] ?? 0)
+        );
+
+        $row['Production Value USD Rate'] = 0;
+        $row['Production Value USD Value'] = 0;
+
+        $row['EPA'] = (string)($row['EPA'] ?? '');
+        $row['Section'] = (string)($row['Section'] ?? '');
+        $row['District'] = (string)($row['District'] ?? '');
+
+        return $row;
     }
-
-    $row['Production Value Date of Max Sales'] = $row['Date Of Follow Up'] ?? null;
-
-    if (!empty($row['Enterprise']) && $row['Enterprise'] != 'Potato') {
-        // Ensure numeric value before conversion
-        $seedVolume = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
-        $row['Total Volume Production Seed'] = $this->convertToMetricTonnes($seedVolume);
-    } else {
-        // Ensure numeric even if not converting
-        $row['Total Volume Production Seed'] = $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0);
-    }
-
-    // Calculate total volume with proper type casting
-    $row['Total Volume Production'] =
-        $this->ensureNumeric($row['Total Volume Production Produce'] ?? 0) +
-        $this->ensureNumeric($row['Total Volume Production Seed'] ?? 0) +
-        $this->ensureNumeric($row['Total Volume Production Cuttings'] ?? 0);
-
-    $row['Production Value Total'] = $this->calculateTotalProduction(
-        $this->ensureNumeric($row['Production Value Produce'] ?? 0),
-        $this->ensureNumeric($row['Production Value Produce Prevailing Price'] ?? 0),
-        $this->ensureNumeric($row['Production Value Seed'] ?? 0),
-        $this->ensureNumeric($row['Production Value Seed Prevailing Price'] ?? 0),
-        $this->ensureNumeric($row['Production Value Cuttings'] ?? 0),
-        $this->ensureNumeric($row['Production Value Cuttings Prevailing Price'] ?? 0)
-    );
-
-    $row['Production Value USD Rate'] = 0;
-    $row['Production Value USD Value'] = 0;
-
-    $row['EPA'] = (string)($row['EPA'] ?? '');
-    $row['Section'] = (string)($row['Section'] ?? '');
-    $row['District'] = (string)($row['District'] ?? '');
-
-    return $row;
-}
 
 
     public function convertToMetricTonnes($value)
@@ -216,7 +216,8 @@ public function prepareForValidation(array $row)
             'Sells to International Markets' => 'nullable|boolean',
             'Uses Market Info Systems' => 'nullable|boolean',
             'Sells to Aggregation Centers' => 'nullable|boolean',
-            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0'
+            'Total Volume Aggregation Center Sales' => 'nullable|numeric|min:0',
+            'Type' => 'nullable|string|max:255|in:Farmers,Processors,Traders,Aggregators,Transporters',
         ];
     }
     private function calculateUsdValue(?string $date, ?float $mwkValue): array
