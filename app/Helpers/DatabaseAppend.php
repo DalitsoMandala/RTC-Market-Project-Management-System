@@ -2,8 +2,9 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseAppend
 {
@@ -37,5 +38,12 @@ class DatabaseAppend
         });
 
         return true;
+    }
+
+
+    public function updateData($uuid, $table, $data = [])
+    {
+
+
     }
 }

@@ -54,15 +54,39 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
-    dd((new DatabaseAppend('rtc_production_farmers', [
+    (new DatabaseAppend('rtc_production_farmers', [
             'type' => fn($table) =>    $table->string('type')->nullable(),
 
-        ]))->append(),
+        ]))->append();
         (new DatabaseAppend('rtc_production_processors', [
             'type' => fn($table) =>    $table->string('type')->nullable(),
 
-        ]))->append()
-    );
+        ]))->append();
+
+
+    try {
+        DB::beginTransaction();
+        DB::table('rtc_production_farmers')->where('uuid', '190760fc-4c78-4b9f-8150-5a52c4b7f71d')->update([
+            'type' => 'Farmers'
+        ]);
+        DB::table('rtc_production_farmers')->where('uuid', 'a7343377-b47b-4c61-88db-2569edfc6bed')->update([
+            'type' => 'Farmers'
+        ]);
+
+        DB::table('rtc_production_processors')->where('uuid', '9de1c397-3aa6-4727-878c-ed43d9c9af50')->update([
+            'type' => 'Traders'
+        ]);
+
+        DB::table('rtc_production_processors')->where('uuid', 'fe813354-ce93-4337-b8ee-26ffea072d85')->update([
+            'type' => 'Traders'
+        ]);
+        DB::commit();
+        return response()->json(['success' => true]);
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        dd($th);
+    }
+
 
     // $addIndicator = new IndicatorsAppend();
 

@@ -126,7 +126,36 @@ class indicator_B1
     }
 
 
+    public function findActorTotals()
+    {
+        $actors = [
+            'Traders' => 'traders',
+            'Farmers' => 'farmers',
+            'Processors' => 'processors',
+            'Aggregators' => 'aggregators',
+            'Transporters' => 'transporters',
+        ];
 
+        $results = [];
+
+        foreach ($actors as $label => $type) {
+
+            $farmerBuilder = $this->Farmerbuilder()->where('type', $type);
+            $processorBuilder = $this->Processorbuilder()->where('type', $type);
+
+            // Apply enterprise filter if it exists
+            if ($this->enterprise) {
+                $farmerBuilder->where('enterprise', $this->enterprise);
+                $processorBuilder->where('enterprise', $this->enterprise);
+            }
+
+            $results[$label] =
+                $farmerBuilder->sum('prod_value_previous_season_usd_value') +
+                $processorBuilder->sum('prod_value_previous_season_usd_value');
+        }
+
+        return $results;
+    }
 
     public function getDisaggregations()
     {
@@ -134,20 +163,16 @@ class indicator_B1
 
         // Define all possible crops with default 0 values
         $crops = [
-        'Cassava'      => round($crop['cassava'] ?? 0, 2),
-        'Sweet potato' => round($crop['sweet_potato'] ?? 0, 2),
-        'Potato'       => round($crop['potato'] ?? 0, 2),
-    ];
-
+            'Cassava'      => round($crop['cassava'] ?? 0, 2),
+            'Sweet potato' => round($crop['sweet_potato'] ?? 0, 2),
+            'Potato'       => round($crop['potato'] ?? 0, 2),
+        ];
+        $actors = $this->findActorTotals();
 
         return [
             'Total (% Percentage)' => 0,
             ...$crops,
-            'Traders' => 0,
-            'Farmers' => 0,
-            'Processors' => 0,
-            'Aggregators' => 0,
-            'Transporters' => 0,
+            ...$actors,
         ];
     }
 }
