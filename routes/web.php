@@ -101,18 +101,18 @@ Route::get('/test', function () {
     // dd(IndicatorClass::where('class','App\Helpers\rtc_market\indicators\indicator_A1b')->first());
     //     $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1(null,3,null,null);
     //dd($indicatorFile->getDisaggregations());
-    dd(
-        $addIndicator->addIndicator(
-            'Number of unique entities participating in RTC activities',
-            'A1b',
-            $disaggregations,
-            true,
-            'Number of actors profitability engaged in commercialization of RTC',
-            true,
-            'App\Helpers\rtc_market\indicators\indicator_A1b'
-        ),
-        $addDisaggregation->updateDisaggregations(),
-    );
+    // dd(
+    //     $addIndicator->addIndicator(
+    //         'Number of unique entities participating in RTC activities',
+    //         'A1b',
+    //         $disaggregations,
+    //         true,
+    //         'Number of actors profitability engaged in commercialization of RTC',
+    //         true,
+    //         'App\Helpers\rtc_market\indicators\indicator_A1b'
+    //     ),
+    //     $addDisaggregation->updateDisaggregations(),
+    // );
 });
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
