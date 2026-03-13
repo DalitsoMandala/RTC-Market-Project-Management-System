@@ -129,16 +129,19 @@ class indicator_B1
     public function findActorTotals()
     {
         $actors = [
-            'Traders' => 'traders',
-            'Farmers' => 'farmers',
-            'Processors' => 'processors',
-            'Aggregators' => 'aggregators',
-            'Transporters' => 'transporters',
+            'Traders',
+            'Farmers',
+            'Processors',
+            'Aggregators',
+            'Transporters',
         ];
+
+             $processorBuilder = $this->Processorbuilder()->where('type', 'Processors')->get();
+             dd($processorBuilder);
 
         $results = [];
 
-        foreach ($actors as $label => $type) {
+        foreach ($actors as  $type) {
 
             $farmerBuilder = $this->Farmerbuilder()->where('type', $type);
             $processorBuilder = $this->Processorbuilder()->where('type', $type);
@@ -149,11 +152,11 @@ class indicator_B1
                 $processorBuilder->where('enterprise', $this->enterprise);
             }
 
-            $results[$label] =
+            $results[$type] =
                 $farmerBuilder->sum('prod_value_previous_season_usd_value') +
                 $processorBuilder->sum('prod_value_previous_season_usd_value');
         }
-
+dd($results);
         return $results;
     }
 
