@@ -2,46 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\User;
+use App\Exports\Reports\ReportSheet;
+use App\Exports\RootTuberExport\RootTuberExportTemplate;
+use App\Exports\RootTuberImport\RootTuberImportTemplate;
+use App\Exports\rtcmarket\HouseholdExport\HrcExport;
+use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
+use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
+use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
+use App\Helpers\UsdReCalculations;
+use App\Jobs\SendExpiredPeriodNotificationJob;
+
+use App\Jobs\sendReminderToUserJob;
+use App\Models\FinancialYear;
+use App\Models\GrossMarginCategory;
+use App\Models\GrossMarginCategoryItem;
 use App\Models\Indicator;
 use App\Models\MailingList;
 use App\Models\Organisation;
+use App\Models\ReportingPeriodMonth;
 use App\Models\ReportStatus;
-use Illuminate\Http\Request;
-use App\Models\FinancialYear;
-use App\Traits\IndicatorsTrait;
-
+use App\Models\ResponsiblePerson;
+use App\Models\RtcProductionFarmer;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use App\Jobs\sendReminderToUserJob;
-use App\Models\GrossMarginCategory;
+use App\Models\User;
+use App\Notifications\SubmissionPeriodsEndingSoon;
+use App\Notifications\SubmissionReminder;
+use App\Traits\GroupsEndingSoonSubmissionPeriods;
+use App\Traits\IndicatorsTrait;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
-use App\Exports\Reports\ReportSheet;
-use App\Models\ReportingPeriodMonth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Models\GrossMarginCategoryItem;
-use Illuminate\Support\Facades\Artisan;
-use App\Notifications\SubmissionReminder;
-use App\Jobs\SendExpiredPeriodNotificationJob;
-use App\Traits\GroupsEndingSoonSubmissionPeriods;
-use App\Notifications\SubmissionPeriodsEndingSoon;
-use App\Exports\rtcmarket\HouseholdExport\HrcExport;
-use App\Exports\RootTuberExport\RootTuberExportTemplate;
-use App\Exports\RootTuberImport\RootTuberImportTemplate;
-use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
-use App\Models\RtcProductionFarmer;
+use Spatie\Permission\Models\Role;
 
 class TestingController extends Controller
 {
     use IndicatorsTrait;
-use UsdRec
+
     public function testSubmissions()
     {
         return $this->notifyExpiredSubmissionPeriods();
@@ -69,8 +70,9 @@ use UsdRec
     public function fix(){
 //Production
 
-$production = RtcProductionFarmer::where('prod_value_previous_season_usd_value',0);
-
+$production = RtcProductionFarmer::query()->where('prod_value_previous_season_usd_value',0);
+$class = new UsdReCalculations();
+$class->checkRowsThatHaveNoUsdValue($production);
     }
     public function test()
     {

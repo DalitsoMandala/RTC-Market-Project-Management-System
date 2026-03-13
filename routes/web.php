@@ -50,10 +50,13 @@ Route::get('/', fn() => redirect()->route('login'));
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
 
+Route::get('/test', function () {
 
 
+})->name('test');
 
-Route::get('/test', [TestingController::class,'fix'])->name('test');
+
+//Route::get('/test', [TestingController::class, 'fix'])->name('test');
 
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
