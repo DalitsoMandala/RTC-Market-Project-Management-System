@@ -136,9 +136,6 @@ class indicator_B1
             'Transporters',
         ];
 
-             $processorBuilder = $this->Processorbuilder()->where('type', 'Processors')->get();
-             dd($processorBuilder);
-
         $results = [];
 
         foreach ($actors as  $type) {
@@ -156,7 +153,7 @@ class indicator_B1
                 $farmerBuilder->sum('prod_value_previous_season_usd_value') +
                 $processorBuilder->sum('prod_value_previous_season_usd_value');
         }
-dd($results);
+
         return $results;
     }
 

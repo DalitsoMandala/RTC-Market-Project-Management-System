@@ -36,32 +36,42 @@ use App\Exports\RootTuberImport\RootTuberImportTemplate;
 use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
 use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
+use App\Models\RtcProductionFarmer;
 
 class TestingController extends Controller
 {
     use IndicatorsTrait;
-
-    public function testSubmissions(){
+use UsdRec
+    public function testSubmissions()
+    {
         return $this->notifyExpiredSubmissionPeriods();
     }
-public function addNewRole(){
-    Role::firstOrCreate([
-        'name' => 'monitor',
-    ]);
+    public function addNewRole()
+    {
+        Role::firstOrCreate([
+            'name' => 'monitor',
+        ]);
 
-    $user = new User();
-    $user->name = 'monitor';
-    $user->email = 'info@monitor.com';
-    $user->password = Hash::make('password');
-    $user->phone_number = '1234567890';
-    $user->organisation_id = 1;
-    $user->save();
+        $user = new User();
+        $user->name = 'monitor';
+        $user->email = 'info@monitor.com';
+        $user->password = Hash::make('password');
+        $user->phone_number = '1234567890';
+        $user->organisation_id = 1;
+        $user->save();
 
-    $user->assignRole('monitor');
+        $user->assignRole('monitor');
 
-    return response()->json(['status' => 'success']);
+        return response()->json(['status' => 'success']);
+    }
 
-}
+
+    public function fix(){
+//Production
+
+$production = RtcProductionFarmer::where('prod_value_previous_season_usd_value',0);
+
+    }
     public function test()
     {
 
@@ -132,44 +142,45 @@ public function addNewRole(){
     }
 
 
-    public function export(){
+    public function export()
+    {
         $user = auth()->user();
-          Excel::store(new ReportSheet($user),'public.xlsx','public');
+        Excel::store(new ReportSheet($user), 'public.xlsx', 'public');
 
 
-       // return Excel::download(new ReportSheet($user), 'report.xlsx');
+        // return Excel::download(new ReportSheet($user), 'report.xlsx');
     }
 
-    public function correctPeriods(){
-        $periods = ReportingPeriodMonth::with(['reportingPeriod'])->whereHas('reportingPeriod', function($q){
+    public function correctPeriods()
+    {
+        $periods = ReportingPeriodMonth::with(['reportingPeriod'])->whereHas('reportingPeriod', function ($q) {
             $q->where('name', 'QUARTERLY');
         })->get();
         foreach ($periods as $period) {
-            if($period->type =='QUARTER 1'){
+            if ($period->type == 'QUARTER 1') {
                 $period->update([
                     'start_month' => 'MAY',
                     'end_month' => 'JULY'
                 ]);
             }
-            if($period->type =='QUARTER 2'){
+            if ($period->type == 'QUARTER 2') {
                 $period->update([
                     'start_month' => 'AUGUST',
                     'end_month' => 'OCTOBER'
                 ]);
             }
-            if($period->type =='QUARTER 3'){
+            if ($period->type == 'QUARTER 3') {
                 $period->update([
                     'start_month' => 'NOVEMBER',
                     'end_month' => 'JANUARY'
                 ]);
             }
-            if($period->type =='QUARTER 4'){
+            if ($period->type == 'QUARTER 4') {
                 $period->update([
                     'start_month' => 'FEBRUARY',
                     'end_month' => 'APRIL'
                 ]);
             }
-
         }
     }
 
@@ -178,8 +189,9 @@ public function addNewRole(){
         return Excel::download(new RootTuberImportTemplate(true), 'import.xlsx');
     }
     use IndicatorsTrait;
-    public function notify(){
-      //return  $this->getEndingSoonSubmissionPeriods();
+    public function notify()
+    {
+        //return  $this->getEndingSoonSubmissionPeriods();
 
     }
 }
