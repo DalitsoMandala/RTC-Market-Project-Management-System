@@ -6,6 +6,7 @@ use App\Jobs\ReportJob;
 use App\Models\ReportStatus;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Reports extends Component
@@ -46,6 +47,14 @@ class Reports extends Component
         Artisan::call('update:information');
     }
 
+    public function reload()
+    {
+        $this->loading = true;
+    }
+
+
+
+
     public function checkProgress()
     {
         $status = ReportStatus::first();
@@ -58,6 +67,7 @@ class Reports extends Component
 
         if ($status->status === 'completed') {
             $this->loading = false;
+            $this->dispatch('report-completed');
         }
     }
 

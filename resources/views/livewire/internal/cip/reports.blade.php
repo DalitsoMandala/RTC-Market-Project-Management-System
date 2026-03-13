@@ -31,18 +31,26 @@
         </div>
 
         {{-- WARNING MESSAGE --}}
-        <div class="row">
+
+        <div class="row" x-data="{
+            show: false,
+            message: null,
+            call() {
+                $wire.call('reload');
+            }
+        }"
+            @export-fail.window="message = $event.detail.message; show = true; $wire.call('reload')"
+            @report-completed.window="show = false" x-show="show">
             <div class="col">
-                <div class="alert alert-success alert-border-left" x-ref="warningAlert" x-data x-init="() => {
-                    let object = $($refs.warningAlert);
-                    object.fadeTo(30000, 0).slideUp(500);
-                }">
+                <div class="alert alert-danger alert-border-left" x-ref="warningAlert">
 
                     <strong>Notice!</strong>
-                    You can now filter the report using filters inside the table.
+                    <span x-text="message"></span>
                 </div>
             </div>
         </div>
+
+
 
         {{-- REPORT CARD --}}
         <div class="card">
@@ -53,7 +61,8 @@
 
                 {{-- REFRESH BUTTON --}}
                 @hasanyrole('admin')
-                    <button class="btn btn-warning" wire:click="load" wire:loading.attr="disabled">
+                    <button class="btn btn-warning @if ($loading) disabled @endif"
+                        wire:loading.attr="disabled" wire:target="load()" wire:click="load" wire:loading.attr="disabled">
 
                         <i class="bx bx-refresh"></i>
                         Refresh Reports
@@ -70,13 +79,13 @@
                 @if ($loading)
                     <div class="p-3 text-center">
 
-                        <div class="fw-bold mb-2">
+                        <div class="mb-2 fw-bold">
                             Updating reports... {{ $progress }}%
                         </div>
 
                         <div class="progress">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                style="width: {{ $progress }}%">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                role="progressbar" style="width: {{ $progress }}%">
                             </div>
                         </div>
 
@@ -86,7 +95,7 @@
             </div>
 
             {{-- REPORT TABLE --}}
-            <div class="@if ($loading) pe-none opacity-50 @endif">
+            <div class="@if ($loading) pe-none opacity-50 @endif p-5">
 
                 <livewire:tables.rtc-market.report-table />
 
