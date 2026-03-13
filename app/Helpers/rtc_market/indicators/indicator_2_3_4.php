@@ -33,18 +33,6 @@ class indicator_2_3_4
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-
 
 
         return $this->applyFilters($query, true);
@@ -61,6 +49,7 @@ class indicator_2_3_4
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
+
 
 
 
@@ -87,6 +76,7 @@ class indicator_2_3_4
             });
         });
 
+
         return $data;
     }
     public function getDisaggregations()
@@ -95,7 +85,7 @@ class indicator_2_3_4
         $totals = $this->getTotals()->toArray();
 
         // Subtotal based on Cassava, Potato, and Sweet potato
-        $subTotal = $totals['Traders'] + $totals['Farmers'] + $totals['Transporters'];
+        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
         $totals['Total'] = $subTotal;
         return $totals;
     }
