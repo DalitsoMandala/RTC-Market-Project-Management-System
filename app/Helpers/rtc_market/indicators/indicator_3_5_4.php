@@ -2,11 +2,12 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
+use App\Models\HouseholdRtcConsumption;
 
 use App\Models\Indicator;
 use App\Models\SchoolRtcConsumption;
-use App\Models\HouseholdRtcConsumption;
+use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -34,7 +35,10 @@ class indicator_3_5_4
     }
     public function builder(): Builder
     {
-        $query = SchoolRtcConsumption::query()->where('status', 'approved');
+
+        $indicator = Indicator::where('indicator_name', 'Number of RTC utilization options (dishes) adopted by households (OC)')->first();
+
+        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
 
@@ -51,7 +55,7 @@ class indicator_3_5_4
         //     }
 
 
-        return $this->applyFilters($query,true);
+        return $this->applyFilters($query, true);
     }
 
     public function getTotals()
@@ -61,11 +65,13 @@ class indicator_3_5_4
 
         $indicator = Indicator::where('indicator_name', 'Number of RTC utilization options (dishes) adopted by households (OC)')
             ->first();
+
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
+
 
 
 

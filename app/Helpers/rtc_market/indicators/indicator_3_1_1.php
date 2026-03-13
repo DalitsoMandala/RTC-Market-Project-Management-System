@@ -36,33 +36,43 @@ class indicator_3_1_1
     |--------------------------------------------------------------------------
     */
 
-    public function builder(): Builder
-    {
-        $query = RtcProductionFarmer::query()
-            ->where('status', 'approved')
-            ->whereIn('group', ['Producer organization (PO)', 'Large scale farm'])
-            ->where('sector', 'Private');
+  public function builder(): Builder
+{
+    $query = RtcProductionFarmer::query()
+        ->where('status', 'approved')
+        ->whereIn('group', ['Producer organization (PO)', 'Large scale farm'])
+        ->where('sector', 'Private')
+        // Filter: Must be at least Fresh OR Processed
+        ->where(function ($q) {
+            $q->where('market_segment_fresh', true)
+              ->orWhere('market_segment_processed', true);
+        });
 
-        if ($this->enterprise) {
-            $query->where('enterprise', $this->enterprise);
-        }
-
-        return $this->applyFilters($query);
+    if ($this->enterprise) {
+        $query->where('enterprise', $this->enterprise);
     }
 
-    public function builderProcessor(): Builder
-    {
-        $query = RtcProductionProcessor::query()
-            ->where('status', 'approved')
-            ->whereIn('group', ['Producer organization (PO)', 'Large scale farm'])
-            ->where('sector', 'Private');
+    return $this->applyFilters($query);
+}
 
-        if ($this->enterprise) {
-            $query->where('enterprise', $this->enterprise);
-        }
+public function builderProcessor(): Builder
+{
+    $query = RtcProductionProcessor::query()
+        ->where('status', 'approved')
+        ->whereIn('group', ['Producer organization (PO)', 'Large scale farm'])
+        ->where('sector', 'Private')
+        // Same filter applied here
+        ->where(function ($q) {
+            $q->where('market_segment_fresh', true)
+              ->orWhere('market_segment_processed', true);
+        });
 
-        return $this->applyFilters($query);
+    if ($this->enterprise) {
+        $query->where('enterprise', $this->enterprise);
     }
+
+    return $this->applyFilters($query);
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -113,6 +123,7 @@ class indicator_3_1_1
         if ($this->enterprise) {
             $totals[$this->enterprise] = (clone $builder)
                 ->where('enterprise', $this->enterprise)
+
                 ->count();
             return $totals;
         }
@@ -195,24 +206,56 @@ class indicator_3_1_1
 
         return $total;
     }
+private function cropMarketCounts(Builder $builder)
+{
+    $result = [];
 
+    foreach ($this->crops as $crop) {
+        $cropQuery = (clone $builder)->where('enterprise', $crop);
+
+        $result[$crop] = [
+            'Total'     => $cropQuery->count(),
+            'Fresh'     => (clone $cropQuery)->where('market_segment_fresh', true)->count(),
+            'Processed' => (clone $cropQuery)->where('market_segment_processed', true)->count(),
+
+        ];
+    }
+
+    return $result;
+}
     /*
     |--------------------------------------------------------------------------
     | Final Disaggregation
     |--------------------------------------------------------------------------
     */
 
-    public function getDisaggregations()
-    {
-        $cropTotals = $this->getCropTotals();
-        $marketSegments = $this->getMarketSegmentTotal();
+   public function getDisaggregations()
+{
+    $farmerCounts = $this->cropMarketCounts($this->builder());
+    $processorCounts = $this->cropMarketCounts($this->builderProcessor());
 
-        return [
-            'Cassava' => $cropTotals['Cassava'],
-            'Potato' => $cropTotals['Potato'],
-            'Sweet potato' => $cropTotals['Sweet potato'],
-            'Fresh' => array_sum($marketSegments['Fresh']),
-            'Processed' => array_sum($marketSegments['Processed']),
-        ];
+    $crops = $this->crops;
+
+    $totals = [
+        'Total' => 0,
+        'Cassava' => 0,
+        'Potato' => 0,
+        'Sweet potato' => 0,
+        'Fresh' => 0,
+        'Processed' => 0,
+    ];
+
+    foreach ($crops as $crop) {
+        $totalCrop = ($farmerCounts[$crop]['Total'] ?? 0) + ($processorCounts[$crop]['Total'] ?? 0);
+        $freshCrop = ($farmerCounts[$crop]['Fresh'] ?? 0) + ($processorCounts[$crop]['Fresh'] ?? 0);
+        $processedCrop = ($farmerCounts[$crop]['Processed'] ?? 0) + ($processorCounts[$crop]['Processed'] ?? 0);
+
+        $totals[$crop] = $totalCrop;
+        $totals['Fresh'] += $freshCrop;
+        $totals['Processed'] += $processedCrop;
+        $totals['Total'] += $totalCrop;
     }
+
+    return $totals;
+}
 }

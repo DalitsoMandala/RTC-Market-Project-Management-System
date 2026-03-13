@@ -52,7 +52,9 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
+    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_3_5_4(null, 3, null, null);
 
+    dd($indicatorFile->getDisaggregations());
 })->name('test');
 
 
