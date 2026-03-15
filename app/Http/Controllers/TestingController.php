@@ -73,22 +73,22 @@ class TestingController extends Controller
         //Production
         ini_set('max_execution_time', 0); // Infinite execution time
         set_time_limit(0); // Infinite execution time
-        $production = RtcProductionFarmer::query()->where(function ($query) {
-            $query->where('prod_value_previous_season_total', 0)
-                ->orWhere('irr_prod_value_previous_season_total', 0);
-        })->where('status', 'approved');
+        $production = RtcProductionFarmer::query()->where('prod_value_previous_season_total', 0)
+        ->where('prod_value_previous_season_usd_rate',0)
+        ->where('prod_value_previous_season_usd_value',0)
+        ->where('status', 'approved');
         $class = new UsdReCalculations();
         return    $class->checkRowsThatHaveNoUsdValue($production, true);
     }
-
     public function fix2()
     {
         //Production
         ini_set('max_execution_time', 0); // Infinite execution time
         set_time_limit(0); // Infinite execution time
-        $production = RtcProductionProcessor::query()->where(function ($query) {
-            $query->where('prod_value_previous_season_total', 0);
-        })->where('status', 'approved');
+        $production = RtcProductionProcessor::query()
+           ->where('prod_value_previous_season_usd_rate',0)
+        ->where('prod_value_previous_season_usd_value',0)
+        ->where('status', 'approved');
         $class = new UsdReCalculations();
         return    $class->checkRowsThatHaveNoUsdValue($production, false);
     }
