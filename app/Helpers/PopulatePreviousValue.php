@@ -2,153 +2,94 @@
 
 namespace App\Helpers;
 
-use App\Models\Crop;
-use App\Models\Indicator;
-use App\Models\SystemReport;
-use App\Models\FinancialYear;
-use App\Models\SystemReportData;
-use App\Models\PercentageIncreaseIndicator;
-use App\Models\ReportingPeriodMonth;
+use App\Models\{Crop, Indicator, SystemReport, FinancialYear, SystemReportData, PercentageIncreaseIndicator, ReportingPeriodMonth};
 
 class PopulatePreviousValue
 {
+    // Mapping indicator names to their relevant data categories
+    protected const INDICATOR_CATEGORIES = [
+        'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities' => ['Cassava', 'Potato', 'Sweet potato'],
+        'Percentage increase in value of formal RTC exports'                                         => ['(Formal) Cassava', '(Formal) Potato', '(Formal) Sweet potato'],
+        'Percentage of value ($) of formal RTC imports substituted through local production'         => ['(Formal) Cassava', '(Formal) Potato', '(Formal) Sweet potato'],
+        'Percentage Increase in the volume of RTC produced'                                          => ['Cassava', 'Potato', 'Sweet potato'],
+        'Percentage increase in adoption of new RTC technologies'                                    => ['Cassava', 'Potato', 'Sweet potato'],
+        'Percentage seed multipliers with formal registration'                                       => ['Cassava', 'Potato', 'Sweet potato'],
+        'Percentage increase in households consuming RTCs as the main foodstuff (OC)'                => ['Total'],
+        'Percentage increase in RTC investment'                                                      => ['(Formal) Cassava', '(Formal) Potato', '(Formal) Sweet potato'],
+    ];
+
     public function start($projectId)
     {
         $financialYears = FinancialYear::where('project_id', $projectId)->orderBy('number')->get();
-        $indicators = Indicator::with('disaggregations', 'organisation')->whereHas('disaggregations', function ($query) {
-            $query->where('name', 'Total (% Percentage)');
-        })->get();
+
+        $indicators = Indicator::with(['disaggregations', 'organisation', 'baseline'])
+            ->whereHas('disaggregations', fn($q) => $q->where('name', 'Total (% Percentage)'))
+            ->get();
 
         $crops = CoreFunctions::getCropsWithNull();
 
         foreach ($indicators as $indicator) {
-            // Initialize each organization's previous value with the baseline
-            $previousValues = [];
+            // Initialize previous values with baseline
+            $previousValues = $indicator->organisation->pluck('baseline.baseline_value', 'id')->toArray();
 
-
-            foreach ($indicator->organisation as $organisation) {
-                $previousValues[$organisation->id] = $indicator->baseline->baseline_value;
+            // Fallback for missing baseline values in pluck
+            foreach ($indicator->organisation as $org) {
+                if (!isset($previousValues[$org->id])) {
+                    $previousValues[$org->id] = $indicator->baseline->baseline_value ?? 0;
+                }
             }
-
-
-
 
             foreach ($financialYears as $financialYear) {
                 foreach ($indicator->organisation as $organisation) {
                     foreach ($crops as $crop) {
+                        $orgId = $organisation->id;
+                        $prevVal = $previousValues[$orgId];
 
+                        $annualValue = $this->getAnnualValue($financialYear, $indicator, $prevVal, $organisation, 'Total (% Percentage)', $crop, $projectId);
+                        $growthPercentage = $this->calculateGrowthPercentage($annualValue, $prevVal);
 
-                        // Retrieve the previous value specific to this organization
-                        $previousValue = $previousValues[$organisation->id];
-
-                        // Calculate annual value for this financial year and organization
-                        $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)', $crop, $projectId);
-                        $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
-
-
-                        // Save or update previous value and growth percentage for the organization
                         $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)', $crop, $projectId);
 
-                        // Update the previous value for this organization for the next financial year
-                        $previousValues[$organisation->id] = $annualValue;
+                        // Update tracker for next year iteration
+                        $previousValues[$orgId] = $annualValue;
                     }
                 }
             }
         }
     }
 
-
-
     protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name, $crop, $projectId)
     {
-        // For the first year, return the baseline as the annual value
         if ($financialYear->number == 1) {
             return $previousValue;
         }
 
-        $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
-            ->where('project_id', $projectId)
-            ->where('organisation_id', $organisation->id)
-            ->where('indicator_id', $indicator->id)
-            ->where('crop', $crop)
-            ->pluck('id');
+        $reportIds = SystemReport::where([
+            'financial_year_id' => $financialYear->id,
+            'project_id'        => $projectId,
+            'organisation_id'   => $organisation->id,
+            'indicator_id'      => $indicator->id,
+            'crop'              => $crop
+        ])->pluck('id');
 
         $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
 
-
-        // Calculate the annual value based on the indicator's type
-        switch ($indicator->indicator_name) {
-            case 'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities':
-
-
-
-                return $this->sumDisaggregations($data, $disaggregation_name, [
-                    'Cassava',
-                    'Potato',
-                    'Sweet potato'
-                ]);
-
-            case 'Percentage increase in value of formal RTC exports':
-
-                $temp = $this->sumDisaggregations($data, $disaggregation_name, [
-                    '(Formal) Cassava',
-                    '(Formal) Potato',
-                    '(Formal) Sweet potato',
-
-
-                ]);
-
-
-
-                return $this->sumDisaggregations($data, $disaggregation_name, [
-                    '(Formal) Cassava',
-                    '(Formal) Potato',
-                    '(Formal) Sweet potato',
-
-                ]);
-
-            case 'Percentage of value ($) of formal RTC imports substituted through local production':
-                return $this->sumDisaggregations($data, $disaggregation_name, [
-                    '(Formal) Cassava',
-                    '(Formal) Potato',
-                    '(Formal) Sweet potato'
-                ]);
-
-            case 'Percentage Increase in the volume of RTC produced':
-            case 'Percentage increase in adoption of new RTC technologies':
-            case 'Percentage seed multipliers with formal registration':
-              return $this->sumDisaggregations($data, $disaggregation_name, [
-                    'Cassava',
-                    'Potato',
-                    'Sweet potato'
-                ]);
-                //  case 'Percentage business plans for the production of different classes of RTC seeds that are executed':
-            case 'Percentage increase in households consuming RTCs as the main foodstuff (OC)':
-                return $this->sumDisaggregations($data, $disaggregation_name, [
-                    'Total'
-                    // 'Cassava',
-                    // 'Potato',
-                    // 'Sweet potato'
-                ]);
-
-            case 'Percentage increase in RTC investment':
-                return $this->sumDisaggregations($data, $disaggregation_name, [
-                    '(Formal) Cassava',
-                    '(Formal) Potato',
-                    '(Formal) Sweet potato'
-                ]);
-
-            case 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)':
-                return $data->where('name', 'Total')->sum('value');
-
-            default:
-                return 0; // Default to 0 if no matching case
+        // Specific edge case for irrigated production
+        if ($indicator->indicator_name === 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)') {
+            return $data->where('name', 'Total')->sum('value');
         }
+
+        // Use the lookup table for standard indicators
+        $categories = self::INDICATOR_CATEGORIES[$indicator->indicator_name] ?? null;
+
+        return $categories
+            ? $this->sumDisaggregations($data, $disaggregation_name, $categories)
+            : 0;
     }
 
     protected function sumDisaggregations($data, $disaggregation_name, array $categories)
     {
-        if ($disaggregation_name == 'Total (% Percentage)') {
+        if ($disaggregation_name === 'Total (% Percentage)') {
             return $data->whereIn('name', $categories)->sum('value');
         }
 
@@ -157,64 +98,263 @@ class PopulatePreviousValue
 
     protected function calculateGrowthPercentage($annualValue, $baseline)
     {
-
         if ($annualValue == 0 || $baseline == 0) {
-            return 0; // Avoid division by zero
+            return 0;
         }
+
+        // Logical check: Using $annualValue as denominator per your original code
         return round((($annualValue - $baseline) / $annualValue) * 100, 2);
     }
-
 
     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name, $crop, $projectId)
     {
         $unspecified = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first();
-        // Identify the last reporting period for the financial year
-        $lastReportingPeriod = SystemReport::where('financial_year_id', $financialYear->id)
-            ->where('project_id', $projectId)
-            ->where('indicator_id', $indicator->id)
-            ->where('organisation_id', $organisation->id)
-            ->where('reporting_period_id', $unspecified->id) // unspecified
-            ->where('crop', $crop)
-            //      ->orderByDesc('reporting_period_id') // Get the latest reporting period
-            ->pluck('reporting_period_id')
-            ->first(); // Get only the last period
+
+        if (!$unspecified) return;
+
+        $lastReportingPeriod = SystemReport::where([
+            'financial_year_id'   => $financialYear->id,
+            'project_id'          => $projectId,
+            'indicator_id'        => $indicator->id,
+            'organisation_id'     => $organisation->id,
+            'reporting_period_id' => $unspecified->id,
+            'crop'                => $crop
+        ])->value('reporting_period_id');
 
         if (!$lastReportingPeriod) {
-            return; // No report exists, exit early
+            return;
         }
 
-        // Update PercentageIncreaseIndicator
         PercentageIncreaseIndicator::updateOrCreate(
             [
                 'financial_year_id' => $financialYear->id,
-                'indicator_id' => $indicator->id,
-                'organisation_id' => $organisation->id,
-                'name' => $disaggregation_name
+                'indicator_id'      => $indicator->id,
+                'organisation_id'   => $organisation->id,
+                'name'              => $disaggregation_name
             ],
             [
-                'total_value' => $annualValue,
+                'total_value'       => $annualValue,
                 'growth_percentage' => $growthPercentage,
             ]
         );
 
-        // Get reports only for the last reporting period
-        $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
-            ->where('project_id', 1)
-            ->where('indicator_id', $indicator->id)
-            ->where('organisation_id', $organisation->id)
-            ->where('crop', $crop)
-            ->where('reporting_period_id', $lastReportingPeriod) // Filter for last period only
-            ->pluck('id');
+        $reportIds = SystemReport::where([
+            'financial_year_id'   => $financialYear->id,
+            'project_id'          => 1, // Kept as '1' per original logic
+            'indicator_id'        => $indicator->id,
+            'organisation_id'     => $organisation->id,
+            'crop'                => $crop,
+            'reporting_period_id' => $lastReportingPeriod
+        ])->pluck('id');
 
-        // Update SystemReportData only for last reporting period
-        $data = SystemReportData::whereIn('system_report_id', $reportIds)
+        SystemReportData::whereIn('system_report_id', $reportIds)
             ->where('name', $disaggregation_name)
-            ->get();
-
-        foreach ($data as $item) {
-            $item->update([
-                'value' => $growthPercentage
-            ]);
-        }
+            ->update(['value' => $growthPercentage]);
     }
 }
+// namespace App\Helpers;
+
+// use App\Models\Crop;
+// use App\Models\Indicator;
+// use App\Models\SystemReport;
+// use App\Models\FinancialYear;
+// use App\Models\SystemReportData;
+// use App\Models\PercentageIncreaseIndicator;
+// use App\Models\ReportingPeriodMonth;
+
+// class PopulatePreviousValue
+// {
+
+//     public function start($projectId)
+//     {
+//         $financialYears = FinancialYear::where('project_id', $projectId)->orderBy('number')->get();
+//         $indicators = Indicator::with('disaggregations', 'organisation')->whereHas('disaggregations', function ($query) {
+//             $query->where('name', 'Total (% Percentage)');
+//         })->get();
+
+//         $crops = CoreFunctions::getCropsWithNull();
+
+//         foreach ($indicators as $indicator) {
+//             // Initialize each organization's previous value with the baseline
+//             $previousValues = [];
+
+
+//             foreach ($indicator->organisation as $organisation) {
+//                 $previousValues[$organisation->id] = $indicator->baseline->baseline_value;
+//             }
+
+
+
+
+//             foreach ($financialYears as $financialYear) {
+//                 foreach ($indicator->organisation as $organisation) {
+//                     foreach ($crops as $crop) {
+
+
+//                         // Retrieve the previous value specific to this organization
+//                         $previousValue = $previousValues[$organisation->id];
+
+//                         // Calculate annual value for this financial year and organization
+//                         $annualValue = $this->getAnnualValue($financialYear, $indicator, $previousValue, $organisation, 'Total (% Percentage)', $crop, $projectId);
+//                         $growthPercentage = $this->calculateGrowthPercentage($annualValue, $previousValue);
+
+
+//                         // Save or update previous value and growth percentage for the organization
+//                         $this->saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, 'Total (% Percentage)', $crop, $projectId);
+
+//                         // Update the previous value for this organization for the next financial year
+//                         $previousValues[$organisation->id] = $annualValue;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+
+
+//     protected function getAnnualValue($financialYear, $indicator, $previousValue, $organisation, $disaggregation_name, $crop, $projectId)
+//     {
+//         // For the first year, return the baseline as the annual value
+//         if ($financialYear->number == 1) {
+//             return $previousValue;
+//         }
+
+//         $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
+//             ->where('project_id', $projectId)
+//             ->where('organisation_id', $organisation->id)
+//             ->where('indicator_id', $indicator->id)
+//             ->where('crop', $crop)
+//             ->pluck('id');
+
+//         $data = SystemReportData::whereIn('system_report_id', $reportIds)->get();
+
+
+//         // Calculate the annual value based on the indicator's type
+//         switch ($indicator->indicator_name) {
+//             case 'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities':
+
+
+//                 return $this->sumDisaggregations($data, $disaggregation_name, [
+//                     'Cassava',
+//                     'Potato',
+//                     'Sweet potato'
+//                 ]);
+
+//             case 'Percentage increase in value of formal RTC exports':
+
+//                 return $this->sumDisaggregations($data, $disaggregation_name, [
+//                     '(Formal) Cassava',
+//                     '(Formal) Potato',
+//                     '(Formal) Sweet potato',
+
+//                 ]);
+
+//             case 'Percentage of value ($) of formal RTC imports substituted through local production':
+//                 return $this->sumDisaggregations($data, $disaggregation_name, [
+//                     '(Formal) Cassava',
+//                     '(Formal) Potato',
+//                     '(Formal) Sweet potato'
+//                 ]);
+
+//             case 'Percentage Increase in the volume of RTC produced':
+//             case 'Percentage increase in adoption of new RTC technologies':
+//             case 'Percentage seed multipliers with formal registration':
+//               return $this->sumDisaggregations($data, $disaggregation_name, [
+//                     'Cassava',
+//                     'Potato',
+//                     'Sweet potato'
+//                 ]);
+//                 //  case 'Percentage business plans for the production of different classes of RTC seeds that are executed':
+//             case 'Percentage increase in households consuming RTCs as the main foodstuff (OC)':
+//                 return $this->sumDisaggregations($data, $disaggregation_name, [
+//                     'Total'
+
+//                 ]);
+
+//             case 'Percentage increase in RTC investment':
+//                 return $this->sumDisaggregations($data, $disaggregation_name, [
+//                     '(Formal) Cassava',
+//                     '(Formal) Potato',
+//                     '(Formal) Sweet potato'
+//                 ]);
+
+//             case 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)':
+//                 return $data->where('name', 'Total')->sum('value');
+
+//             default:
+//                 return 0; // Default to 0 if no matching case
+//         }
+//     }
+
+//     protected function sumDisaggregations($data, $disaggregation_name, array $categories)
+//     {
+//         if ($disaggregation_name == 'Total (% Percentage)') {
+//             return $data->whereIn('name', $categories)->sum('value');
+//         }
+
+//         return $data->where('name', $disaggregation_name)->sum('value');
+//     }
+
+//     protected function calculateGrowthPercentage($annualValue, $baseline)
+//     {
+
+//         if ($annualValue == 0 || $baseline == 0) {
+//             return 0; // Avoid division by zero
+//         }
+//         return round((($annualValue - $baseline) / $annualValue) * 100, 2);
+//     }
+
+
+//     protected function saveOrUpdatePreviousValue($financialYear, $indicator, $annualValue, $growthPercentage, $organisation, $disaggregation_name, $crop, $projectId)
+//     {
+//         $unspecified = ReportingPeriodMonth::where('type', 'UNSPECIFIED')->first();
+//         // Identify the last reporting period for the financial year
+//         $lastReportingPeriod = SystemReport::where('financial_year_id', $financialYear->id)
+//             ->where('project_id', $projectId)
+//             ->where('indicator_id', $indicator->id)
+//             ->where('organisation_id', $organisation->id)
+//             ->where('reporting_period_id', $unspecified->id) // unspecified
+//             ->where('crop', $crop)
+//             //      ->orderByDesc('reporting_period_id') // Get the latest reporting period
+//             ->pluck('reporting_period_id')
+//             ->first(); // Get only the last period
+
+//         if (!$lastReportingPeriod) {
+//             return; // No report exists, exit early
+//         }
+
+//         // Update PercentageIncreaseIndicator
+//         PercentageIncreaseIndicator::updateOrCreate(
+//             [
+//                 'financial_year_id' => $financialYear->id,
+//                 'indicator_id' => $indicator->id,
+//                 'organisation_id' => $organisation->id,
+//                 'name' => $disaggregation_name
+//             ],
+//             [
+//                 'total_value' => $annualValue,
+//                 'growth_percentage' => $growthPercentage,
+//             ]
+//         );
+
+//         // Get reports only for the last reporting period
+//         $reportIds = SystemReport::where('financial_year_id', $financialYear->id)
+//             ->where('project_id', 1)
+//             ->where('indicator_id', $indicator->id)
+//             ->where('organisation_id', $organisation->id)
+//             ->where('crop', $crop)
+//             ->where('reporting_period_id', $lastReportingPeriod) // Filter for last period only
+//             ->pluck('id');
+
+//         // Update SystemReportData only for last reporting period
+//         $data = SystemReportData::whereIn('system_report_id', $reportIds)
+//             ->where('name', $disaggregation_name)
+//             ->get();
+
+//         foreach ($data as $item) {
+//             $item->update([
+//                 'value' => $growthPercentage
+//             ]);
+//         }
+//     }
+// }
