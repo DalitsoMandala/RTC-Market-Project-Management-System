@@ -73,7 +73,7 @@ class TestingController extends Controller
         //Production
         ini_set('max_execution_time', 0); // Infinite execution time
         set_time_limit(0); // Infinite execution time
-        $production = RtcProductionFarmer::query()->where('prod_value_previous_season_total', 0)
+        $production = RtcProductionFarmer::query()
         ->where('prod_value_previous_season_usd_rate',0)
         ->where('prod_value_previous_season_usd_value',0)
         ->where('status', 'approved');
