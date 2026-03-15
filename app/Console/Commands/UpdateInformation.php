@@ -72,11 +72,12 @@ class UpdateInformation extends Command
 
     private function resetReportStatus($reportStatus)
     {
+        $rand = rand(0,15);
         $reportStatus->update([
             'status' => 'pending',
-            'progress' => 0,
+            'progress' => $rand,
         ]);
-        Cache::put('report_progress', 0);
+        Cache::put('report_progress', $rand);
         Cache::put('report_status', 'pending');
     }
 

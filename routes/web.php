@@ -50,16 +50,17 @@ Route::get('/', fn() => redirect()->route('login'));
 ////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
 
 
-Route::get('/test', function () {
+// Route::get('/test', function () {
 
-    // $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_2_3_4(null, 3, null, null);
+//     // $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_2_3_4(null, 3, null, null);
 
-    // dd($indicatorFile->getDisaggregations());
-})->name('test');
+//     // dd($indicatorFile->getDisaggregations());
+// })->name('test');
 
 
-//Route::get('/test', [TestingController::class, 'fix'])->name('test');
+Route::get('/fix1', [TestingController::class, 'fix']);
 
+Route::get('/fix2', [TestingController::class, 'fix2']);
 ////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {

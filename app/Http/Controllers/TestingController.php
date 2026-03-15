@@ -23,6 +23,7 @@ use App\Models\ReportingPeriodMonth;
 use App\Models\ReportStatus;
 use App\Models\ResponsiblePerson;
 use App\Models\RtcProductionFarmer;
+use App\Models\RtcProductionProcessor;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
 use App\Models\User;
@@ -67,12 +68,28 @@ class TestingController extends Controller
     }
 
 
-    public function fix(){
-//Production
+    public function fix()
+    {
+        //Production
 
-$production = RtcProductionFarmer::query()->where('prod_value_previous_season_usd_value',0);
-$class = new UsdReCalculations();
-$class->checkRowsThatHaveNoUsdValue($production);
+        $production = RtcProductionFarmer::query()->where(function($query){
+            $query->where('prod_value_previous_season_total', 0)
+            ->orWhere('irr_prod_value_previous_season_total', 0);
+
+        })->where('status', 'approved')->take(1);
+        $class = new UsdReCalculations();
+    return    $class->checkRowsThatHaveNoUsdValue($production,true);
+    }
+
+     public function fix2()
+    {
+        //Production
+
+        $production = RtcProductionProcessor::query()->where(function($query){
+            $query->where('prod_value_previous_season_total', 0);
+        })->where('status', 'approved')->take(1);
+        $class = new UsdReCalculations();
+    return    $class->checkRowsThatHaveNoUsdValue($production,true);
     }
     public function test()
     {

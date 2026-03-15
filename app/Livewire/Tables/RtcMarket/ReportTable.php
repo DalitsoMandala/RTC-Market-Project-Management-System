@@ -71,7 +71,7 @@ final class ReportTable extends PowerGridComponent
     public function startExport()
     {
          if (!$this->checkReport()) {
-            $this->dispatch('export-fail', message:'Data is updating, please try again later.');
+            $this->dispatch('export-fail', message:'Data is updating, please wait a few minutes.');
             return;
         }
         $this->namedExport = 'report';
@@ -84,7 +84,7 @@ final class ReportTable extends PowerGridComponent
     public function startProgressExport()
     {
         if (!$this->checkReport()) {
-            $this->dispatch('export-fail', message:'Data is updating, please try again later.');
+            $this->dispatch('export-fail', message:'Data is updating, please wait a few minutes.');
             return;
         }
         $this->namedExport = 'summary';
