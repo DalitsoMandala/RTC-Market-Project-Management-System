@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace App\Helpers;
 
 use Exception;
@@ -13,25 +11,20 @@ use Illuminate\Support\Facades\Cache;
 
 class ExchangeRateHelper
 {
-    protected $apiKey = null;
+    protected $apiKey;
     protected $baseCurrency = 'USD';
 
     public function __construct()
     {
-        $this->apiKey = env('CURRENCY_BEACON_API');
+        $this->apiKey = config('services.currency_beacon.key');
     }
 
-    public function getRate($totalValue, $date)
+    public function getRate($totalValue = null, $date)
     {
         $date = Carbon::parse($date)->format('Y-m-d');
 
-        // Cache key unique to date and currency
-        $cacheKey = "exchange_rate_{$this->baseCurrency}_{$date}";
+        return Cache::remember("exchange_rate_{$date}", 86400, function () use ($date) {
 
-        // First, check if it's already in cache (super fast)
-        return Cache::remember($cacheKey, now()->addHours(24), function () use ($date) {
-
-            // Check if the rate exists in the database
             $rateRecord = ExchangeRate::where('date', $date)
                 ->where('currency', $this->baseCurrency)
                 ->first();
@@ -40,15 +33,16 @@ class ExchangeRateHelper
                 return $rateRecord->rate;
             }
 
-            // If not found in DB, request from the API
             try {
                 $url = "https://api.currencybeacon.com/v1/historical?api_key={$this->apiKey}&base={$this->baseCurrency}&date={$date}";
-                $response = Http::withoutVerifying()->get($url);
+                $response = Http::get($url);
 
-                if ($response->successful() && isset($response['response']['rates']['MWK'])) {
-                    $rate = $response['response']['rates']['MWK'];
+                $data = $response->json();
 
-                    // Save the rate in the database
+                if ($response->successful() && isset($data['response']['rates']['MWK'])) {
+
+                    $rate = $data['response']['rates']['MWK'];
+
                     ExchangeRate::updateOrCreate(
                         [
                             'currency' => $this->baseCurrency,
@@ -58,11 +52,16 @@ class ExchangeRateHelper
                     );
 
                     return $rate;
-                } else {
-                    throw new Exception('Exchange rate not found in API response.');
                 }
+
+                throw new Exception('Exchange rate not found.');
             } catch (Exception $e) {
-                Log::error('Exchange rate retrieval error: ' . $e->getMessage());
+
+                Log::error('Exchange rate retrieval error: ' . $e->getMessage(), [
+                    'date' => $date,
+                    'base_currency' => $this->baseCurrency
+                ]);
+
                 return null;
             }
         });

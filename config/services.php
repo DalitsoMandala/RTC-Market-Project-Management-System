@@ -17,6 +17,9 @@ return [
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
+    'currency_beacon' => [
+        'key' => env('CURRENCY_BEACON_API'),
+    ],
 
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
