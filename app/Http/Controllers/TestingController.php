@@ -89,7 +89,7 @@ class TestingController extends Controller
             $query->where('prod_value_previous_season_total', 0);
         })->where('status', 'approved')->take(1);
         $class = new UsdReCalculations();
-    return    $class->checkRowsThatHaveNoUsdValue($production,true);
+    return    $class->checkRowsThatHaveNoUsdValue($production,false);
     }
     public function test()
     {
