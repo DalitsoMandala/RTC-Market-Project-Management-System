@@ -47,7 +47,7 @@ use App\Helpers\UsdReCalculations;
 Route::get('/', fn() => redirect()->route('login'));
 
 
-////Route::get('/correct', [TestingController::class, 'correctPeriods'])->name('correct');
+
 
 
 // Route::get('/test', function () {
@@ -58,10 +58,7 @@ Route::get('/', fn() => redirect()->route('login'));
 // })->name('test');
 
 
-Route::get('/fix1', [TestingController::class, 'fix']);
 
-Route::get('/fix2', [TestingController::class, 'fix2']);
-////Route::get('/download-forms', [FormsExportController::class, 'export'])->name('download-forms');
 
 Route::get('/logout', function () {
 
