@@ -53,6 +53,13 @@ class indicator_B1
 
 
         return $this->applyFilters(RtcProductionFarmer::query()
+            ->whereIn('type', [
+                'Traders',
+                'Farmers',
+                'Processors',
+                'Aggregators',
+                'Transporters',
+            ])
             ->where('rtc_production_farmers.status', 'approved'));
     }
 
@@ -63,6 +70,13 @@ class indicator_B1
 
 
         return $this->applyFilters(RtcProductionProcessor::query()
+          ->whereIn('type', [
+                'Traders',
+                'Farmers',
+                'Processors',
+                'Aggregators',
+                'Transporters',
+            ])
             ->where('rtc_production_processors.status', 'approved'));
     }
 
@@ -102,28 +116,6 @@ class indicator_B1
 
 
 
-    public function findTotal()
-    {
-
-
-        $crop = $this->findCropCount();
-
-        $subTotal = $crop['cassava'] + $crop['sweet_potato'] + $crop['potato'];
-        $indicator = $this->findIndicator();
-        $baseline = $indicator->baseline->baseline_value ?? 0;
-        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
-        return $percentageIncrease->percentage();
-    }
-    public function findIndicator()
-    {
-        $indicator = Indicator::where('indicator_name', 'Percentage Increase in income ($ value) for RTC actors due to engagement in RTC activities')->where('indicator_no', 'B1')->first();
-        if (!$indicator) {
-            Logger::error('Indicator not found');
-            return null; // Or throw an exception if needed
-        }
-
-        return $indicator;
-    }
 
 
     public function findActorTotals()
@@ -148,6 +140,8 @@ class indicator_B1
                 $farmerBuilder->where('enterprise', $this->enterprise);
                 $processorBuilder->where('enterprise', $this->enterprise);
             }
+
+
 
             $results[$type] =
                 $farmerBuilder->sum('prod_value_previous_season_usd_value') +

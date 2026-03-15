@@ -50,12 +50,12 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 
-// Route::get('/test', function () {
+Route::get('/test', function () {
 
-//     // $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_2_3_4(null, 3, null, null);
+    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_B1(null, 3, null, null);
 
-//     // dd($indicatorFile->getDisaggregations());
-// })->name('test');
+    dd($indicatorFile->getDisaggregations());
+})->name('test');
 
 
 
