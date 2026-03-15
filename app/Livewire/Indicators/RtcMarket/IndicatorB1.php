@@ -20,6 +20,7 @@ class IndicatorB1 extends Component
     use \App\Traits\ViewIndicatorCalculationsTrait;
 
 
+
     public function render()
     {
         return view('livewire.indicators.rtc-market.indicator-b1');

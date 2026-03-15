@@ -264,47 +264,122 @@ class ReportExport extends ReportExportTemplate implements FromCollection, WithT
     /**
      * Get yearly values with error handling
      */
-    public function getYearlyValues(
-        ?string $crop,
-        $organisationId,
-        $financialYearId,
-        $indicatorId
-    ): array {
-        try {
-            $crop = $crop ?? 'All';
+    // public function getYearlyValues(
+    //     ?string $crop,
+    //     $organisationId,
+    //     $financialYearId,
+    //     $indicatorId
+    // ): array {
+    //     try {
+    //         $crop = $crop ?? 'All';
 
-            $reportIds = $this->applyFilters(
-                reporting_period_id: null,
-                financial_year_id: $financialYearId,
-                organisation_id: $organisationId,
-                enterprise: $crop,
-                indicator_id: $indicatorId
-            );
-            $reportIds = $reportIds->pluck('id');
+    //         $reportIds = $this->applyFilters(
+    //             reporting_period_id: null,
+    //             financial_year_id: $financialYearId,
+    //             organisation_id: $organisationId,
+    //             enterprise: $crop,
+    //             indicator_id: $indicatorId
+    //         );
+    //         $reportIds = $reportIds->pluck('id');
 
-            $reportData = SystemReportData::whereIn('system_report_id', $reportIds)->get();
-            $groupedData = $reportData->groupBy('name');
+    //         $reportData = SystemReportData::whereIn('system_report_id', $reportIds)->get();
+    //         $groupedData = $reportData->groupBy('name');
 
-            $disaggregationNames = IndicatorDisaggregation::where('indicator_id', $indicatorId)
-                ->pluck('name')
-                ->unique();
+    //         $disaggregationNames = IndicatorDisaggregation::where('indicator_id', $indicatorId)
+    //             ->pluck('name')
+    //             ->unique();
 
-            $data = $disaggregationNames->mapWithKeys(
-                fn($name) => [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : 0]
-            );
+    //         $data = $disaggregationNames->mapWithKeys(
+    //             function ($name) use ($groupedData, $indicatorId, $organisationId) {
 
-            return $data->toArray();
-        } catch (Exception $e) {
-            Log::error('Failed to get yearly values', [
-                'error' => $e->getMessage(),
+
+    //                 return [$name => $groupedData->has($name) ? $groupedData[$name]->sum('value') : 0];
+    //             }
+
+    //         );
+
+
+    //         return $data->toArray();
+    //     } catch (Exception $e) {
+    //         Log::error('Failed to get yearly values', [
+    //             'error' => $e->getMessage(),
+    //             'financial_year_id' => $financialYearId,
+    //             'indicator_id' => $indicatorId,
+    //             'sheet' => $this->sheetName
+    //         ]);
+    //         return [];
+    //     }
+    // }
+public function getYearlyValues(
+    ?string $crop,
+    $organisationId,
+    $financialYearId,
+    $indicatorId
+): array {
+    try {
+        $crop = $crop ?? 'All';
+
+        // 1. Fetch reports based on filters
+        $reportIds = $this->applyFilters(
+            reporting_period_id: null,
+            financial_year_id: $financialYearId,
+            organisation_id: $organisationId,
+            enterprise: $crop,
+            indicator_id: $indicatorId
+        );
+        $reportIds = $reportIds->pluck('id');
+
+        // 2. Fetch and group the raw report data
+        $reportData = SystemReportData::whereIn('system_report_id', $reportIds)->get();
+        $groupedData = $reportData->groupBy('name');
+
+        $disaggregationNames = IndicatorDisaggregation::where('indicator_id', $indicatorId)
+            ->pluck('name')
+            ->unique();
+
+        // 3. Map values: Use the direct value for percentages, sum for everything else
+        $data = $disaggregationNames->mapWithKeys(
+            function ($name) use ($groupedData) {
+                if (!$groupedData->has($name)) {
+                    return [$name => 0];
+                }
+
+                // If it's the percentage, take the direct value stored by your helper
+                if ($name === 'Total (% Percentage)') {
+                    return [$name => $groupedData[$name]->first()->value ?? 0];
+                }
+
+                // Default to sum for counts/volumes
+                return [$name => $groupedData[$name]->sum('value')];
+            }
+        )->toArray();
+
+        // 4. GLOBAL OVERWRITE:
+        // If viewing Global (ID 0 or "All"), get the mathematically correct weighted growth
+        if ($organisationId == 0 || is_null($organisationId)) {
+            $calculatedRecord = \App\Models\PercentageIncreaseIndicator::where([
+                'indicator_id'      => $indicatorId,
                 'financial_year_id' => $financialYearId,
-                'indicator_id' => $indicatorId,
-                'sheet' => $this->sheetName
-            ]);
-            return [];
-        }
-    }
+                'organisation_id'   => null, // Our Global identifier
 
+            ])->first();
+
+            if ($calculatedRecord) {
+                $data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
+            }
+        }
+
+        return $data;
+    } catch (Exception $e) {
+        Log::error('Failed to get yearly values', [
+            'error' => $e->getMessage(),
+            'financial_year_id' => $financialYearId,
+            'indicator_id' => $indicatorId,
+            'sheet' => $this->sheetName
+        ]);
+        return [];
+    }
+}
     public function map($item): array
     {
         try {

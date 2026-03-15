@@ -47,6 +47,10 @@ class indicator_B1
         $this->organisation_id = $organisation_id;
         $this->enterprise = $enterprise;
     }
+
+    public function getPercentage(){
+
+    }
     public function Farmerbuilder(): Builder
     {
 
