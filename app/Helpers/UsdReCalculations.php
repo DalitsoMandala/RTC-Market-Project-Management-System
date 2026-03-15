@@ -99,7 +99,7 @@ class UsdReCalculations
                         'prod_value_previous_season_usd_value' => $prodUsd['usd_value'],
                     ];
 
-                    if (!$production) {
+                    if ($production) {
 
                         $irrTotal = $this->calculateTotalProduction(
                             produce: $this->ensureNumeric($row->irr_prod_value_previous_season_produce),
