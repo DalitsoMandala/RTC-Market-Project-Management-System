@@ -50,19 +50,19 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 
-// Route::get('/test', function () {
-
-//     $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_B1(null, 2, null, null);
-
-//     dd($indicatorFile->getDisaggregations());
-// })->name('test');
-
 Route::get('/test', function () {
 
-    $indicatorFile = new \App\Helpers\PopulatePreviousValue();
+    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1b(null, 3, null, null);
 
-    dd($indicatorFile->start(1));
+    dd($indicatorFile->getDisaggregations());
 })->name('test');
+
+// Route::get('/test', function () {
+
+//     $indicatorFile = new \App\Helpers\PopulatePreviousValue();
+
+//     dd($indicatorFile->start(1));
+// })->name('test');
 
 
 Route::get('/logout', function () {

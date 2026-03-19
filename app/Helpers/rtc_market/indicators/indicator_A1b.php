@@ -232,68 +232,116 @@ class indicator_A1b
 
         return $totals;
     }
+    // public function getDisaggregations()
+    // {
+    //     // Base totals without filters
+    //     $baseTotals = $this->getTotalSum();
+
+    //     // Initialize result with base totals
+    //     $result = [
+    //         'Total' => $baseTotals['employees'] + $baseTotals['members'],
+    //         'Male' => $baseTotals['male'],
+    //         'Female' => $baseTotals['female'],
+    //         'Youth (18-35 yrs)' => $baseTotals['youth'],
+    //         'Not youth (35yrs+)' => $baseTotals['not_youth'],
+    //         'Employees on RTC establishment' => $baseTotals['employees'],
+    //     ];
+
+    //     // Only calculate these if no enterprise filter is set
+    //     if (!$this->enterprise) {
+    //         $result = array_merge($result, [
+    //         'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
+    //         'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
+    //         'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
+    //         ]);
+    //     } else {
+    //         // Add filtered enterprise with original key name
+    //         $result[$this->enterprise] = $baseTotals['employees'] + $baseTotals['members'];
+    //     }
+
+    //     // Always include these categories
+    //     $result = array_merge($result, [
+    //         'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
+    //         'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
+    //         'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
+    //         'Aggregators' => $this->getTotalSum(type: 'Aggregators')['employees'] + $this->getTotalSum(type: 'Aggregators')['members'],
+    //         'Transporters' => $this->getTotalSum(type: 'Transporters')['employees'] + $this->getTotalSum(type: 'Transporters')['members'],
+    //         'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
+    //         'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
+    //     ]);
+
+    //     return $result;
+    // }
+
+
+    // public function getDisaggregations()
+    // {
+
     public function getDisaggregations()
     {
-        // Base totals without filters
         $baseTotals = $this->getTotalSum();
 
-        // Initialize result with base totals
+        // Preload actor values (avoids repeated queries)
+        $farmers = $this->getTotalSum(type: 'Farmers');
+        $processors = $this->getTotalSum(type: 'Processors');
+        $aggregators = $this->getTotalSum(type: 'Aggregators');
+        $transporters = $this->getTotalSum(type: 'Transporters');
+        $traders = $this->getTotalSum(type: 'Traders');
+
+        // ✅ Actors = MEMBERS ONLY
+        // Actor members
+        $actorMembersTotal =
+            $farmers['members'] +
+            $processors['members'] +
+            $aggregators['members'] +
+            $transporters['members'];
+
+        // Trader members ONLY (important fix)
+        $traderMembers = $traders['members'];
+
+        // All employees (already includes traders)
+        $employeesTotal = $baseTotals['employees'];
+
+        // ✅ FINAL TOTAL (NO DOUBLE COUNTING)
+        $total =
+            $actorMembersTotal +
+            $traderMembers +
+            $employeesTotal;
+
         $result = [
-            'Total' => $baseTotals['employees'] + $baseTotals['members'],
+            'Total' => $total,
+
             'Male' => $baseTotals['male'],
             'Female' => $baseTotals['female'],
             'Youth (18-35 yrs)' => $baseTotals['youth'],
             'Not youth (35yrs+)' => $baseTotals['not_youth'],
-            'Employees on RTC establishment' => $baseTotals['employees'],
+
+            'Employees on RTC establishment' => $employeesTotal,
+
+            // ✅ Actors (members only)
+            'Farmers' => $farmers['members'],
+            'Processors' => $processors['members'],
+            'Aggregators' => $aggregators['members'],
+            'Transporters' => $transporters['members'],
+
+            // ✅ Traders (full count for A1b)
+            'Traders' => $traderMembers,
+
+            'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
+            'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
         ];
 
-        // Only calculate these if no enterprise filter is set
+        // Crop breakdown (unchanged logic, already correct)
         if (!$this->enterprise) {
             $result = array_merge($result, [
-            'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
-            'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
-            'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
+                'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
+                'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
+                'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
             ]);
         } else {
-            // Add filtered enterprise with original key name
             $result[$this->enterprise] = $baseTotals['employees'] + $baseTotals['members'];
         }
 
-        // Always include these categories
-        $result = array_merge($result, [
-            'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
-            'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
-            'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
-            'Aggregators' => $this->getTotalSum(type: 'Aggregators')['employees'] + $this->getTotalSum(type: 'Aggregators')['members'],
-            'Transporters' => $this->getTotalSum(type: 'Transporters')['employees'] + $this->getTotalSum(type: 'Transporters')['members'],
-            'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
-            'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
-        ]);
-
         return $result;
     }
-
-    
-    // public function getDisaggregations()
-    // {
-
-
-
-    //     return [
-    //         'Total' => $this->getTotalSum()['employees'] + $this->getTotalSum()['members'],
-    //         'Cassava' => $this->getTotalSum(enterprise: 'Cassava')['employees'] + $this->getTotalSum(enterprise: 'Cassava')['members'],
-    //         'Potato' => $this->getTotalSum(enterprise: 'Potato')['employees'] + $this->getTotalSum(enterprise: 'Potato')['members'],
-    //         'Sweet potato' => $this->getTotalSum(enterprise: 'Sweet potato')['employees'] + $this->getTotalSum(enterprise: 'Sweet potato')['members'],
-    //         'Farmers' => $this->getTotalSum(type: 'Farmers')['employees'] + $this->getTotalSum(type: 'Farmers')['members'],
-    //         'Traders' => $this->getTotalSum(type: 'Traders')['employees'] + $this->getTotalSum(type: 'Traders')['members'],
-    //         'Processors' => $this->getTotalSum(type: 'Processors')['employees'] + $this->getTotalSum(type: 'Processors')['members'],
-    //         'Male' => $this->getTotalSum()['male'],
-    //         'Female' => $this->getTotalSum()['female'],
-    //         'Youth (18-35 yrs)' => $this->getTotalSum()['youth'],
-    //         'Not youth (35yrs+)' => $this->getTotalSum()['not_youth'],
-    //         'Employees on RTC establishment' => $this->getTotalSum()['employees'],
-    //         'New establishment' => $this->getTotalSum(estType: 'New')['employees'] + $this->getTotalSum(estType: 'New')['members'],
-    //         'Old establishment' => $this->getTotalSum(estType: 'Old')['employees'] + $this->getTotalSum(estType: 'Old')['members'],
-    //     ];
-    // }
 }

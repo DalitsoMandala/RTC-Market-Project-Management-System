@@ -48,6 +48,8 @@ trait ExportTrait
             ->dispatch();
 
         $this->batchID = $batch->id;
+ $this->dispatch('exporting-reports');
+
     }
 
 
@@ -95,12 +97,16 @@ trait ExportTrait
                             ]);
                         }
                     }
+
+
                 }
 
                 if ($this->Modelname === 'seedBeneficiaries' && !empty($this->excelData) && array_key_exists('crop_type', $this->excelData)) {
                     $this->dispatch('download-export' . '_' . str_replace(' ', '_', $this->excelData['crop_type']));
                     return;
                 }
+                   $this->dispatch('finished-reports');
+                   sleep(1);
                 $this->dispatch('download-export');
             }
         }

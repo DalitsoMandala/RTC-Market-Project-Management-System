@@ -70,21 +70,27 @@ final class ReportTable extends PowerGridComponent
     #[On('export-report')]
     public function startExport()
     {
-         if (!$this->checkReport()) {
-            $this->dispatch('export-fail', message:'Data is updating, please wait a few minutes.');
+
+        if (!$this->checkReport()) {
+            $this->dispatch('export-fail', message: 'Data is updating, please wait a few minutes.');
+
             return;
         }
         $this->namedExport = 'report';
         $this->execute($this->namedExport);
         $this->performExport();
+
+
     }
+
+
 
 
     #[On('export-report')]
     public function startProgressExport()
     {
         if (!$this->checkReport()) {
-            $this->dispatch('export-fail', message:'Data is updating, please wait a few minutes.');
+            $this->dispatch('export-fail', message: 'Data is updating, please wait a few minutes.');
             return;
         }
         $this->namedExport = 'summary';

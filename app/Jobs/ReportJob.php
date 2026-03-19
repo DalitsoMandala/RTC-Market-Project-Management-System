@@ -57,7 +57,7 @@ class ReportJob implements ShouldQueue
 
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
-            : ReportingPeriodMonth::pluck('id')->toArray();
+            : ReportingPeriodMonth::where('type','!=', 'UNSPECIFIED')->pluck('id')->toArray();
 
         $financialYears = $this->financial_year_id
             ? [$this->financial_year_id]

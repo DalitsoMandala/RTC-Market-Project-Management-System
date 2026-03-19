@@ -57,11 +57,18 @@
 
             <x-card-header>Reports</x-card-header>
 
-            <div class="card-body">
+            <div class="card-body" x-data="{
+            exporting: false
+            }">
 
                 {{-- REFRESH BUTTON --}}
                 @hasanyrole('admin')
-                    <button class="btn btn-warning @if ($loading) disabled @endif"
+                    <button :class="{
+                        'disabled' : exporting === true
+                    }"
+                    @exporting-reports.window="exporting=true"
+                    @finished-reports.window="exporting=false"
+                    class="btn btn-warning @if ($loading) disabled @endif"
                         wire:loading.attr="disabled" wire:target="load()" wire:click="load" wire:loading.attr="disabled">
 
                         <i class="bx bx-refresh"></i>
@@ -105,3 +112,4 @@
 
     </div>
 </div>
+

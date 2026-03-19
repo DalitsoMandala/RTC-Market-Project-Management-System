@@ -367,6 +367,16 @@ public function getYearlyValues(
             if ($calculatedRecord) {
                 $data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
             }
+        }else{
+              $calculatedRecord = \App\Models\PercentageIncreaseIndicator::where([
+                'indicator_id'      => $indicatorId,
+                'financial_year_id' => $financialYearId,
+                'organisation_id'   => $organisationId, // Our Global identifier
+
+            ])->first();
+                if ($calculatedRecord) {
+                $data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
+            }
         }
 
         return $data;

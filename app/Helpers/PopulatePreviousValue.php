@@ -152,21 +152,21 @@ class PopulatePreviousValue
         );
 
         // Only update SystemReportData for actual organisations (skip Global null)
-        if ($orgId) {
-            $reportIds = SystemReport::where([
-                'financial_year_id'   => $financialYear->id,
-                'project_id'          => $projectId,
-                'indicator_id'        => $indicator->id,
-                'organisation_id'     => $orgId,
-                'crop'                => $crop,
-                'reporting_period_id' => $unspecified->id,
-            ])->pluck('id');
+        // if ($orgId) {
+        //     $reportIds = SystemReport::where([
+        //         'financial_year_id'   => $financialYear->id,
+        //         'project_id'          => $projectId,
+        //         'indicator_id'        => $indicator->id,
+        //         'organisation_id'     => $orgId,
+        //         'crop'                => $crop,
+        //         'reporting_period_id' => $unspecified->id,
+        //     ])->pluck('id');
 
-            if ($reportIds->isNotEmpty()) {
-                SystemReportData::whereIn('system_report_id', $reportIds)
-                    ->where('name', $disaggregation_name)
-                    ->update(['value' => $growthPercentage]);
-            }
-        }
+        //     if ($reportIds->isNotEmpty()) {
+        //         SystemReportData::whereIn('system_report_id', $reportIds)
+        //             ->where('name', $disaggregation_name)
+        //             ->update(['value' => $growthPercentage]);
+        //     }
+        // }
     }
 }

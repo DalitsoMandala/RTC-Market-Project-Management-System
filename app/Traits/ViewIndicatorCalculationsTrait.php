@@ -97,6 +97,17 @@ trait ViewIndicatorCalculationsTrait
         if ($calculatedRecord) {
             $this->data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
         }
+    }else{
+     $calculatedRecord = \App\Models\PercentageIncreaseIndicator::where([
+            'indicator_id'      => $this->indicator_id,
+            'financial_year_id' => $this->financial_year['id'],
+            'organisation_id'   => $this->organisation['id'],
+
+        ])->first();
+
+        if ($calculatedRecord) {
+            $this->data['Total (% Percentage)'] = $calculatedRecord->growth_percentage;
+        }
     }
 
     // 5. Final assignment
