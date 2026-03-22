@@ -52,9 +52,12 @@ Route::get('/', fn() => redirect()->route('login'));
 
 Route::get('/test', function () {
 
-    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1b(null, 3, null, null);
-
-    dd($indicatorFile->getDisaggregations());
+    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1(null, 3, null, null);
+    return response()->json([
+        'Actor Gender Disaggregation' => $indicatorFile->getActorGenderDisaggregation(),
+        'Total Disaggregation' => $indicatorFile->getDisaggregations(),
+    ]);
+;
 })->name('test');
 
 // Route::get('/test', function () {
