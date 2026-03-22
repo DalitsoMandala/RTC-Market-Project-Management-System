@@ -217,6 +217,7 @@ class ListUsers extends Component
         $this->password = null;
         $this->password_confirmation = null;
         $this->changePassword = true;
+        $this->file = null;
     }
 
 

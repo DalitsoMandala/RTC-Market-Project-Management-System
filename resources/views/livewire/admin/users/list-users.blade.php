@@ -26,14 +26,14 @@
                 <!-- Nav tabs -->
 
                 <div>
-
+   <x-alerts />
 
                     <ul class="nav nav-tabs" id="myTab" role="tablist" wire:ignore>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="users-tab" data-bs-toggle="tab"
                                 data-bs-target="#users-list" type="button" role="tab" aria-controls="home"
                                 aria-selected="true">
-                                Users
+                                Users List
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -53,7 +53,7 @@
                             <div class="row">
                                 <div class="col-12">
 
-                                    <x-alerts />
+
                                     <div class="shadow-md card" x-data="{
                                         showForm: false,
                                         resetForm() {
@@ -63,16 +63,14 @@
                                         showUploadForm: false,
 
                                     }" @edit.window="showForm=true;">
-                                        <div class="card-header card-title fw-bold border-bottom-0 ">
-                                            Users List
-                                        </div>
+
 
 
                                         <div
-                                            class="card-header d-flex justify-content-between align-items-center @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+                                            class="card-header d-flex justify-content-end align-items-center @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
 
                                             <div>
-                                                <button class="px-3 btn"
+                                                <button class="px-3 btn btn-sm"
                                                     :class="{ 'btn-secondary': showForm, 'btn-warning': !showForm }"
                                                     :disabled="showUploadForm"
                                                     @click="showForm= !showForm; resetForm()">
@@ -80,7 +78,7 @@
                                                         x-show="!showForm">Add New User <i
                                                             class="bx bx-plus"></i></span></span>
                                                 </button>
-                                                <button class="px-3 btn"
+                                                <button class="px-3 btn btn-sm"
                                                     :class="{ 'btn-secondary': showUploadForm, 'btn-warning': !showUploadForm }"
                                                     :disabled="showForm" @click="showUploadForm= !showUploadForm;">
                                                     <span x-show="showUploadForm">Cancel <i
@@ -268,7 +266,7 @@
                                         </div>
 
                                         <div class="card-header" x-show="showUploadForm" x-data="uploadUsers">
-                                            <x-alerts />
+
                                             <form id="uploadForm" @submit.prevent="uploadData()">
                                                 <div class="mb-3">
                                                     <label for="fileInput" class="form-label">Upload Excel
@@ -293,7 +291,7 @@
                                                             :disabled="uploading" class="btn btn-warning">Upload
                                                             data</button>
                                                         <button type="button" class="btn btn-secondary"
-                                                            @click="showUploadForm = false; resetForm();">Close</button>
+                                                            wire:click="showUploadForm = false; resetForm();">Close</button>
 
                                                     </div>
                                                 </div>
