@@ -159,23 +159,8 @@
             </div>
         </div>
         <div class="row gx-2 gy-2">
-
-            <!-- Crop Distribution -->
-            <div class="col-12 col-xl-4">
-                <div class="shadow-sm card h-100">
-                    <div class="border-0 card-header">
-                        <h5 class="card-title">Crop Distribution</h5>
-                    </div>
-                    <div class="card-body">
-
-                        <div id="cropChart" x-show='!hasZeroValues(cropChart)'></div>
-                        <x-no-data x-show='hasZeroValues(cropChart)' />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Profession Distribution -->
-            <div class="col-12 col-xl-8">
+       <!-- Profession Distribution -->
+            <div class="col-12 col-xl-12">
                 <div class="shadow-sm card h-100">
                     <div class="border-0 card-header ">
                         <h5 class="card-title">Actor Distribution</h5>
@@ -188,8 +173,23 @@
                 </div>
             </div>
 
+            <!-- Crop Distribution -->
+            <div class="col-12 col-xl-6">
+                <div class="shadow-sm card h-100">
+                    <div class="border-0 card-header">
+                        <h5 class="card-title">Crop Distribution</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <div id="cropChart" x-show='!hasZeroValues(cropChart)'></div>
+                        <x-no-data x-show='hasZeroValues(cropChart)' />
+                    </div>
+                </div>
+            </div>
+
+
             <!-- Establishment Distribution -->
-            <div class="col-12 col-xl-12">
+            <div class="col-12 col-xl-6">
                 <div class="shadow-sm card h-100">
                     <div class="border-0 card-header">
                         <h5 class="card-title">Establishment Distribution</h5>
@@ -242,10 +242,12 @@
 
 
 
-                this.professionChart = [data.Farmers, data.Processors, data.Traders];
+                this.professionChart = [data.Farmers, data.Processors, data.Traders, data.Aggregators, data
+                    .Transporters, data['Employees on RTC establishment']
+                ];
                 this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
                 this.establishmentChart = [
-                    data['Employees on RTC establishment'],
+
                     data['New establishment'],
                     data['Old establishment']
                 ];
@@ -304,7 +306,8 @@
                         enabled: true,
 
                         style: {
-                            colors: [SystemColors[3]]
+                            colors: [SystemColors[3]],
+
                         },
 
                         background: {
@@ -322,7 +325,7 @@
                         name: 'Value',
                         data: this.professionChart
                     }],
-                       // BAR = white, LINE = red
+                    // BAR = white, LINE = red
                     colors: ['#FFEAD8', '#FF5656'],
 
                     // Stroke: outline for bars + line color
@@ -338,7 +341,9 @@
                         }
                     },
                     xaxis: {
-                        categories: ['Farmers', 'Processors', 'Traders'],
+                        categories: ['Farmers', 'Processors', 'Traders', 'Aggregators', 'Transporters',
+                            'Employees'
+                        ],
 
                     },
 
@@ -353,7 +358,12 @@
                     },
                     colors: SystemColors,
                     series: this.cropChart,
-                    labels: ['Cassava', 'Potato', 'Sweet Potato']
+                    labels: ['Cassava', 'Potato', 'Sweet Potato'],
+                    legend: {
+                        position: 'bottom', // Available options: 'top', 'right', 'bottom', 'left'
+                        fontSize: '12px',
+
+                    },
                 });
                 this.cropChartInstance.render();
 
@@ -364,7 +374,7 @@
                         height: 300,
 
                     },
-     dataLabels: {
+                    dataLabels: {
                         enabled: true,
 
                         style: {
@@ -389,7 +399,7 @@
                         }
                     },
 
-                      // BAR = white, LINE = red
+                    // BAR = white, LINE = red
                     colors: ['#FFEAD8', '#FF5656'],
 
                     // Stroke: outline for bars + line color
@@ -409,7 +419,7 @@
                         data: this.establishmentChart
                     }],
                     xaxis: {
-                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment'],
+                        categories: ['New Establishment', 'Old Establishment'],
 
                     },
 

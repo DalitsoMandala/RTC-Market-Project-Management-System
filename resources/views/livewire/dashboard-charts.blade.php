@@ -31,7 +31,7 @@
 
                         setTimeout(() => {
                             this.visible = true
-                        }, 5000)
+                        }, 1000)
                     },
 
                 }">
@@ -73,7 +73,7 @@
                 setTimeout(() => {
 
                     $wire.dispatch('showCharts');
-                }, 5000)
+                }, 1000)
             }">
 
 
@@ -164,7 +164,7 @@
 
 
                     <div class="row">
-                        <div class="col-12 col-xl-7 d-flex align-items-stretch">
+                        <div class="col-12 col-xl-6 d-flex align-items-stretch">
                             <div class="card w-100">
                                 <div class="card-header">
                                     <div class="align-items-center d-flex justify-content-between">
@@ -183,13 +183,13 @@
                                 <div class="p-0 overflow-scroll card-body" style="max-height: 400px">
                                     <div class="table-responsive">
                                         <table class="table align-middle table-striped table-hover ">
-                                            <thead class="table-secondary">
+                                            <thead class="table-secondary" >
 
                                                 <tr>
                                                     <th>Username</th>
                                                     <th>Email</th>
-                                                    <th>Phone Number</th>
-                                                    <th>Status</th>
+                                                    <th>Organisation</th>
+
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -205,11 +205,8 @@
 
                                                         </td>
                                                         <td>{{ $user->email }}</td>
-                                                        <td>{{ $user->phone_number }}</td>
-                                                        <td>{!! $user->deleted_at == null
-                                                            ? '<span class="badge bg-success">Active</span>'
-                                                            : '<span class="badge bg-danger">Inactive</span>' !!}
-                                                        </td>
+                                                        <td>{{ $user->organisation->name }}</td>
+
                                                     </tr>
                                                 @endforeach
                                                 @if (count($users) == 0)
@@ -228,7 +225,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-xl-5 d-flex align-items-stretch">
+                        <div class="col-12 col-xl-6 d-flex align-items-stretch">
                             <div class="card w-100">
                                 <div class="card-header fw-bold">
                                     <div class="align-items-center d-flex justify-content-between">
@@ -272,7 +269,7 @@
                                                         </td>
                                                         <td>{{ $item->user->organisation->name }}</td>
                                                         <td>{{ $item->user->name }}</td>
-                                                        <td>{{ $item->created_at->format('d/m/Y') }}</td>
+                                                        <td>{{ $item->created_at->format('d/m/Y H:i A') }}</td>
 
                                                     </tr>
                                                 @endforeach
