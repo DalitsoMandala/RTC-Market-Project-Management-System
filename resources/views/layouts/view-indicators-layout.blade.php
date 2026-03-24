@@ -37,12 +37,54 @@
     <!-- end page title -->
 
     <div class="my-2 row">
-        <div class="col-12 col-md-6">
-            <h5 class="mb-3 h3">{{ $indicator_name }} ({{ $indicator_no }} )</h5>
+        <div class="col-12 col-md-6 d-flex align-items-end">
+
+            <div class="dropdown open d-flex align-items-end custom-tooltip" title="Choose different indicator">
+                <a class="px-0 mb-0 btn dropdown-toggle fw-semibold fs-5" type="button" id="triggerId"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ $indicator_name }} ({{ $indicator_no }} ) <i class="ms-2 bx bx-chevron-down"></i>
+                </a>
+                <div class="dropdown-menu " aria-labelledby="triggerId">
+                    @php
+                        $user = auth()->user()->roles()->first()->name;
+                        $link = '';
+                        switch ($user) {
+                            case 'admin':
+                                $link = 'admin-indicator-view';
+                                break;
+                            case 'manager':
+                                $link = 'cip-indicator-view';
+                                break;
+                            case 'project_manager':
+                                $link = 'project_manager-indicator-view';
+                                break;
+                            case 'staff':
+                                $link = 'staff-indicator-view';
+                                break;
+                            case 'monitor':
+                                $link = 'monitor-indicator-view';
+                                break;
+                            case 'enumerator':
+                                $link = 'enumerator-indicator-view';
+                                break;
+                            case 'external':
+                                $link = 'external-indicator-view';
+                                break;
+                        }
+
+                    @endphp
+                    @foreach (\App\Models\Indicator::get() as $ind)
+                        <a class="dropdown-item" href="{{ route($link, ['id' => $ind->id]) }}">({{ $ind->indicator_no }})
+                            {{ $ind->indicator_name }} ({{ $ind->indicator_no }})</a>
+                    @endforeach
+                </div>
+            </div>
+
         </div>
         <div class="flex-wrap col-12 col-md-6 d-flex justify-content-end ">
-<div class="mb-1 d-flex justify-content-end col-12">    <i class="bx bx-filter fs-5 me-2 text-warning"></i>
-                                <span class="fw-semibold text-dark">Filters</span></div>
+            <div class="mb-1 d-flex justify-content-end col-12"> <i class="bx bx-filter fs-5 me-2 text-body"></i>
+                <span class="fw-semibold text-dark">Filters</span>
+            </div>
 
             <div class="dropdown mb-1 @if (auth()->user()->hasAnyRole('external')) d-none @endif" x-data="{
                 Organisation: $wire.entangle('selectedOrganisation'),
@@ -131,7 +173,7 @@
                 </div>
             </div>
 
-    <div class="mb-1 dropdown" x-data="{
+            <div class="mb-1 dropdown" x-data="{
                 selectedCrop: $wire.entangle('selectedCrop'),
                 crops: $wire.entangle('crops'),
                 setData(value) {
@@ -200,7 +242,7 @@
 
                     'financial_year' => $selectedFinancialYear,
                     'organisation' => $selectedOrganisation,
-                    'crop' => $selectedCrop['value']
+                    'crop' => $selectedCrop['value'],
                 ])
             @else
                 <div class="d-flex justify-content-center align-items-center">

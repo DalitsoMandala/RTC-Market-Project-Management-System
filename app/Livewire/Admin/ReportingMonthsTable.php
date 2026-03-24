@@ -55,7 +55,7 @@ final class ReportingMonthsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Start month', 'start_month')
                 ->sortable()
                 ->searchable(),

@@ -130,7 +130,7 @@ final class RtcConsumptionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn')->sortable()->searchable(),
+            Column::make('#', 'rn')->sortable()->searchable(),
             Column::make('Entity ID', 'en_id')->searchable(),
             Column::make('Entity Name', 'entity_name', 'entity_name')->searchable(),
             Column::make('Entity Type', 'entity_type', 'entity_type')->sortable()->searchable(),

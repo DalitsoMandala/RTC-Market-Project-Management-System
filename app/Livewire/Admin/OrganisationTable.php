@@ -52,7 +52,7 @@ final class OrganisationTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')->sortable(),
+            Column::make('#', 'id')->sortable(),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),

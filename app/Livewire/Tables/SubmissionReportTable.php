@@ -127,7 +127,7 @@ final class SubmissionReportTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable(),
                    Column::make('File', 'file'),
             Column::make('Indicator', 'indicator_id'),
             Column::make('Project year', 'financial_year_id'),

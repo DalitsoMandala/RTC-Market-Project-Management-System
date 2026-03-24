@@ -55,7 +55,7 @@ final class IndicatorTargetDetailsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Indicator target id', 'indicator_target_id'),
             Column::make('Name', 'name')
                 ->sortable()

@@ -163,7 +163,7 @@ final class TargetTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
 
             Column::make('Lead Partner', 'organisation')->bodyAttribute(styleAttr: 'max-width:200px; white-space: wrap;'),
             Column::make('Indicator', 'indicator')->bodyAttribute(styleAttr: 'max-width:200px; white-space: wrap;'),

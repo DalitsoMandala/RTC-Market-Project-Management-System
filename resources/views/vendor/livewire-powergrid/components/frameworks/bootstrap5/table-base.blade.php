@@ -5,13 +5,13 @@
         ])
     </div>
     <div
-        class="{{ data_get($theme, 'table.divClass') }}"
+        class="{{ data_get($theme, 'table.divClass') }} border rounded-3 "
         style="{{ data_get($theme, 'table.divStyle') }}"
     >
         @include($table)
     </div>
     <div class="row">
-        <div class="col-12 overflow-auto">
+        <div class="overflow-auto col-12">
             @include(data_get($theme, 'footer.view'), ['theme' => $theme])
         </div>
     </div>

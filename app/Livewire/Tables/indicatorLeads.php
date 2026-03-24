@@ -78,7 +78,7 @@ final class indicatorLeads extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Organisation', 'organisation'),
             Column::make('Indicator', 'indicator'),
             Column::make('Forms', 'forms'),

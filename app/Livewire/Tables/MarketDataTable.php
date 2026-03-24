@@ -101,7 +101,7 @@ final class MarketDataTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn'),
+            Column::make('#', 'rn'),
 
             Column::make('Entry date', 'entry_date_formatted', 'entry_date')
                 ->sortable(),

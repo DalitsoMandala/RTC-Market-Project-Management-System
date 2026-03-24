@@ -137,7 +137,7 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable(),
             Column::make('District', 'district', 'district')
                 ->sortable()
 

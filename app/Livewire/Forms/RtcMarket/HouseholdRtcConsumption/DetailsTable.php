@@ -50,7 +50,7 @@ final class DetailsTable extends PowerGridComponent
             $data['id'] = $count++;
             $anotherArray[] = $data;
         }
-  
+
         return collect($anotherArray);
     }
 
@@ -117,7 +117,7 @@ final class DetailsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Enterprise', 'enterprise'),
             Column::make('District', 'district'),
             Column::make('EPA', 'epa'),

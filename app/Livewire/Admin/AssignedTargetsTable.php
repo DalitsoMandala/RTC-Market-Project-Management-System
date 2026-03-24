@@ -98,7 +98,7 @@ final class AssignedTargetsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Indicator', 'indicator'),
             Column::make('Financial year', 'financial_year'),
             Column::make('Project', 'project'),

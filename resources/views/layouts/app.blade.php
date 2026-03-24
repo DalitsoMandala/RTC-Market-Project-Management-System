@@ -399,6 +399,27 @@
             .chip:hover {
                 background: #e5e7eb;
             }
+
+
+            .custom-rounded-table {
+                border-collapse: separate !important;
+                border-spacing: 0;
+                border-radius: 0.5rem;
+                /* Matches Bootstrap rounded-3 */
+                overflow: hidden;
+                /* Ensures contents obey border radius */
+            }
+
+            /* Ensure borders look right */
+            .custom-rounded-table thead th,
+            .custom-rounded-table tbody td {
+                border-bottom: 1px solid #dee2e6;
+                /* Bootstrap border color */
+            }
+
+            .custom-rounded-table tbody tr:last-child td {
+                border-bottom: none;
+            }
         </style>
         <!-- Scripts -->
         @vite(['resources/js/app.js', 'resources/css/app.css'])

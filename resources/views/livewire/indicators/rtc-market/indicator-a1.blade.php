@@ -67,7 +67,7 @@
 
 
                     </div>
-                    <div class="col-md-6 col-12">
+                    <div class="col-md-6 col-12 d-none">
                         <div class="card">
                             <div class="card-header card-title fw-bold border-bottom-0">
                                 <h5 class="card-title">Gender Distribution</h5>
@@ -136,10 +136,10 @@
 
                 this.genderChart = [data.Female, data.Male];
 
-                this.professionChart = [data.Farmers, data.Processors, data.Traders];
+                this.professionChart = [data.Farmers, data.Processors, data.Traders,data.Aggregators,data.Transporters,data['Employees on RTC establishment']];
                 this.cropChart = [data.Cassava, data.Potato, data['Sweet potato']];
                 this.establishmentChart = [
-                    data['Employees on RTC establishment'],
+
                     data['New establishment'],
                     data['Old establishment']
                 ];
@@ -191,7 +191,7 @@
                     }],
 
                     xaxis: {
-                        categories: ['Farmers', 'Processors', 'Traders'],
+                        categories: ['Farmers', 'Processors', 'Traders','Aggregators','Transporters','Employees'],
 
                     },
 
@@ -236,7 +236,7 @@
                         data: this.establishmentChart,
                     }],
                     xaxis: {
-                        categories: ['Employees on RTC', 'New Establishment', 'Old Establishment'],
+                        categories: [ 'New Establishment', 'Old Establishment'],
 
                     },
 

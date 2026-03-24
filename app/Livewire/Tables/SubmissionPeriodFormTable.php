@@ -176,7 +176,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         $user = User::find(auth()->user()->id);
         if ($user->hasAnyRole('external')) {
             return [
-                Column::make('Id', 'rn'),
+                Column::make('#', 'rn'),
                 Column::make('Name', 'name'),
                 Column::make('Submission Status', 'status'),
 
@@ -184,7 +184,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ];
         }
         return [
-            Column::make('Id', 'rn')->headerAttribute('table-secondary table-bordered'),
+            Column::make('#', 'rn')->headerAttribute('table-secondary table-bordered'),
             Column::make('Name', 'name')->headerAttribute('table-secondary table-bordered'),
             Column::make('Submission Status', 'status')->headerAttribute('table-secondary table-bordered'),
             Column::make('Submissions (Per Organisation)', 'submisssions')->headerAttribute('table-secondary table-bordered'),

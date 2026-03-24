@@ -55,7 +55,7 @@ final class JobTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Uuid', 'uuid')
                 ->sortable()
                 ->searchable(),

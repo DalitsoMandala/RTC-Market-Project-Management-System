@@ -195,7 +195,7 @@ class DashboardCharts extends Component
     private function  loadLastSubmissions()
     {
 
-        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(5)->orderBy('created_at', 'desc')->get();
+        $this->lastSubmission = Submission::query()->with(['period.indicator', 'user.organisation', 'user',  'period.reportingMonths', 'form', 'period.financialYears'])->take(4)->orderBy('created_at', 'desc')->get();
     }
 
     private function loadAttendanceData()
@@ -210,13 +210,13 @@ class DashboardCharts extends Component
             'indicators'
         ])
             ->whereNot('name', 'REPORT FORM')
-            ->take(5)
+            ->take(4)
             ->get();
     }
 
     private function loadUsers()
     {
-        $this->users = User::with('roles')->inRandomOrder()->take(5)->get();
+        $this->users = User::with('roles')->take(4)->orderBy('created_at', 'desc')->get();
     }
     public function render()
     {

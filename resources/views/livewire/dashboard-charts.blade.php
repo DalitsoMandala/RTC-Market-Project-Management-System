@@ -180,8 +180,10 @@
                                     </div>
                                 </div>
 
-                                <div class="p-0 overflow-scroll card-body" style="max-height: 400px">
-                                    <div class="table-responsive">
+                                <div class=" card-body" style="max-height: 400px">
+                                    <!-- Some borders are removed -->
+
+                                    <div class="overflow-hidden border table-responsive rounded-3">
                                         <table class="table align-middle table-striped table-hover ">
                                             <thead class="table-secondary" >
 
@@ -199,12 +201,13 @@
                                                         <td scope="row" class="py-4">
                                                             <div class="d-flex align-items-center">
                                                                 <img src="{{ $user->image == null ? asset('assets/images/users/usr.png') : asset('storage/profiles/' . $user->image) }}"
-                                                                    class="avatar-sm rounded-circle " alt="...">
+                                                                    class="avatar-sm rounded-circle object-fit-cover " alt="..."
+                                                                 >
                                                                 <span class="ms-2">{{ $user->name }}</span>
                                                             </div>
 
                                                         </td>
-                                                        <td>{{ $user->email }}</td>
+                                                        <td> <a href="mailto:{{ $user->email }}" style="text-decoration: underline !important;" class="text-dark">{{ $user->email }}</a></td>
                                                         <td>{{ $user->organisation->name }}</td>
 
                                                     </tr>
@@ -240,8 +243,8 @@
                                     </div>
 
                                 </div>
-                                <div class="p-0 overflow-scroll card-body" style="max-height: 400px">
-                                    <div class="table-responsive">
+                                <div class="card-body" style="max-height: 400px">
+                                    <div class="overflow-hidden border table-responsive rounded-3">
                                         <table class="table align-middle table-striped table-hover ">
                                             <thead class="table-secondary">
                                                 <tr>
@@ -258,10 +261,8 @@
                                                     <tr>
                                                         <td scope="row" class="py-4">
                                                             <div class="d-flex align-items-center">
-                                                                <div
-                                                                    class="text-white avatar-sm bg-warning rounded-circle me-1 d-flex align-items-center justify-content-center">
-                                                                    <i class="bx bx-folder-plus"></i>
-                                                                </div>
+                                                                <img src="{{ asset('assets/images/icons/sheet.png')  }}"
+                                                                    class="avatar-sm " alt="...">
                                                                 <span class="ms-2">
                                                                     {{ \Str::limit($item->form->name, 20, '...') }}</span>
                                                             </div>

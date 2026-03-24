@@ -18,7 +18,7 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-
+use Illuminate\Pagination\Paginator;
 final class UserTable extends PowerGridComponent
 {
     use WithExport;
@@ -40,10 +40,13 @@ final class UserTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return User::with([
+        return User::query()->with([
             'organisation',
             'roles'
-        ])->withTrashed();
+        ])->withTrashed()->select([
+            'users.*',
+DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -116,6 +119,7 @@ final class UserTable extends PowerGridComponent
                     return '<span class="badge bg-danger-subtle text-danger" >Deleted</span>';
                 }
             })
+
             ->add('created_at')
             ->add('updated_at');
     }
@@ -123,7 +127,7 @@ final class UserTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'rn', 'rn')->sortable(),
             Column::make('Name', 'name_image', 'name')
                 ->sortable()
                 ->searchable()->visibleInExport(false),
