@@ -163,7 +163,7 @@ final class IndicatorTable extends PowerGridComponent
         $showActionColumn = false; // Set this variable based on your condition
 
         $columns = [
-            Column::make('Id', 'id')
+            Column::make('#', 'id')
                 ->sortable(),
             Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
 

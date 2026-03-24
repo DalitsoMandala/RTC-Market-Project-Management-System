@@ -326,7 +326,7 @@ final class ReportTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')->hidden()->visibleInExport(false),
+            Column::make('#', 'id')->hidden()->visibleInExport(false),
             // Column::make('Indicator #', 'number', 'indicator_no')
             //     ->searchable(),
             Column::make('Indicator Name', 'indicator_name')

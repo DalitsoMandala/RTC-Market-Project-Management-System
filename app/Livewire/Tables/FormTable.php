@@ -92,7 +92,7 @@ final class FormTable extends PowerGridComponent
                 //     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 // }
 
-                return '<a class="text-decoration-underline custom-tooltip" title="View Form Data"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
+                return '<a class="text-decoration-underline custom-tooltip text-body" title="View Form Data"  href="forms/' . $project . '/' . $form_name . '/view" >' . ($model->name) . '</a>';
             })
             ->add('type')
             ->add('project_id')
@@ -113,10 +113,10 @@ final class FormTable extends PowerGridComponent
                 $projectManager = User::find(auth()->user()->id)->hasAllRoles(['manager', 'project_manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS') {
-                    return '<a class="btn btn-warning btn-sm custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i> </a>';
+                    return '<a class="btn text-body btn-sm custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i> </a>';
                 }
 
-                return '<a class="btn btn-warning btn-sm disabled custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i></a>';
+                return '<a class="btn text-body btn-sm disabled custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i></a>';
             })
             ->add('created_at')
             ->add('updated_at');

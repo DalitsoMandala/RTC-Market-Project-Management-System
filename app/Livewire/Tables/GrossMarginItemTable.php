@@ -70,7 +70,7 @@ public $row;
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn'),
+            Column::make('#', 'rn'),
 Column::make('Name of Producer', 'gross_margin_name','gross_margins.name'),
             Column::make('Item name', 'item_name')
                 ->sortable()

@@ -26,7 +26,7 @@
                 <!-- Nav tabs -->
 
                 <div>
-   <x-alerts />
+                    <x-alerts />
 
                     <ul class="nav nav-tabs" id="myTab" role="tablist" wire:ignore>
                         <li class="nav-item" role="presentation">
@@ -251,381 +251,383 @@
                                                             wire:model="password_confirmation">
                                                     </div>
                                                 </div>
-
-                                                <button type="submit" class="btn btn-warning goUp">
-                                                    @if ($rowId)
-                                                        Update
-                                                    @else
-                                                        Submit
-                                                    @endif
-                                                </button>
-                                                <button type="button" class="btn btn-secondary"
-                                                    @click="showForm = false; resetForm(); ">Close</button>
+                                                <div class="gap-1 d-flex justify-content-end">
+                                                    <button type="submit"  wire:loading.attr='disabled' class="btn btn-warning goUp">
+                                                        @if ($rowId)
+                                                            Update
+                                                        @else
+                                                            Submit
+                                                        @endif
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" wire:loading.attr='disabled'
+                                                        @click="showForm = false; resetForm(); ">Close</button>
 
                                             </form>
                                         </div>
 
-                                        <div class="card-header" x-show="showUploadForm" x-data="uploadUsers">
 
-                                            <form id="uploadForm" @submit.prevent="uploadData()">
-                                                <div class="mb-3">
-                                                    <label for="fileInput" class="form-label">Upload Excel
-                                                        File</label>
-                                                    <input class="form-control @error('file') is-invalid @enderror "
-                                                        wire:model="file" type="file" id="fileInput"
-                                                        accept=".xlsx, .xls">
+                                    </div>
+
+                                    <div class="card-header" x-show="showUploadForm" x-data="uploadUsers">
+
+                                        <form id="uploadForm" @submit.prevent="uploadData()">
+                                            <div class="mb-3">
+                                                <label for="fileInput" class="form-label">Upload Excel
+                                                    File</label>
+                                                <input class="form-control @error('file') is-invalid @enderror "
+                                                    wire:model="file" type="file" id="fileInput"
+                                                    accept=".xlsx, .xls">
+                                            </div>
+
+
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <button @able-button.window="uploading = false"
+                                                        :disabled="uploading" type="button"
+                                                        @click.debounce.200ms="downloadTemplate()"
+                                                        id="downloadTemplate" wire:loading.attr='disabled'
+                                                        wire:target='usersData' class="btn btn-warning">Download
+                                                        Template</button>
                                                 </div>
+                                                <div>
+                                                    <button type="submit" @able-button.window="uploading = false"
+                                                        :disabled="uploading" class="btn btn-warning">Upload
+                                                        data</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        wire:click="showUploadForm = false; resetForm();">Close</button>
 
-
-                                                <div class="d-flex justify-content-between">
-                                                    <div>
-                                                        <button @able-button.window="uploading = false"
-                                                            :disabled="uploading" type="button"
-                                                            @click.debounce.200ms="downloadTemplate()"
-                                                            id="downloadTemplate" wire:loading.attr='disabled'
-                                                            wire:target='usersData' class="btn btn-warning">Download
-                                                            Template</button>
-                                                    </div>
-                                                    <div>
-                                                        <button type="submit" @able-button.window="uploading = false"
-                                                            :disabled="uploading" class="btn btn-warning">Upload
-                                                            data</button>
-                                                        <button type="button" class="btn btn-secondary"
-                                                            wire:click="showUploadForm = false; resetForm();">Close</button>
-
-                                                    </div>
                                                 </div>
-                                            </form>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="card-body">
+                                        <livewire:admin.user-table />
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div x-data x-init="$wire.on('showModal-delete', (e) => {
+
+                                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                                myModal.show();
+                            })">
+
+
+                                <x-modal id="view-delete-modal" title="Delete record">
+                                    <form>
+
+                                        <p class="mb-0 text-center">Are you sure you want to delete this record?
+                                        </p>
+                                        <p class="text-center ">ID: {{ $this->rowId }}</p>
+                                        <div class="gap-1 mt-3 d-flex justify-content-center">
+                                            <button type="button" class="px-5 btn btn-secondary"
+                                                data-bs-dismiss="modal">No</button>
+                                            <button type="button" class="px-5 btn btn-theme-red"
+                                                wire:click='deleteUser'>Yes</button>
+
+                                        </div>
+                                    </form>
+                                </x-modal>
+
+                            </div>
+
+                            <div x-data x-init="$wire.on('showModal-restore', (e) => {
+
+                                const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
+                                myModal.show();
+                            })
+
+
+                            $wire.on('refresh', (e) => {
+                                const modals = document.querySelectorAll('.modal.show');
+
+                                // Iterate over each modal and hide it using Bootstrap's modal hide method
+                                modals.forEach(modal => {
+                                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                                    if (modalInstance) {
+                                        modalInstance.hide();
+                                    }
+                                });
+                            })">
+
+
+                                <x-modal id="view-restore-modal" title="Restore record">
+                                    <form>
+                                        <p class="mb-0 text-center">Are you sure you want to restore this record?
+                                        </p>
+                                        <p class="text-center ">ID: {{ $this->rowId }}</p>
+                                        <div class="gap-1 mt-3 d-flex justify-content-center">
+                                            <button type="button" class="px-5 btn btn-secondary"
+                                                data-bs-dismiss="modal">No</button>
+                                            <button type="button" class="px-5 btn btn-success"
+                                                wire:click='restoreUser'>Yes</button>
+
+                                        </div>
+                                    </form>
+                                </x-modal>
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                    <div wire:ignore.self class="tab-pane" id="send-email" role="tabpanel"
+                        aria-labelledby="email-tab">
+                        <!--Send Emails Tab-->
+                        <div class="row @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+                            <div class="col-12">
+                                <div>
+
+                                    <div class="shadow-md card">
+                                        <div class="card-header card-title fw-bold border-bottom-0 ">
+                                            Send Emails
                                         </div>
                                         <div class="card-body">
-                                            <livewire:admin.user-table />
-                                        </div>
-                                    </div>
-                                </div>
 
 
-
-                                <div x-data x-init="$wire.on('showModal-delete', (e) => {
-
-                                    const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-                                    myModal.show();
-                                })">
-
-
-                                    <x-modal id="view-delete-modal" title="Delete record">
-                                        <form>
-
-                                            <p class="mb-0 text-center">Are you sure you want to delete this record?
-                                            </p>
-                                            <p class="text-center ">ID: {{ $this->rowId }}</p>
-                                            <div class="gap-1 mt-3 d-flex justify-content-center">
-                                                <button type="button" class="px-5 btn btn-secondary"
-                                                    data-bs-dismiss="modal">No</button>
-                                                <button type="button" class="px-5 btn btn-theme-red"
-                                                    wire:click='deleteUser'>Yes</button>
-
-                                            </div>
-                                        </form>
-                                    </x-modal>
-
-                                </div>
-
-                                <div x-data x-init="$wire.on('showModal-restore', (e) => {
-
-                                    const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
-                                    myModal.show();
-                                })
-
-
-                                $wire.on('refresh', (e) => {
-                                    const modals = document.querySelectorAll('.modal.show');
-
-                                    // Iterate over each modal and hide it using Bootstrap's modal hide method
-                                    modals.forEach(modal => {
-                                        const modalInstance = bootstrap.Modal.getInstance(modal);
-                                        if (modalInstance) {
-                                            modalInstance.hide();
-                                        }
-                                    });
-                                })">
-
-
-                                    <x-modal id="view-restore-modal" title="Restore record">
-                                        <form>
-                                            <p class="mb-0 text-center">Are you sure you want to restore this record?
-                                            </p>
-                                            <p class="text-center ">ID: {{ $this->rowId }}</p>
-                                            <div class="gap-1 mt-3 d-flex justify-content-center">
-                                                <button type="button" class="px-5 btn btn-secondary"
-                                                    data-bs-dismiss="modal">No</button>
-                                                <button type="button" class="px-5 btn btn-success"
-                                                    wire:click='restoreUser'>Yes</button>
-
-                                            </div>
-                                        </form>
-                                    </x-modal>
-
-                                </div>
-
-
-
-                            </div>
-                        </div>
-                        <div wire:ignore.self class="tab-pane" id="send-email" role="tabpanel"
-                            aria-labelledby="email-tab">
-                            <!--Send Emails Tab-->
-                            <div class="row @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
-                                <div class="col-12">
-                                    <div>
-
-                                        <div class="shadow-md card">
-                                            <div class="card-header card-title fw-bold border-bottom-0 ">
-                                                Send Emails
-                                            </div>
-                                            <div class="card-body">
-
-
-                                                <form wire:submit="sendEmails">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Subject</label>
-                                                        <input type="text" wire:model="subject"
-                                                            class="form-control @error('subject') is-invalid @enderror"
-                                                            placeholder="Enter email subject">
-                                                        @error('subject')
-                                                            <x-error>{{ $message }}</x-error>
-                                                        @enderror
-                                                    </div>
-
-                                                    <div class="mb-3" wire:ignore>
-                                                        <label class="form-label">Message</label>
-                                                        <p class="p-1 fs-6 bg-info-subtle">Use <span
-                                                                class="fw-bold">_email_name_</span>
-                                                            to display the user's name when sending the email
-                                                            [<em>example: Hello _email_name_</em>] and it will display
-                                                            like
-                                                            this: <span class="fw-bold">Hello John Doe</span>
-                                                        </p>
-                                                        <div id="editor" style="height: 250px;"></div>
-                                                    </div>
-
-                                                    @error('message')
+                                            <form wire:submit="sendEmails">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Subject</label>
+                                                    <input type="text" wire:model="subject"
+                                                        class="form-control @error('subject') is-invalid @enderror"
+                                                        placeholder="Enter email subject">
+                                                    @error('subject')
                                                         <x-error>{{ $message }}</x-error>
                                                     @enderror
+                                                </div>
 
-                                                    <div class="mb-3">
-                                                        <div x-data="{
-                                                            usersByRole: @entangle('usersByRole'),
-                                                            searchTerms: {}, // Store search terms for each role
-                                                            filteredUsers(role) {
-                                                                return this.usersByRole[role].filter(user => {
-                                                                    const term = this.searchTerms[role]?.toLowerCase() || '';
-                                                                    return user.name.toLowerCase().includes(term) || user.organisation.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
-                                                                });
-                                                            },
-                                                            removeUser(role, userId) {
-                                                                this.usersByRole[role] = this.usersByRole[role].filter(u => u.id !== userId);
-                                                                // Clear the filter for the role when a user is removed
-                                                                this.searchTerms[role] = '';
-                                                            }
-                                                        }" x-init="$watch('usersByRole', (v) => {})"
-                                                            class="space-y-4">
-                                                            <!-- Role Checkboxes -->
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Select Roles</label>
-                                                                <div class="flex-wrap gap-3 d-flex"
-                                                                    wire:loading.class='opacity-50 pe-none'>
-                                                                    @foreach ($allRoles as $role)
-                                                                        <div class="form-check">
-                                                                            <input
-                                                                                class="form-check-input @error('selectedRoles') is-invalid @enderror"
-                                                                                type="checkbox"
-                                                                                wire:model.live="selectedRoles"
-                                                                                value="{{ $role }}">
-                                                                            <label class="form-check-label">
-                                                                                {{ $role === 'project_manager' ? 'Project Manager' : ucfirst($role) }}
-                                                                            </label>
-                                                                        </div>
-                                                                    @endforeach
-                                                                </div>
-                                                                @error('selectedRoles')
-                                                                    <x-error>{{ $message }}</x-error>
-                                                                @enderror
+                                                <div class="mb-3" wire:ignore>
+                                                    <label class="form-label">Message</label>
+                                                    <p class="p-1 fs-6 bg-info-subtle">Use <span
+                                                            class="fw-bold">_email_name_</span>
+                                                        to display the user's name when sending the email
+                                                        [<em>example: Hello _email_name_</em>] and it will display
+                                                        like
+                                                        this: <span class="fw-bold">Hello John Doe</span>
+                                                    </p>
+                                                    <div id="editor" style="height: 250px;"></div>
+                                                </div>
 
+                                                @error('message')
+                                                    <x-error>{{ $message }}</x-error>
+                                                @enderror
 
-                                                            </div>
-                                                            <div wire:target='selectedRoles'
-                                                                wire:loading.class='opacity-25 pe-none'>
-                                                                <!-- User Filter for Each Role -->
-                                                                <template
-                                                                    x-for="[role, users] in Object.entries(usersByRole)"
-                                                                    :key="role">
-                                                                    <div class="role-group">
-                                                                        <h4
-                                                                            x-text="role.charAt(0).toUpperCase() + role.slice(1)">
-                                                                        </h4>
-
-                                                                        <!-- Filter Input per Role -->
-                                                                        <div class="mb-3">
-                                                                            <input type="text"
-                                                                                x-model="searchTerms[role]"
-                                                                                class="rounded form-control w-25"
-                                                                                :placeholder="'Filter ' + role.charAt(0)
-                                                                                .toUpperCase() + role.slice(1)">
-                                                                        </div>
-
-                                                                        <div class="user-chips">
-                                                                            <!-- Display filtered users for each role -->
-                                                                            <template
-                                                                                x-for="user in filteredUsers(role)"
-                                                                                :key="user.id">
-                                                                                <button class="chip"
-                                                                                    @click.prevent="removeUser(role, user.id)"
-                                                                                    x-text="`${user.name} (${user.organisation})  <${user.email}> ✕`"></button>
-                                                                            </template>
-                                                                        </div>
+                                                <div class="mb-3">
+                                                    <div x-data="{
+                                                        usersByRole: @entangle('usersByRole'),
+                                                        searchTerms: {}, // Store search terms for each role
+                                                        filteredUsers(role) {
+                                                            return this.usersByRole[role].filter(user => {
+                                                                const term = this.searchTerms[role]?.toLowerCase() || '';
+                                                                return user.name.toLowerCase().includes(term) || user.organisation.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
+                                                            });
+                                                        },
+                                                        removeUser(role, userId) {
+                                                            this.usersByRole[role] = this.usersByRole[role].filter(u => u.id !== userId);
+                                                            // Clear the filter for the role when a user is removed
+                                                            this.searchTerms[role] = '';
+                                                        }
+                                                    }" x-init="$watch('usersByRole', (v) => {})"
+                                                        class="space-y-4">
+                                                        <!-- Role Checkboxes -->
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Select Roles</label>
+                                                            <div class="flex-wrap gap-3 d-flex"
+                                                                wire:loading.class='opacity-50 pe-none'>
+                                                                @foreach ($allRoles as $role)
+                                                                    <div class="form-check">
+                                                                        <input
+                                                                            class="form-check-input @error('selectedRoles') is-invalid @enderror"
+                                                                            type="checkbox"
+                                                                            wire:model.live="selectedRoles"
+                                                                            value="{{ $role }}">
+                                                                        <label class="form-check-label">
+                                                                            {{ $role === 'project_manager' ? 'Project Manager' : ucfirst($role) }}
+                                                                        </label>
                                                                     </div>
-                                                                </template>
+                                                                @endforeach
                                                             </div>
+                                                            @error('selectedRoles')
+                                                                <x-error>{{ $message }}</x-error>
+                                                            @enderror
+
 
                                                         </div>
-                                                    </div>
+                                                        <div wire:target='selectedRoles'
+                                                            wire:loading.class='opacity-25 pe-none'>
+                                                            <!-- User Filter for Each Role -->
+                                                            <template
+                                                                x-for="[role, users] in Object.entries(usersByRole)"
+                                                                :key="role">
+                                                                <div class="role-group">
+                                                                    <h4
+                                                                        x-text="role.charAt(0).toUpperCase() + role.slice(1)">
+                                                                    </h4>
 
-                                                    <div class="d-flex justify-content-between">
-                                                        <button type="submit" class="px-4 btn btn-warning">Send
-                                                            Emails</button>
-                                                    </div>
-                                                </form>
+                                                                    <!-- Filter Input per Role -->
+                                                                    <div class="mb-3">
+                                                                        <input type="text"
+                                                                            x-model="searchTerms[role]"
+                                                                            class="rounded form-control w-25"
+                                                                            :placeholder="'Filter ' + role.charAt(0)
+                                                                                .toUpperCase() + role.slice(1)">
+                                                                    </div>
 
-                                            </div>
+                                                                    <div class="user-chips">
+                                                                        <!-- Display filtered users for each role -->
+                                                                        <template x-for="user in filteredUsers(role)"
+                                                                            :key="user.id">
+                                                                            <button class="chip"
+                                                                                @click.prevent="removeUser(role, user.id)"
+                                                                                x-text="`${user.name} (${user.organisation})  <${user.email}> ✕`"></button>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between">
+                                                    <button type="submit" class="px-4 btn btn-warning">Send
+                                                        Emails</button>
+                                                </div>
+                                            </form>
+
                                         </div>
                                     </div>
-
                                 </div>
+
                             </div>
                         </div>
-
                     </div>
 
                 </div>
+
             </div>
         </div>
-        <!-- end page title -->
-
-
-
-
     </div>
-
-
-    @push('scripts')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-    @endpush
-    @script
-        <script>
-            const quill = new Quill('#editor', {
-                theme: 'snow',
-                placeholder: 'Type your message...',
-                modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline'],
-                        [{
-                            'list': 'ordered'
-                        }, {
-                            'list': 'bullet'
-                        }],
-                        ['link', 'blockquote', 'code-block']
-                    ]
-                }
-            });
-
-            quill.on('text-change', function(delta, oldDelta, source) {
-                const textContent = quill.getText().trim();
-
-                const htmlContent = quill.root.innerHTML;
-                if (textContent.length > 0) {
-                    $wire.message = htmlContent;
-                } else {
-                    $wire.message = null;
-
-
-                }
-
-            });
-            $wire.on('edit', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                })
-            });
-
-            Alpine.data('uploadUsers', () => ({
-                open: false,
-                uploading: false,
-                downloadTemplate() {
-                    const templateData = [
-                        ['email', 'name', 'organisation', 'role'], // Header row
-                        //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
-                        //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
-                    ];
-
-                    const worksheet = XLSX.utils.aoa_to_sheet(templateData);
-
-                    // Create a workbook and add the worksheet
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
-
-                    // Generate Excel file and trigger download
-                    XLSX.writeFile(workbook, 'user_template.xlsx');
-                },
-                uploadData() {
-                    const fileInput = document.getElementById('fileInput');
-                    const file = fileInput.files[0];
-                    this.uploading = true;
-                    if (!file) {
-                        setTimeout(() => {
-                            this.uploading = false;
-                            $wire.call('noFile');
-                            return;
-                        }, 5000);
-
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {
-                            type: 'array'
-                        });
-                        const sheetName = workbook.SheetNames[0]; // Get the first sheet
-                        const sheet = workbook.Sheets[sheetName];
-
-                        // Convert the sheet to JSON
-                        const jsonData = XLSX.utils.sheet_to_json(sheet, {
-                            defval: null,
-                            blankrows: true
-                        });
-
-                        // Map the data to the desired format
-                        const users = jsonData.map(row => ({
-                            email: row.email,
-                            name: row.name,
-                            organisation: row.organisation,
-                            role: row.role,
-                        }));
+    <!-- end page title -->
 
 
 
-                        $wire.dispatch('send-users', {
-                            users: users
-                        });
-                    };
 
-                    reader.readAsArrayBuffer(file);
+</div>
 
+
+@push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+@endpush
+@script
+    <script>
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Type your message...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{
+                        'list': 'ordered'
+                    }, {
+                        'list': 'bullet'
+                    }],
+                    ['link', 'blockquote', 'code-block']
+                ]
+            }
+        });
+
+        quill.on('text-change', function(delta, oldDelta, source) {
+            const textContent = quill.getText().trim();
+
+            const htmlContent = quill.root.innerHTML;
+            if (textContent.length > 0) {
+                $wire.message = htmlContent;
+            } else {
+                $wire.message = null;
+
+
+            }
+
+        });
+        $wire.on('edit', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        });
+
+        Alpine.data('uploadUsers', () => ({
+            open: false,
+            uploading: false,
+            downloadTemplate() {
+                const templateData = [
+                    ['email', 'name', 'organisation', 'role'], // Header row
+                    //     ['user1@example.com', 'John Doe', 'pass123', 'Org A', 'Admin'], // Example row
+                    //  ['user2@example.com', 'Jane Smith', 'pass456', 'Org B', 'User'], // Example row
+                ];
+
+                const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+
+                // Create a workbook and add the worksheet
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+
+                // Generate Excel file and trigger download
+                XLSX.writeFile(workbook, 'user_template.xlsx');
+            },
+            uploadData() {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+                this.uploading = true;
+                if (!file) {
+                    setTimeout(() => {
+                        this.uploading = false;
+                        $wire.call('noFile');
+                        return;
+                    }, 5000);
 
                 }
-            }))
-        </script>
-    @endscript
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {
+                        type: 'array'
+                    });
+                    const sheetName = workbook.SheetNames[0]; // Get the first sheet
+                    const sheet = workbook.Sheets[sheetName];
+
+                    // Convert the sheet to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, {
+                        defval: null,
+                        blankrows: true
+                    });
+
+                    // Map the data to the desired format
+                    const users = jsonData.map(row => ({
+                        email: row.email,
+                        name: row.name,
+                        organisation: row.organisation,
+                        role: row.role,
+                    }));
+
+
+
+                    $wire.dispatch('send-users', {
+                        users: users
+                    });
+                };
+
+                reader.readAsArrayBuffer(file);
+
+
+            }
+        }))
+    </script>
+@endscript

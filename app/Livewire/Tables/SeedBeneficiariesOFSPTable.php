@@ -142,7 +142,7 @@ public function __construct()
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable(),
             Column::make('District', 'district', 'district')
                 ->sortable()
 

@@ -58,7 +58,7 @@ public $row;
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn'),
+            Column::make('#', 'rn'),
             Column::make('Name of Producer', 'gross_margin_name'),
             Column::make('Variety', 'variety')
                 ->sortable()

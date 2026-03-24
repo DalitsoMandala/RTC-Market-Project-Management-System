@@ -1,17 +1,15 @@
 <div class="dropdown ms-2">
-    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
+    <button title="Export File" class="border custom-tooltip btn btn-light d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+     <img src="{{ asset('assets/images/icons/sheet.png') }}" width="20" height="20" /> <i class="opacity-75 ms-2 bx bx-arrow-to-top text-success" ></i>
     </button>
     <ul x-data="{ countChecked: @entangle('checkboxValues').live }" class="dropdown-menu">
         @if (in_array('xlsx', data_get($setUp, 'exportable.type')))
             <li class="d-flex">
                 <div class="dropdown-item">
-                    <span style="min-width: 25px;">@lang('XLSX')</span>
+
 
                     <a class="text-black-50" wire:click.prevent="exportToXLS" href="#">
+                        <span style="min-width: 25px;">@lang('XLSX')</span>
                         <span class="export-count">({{ $total }})</span>
                         @if (count($enabledFilters) === 0)
                             @lang('livewire-powergrid::datatable.labels.all')
@@ -22,6 +20,7 @@
                     @if ($checkbox)
                         /
                         <a class="text-black-50" wire:click.prevent="exportToXLS(true)" href="#">
+                            <span style="min-width: 25px;">@lang('XLSX')</span>
                             (<span x-text="countChecked.length"></span>) @lang('livewire-powergrid::datatable.labels.selected')
                         </a>
                     @endif
@@ -31,8 +30,9 @@
         @if (in_array('csv', data_get($setUp, 'exportable.type')))
             <li class="d-flex">
                 <div class="dropdown-item">
-                    <span>@lang('Csv')</span>
+
                     <a class="text-black-50" wire:click.prevent="exportToCsv" href="#">
+                        <span>@lang('Csv')</span>
                         <span class="export-count">({{ $total }})</span>
                         @if (count($enabledFilters) === 0)
                             @lang('livewire-powergrid::datatable.labels.all')
@@ -44,6 +44,7 @@
                         /
                         <a class="text-black-50" wire:click.prevent="exportToCsv(true)"
                             x-bind:disabled="countChecked.length === 0" href="#">
+                            <span>@lang('Csv')</span>
                             (<span x-text="countChecked.length"></span>) @lang('livewire-powergrid::datatable.labels.selected')
                         </a>
                     @endif

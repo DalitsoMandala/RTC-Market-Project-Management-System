@@ -76,7 +76,7 @@ final class IndicatorLeadTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Indicator', 'indicator'),
             Column::make('Organisation', 'organisation')->searchable(),
 

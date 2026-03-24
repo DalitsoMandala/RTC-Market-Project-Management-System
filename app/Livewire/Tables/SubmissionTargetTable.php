@@ -93,7 +93,7 @@ final class SubmissionTargetTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable(),
             Column::make('Financial year', 'financial_year', 'financial_years.number')->sortable(),
             Column::make('Indicator', 'indicator'),
             Column::make('Disaggregation', 'target_name'),

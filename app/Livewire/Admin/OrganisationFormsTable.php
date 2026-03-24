@@ -103,7 +103,7 @@ final class OrganisationFormsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Indicator #', 'indicator_no')->searchable(),
             Column::make('Indicator', 'indicator', 'indicator_name')->searchable(),
             Column::make('Organisation', 'organisation')->searchable(),

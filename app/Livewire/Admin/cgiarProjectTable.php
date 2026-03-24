@@ -53,7 +53,7 @@ final class cgiarProjectTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),

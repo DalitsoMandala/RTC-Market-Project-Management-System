@@ -115,7 +115,7 @@ final class SchoolConsumptionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')->sortable()->searchable(),
+            Column::make('#', 'id')->sortable()->searchable(),
 
             Column::make('School ID', 'sc_id')->sortable()->searchable(),
             Column::make('School Name', 'school_name', 'school_name')->sortable()->searchable(),

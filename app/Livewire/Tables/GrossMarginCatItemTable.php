@@ -22,7 +22,7 @@ final class GrossMarginCatItemTable extends PowerGridComponent
 
     public function setUp(): array
     {
-      
+
 
         return [
             Exportable::make('export')
@@ -54,7 +54,7 @@ final class GrossMarginCatItemTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Gross margin category id', 'gross_margin_category_id'),
             Column::make('Item name', 'item_name')
                 ->sortable()

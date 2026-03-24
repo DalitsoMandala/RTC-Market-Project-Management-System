@@ -201,7 +201,8 @@ class indicator_A1
             $female_members = 0;
             $male_employees = 0;
             $female_employees = 0;
-
+            $youth = 0;
+            $not_youth = 0;
             $male = 0;
             $female = 0;
 
@@ -213,9 +214,12 @@ class indicator_A1
                     $row->mem_female_35_plus;
 
 
+
                 $male_members +=
                     $row->mem_male_18_35 +
                     $row->mem_male_35_plus;
+
+
 
                 // EMPLOYEES (formal + informal)
                 $female_employees +=
@@ -230,16 +234,19 @@ class indicator_A1
                     $row->emp_informal_male_18_35 +
                     $row->emp_informal_male_35_plus;
 
-
+                $youth += $row->mem_female_18_35 + $row->mem_male_18_35 + $row->emp_formal_female_18_35 + $row->emp_formal_male_18_35 + $row->emp_informal_female_18_35 + $row->emp_informal_male_18_35;
+                $not_youth += $row->mem_female_35_plus + $row->mem_male_35_plus + $row->emp_formal_female_35_plus + $row->emp_formal_male_35_plus + $row->emp_informal_female_35_plus + $row->emp_informal_male_35_plus;
             }
 
             $results[$actor] = [
-                'male' => $male_employees + $male_members ,
+                'male' => $male_employees + $male_members,
                 'female' => $female_employees + $female_members,
                 'male_members' => $male_members,
                 'female_members' => $female_members,
                 'male_employees' => $male_employees,
-                'female_employees' => $female_employees
+                'female_employees' => $female_employees,
+                'youth' => $youth,
+                'not_youth' => $not_youth
             ];
         }
 

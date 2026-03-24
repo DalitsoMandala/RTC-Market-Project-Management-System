@@ -159,7 +159,7 @@ final class SubmissionPeriodTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('indicator #', 'indicator_no')->headerAttribute(classAttr: 'table-sticky-col')
                 ->bodyAttribute(classAttr: 'table-sticky-col'),
             Column::make('Form', 'form_name')

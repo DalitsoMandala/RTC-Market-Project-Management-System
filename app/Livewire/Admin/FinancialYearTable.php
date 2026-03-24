@@ -66,7 +66,7 @@ final class FinancialYearTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id'),
+            Column::make('#', 'id'),
             Column::make('Year', 'number')
                 ->sortable()
                 ->searchable(),
@@ -121,6 +121,17 @@ final class FinancialYearTable extends PowerGridComponent
     {
         return [];
     }
+
+    public function actionRules($row): array
+    {
+       return [
+            // Hide button edit for ID 1
+            Rule::button('Active')
+                ->when(fn($row) => $row->status =='active')
+                ->disable(),
+        ];
+    }
+
 
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void

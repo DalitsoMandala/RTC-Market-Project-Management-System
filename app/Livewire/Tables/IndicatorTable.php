@@ -3,24 +3,25 @@
 namespace App\Livewire\Tables;
 
 
-use App\Models\User;
+use App\Models\Cgiar_Project;
 use App\Models\Indicator;
 use App\Models\Organisation;
-use App\Models\Cgiar_Project;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as ModelBuilder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use Illuminate\Database\Eloquent\Builder as ModelBuilder;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class IndicatorTable extends PowerGridComponent
 {
@@ -117,17 +118,17 @@ final class IndicatorTable extends PowerGridComponent
                 $user = User::find($this->userId);
                 if ($user->hasAnyRole('manager')) {
 
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator" href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('admin')) {
 
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator" href="' . route('admin-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('admin-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('project_manager')) {
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
                  else if ($user->hasAnyRole('monitor')) {
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('monitor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('monitor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
 
                 else {
@@ -179,12 +180,13 @@ final class IndicatorTable extends PowerGridComponent
             Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
 
                 ->searchable(),
-            Column::make('Indicator', 'name_link', 'indicator_name')
+            Column::make('Indicator', 'name_link', 'indicator_name')->bodyAttribute(styleAttr: "white-space:wrap")
+            ->headerAttribute(styleAttr: "min-width:350px;")
                 ->sortable()
                 ->searchable(),
-            Column::make('Project name', 'project_name'),
+
             Column::make('Lead partner', 'lead_partner'),
-            Column::make('Disaggregations', 'disaggregations')->headerAttribute(styleAttr: "min-width:350px;")
+            Column::make('Disaggregations', 'disaggregations')->headerAttribute(styleAttr: "min-width:300px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap")
         ];
 
@@ -203,7 +205,22 @@ final class IndicatorTable extends PowerGridComponent
 
     public function filters(): array
     {
-        return [];
+        return [
+
+         Filter::select('name_link', 'id')
+                ->dataSource(fn() => Indicator::select(['indicator_no', 'indicator_name','id'])->distinct()->get()->map(function ($indicator) {
+                    return [
+                        'id' => $indicator->id,
+                        'label' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
+                        'indicator_no' => $indicator->indicator_no,
+                        'indicator_name' => $indicator->indicator_name
+                    ];
+                }))
+                  ->optionLabel('label')
+                ->optionValue('id')
+
+             ,
+        ];
     }
 
     #[\Livewire\Attributes\On('refresh')]

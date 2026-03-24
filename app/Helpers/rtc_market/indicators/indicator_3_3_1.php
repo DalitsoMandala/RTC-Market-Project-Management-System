@@ -95,7 +95,7 @@ class indicator_3_3_1
         $totals = $this->getTotals()->toArray();
 
         // Subtotal based on Cassava, Potato, and Sweet potato
-        $subTotal = $totals['Domestic markets'] + $totals['International markets'];
+        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
         $totals['Total'] = $subTotal;
         return $totals;
     }
