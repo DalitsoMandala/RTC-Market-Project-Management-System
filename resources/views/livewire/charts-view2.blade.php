@@ -7,7 +7,7 @@
         <div class="mt-4 row">
             <div class="col-12">
                 <div class="shadow-sm card">
-                    <x-card-header> Estimated Volume (Kg) vs Value (US$) by District</x-card-header>
+                    <x-card-header> Estimated Volume (MT) vs Value (US$) by District</x-card-header>
 
 
                     <div class="card-body">
@@ -23,7 +23,7 @@
             <div class="col-md-6">
                 <div class="shadow-sm card">
                     <x-card-header>
-                        Estimated Demand (Kg) by Variety
+                        Estimated Demand (MT) by Variety
                     </x-card-header>
                     <div class="card-body">
                         <div id="demand-chart" x-show="hasDemandData===true" style="height: 350px;"></div>
@@ -66,7 +66,7 @@
             <div class="col-12">
                 <div class="shadow-sm card">
                     <x-card-header>
-                        Monthly Estimated Demand (Kg) by Variety
+                        Monthly Estimated Demand (MT) by Variety
                     </x-card-header>
                     <div class="card-body">
                         <div id="stacked-demand-chart" x-show="hasStackedDemandData===true" style="height: 400px;">
@@ -98,7 +98,7 @@
             <div class="col-6">
                 <div class="shadow-sm card">
                     <x-card-header>
-                        Estimated Demand (Kg) by Country & Variety
+                        Estimated Demand (MT) by Country & Variety
                     </x-card-header>
                     <div class="card-body">
                         <div id="country-variety-chart" x-show="hasCountryVarietyData===true" style="height: 400px;">
@@ -110,12 +110,12 @@
 
 
         </div>
-        <!-- Line Chart: Average Price per Kg Over Time -->
+        <!-- Line Chart: Average Price per MT Over Time -->
         <div class="mt-4 row">
             <div class="col-12">
                 <div class="shadow-sm card">
                     <x-card-header>
-                        Average Price per Kg (USD) Over Time
+                        Average Price per MT (USD) Over Time
                     </x-card-header>
                     <div class="card-body">
                         <div id="price-trend-chart" x-show="hasPriceTrendData===true" style="height: 400px;"></div>
@@ -539,7 +539,7 @@
 
                 this.demandChart.updateOptions([{
                     series: [{
-                        name: 'Estimated Demand (Kg)',
+                        name: 'Estimated Demand (MT)',
                         data: data.volumesKg
                     }],
                     xaxis: {
@@ -596,7 +596,7 @@
 
                 this.districtComboChart.instance.updateOptions({
                     series: [{
-                            name: 'Volume (Kg)',
+                            name: 'Volume (MT)',
                             type: 'column',
                             data: data.volumesKg
                         },
@@ -670,7 +670,7 @@
                         height: 390
                     },
                     series: [{
-                        name: 'Estimated Demand (Kg)',
+                        name: 'Estimated Demand (MT)',
                         data: data.volumesKg
                     }],
                     xaxis: {
@@ -882,7 +882,7 @@
                     },
                     yaxis: {
                         title: {
-                            text: 'Volume (kg)'
+                            text: 'Volume (MT)'
                         },
                         labels: {
                             formatter: val => val.toLocaleString()
@@ -892,7 +892,7 @@
                         shared: true,
                         intersect: false,
                         y: {
-                            formatter: val => val.toLocaleString() + ' Kg'
+                            formatter: val => val.toLocaleString() + ' MT'
                         }
                     },
                     colors: SystemColors,
@@ -944,7 +944,7 @@
                     },
 
                     series: [{
-                            name: 'Volume (Kg)',
+                            name: 'Volume (MT)',
                             type: 'column',
                             data: data.volumesKg
                         },
@@ -1001,7 +1001,7 @@
 
                     yaxis: [{
                             title: {
-                                text: 'Volume (Kg)'
+                                text: 'Volume (MT)'
                             },
                             labels: {
                                 formatter: val => val.toLocaleString()
@@ -1105,7 +1105,7 @@
                     },
                     yaxis: {
                         title: {
-                            text: 'Estimated Demand (Kg)'
+                            text: 'Estimated Demand (MT)'
                         },
                         labels: {
                             formatter: val => val.toLocaleString()
@@ -1115,7 +1115,7 @@
                         shared: true,
                         intersect: false,
                         y: {
-                            formatter: val => val.toLocaleString() + ' Kg'
+                            formatter: val => val.toLocaleString() + ' MT'
                         }
                     },
                     legend: {
@@ -1149,7 +1149,7 @@
 
                     },
                     series: [{
-                        name: 'Average Price ($/kg)',
+                        name: 'Average Price ($/MT)',
                         data: data.avgPrice
                     }],
                     xaxis: {
@@ -1166,7 +1166,7 @@
 
                     yaxis: {
                         title: {
-                            text: '$ per Kg'
+                            text: '$ per MT'
                         },
                         labels: {
                             formatter: val => '$ ' + val.toFixed(2)
