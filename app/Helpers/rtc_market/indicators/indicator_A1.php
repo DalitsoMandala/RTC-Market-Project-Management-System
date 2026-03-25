@@ -40,7 +40,7 @@ class indicator_A1
     {
         $builder = $this->builder()->where('type', '!=', 'Traders');
 
-        if ($type) {
+        if ($type) {    
             $builder->where('type', $type);
         }
 

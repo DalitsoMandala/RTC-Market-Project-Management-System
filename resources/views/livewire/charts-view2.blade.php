@@ -769,7 +769,7 @@
 
                     },
                     series: [{
-                            name: 'Volume',
+                            name: 'Volume (MT)',
                             type: 'column',
                             data: data.volumesKg
                         },

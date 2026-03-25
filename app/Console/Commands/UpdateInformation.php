@@ -86,10 +86,10 @@ class UpdateInformation extends Command
            $reportStatus = ReportStatus::find(1);
         Bus::chain([
 
-          new ReportJob(),
-            new PopulatePreviousValueJob(),
-            new AdditionalReportJob(),
-            new MarketReportJob(),
+       //   new ReportJob(),
+          //  new PopulatePreviousValueJob(),
+         //   new AdditionalReportJob(),
+           new MarketReportJob(),
             function () use ($reportStatus) {
                 $reportStatus->update([
                     'status' => 'completed',

@@ -63,7 +63,7 @@ class MarketReportCalculations
 
             foreach ($dataArray as $dataName => $yearArray) {
 
-                foreach ($yearArray as $year => $data) {    
+                foreach ($yearArray as $year => $data) {
 
                     MarketDataReport::updateOrCreate([
                         'name' => $dataName,
@@ -99,8 +99,8 @@ class MarketReportCalculations
             return $this->builder()
                 ->select([
                     'final_market_district',
-                    DB::raw('SUM(estimated_demand_kg) AS volume_kg'),
-                    DB::raw('SUM(estimated_total_value_usd) AS usd_value'),
+                    DB::raw('SUM(estimated_demand_kg/1000) AS volume_kg'),
+                    DB::raw('SUM(estimated_total_value_usd/1000) AS usd_value'),
                 ])
                 ->groupBy('final_market_district')
                 ->orderBy('final_market_district');
@@ -113,8 +113,8 @@ class MarketReportCalculations
             return $this->builder()
                 ->select([
                     'variety_demanded',
-                    DB::raw('SUM(estimated_demand_kg) AS volume_kg'),
-                    DB::raw('SUM(estimated_total_value_usd) AS usd_value'),
+                    DB::raw('SUM(estimated_demand_kg/1000) AS volume_kg'),
+                    DB::raw('SUM(estimated_total_value_usd/1000) AS usd_value'),
                 ])
                 ->groupBy('variety_demanded')
                 ->orderBy('variety_demanded');
@@ -127,8 +127,8 @@ class MarketReportCalculations
             return $this->builder()
                 ->select([
                     'variety_demanded',
-                    DB::raw('SUM(estimated_demand_kg) AS volume_kg'),
-                    DB::raw('SUM(estimated_total_value_usd) AS usd_value'),
+                    DB::raw('SUM(estimated_demand_kg/1000) AS volume_kg'),
+                    DB::raw('SUM(estimated_total_value_usd/1000) AS usd_value'),
                 ])->groupBy('variety_demanded')
                 ->orderBy('variety_demanded');
         }, $this->years);
@@ -141,8 +141,8 @@ class MarketReportCalculations
                 ->select([
                     'entry_date',
                     DB::raw('DATE_FORMAT(entry_date, "%b-%y") AS formatted_date'),
-                    DB::raw('SUM(estimated_demand_kg) AS volume_kg'),
-                    DB::raw('SUM(estimated_total_value_usd) AS usd_value'),
+                    DB::raw('SUM(estimated_demand_kg/1000) AS volume_kg'),
+                    DB::raw('SUM(estimated_total_value_usd/1000) AS usd_value'),
                 ])
                 ->groupBy('entry_date', 'formatted_date')
                 ->orderBy('entry_date');
@@ -158,7 +158,7 @@ class MarketReportCalculations
                     'variety_demanded',
                     'entry_date',
                     DB::raw('DATE_FORMAT(entry_date, "%b-%y") AS formatted_date'),
-                    DB::raw('SUM(estimated_demand_kg) as volume_kg'),
+                    DB::raw('SUM(estimated_demand_kg/1000) as volume_kg'),
                 ])
                 ->groupBy('entry_date', 'variety_demanded', 'formatted_date')
                 ->orderBy('entry_date');
@@ -171,8 +171,8 @@ class MarketReportCalculations
             return MarketData::query()
                 ->select([
                     'final_market_country',
-                    DB::raw('SUM(estimated_demand_kg) as volume_kg'),
-                    DB::raw('SUM(estimated_total_value_usd) as usd_value'),
+                    DB::raw('SUM(estimated_demand_kg/1000) as volume_kg'),
+                    DB::raw('SUM(estimated_total_value_usd/1000) as usd_value'),
                 ])
                 ->groupBy('final_market_country')
                 ->orderBy('final_market_country');
@@ -186,7 +186,7 @@ class MarketReportCalculations
                 ->select([
                     'variety_demanded',
                     'final_market_country',
-                    DB::raw('SUM(estimated_demand_kg) as volume_kg'),
+                    DB::raw('SUM(estimated_demand_kg/1000) as volume_kg'),
                 ])
                 ->groupBy('variety_demanded', 'final_market_country')
                 ->orderBy('variety_demanded');
@@ -199,9 +199,9 @@ class MarketReportCalculations
                 ->select([
                     'entry_date',
                     DB::raw('DATE_FORMAT(entry_date, "%b-%y") AS formatted_date'),
-                    DB::raw('SUM(estimated_demand_kg) as volume_kg'),
-                    DB::raw('SUM(estimated_total_value_usd) as total_price'),
-                    DB::raw('ROUND(SUM(estimated_total_value_usd) / NULLIF(SUM(estimated_demand_kg), 0), 2) as avg_price_per_kg')
+                    DB::raw('SUM(estimated_demand_kg/1000) as volume_kg'),
+                    DB::raw('SUM(estimated_total_value_usd/1000) as total_price'),
+                    DB::raw('ROUND(SUM(estimated_total_value_usd/1000) / NULLIF(SUM(estimated_demand_kg/1000), 0), 2) as avg_price_per_kg')
                 ])
                 ->groupBy('entry_date', 'formatted_date')
                 ->groupBy('entry_date', 'formatted_date')
