@@ -3,6 +3,7 @@
 namespace App\Livewire\tables\RtcMarket;
 
 use App\Models\User;
+use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
@@ -32,6 +33,7 @@ final class AttendanceRegisterTable extends PowerGridComponent
     use WithExport;
     use UITrait;
     use ExportTrait;
+    use BatchTrait;
     public bool $deferLoading = false;
 public bool $multiSort = false;
     public function setUp(): array
@@ -50,7 +52,9 @@ public bool $multiSort = false;
     public function datasource(): Builder
     {
 
-
+if($this->getBatch()){
+    $this->search = $this->getBatch();
+}
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = AttendanceRegister::query()->with([
@@ -135,7 +139,7 @@ public bool $multiSort = false;
         return [
 
             Column::make('ID', 'rn')->sortable(),
-
+    Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Name', 'name')
                 ->sortable()
                 ->searchable(),

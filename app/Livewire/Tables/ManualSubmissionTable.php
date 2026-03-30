@@ -6,6 +6,7 @@ use App\Helpers\TruncateText;
 use App\Models\FinancialYear;
 use App\Models\Form;
 use App\Models\Organisation;
+use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
 use App\Models\Submission;
 use App\Models\SubmissionPeriod;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Exportable;
@@ -42,7 +44,7 @@ final class ManualSubmissionTable extends PowerGridComponent
     public string $sortField = 'submission_id';
     public string $primaryKey = 'submission_id';
     public string $sortDirection = 'desc';
-
+public $routePrefix;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -222,7 +224,33 @@ final class ManualSubmissionTable extends PowerGridComponent
             ->add('batch_no')
             ->add('batch_no_formatted', function ($model) {
 
-                return $model->batch_no;
+
+                $text = $model->batch_no;
+
+                $html = '';
+
+                $html .= '
+
+<div>
+<div class="accordion accordion-flush" id="default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
+    <div class="border accordion-item custom-tooltip" title="show batch number">
+        <h2 class=" accordion-header" id="headingOne" >
+            <button class="p-1 accordion-button collapsed " style="font-size:0.85rem"  type="button" data-bs-toggle="collapse" data-bs-target="#collapse-' . $model->batch_no . '_' . $model->id . '" aria-expanded="true" aria-controls="collapse-' . $model->batch_no . '_' . $model->id . '">
+<i class="bx bx-dots-horizontal-rounded"></i>
+            </button>
+        </h2>
+        <div id="collapse-' . $model->batch_no . '_' . $model->id . '" class="accordion-collapse collapse " aria-labelledby="headingOne" data-bs-parent="#default-accordion-example-' . $model->batch_no . '_' . $model->id . '">
+            <div class="accordion-body">
+                ' . $text . '
+            </div>
+        </div>
+        </div>
+
+</div>
+</div>
+';
+                return $html;
+                // return $model->batch_no;
             })
             ->add('user_id')
             ->add('username', function ($model) {
@@ -348,11 +376,10 @@ final class ManualSubmissionTable extends PowerGridComponent
         return [
             Column::make('#', 'rn')->sortable()->hidden(),
             Column::make('File', 'file_link')->hidden(),
-            Column::make('Batch no', 'batch_no_formatted')
-                ->sortable()
+            Column::make('Batch no', 'batch_no_formatted', 'submissions.batch_no')
+
 
                 ->searchable(),
-
             Column::make('Form name', 'form_name')->searchable(),
 
 
@@ -429,7 +456,38 @@ final class ManualSubmissionTable extends PowerGridComponent
                     'id' => $row->id,
                     'name' => 'delete-batch-modal'
                 ]),
+
+            Button::add('view')
+                ->slot('<i class="bx bx-link"></i>')
+                ->id()
+                ->class('btn btn-warning my-1 custom-tooltip btn-sm')
+                ->tooltip('View Data')
+                ->dispatch('view-data-manual', [
+                    'batch_no' => $row->batch_no,
+                    'form_name' => $row->form_name,
+
+                ]),
         ];
+    }
+
+    #[On('view-data-manual')]
+    public function viewData($batch_no, $form_name)
+    {
+        $routePrefix = $this->routePrefix ;
+        $project = Project::where('name', 'RTC MARKET')->first()->name;
+
+        if (!$routePrefix || !$project || !$form_name || !$batch_no) {
+            $this->alert('error', 'Missing parameters to view data', [
+                'position' => 'center',
+                'timer' => 5000,
+                'toast' => false
+            ]);
+            return;
+        }
+        $form_name = strtolower(str_replace(' ', '-', $form_name));
+        $project = strtolower(str_replace(' ', '-', $project));
+        $route = "{$routePrefix}/forms/{$project}/{$form_name}/view/{$batch_no}";
+        return $this->redirect($route);
     }
 
     public function actionRules(): array

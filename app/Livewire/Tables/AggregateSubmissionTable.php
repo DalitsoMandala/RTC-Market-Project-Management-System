@@ -43,7 +43,8 @@ final class AggregateSubmissionTable extends PowerGridComponent
     public string $sortField     = 'submission_id';
     public string $sortDirection = 'desc';
     public string $primaryKey    = 'submission_id';
-public string $tableName = 'AggregateSubmissionTable';
+    public string $tableName = 'AggregateSubmissionTable';
+    public $routePrefix;
     public function updatedCheckboxValues($values)
     {
         // logger('Selected IDs: ', $values);
@@ -57,7 +58,7 @@ public string $tableName = 'AggregateSubmissionTable';
             $this->batch = $collection->get('batch');
         }
 
-      //  $this->showCheckBox('submission_id');
+        //  $this->showCheckBox('submission_id');
         $this->setLocation('exports');
         return [
             // Exportable::make('export')
@@ -81,6 +82,7 @@ public string $tableName = 'AggregateSubmissionTable';
             ->leftJoin('users', 'users.id', '=', 'submissions.user_id')
             ->join('submission_reports', 'submissions.batch_no', '=', 'submission_reports.uuid')
             ->join('organisations', 'users.organisation_id', '=', 'organisations.id') //->join('users', 'users.id', '=', 'submissions')
+
             ->with([
                 'period.indicator',
                 'user' => fn($q) => $q->withTrashed(),
@@ -92,6 +94,7 @@ public string $tableName = 'AggregateSubmissionTable';
             ->where('batch_type', 'aggregate')->select([
                 'submissions.*',
                 'submissions.id as submission_id',
+                'submission_reports.indicator_id as indicator_id',
                 'users.name as username',
                 'forms.name as form_name',
                 'organisations.name as organisation_name',
@@ -116,9 +119,7 @@ public string $tableName = 'AggregateSubmissionTable';
     public function relationSearch(): array
     {
         return [
-            'period.indicator'       => [ // relationship on dishes model
-                'indicator_name',             // column enabled to search
-            ],
+
             'user.organisation'      => [
                 'name',
             ],
@@ -128,7 +129,10 @@ public string $tableName = 'AggregateSubmissionTable';
             'period.reportingMonths' => [
                 'start_month',
                 'end_month',
-                'financialYears.number',
+
+            ],
+            'period.financialYears'  => [
+                'number',
             ],
             'form'                   => [
                 'name',
@@ -140,6 +144,23 @@ public string $tableName = 'AggregateSubmissionTable';
     public function filters(): array
     {
         return [
+
+              Filter::select('indicator')
+                ->dataSource(Indicator::get()->map(function ($indicator) {
+                    return [
+                        'indicator' => $indicator->indicator_no . ' - ' . $indicator->indicator_name,
+                        'id'            => $indicator->id,
+                        'indicator_no' => $indicator->indicator_no,
+                        'indicator_name' => $indicator->indicator_name,
+                    ];
+                }))
+                ->optionLabel('indicator')
+                ->optionValue('id')
+                ->builder(function ($query, $value) {
+
+                    $query->where('submission_reports.indicator_id', $value);
+
+                }),
             Filter::select('status_formatted', 'submissions.status')
                 ->dataSource(function () {
                     $submission = Submission::select(['status'])->distinct();
@@ -366,8 +387,9 @@ public string $tableName = 'AggregateSubmissionTable';
                 ->searchable(),
 
             //  Column::make('Form name', 'form_name')->searchable(),
-            Column::make('Indicator', 'indicator')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
+            Column::make('Indicator', 'indicator','submission_reports.indicator_name')->searchable()->headerAttribute(styleAttr: "min-width:350px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap"),
+
             Column::make('SUBMITTED BY', 'username')->searchable(),
             Column::make('Organisation', 'organisation_formatted')->searchable(),
             Column::make('SUBMISSION PERIOD', 'month_range')->searchable(),

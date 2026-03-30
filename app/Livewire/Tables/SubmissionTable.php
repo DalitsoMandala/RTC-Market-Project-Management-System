@@ -2,35 +2,36 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Form;
-use App\Models\User;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
-use App\Models\Organisation;
 use App\Helpers\TruncateText;
 use App\Models\FinancialYear;
-use Illuminate\Support\Carbon;
-use App\Models\SubmissionPeriod;
-use Illuminate\Support\Facades\DB;
+use App\Models\Form;
+use App\Models\Indicator;
+use App\Models\Organisation;
+use App\Models\Project;
 use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
+use App\Models\SubmissionPeriod;
+use App\Models\User;
 use App\Traits\DownloadImportTrait;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SubmissionTable extends PowerGridComponent
 {
@@ -48,6 +49,7 @@ final class SubmissionTable extends PowerGridComponent
     public string $primaryKey = 'submission_id';
     public string $sortDirection = 'desc';
     public string $tableName = 'SubmissionsTable';
+    public $routePrefix;
     public function setUp(): array
     {
         $this->showCheckBox();
@@ -187,10 +189,7 @@ final class SubmissionTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'period.indicator' => [ // relationship on dishes model
-                'indicator_name', // column enabled to search
 
-            ],
             'user.organisation' => [
                 'name',
             ],
@@ -378,11 +377,12 @@ final class SubmissionTable extends PowerGridComponent
 
         return [
             Column::make('#', 'rn')->sortable()->hidden(),
+                   Column::make('Batch no', 'batch_no_formatted','submissions.batch_no')
+
+                ->searchable(),
             Column::make('File', 'file_link'),
 
-            Column::make('Batch no', 'batch_no_formatted')
-                ->sortable()
-                ->searchable(),
+
             Column::make('Form name', 'form_name')->searchable(),
 
 
@@ -458,7 +458,38 @@ final class SubmissionTable extends PowerGridComponent
                     'id' => $row->id,
                     'name' => 'delete-batch-modal'
                 ]),
+
+
+            Button::add('view-data')
+                ->slot('<i class="bx bx-link"></i>')
+                ->id()
+                ->class('btn btn-warning my-1 custom-tooltip btn-sm')
+                ->tooltip('View Data')
+                ->dispatch('view-data-submission', [
+                    'batch_no' => $row->batch_no,
+                    'form_name' => $row->form_name,
+
+                ]),
         ];
+    }
+   #[On('view-data-submission')]
+    public function viewData($batch_no, $form_name)
+    {
+        $routePrefix = $this->routePrefix ;
+        $project = Project::where('name', 'RTC MARKET')->first()->name;
+
+        if (!$routePrefix || !$project || !$form_name || !$batch_no) {
+            $this->alert('error', 'Missing parameters to view data', [
+                'position' => 'center',
+                'timer' => 5000,
+                'toast' => false
+            ]);
+            return;
+        }
+        $form_name = strtolower(str_replace(' ', '-', $form_name));
+        $project = strtolower(str_replace(' ', '-', $project));
+        $route = "{$routePrefix}/forms/{$project}/{$form_name}/view/{$batch_no}";
+        return redirect($route);
     }
 
     public function actionRules(): array

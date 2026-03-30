@@ -207,15 +207,11 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     public function actions($row): array
     {
         return [
-
             Button::add('add-data')
                 ->slot('<i class="bx bx-plus"></i>')
                 ->id()
                 ->class('btn btn-warning btn-sm my-1 custom-tooltip')
                 ->tooltip('Add Data')
-
-
-
                 ->dispatch('sendData', ['model' => $row]),
 
             Button::add('upload')
@@ -226,6 +222,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                 ->dispatch('sendData', ['model' => $row, 'upload' => true]),
         ];
     }
+
     #[On('sendData')]
     public function sendData($model, $upload = false)
     {
@@ -234,84 +231,57 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
         $form = Form::findOrFail($model->id);
 
-        $financialYearId     = $data['financial_year_id'];
-        $monthRangePeriodId  = $data['month_range_period_id'];
-        $routePrefix         = $data['routePrefix'];
+        $submissionPeriodId = $this->getSubmissionPeriodId($data, $model->id);
 
-        $submissionPeriodId = SubmissionPeriod::where([
+        $route = $this->buildRoute(
+            form: $form,
+            modelId: $model->id,
+            data: $data,
+            submissionPeriodId: $submissionPeriodId,
+            upload: $upload
+        );
+
+        return redirect($route);
+    }
+
+    private function getSubmissionPeriodId(array $data, int $formId): ?int
+    {
+        return SubmissionPeriod::where([
             'date_established'      => $data['date_established'],
             'date_ending'           => $data['date_ending'],
             'is_expired'            => $data['is_expired'],
             'is_open'               => $data['is_open'],
-            'financial_year_id'     => $financialYearId,
-            'month_range_period_id' => $monthRangePeriodId,
-            'form_id'               => $model->id,
+            'financial_year_id'     => $data['financial_year_id'],
+            'month_range_period_id' => $data['month_range_period_id'],
+            'form_id'               => $formId,
         ])->inRandomOrder()->value('id');
+    }
 
-        $formName = str($form->name)->lower()->replace(' ', '-');
-        $project  = str($form->project->name)->lower()->replace(' ', '-');
+    private function buildRoute($form, int $modelId, array $data, $submissionPeriodId, bool $upload): string
+    {
+        $financialYearId    = $data['financial_year_id'];
+        $monthRangePeriodId = $data['month_range_period_id'];
+        $routePrefix        = $data['routePrefix'];
+
+        $formName = $this->slug($form->name);
+        $project  = $this->slug($form->project->name);
 
         if ($upload) {
-            $route = "/{$routePrefix}/forms/{$project}/{$formName}/upload/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}/" . \Ramsey\Uuid\Uuid::uuid4();
-
-            return $this->redirect($route);
+            return "{$routePrefix}/forms/{$project}/{$formName}/upload/{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}/" . Uuid::uuid4();
         }
 
         if ($form->name === 'REPORT FORM') {
-            $route = "/{$routePrefix}/forms/{$project}/aggregate/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
-        } else {
-            $route = "/{$routePrefix}/forms/{$project}/{$formName}/add/{$model->id}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
+            return "{$routePrefix}/forms/{$project}/aggregate/{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
         }
 
-        return $this->redirect($route);
+        return "{$routePrefix}/forms/{$project}/{$formName}/add/{$modelId}/0/{$financialYearId}/{$monthRangePeriodId}/{$submissionPeriodId}";
     }
-    // public function sendData($model, $upload = false)
-    // {
 
-    //     $model = (object) $model;
-    //     $submissionPeriodRow = $this->submissionPeriodRow;
-    //     $form = Form::find($model->id);
+    private function slug(string $value): string
+    {
+        return str($value)->lower()->replace(' ', '-');
+    }
 
-    //     $data = $this->submissionPeriodRow;
-
-    //     $submissionPeriods = SubmissionPeriod::where('date_established', $data['date_established'])
-    //         ->where('date_ending', $data['date_ending'])
-    //         ->where('is_expired', $data['is_expired'])
-    //         ->where('is_open', $data['is_open'])
-    //         ->where('financial_year_id', $data['financial_year_id'])
-    //         ->where('month_range_period_id', $data['month_range_period_id'])
-    //         ->where('form_id', $model->id)
-    //         ->pluck('id')
-    //         ->random(1)
-    //         ->toArray();
-
-
-    //     $form_name = str_replace(' ', '-', strtolower($form->name));
-    //     $project = str_replace(' ', '-', strtolower($form->project->name));
-
-
-
-    //     $routePrefix = $data['routePrefix'];
-
-    //     $route = "";
-
-    //     if ($upload === true) {
-
-    //         $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' .  $submissionPeriods[0] . '/' . Uuid::uuid4()->toString();
-    //         $this->redirect($route);
-    //     } else {
-    //         if ($form->name == 'REPORT FORM') {
-
-
-    //             $route = $routePrefix . '/forms/' . $project . '/aggregate/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' . $submissionPeriods[0];
-    //         } else {
-
-    //             $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/add/' . $model->id . '/0/' . $submissionPeriodRow['financial_year_id'] . '/' . $submissionPeriodRow['month_range_period_id'] . '/' . $submissionPeriods[0];
-    //         }
-
-    //         $this->redirect($route);
-    //     }
-    // }
 
 
 
@@ -319,12 +289,13 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     public function sendUploadData($model)
     {
         $model = (object) $model;
-        +$form = Form::find($model->form_id);
-
+        $form = Form::find($model->form_id);
+        $data  = $this->submissionPeriodRow;
+        $routePrefix         = $data['routePrefix'];
         $form_name = str_replace(' ', '-', strtolower($form->name));
         $project = str_replace(' ', '-', strtolower($form->project->name));
 
-        $routePrefix = $this->currentRoutePrefix;
+
 
         $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
@@ -351,7 +322,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => false)
+                ->when(fn() => !($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])))
                 ->hide(),
 
             // Rules for uploading data

@@ -4,6 +4,7 @@ namespace App\Livewire\tables\RtcMarket;
 
 use App\Models\User;
 use App\Models\Recruitment;
+use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use App\Traits\UITrait;
 use Livewire\Attributes\On;
@@ -27,11 +28,14 @@ final class RecruitmentsTable extends PowerGridComponent
     use WithExport;
     use ExportTrait;
     use UITrait;
+    use BatchTrait;
 
     public function setUp(): array
     {
         //  $this->showCheckBox();
-
+if($this->getBatch()){
+    $this->search = $this->getBatch();
+}
         return [
             // Exportable::make('export')
             //     ->striped()
@@ -150,7 +154,7 @@ final class RecruitmentsTable extends PowerGridComponent
             Column::make('Recruitment id', 'rc_id')
 
                 ->searchable(),
-
+    Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Epa', 'epa')
                 ->sortable()
                 ->searchable(),

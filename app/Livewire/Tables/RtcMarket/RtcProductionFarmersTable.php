@@ -3,49 +3,48 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
-use App\Models\User;
-use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
+use App\Models\Project;
 use App\Models\RpmFarmerFollowUp;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use App\Models\RtcProductionFarmer;
+use App\Models\User;
+use App\Traits\BatchTrait;
+use App\Traits\ExportTrait;
 use App\Traits\UITrait;
-use Illuminate\Support\Facades\Blade;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Spatie\SimpleExcel\SimpleExcelWriter;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 final class RtcProductionFarmersTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
     use UITrait;
+    use BatchTrait;
     public $routePrefix;
     public bool $deferLoading = false;
 
     public function setUp(): array
     {
-        //  $this->showCheckBox();
-        // $columns = $this->columns();
-        // $getMap = [];
-        // foreach ($columns as $column) {
-        //     $getMap[$column->title] = $column->dataField;
-        // }
-        // dd($getMap);
+        if($this->getBatch()){
+    $this->search = $this->getBatch();
+}
         return [
 
             Header::make()->includeViewOnTop('components.export-data')
@@ -242,18 +241,52 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         ;
     }
 
+ public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-production-and-marketing-form-farmers/edit/' . $row->id.'/'.$row->uuid;
 
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link ="/admin".$link;
+                break;
+
+            case 'staff':
+                $link = "/staff".$link;
+                break;
+            case 'manager':
+                $link = "/manager".$link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor".$link;
+                break;
+        }
+
+        return [
+    Button::add('edit')
+        ->render(function () use ($link) {
+            // Generate the URL in PHP first
+            return Blade::render(<<<HTML
+                <a href="{{ \$link }}" class="btn btn-warning btn-sm"><i class="bx bx-pen"></i></a>
+            HTML, ['link' => $link]);
+        })
+];
+    }
 
     public function columns(): array
     {
         return [
             Column::make('ID', 'rn')->sortable(),
+            Column::action(''),
             Column::make('Farmer ID', 'unique_id', 'pf_id')->sortable()->searchable(),
             Column::make('Group Name', 'group_name'),
             Column::make('Date of follow up', 'date_of_followup')
                 ->sortable(),
 
-
+    Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Enterprise', 'enterprise')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
             Column::make('EPA', 'epa')->sortable()->searchable(),

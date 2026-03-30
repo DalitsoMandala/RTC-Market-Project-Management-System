@@ -3,6 +3,7 @@
 namespace App\Livewire\tables;
 
 use App\Models\User;
+use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
@@ -26,13 +27,13 @@ final class SeedBeneficiaryTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+    use BatchTrait;
     public $crop;
 
-public function __construct()
+    public function __construct()
     {
         $this->excelData['crop_type'] = 'Potato';
-
-}
+    }
 
     public $namedExport = 'seedBeneficiaries';
 
@@ -40,7 +41,9 @@ public function __construct()
     public function setUp(): array
     {
 
-
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         return [
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
@@ -58,7 +61,7 @@ public function __construct()
         $this->performExport();
     }
 
- #[On("download-export_{crop}")]
+    #[On("download-export_{crop}")]
     public function downloadExport()
     {
 
@@ -72,8 +75,8 @@ public function __construct()
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = SeedBeneficiary::query()->with([
-                      'user' => fn($q) => $q->withTrashed(),
-        'user.organisation',
+            'user' => fn($q) => $q->withTrashed(),
+            'user.organisation',
         ])->where('crop', 'Potato')->leftJoin('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select([

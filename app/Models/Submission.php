@@ -24,6 +24,8 @@ class Submission extends Model
         return $this->hasManyThrough(ReportingPeriodMonth::class, SubmissionPeriod::class, '', 'id','id', 'period_id');
     }
 
+
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

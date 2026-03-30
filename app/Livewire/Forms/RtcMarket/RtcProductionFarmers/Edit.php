@@ -33,13 +33,14 @@ use App\Models\RpmFarmerInterMarket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Exceptions\UserErrorException;
+use App\Helpers\DistrictObject;
 use App\Models\RpmFarmerConcAgreement;
 use App\Models\HouseholdRtcConsumption;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Illuminate\Validation\ValidationException;
 use App\Notifications\ManualDataAddedNotification;
 
-class Add extends Component
+class Edit extends Component
 {
     use LivewireAlert;
     use ManualDataTrait;
@@ -246,6 +247,7 @@ class Add extends Component
     public $targetSet = false;
     public $targetIds = [];
     public $date_of_followup;
+    public $uniqueId;
     public $registrations = [
         ['variety' => null, 'reg_date' => null, 'reg_no' => null],
     ];
@@ -993,25 +995,223 @@ class Add extends Component
 
 
 
-    public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
+    public function mount($id, $uuid)
+    {
+
+        $check = RtcProductionFarmer::where('uuid', $uuid)->where('id', $id)->first() ?? abort(404);
+
+        if ($check) {
+            $this->openSubmission = true;
+            $this->routePrefix = Route::current()->getPrefix();
+            $this->editData($check);
+            return;
+        }
+    }
+
+    public function editData($data)
     {
 
 
+        $marketSegment = collect([
+            'Fresh' => $data->market_segment_fresh,
+            'Processed' => $data->market_segment_processed,
+            'Seed' => $data->market_segment_seed,
+            'Cuttings' => $data->market_segment_cuttings,
+        ])->filter(function ($value) {
+            return $value == 1;
+        })->keys()->toArray();
+        $districts = DistrictObject::districts(); // Get the array
+        $districtNameFromData = strtolower($data->district ?? '');
 
-        // Validate required IDs
-        $this->validateIds($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+        // 1. Find the match
+        $matchedDistrict = collect($districts)->first(function ($officialName) use ($districtNameFromData) {
+            $officialNameLower = strtolower($officialName);
 
-        // Find and validate related models
-        $this->findAndSetModels($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id);
+            // Check for exact match OR
+            // Check if "Zomba" is inside "Zomba Central" OR
+            // Check if "Zomba Central" is inside "Zomba"
+            return $officialNameLower === $districtNameFromData ||
+                str_contains($districtNameFromData, $officialNameLower) ||
+                str_contains($officialNameLower, $districtNameFromData);
+        });
 
-        // Check if the submission period is open and targets are set
-        $this->checkSubmissionPeriodAndTargets();
+        // 2. Fallback: If no match found, keep the original string or null
+        $finalDistrict = $matchedDistrict ?? $data->district;
 
-        // Set the route prefix
-        $this->routePrefix = Route::current()->getPrefix();
+        $this->fill([
+            'uniqueId' => $data->pf_id,
+            'location_data' => [
+                'epa' => $data->epa,
+                'district' => $finalDistrict,
+                'section' => $data->section,
+                'enterprise' => $data->enterprise,
+                'group_name' => $data->group_name,
+            ],
+            'group' => $data->group,
+            'category' => $data->category,
+            'sector' => $data->sector,
+            'date_of_followup' => $data->date_of_followup ? Carbon::parse($data->date_of_followup)->format('Y-m-d') : null,
+
+            // Plantlets produced nested array
+            'number_of_plantlets_produced' => [
+                'cassava' => $data->number_of_plantlets_produced_cassava ?? 0,
+                'potato' => $data->number_of_plantlets_produced_potato ?? 0,
+                'sweet_potato' => $data->number_of_plantlets_produced_sweet_potato ?? 0,
+            ],
+
+            'number_of_screen_house_vines_harvested' => $data->number_of_screen_house_vines_harvested ?? 0,
+            'number_of_screen_house_min_tubers_harvested' => $data->number_of_screen_house_min_tubers_harvested ?? 0,
+            'number_of_sah_plants_produced' => $data->number_of_sah_plants_produced ?? 0,
+            'is_registered_seed_producer' => $data->is_registered_seed_producer,
+            'uses_certified_seed' => $data->uses_certified_seed,
+
+            // Market Segments
+            'market_segment' => $marketSegment,
+
+            'has_rtc_market_contract' => (bool) $data->has_rtc_market_contract,
+
+            // Production Volumes (Rainfed)
+            'total_vol_production_previous_season' => $data->total_vol_production_previous_season ?? 0,
+            'total_vol_production_previous_season_produce' => $data->total_vol_production_previous_season_produce ?? 0,
+            'total_vol_production_previous_season_seed' => $data->total_vol_production_previous_season_seed ?? 0,
+            'total_vol_production_previous_season_cuttings' => $data->total_vol_production_previous_season_cuttings ?? 0,
+
+            // Production Values (Rainfed)
+            'total_production_value_previous_season_value' => $data->prod_value_previous_season_total ?? 0,
+            'total_production_value_previous_season_produce_value' => $data->prod_value_previous_season_produce ?? 0,
+            'total_production_value_previous_season_seed_value' => $data->prod_value_previous_season_seed ?? 0,
+            'total_production_value_previous_season_cuttings_value' => $data->prod_value_previous_season_cuttings ?? 0,
+            'total_production_value_previous_season_cuttings_prevailing_price' => $data->prod_value_produce_prevailing_price ?? 0,
+            'total_production_value_previous_season_produce_prevailing_price' => $data->prod_value_seed_prevailing_price ?? 0,
+            'total_production_value_previous_season_seed_prevailing_price' => $data->prod_value_cuttings_prevailing_price ?? 0,
+            'total_production_value_previous_season_date_of_maximum_sales' => $data->prod_value_previous_season_date_of_max_sales,
+            'total_production_value_previous_season_rate' => $data->prod_value_previous_season_usd_rate,
+            'total_production_value_previous_season_total' => $data->prod_value_previous_season_usd_value,
+
+            // Irrigation Volumes
+            'total_vol_irrigation_production_previous_season' => $data->total_vol_irrigation_production_previous_season ?? 0,
+            'total_vol_irrigation_production_previous_season_produce' => $data->total_vol_irrigation_production_previous_season_produce ?? 0,
+            'total_vol_irrigation_production_previous_season_seed' => $data->total_vol_irrigation_production_previous_season_seed ?? 0,
+            'total_vol_irrigation_production_previous_season_cuttings' => $data->total_vol_irrigation_production_previous_season_cuttings ?? 0,
+
+            // Irrigation Values
+            'total_irrigation_production_value_previous_season_value' => $data->irr_prod_value_previous_season_total,
+            'total_irrigation_production_value_previous_season_produce_value' => $data->irr_prod_value_previous_season_produce,
+            'total_irrigation_production_value_previous_season_seed_value' => $data->irr_prod_value_previous_season_seed,
+            'total_irrigation_production_value_previous_season_cuttings_value' => $data->irr_prod_value_previous_season_cuttings,
+            'total_irrigation_production_value_previous_season_cuttings_prevailing_price' => $data->irr_prod_value_produce_prevailing_price,
+            'total_irrigation_production_value_previous_season_produce_prevailing_price' => $data->irr_prod_value_seed_prevailing_price,
+            'total_irrigation_production_value_previous_season_seed_prevailing_price' => $data->irr_prod_value_cuttings_prevailing_price,
+            'total_irrigation_production_value_previous_season_date_of_maximum_sales' => $data->irr_prod_value_previous_season_date_of_max_sales,
+            'total_irrigation_production_value_previous_season_rate' => $data->irr_prod_value_previous_season_usd_rate,
+            'total_irrigation_production_value_previous_season_total' => $data->irr_prod_value_previous_season_usd_value,
+
+            // Market & Metadata
+            'sells_to_domestic_markets' => $data->sells_to_domestic_markets ?? false,
+            'sells_to_international_markets' => $data->sells_to_international_markets ?? false,
+            'uses_market_information_systems' => $data->uses_market_information_systems ?? false,
+            'sells_to_aggregation_centers' => $data->sells_to_aggregation_centers ?? false,
+            'total_vol_aggregation_center_sales' => $data->total_vol_aggregation_center_sales ?? 0,
+
+
+        ]);
+
+        if ($data->cultivatedArea()->count() > 0) {
+            $this->area_under_cultivation = $data->cultivatedArea()->get()->map(function ($item) {
+                return [
+                    'variety' => $item->variety,
+                    'area' => $item->area,
+                ];
+            })->toArray();
+        }
+
+        if ($data->basicSeed()->count() > 0) {
+            $this->area_under_basic_seed_multiplication = $data->basicSeed()->get()->map(function ($item) {
+                return [
+                    'variety' => $item->variety,
+                    'area' => $item->area,
+                ];
+            })->toArray();
+        }
+        if ($data->certifiedSeed()->count() > 0) {
+            $this->area_under_certified_seed_multiplication = $data->certifiedSeed()->get()->map(function ($item) {
+                return [
+                    'variety' => $item->variety,
+                    'area' => $item->area,
+                ];
+            })->toArray();
+        }
+
+        if ($data->marketInformationSystems()->count() > 0) {
+            $this->market_information_systems = $data->marketInformationSystems()->get()->map(function ($item) {
+                return [
+                    'name' => $item->name,
+                ];
+            })->toArray();
+        }
+
+        if ($data->aggregationCenters()->count() > 0) {
+            $this->aggregation_center_sales = $data->aggregationCenters()->get()->map(function ($item) {
+                return [
+                    'name' => $item->name,
+                ];
+            })->toArray();
+        }
+
+        if ($data->registeredSeed()->count() > 0) {
+            $this->registrations = $data->registeredSeed()->get()->map(function ($item) {
+                return [
+                    'variety' => $item->variety,
+                    'reg_date' => $item->reg_date,
+                    'reg_no' => $item->reg_number,
+                ];
+            })->toArray();
+        }
+
+        if ($data->agreements()->count() > 0) {
+            $this->inputOne = $data->agreements()->get()->map(function ($item) {
+                return [
+                    'conc_date_recorded' => $item->date_recorded,
+                    'conc_partner_name' => $item->partner_name,
+                    'conc_country' => $item->country,
+                    'conc_date_of_maximum_sale' => $item->date_of_maximum_sale,
+                    'conc_product_type' => $item->product_type,
+                    'conc_volume_sold_previous_period' => $item->volume_sold_previous_period,
+                    'conc_financial_value_of_sales' => $item->financial_value_of_sales,
+                ];
+            })->toArray();
+        }
+
+        if ($data->doms()->count() > 0) {
+            $this->inputTwo = $data->doms()->get()->map(function ($item) {
+                return [
+                    'dom_date_recorded' => $item->date_recorded,
+                    'dom_crop_type' => $item->crop_type,
+                    'dom_market_name' => $item->market_name,
+                    'dom_district' => $item->district,
+                    'dom_date_of_maximum_sale' => $item->date_of_maximum_sale,
+                    'dom_product_type' => $item->product_type,
+                    'dom_volume_sold_previous_period' => $item->volume_sold_previous_period,
+                    'dom_financial_value_of_sales' => $item->financial_value_of_sales,
+                ];
+            })->toArray();
+        }
+
+        if ($data->intermarkets()->count() > 0) {
+            $this->inputThree = $data->intermarkets()->get()->map(function ($item) {
+                return [
+                    'inter_date_recorded' => $item->date_recorded,
+                    'inter_crop_type' => $item->crop_type,
+                    'inter_market_name' => $item->market_name,
+                    'inter_country' => $item->country,
+                    'inter_date_of_maximum_sale' => $item->date_of_maximum_sale,
+                    'inter_product_type' => $item->product_type,
+                    'inter_volume_sold_previous_period' => $item->volume_sold_previous_period,
+                    'inter_financial_value_of_sales' => $item->financial_value_of_sales,
+                ];
+            })->toArray();
+        }
     }
-
-
     public function saveDraft()
     {
 
@@ -1025,6 +1225,6 @@ class Add extends Component
         if ($this->selectedForm) {
             $this->form_name = Form::find($this->selectedForm)->name;
         }
-        return view('livewire.forms.rtc-market.rtc-production-farmers.add');
+        return view('livewire.forms.rtc-market.rtc-production-farmers.edit');
     }
 }

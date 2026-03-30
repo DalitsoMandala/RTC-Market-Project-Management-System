@@ -89,71 +89,46 @@ class indicator_B1
 
 
     public function findCropCount()
-    {
-        // If enterprise is set in constructor, return only that enterprise's total
-        if ($this->enterprise) {
-            $farmerTotal = $this->Farmerbuilder()->sum('prod_value_previous_season_usd_value');
-            $processorTotal = $this->Processorbuilder()->sum('prod_value_previous_season_usd_value');
+{
+    $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
+    $result = [];
 
-            return [
-                strtolower(str_replace(' ', '_', $this->enterprise)) => $farmerTotal + $processorTotal,
-            ];
-        }
+    foreach ($enterprises as $enterprise) {
+        // We sum everything for this crop across both tables
+        $farmerTotal = $this->Farmerbuilder()->where('enterprise', $enterprise)->sum('prod_value_previous_season_usd_value');
+        $processorTotal = $this->Processorbuilder()->where('enterprise', $enterprise)->sum('prod_value_previous_season_usd_value');
 
-        // Otherwise, return totals for all enterprises
-        $enterprises = ['Cassava', 'Potato', 'Sweet potato'];
-        $result = [];
-
-        foreach ($enterprises as $enterprise) {
-            $farmerTotal = $this->Farmerbuilder()->where('enterprise', $enterprise)
-                ->sum('prod_value_previous_season_usd_value');
-
-            $processorTotal = $this->Processorbuilder()->where('enterprise', $enterprise)
-                ->sum('prod_value_previous_season_usd_value');
-
-            $result[strtolower(str_replace(' ', '_', $enterprise))] = $farmerTotal + $processorTotal;
-        }
-
-        return $result;
+        $result[strtolower(str_replace(' ', '_', $enterprise))] = $farmerTotal + $processorTotal;
     }
 
+    return $result;
+}
 
+public function findActorTotals()
+{
+    $actors = ['Traders', 'Farmers', 'Processors', 'Aggregators', 'Transporters'];
+    $result = [];
 
+    foreach ($actors as $type) {
+        // IMPORTANT: We must filter by BOTH the actor type AND the allowed enterprises
+        // to ensure we are looking at the same dataset as findCropCount.
+        $allowedCrops = ['Cassava', 'Potato', 'Sweet potato'];
 
+        $farmerTotal = $this->Farmerbuilder()
+            ->where('type', $type)
+            ->whereIn('enterprise', $allowedCrops)
+            ->sum('prod_value_previous_season_usd_value');
 
+        $processorTotal = $this->Processorbuilder()
+            ->where('type', $type)
+            ->whereIn('enterprise', $allowedCrops)
+            ->sum('prod_value_previous_season_usd_value');
 
-    public function findActorTotals()
-    {
-        $actors = [
-            'Traders',
-            'Farmers',
-            'Processors',
-            'Aggregators',
-            'Transporters',
-        ];
-
-        $results = [];
-
-        foreach ($actors as  $type) {
-
-            $farmerBuilder = $this->Farmerbuilder()->where('type', $type);
-            $processorBuilder = $this->Processorbuilder()->where('type', $type);
-
-            // Apply enterprise filter if it exists
-            if ($this->enterprise) {
-                $farmerBuilder->where('enterprise', $this->enterprise);
-                $processorBuilder->where('enterprise', $this->enterprise);
-            }
-
-
-
-            $results[$type] =
-                $farmerBuilder->sum('prod_value_previous_season_usd_value') +
-                $processorBuilder->sum('prod_value_previous_season_usd_value');
-        }
-
-        return $results;
+        $result[$type] = $farmerTotal + $processorTotal;
     }
+
+    return $result;
+}
 
     public function getDisaggregations()
     {

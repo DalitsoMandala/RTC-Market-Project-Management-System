@@ -60,7 +60,7 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         $prodCalc = $this->calculateUsdValue($row['Production Value Date of Max Sales'], $row['Production Value Total']);
         $irrCalc = $this->calculateUsdValue($row['Irrigation Production Value Date of Max Sales'], $row['Irrigation Production Value Total']);
 
-        $farmerRecord = RtcProductionFarmer::create([   
+        $farmerRecord = RtcProductionFarmer::create([
             'group_name' => $row['Group Name'],
             'date_of_followup' => Carbon::parse($row['Date Of Follow Up'])->format('Y-m-d'),
             'epa' => $row['EPA'],
@@ -233,27 +233,20 @@ class RtcProductionFarmersImport implements ToModel, WithHeadingRow, WithValidat
         return ($value ?? 0) * self::BUNDLE_MULTIPLIER;
     }
 
-    public function calculateTotalProduction(
-        $produce,
-        $producePrevailingPrice,
-        $seed,
-        $seedPrevailingPrice,
-        $cuttings,
-        $cuttingsPrevailingPrice
-    ) {
+       public function calculateTotalProduction($produce, $producePrevailingPrice, $seed, $seedPrevailingPrice, $cuttings, $cuttingsPrevailingPrice)
+    {
+        $produce = (float) ($produce ?? 0);
 
-        $produce = (float) $produce;
-        $producePrevailingPrice = (float) $producePrevailingPrice == 0 ? 1 : $producePrevailingPrice;
+        $seed = (float) ($seed ?? 0);
 
-        $seed = (float) $seed;
-        $seedPrevailingPrice = (float) $seedPrevailingPrice == 0 ? 1 : $seedPrevailingPrice;
+        $cuttings = (float) ($cuttings ?? 0);
 
-        $cuttings = (float) $cuttings;
-        $cuttingsPrevailingPrice = (float) $cuttingsPrevailingPrice == 0 ? 1 : $cuttingsPrevailingPrice;
 
-        return ($produce * $producePrevailingPrice) +
-            ($seed * $seedPrevailingPrice) +
-            ($cuttings * $cuttingsPrevailingPrice);
+        $totalProduction = ($produce)
+            + ($seed)
+            + ($cuttings);
+
+        return $totalProduction;
     }
 
     public function rules(): array

@@ -98,6 +98,7 @@ class Add extends Component
         'registration_number' => null,
         'registration_date' => null,
     ];
+    
     public $uses_certified_seed = false;
     public $category;
     public $registrations = [

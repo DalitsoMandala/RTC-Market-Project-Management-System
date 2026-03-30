@@ -101,25 +101,29 @@
 
                 <!-- Tab content -->
                 <div class="mt-3 tab-content">
+                    @php
 
+                        $route = Route::current()->getPrefix();
+                    @endphp
                     <div class="tab-pane fade show active" id="batch-submission" role="tabpanel"
                         aria-labelledby="batch-tab" wire:ignore>
-                        <livewire:tables.submission-table :tableName="'SubmissionTable'" :userId="auth()->user()->id" />
+                        <livewire:tables.submission-table :tableName="'SubmissionTable'" :routePrefix="$route" :userId="auth()->user()->id" />
                     </div>
 
                     <div class="tab-pane fade" id="aggregate-submission" role="tabpanel" aria-labelledby="aggregate-tab"
                         wire:ignore>
-                        <livewire:tables.aggregate-submission-table :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
+                        <livewire:tables.aggregate-submission-table :routePrefix="$route" :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
                     </div>
 
                     <div class="tab-pane fade" id="manual-submission" role="tabpanel" aria-labelledby="manual-tab"
                         wire:ignore>
-                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :userId="auth()->user()->id" />
+                        <livewire:tables.manual-submission-table :tableName="'ManualSubmissionTable'" :routePrefix="$route"
+                            :userId="auth()->user()->id" />
                     </div>
 
                     <div class="tab-pane fade" id="market-submission" role="tabpanel" aria-labelledby="market-tab"
                         wire:ignore>
-                        <livewire:tables.market-data-submission-table :userId="auth()->user()->id" />
+                        <livewire:tables.market-data-submission-table :routePrefix="$route" :userId="auth()->user()->id" />
                     </div>
 
                     <div class="tab-pane fade" id="submission-progress" role="tabpanel" aria-labelledby="progress-tab"

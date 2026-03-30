@@ -10,6 +10,7 @@
         $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
         $routePrefix = Route::current()->getPrefix();
         $formRoute = strtolower(str_replace(' ', '-', $formName));
+
     @endphp
     <div class="container-fluid">
         <!-- start page title -->
@@ -69,9 +70,10 @@
                 @endif
 
 
-
-                @if (!$targetSet && isset($showTargetForm) && $showTargetForm)
-                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                @if (!$bypassTargets)
+                    @if (!$targetSet && isset($showTargetForm) && $showTargetForm)
+                        <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
+                    @endif
                 @endif
 
                 @if (isset($openSubmission) && $openSubmission === false)
@@ -82,7 +84,11 @@
 
                 <div
                     class="mb-1 row justify-content-center @if (isset($openSubmission) && $openSubmission === false) opacity-25 pe-none @endif">
-                    <div class="col-md-8" x-data="formDraft()" @clear-drafts.window='clearDrafts()'>
+                    <div class="col-md-8" x-data="typeof formDraft === 'function' ? formDraft() : {
+                        showInfo: false,
+                        isLoading: false,
+                        clearDrafts: () => {}
+                    }" @clear-drafts.window="clearDrafts()">
                         <div class="my-1" x-ref="draftAlert" x-show="showInfo">
                             <x-draft-notice />
                         </div>
@@ -94,7 +100,7 @@
                         <form wire:submit.debounce.1000ms='save' id="mainForm" wire:loading.class="opacity-25 pe-none"
                             x-show="!isLoading" x-transition.duration.500ms>
                             <div class="card col-12 col-md-12">
-                                <div class="card-body @if(auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+                                <div class="card-body @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                                     {{ $slot }}
 
                                     @if (!isset($hideSubmitButtons) || !$hideSubmitButtons)
@@ -132,126 +138,91 @@
     </div>
 </div>
 
+
 @if (!isset($skipDraftScript) || !$skipDraftScript)
     @script
         <script>
-            Alpine.data('formDraft', () => ({
+            Alpine.data('formDraft', (skipDraft = false) => ({
                 form: {},
                 showInfo: false,
+                isLoading: false,
                 userId: @json(auth()->user()->id),
                 formName: @json($formName ?? 'default'),
-                draftData: {},
-                isLoading: false,
-                draftName: () => {
-                    return 'formDraft' + this.formName + '-' + this.userId
-                },
-                extractNestedData(sourceData, prefix) {
-                    const indices = [];
-                    const structuredData = [];
 
-                    for (const key in sourceData) {
-                        if (key.startsWith(`${prefix}.`)) {
-                            const [_, index, property] = key.split('.');
+                init() {
+                    if (skipDraft) return;
 
-                            // Track unique indices
-                            if (!indices.includes(index)) {
-                                indices.push(index);
-                            }
-
-                            // Build structured object
-                            if (!structuredData[index]) {
-                                structuredData[index] = {};
-                            }
-                            structuredData[index][property] = sourceData[key];
-                        }
+                    // Check for existing draft on load
+                    const saved = localStorage.getItem(this.getStorageKey());
+                    if (saved) {
+                        this.form = JSON.parse(saved);
+                        this.showInfo = true;
+                        // Optional: You could trigger a Livewire fill here
                     }
+                },
 
-                    // Filter out empty slots (if any) and return
-                    const filteredData = structuredData.filter(Boolean);
+                getStorageKey() {
+                    return `formDraft_${this.formName}_${this.userId}`;
+                },
+
+                // Refactored: Cleaner logic for nested objects (e.g., items.0.name)
+                extractNestedData(sourceData, prefix) {
+                    const data = Object.keys(sourceData)
+                        .filter(key => key.startsWith(`${prefix}.`))
+                        .reduce((acc, key) => {
+                            const [_, index, prop] = key.split('.');
+                            if (!acc[index]) acc[index] = {};
+                            acc[index][prop] = sourceData[key];
+                            return acc;
+                        }, []);
+
                     return {
-                        count: indices.length,
-                        data: filteredData,
+                        count: data.filter(Boolean).length,
+                        data: data.filter(Boolean)
                     };
                 },
 
                 saveDraft(event) {
+                    if (skipDraft) return;
+
                     const input = event.target;
                     const modelKey = input.getAttribute('wire:model') || input.getAttribute('x-model');
                     if (!modelKey) return;
 
-                    let value;
-                    if (input.type === 'checkbox') {
-                        const checkboxes = document.querySelectorAll(
-                            `[wire\\:model="${modelKey}"], [x-model="${modelKey}"]`);
-                        const checkboxValues = [];
-                        checkboxes.forEach((checkbox) => {
-                            if (checkbox.checked) checkboxValues.push(checkbox.value);
-                        });
-                        value = checkboxes.length > 1 ? checkboxValues : input.checked;
-                    } else if (input.type === 'radio') {
-                        value = input.checked ? input.value : undefined;
-                    } else {
-                        value = input.value;
-                    }
+                    let value = input.type === 'checkbox' ? input.checked : input.value;
 
-                    if (value === undefined) return;
-
-                    const currentDraft = JSON.parse(localStorage.getItem(this.draftName())) || {};
-                    currentDraft[modelKey] = value;
-                    localStorage.setItem(this.draftName(), JSON.stringify(currentDraft));
-                    this.form = currentDraft;
+                    // Update local state and storage
+                    this.form[modelKey] = value;
+                    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.form));
                 },
 
                 clearDrafts() {
-                    localStorage.removeItem(this.draftName());
+                    localStorage.removeItem(this.getStorageKey());
                     this.showInfo = false;
-                    document.getElementById('mainForm').reset();
+                    this.form = {};
+                    document.getElementById('mainForm')?.reset();
                 },
 
                 loadingIndicator() {
-                    $wire.$dispatch('update-form')
+                    this.isLoading = true;
+                    this.$wire.dispatch('update-form');
                     setTimeout(() => {
                         this.isLoading = false;
-                    }, 5000);
-                },
-
-                async init() {
-                    this.isLoading = true;
-                    const draft = localStorage.getItem(this.draftName());
-                    const form = document.getElementById('mainForm');
-
-                    if (draft) {
-                        this.showInfo = true;
-                        let savedDraft = JSON.parse(draft);
-                        this.draftData = savedDraft;
-
-                        await this.$nextTick();
-                        for (const key in savedDraft) {
-                            let input = form.querySelector(
-                                `[wire\\:model="${key}"], [x-model="${key}"]`);
-                            if (input) {
-                                if (input.type === 'checkbox') {
-                                    input.checked = savedDraft[key];
-                                } else if (input.type === 'radio') {
-                                    input.checked = (input.value == savedDraft[key]);
-                                } else {
-                                    input.value = savedDraft[key] || '';
-                                }
-                                input._x_model.set(savedDraft[key]);
-                                if (input.getAttribute('wire:model')) {
-                                    input.dispatchEvent(new Event('input', {
-                                        bubbles: true
-                                    }));
-                                }
-                            }
-                        }
-                    } else {
-                        this.showInfo = false;
-                        this.draftData = {};
-                    }
-
-                    form.addEventListener('input', (event) => this.saveDraft(event));
-                    this.loadingIndicator()
+                    }, 2000);
+                }
+            }))
+        </script>
+    @endscript
+@else
+    @script
+        <script>
+            // Minimal fallback so the UI doesn't break
+            Alpine.data('formDraft', () => ({
+                form: {},
+                showInfo: false,
+                isLoading: false,
+                clearDrafts() {
+                    document.getElementById('mainForm')?.reset();
                 }
             }))
         </script>

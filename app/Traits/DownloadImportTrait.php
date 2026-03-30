@@ -62,10 +62,10 @@ trait DownloadImportTrait
     public function downloadZip($ids)
     {
         try {
-            $submissions = Submission::with(['user.organisation', 'period.financialYears'])->whereIn('id', $ids)->get();
+            $submissions = Submission::whereIn('id', $ids)->get();
 
             if ($submissions->isEmpty()) {
-                $this->alert('error', 'No submissions found', [
+                $this->alert('error', 'Missing submissions', [
                     'position' => 'center',
                     'timer' => 5000,
                     'toast' => false

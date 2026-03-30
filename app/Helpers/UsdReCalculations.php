@@ -36,9 +36,9 @@ class UsdReCalculations
         $cuttings = (float) $cuttings;
         $cuttingsPrevailingPrice = (float) $cuttingsPrevailingPrice ?: 1;
 
-        return ($produce * $producePrevailingPrice)
-            + ($seed * $seedPrevailingPrice)
-            + ($cuttings * $cuttingsPrevailingPrice);
+        return ($produce )
+            + ($seed )
+            + ($cuttings);
     }
 
     private function calculateUsdValue(?string $date, ?float $mwkValue): array

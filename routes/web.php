@@ -50,22 +50,15 @@ Route::get('/', fn() => redirect()->route('login'));
 
 
 
-Route::get('/test', function () {
+Route::get('/pos', function () {
 
-    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_A1(null, 3, null, null);
+    $indicatorFile = new \App\Helpers\rtc_market\indicators\indicator_2_2_3(null, 3, null, null);
     return response()->json([
-        'Actor Gender Disaggregation' => $indicatorFile->getActorGenderDisaggregation(),
-        'Total Disaggregation' => $indicatorFile->getDisaggregations(),
-    ]);
-;
-})->name('test');
+        'pos' => $indicatorFile->getDisaggregations()
+    ]);;
+});
 
-// Route::get('/test', function () {
-
-//     $indicatorFile = new \App\Helpers\PopulatePreviousValue();
-
-//     dd($indicatorFile->start(1));
-// })->name('test');
+Route::get('/test', [TestingController::class, 'recalculations'])->name('test');
 
 
 Route::get('/logout', function () {
@@ -87,33 +80,34 @@ if (!function_exists('registerFormRoutes')) {
         Route::get($prefix . '/report-form/view', App\Livewire\Forms\RtcMarket\Reports\View::class);
 
         Route::get($prefix . '/rtc-production-and-marketing-form-farmers/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Add::class);
+        Route::get($prefix . '/rtc-production-and-marketing-form-farmers/edit/{id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Edit::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-farmers/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\Upload::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-farmers/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
-        Route::get($prefix . '/rtc-production-and-marketing-form-farmers/view', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
+        Route::get($prefix . '/rtc-production-and-marketing-form-farmers/view/{batch?}', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\View::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-farmers/followup', App\Livewire\Forms\RtcMarket\RtcProductionFarmers\AddFollowUp::class);
 
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Add::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/{batch}/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
-        Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/view', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
+        Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/view/{batch?}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/followup', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\AddFollowUp::class);
 
 
         Route::get($prefix . '/rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcConsumption\Add::class);
-        Route::get($prefix . '/rtc-consumption-form/view', App\Livewire\Forms\RtcMarket\RtcConsumption\View::class);
+        Route::get($prefix . '/rtc-consumption-form/view/{batch?}', App\Livewire\Forms\RtcMarket\RtcConsumption\View::class);
         Route::get($prefix . '/rtc-consumption-form/{batch}/view', App\Livewire\Forms\RtcMarket\RtcConsumption\View::class);
         Route::get($prefix . '/rtc-consumption-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcConsumption\Upload::class);
 
         Route::get($prefix . '/attendance-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Add::class);
-        Route::get($prefix . '/attendance-register/view', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
+        Route::get($prefix . '/attendance-register/view/{batch?}', App\Livewire\Forms\RtcMarket\AttendanceRegister\View::class);
         Route::get($prefix . '/attendance-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\AttendanceRegister\Upload::class);
 
         Route::get($prefix . '/rtc-actor-recruitment-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcRecruitment\Add::class);
-        Route::get($prefix . '/rtc-actor-recruitment-form/view', App\Livewire\Forms\RtcMarket\RtcRecruitment\View::class);
+        Route::get($prefix . '/rtc-actor-recruitment-form/view/{batch?}', App\Livewire\Forms\RtcMarket\RtcRecruitment\View::class);
         Route::get($prefix . '/rtc-actor-recruitment-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcRecruitment\Upload::class);
 
         Route::get($prefix . '/seed-distribution-register/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\OtherForms\SeedBeneficiaries\Add::class);
-        Route::get($prefix . '/seed-distribution-register/view', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
+        Route::get($prefix . '/seed-distribution-register/view/{batch?}', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
         Route::get($prefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
     }
 }
@@ -150,8 +144,8 @@ Route::middleware([
     Route::get('/targets', App\Livewire\Targets\View::class)->name('admin-targets');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('admin-std-targets');
     Route::get('/user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('admin-user-roles');
-    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('admin-markets-manage-data');
-    Route::get('/marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('admin-markets-submit-data');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('admin-markets-manage-data');
+    Route::get('/marketing/submit-data/{id?}', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('admin-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('admin-gross-margin-manage-data');
     Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('admin-gross-margin-add-data');
     Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('admin-gross-margin-upload-data');
@@ -196,8 +190,8 @@ Route::middleware([
     Route::get('/targets', App\Livewire\Targets\View::class)->name('monitor-targets');
     Route::get('/standard-targets', App\Livewire\Targets\SubmissionTargets::class)->name('monitor-std-targets');
     Route::get('/user-roles', \App\Livewire\Admin\Users\UserRoles::class)->name('monitor-user-roles');
-    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('monitor-markets-manage-data');
-    Route::get('/marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('monitor-markets-submit-data');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('monitor-markets-manage-data');
+    Route::get('/marketing/submit-data/{id?}', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('monitor-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('monitor-gross-margin-manage-data');
     Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('monitor-gross-margin-add-data');
     Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('monitor-gross-margin-upload-data');
@@ -231,8 +225,8 @@ Route::middleware([
     Route::get('/indicators-and-leads', Assignments::class)->name('cip-leads');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-targets');
     Route::get('/baseline/{baselineDataId?}', App\Livewire\Baseline\UpdateBaselineData::class)->where('id', '[0-9]+')->name('cip-baseline');
-    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('cip-markets-manage-data');
-    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('cip-markets-submit-data');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('cip-markets-manage-data');
+    Route::get('/marketing/submit-data/{id?}', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('cip-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('cip-gross-margin-manage-data');
     Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('cip-gross-margin-add-data');
     Route::get('/gross-margin/upload-data', \App\Livewire\Internal\Cip\GrossMargin\UploadData::class)->name('cip-gross-margin-upload-data');
@@ -259,7 +253,7 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Internal\Staff\Forms::class)->name('cip-staff-forms');
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Staff\Submissions::class)->name('cip-staff-submissions');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('cip-staff-targets');
-    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('staff-markets-manage-data');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('staff-markets-manage-data');
     Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('staff-markets-submit-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('staff-gross-margin-manage-data');
     Route::get('/gross-margin/add-data', \App\Livewire\Internal\Cip\GrossMargin\AddData::class)->name('staff-gross-margin-add-data');
@@ -292,8 +286,7 @@ Route::middleware([
     Route::get('/forms', \App\Livewire\Internal\Manager\Forms::class)->name('project_manager-forms');
     Route::get('/reports', \App\Livewire\Internal\Manager\Reports::class)->name('project_manager-reports');
     Route::get('/targets', App\Livewire\Targets\View::class)->name('project_manager-targets');
-    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project_manager-markets-manage-data');
-    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('project_manager-markets-submit-data');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('project_manager-markets-manage-data');
     Route::get('/gross-margin/manage-data', \App\Livewire\Internal\Cip\GrossMargin\ManageData::class)->name('project_manager-gross-margin-manage-data');
     Route::get('/gross-margin/gross-margin-category-items', \App\Livewire\Internal\Cip\GrossMargin\AddGrossCategory::class)->name('project_manager-gross-margin-items');
     Route::get('products/view-data', \App\Livewire\External\Products\ViewData::class)->name('project_manager-products-view-data');
@@ -333,8 +326,8 @@ Route::middleware([
 ])->prefix('enumerator')->group(function () {
     Route::get('/dashboard', \App\Livewire\Internal\Enumerator\Dashboard::class)->name('enumerator-dashboard');
     Route::get('/submissions/{batch?}', \App\Livewire\Internal\Enumerator\Submissions::class)->name('enumerator-submissions');
-    Route::get('/marketing/manage-data', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
-    Route::get('marketing/submit-data', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
+    Route::get('/marketing/manage-data/{batch?}', \App\Livewire\Internal\Cip\Markets\ManageData::class)->name('enumerator-markets-manage-data');
+    Route::get('/marketing/submit-data/{id?}', \App\Livewire\Internal\Cip\Markets\SubmitData::class)->name('enumerator-markets-submit-data');
     Route::get('/profile', \App\Livewire\Profile\Details::class)
         ->middleware(['auth'])
         ->name('enumerator-profile');

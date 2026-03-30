@@ -4,6 +4,7 @@ namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
 use App\Models\User;
+use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use Illuminate\Support\Carbon;
@@ -29,7 +30,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 final class RtcProductionProcessorsTable extends PowerGridComponent
 {
     use WithExport;
-
+    use BatchTrait;
     use ExportTrait;
     use UITrait;
     public bool $multiSort = true;
@@ -43,6 +44,9 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         //     $getMap[$column->title] = $column->dataField;
         // }
         // dd($getMap);
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         return [
             // Exportable::make('export')
             //     ->striped()
@@ -208,6 +212,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
             Column::make('ID', 'rn')->sortable(),
             Column::make('Processor ID', 'pp_id')->searchable()
                 ->sortable(),
+                    Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Date of follow up', 'date_of_followup_formatted')
                 ->sortable()->searchable(),
             Column::make('Enterprise', 'enterprise',)->searchable()->sortable(),
@@ -262,7 +267,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         ];
     }
 
-  public function filters(): array
+    public function filters(): array
     {
         return [
             //    Filter::datepicker('date'),

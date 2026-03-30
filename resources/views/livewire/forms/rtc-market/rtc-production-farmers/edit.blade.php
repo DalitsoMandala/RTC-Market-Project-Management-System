@@ -1,5 +1,7 @@
 <x-form-component :showAlpineAlerts="true" title="Add Farmers Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission"
-    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name">
+    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name" :bypassTargets="true" :skipDraftScript="true">
+
+    <x-display-id :id="$uniqueId" />
 
 
     <!-- Group Name -->
@@ -13,14 +15,14 @@
             <x-error>{{ $message }}</x-error>
         @enderror
     </div>
-    <div class="mb-3" >
+    <div class="mb-3">
         <label for="" class="form-label ">ENTERPRISE</label>
         <div class="form-group">
 
             <select class="form-select @error('location_data.enterprise')
             is-invalid
         @enderror"
-                wire:mode.live.debounce.500ms='location_data.enterprise'>
+                wire:model.live.debounce.500ms='location_data.enterprise'>
                 <option value="">Select one</option>
                 <option selected value="Cassava">Cassava</option>
                 <option value="Potato">Potato</option>
@@ -32,11 +34,10 @@
             <x-error>{{ $message }}</x-error>
         @enderror
     </div>
-
     <!-- Group -->
     <div class="mb-3" x-data="{ group: $wire.entangle('group'), type: $wire.entangle('type') }" x-init="() => {
-
-
+    
+    
     }">
         <label for="group" class="form-label">Group</label>
         <select class="form-select @error('group') is-invalid @enderror" x-model="group">
@@ -63,7 +64,7 @@
             <x-error>{{ $message }}</x-error>
         @enderror
     </div>
-  <!-- Sector -->
+    <!-- Sector -->
     <div class="mb-3">
         <label for="sector" class="form-label">Sector</label>
         <select class="form-select @error('sector') is-invalid @enderror" wire:model="sector">
@@ -77,10 +78,10 @@
         @enderror
     </div>
 
- <!-- Category -->
-    <div class="mb-3">
+    <!-- Category -->
+    <div class="mb-3" >
         <label for="category" class="form-label">Category</label>
-        <select class="form-select @error('category') is-invalid @enderror" id="establishment" x-model='category'>
+        <select class="form-select @error('category') is-invalid @enderror" id="establishment" wire:model='category'>
             <option value="">Select One</option>
             <option value="Early generation seed producer">Early generation seed
                 producer</option>

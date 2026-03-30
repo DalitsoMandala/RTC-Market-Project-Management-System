@@ -2,38 +2,40 @@
 
 namespace App\Livewire\tables;
 
-use App\Models\User;
-use Livewire\Attributes\On;
 use App\Helpers\TruncateText;
+use App\Models\MarketDataSubmission;
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\MarketDataSubmission;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Builder;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class MarketDataSubmissionTable extends PowerGridComponent
 {
     use WithExport;
     //Batch Submission Table
-
+use LivewireAlert;
     public $filter;
     public $userId;
     public bool $showFilters = true;
     public $batch;
     public $row = 1;
     public string $sortField = 'id';
-
+public $routePrefix;
     public string $sortDirection = 'desc';
     public function setUp(): array
     {
@@ -237,12 +239,13 @@ final class MarketDataSubmissionTable extends PowerGridComponent
     {
 
         return [
+            Column::make('Batch no', 'batch_no_formatted','submissions.batch_no')
+
+                ->searchable(),
             Column::make('#', 'rn')->sortable()->hidden(),
             Column::make('File', 'file_link'),
 
-            Column::make('Batch no', 'batch_no_formatted')
-                ->sortable()
-                ->searchable(),
+
 
             Column::make('SUBMITTED BY', 'username')->searchable(),
 
@@ -298,7 +301,37 @@ final class MarketDataSubmissionTable extends PowerGridComponent
                     'id' => $row->id,
                     'name' => 'delete-market-modal'
                 ]),
+
+            Button::add('view-data')
+                ->slot('<i class="bx bx-link"></i>')
+                ->id()
+                ->class('btn btn-warning my-1 custom-tooltip btn-sm')
+                ->tooltip('View Data')
+                ->dispatch('view-data-market', [
+                    'batch_no' => $row->batch_no,
+
+
+                ]),
+
         ];
+    }
+    #[On('view-data-market')]
+    public function viewData($batch_no)
+    {
+        $routePrefix = $this->routePrefix;
+
+
+        if (!$routePrefix  || !$batch_no) {
+            $this->alert('error', 'Missing parameters to view data', [
+                'position' => 'center',
+                'timer' => 5000,
+                'toast' => false
+            ]);
+            return;
+        }
+
+        $route = "{$routePrefix}/marketing/manage-data/{$batch_no}";
+        return $this->redirect($route);
     }
 
     public function actionRules($row): array

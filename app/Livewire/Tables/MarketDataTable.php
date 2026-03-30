@@ -2,31 +2,33 @@
 
 namespace App\Livewire\tables;
 
-use App\Models\User;
 use App\Models\MarketData;
+use App\Models\User;
+use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class MarketDataTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
-
+    use BatchTrait;
     public $namedExport = 'market_data';
     #[On('export-market_data')]
     public function startExport()
@@ -45,7 +47,9 @@ final class MarketDataTable extends PowerGridComponent
     public function setUp(): array
     {
 
-
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         return [
 
             Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
@@ -77,7 +81,7 @@ final class MarketDataTable extends PowerGridComponent
 
             ->add('entry_date_formatted', fn($model) => Carbon::parse($model->entry_date)->format('d/m/Y'))
             ->add('off_taker_name_vehicle_reg_number')
-
+            ->add('uuid')
             ->add('trader_contact')
             ->add('buyer_location')
             ->add('variety_demanded')
@@ -102,7 +106,8 @@ final class MarketDataTable extends PowerGridComponent
     {
         return [
             Column::make('#', 'rn'),
-
+            Column::action(''),
+            Column::make('batch', 'uuid')->searchable()->hidden(),
             Column::make('Entry date', 'entry_date_formatted', 'entry_date')
                 ->sortable(),
 
@@ -188,16 +193,44 @@ final class MarketDataTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: ' . $row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id])
-    //     ];
-    // }
+    public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $link = null;
+        $uuid = $row->uuid;
+        $suffix = 'markets-submit-data';
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link ="admin-{$suffix}";
+                break;
+
+            case 'staff':
+                $link = "staff-{$suffix}";
+                break;
+            case 'manager':
+                $link ="cip-{$suffix}";
+                break;
+            case 'enumerator':
+                $link = "enumerator-{$suffix}";
+                break;
+            case 'monitor':
+                $link = "monitor-{$suffix}";
+                break;
+        }
+
+        return [
+    Button::add('edit')
+        ->render(function ($dish) use ($link, $uuid) {
+            // Generate the URL in PHP first
+            
+            $url = route($link, ['id' => $uuid]);
+         
+            return Blade::render(<<<HTML
+                <a href="{{ \$url }}" class="btn btn-warning btn-sm"><i class="bx bx-pen"></i></a>
+            HTML, ['url' => $url]);
+        })
+];
+    }
 
     /*
     public function actionRules($row): array

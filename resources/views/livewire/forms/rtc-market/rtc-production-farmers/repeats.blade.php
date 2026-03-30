@@ -9,7 +9,7 @@
         $wire.resetValues('inputOne');
     }
 });" x-show='has_rtc_market_contract == 1'>
-    <div class="alert alert-warning" id="section-f" role="alert">
+    <div class="my-1 alert alert-warning" id="section-f" role="alert">
         <strong>DO YOU HAVE ANY RTC MARKET CONTRACTUAL AGREEMENT? –SPECIFY PARTNER</strong>
     </div>
 
@@ -144,7 +144,7 @@
     }
 });" x-show='sells_to_domestic_markets == 1'>
     {{-- DO YOU SELL YOUR RTC PRODUCTS TO DOMESTIC MARKETS? –SPECIFY PARTNER --}}
-    <div class="alert alert-warning" id="section-g" role="alert">
+    <div class="my-1 alert alert-warning" id="section-g" role="alert">
         <strong>DO YOU SELL YOUR RTC PRODUCTS TO DOMESTIC MARKETS? –SPECIFY PARTNER</strong>
     </div>
 
@@ -297,7 +297,7 @@
 
 
     {{-- DO YOU SELL YOUR RTC PRODUCTS TO INTERNATIONAL MARKETS? –SPECIFY PARTNER --}}
-    <div class="alert alert-warning" id="section-h" role="alert">
+    <div class="my-1 alert alert-warning" id="section-h" role="alert">
         <strong>DO YOU SELL YOUR RTC PRODUCTS TO INTERNATIONAL MARKETS? –SPECIFY PARTNER</strong>
     </div>
 

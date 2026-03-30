@@ -44,11 +44,7 @@ class indicator_2_2_3
             ->where('status', 'approved')
             ->where('is_registered_seed_producer', true);
 
-        $enterprise = $this->enterprise ?? $crop;
 
-        if ($enterprise) {
-            $query->where('enterprise', $enterprise);
-        }
 
         return $this->applyFilters($query);
     }
@@ -57,11 +53,6 @@ class indicator_2_2_3
     {
         $query = Recruitment::query()->where('status', 'approved');
 
-        $enterprise = $this->enterprise ?? $crop;
-
-        if ($enterprise) {
-            $query->where('enterprise', $enterprise);
-        }
 
         return $this->applyFilters($query);
     }
@@ -107,7 +98,7 @@ class indicator_2_2_3
             ->count();
     }
 
-    /*
+   /*
     |--------------------------------------------------------------------------
     | Crop Aggregation
     |--------------------------------------------------------------------------
@@ -116,29 +107,20 @@ class indicator_2_2_3
     public function getCrop()
     {
         $farmers = $this->builderFarmer()
-            ->with(['basicSeed', 'certifiedSeed'])
+            ->whereIn('enterprise', array_keys($this->crops))
             ->get()
             ->groupBy('enterprise');
 
         $result = [];
 
         foreach ($this->crops as $name => $key) {
-
-            if ($this->enterprise && $this->enterprise !== $name) {
-                $result[$key] = [
-                    'basic_seed' => 0,
-                    'certified_seed' => 0,
-                    "{$key}_count" => 0
-                ];
-                continue;
-            }
-
             $enterpriseFarmers = $farmers->get($name, collect());
 
             $result[$key] = [
-                'basic_seed' => $enterpriseFarmers->sum(fn($f) => $f->basicSeed?->count() ?? 0),
-                'certified_seed' => $enterpriseFarmers->sum(fn($f) => $f->certifiedSeed?->count() ?? 0),
-                "{$key}_count" => $enterpriseFarmers->count()
+                // Assuming seed counts are relationships or attributes on the model
+                'basic_seed'     => $enterpriseFarmers->where('category', 'Early generation seed producer')->count(),
+                'certified_seed' => $enterpriseFarmers->where('category', 'Seed multiplier')->count(),
+                "{$key}_count"   => $enterpriseFarmers->count()
             ];
         }
 
@@ -147,42 +129,20 @@ class indicator_2_2_3
 
     /*
     |--------------------------------------------------------------------------
-    | Indicator
+    | Calculations
     |--------------------------------------------------------------------------
     */
 
-    public function findIndicator()
+    public function calculatePercentage()
     {
-        $indicator = Indicator::where('indicator_no', '2.2.3')
-            ->where('indicator_name', 'Percentage seed multipliers with formal registration')
-            ->first();
+        $registeredCount = $this->builderFarmer()->count();
+        $totalPotentialCount = $this->builderRecruitment()->count();
 
-        if (!$indicator) {
-            Log::error('Indicator 2.2.3 not found');
-            return null;
+        if ($totalPotentialCount === 0) {
+            return 0;
         }
 
-        return $indicator;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Seed Types
-    |--------------------------------------------------------------------------
-    */
-
-    public function getBasicSeed()
-    {
-        return $this->builderFarmer()
-            ->where('category', 'Early generation seed producer')
-            ->count();
-    }
-
-    public function getCertifiedSeed()
-    {
-        return $this->builderFarmer()
-            ->where('category', 'Seed multiplier')
-            ->count();
+        return ($registeredCount / $totalPotentialCount) * 100;
     }
 
     /*
@@ -195,23 +155,19 @@ class indicator_2_2_3
     {
         $cropData = $this->getCrop();
 
-        $cassava = $cropData['cassava']['cassava_count'] ?? 0;
-        $potato = $cropData['potato']['potato_count'] ?? 0;
-        $sweetPotato = $cropData['sweet_potato']['sweet_potato_count'] ?? 0;
-
         return [
-            'Total (% Percentage)' => 0,
-            'Cassava' => $cassava,
-            'Potato' => $potato,
-            'Sweet potato' => $sweetPotato,
-            'Basic' => $this->getBasicSeed(),
-            'Certified' => $this->getCertifiedSeed(),
-            'POs' => $this->getCategoryPos(),
+            'Total (% Percentage)'          => 0,
+            'Cassava'                       => $cropData['cassava']['cassava_count'] ?? 0,
+            'Potato'                        => $cropData['potato']['potato_count'] ?? 0,
+            'Sweet potato'                  => $cropData['sweet_potato']['sweet_potato_count'] ?? 0,
+            'Basic'                         => $this->builderFarmer()->where('category', 'Early generation seed producer')->count(),
+            'Certified'                     => $this->getCategorySeedMultipliers(),
+            'POs'                           => $this->getCategoryPos(),
             'Individual farmers not in POs' => $this->getCategoryNotIndividualFarmers(),
-            'Registered' => $this->builderFarmer()->count(),
-            'Seed multipliers' => $this->getCategorySeedMultipliers(),
-            'Large scale' => $this->getCategoryLargeScaleFarmers(),
-            'Small scale' => $this->getCategorySME(),
+            'Registered'                    => $this->builderFarmer()->count(),
+            'Seed multipliers'              => $this->getCategorySeedMultipliers(),
+            'Large scale'                   => $this->builderFarmer()->where('group', 'Large scale farm')->count(),
+            'Small scale'                   => $this->builderFarmer()->where('group', 'Small medium enterprise (SME)')->count(),
         ];
     }
 }

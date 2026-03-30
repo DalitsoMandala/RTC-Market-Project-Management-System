@@ -48,6 +48,18 @@ class RtcProductionProcessor extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function organisation()
+    {
+        return $this->belongsTo(Organisation::class,'organisation_id');
+    }
+    public function financialYear()
+    {
+        return $this->belongsTo(FinancialYear::class,'financial_year_id');
+    }
+    public function periodMonth()
+    {
+        return $this->belongsTo(ReportingPeriodMonth::class,'period_month_id');
+    }
 
     protected static function booted()
     {

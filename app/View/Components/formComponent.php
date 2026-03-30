@@ -24,6 +24,8 @@ class formComponent extends Component
     public $showAlpineAlerts;
     public $formRoute;
 
+    public bool $bypassTargets = false;
+
     public function __construct(
         $title = null,
         $pageTitle = null,
@@ -37,7 +39,8 @@ class formComponent extends Component
         $skipDraftScript = false,
         $formName = 'default',
         $showAlpineAlerts = false,
-        $formRoute = null
+        $formRoute = null,
+        $bypassTargets = false
     ) {
         $this->title = $title;
         $this->pageTitle = $pageTitle;
@@ -51,7 +54,7 @@ class formComponent extends Component
         $this->skipDraftScript = $skipDraftScript;
         $this->formName = $formName;
         $this->showAlpineAlerts = $showAlpineAlerts;
-
+        $this->bypassTargets = $bypassTargets;
 
 
         $uuid = Uuid::uuid4()->toString();

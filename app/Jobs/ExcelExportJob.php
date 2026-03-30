@@ -48,6 +48,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\RpmProcessorAggregationCenter;
 use App\Models\RpmFarmerMarketInformationSystem;
 use App\Models\RpmProcessorMarketInformationSystem;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Entity\Style\StyleBuilder;
+
 // Use Cache for progress tracking
 
 class ExcelExportJob implements ShouldQueue
@@ -60,7 +63,7 @@ class ExcelExportJob implements ShouldQueue
     public $statusKey;
     public $user;
     public $filePath;
-
+    public $headerStyle;
     public array $data = [];
     /**
      * Create a new job instance.
@@ -73,6 +76,10 @@ class ExcelExportJob implements ShouldQueue
         $this->user     = $user;
         $this->filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
         $this->data = $data;
+
+
+        $this->headerStyle = (new Style())
+            ->setFontBold();
     }
 
     /**
@@ -150,13 +157,19 @@ class ExcelExportJob implements ShouldQueue
                     "Uses market information systems" => "uses_market_information_systems",
                     "Sells to aggregation centers" => "sells_to_aggregation_centers",
                     "Total volume of aggregation center sales" => "total_vol_aggregation_center_sales",
-                    "Submitted by" => "submittedBy"
+                    "Submitted by" => "submittedBy",
+                    'Organisation' => 'organisation_name',
+                    'Financial Year' => 'financial_year',
+                    'Reporting Period' => 'reporting_period'
                 ];
 
                 $headers = array_keys($columns);
 
                 // Create a new SimpleExcelWriter instance
-                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+                $writer = SimpleExcelWriter::create(
+                    file: $filePath,
+                )->addHeader($headers);
+                $writer->setHeaderStyle($this->headerStyle);
                 $writer->nameCurrentSheet('RTC Production Farmers');
                 $query = RtcProductionFarmer::query()->select([
                     'rtc_production_farmers.*',
@@ -240,7 +253,10 @@ class ExcelExportJob implements ShouldQueue
                             $item->uses_market_information_systems,
                             $item->sells_to_aggregation_centers,
                             $item->total_vol_aggregation_center_sales,
-                            $submittedBy
+                            $submittedBy,
+                            $item->organisation ? $item->organisation->name : null,
+                            $item->financialYear ? $item->financialYear->number : null,
+                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null
                         ]);
                     }
                 });
@@ -564,6 +580,9 @@ class ExcelExportJob implements ShouldQueue
                     'Total',
                     'Number of Households',
                     'Submitted by',
+                    'Organisation',
+                    'Financial Year',
+                    'Reporting Period'
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -606,6 +625,9 @@ class ExcelExportJob implements ShouldQueue
                             $item->total,
                             $item->number_of_households,
                             $submittedBy,
+                            $item->organisation ? $item->organisation->name : null,
+                            $item->financialYear ? $item->financialYear->number : null,
+                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null
                         ]);
                     }
                 });
@@ -650,14 +672,21 @@ class ExcelExportJob implements ShouldQueue
                     "Uses market information systems" => "uses_market_information_systems",
                     "Sells to aggregation centers" => "sells_to_aggregation_centers",
                     "Total Volume of Aggregation Center Sales" => "total_vol_aggregation_center_sales",
-                    "Submitted by" => "submitted_by"
+                    "Submitted by" => "submitted_by",
+                    'Organisation' => 'organisation_name',
+                    'Financial Year' => 'financial_year',
+                    'Reporting Period' => 'reporting_period'
                 ];
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader(array_keys($headers));
 
                 $writer->nameCurrentSheet('RTC Production Processors');
-                $query  = RtcProductionProcessor::query();
+                $query  = RtcProductionProcessor::query()->select([
+                    'rtc_production_processors.*',
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+
+                ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -710,6 +739,10 @@ class ExcelExportJob implements ShouldQueue
                             $item->sells_to_aggregation_centers,
                             $item->total_vol_aggregation_center_sales,
                             $submittedBy,
+                            $item->organisation ? $item->organisation->name : null,
+                            $item->financialYear ? $item->financialYear->number : null,
+                             $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null
+
                         ]);
                     }
                 });
@@ -926,13 +959,14 @@ class ExcelExportJob implements ShouldQueue
                     'Start Date',
                     'End Date',
                     'Total Days',
-
-
-                    'Organization',
+                    'Organisation (For the registered person)',
                     'Designation',
                     'Phone Number',
                     'Email',
                     'Submitted by',
+                    'Organisation',
+                    'Financial Year',
+                    'Reporting Period'
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -978,6 +1012,9 @@ class ExcelExportJob implements ShouldQueue
                             $record->phone_number,
                             $record->email,
                             $submittedBy,
+                            $record->organisation ? $record->organisation->name : null,
+                            $record->financialYear ? $record->financialYear->number : null,
+                            $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
                         ]);
                     }
                 });
@@ -1134,7 +1171,10 @@ class ExcelExportJob implements ShouldQueue
                     'Type of Actor',
                     'Season Type',
                     'Financial Year',
-                    'Submitted By'
+                    'Submitted By',
+                    'Organisation',
+                    'Financial Year',
+                    'Reporting Period'
                 ];
 
                 $PotatoHeaders = [
@@ -1160,7 +1200,10 @@ class ExcelExportJob implements ShouldQueue
                     'Type of Actor',
                     'Season Type',
                     'Financial Year',
-                    'Submitted By'
+                    'Submitted By',
+                    'Organisation',
+                    'Financial Year',
+                    'Reporting Period'
                 ];
 
                 $CassavaHeaders = [
@@ -1186,7 +1229,10 @@ class ExcelExportJob implements ShouldQueue
                     'Type of Actor',
                     'Season Type',
                     'Financial Year',
-                    'Submitted By'
+                    'Submitted By',
+                    'Organisation',
+                    'Financial Year',
+                    'Reporting Period'
                 ];
 
                 $writer = SimpleExcelWriter::create($filePath);
@@ -1204,7 +1250,7 @@ class ExcelExportJob implements ShouldQueue
                         $writer->nameCurrentSheet($crop)->addHeader($CassavaHeaders);
                     }
 
-                    $query = SeedBeneficiary::with(['user', 'user.organisation','financial_year'])
+                    $query = SeedBeneficiary::with(['user', 'user.organisation', 'financial_year'])
                         ->where('crop', $crop)
                         ->select([
                             'seed_beneficiaries.crop',
@@ -1274,7 +1320,11 @@ class ExcelExportJob implements ShouldQueue
                                     $record->type_of_actor,
                                     $record->season_type,
                                     $record->financial_year->number,
-                                    $submittedBy
+                                    $submittedBy,
+                                    $record->organisation ? $record->organisation->name : null,
+                                    $record->financial_year ? $record->financial_year->number : null,
+                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+
                                 ]);
                             } elseif ($crop === 'Cassava') {
                                 $writer->addRow([
@@ -1300,7 +1350,11 @@ class ExcelExportJob implements ShouldQueue
                                     $record->type_of_actor,
                                     $record->season_type,
                                     $record->financial_year->number,
-                                    $submittedBy
+                                    $submittedBy,
+                                     $record->organisation ? $record->organisation->name : null,
+                                    $record->financial_year ? $record->financial_year->number : null,
+                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+
                                 ]);
                             } else { // OFSP
                                 $writer->addRow([
@@ -1327,7 +1381,11 @@ class ExcelExportJob implements ShouldQueue
                                     $record->type_of_actor,
                                     $record->season_type,
                                     $record->financial_year->number,
-                                    $submittedBy
+                                    $submittedBy,
+                                $record->organisation ? $record->organisation->name : null,
+                                    $record->financial_year ? $record->financial_year->number : null,
+                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+
                                 ]);
                             }
                         }
@@ -1376,6 +1434,9 @@ class ExcelExportJob implements ShouldQueue
                     'Is Registered Seed Producer'       => 'Boolean (1/0)',
                     'Uses Certified Seed'               => 'Boolean (1/0)',
                     'Submitted By'                      => true,
+                    'Organisation'                      => true,
+                    'Financial Year'                    => true,
+                    'Reporting Period'                  => true,
                 ];
                 $headers = array_keys($headerFromExports);
 
@@ -1383,7 +1444,7 @@ class ExcelExportJob implements ShouldQueue
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
                 $writer->nameCurrentSheet('RTC Actor Recruitment');
 
-                $query =     Recruitment::with(['user', 'user.organisation'])->select([
+                $query =     Recruitment::with(['user', 'user.organisation', 'financialYear', 'periodMonth','organisation'])->select([
                     'recruitments.*',
                     DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
                 ]);
@@ -1403,27 +1464,27 @@ class ExcelExportJob implements ShouldQueue
                         }
                         $writer->addRow([
                             $record->rn,
-                            $record->epa ?? 'NA',
-                            $record->section ?? 'NA',
-                            $record->district ?? 'NA',
-                            $record->enterprise ?? 'NA',
+                            $record->epa ,
+                            $record->section ,
+                            $record->district ,
+                            $record->enterprise ,
                             $record->date_of_recruitment ?   Carbon::parse($record->date_of_recruitment)->format('d/m/Y') : 'NA',
-                            $record->name_of_actor ?? 'NA',
-                            $record->name_of_representative ?? 'NA',
-                            $record->phone_number ?? 'NA',
-                            $record->type ?? 'NA',
-                            $record->group ?? 'NA',
-                            $record->approach ?? 'NA',
-                            $record->sector ?? 'NA',
+                            $record->name_of_actor ,
+                            $record->name_of_representative ,
+                            $record->phone_number ,
+                            $record->type ,
+                            $record->group ,
+                            $record->approach ,
+                            $record->sector ,
                             $record->mem_female_18_35,
                             $record->mem_male_18_35,
                             $record->mem_male_35_plus,
                             $record->mem_female_35_plus,
-                            $record->category ?? 'NA',
-                            $record->establishment_status ?? 'NA',
+                            $record->category ,
+                            $record->establishment_status ,
                             $record->is_registered == 1 ? 'Yes' : 'No',
-                            $record->registration_body ?? 'NA',
-                            $record->registration_number ?? 'NA',
+                            $record->registration_body ,
+                            $record->registration_number ,
                             $record->registration_date ? Carbon::parse($record->registration_date)->format('d/m/Y') : 'NA',
                             $record->emp_formal_female_18_35,
                             $record->emp_formal_male_18_35,
@@ -1437,6 +1498,9 @@ class ExcelExportJob implements ShouldQueue
                             $record->is_registered_seed_producer == 1 ? 'Yes' : 'No',
                             $record->uses_certified_seed == 1 ? 'Yes' : 'No',
                             $submittedBy,
+                            $record->organisation ? $record->organisation->name : null,
+                            $record->financialYear ? $record->financialYear->number : null,
+                            $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
                         ]);
                     }
                 });

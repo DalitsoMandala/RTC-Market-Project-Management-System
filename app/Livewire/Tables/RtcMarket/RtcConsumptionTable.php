@@ -3,6 +3,7 @@
 namespace App\Livewire\tables\rtcMarket;
 
 use App\Models\User;
+use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use Livewire\Attributes\On;
 use App\Models\RtcConsumption;
@@ -28,12 +29,14 @@ final class RtcConsumptionTable extends PowerGridComponent
     use WithExport;
     use ExportTrait;
     use UITrait;
-
+    use BatchTrait;
     public bool $multiSort = true;
     public function setUp(): array
     {
         // $this->showCheckBox();
-
+     if($this->getBatch()){
+        $this->search = $this->getBatch();
+     }
         return [
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
@@ -46,7 +49,6 @@ final class RtcConsumptionTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
@@ -131,6 +133,7 @@ final class RtcConsumptionTable extends PowerGridComponent
     {
         return [
             Column::make('#', 'rn')->sortable()->searchable(),
+            Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Entity ID', 'en_id')->searchable(),
             Column::make('Entity Name', 'entity_name', 'entity_name')->searchable(),
             Column::make('Entity Type', 'entity_type', 'entity_type')->sortable()->searchable(),
@@ -162,7 +165,7 @@ final class RtcConsumptionTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-                    Column::make('Number of households', 'number_of_households', 'number_of_households')
+            Column::make('Number of households', 'number_of_households', 'number_of_households')
                 ->sortable()
                 ->searchable(),
             Column::make('Submitted by', 'submitted_by')
