@@ -251,13 +251,44 @@
             }
 
 
-            .table-sticky-col {
-                position: sticky;
-                left: 0;
-                background-color: #fff;
-                /* Ensure background matches table to avoid overlap issues */
-                z-index: 1;
-                /* Ensure it stays above other table content */
+            /* Base requirement for sticky columns */
+.table-sticky-col {
+    position: sticky;
+
+    z-index: 2;
+}
+
+/* First sticky column */
+td.table-sticky-col:nth-child(1),
+th.table-sticky-col:nth-child(1) {
+    left: 0;
+    z-index: 3;
+}
+
+/* Second sticky column */
+td.table-sticky-col:nth-child(2),
+th.table-sticky-col:nth-child(2) {
+    left: 50px; /* width of first column */
+}
+
+/* Third sticky column */
+td.table-sticky-col:nth-child(3),
+th.table-sticky-col:nth-child(3) {
+    left: 100px; /* width of first + second */
+}
+
+td.table-sticky-col:nth-child(4),
+th.table-sticky-col:nth-child(4) {
+    left: 200px; /* width of first + second */
+}
+
+            td.table-sticky-col {
+                background-color: #f5f5f5 !important;
+                border: #edeaea 1px solid !important;
+            }
+
+            th.table-sticky-col {
+                background-color: #ece9e9 !important;
             }
 
             th {
@@ -324,6 +355,7 @@
                 word-wrap: break-word;
                 /* Allow breaking long words if needed */
                 margin: 10px 10px;
+
             }
 
 
@@ -592,6 +624,7 @@
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
 
+
             @stack('scripts')
             <script>
                 $(document).ready(function() {
@@ -686,7 +719,7 @@
                 })
             </script>
 
-            <script src="{{ asset('assets/js/app.js') }}"></script>
+
 
     </body>
 

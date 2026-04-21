@@ -39,7 +39,7 @@ final class RpmProcessorMarketSegment extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
             ->add('rpm_processor_id')
-            ->add('name_of_actor')
+
             ->add('unique_id', function ($model) {
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
             })
@@ -79,10 +79,7 @@ final class RpmProcessorMarketSegment extends PowerGridComponent
                 ->sortable(),
 
 
-            Column::make('Name of actor', 'name_of_actor')
-                ->searchable()
-                ->sortable(),
-
+         
             Column::make('Market Segment/Fresh', 'market_segment_fresh'),
 
             Column::make('Market Segment/Processed', 'market_segment_processed'),

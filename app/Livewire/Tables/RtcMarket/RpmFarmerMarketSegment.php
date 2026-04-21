@@ -63,7 +63,7 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
         return PowerGrid::fields()
             ->add('pf_id')
 
-            ->add('name_of_actor')
+
             ->add('unique_id', function ($model) {
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
             })
@@ -109,13 +109,11 @@ final class RpmFarmerMarketSegment extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('Actor ID', 'pf_id')
+            Column::make('Farmer ID', 'pf_id')
                 ->searchable()
                 ->sortable(),
 
-            Column::make('Name of actor', 'name_of_actor')
-                ->searchable()
-                ->sortable(),
+  
 
             Column::make('Market Segment/Fresh', 'market_segment_fresh'),
 

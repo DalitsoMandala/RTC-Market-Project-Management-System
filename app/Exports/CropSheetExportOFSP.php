@@ -26,7 +26,7 @@ class CropSheetExportOFSP extends CropSheetExport implements FromCollection, Wit
     {
         $this->cropType = $cropType;
         $this->template = $template;
-        $this->validationTypes = $this->forms['Seed Beneficiaries Form']['OFSP'];
+        $this->validationTypes = $this->forms['Seed Beneficiaries Form']['Sweet potato'];
     }
 
     public function headings(): array

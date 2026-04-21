@@ -2,26 +2,28 @@
 
 namespace App\Livewire\tables;
 
+use App\Models\Project;
+use App\Models\SeedBeneficiary;
 use App\Models\User;
 use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use App\Models\SeedBeneficiary;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SeedBeneficiaryTable extends PowerGridComponent
 {
@@ -29,7 +31,8 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     use ExportTrait;
     use BatchTrait;
     public $crop;
-
+    public $table_name = 'seed-distribution-register';
+    public string $tableName = 'seed-distribution-register-potato';
     public function __construct()
     {
         $this->excelData['crop_type'] = 'Potato';
@@ -41,7 +44,8 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function setUp(): array
     {
 
-        if ($this->getBatch()) {
+        if ($this->getBatch() && $this->getCropType() && $this->getCropType() == 'Potato') {
+
             $this->search = $this->getBatch();
         }
         return [
@@ -72,6 +76,8 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
+
+
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = SeedBeneficiary::query()->with([
@@ -94,6 +100,7 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
+            ->add('sd_id')
             ->add('district')
             ->add('epa')
             ->add('section')
@@ -146,13 +153,19 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+            Column::make('Beneficiary ID', 'sd_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Name of recipient', 'name_of_recipient')
+                ->sortable()
+                ->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('District', 'district', 'district')
                 ->sortable()
-
-
                 ->searchable(),
-
             Column::make('Epa', 'epa')
                 ->sortable()
                 ->searchable(),
@@ -172,9 +185,6 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
 
-            Column::make('Name of recipient', 'name_of_recipient')
-                ->sortable()
-                ->searchable(),
 
 
             Column::make('Group Name', 'group_name')
@@ -229,11 +239,52 @@ final class SeedBeneficiaryTable extends PowerGridComponent
             //     ->searchable(),
 
             Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
-            Column::action('')
+
 
         ];
     }
+    public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/' . $this->table_name . '/edit/' . $row->id . '/' . $row->uuid;
 
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+     // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
+
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+
+        // Logic for staff permission (Only their own records)
+        $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
+
+        return [
+            Button::add('edit')
+                ->can($canEdit)
+                ->render(function () use ($link) {
+                    // Using a simple return is faster than compiling a Blade view for a single button
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                })
+        ];
+    }
     public function filters(): array
     {
         return [];
@@ -243,33 +294,5 @@ final class SeedBeneficiaryTable extends PowerGridComponent
     public function edit(): void
     {
         $this->refresh();
-    }
-
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('my-2 btn btn-warning btn-sm custom-tooltip')
-                ->tooltip('Edit')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
-
-                ->dispatch('edit-showModal', [
-                    'id' => $row->id,
-                    'name' => 'view-detail-modal'
-                ]),
-
-            Button::add('delete')
-                ->slot('<i class="bx bx-trash-alt"></i>')
-                ->id()
-                ->class('btn btn-theme-red my-1 btn-sm custom-tooltip')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
-                ->tooltip('Delete')
-                ->dispatch('deleteRecord', [
-                    'id' => $row->id,
-                    'name' => 'delete-detail-modal'
-                ]),
-        ];
     }
 }

@@ -34,7 +34,7 @@
             <a href="{{ $replaceUrl }}">Upload Data</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="{{ $routePrefix }}/forms/rtc-market/rtc-actor-recruitment-form/view">
+            <a href="/{{ $routePrefix }}/forms/rtc-market/rtc-actor-recruitment-form/view">
                 {{ ucwords(strtolower($form_name)) }}
             </a>
         </li>

@@ -2,26 +2,28 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
-use App\Models\User;
+use App\Models\Project;
 use App\Models\Recruitment;
+use App\Models\User;
 use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
 use App\Traits\UITrait;
-use Livewire\Attributes\On;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RecruitmentsTable extends PowerGridComponent
 {
@@ -33,9 +35,9 @@ final class RecruitmentsTable extends PowerGridComponent
     public function setUp(): array
     {
         //  $this->showCheckBox();
-if($this->getBatch()){
-    $this->search = $this->getBatch();
-}
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         return [
             // Exportable::make('export')
             //     ->striped()
@@ -60,7 +62,7 @@ if($this->getBatch()){
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = Recruitment::query()->with([
-             'user' => fn($q) => $q->withTrashed(),
+            'user' => fn($q) => $q->withTrashed(),
             'user.organisation'
         ])->select([
             'recruitments.*',
@@ -85,7 +87,7 @@ if($this->getBatch()){
             ->add('district', fn($model) => $model->district ?? null)
             ->add('enterprise', fn($model) => $model->enterprise ?? null)
             ->add('date_of_recruitment_formatted', fn($model) => $model->date_of_recruitment ? Carbon::parse($model->date_of_recruitment)->format('d/m/Y') : null)
-            ->add('name_of_actor', fn($model) => $model->name_of_actor ?? null)
+            ->add('name_of_actor', fn($model) => ucwords(strtolower($model->name_of_actor)) ?? null)
             ->add('name_of_representative', fn($model) => $model->name_of_representative ?? null)
             ->add('phone_number', fn($model) => $model->phone_number ?? null)
             ->add('type', fn($model) => $model->type ?? null)
@@ -147,14 +149,67 @@ if($this->getBatch()){
     {
         return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
     }
+
+    public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-actor-recruitment-form/edit/' . $row->id . '/' . $row->uuid;
+
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+
+        // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
+
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+
+        // Logic for staff permission (Only their own records)
+        $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
+
+        return [
+            Button::add('edit')
+                ->can($canEdit)
+                ->render(function () use ($link) {
+                    // Using a simple return is faster than compiling a Blade view for a single button
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                })
+        ];
+    }
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::action('')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Recruitment id', 'rc_id')
-
+                ->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col')
                 ->searchable(),
-    Column::make('UUID', 'uuid')->searchable()->hidden(),
+            Column::make('Name of actor', 'name_of_actor')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col')
+                ->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col')
+                ->searchable(),
+            Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Epa', 'epa')
                 ->sortable()
                 ->searchable(),
@@ -174,9 +229,8 @@ if($this->getBatch()){
             Column::make('Date of recruitment', 'date_of_recruitment_formatted', 'date_of_recruitment')
                 ->sortable(),
 
-            Column::make('Name of actor', 'name_of_actor')
-                ->sortable()
-                ->searchable(),
+
+
 
             Column::make('Name of representative', 'name_of_representative')
                 ->sortable()

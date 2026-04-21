@@ -365,7 +365,7 @@ trait FormEssentials
                 'Phone Number' => 'Text',
                 'Season Type' => 'Text, (Choose One)'
             ],
-            'OFSP' => [
+            'Sweet potato' => [
                 'EPA' => 'Required, Text',
                 'Section' => 'Required, Text',
                 'Name of AEDO' => 'Required, Text',

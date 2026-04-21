@@ -2,31 +2,37 @@
 
 namespace App\Livewire\tables;
 
-use App\Models\User;
-use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
+use App\Models\Project;
 use App\Models\SeedBeneficiary;
+use App\Models\User;
+use App\Traits\BatchTrait;
+use App\Traits\ExportTrait;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SeedBeneficiariesCassavaTable extends PowerGridComponent
 {
     use WithExport;
     use ExportTrait;
+    use BatchTrait;
     public $crop;
+    protected $table_name = 'seed-distribution-register';
+        public string $tableName = 'seed-distribution-register-cassava';
     public function __construct()
     {
         $this->excelData['crop_type'] = 'Cassava';
@@ -37,6 +43,10 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
     public function setUp(): array
     {
 
+        if ($this->getBatch() && $this->getCropType() && $this->getCropType() == 'Cassava') {
+
+            $this->search = $this->getBatch();
+        }
 
         return [
 
@@ -56,7 +66,7 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
         $this->performExport();
     }
 
- #[On("download-export_{crop}")]
+    #[On("download-export_{crop}")]
     public function downloadExport()
     {
 
@@ -137,10 +147,17 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')->headerAttribute('table-sticky-col'),
+
+            Column::make('Beneficiary ID', 'sd_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Name of recipient', 'name_of_recipient')
+                ->sortable()
+                ->searchable()->bodyAttribute('table-sticky-col')->headerAttribute('table-sticky-col'),
+
             Column::make('District', 'district', 'district')
                 ->sortable()
-
 
                 ->searchable(),
 
@@ -163,9 +180,6 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
 
-            Column::make('Name of recipient', 'name_of_recipient')
-                ->sortable()
-                ->searchable(),
 
 
             Column::make('Group Name', 'group_name')
@@ -220,7 +234,7 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
             //     ->searchable(),
 
             Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
-            Column::action('')
+
 
         ];
     }
@@ -238,29 +252,36 @@ final class SeedBeneficiariesCassavaTable extends PowerGridComponent
 
     public function actions($row): array
     {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/' . $this->table_name . '/edit/' . $row->id . '/' . $row->uuid;
+
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+
         return [
             Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('my-2 btn btn-warning btn-sm custom-tooltip')
-                ->tooltip('Edit')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
-
-                ->dispatch('edit-showModal', [
-                    'id' => $row->id,
-                    'name' => 'view-detail-modal'
-                ]),
-
-            Button::add('delete')
-                ->slot('<i class="bx bx-trash-alt"></i>')
-                ->id()
-                ->class('btn btn-theme-red my-1 btn-sm custom-tooltip')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
-                ->tooltip('Delete')
-                ->dispatch('deleteRecord', [
-                    'id' => $row->id,
-                    'name' => 'delete-detail-modal'
-                ]),
+                ->render(function () use ($link) {
+                    // Generate the URL in PHP first
+                    return Blade::render(<<<HTML
+                <a href="{{ \$link }}" class="btn btn-warning btn-sm " data-bs-title="Edit Record" ><i class="bx bx-pen"></i></a>
+            HTML, ['link' => $link]);
+                })
         ];
     }
 }

@@ -20,7 +20,7 @@ class SeedBeneficiariesExport implements WithMultipleSheets
     {
         return [
             'Potato' => new CropSheetExport('Potato', $this->template),
-            'OFSP' => new CropSheetExportOFSP('OFSP', $this->template),
+            'Sweet potato' => new CropSheetExportOFSP('Sweet potato', $this->template),
             //       'Trainings' => new AttendanceTrainingExport($this->template, 'Trainings'),
             // 'Mother Plot Hosts' => new MotherPlotsExport($this->template),
             // 'Cassava Tots' => new CassavaTotExport($this->template),

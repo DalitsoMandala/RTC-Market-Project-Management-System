@@ -2,27 +2,29 @@
 
 namespace App\Livewire\tables\rtcMarket;
 
+use App\Models\Project;
+use App\Models\RtcConsumption;
+use App\Models\SchoolRtcConsumption;
 use App\Models\User;
 use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
-use App\Models\RtcConsumption;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use App\Models\SchoolRtcConsumption;
 use App\Traits\UITrait;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class RtcConsumptionTable extends PowerGridComponent
 {
@@ -34,9 +36,9 @@ final class RtcConsumptionTable extends PowerGridComponent
     public function setUp(): array
     {
         // $this->showCheckBox();
-     if($this->getBatch()){
-        $this->search = $this->getBatch();
-     }
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         return [
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
@@ -46,7 +48,49 @@ final class RtcConsumptionTable extends PowerGridComponent
                 ->showRecordCount(),
         ];
     }
+    public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-consumption-form/edit/' . $row->id . '/' . $row->uuid;
 
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+
+         // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
+
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+
+        // Logic for staff permission (Only their own records)
+        $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
+
+        return [
+            Button::add('edit')
+                ->can($canEdit)
+                ->render(function () use ($link) {
+                    // Using a simple return is faster than compiling a Blade view for a single button
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                })
+        ];
+    }
     public function datasource(): Builder
     {
 
@@ -132,10 +176,17 @@ final class RtcConsumptionTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable()->searchable(),
+            Column::action('')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('UUID', 'uuid')->searchable()->hidden(),
-            Column::make('Entity ID', 'en_id')->searchable(),
-            Column::make('Entity Name', 'entity_name', 'entity_name')->searchable(),
+            Column::make('Entity ID', 'en_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Entity Name', 'entity_name', 'entity_name')
+                ->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
             Column::make('Entity Type', 'entity_type', 'entity_type')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
             Column::make('EPA', 'epa',)->sortable()->searchable(),

@@ -1,0 +1,34 @@
+
+  
+  <select class="form-select  @error($attributes->get('wire:model')) is-invalid @enderror" {{ $attributes }}>
+
+      <option value="">Select One</option>
+      <option value="Balaka">Balaka</option>
+      <option value="Blantyre">Blantyre</option>
+      <option value="Chikwawa">Chikwawa</option>
+      <option value="Chiradzulu">Chiradzulu</option>
+      <option value="Chitipa">Chitipa</option>
+      <option value="Dedza">Dedza</option>
+      <option value="Dowa">Dowa</option>
+      <option value="Karonga">Karonga</option>
+      <option value="Kasungu">Kasungu</option>
+      <option value="Lilongwe">Lilongwe</option>
+      <option value="Machinga">Machinga</option>
+      <option value="Mangochi">Mangochi</option>
+      <option value="Mchinji">Mchinji</option>
+      <option value="Mulanje">Mulanje</option>
+      <option value="Mwanza">Mwanza</option>
+      <option value="Mzimba">Mzimba</option>
+      <option value="Neno">Neno</option>
+      <option value="Nkhata Bay">Nkhata Bay</option>
+      <option value="Nkhotakota">Nkhotakota</option>
+      <option value="Nsanje">Nsanje</option>
+      <option value="Ntcheu">Ntcheu</option>
+      <option value="Ntchisi">Ntchisi</option>
+      <option value="Phalombe">Phalombe</option>
+      <option value="Rumphi">Rumphi</option>
+      <option value="Salima">Salima</option>
+      <option value="Thyolo">Thyolo</option>
+      <option value="Zomba">Zomba</option>
+
+  </select>

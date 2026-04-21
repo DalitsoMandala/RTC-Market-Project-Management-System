@@ -17,7 +17,7 @@
                         @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/forms">Forms</a></li>
+                            <li class="breadcrumb-item"><a href="/{{ $routePrefix }}/forms">Forms</a></li>
                             <li class="breadcrumb-item active">View Data</li>
                         </ol>
                     </div>

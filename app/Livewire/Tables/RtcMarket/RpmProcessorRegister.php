@@ -41,7 +41,7 @@ final class RpmProcessorRegister extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => str_pad($model->rpm_processor_id, 5, '0', STR_PAD_LEFT))
             ->add('rpm_processor_id')
-            ->add('name_of_actor')
+
             ->add('unique_id', function ($model) {
                 return str_pad($model->id, 5, '0', STR_PAD_LEFT);
             })
@@ -55,12 +55,14 @@ final class RpmProcessorRegister extends PowerGridComponent
         return [
             Column::make('Processor ID', 'unique_id', 'id')
                 ->searchable()
-                ->sortable(),
+                ->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
 
             Column::make('Name of actor', 'name_of_actor')
                 ->searchable()
-                ->sortable(),
+                ->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
             Column::make('Registration Details Body', 'registration_details_body'),
 

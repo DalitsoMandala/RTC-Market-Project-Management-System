@@ -2,31 +2,33 @@
 
 namespace App\Livewire\tables\RtcMarket;
 
+use App\Models\AttendanceRegister;
+use App\Models\Project;
 use App\Models\User;
 use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
-use Illuminate\Pagination\Cursor;
-use App\Models\AttendanceRegister;
 use App\Traits\UITrait;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\LazyCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
-use Spatie\SimpleExcel\SimpleExcelWriter;
-use PowerComponents\LivewirePowerGrid\Lazy;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\Cursor;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\LazyCollection;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Footer;
-use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Footer;
+use PowerComponents\LivewirePowerGrid\Header;
+use PowerComponents\LivewirePowerGrid\Lazy;
+use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 final class AttendanceRegisterTable extends PowerGridComponent
 {
@@ -34,8 +36,9 @@ final class AttendanceRegisterTable extends PowerGridComponent
     use UITrait;
     use ExportTrait;
     use BatchTrait;
+    protected $table_name = 'attendance-register';
     public bool $deferLoading = false;
-public bool $multiSort = false;
+    public bool $multiSort = false;
     public function setUp(): array
     {
         // $this->showCheckBox();
@@ -52,14 +55,14 @@ public bool $multiSort = false;
     public function datasource(): Builder
     {
 
-if($this->getBatch()){
-    $this->search = $this->getBatch();
-}
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
         $query = AttendanceRegister::query()->with([
-              'user' => fn($q) => $q->withTrashed(),
-        'user.organisation',
+            'user' => fn($q) => $q->withTrashed(),
+            'user.organisation',
         ])->select([
             'attendance_registers.*',
             DB::raw(' ROW_NUMBER() OVER (ORDER BY id) AS rn')
@@ -106,22 +109,18 @@ if($this->getBatch()){
                 return $model->totalDays;
             })
             ->add('name', function ($model) {
-                return '
-                <div class="d-flex align-items-center">
-                <img src="' . asset('assets/images/users/usr.png') . '" alt="" class=" avatar-sm rounded-1 me-2">
-                    <span class="text-capitalize">' . strtolower($model->name) . '</span>
-                    </div>';
+                return $model->name;
             })
             ->add('sex')
             ->add('organization')
-            ->add('designation', fn($model) => $model->designation ?? null)
-            ->add('phone_number', fn($model) => $model->phone_number ?? null)
-            ->add('email', fn($model) => $model->email ?? null)
+            ->add('designation', fn($model) => $model->designation ?? '-')
+            ->add('phone_number', fn($model) => $model->phone_number ?? '-')
+            ->add('email', fn($model) => $model->email ?? '-')
             ->add('created_at_formatted', function ($model) {
                 return Carbon::parse($model->created_at)->format('d/m/Y');
             })
 
-         ->add('submitted_by', function ($model) {
+            ->add('submitted_by', function ($model) {
                 return $model->user?->name . '(' . $model->user?->organisation->name . ')';
             })
             ->add('updated_at');
@@ -137,14 +136,17 @@ if($this->getBatch()){
     public function columns(): array
     {
         return [
+Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
-            Column::make('ID', 'rn')->sortable(),
-    Column::make('UUID', 'uuid')->searchable()->hidden(),
+            Column::make('Attendee ID', 'att_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Name', 'name')
                 ->sortable()
-                ->searchable(),
-                          Column::make('Attendee ID', 'att_id')->searchable(),
-
+                ->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Sex', 'sex')
                 ->sortable()
                 ->searchable(),
@@ -259,16 +261,48 @@ if($this->getBatch()){
         $this->js('alert(' . $rowId . ')');
     }
 
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('Edit: ' . $row->id)
-    //             ->id()
-    //             ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-    //             ->dispatch('edit', ['rowId' => $row->id]),
-    //     ];
-    // }
+public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/'.$this->table_name.'/edit/' . $row->id . '/' . $row->uuid;
+
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+     // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
+
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+
+        // Logic for staff permission (Only their own records)
+        $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
+
+        return [
+            Button::add('edit')
+                ->can($canEdit)
+                ->render(function () use ($link) {
+                    // Using a simple return is faster than compiling a Blade view for a single button
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                })
+        ];
+    }
 
     #[On('refresh-data')]
     public function refreshData(): void

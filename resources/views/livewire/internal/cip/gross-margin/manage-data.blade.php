@@ -20,7 +20,7 @@
                     <div class="page-title-left col-12">
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/gross-margin/add-data"> Submit
+                            <li class="breadcrumb-item "> <a href="/{{ $routePrefix }}/gross-margin/add-data"> Submit
                                     data</a> </li>
 
                             <li class="breadcrumb-item active"> View Data</li>

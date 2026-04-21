@@ -120,7 +120,7 @@ class CropSheetImportOFSP implements ToModel, WithHeadingRow, WithValidation, Sk
     public function rules(): array
     {
         return [
-            // 'Crop' => 'required|string|in:Potato,OFSP,Cassava',
+            // 'Crop' => 'required|string|in:Potato,Sweet potato,Cassava',
             'EPA' => 'nullable|string|max:255',
             'Section' => 'nullable|string|max:255',
             'Name of AEDO' => 'nullable|string|max:255',

@@ -1,28 +1,28 @@
 <option value="">Select One</option>
-<option>Balaka</option>
-<option>Blantyre</option>
-<option>Chikwawa</option>
-<option>Chiradzulu</option>
-<option>Chitipa</option>
-<option>Dedza</option>
-<option>Dowa</option>
-<option>Karonga</option>
-<option>Kasungu</option>
-<option>Lilongwe</option>
-<option>Machinga</option>
-<option>Mangochi</option>
-<option>Mchinji</option>
-<option>Mulanje</option>
-<option>Mwanza</option>
-<option>Mzimba</option>
-<option>Neno</option>
-<option>Nkhata Bay</option>
-<option>Nkhotakota</option>
-<option>Nsanje</option>
-<option>Ntcheu</option>
-<option>Ntchisi</option>
-<option>Phalombe</option>
-<option>Rumphi</option>
-<option>Salima</option>
-<option>Thyolo</option>
-<option>Zomba</option>
+<option value="Balaka">Balaka</option>
+<option value="Blantyre">Blantyre</option>
+<option value="Chikwawa">Chikwawa</option>
+<option value="Chiradzulu">Chiradzulu</option>
+<option value="Chitipa">Chitipa</option>
+<option value="Dedza">Dedza</option>
+<option value="Dowa">Dowa</option>
+<option value="Karonga">Karonga</option>
+<option value="Kasungu">Kasungu</option>
+<option value="Lilongwe">Lilongwe</option>
+<option value="Machinga">Machinga</option>
+<option value="Mangochi">Mangochi</option>
+<option value="Mchinji">Mchinji</option>
+<option value="Mulanje">Mulanje</option>
+<option value="Mwanza">Mwanza</option>
+<option value="Mzimba">Mzimba</option>
+<option value="Neno">Neno</option>
+<option value="Nkhata Bay">Nkhata Bay</option>
+<option value="Nkhotakota">Nkhotakota</option>
+<option value="Nsanje">Nsanje</option>
+<option value="Ntcheu">Ntcheu</option>
+<option value="Ntchisi">Ntchisi</option>
+<option value="Phalombe">Phalombe</option>
+<option value="Rumphi">Rumphi</option>
+<option value="Salima">Salima</option>
+<option value="Thyolo">Thyolo</option>
+<option value="Zomba">Zomba</option>

@@ -20,7 +20,7 @@
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active"> Submit data</li>
 
-                       <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/products/upload-data"> Upload Data</a> </li>
+                       <li class="breadcrumb-item "> <a href="/{{ $routePrefix }}/products/upload-data"> Upload Data</a> </li>
 
                         </ol>
                     </div>

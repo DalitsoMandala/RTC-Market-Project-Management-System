@@ -43,4 +43,14 @@ class SeedBeneficiary extends Model
     {
         return $this->belongsTo(ReportingPeriodMonth::class,'period_month_id');
     }
+
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            // Sequential numeric ID format
+            $latestFarmer = SeedBeneficiary::latest('id')->first();
+            $number = $latestFarmer ? $latestFarmer->id + 1 : 1; // Increment based on the latest ID
+            $model->sd_id = 'SD-' . str_pad($number, 5, '0', STR_PAD_LEFT); // Example: FARM-00001
+        });
+    }
 }

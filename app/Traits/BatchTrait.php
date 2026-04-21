@@ -16,6 +16,11 @@ public function getBatch(){
     return null;
 }
 
+public function getCropType(){
+
+    return $this->getRouteParams()['crop'] ?? null;
+}
+
     private function getRouteParams()
     {
 

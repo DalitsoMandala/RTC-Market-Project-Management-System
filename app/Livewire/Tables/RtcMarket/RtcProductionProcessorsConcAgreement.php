@@ -68,15 +68,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->processors->pp_id)
             ->add('rpm_farmer_id')
-            ->add('actor_name', function ($model) {
-                $processor = $model->rpm_processor_id;
-                $row = RtcProductionProcessor::find($processor);
 
-                if ($row) {
-                    return $row->name_of_actor;
-                }
-                return null;
-            })
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('partner_name')
             ->add('country')
@@ -126,7 +118,7 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
             'processors' => [ // relationship on dishes model
 
 
-                'name_of_actor',
+
                 'pp_id'
 
             ],
@@ -141,73 +133,16 @@ final class RtcProductionProcessorsConcAgreement extends PowerGridComponent
         ];
     }
 
-    #[On('export-conc')]
-    public function export()
-    {
-        // Get data for export
-        $data = $this->getDataForExport();
 
-        // Define the path for the Excel file
-        $path = storage_path('app/public/rtc_production_and_marketing_processors-contractual-agreement.xlsx');
-
-        // Create the writer and add the header
-        $writer = SimpleExcelWriter::create($path)
-            ->addHeader([
-                'Id',
-                'Processor ID',
-                'Actor Name',
-                'Date Recorded (Formatted)',
-                'Partner Name',
-                'Country',
-                'Date of Maximum Sale (Formatted)',
-                'Product Type',
-                'Volume Sold Previous Period',
-                'Financial Value of Sales',
-
-            ]);
-
-        // Chunk the data and process each chunk
-        $chunks = array_chunk($data->all(), 1000);
-
-        foreach ($chunks as $chunk) {
-            foreach ($chunk as $item) {
-                $processor = $item->rpm_processor_id;
-                $row = RtcProductionProcessor::find($processor);
-                $actor_name = $row ? $row->name_of_actor : null;
-
-                $row = [
-                    'id' => $item->id,
-                    'rpm_processor_id' => $item->rpm_processor_id,
-                    'actor_name' => $actor_name,
-                    'date_recorded_formatted' => Carbon::parse($item->date_recorded)->format('d/m/Y'),
-                    'partner_name' => $item->partner_name,
-                    'country' => $item->country,
-                    'date_of_maximum_sale_formatted' => Carbon::parse($item->date_of_maximum_sale)->format('d/m/Y'),
-                    'product_type' => $item->product_type,
-                    'volume_sold_previous_period' => $item->volume_sold_previous_period,
-                    'financial_value_of_sales' => $item->financial_value_of_sales,
-
-                ];
-
-                $writer->addRow($row);
-            }
-        }
-
-        // Close the writer and get the path of the file
-        $writer->close();
-
-        // Return the file for download
-        return response()->download($path)->deleteFileAfterSend(true);
-    }
 
 
     public function columns(): array
     {
         return [
-            Column::make('ID', 'rn')->sortable(),
-            Column::make('PROCESSOR ID', 'unique_id')->searchable(),
-
-
+            Column::make('#', 'rn')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col')->sortable(),
+            Column::make('PROCESSOR ID', 'unique_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
                 ->sortable(),
 

@@ -16,7 +16,7 @@
                             <li class="breadcrumb-item active">Indicator
                                 Targets</li>
 
-                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/targets">View Targets</a></li>
+                            <li class="breadcrumb-item"><a href="/{{ $routePrefix }}/targets">View Targets</a></li>
 
                         </ol>
                     </div>

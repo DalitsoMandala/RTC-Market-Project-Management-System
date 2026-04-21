@@ -352,13 +352,13 @@ class DistrictObject
             'anaakwanire' => true,
             'other' => false,
         ];
-        if($uppercase){
+        if ($uppercase) {
             return array_map('ucfirst', array_keys($varieties));
         }
         return array_keys($varieties);
     }
 
-     public static function varietiesExport($uppercase = false): array
+    public static function varietiesExport($uppercase = false): array
     {
         $varieties = [
             'violet' => true,
@@ -380,11 +380,27 @@ class DistrictObject
             'anaakwanire' => true,
             'other' => false,
         ];
-        if($uppercase){
+        if ($uppercase) {
             return array_map('ucfirst', array_keys($varieties));
         }
         return array_keys($varieties);
     }
 
+    public static function cleanDistrict( $district) : string
+    {
 
+        if (isset($district)) {
+            $districts = self::districts();
+            $districtNameFromData = strtolower($district ?? '');
+
+            $matchedDistrict = collect($districts)->first(function ($officialName) use ($districtNameFromData) {
+                $officialNameLower = strtolower($officialName);
+                return $officialNameLower === $districtNameFromData || str_contains($districtNameFromData, $officialNameLower) || str_contains($officialNameLower, $districtNameFromData);
+            });
+
+            return $matchedDistrict ?? $district;
+        }
+
+        return '';
+    }
 }

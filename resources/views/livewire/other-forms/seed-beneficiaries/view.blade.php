@@ -16,7 +16,7 @@
                         @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/forms">Forms</a></li>
+                            <li class="breadcrumb-item"><a href="/{{ $routePrefix }}/forms">Forms</a></li>
                             <li class="breadcrumb-item active">View Data</li>
                         </ol>
                     </div>
@@ -64,7 +64,7 @@
                     <!-- OFSP Table -->
                     <div class="tab-pane fade" id="ofsp" role="tabpanel" aria-labelledby="ofsp-tab"
                         wire:ignore.self>
-                        <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'OFSP'" />
+                        <livewire:tables.seed-beneficiaries-o-f-s-p-table :crop="'Sweet potato'" />
                     </div>
 
 
@@ -548,3 +548,16 @@
     </div>
 
 </div>
+
+@script
+<script>
+       if (window.location.hash !== '') {
+                const button = document.querySelector(`button[data-bs-target='${window.location.hash}']`);
+                if (button) {
+                    button.click();
+
+                }
+            }
+
+</script>
+@endscript

@@ -57,7 +57,7 @@ final class RpmFarmerMIS extends PowerGridComponent
 
             'farmers' => [
                 'pf_id',
-                'name_of_actor'
+
 
             ],
 
@@ -93,13 +93,7 @@ final class RpmFarmerMIS extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
 
-            ->add('name_of_actor', function ($model) {
-                if (!$model->farmers) {
 
-                    return null;
-                }
-                return $model->farmers->name_of_actor;
-            })
             ->add('unique_id', function ($model) {
                 return $model->farmers->pf_id;
             })
@@ -123,9 +117,11 @@ final class RpmFarmerMIS extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Farmer ID', 'unique_id',)
-                ->searchable(),
+                ->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
 
             Column::make('Name of Market Information systems', 'name')

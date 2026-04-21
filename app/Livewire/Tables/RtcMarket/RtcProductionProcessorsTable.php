@@ -3,29 +3,30 @@
 namespace App\Livewire\Tables\RtcMarket;
 
 use App\Models\Form;
+use App\Models\Project;
+use App\Models\RtcProductionProcessor;
 use App\Models\User;
 use App\Traits\BatchTrait;
 use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Blade;
-use App\Models\RtcProductionProcessor;
 use App\Traits\UITrait;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
-use Spatie\SimpleExcel\SimpleExcelWriter;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 final class RtcProductionProcessorsTable extends PowerGridComponent
 {
@@ -37,20 +38,12 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public $routePrefix;
     public function setUp(): array
     {
-        //    $this->showCheckBox();
-        // $columns = $this->columns();
-        // $getMap = [];
-        // foreach ($columns as $column) {
-        //     $getMap[$column->title] = $column->dataField;
-        // }
-        // dd($getMap);
+
         if ($this->getBatch()) {
             $this->search = $this->getBatch();
         }
         return [
-            // Exportable::make('export')
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+
             Header::make()->includeViewOnTop('components.export-data')->showSearchInput(),
             Footer::make()
                 ->showPerPage(10)
@@ -101,6 +94,7 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
             ->add('pp_id')
+            ->add('group_name', fn($model) => ucwords(strtolower($model->group_name)) ?? null)
             ->add('enterprise')
             ->add('district')
             ->add('epa')
@@ -208,11 +202,18 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            // Column::action('Action'),
-            Column::make('ID', 'rn')->sortable(),
+            Column::action('')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Processor ID', 'pp_id')->searchable()
-                ->sortable(),
-                    Column::make('UUID', 'uuid')->searchable()->hidden(),
+                ->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Group Name', 'group_name')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+            Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Date of follow up', 'date_of_followup_formatted')
                 ->sortable()->searchable(),
             Column::make('Enterprise', 'enterprise',)->searchable()->sortable(),
@@ -379,6 +380,50 @@ final class RtcProductionProcessorsTable extends PowerGridComponent
         $this->js('alert(' . $rowId . ')');
     }
 
+
+    public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-production-and-marketing-form-processors-and-traders/edit/' . $row->id . '/' . $row->uuid;
+
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+
+         // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
+
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+
+        // Logic for staff permission (Only their own records)
+        $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
+
+        return [
+            Button::add('edit')
+                ->can($canEdit)
+                ->render(function () use ($link) {
+                    // Using a simple return is faster than compiling a Blade view for a single button
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                })
+        ];
+    }
     // public function actions($row): array
     // {
     //     $form = Form::where('name', 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS')->first();

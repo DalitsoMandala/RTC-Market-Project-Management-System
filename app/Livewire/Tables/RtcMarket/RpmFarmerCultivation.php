@@ -58,7 +58,7 @@ final class RpmFarmerCultivation extends PowerGridComponent
 
             'farmers' => [
                 'pf_id',
-                'name_of_actor'
+
 
             ],
 
@@ -96,13 +96,7 @@ final class RpmFarmerCultivation extends PowerGridComponent
             ->add('unique_id', fn($model) => $model->farmers->pf_id)
             ->add('id')
 
-            ->add('name_of_actor', function ($model) {
-                if (!$model->farmers) {
 
-                    return null;
-                }
-                return $model->farmers->name_of_actor;
-            })
             ->add('area')
             ->add('submitted_by', function ($model) {
                 $user = User::find($model->user_id);
@@ -121,9 +115,11 @@ final class RpmFarmerCultivation extends PowerGridComponent
     {
         return [
 
-            Column::make('ID', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Farmer ID', 'unique_id', 'pf_id')
-                ->searchable(),
+                ->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
 
 

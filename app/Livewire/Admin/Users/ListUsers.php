@@ -51,7 +51,7 @@ class ListUsers extends Component
         $rules = [
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique(User::class)->ignore($this->rowId)],
-            'phone' => 'required',
+            'phone' => 'nullable|string|max:40',
             'organisation' => 'required',
             'role' => 'required',
 

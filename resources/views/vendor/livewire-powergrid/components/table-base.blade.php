@@ -22,7 +22,7 @@
 
 <div @isset($this->setUp['responsive']) x-data="pgResponsive" @endisset>
     <table id="table_base_{{ $tableName }}" class="table power-grid-table {{ $baseTableClass }}"
-        style="{{ data_get($theme, 'tableStyle') }} font-size: 0.75rem;">
+        style="{{ data_get($theme, 'tableStyle') }} font-size: 0.75rem;" >
         <thead class="{{ $headerTableClass }}" style="{{ data_get($theme, 'table.theadStyle') }} ">
             {{ $header }}
         </thead>
@@ -47,3 +47,4 @@
         <div x-data="pgLoadMore"></div>
     @endif
 </div>
+

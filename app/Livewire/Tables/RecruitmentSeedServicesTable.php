@@ -72,8 +72,10 @@ final class RecruitmentSeedServicesTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
-            Column::make('Recruitment id', 'rc_id')
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Recruitment id', 'rc_id')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col')
             ->searchable(),
             Column::make('Variety', 'variety')
                 ->sortable()

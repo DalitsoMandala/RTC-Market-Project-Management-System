@@ -14,7 +14,7 @@
 
                           <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ $routePrefix }}/standard-targets">Indicator Targets</a></li>
+                            <li class="breadcrumb-item"><a href="/{{ $routePrefix }}/standard-targets">Indicator Targets</a></li>
 
                             <li class="breadcrumb-item active">View Targets</li>
 

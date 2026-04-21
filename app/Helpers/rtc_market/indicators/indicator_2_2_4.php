@@ -57,7 +57,7 @@ class indicator_2_2_4
             $bundles = $query->sum('bundles_received');
             $crops[$this->enterprise] = (int)$bundles;
         }
-        // Otherwise get all crops (enterprise filter not set)  
+        // Otherwise get all crops (enterprise filter not set)
         else {
             // Need to temporarily disable enterprise filter for these queries
             $tempEnterprise = $this->enterprise;
@@ -65,7 +65,7 @@ class indicator_2_2_4
 
             $crops['Cassava'] = (int)$this->builder()->where('crop', 'Cassava')->sum('bundles_received');
             $crops['Potato'] = (int)$this->builder()->where('crop', 'Potato')->sum('bundles_received');
-            $crops['Sweet potato'] = (int)$this->builder()->where('crop', 'OFSP')->sum('bundles_received');
+            $crops['Sweet potato'] = (int)$this->builder()->where('crop', 'Sweet potato')->sum('bundles_received');
 
             $this->enterprise = $tempEnterprise;
         }

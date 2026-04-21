@@ -1,0 +1,245 @@
+<?php
+
+namespace App\Livewire\Forms\RtcMarket\RtcConsumption;
+
+use Throwable;
+use Carbon\Carbon;
+use App\Models\Form;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use App\Models\Project;
+use Livewire\Component;
+use App\Models\Indicator;
+use App\Models\Submission;
+use Livewire\Attributes\On;
+use App\Models\FinancialYear;
+use App\Models\RtcConsumption;
+use App\Traits\ManualDataTrait;
+use App\Models\SubmissionPeriod;
+use App\Models\SubmissionTarget;
+use Livewire\Attributes\Validate;
+use App\Models\OrganisationTarget;
+use App\Models\RecruitSeedRegistration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Models\ReportingPeriodMonth;
+use App\Models\SchoolRtcConsumption;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Illuminate\Validation\ValidationException;
+use App\Notifications\ManualDataAddedNotification;
+
+class Edit extends Component
+{
+    use LivewireAlert;
+    use ManualDataTrait;
+
+    public $date;
+    public $crop = [
+        'cassava' => false,
+        'potato' => false,
+        'sweet_potato' => false,
+    ];
+    public $male_count;
+    public $female_count;
+    public $number_of_households;
+    public $total = 0;
+
+    public $uniqueId;
+    public $location_data = [
+        'entity_name' => null,
+        'district' => null,
+        'epa' => null,
+        'section' => null,
+        'entity_type' => null
+    ];
+    public $entity_type;
+
+    public $form_name = 'RTC CONSUMPTION FORM';
+
+    public function rules()
+    {
+
+        return [
+            'location_data.entity_name' => 'required',
+            'location_data.district' => 'required',
+            'location_data.epa' => 'required',
+            'location_data.section' => 'required',
+            'location_data.entity_type' => 'required',
+            'date' => 'required|date',
+            'crop' => 'required',
+            'male_count' => 'required|numeric',
+            'female_count' => 'required|numeric',
+            'number_of_households' => 'required_if:location_data.entity_type,Nutrition intervention group|numeric',
+            'total' => 'required|numeric',
+        ];
+    }
+
+    public function validationAttributes()
+    {
+
+        return [
+            'location_data.school_name' => 'school name',
+            'location_data.district' => 'district',
+            'location_data.epa' => 'epa',
+            'location_data.section' => 'section',
+            'location_data.entity_name' => 'entity name',
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'number_of_households.required_if' => 'The :attribute is required when entity type is Nutrition intervention group.',
+
+        ];
+    }
+    public function save()
+    {
+
+        try {
+            $this->validate();
+        } catch (\Throwable $e) {
+            $this->dispatch('show-alert', data: [
+                'type' => 'error', // success, error, info, warning
+                'message' => 'There are errors in the form.'
+            ]);
+
+            throw $e;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            $cropCollection = collect($this->crop);
+
+            // Prepare data for the model
+            $modelData = [
+                'date' => $this->date,
+                'epa' => $this->location_data['epa'],
+                'district' => $this->location_data['district'],
+                'section' => $this->location_data['section'],
+                'entity_name' => $this->location_data['entity_name'],
+                'male_count' => $this->male_count,
+                'female_count' => $this->female_count,
+                'total' => $this->total,
+                'crop_cassava' => ($this->crop['cassava'] && $this->crop['cassava'] == true) ? 1 : 0,
+                'crop_potato' => ($this->crop['potato'] && $this->crop['potato'] == true) ? 1 : 0,
+                'crop_sweet_potato' => ($this->crop['sweet_potato'] && $this->crop['sweet_potato'] == true) ? 1 : 0,
+                'entity_type' => $this->location_data['entity_type'],
+                'number_of_households' => $this->location_data['entity_type'] === 'Nutrition intervention group' ? $this->number_of_households : 0,
+
+            ];
+            $recruit = RtcConsumption::where('en_id', $this->uniqueId)->first();
+
+            $recruit->update($modelData);
+
+
+            DB::commit();
+            $this->dispatch('show-alert', data: [
+                'type' => 'success',
+                'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/rtc-consumption-form/view/' . $recruit->en_id . '">View Submission here</a>',
+            ]);
+        } catch (Throwable $th) {
+            DB::rollBack();
+            $this->dispatch('show-alert', data: ['type' => 'error', 'message' => 'Something went wrong!']);
+            Log::error($th->getMessage());
+        }
+    }
+
+
+    public function saveManualSubmission($modelClass, $data, $submissionData, $tableName, $routePrefix)
+    {
+
+
+        try {
+            DB::beginTransaction();
+            $uuid = Uuid::uuid4()->toString();
+            $user = User::find(auth()->user()->id); // Get the authenticated user using Auth::user();
+            $data['uuid'] = $uuid;
+            $data['user_id'] = $user->id;
+
+            $data['status'] =  'approved';
+            // Create the submission record
+            $submissionData['batch_no'] = $uuid;
+            $submissionData['table_name'] = $tableName;
+
+            $data['submission_period_id'] = $this->submissionPeriodId;
+            $data['period_month_id'] = $this->selectedMonth;
+            $data['organisation_id'] = $user->organisation->id;
+            $data['financial_year_id'] = $this->selectedFinancialYear;
+
+            Submission::create($submissionData);
+
+            // Create the model record
+            $model = new $modelClass;
+            $latest = $model->create($data);
+
+
+
+            $project = Project::where('is_active', true)->first();
+            $project_name = strtolower(str_replace(' ', '_', $project->name));
+            $form = Form::find($this->selectedForm);
+            $formName = strtolower(str_replace(' ', '-', $form->name));
+            $this->clearErrorBag();
+            $this->dispatch('show-alert', data: [
+                'type' => 'success',
+                'message' => 'Successfully submitted! <a href="' . $this->routePrefix . '/forms/rtc_market/' . $formName . '/view">View Submission here</a>',
+            ]);
+            DB::commit();
+        } catch (\Exception $th) {
+            # code...
+            DB::rollBack();
+
+            $this->dispatch('show-alert', data: [
+                'type' => 'error',
+                'message' => 'Something went wrong!'
+            ]);
+
+            Log::error($th->getMessage());
+        }
+    }
+    public function mount($id, $uuid)
+    {
+        $farmer = RtcConsumption::where('uuid', $uuid)->where('id', $id)->firstOrFail();
+
+        $this->openSubmission = true;
+        $this->routePrefix = Route::current()->getPrefix();
+        $this->editData($farmer);
+    }
+
+    public function editData($data)
+    {
+        $this->fill([
+            'uniqueId' => $data->en_id,
+            'date' => $data->date,
+            'location_data' => [
+                'entity_name' => $data->entity_name,
+                'entity_type' => $data->entity_type,
+                'district' => $data->district,
+                'epa' => $data->epa,
+                'section' => $data->section
+            ],
+            'male_count' => $data->male_count,
+            'female_count' => $data->female_count,
+            'total' => $data->total,
+            'crop' => [
+                'cassava' => $data->crop_cassava == 1 ? true : false,
+                'potato' => $data->crop_potato == 1 ? true : false,
+                'sweet_potato' => $data->crop_sweet_potato == 1 ? true : false,
+            ],
+            'number_of_households' => $data->number_of_households
+
+        ]);
+    }
+
+    public function render()
+    {
+        if ($this->selectedForm) {
+            $this->form_name = Form::find($this->selectedForm)->name;
+        }
+        return view('livewire.forms.rtc-market.rtc-consumption.edit');
+    }
+}

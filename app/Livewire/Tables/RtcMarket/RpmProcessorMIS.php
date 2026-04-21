@@ -55,7 +55,7 @@ final class RpmProcessorMIS extends PowerGridComponent
 
             'processors' => [
                 'pp_id',
-                'name_of_actor'
+
 
             ],
 
@@ -91,13 +91,7 @@ final class RpmProcessorMIS extends PowerGridComponent
         return PowerGrid::fields()
             ->add('id')
 
-            ->add('name_of_actor', function ($model) {
-                if (!$model->processors) {
 
-                    return null;
-                }
-                return $model->processors->name_of_actor;
-            })
             ->add('unique_id', function ($model) {
                 return $model->processors->pp_id;
             })
@@ -123,9 +117,11 @@ final class RpmProcessorMIS extends PowerGridComponent
         return [
 
 
-            Column::make('ID', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Processor ID', 'unique_id',)
-                ->searchable(),
+                ->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
 
             Column::make('Name of Market Information systems', 'name')

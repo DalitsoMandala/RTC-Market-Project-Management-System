@@ -30,7 +30,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
 {
     protected $expectedSheetNames = [
         'Potato',
-        'OFSP',
+        'Sweet potato',
         'Cassava'
     ];
 
@@ -61,7 +61,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
     {
         return [
             'Potato' => new CropSheetImport('Potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
-            'OFSP' => new CropSheetImportOFSP('OFSP', $this->submissionDetails, $this->cacheKey, $this->totalRows),
+            'Sweet potato' => new CropSheetImportOFSP('Sweet potato', $this->submissionDetails, $this->cacheKey, $this->totalRows),
             'Cassava' => new CropSheetImportCassava('Cassava', $this->submissionDetails, $this->cacheKey, $this->totalRows),
         ];
     }
@@ -79,7 +79,7 @@ class SeedBeneficiariesImport implements WithMultipleSheets, WithChunkReading, W
                     ],
                     optional: [
                         'Potato' => 2, // 2 header rows,
-                        'OFSP' => 2,
+                        'Sweet potato' => 2,
                         'Cassava' => 2
                     ],
 

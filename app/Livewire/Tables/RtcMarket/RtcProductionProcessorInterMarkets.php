@@ -83,15 +83,6 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->processors->pp_id)->add('rpm_processor_id')
 
-            ->add('actor_name', function ($model) {
-                $processor = $model->rpm_processor_id;
-                $row = RtcProductionProcessor::find($processor);
-
-                if ($row) {
-                    return $row->name_of_actor;
-                }
-                return null;
-            })
             ->add('date_recorded_formatted', fn($model) => Carbon::parse($model->date_recorded)->format('d/m/Y'))
             ->add('crop_type')
             ->add('market_name')
@@ -125,8 +116,10 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         return [
 
-            Column::make('ID', 'rn')->sortable(),
-            Column::make('Processor ID', 'unique_id')->searchable(),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Processor ID', 'unique_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
 
 
             Column::make('Date recorded', 'date_recorded_formatted', 'date_recorded')
@@ -169,17 +162,10 @@ final class RtcProductionProcessorInterMarkets extends PowerGridComponent
     {
         return [
 
-            'user' => [
-                'name',
 
-            ],
-
-            'user.organisation' => [
-                'name'
-            ],
 
             'processors' => [
-                'name_of_actor',
+
                 'pp_id'
             ],
 

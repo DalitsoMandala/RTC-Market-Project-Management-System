@@ -41,8 +41,10 @@
                                 </li>
                             @endrole
 
-                            <li class="breadcrumb-item active">Add Data</li>
-                            <li class="breadcrumb-item">
+                            <li class="breadcrumb-item active">
+                                {{ isset(Route::current()->parameters()['id']) ? 'Edit' : 'Add' }} Data</li>
+                            <li
+                                class="breadcrumb-item {{ isset(Route::current()->parameters()['id']) ? 'd-none' : '' }}">
                                 <a href="{{ $replaceUrl }}">Upload Data</a>
                             </li>
                             <li class="breadcrumb-item">
@@ -101,6 +103,7 @@
                             x-show="!isLoading" x-transition.duration.500ms>
                             <div class="card col-12 col-md-12">
                                 <div class="card-body @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
+
                                     {{ $slot }}
 
                                     @if (!isset($hideSubmitButtons) || !$hideSubmitButtons)
@@ -127,7 +130,80 @@
                                             })"
                                                 type="submit">Submit Data</button>
                                         </div>
+                                    @else
+                                        <div class="mt-5 d-flex col-12 justify-content-center" x-data>
+                                            <button class="mx-1 btn btn-secondary" type="button" id="resetForm"
+                                                @click="
+                                        location.reload();
+                                                ">Reset
+                                                Form</button>
+                                            <button class="px-5 btn btn-warning"
+                                                @click="window.scrollTo({
+                                                top: 0,
+                                                behavior: 'smooth'
+                                            })"
+                                                type="button" data-bs-toggle="modal"
+                                                data-bs-target="#confirmingSave">Submit Data</button>
+                                        </div>
                                     @endif
+
+
+
+                                    <!-- Modal Body -->
+                                    <!-- if you want to close by clicking outside the modal, delete the last endpoint:data-bs-backdrop and data-bs-keyboard -->
+
+                                    <div x-data="{
+                                        hideModal() {
+                                            const modals = document.querySelectorAll('.modal.show');
+                                    
+                                            // Iterate over each modal and hide it using Bootstrap's modal hide method
+                                            modals.forEach(modal => {
+                                                const modalInstance = bootstrap.Modal.getInstance(modal);
+                                                if (modalInstance) {
+                                                    modalInstance.hide();
+                                                }
+                                            });
+                                    
+                                            setTimeout(() => {
+                                                window.scrollTo({
+                                                    top: 0,
+                                                    behavior: 'smooth'
+                                                });
+                                            }, 500);
+                                    
+                                            $wire.save();
+                                        }
+                                    }" class="modal fade" id="confirmingSave" tabindex="-1"
+                                        data-bs-backdrop="static" data-bs-keyboard="false" role="dialog"
+                                        aria-labelledby="modalTitleId" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-md"
+                                            role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalTitleId">
+                                                        Confirm Submission
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="text-center modal-body">
+                                                    Are you sure you want to submit these changes?
+                                                    <p>Once submitted, changes cannot be undone.</p>
+                                                </div>
+                                                <div class="gap-1 modal-footer border-top-0 d-flex">
+                                                    <button type="button" class="btn btn-danger flex-fill"
+                                                        data-bs-dismiss="modal">
+                                                        No, Cancel
+                                                    </button>
+                                                    <button type="button" @click="hideModal();"
+                                                        class="btn btn-warning flex-fill">
+                                                        Yes, Update
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </form>
@@ -137,6 +213,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 @if (!isset($skipDraftScript) || !$skipDraftScript)

@@ -125,7 +125,7 @@ final class FormTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'rn')->sortable(),
+            Column::make('#', 'rn')->sortable(),
 
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()

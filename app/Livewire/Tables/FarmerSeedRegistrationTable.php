@@ -69,8 +69,10 @@ final class FarmerSeedRegistrationTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
-            Column::make('Farmer id', 'farmer_id'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Farmer id', 'farmer_id')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('Variety', 'variety')
                 ->sortable()
                 ->searchable(),

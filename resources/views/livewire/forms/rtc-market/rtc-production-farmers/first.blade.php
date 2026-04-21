@@ -32,9 +32,9 @@
     <div class="px-2 row" x-data="{
         area_under_cultivation: $wire.entangle('area_under_cultivation').live,
         init() {
-    
-    
-    
+
+
+
         }
     }">
 
@@ -69,7 +69,7 @@
 
                         <td>
                             <button @click="$wire.removeAreaofCultivation({{ $index }})"
-                                @if (count($area_under_cultivation) <= 1) disabled @endif
+
                                 class="btn btn-danger btn-sm custom-tooltip" title="Remove">
                                 <i class="bx bx-trash"></i></button>
                         </td>
@@ -79,7 +79,7 @@
             <tfoot>
                 <tr></tr>
                 <td colspan="3">
-                    <button type="button" class="btn btn-warning btn-sm" @click='$wire.addAreaofCultivation()'>
+                    <button type="button" class="btn btn-light btn-sm" @click='$wire.addAreaofCultivation()'>
                         Add Row <i class="bx bx-plus"></i>
                     </button>
                 </td>
@@ -268,7 +268,7 @@
             <tfoot>
                 <tr></tr>
                 <td colspan="3">
-                    <button type="button" class="btn btn-warning btn-sm" @click='$wire.addBasicSeed()'>
+                    <button type="button" class="btn btn-light btn-sm" @click='$wire.addBasicSeed()'>
                         Add Row <i class="bx bx-plus"></i>
                     </button>
                 </td>
@@ -291,9 +291,9 @@
         Seed Multiplication</label>
     <div class="px-2 row" x-data="{
         area_under_certified_seed_multiplication: $wire.entangle('area_under_certified_seed_multiplication'),
-    
+
         init() {
-    
+
         }
     }">
 
@@ -337,7 +337,7 @@
             <tfoot>
                 <tr></tr>
                 <td colspan="3">
-                    <button type="button" class="btn btn-warning btn-sm" @click='$wire.addCertifiedSeed()'>
+                    <button type="button" class="btn btn-light btn-sm" @click='$wire.addCertifiedSeed()'>
                         Add Row <i class="bx bx-plus"></i>
                     </button>
                 </td>
@@ -440,7 +440,7 @@
 
                 <td colspan="3">
                     <button @click="$wire.addRegistration()" @if (count($registrations) >= 10) disabled @endif
-                        class="btn btn-warning btn-sm">Add Row <i class="bx bx-plus"></i></button>
+                        class="btn btn-light btn-sm">Add Row <i class="bx bx-plus"></i></button>
                 </td>
             </tr>
         </tfoot>
@@ -517,19 +517,17 @@
 </div>
 
 <!-- RTC Market Contractual Agreement -->
-<div class="mb-3" x-data="{
-    has_rtc_market_contract: $wire.entangle('has_rtc_market_contract')
-}">
+<div class="mb-3" >
     <label class="form-label">Do You Have Any RTC Market Contractual Agreement</label>
     <div class="">
         <div class="form-check">
             <input class="form-check-input  @error('has_rtc_market_contract') is-invalid @enderror" type="radio"
-                id="rtcMarketContractYes" value="1" x-model="has_rtc_market_contract">
+                id="rtcMarketContractYes" value="1" wire:model.live.debounce.500ms="has_rtc_market_contract">
             <label class="form-check-label" for="rtcMarketContractYes">Yes</label>
         </div>
         <div class="form-check">
             <input class="form-check-input  @error('has_rtc_market_contract') is-invalid @enderror" type="radio"
-                checked id="rtcMarketContractNo" value="0" x-model="has_rtc_market_contract">
+                checked id="rtcMarketContractNo" value="0" wire:model.live.debounce.500ms="has_rtc_market_contract">
             <label class="form-check-label" for="rtcMarketContractNo">No</label>
         </div>
     </div>
@@ -550,9 +548,9 @@
 }"
     x-effect="
 
-   
+
     bundle_total = Number(total_vol_production_previous_season_seed || 0);
-  
+
     total_vol_production_previous_season = Number(total_vol_production_previous_season_produce || 0)
      + bundle_total +
       Number(total_vol_production_previous_season_cuttings || 0)">
@@ -682,7 +680,7 @@
 
         this.subTotal = this.getSubTotal();
         this.lastCalculatedTotal = this.subTotal;
-      
+
 
     },
 
@@ -718,7 +716,7 @@
         <thead class="table-secondary">
             <tr class="">
                 <th></th>
-               
+
                 <th>Value (Metric Tonnes) </th>
                 <th>Prevailing Market Price per Kg/Bundle</th>
                 <th colspan="2">Total</th>
@@ -728,7 +726,7 @@
 
             <tr>
                 <td>Produce (MT)</td>
-              
+
                 <td >
                     <input type="number" min="0" step="any" class="form-control"
                         x-model="total_production_value_previous_season_produce_value">
@@ -747,10 +745,10 @@
 
             <tr>
                 <td>Seed (MT)</td>
-             
+
                 <td>
                     <input type="number" min="0" step="any" class="form-control"
-                       
+
                         x-model="total_production_value_previous_season_seed_value">
                 </td>
                 <td>
@@ -767,7 +765,7 @@
 
             <tr>
                 <td>Cuttings (MT)</td>
-              
+
                 <td>
                     <input type="number" min="0" step="any" class="form-control"
                         x-model="total_production_value_previous_season_cuttings_value">
@@ -784,7 +782,7 @@
             </tr>
 
         </tbody>
-        
+
 
         <tfoot>
 
@@ -798,7 +796,7 @@
                         <x-error>{{ $message }}</x-error>
                     @enderror
                 </td>
-              
+
             </tr>
 
             <tr>
@@ -806,7 +804,7 @@
                 <td colspan="3">
                     <button wire:loading.attr='disabled' type="button" @click="calculate"
                         :class="{
-                            'btn-warning': lastCalculatedTotal !== subTotal,
+                            'btn-light': lastCalculatedTotal !== subTotal,
                             'btn-secondary': lastCalculatedTotal === subTotal
                         }"
                         class="btn btn-md" :disabled="lastCalculatedTotal === subTotal">
@@ -815,7 +813,7 @@
 
                     </button>
                 </td>
-              
+
                 <td class="fw-bold">
                     <label for="">USD Rate ($)</label>
                     <input type="number" min="0" step="any" readonly
@@ -858,7 +856,7 @@
     bundle_total: 0,
 }"
     x-effect="
- 
+
     bundle_total = Number(total_vol_irrigation_production_previous_season_seed || 0);
 
     total_vol_irrigation_production_previous_season = Number(total_vol_irrigation_production_previous_season_produce || 0)
@@ -1016,9 +1014,9 @@
         this.cuttingsTotal = this.getCuttingsTotal(this.total_irrigation_production_value_previous_season_cuttings_value, this.total_irrigation_production_value_previous_season_cuttings_prevailing_price);
         this.subTotal = this.getSubTotal();
         this.lastCalculatedTotal = this.subTotal;
-   
+
         this.$watch('enterprise', (v) => {
-     
+
             if (v === 'Cassava') {
                 this.clearAll();
                 return;
@@ -1159,7 +1157,7 @@
                 <td colspan="2">
                     <button wire:loading.attr='disabled' type="button" @click="calculate"
                         :class="{
-                            'btn-warning': lastCalculatedTotal !== subTotal,
+                            'btn-light': lastCalculatedTotal !== subTotal,
                             'btn-secondary': lastCalculatedTotal === subTotal
                         }"
                         class="btn btn-sm" :disabled="lastCalculatedTotal === subTotal">
@@ -1205,10 +1203,9 @@
 </div>
 
 
+
 <!-- Sell RTC Products to Domestic Markets -->
-<div class="mb-3" x-data="{
-    sells_to_domestic_markets: $wire.entangle('sells_to_domestic_markets')
-}">
+<div class="mb-3" >
     <label class="form-label">Do You Sell Your RTC Products to Domestic Markets</label>
     <div class=" @error('sells_to_domestic_markets') is-invalid @enderror">
         <div class="form-check">
@@ -1229,19 +1226,17 @@
 </div>
 
 <!-- Sell Products to International Markets -->
-<div class="mb-3" x-data="{
-    sells_to_international_markets: $wire.entangle('sells_to_international_markets')
-}">
+<div class="mb-3" >
     <label class="form-label">Do You Sell Your Products to International Markets</label>
     <div class=" @error('sells_to_international_markets') border border-primary @enderror">
         <div class="form-check">
             <input class="form-check-input" type="radio" id="sellToInternationalMarketsYes" value="1"
-                x-model="sells_to_international_markets">
+                wire:model.live.debounce.500ms="sells_to_international_markets">
             <label class="form-check-label" for="sellToInternationalMarketsYes">Yes</label>
         </div>
         <div class="form-check">
             <input class="form-check-input" checked type="radio" id="sellToInternationalMarketsNo" value="0"
-                x-model="sells_to_international_markets">
+                wire:model.live.debounce.500ms="sells_to_international_markets">
             <label class="form-check-label" for="sellToInternationalMarketsNo">No</label>
         </div>
     </div>
@@ -1251,19 +1246,17 @@
 </div>
 
 <!-- Sell Products Through Market Information Systems -->
-<div class="mb-3" x-data="{
-    uses_market_information_systems: $wire.entangle('uses_market_information_systems')
-}">
+<div class="mb-3" >
     <label class="form-label">Do You Sell Your Products Through Market Information Systems</label>
     <div class=" @error('uses_market_information_systems') border border-danger @enderror">
         <div class="form-check">
             <input class="form-check-input" type="radio" id="sellThroughMarketInfoYes" value="1"
-                x-model="uses_market_information_systems">
+                wire:model.live.debounce.500ms="uses_market_information_systems">
             <label class="form-check-label" for="sellThroughMarketInfoYes">Yes</label>
         </div>
         <div class="form-check">
             <input class="form-check-input" checked type="radio" id="sellThroughMarketInfoNo" value="0"
-                x-model="uses_market_information_systems">
+                wire:model.live.debounce.500ms="uses_market_information_systems">
             <label class="form-check-label" for="sellThroughMarketInfoNo">No</label>
         </div>
     </div>
@@ -1327,7 +1320,7 @@
                 <tfoot>
                     <tr></tr>
                     <td colspan="2">
-                        <button type="button" class="btn btn-warning btn-sm" @click='$wire.addMIS()'>
+                        <button type="button" class="btn btn-light btn-sm" @click='$wire.addMIS()'>
                             Add Row <i class="bx bx-plus"></i>
                         </button>
                     </td>
@@ -1432,7 +1425,7 @@
                 <tfoot>
                     <tr></tr>
                     <td colspan="2">
-                        <button type="button" class="btn btn-warning btn-sm" @click='$wire.addSales()'>
+                        <button type="button" class="btn btn-light btn-sm" @click='$wire.addSales()'>
                             Add Row <i class="bx bx-plus"></i>
                         </button>
                     </td>

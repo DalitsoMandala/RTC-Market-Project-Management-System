@@ -21,7 +21,7 @@
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
                             <li class="breadcrumb-item active"> Submit data</li>
 
-                            <li class="breadcrumb-item "> <a href="{{ $routePrefix }}/gross-margin/manage-data"> View
+                            <li class="breadcrumb-item "> <a href="/{{ $routePrefix }}/gross-margin/manage-data"> View
                                     Data</a> </li>
 
                         </ol>

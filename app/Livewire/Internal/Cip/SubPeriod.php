@@ -225,7 +225,7 @@ class SubPeriod extends Component
                 $periods = [];
                 $usersWithData = [];
 
-                $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->has('organisation.indicatorResponsiblePeople')->whereHas('roles', function ($query) {
+                $users = User::with('organisation', 'organisation.indicatorResponsiblePeople')->where('is_active', true)->has('organisation.indicatorResponsiblePeople')->whereHas('roles', function ($query) {
                     return $query->whereNotIn('name', ['admin', 'project_manager']);
                 })->get();
 

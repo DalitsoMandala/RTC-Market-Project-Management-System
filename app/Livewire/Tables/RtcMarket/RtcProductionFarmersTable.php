@@ -42,9 +42,9 @@ final class RtcProductionFarmersTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        if($this->getBatch()){
-    $this->search = $this->getBatch();
-}
+        if ($this->getBatch()) {
+            $this->search = $this->getBatch();
+        }
         return [
 
             Header::make()->includeViewOnTop('components.export-data')
@@ -101,7 +101,7 @@ final class RtcProductionFarmersTable extends PowerGridComponent
             ->add('unique_id', fn($model) => $model->pf_id)
             ->add('date_of_followup_formatted', fn($model) => Carbon::parse($model->date_of_followup)->format('d/m/Y'))
 
-            ->add('group_name')
+            ->add('group_name', fn($model) => ucwords(strtolower($model->group_name)) ??null)
 
 
             ->add('enterprise', function ($model) {
@@ -241,52 +241,67 @@ final class RtcProductionFarmersTable extends PowerGridComponent
         ;
     }
 
- public function actions($row): array
+    public function actions($row): array
     {
         $user = User::find(auth()->user()->id);
         $project = Project::where('name', 'RTC Market')->first();
-        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-production-and-marketing-form-farmers/edit/' . $row->id.'/'.$row->uuid;
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/rtc-production-and-marketing-form-farmers/edit/' . $row->id . '/' . $row->uuid;
 
 
         switch ($user->roles()->first()->name) {
             case 'admin':
-                $link ="/admin".$link;
+                $link = "/admin" . $link;
                 break;
 
             case 'staff':
-                $link = "/staff".$link;
+                $link = "/staff" . $link;
                 break;
             case 'manager':
-                $link = "/manager".$link;
+                $link = "/manager" . $link;
                 break;
 
             case 'monitor':
-                $link = "/monitor".$link;
+                $link = "/monitor" . $link;
                 break;
         }
 
+          // Define the user variable once to avoid repeated calls
+        $user = auth()->user();
+
+        // Use dedicated role checks
+        $isAdmin = $user->hasAnyRole(['admin', 'manager']);
+        $isStaff = $user->hasAnyRole('staff');
+
+        // Logic for staff permission (Only their own records)
+        $canEdit = $isAdmin || ($isStaff && $user->id === $row->user_id);
+
         return [
-    Button::add('edit')
-        ->render(function () use ($link) {
-            // Generate the URL in PHP first
-            return Blade::render(<<<HTML
-                <a href="{{ \$link }}" class="btn btn-warning btn-sm"><i class="bx bx-pen"></i></a>
-            HTML, ['link' => $link]);
-        })
-];
+            Button::add('edit')
+                ->can($canEdit)
+                ->render(function () use ($link) {
+                    // Using a simple return is faster than compiling a Blade view for a single button
+                    return '<a href="' . $link . '" class="btn btn-warning btn-sm" title="Edit Record"><i class="bx bx-pen"></i></a>';
+                })
+        ];
     }
 
     public function columns(): array
     {
         return [
-            Column::make('ID', 'rn')->sortable(),
-            Column::action(''),
-            Column::make('Farmer ID', 'unique_id', 'pf_id')->sortable()->searchable(),
-            Column::make('Group Name', 'group_name'),
+            Column::action('')->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+            Column::make('Farmer ID', 'unique_id', 'pf_id')
+                ->sortable()->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Group Name', 'group_name')->bodyAttribute('table-sticky-col table-bordered','background-color: #f5f5f5')
+            ->headerAttribute('table-sticky-col','background-color: #ece9e9'),
             Column::make('Date of follow up', 'date_of_followup')
                 ->sortable(),
 
-    Column::make('UUID', 'uuid')->searchable()->hidden(),
+            Column::make('UUID', 'uuid')->searchable()->hidden(),
             Column::make('Enterprise', 'enterprise')->sortable()->searchable(),
             Column::make('District', 'district')->sortable()->searchable(),
             Column::make('EPA', 'epa')->sortable()->searchable(),

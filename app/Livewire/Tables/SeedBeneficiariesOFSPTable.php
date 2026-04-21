@@ -2,51 +2,59 @@
 
 namespace App\Livewire\tables;
 
-use App\Models\User;
-use App\Traits\ExportTrait;
-use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
+use App\Models\Project;
 use App\Models\SeedBeneficiary;
+use App\Models\User;
+use App\Traits\BatchTrait;
+use App\Traits\ExportTrait;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SeedBeneficiariesOFSPTable extends PowerGridComponent
 {
 
     use WithExport;
     use ExportTrait;
+    use BatchTrait;
     public $crop;
 
-
+    protected $table_name = 'seed-distribution-register';
     public $namedExport = 'seedBeneficiaries';
-
-public function __construct()
+    public string $tableName = 'seed-distribution-register-ofsp';
+    public function __construct()
     {
-        $this->excelData['crop_type'] = 'OFSP';
-
-}
+        $this->excelData['crop_type'] = 'Sweet potato';
+    }
     public function setUp(): array
     {
 
 
+        if ($this->getBatch() && $this->getCropType() && $this->getCropType() == 'Sweet potato') {
+
+            $this->search = $this->getBatch();
+        }
+        $crop = str_replace(' ', '-', strtolower($this->crop));
         return [
 
             Header::make()->showSearchInput()->includeViewOnTop('components.export-data'),
             Footer::make()
                 ->showPerPage()
-                ->pageName("{$this->crop}_page")
+                ->pageName("{$crop}_page")
                 ->showRecordCount(),
         ];
     }
@@ -59,7 +67,7 @@ public function __construct()
 
         $user = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = SeedBeneficiary::query()->with('user')->where('crop', 'OFSP')->join('users', function ($user) {
+        $query = SeedBeneficiary::query()->with('user')->where('crop', 'Sweet potato')->join('users', function ($user) {
             $user->on('users.id', '=', 'seed_beneficiaries.user_id');
         })->select([
             'seed_beneficiaries.*',
@@ -80,7 +88,7 @@ public function __construct()
         $this->performExport();
     }
 
- #[On("download-export_{crop}")]
+    #[On("download-export_{crop}")]
     public function downloadExport()
     {
 
@@ -142,11 +150,18 @@ public function __construct()
     public function columns(): array
     {
         return [
-            Column::make('#', 'rn')->sortable(),
+            Column::action('')->bodyAttribute('table-sticky-col')->headerAttribute('table-sticky-col'),
+            Column::make('#', 'rn')->sortable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+
+            Column::make('Beneficiary ID', 'sd_id')->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
+            Column::make('Name of recipient', 'name_of_recipient')
+                ->sortable()
+                ->searchable()->bodyAttribute('table-sticky-col')
+                ->headerAttribute('table-sticky-col'),
             Column::make('District', 'district', 'district')
                 ->sortable()
-
-
                 ->searchable(),
 
             Column::make('Epa', 'epa')
@@ -168,9 +183,6 @@ public function __construct()
             Column::make('Date', 'date_formatted', 'date')
                 ->sortable(),
 
-            Column::make('Name of recipient', 'name_of_recipient')
-                ->sortable()
-                ->searchable(),
 
 
             Column::make('Group Name', 'group_name')
@@ -225,11 +237,44 @@ public function __construct()
             //     ->searchable(),
 
             Column::make('Submitted by', 'user', 'user_name')->sortable()->searchable(),
-            Column::action('')
+
 
         ];
     }
+    public function actions($row): array
+    {
+        $user = User::find(auth()->user()->id);
+        $project = Project::where('name', 'RTC Market')->first();
+        $link = '/forms/' . str_replace(' ', '-', strtolower($project->name)) . '/' . $this->table_name . '/edit/' . $row->id . '/' . $row->uuid;
 
+
+        switch ($user->roles()->first()->name) {
+            case 'admin':
+                $link = "/admin" . $link;
+                break;
+
+            case 'staff':
+                $link = "/staff" . $link;
+                break;
+            case 'manager':
+                $link = "/manager" . $link;
+                break;
+
+            case 'monitor':
+                $link = "/monitor" . $link;
+                break;
+        }
+
+        return [
+            Button::add('edit')
+                ->render(function () use ($link) {
+                    // Generate the URL in PHP first
+                    return Blade::render(<<<HTML
+                <a href="{{ \$link }}" class="btn btn-warning btn-sm " data-bs-title="Edit Record" ><i class="bx bx-pen"></i></a>
+            HTML, ['link' => $link]);
+                })
+        ];
+    }
     public function filters(): array
     {
         return [];
@@ -239,33 +284,5 @@ public function __construct()
     public function edit(): void
     {
         $this->refresh();
-    }
-
-    public function actions($row): array
-    {
-        return [
-            Button::add('edit')
-                ->slot('<i class="bx bx-pen"></i>')
-                ->id()
-                ->class('my-2 btn btn-warning btn-sm custom-tooltip')
-                ->tooltip('Edit')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
-
-                ->dispatch('edit-showModal', [
-                    'id' => $row->id,
-                    'name' => 'view-detail-modal'
-                ]),
-
-            Button::add('delete')
-                ->slot('<i class="bx bx-trash-alt"></i>')
-                ->id()
-                ->class('btn btn-theme-red my-1 btn-sm custom-tooltip')
-                ->can(allowed: User::find(auth()->user()->id)->hasAnyRole('admin') || User::find(auth()->user()->id)->hasAnyRole('manager'))
-                ->tooltip('Delete')
-                ->dispatch('deleteRecord', [
-                    'id' => $row->id,
-                    'name' => 'delete-detail-modal'
-                ]),
-        ];
     }
 }

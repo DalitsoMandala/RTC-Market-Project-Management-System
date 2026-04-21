@@ -43,7 +43,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url('/') }}" id="dashboard-one"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ? 'btn-outline-warning active' : 'btn-light' }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard') ? 'btn-outline-warning active' : 'btn-outline-warning' }}">
                             Project Report
                         </a>
                     </li>
@@ -52,7 +52,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url($routePrefix . '/dashboard-2') }}" id="dashboard-two"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-2') ? 'btn-outline-warning active' : 'btn-light' }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-2') ? 'btn-outline-warning active' : 'btn-outline-warning' }}">
                             Market Data
                         </a>
                     </li>
@@ -61,7 +61,7 @@
 
                     <li class="nav-item">
                         <a href="{{ url($routePrefix . '/dashboard-3') }}" id="dashboard-three"
-                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-3') ? 'btn-outline-warning active' : 'btn-light' }}">
+                            class="px-3 btn btn-sm {{ request()->is($routePrefix . '/dashboard-3') ? 'btn-outline-warning active' : 'btn-outline-warning' }}">
                             Gross Margins
                         </a>
                     </li>
@@ -185,7 +185,9 @@
                                                     data-key="t-range-slider">Submission Periods</a>
                                                 <a href="{{ route('admin-reports') }}" class="dropdown-item"
                                                     data-key="t-range-slider">Reports</a>
-
+                                                <a href="{{ route('admin-enterprise-management') }}"
+                                                    class="dropdown-item" data-key="t-range-slider">Enterprise
+                                                    Management</a>
                                             </div>
                                         </div>
 
@@ -248,8 +250,9 @@
                         <div class="collapse navbar-collapse" id="topnav-menu-content">
                             <ul class="navbar-nav">
                                 <li class="nav-item ">
-                                    <a class="nav-link dropdown-toggle arrow-none " href="{{ route('monitor-dashboard') }}"
-                                        id="topnav-dashboard" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle arrow-none "
+                                        href="{{ route('monitor-dashboard') }}" id="topnav-dashboard" role="button"
+                                        aria-haspopup="true" aria-expanded="false">
                                         <i class='mb-1 bx bx-home'></i>
                                         Dashboard
                                     </a>
@@ -351,10 +354,11 @@
 
                                             </a>
                                             <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                                <a href="{{ route('monitor-markets-manage-data') }}" class="dropdown-item"
-                                                    data-key="t-lightbox">Manage Data</a>
-                                                <a href="{{ route('monitor-markets-submit-data') }}" class="dropdown-item"
-                                                    data-key="t-range-slider">Marketing Data Submission</a>
+                                                <a href="{{ route('monitor-markets-manage-data') }}"
+                                                    class="dropdown-item" data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('monitor-markets-submit-data') }}"
+                                                    class="dropdown-item" data-key="t-range-slider">Marketing Data
+                                                    Submission</a>
 
 
                                             </div>
@@ -458,15 +462,15 @@
                                             <a class="dropdown-item dropdown-toggle arrow-none" href="#"
                                                 id="topnav-extended" role="button">
                                                 Marketing Management </a>
-                                                    <div class="dropdown-menu" aria-labelledby="topnav-form">
-                                                        <a href="{{ route('cip-markets-manage-data') }}"
-                                                            class="dropdown-item" data-key="t-lightbox">Manage Data</a>
-                                                        <a href="{{ route('cip-markets-submit-data') }}"
-                                                            class="dropdown-item" data-key="t-range-slider">Marketing Data
-                                                            Submission</a>
+                                            <div class="dropdown-menu" aria-labelledby="topnav-form">
+                                                <a href="{{ route('cip-markets-manage-data') }}" class="dropdown-item"
+                                                    data-key="t-lightbox">Manage Data</a>
+                                                <a href="{{ route('cip-markets-submit-data') }}" class="dropdown-item"
+                                                    data-key="t-range-slider">Marketing Data
+                                                    Submission</a>
 
 
-                                                    </div>
+                                            </div>
                                         </div>
 
                                         <div class="dropdown">

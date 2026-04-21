@@ -97,18 +97,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
             ->add('id')
             ->add('unique_id', fn($model) => $model->farmers->pf_id)
             ->add('rpm_farmer_id')
-            ->add('actor_name', function ($model) {
-                $farmer = $model->rpm_farmer_id;
-                $row = RtcProductionFarmer::find($farmer);
-
-                if ($row) {
-                    return $row->name_of_actor;
-
-                }
-                return null;
-
-
-            })
+        
 
             ->add('date_of_follow_up')
             ->add('date_of_follow_up_formatted', fn($model) => Carbon::parse($model->date_of_follow_up)->format('d/m/Y'))
@@ -236,7 +225,7 @@ final class RtcProductionFarmersFollowU extends PowerGridComponent
         return [
             'farmers' => [
                 'pf_id',
-                'name_of_actor'
+          
             ],
             'user' => [
                 'name',

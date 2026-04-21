@@ -74,7 +74,7 @@ final class IndicatorDetailTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
+            Column::make('#', 'id')
                 ->searchable()
                 ->sortable(),
 

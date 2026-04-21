@@ -1,5 +1,6 @@
-<x-form-component :showAlpineAlerts="true" title="Add Farmers Data" pageTitle="Add Data" :formTitle="$form_name" :openSubmission="$openSubmission"
-    :targetSet="$targetSet" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name" :bypassTargets="true" :skipDraftScript="true">
+<x-form-component :showAlpineAlerts="true" title="Edit Farmers Data" pageTitle="Edit Data" :formTitle="$form_name" :openSubmission="$openSubmission"
+    :targetSet="$targetSet" :hideSubmitButtons="true" :targetIds="$targetIds" :showTargetForm="true" :formName="$form_name" :bypassTargets="true"
+    :skipDraftScript="true">
 
     <x-display-id :id="$uniqueId" />
 
@@ -36,8 +37,8 @@
     </div>
     <!-- Group -->
     <div class="mb-3" x-data="{ group: $wire.entangle('group'), type: $wire.entangle('type') }" x-init="() => {
-    
-    
+
+
     }">
         <label for="group" class="form-label">Group</label>
         <select class="form-select @error('group') is-invalid @enderror" x-model="group">
@@ -79,7 +80,7 @@
     </div>
 
     <!-- Category -->
-    <div class="mb-3" >
+    <div class="mb-3">
         <label for="category" class="form-label">Category</label>
         <select class="form-select @error('category') is-invalid @enderror" id="establishment" wire:model='category'>
             <option value="">Select One</option>
@@ -126,5 +127,7 @@
     @include('livewire.forms.rtc-market.rtc-production-farmers.first')
 
     @include('livewire.forms.rtc-market.rtc-production-farmers.repeats')
+
+
 
 </x-form-component>
