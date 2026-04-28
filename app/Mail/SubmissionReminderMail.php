@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -33,7 +34,10 @@ class SubmissionReminderMail extends Mailable implements ShouldQueue
         return new Envelope(
             subject: 'Submission Reminder',
             replyTo: [
-              env('MAIL_FROM_ADDRESS')
+             new Address(
+                config('mail.from.address'),
+                config('mail.from.name')
+            )
             ]
         );
     }

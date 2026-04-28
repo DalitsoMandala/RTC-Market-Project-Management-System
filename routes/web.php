@@ -11,13 +11,15 @@ use App\Helpers\rtc_market\indicators\indicator_2_3_2;
 use App\Helpers\rtc_market\indicators\indicator_A1;
 use App\Helpers\rtc_market\indicators\indicator_B1;
 use App\Helpers\rtc_market\indicators\indicator_B5;
+use App\Helpers\UsdReCalculations;
 use App\Http\Controllers\AddDisaggregationController;
+
 use App\Http\Controllers\FormsExportController;
 
+use App\Http\Controllers\ReminderController;
+
 use App\Http\Controllers\TestingController;
-
 use App\Jobs\TestJob;
-
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Assignments;
@@ -37,7 +39,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Helpers\UsdReCalculations;
+
 
 
 
@@ -52,7 +54,8 @@ Route::get('/logout', function () {
     return abort(404);
 });
 
-
+Route::get('re-send-reminders', [ReminderController::class,'send'])->name('reminders');
+Route::get('/test', [TestingController::class, 'index'])->name('test');
 
 ////Route::get('/download-templates', [App\Http\Controllers\FormsExportController::class, 'export'])->name('download-templates');
 

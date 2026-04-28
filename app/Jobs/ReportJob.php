@@ -159,7 +159,16 @@ class ReportJob implements ShouldQueue
                                     );
                                 }
                             } catch (\Exception $e) {
-                                Log::error("Report Error: " . $e->getMessage());
+                           
+                                Log::error("Report Error: " . $e->getMessage(), [
+                                    'reporting_period_id' => $period,
+                                    'financial_year_id' => $year,
+                                    'organisation_id' => $org,
+                                    'crop' => $crop,
+                                    'indicator_id' => $indicatorClass->indicator_id,
+                                    'class' => $indicatorClass->class,
+                                    'stack' => $e->getTraceAsString(),
+                                ]);
                             }
 
                             /** PROGRESS */
