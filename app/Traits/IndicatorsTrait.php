@@ -303,7 +303,7 @@ trait IndicatorsTrait
                     $mail->send(
                         new SubmissionReminderMail($period, $reminderType, $user)
                     );
-                    usleep(3000000); // 3s delay to prevent mail server overload
+                        usleep(1000000); // 3s delay to prevent mail server overload
                 } catch (Throwable $e) {
                     Log::error('Mail send failed (reminder)', [
                         'user_id' => $user->id ?? null,
