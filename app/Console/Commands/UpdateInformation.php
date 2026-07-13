@@ -1,19 +1,9 @@
 <?php
-
 namespace App\Console\Commands;
 
-use App\Helpers\PopulatePreviousValue;
-use App\Jobs\AdditionalReportJob;
-use App\Jobs\MarketReportJob;
-
-use App\Jobs\PopulatePreviousValueJob;
 use App\Jobs\ReportJob;
-use App\Jobs\SyncronizeTableJob;
 use App\Models\ReportStatus;
-use Illuminate\Bus\Batch;
-
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
@@ -44,19 +34,18 @@ class UpdateInformation extends Command
         Artisan::call('clear-lock');
         $this->info('Checking report status...');
 
-        // Optional: prevent parallel executions
+                                                  // Optional: prevent parallel executions
         $lock = Cache::lock('report_lock', 3600); // lock for 1 hour
 
-        if (!$lock->get()) {
+        if (! $lock->get()) {
             $this->warn('Another instance is already processing the report.');
             return;
         }
 
-
         try {
             $reportStatus = ReportStatus::find(1);
 
-            if (!$reportStatus) {
+            if (! $reportStatus) {
                 $this->error('ReportStatus with ID 1 not found.');
                 return;
             }
@@ -72,9 +61,9 @@ class UpdateInformation extends Command
 
     private function resetReportStatus($reportStatus)
     {
-        $rand = rand(0,15);
+        $rand = rand(0, 15);
         $reportStatus->update([
-            'status' => 'pending',
+            'status'   => 'pending',
             'progress' => $rand,
         ]);
         Cache::put('report_progress', $rand);
@@ -83,27 +72,29 @@ class UpdateInformation extends Command
 
     private function runReportJobs()
     {
-           $reportStatus = ReportStatus::find(1);
+        $reportStatus = ReportStatus::find(1);
         Bus::chain([
 
-         new ReportJob(),
-           new PopulatePreviousValueJob(),
-         //   new AdditionalReportJob(),
-           new MarketReportJob(),
+            new ReportJob(),
+            //  new PopulatePreviousValueJob(),
+            // new AdditionalReportJob(),
+            //     new MarketReportJob(),
+            //  new AggregateReportJob(),
+
             function () use ($reportStatus) {
                 $reportStatus->update([
-                    'status' => 'completed',
+                    'status'   => 'completed',
                     'progress' => 100,
                 ]);
                 Cache::put('report_progress', 100);
                 Cache::put('report_status', 'completed');
-            }
+            },
         ])
             ->catch(function (\Throwable $e) use ($reportStatus) {
                 logger()->error('Report job chain failed: ' . $e->getMessage());
 
                 $reportStatus->update([
-                    'status' => 'completed',
+                    'status'   => 'completed',
                     'progress' => 100,
                 ]);
                 Cache::put('report_progress', 100);

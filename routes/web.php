@@ -1,25 +1,8 @@
 <?php
 
-
-
-
-use App\Helpers\DatabaseAppend;
-use App\Helpers\DisaggregationAppend;
-use App\Helpers\IndicatorsAppend;
-use App\Helpers\MarketReportCalculations;
-use App\Helpers\rtc_market\indicators\indicator_2_3_2;
-use App\Helpers\rtc_market\indicators\indicator_A1;
-use App\Helpers\rtc_market\indicators\indicator_B1;
-use App\Helpers\rtc_market\indicators\indicator_B5;
-use App\Helpers\UsdReCalculations;
-use App\Http\Controllers\AddDisaggregationController;
-
-use App\Http\Controllers\FormsExportController;
-
+use App\Http\Controllers\QueueTestController;
 use App\Http\Controllers\ReminderController;
-
 use App\Http\Controllers\TestingController;
-use App\Jobs\TestJob;
 use App\Livewire\External\Dashboard as ExternalDashboard;
 use App\Livewire\External\ViewIndicator;
 use App\Livewire\Internal\Cip\Assignments;
@@ -29,38 +12,25 @@ use App\Livewire\Internal\Cip\Indicators;
 use App\Livewire\Internal\Cip\Reports;
 use App\Livewire\Internal\Cip\Submissions;
 use App\Livewire\Internal\Cip\SubPeriod;
-use App\Livewire\Internal\Cip\Targets;
 use App\Livewire\Internal\Cip\ViewIndicators;
-use App\Models\IndicatorClass;
-use App\Models\MarketData;
-use App\Models\RtcProductionProcessor;
-use App\Models\SeedBeneficiary;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
-
-
-
-
-
 
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
+Route::get('/testing', [QueueTestController::class, 'handle']);
+Route::get('/reset-table', [QueueTestController::class, 'initZeroReport']);
 Route::get('/logout', function () {
-
 
     return abort(404);
 });
 
-Route::get('re-send-reminders', [ReminderController::class,'send'])->name('reminders');
+Route::get('re-send-reminders', [ReminderController::class, 'send'])->name('reminders');
 Route::get('/test', [TestingController::class, 'index'])->name('test');
 
 ////Route::get('/download-templates', [App\Http\Controllers\FormsExportController::class, 'export'])->name('download-templates');
 
-
-if (!function_exists('registerFormRoutes')) {
+if (! function_exists('registerFormRoutes')) {
 
     function registerFormRoutes($prefix, $role)
     {
@@ -76,7 +46,6 @@ if (!function_exists('registerFormRoutes')) {
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Upload::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/view/{batch?}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\View::class);
         Route::get($prefix . '/rtc-production-and-marketing-form-processors-and-traders/edit/{id}/{uuid}', App\Livewire\Forms\RtcMarket\RtcProductionProcessors\Edit::class);
-
 
         Route::get($prefix . '/rtc-consumption-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\RtcConsumption\Add::class);
         Route::get($prefix . '/rtc-consumption-form/view/{batch?}', App\Livewire\Forms\RtcMarket\RtcConsumption\View::class);
@@ -101,12 +70,11 @@ if (!function_exists('registerFormRoutes')) {
 }
 // Profile route
 
-
 // Admin routes
 Route::middleware([
     'auth',
     'role:admin',
-    'verified'
+    'verified',
 
 ])->prefix('admin')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin-dashboard');
@@ -145,15 +113,16 @@ Route::middleware([
     Route::get('/profile', \App\Livewire\Profile\Details::class)
         ->middleware(['auth'])
         ->name('admin-profile');
+
+    Route::get('/aggregated-reports', \App\Livewire\Admin\Operations\AggregatedReportsPage::class)->name('admin-aggregated-reports');
     // Form routes
     registerFormRoutes('/forms/{project}', 'admin');
 });
 
-
 Route::middleware([
     'auth',
     'role:monitor',
-    'verified'
+    'verified',
 
 ])->prefix('monitor')->group(function () {
     Route::get('/dashboard', \App\Livewire\Admin\Dashboard::class)->name('monitor-dashboard');
@@ -198,7 +167,7 @@ Route::middleware([
 Route::middleware([
     'auth',
     'role:manager',
-    'check_baseline'
+    'check_baseline',
 ])->prefix('cip')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('cip-dashboard');
     Route::get('/dashboard-2', \App\Livewire\Internal\Manager\Dashboard2::class)->name('cip-dashboard-2');
@@ -260,7 +229,6 @@ Route::middleware([
 
     registerFormRoutes('/forms/{project}', 'staff');
 });
-
 
 Route::middleware([
     'auth',

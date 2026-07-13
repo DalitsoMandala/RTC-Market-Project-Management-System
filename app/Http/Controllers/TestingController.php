@@ -11,9 +11,11 @@ use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExpo
 use App\Exports\rtcmarket\SchoolConsumptionExport\SrcExport;
 use App\Helpers\ExchangeRateHelper;
 use App\Helpers\UsdReCalculations;
-
+use App\Jobs\AggregateReportJob;
 use App\Jobs\SendExpiredPeriodNotificationJob;
 use App\Jobs\sendReminderToUserJob;
+use App\Livewire\Forms\RtcMarket\HouseholdRtcConsumption\Aggregate;
+use App\Models\AggregatedReport;
 use App\Models\FinancialYear;
 use App\Models\GrossMarginCategory;
 use App\Models\GrossMarginCategoryItem;
@@ -27,12 +29,14 @@ use App\Models\RtcProductionFarmer;
 use App\Models\RtcProductionProcessor;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
+use App\Models\SystemReportData;
 use App\Models\User;
 use App\Notifications\SubmissionPeriodsEndingSoon;
 use App\Notifications\SubmissionReminder;
 use App\Traits\GroupsEndingSoonSubmissionPeriods;
 use App\Traits\IndicatorsTrait;
 use Carbon\Carbon;
+use EnsureNumericTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
@@ -41,7 +45,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
-use EnsureNumericTrait;
 
 class TestingController extends Controller
 {
@@ -185,6 +188,21 @@ class TestingController extends Controller
         // }
     }
 
+
+    public function generateAggregateReport()
+    {
+        try {
+            AggregateReportJob::dispatch();
+
+
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::error("Error generating aggregate report: " . $e->getMessage(), [
+                'error' => $e
+            ]);
+            return response()->json(['status' => 'error']);
+        }
+    }
     private function removePrevailingPrice($total, $prevailingPrice)
     {
         if ($prevailingPrice == 0) {

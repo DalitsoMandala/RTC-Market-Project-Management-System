@@ -79,8 +79,6 @@ final class ReportTable extends PowerGridComponent
         $this->namedExport = 'report';
         $this->execute($this->namedExport);
         $this->performExport();
-
-
     }
 
 
@@ -292,7 +290,7 @@ final class ReportTable extends PowerGridComponent
                 return $model->systemReport->project->name ?? null;
             })
             ->add('value', function ($model) {
-                return $model->value ?? null;
+                return "<span class='fw-bolder'>{$model->value}</span>" ?? null;
             })
             ->add('report_period', function ($model) {
                 // Handle null for reportingPeriod
@@ -339,8 +337,6 @@ final class ReportTable extends PowerGridComponent
                 ->searchable(),
 
 
-            Column::make('Value', 'value')
-                ->sortable(),
 
 
             Column::make('Project', 'project')->hidden()->visibleInExport(true),
@@ -348,6 +344,9 @@ final class ReportTable extends PowerGridComponent
             Column::make('Organisation', 'organisations', 'organisation_name')->sortable()->searchable(),
             Column::make('Project year', 'financial_year')->sortable(),
             Column::make('Enterprise', 'crop', 'system_reports.crop')->searchable(),
+            Column::make('Value', 'value')
+                ->sortable(),
+
         ];
     }
 

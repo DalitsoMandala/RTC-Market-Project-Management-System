@@ -171,10 +171,7 @@ class Reports extends Component
         if ($this->selectedOrganisation !== null && $this->selectedIndicator) {
             $indicators = ResponsiblePerson::where('organisation_id', $this->selectedOrganisation)->pluck('indicator_id');
             $this->disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get()->unique('name');
-
         }
-
-
     }
 
 

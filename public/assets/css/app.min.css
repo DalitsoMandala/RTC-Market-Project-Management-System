@@ -382,9 +382,12 @@ body[data-layout="horizontal"] .footer {
 }
 .right-bar {
     background-color: var(--bs-secondary-bg);
-    -webkit-box-shadow: 0 0 24px 0 rgba(0, 0, 0, 0.06),
+    -webkit-box-shadow:
+        0 0 24px 0 rgba(0, 0, 0, 0.06),
         0 1px 0 0 rgba(0, 0, 0, 0.02);
-    box-shadow: 0 0 24px 0 rgba(0, 0, 0, 0.06), 0 1px 0 0 rgba(0, 0, 0, 0.02);
+    box-shadow:
+        0 0 24px 0 rgba(0, 0, 0, 0.06),
+        0 1px 0 0 rgba(0, 0, 0, 0.02);
     display: block;
     position: fixed;
     -webkit-transition: all 0.2s ease-out;
@@ -504,7 +507,9 @@ body[data-layout="horizontal"] .footer {
     -webkit-transition: -webkit-transform 0.2s;
     transition: -webkit-transform 0.2s;
     transition: transform 0.2s;
-    transition: transform 0.2s, -webkit-transform 0.2s;
+    transition:
+        transform 0.2s,
+        -webkit-transform 0.2s;
     font-size: 1rem;
     position: absolute;
     right: 15px;
@@ -1331,6 +1336,24 @@ body[data-layout="horizontal"][data-sidebar-size="sm"] .navbar-brand-box {
         box-shadow: var(--bs-box-shadow);
     }
 }
+@media (max-width: 991.98px) {
+    .topnav .dropdown-menu {
+        display: none;
+    }
+
+    .topnav .dropdown.show > .dropdown-menu {
+        display: block;
+    }
+
+    .topnav .dropdown-menu .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+        margin-left: 1rem;
+        padding-left: 1rem;
+        border-left: 1px solid rgba(0, 0, 0, 0.1);
+    }
+}
 .topnav .topnav-menu {
     margin: 0;
     padding: 0;
@@ -1420,37 +1443,62 @@ body[data-layout="horizontal"][data-sidebar-size="sm"] .navbar-brand-box {
     .topnav .dropdown-item {
         padding: 0.5rem 1.5rem;
         min-width: 180px;
+        white-space: nowrap;
     }
+
     .topnav .dropdown.mega-dropdown .mega-dropdown-menu {
         left: 0;
         right: auto;
     }
-    .topnav .dropdown .dropdown-menu {
+
+    /* First level dropdown */
+    .topnav .dropdown > .dropdown-menu {
         margin-top: 0;
         border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
-    }
-    .topnav .dropdown .dropdown-menu .arrow-down::after {
-        right: 15px;
-        -webkit-transform: rotate(-135deg) translateY(-50%);
-        transform: rotate(-135deg) translateY(-50%);
-        position: absolute;
-    }
-    .topnav .dropdown .dropdown-menu .dropdown .dropdown-menu {
-        position: absolute;
-        top: 0 !important;
-        left: 100%;
         display: none;
     }
+
+    /* Every dropdown inside another dropdown */
+    .topnav .dropdown-menu .dropdown {
+        position: relative;
+    }
+
+    /* All nested submenus */
+    .topnav .dropdown-menu .dropdown > .dropdown-menu {
+        position: absolute;
+        top: -1px;
+        left: 100%;
+        margin-top: 0;
+        margin-left: 0;
+        display: none;
+        border-radius: var(--bs-border-radius);
+    }
+
+    /* Right arrow */
+    .topnav .dropdown-menu .dropdown > .dropdown-toggle::after,
+    .topnav .dropdown .dropdown-menu .arrow-down::after {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%) rotate(-135deg);
+    }
+
+    /* Show first level */
     .topnav .dropdown:hover > .dropdown-menu {
         display: block;
     }
-    .topnav
-        .dropdown:hover
-        > .dropdown-menu
-        > .dropdown:hover
-        > .dropdown-menu {
+
+    /* Show every nested submenu */
+    .topnav .dropdown-menu .dropdown:hover > .dropdown-menu {
         display: block;
     }
+
+    /* Keep parent highlighted */
+    .topnav .dropdown-menu .dropdown:hover > .dropdown-toggle {
+        color: var(--bs-menu-item-active-color);
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+
     .navbar-toggle {
         display: none;
     }
@@ -3873,8 +3921,12 @@ span.flatpickr-weekday {
     border-color: #f8f9fa;
 }
 .flatpickr-day.inRange {
-    -webkit-box-shadow: -5px 0 0 #f8f9fa, 5px 0 0 #f8f9fa;
-    box-shadow: -5px 0 0 #f8f9fa, 5px 0 0 #f8f9fa;
+    -webkit-box-shadow:
+        -5px 0 0 #f8f9fa,
+        5px 0 0 #f8f9fa;
+    box-shadow:
+        -5px 0 0 #f8f9fa,
+        5px 0 0 #f8f9fa;
 }
 .flatpickr-day.endRange,
 .flatpickr-day.endRange.inRange,
@@ -3918,11 +3970,17 @@ span.flatpickr-weekday {
 }
 .flatpickr-calendar {
     background-color: var(--bs-secondary-bg) !important;
-    -webkit-box-shadow: 1px 0 0 var(--bs-border-color),
-        -1px 0 0 var(--bs-border-color), 0 1px 0 var(--bs-border-color),
-        0 -1px 0 var(--bs-border-color), 0 3px 13px rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 1px 0 0 var(--bs-border-color), -1px 0 0 var(--bs-border-color),
-        0 1px 0 var(--bs-border-color), 0 -1px 0 var(--bs-border-color),
+    -webkit-box-shadow:
+        1px 0 0 var(--bs-border-color),
+        -1px 0 0 var(--bs-border-color),
+        0 1px 0 var(--bs-border-color),
+        0 -1px 0 var(--bs-border-color),
+        0 3px 13px rgba(0, 0, 0, 0.08) !important;
+    box-shadow:
+        1px 0 0 var(--bs-border-color),
+        -1px 0 0 var(--bs-border-color),
+        0 1px 0 var(--bs-border-color),
+        0 -1px 0 var(--bs-border-color),
         0 3px 13px rgba(0, 0, 0, 0.08) !important;
 }
 .flatpickr-calendar.hasTime .flatpickr-time {
@@ -4200,7 +4258,6 @@ a.ck.ck-button:not(.ck-disabled):hover {
 }
 .apexcharts-tooltip * {
     font-family: var(--bs-font-sans-serif) !important;
-
 }
 .apexcharts-tooltip.apexcharts-theme-dark * {
     color: #fff !important;

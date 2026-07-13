@@ -252,35 +252,38 @@
 
 
             /* Base requirement for sticky columns */
-.table-sticky-col {
-    position: sticky;
+            .table-sticky-col {
+                position: sticky;
 
-    z-index: 2;
-}
+                z-index: 2;
+            }
 
-/* First sticky column */
-td.table-sticky-col:nth-child(1),
-th.table-sticky-col:nth-child(1) {
-    left: 0;
-    z-index: 3;
-}
+            /* First sticky column */
+            td.table-sticky-col:nth-child(1),
+            th.table-sticky-col:nth-child(1) {
+                left: 0;
+                z-index: 3;
+            }
 
-/* Second sticky column */
-td.table-sticky-col:nth-child(2),
-th.table-sticky-col:nth-child(2) {
-    left: 50px; /* width of first column */
-}
+            /* Second sticky column */
+            td.table-sticky-col:nth-child(2),
+            th.table-sticky-col:nth-child(2) {
+                left: 50px;
+                /* width of first column */
+            }
 
-/* Third sticky column */
-td.table-sticky-col:nth-child(3),
-th.table-sticky-col:nth-child(3) {
-    left: 100px; /* width of first + second */
-}
+            /* Third sticky column */
+            td.table-sticky-col:nth-child(3),
+            th.table-sticky-col:nth-child(3) {
+                left: 100px;
+                /* width of first + second */
+            }
 
-td.table-sticky-col:nth-child(4),
-th.table-sticky-col:nth-child(4) {
-    left: 200px; /* width of first + second */
-}
+            td.table-sticky-col:nth-child(4),
+            th.table-sticky-col:nth-child(4) {
+                left: 200px;
+                /* width of first + second */
+            }
 
             td.table-sticky-col {
                 background-color: #f5f5f5 !important;
@@ -451,6 +454,10 @@ th.table-sticky-col:nth-child(4) {
 
             .custom-rounded-table tbody tr:last-child td {
                 border-bottom: none;
+            }
+
+            .main-content {
+                margin-top: 5.5rem;
             }
         </style>
         <!-- Scripts -->
@@ -717,6 +724,31 @@ th.table-sticky-col:nth-child(4) {
                         })
                     })
                 })
+
+                document.querySelectorAll('.topnav .dropdown-menu .dropdown-toggle').forEach(function(el) {
+
+                    el.addEventListener('click', function(e) {
+
+                        if (window.innerWidth >= 992) {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const parent = this.parentElement;
+
+                        parent.classList.toggle('show');
+
+                        const submenu = this.nextElementSibling;
+
+                        if (submenu) {
+                            submenu.classList.toggle('show');
+                        }
+
+                    });
+
+                });
             </script>
 
 

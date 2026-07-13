@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +26,6 @@ class SystemReport extends Model
         return $this->belongsTo(ReportingPeriodMonth::class, 'reporting_period_id');
     }
 
-
     public function organisation()
     {
         return $this->belongsTo(Organisation::class);
@@ -38,12 +36,10 @@ class SystemReport extends Model
         return $this->belongsTo(Project::class);
     }
 
-
     public function indicator()
     {
         return $this->belongsTo(Indicator::class);
     }
-
 
     /**
      * Get all of the data for the SystemReport

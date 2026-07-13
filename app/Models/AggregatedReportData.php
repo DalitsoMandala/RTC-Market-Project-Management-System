@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SystemReportData extends Model
+class AggregatedReportData extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
     protected $fillable = [
         'name',
-        'value',
+        'value'
     ];
 
     /**
@@ -20,6 +21,6 @@ class SystemReportData extends Model
      */
     public function systemReport()
     {
-        return $this->belongsTo(SystemReport::class, 'system_report_id');
+        return $this->belongsTo(AggregatedReport::class, 'aggregated_report_id');
     }
 }
