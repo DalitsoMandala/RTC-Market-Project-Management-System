@@ -44,7 +44,6 @@ class UpdateInformation extends Command
         $this->clearReportLock();
         $this->info("Report status: {$reportStatus->status}, progress: {$reportStatus->progress}%");
         $this->info("Starting fresh report job chain...");
-        $this->resetReportStatus($reportStatus);
 
         $this->runReportJobs();
 
