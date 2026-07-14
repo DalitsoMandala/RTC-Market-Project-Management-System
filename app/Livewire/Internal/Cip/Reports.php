@@ -1,12 +1,8 @@
 <?php
-
 namespace App\Livewire\Internal\Cip;
 
-use App\Jobs\ReportJob;
 use App\Models\ReportStatus;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Bus;
-use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Reports extends Component
@@ -21,7 +17,7 @@ class Reports extends Component
 
         if ($status) {
             $this->progress = $status->progress;
-            $this->loading = $status->status === 'processing';
+            $this->loading  = $status->status === 'processing';
         }
     }
 
@@ -29,19 +25,19 @@ class Reports extends Component
     {
         $status = ReportStatus::first();
 
-        if (!$status) {
+        if (! $status) {
             $status = ReportStatus::create([
-                'status' => 'processing',
-                'progress' => 0
+                'status'   => 'processing',
+                'progress' => 0,
             ]);
         }
 
         $status->update([
-            'status' => 'processing',
-            'progress' => 0
+            'status'   => 'processing',
+            'progress' => 0,
         ]);
 
-        $this->loading = true;
+        $this->loading  = true;
         $this->progress = 0;
 
         Artisan::call('update:information');
@@ -52,14 +48,11 @@ class Reports extends Component
         $this->loading = true;
     }
 
-
-
-
     public function checkProgress()
     {
         $status = ReportStatus::first();
 
-        if (!$status) {
+        if (! $status) {
             return;
         }
 
