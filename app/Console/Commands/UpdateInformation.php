@@ -40,6 +40,13 @@ class UpdateInformation extends Command
             $this->error('ReportStatus with ID 1 not found.');
             return;
         }
+        $reportStatus->update([
+            'status'   => 'processing',
+            'progress' => random_int(0, 10), // Start with a random progress to simulate work
+        ]);
+
+        Cache::put('report_progress', $reportStatus->progress);
+
         // Fresh run
         $this->clearReportLock();
         $this->info("Report status: {$reportStatus->status}, progress: {$reportStatus->progress}%");
