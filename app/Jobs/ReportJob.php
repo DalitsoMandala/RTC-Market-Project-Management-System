@@ -16,7 +16,7 @@ class ReportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
     use ReportsTrait;
     public $timeout = 3600; // tune to worst-case runtime
-    public $tries   = 1;    // avoid duplicate runs on retry
+    public $tries   = 3;    // avoid duplicate runs on retry
     public $backoff = 0;
 
     public function handle(): void
