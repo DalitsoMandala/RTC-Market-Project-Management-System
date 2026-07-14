@@ -42,7 +42,7 @@ class UpdateInformation extends Command
         }
         $reportStatus->update([
             'status'   => 'processing',
-            'progress' => random_int(0, 10), // Start with a random progress to simulate work
+            'progress' => random_int(5, 10), // Start with a random progress to simulate work
         ]);
 
         Cache::put('report_progress', $reportStatus->progress);
@@ -97,13 +97,14 @@ class UpdateInformation extends Command
 
         if ($reportStatus) {
             $reportStatus->update([
-                'status'   => 'completed',
-                'progress' => 100,
+                'status'   => 'pending',
+                'progress' => 0,
             ]);
-            Cache::put('report_progress', 100);
-            Cache::put('report_status', 'completed');
+
+            Cache::put('report_status', 'pending');
+            Cache::put('report_progress', 0);
         }
-        Cache::forget('report_lock'); //
+
     }
     public function failed(\Throwable $exception): void
     {

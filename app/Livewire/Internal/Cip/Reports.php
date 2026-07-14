@@ -13,12 +13,7 @@ class Reports extends Component
 
     public function mount()
     {
-        $status = ReportStatus::first();
 
-        if ($status) {
-            $this->progress = $status->progress;
-            $this->loading  = $status->status === 'processing';
-        }
     }
 
     public function load()
@@ -27,13 +22,13 @@ class Reports extends Component
 
         if (! $status) {
             $status = ReportStatus::create([
-                'status'   => 'processing',
+                'status'   => 'pending',
                 'progress' => 0,
             ]);
         }
 
         $status->update([
-            'status'   => 'processing',
+            'status'   => 'pending',
             'progress' => 0,
         ]);
 

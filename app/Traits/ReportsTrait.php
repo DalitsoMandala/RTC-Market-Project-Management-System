@@ -20,7 +20,7 @@ trait ReportsTrait
     const IGNORED_YEARS             = [];
     const PROJECT_NAME              = 'RTC MARKET';
 
-    protected $current         = 0;
+    protected $current         = 11;
     protected $totalIterations = 0;
     protected int $errorCount  = 0;
     public function __construct(
