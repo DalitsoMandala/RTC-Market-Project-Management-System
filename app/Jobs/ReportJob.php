@@ -19,23 +19,6 @@ class ReportJob implements ShouldQueue
     public $tries   = 1;    // avoid duplicate runs on retry
     public $backoff = 0;
 
-    public function __construct(
-        ?int $financial_year_id = null,
-        ?int $project_id = null,
-        ?int $reporting_period_id = null,
-        ?int $organisation_id = null,
-        ?int $indicator_id = null,
-    ) {
-        // ReportsTrait's constructor sets readonly props + aggregateYears
-        $this->initReportsTrait(
-            $financial_year_id,
-            $project_id,
-            $reporting_period_id,
-            $organisation_id,
-            $indicator_id,
-        );
-    }
-
     public function handle(): void
     {
         $errorCount = $this->run();

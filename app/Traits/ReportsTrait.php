@@ -23,26 +23,13 @@ trait ReportsTrait
     protected $current         = 0;
     protected $totalIterations = 0;
     protected int $errorCount  = 0;
-
-    protected ?int $financial_year_id   = null;
-    protected ?int $project_id          = null;
-    protected ?int $reporting_period_id = null;
-    protected ?int $organisation_id     = null;
-    protected ?int $indicator_id        = null;
-    // In ReportsTrait, replace __construct with:
-    public function initReportsTrait(
-        ?int $financial_year_id = null,
-        ?int $project_id = null,
-        ?int $reporting_period_id = null,
-        ?int $organisation_id = null,
-        ?int $indicator_id = null,
-    ): void {
-        $this->financial_year_id   = $financial_year_id;
-        $this->project_id          = $project_id;
-        $this->reporting_period_id = $reporting_period_id;
-        $this->organisation_id     = $organisation_id;
-        $this->indicator_id        = $indicator_id;
-
+    public function __construct(
+        public readonly ?int $financial_year_id = null,
+        public readonly ?int $project_id = null,
+        public readonly ?int $reporting_period_id = null,
+        public readonly ?int $organisation_id = null,
+        public readonly ?int $indicator_id = null,
+    ) {
         $this->aggregateYears = FinancialYear::whereHas('project', fn($q) => $q->where('name', self::PROJECT_NAME))
             ->get()
             ->filter(fn($financial_year) => in_array($financial_year->number, self::IGNORED_YEARS))

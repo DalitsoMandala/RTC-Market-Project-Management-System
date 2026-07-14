@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 use App\Jobs\ReportJob;
 use App\Models\ReportStatus;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class UpdateInformation extends Command
 {
@@ -31,43 +31,23 @@ class UpdateInformation extends Command
     public function handle()
     {
         ini_set('max_execution_time', 0);
-        Artisan::call('clear-lock');
+
         $this->info('Checking report status...');
 
-                                                  // Optional: prevent parallel executions
-        $lock = Cache::lock('report_lock', 3600); // lock for 1 hour
+        $reportStatus = ReportStatus::find(1);
 
-        if (! $lock->get()) {
-            $this->warn('Another instance is already processing the report.');
+        if (! $reportStatus) {
+            $this->error('ReportStatus with ID 1 not found.');
             return;
         }
+        // Fresh run
+        $this->clearReportLock();
+        $this->info("Report status: {$reportStatus->status}, progress: {$reportStatus->progress}%");
+        $this->info("Starting fresh report job chain...");
+        $this->resetReportStatus($reportStatus);
 
-        try {
-            $reportStatus = ReportStatus::find(1);
+        $this->runReportJobs();
 
-            if (! $reportStatus) {
-                $this->error('ReportStatus with ID 1 not found.');
-                return;
-            }
-            // Fresh run
-            $this->info("Starting fresh report job chain...");
-            $this->resetReportStatus($reportStatus);
-
-            $this->runReportJobs();
-        } finally {
-            $lock->release();
-        }
-    }
-
-    private function resetReportStatus($reportStatus)
-    {
-        $rand = rand(0, 15);
-        $reportStatus->update([
-            'status'   => 'pending',
-            'progress' => $rand,
-        ]);
-        Cache::put('report_progress', $rand);
-        Cache::put('report_status', 'pending');
     }
 
     private function runReportJobs()
@@ -102,5 +82,26 @@ class UpdateInformation extends Command
             })
             ->onQueue('reports')
             ->dispatch();
+    }
+
+    public function clearReportLock()
+    {
+        $this->info('Clearing Cache Lock...');
+        $reportStatus = ReportStatus::find(1);
+
+        if ($reportStatus) {
+            $reportStatus->update([
+                'status'   => 'completed',
+                'progress' => 100,
+            ]);
+            Cache::put('report_progress', 100);
+            Cache::put('report_status', 'completed');
+        }
+        Cache::forget('report_lock'); //
+    }
+    public function failed(\Throwable $exception): void
+    {
+        Cache::put('report_progress', 0);
+        Log::error('UpdateInformation command failed entirely: ' . $exception->getMessage());
     }
 }

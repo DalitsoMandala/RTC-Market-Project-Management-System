@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Models\ReportStatus;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Artisan;
 
 class ClearLock extends Command
 {
@@ -34,15 +32,13 @@ class ClearLock extends Command
 
         if ($reportStatus) {
             $reportStatus->update([
-                'status' => 'completed',
+                'status'   => 'completed',
                 'progress' => 100,
             ]);
             Cache::put('report_progress', 100);
             Cache::put('report_status', 'completed');
         }
-        Cache::forget('report_lock');  //
-
-
+        Cache::forget('report_lock'); //
 
     }
 }
