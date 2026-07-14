@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\QueueTestController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TestingController;
 use App\Livewire\External\Dashboard as ExternalDashboard;
@@ -18,8 +17,8 @@ use Illuminate\Support\Facades\Route;
 // Redirect root to login
 Route::get('/', fn() => redirect()->route('login'));
 
-Route::get('/testing', [QueueTestController::class, 'handle']);
-Route::get('/reset-table', [QueueTestController::class, 'initZeroReport']);
+//Route::get('/testing', [QueueTestController::class, 'handle']);
+//Route::get('/reset-table', [QueueTestController::class, 'initZeroReport']);
 Route::get('/logout', function () {
 
     return abort(404);
