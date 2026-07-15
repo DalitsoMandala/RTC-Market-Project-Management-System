@@ -19,6 +19,11 @@ Route::get('/', fn() => redirect()->route('login'));
 
 //Route::get('/testing', [QueueTestController::class, 'handle']);
 //Route::get('/reset-table', [QueueTestController::class, 'initZeroReport']);
+
+Route::get('/duo', function () {
+    $aa = new App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 1);
+    dd($aa->getDisaggregations());
+})->name('duo');
 Route::get('/logout', function () {
 
     return abort(404);

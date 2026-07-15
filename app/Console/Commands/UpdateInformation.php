@@ -1,7 +1,7 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Jobs\ReportJob;
+use App\Jobs\SystemReportJob;
 use App\Models\ReportStatus;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
@@ -40,20 +40,23 @@ class UpdateInformation extends Command
             $this->error('ReportStatus with ID 1 not found.');
             return;
         }
+
+        if ($reportStatus->status === 'processing') {
+            $this->warn('A report update is already running — skipping this run.');
+            return;
+        }
+
         $reportStatus->update([
             'status'   => 'processing',
-            'progress' => random_int(5, 10), // Start with a random progress to simulate work
+            'progress' => random_int(5, 10),
         ]);
 
         Cache::put('report_progress', $reportStatus->progress);
 
-        // Fresh run
-        $this->clearReportLock();
         $this->info("Report status: {$reportStatus->status}, progress: {$reportStatus->progress}%");
         $this->info("Starting fresh report job chain...");
 
         $this->runReportJobs();
-
     }
 
     private function runReportJobs()
@@ -61,11 +64,12 @@ class UpdateInformation extends Command
         $reportStatus = ReportStatus::find(1);
         Bus::chain([
 
-            new ReportJob(),
-            //  new PopulatePreviousValueJob(),
+            new SystemReportJob(), // Run live calculations
+                                   // new AggregatedReportJob(), // Run history / closed year reports
+
+            // new PopulatePreviousValueJob(),
             // new AdditionalReportJob(),
-            //     new MarketReportJob(),
-            //  new AggregateReportJob(),
+            // new MarketReportJob(),
 
             function () use ($reportStatus) {
                 $reportStatus->update([
@@ -97,11 +101,11 @@ class UpdateInformation extends Command
 
         if ($reportStatus) {
             $reportStatus->update([
-                'status'   => 'pending',
+                'status'   => 'processing',
                 'progress' => 0,
             ]);
 
-            Cache::put('report_status', 'pending');
+            Cache::put('report_status', 'processing');
             Cache::put('report_progress', 0);
         }
 

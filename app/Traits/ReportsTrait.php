@@ -20,9 +20,10 @@ trait ReportsTrait
     const IGNORED_YEARS             = [];
     const PROJECT_NAME              = 'RTC MARKET';
 
-    protected $current         = 11;
+    protected $current         = 0;
     protected $totalIterations = 0;
     protected int $errorCount  = 0;
+
     public function __construct(
         public readonly ?int $financial_year_id = null,
         public readonly ?int $project_id = null,
@@ -49,14 +50,6 @@ trait ReportsTrait
      * INITIALIZATION FUNCTION (Run Once)
      * Seeds all combinations for ignored years directly into BOTH
      * SystemReport and AggregatedReport tables with structural zeros.
-     *
-     * Optimized: same logic/order of operations, but:
-     *  - IndicatorClass instantiated once per (indicatorClass, period, year, org, crop) — unchanged, this is required
-     *    because disaggregation keys can depend on all of those. But indicator lookup is O(1) via keyBy (already was).
-     *  - Bulk-fetches existing AggregatedReport parent rows + existing data() rows up front instead of relying purely
-     *    on firstOrCreate()'s per-row SELECT+INSERT round trips, cutting query count drastically.
-     *  - Wraps each indicatorClass's full sweep in a DB transaction to cut fsync/commit overhead.
-     *  - Uses insertOrIgnore-style bulk insert for the structural zero rows instead of per-row firstOrCreate().
      */
     public function initIgnoredYears()
     {
@@ -90,7 +83,10 @@ trait ReportsTrait
                                     // 1. Secure parent record
                                     $aggregatedReport = AggregatedReport::firstOrCreate($conditions);
 
-                                    // 2. Instantiate blueprint class to grab the target disaggregation names
+                                    // Also ensure SystemReport exists for consistency
+                                    $systemReport = SystemReport::firstOrCreate($conditions);
+
+                                    // 2. Instantiate blueprint class to grab target disaggregation names
                                     $class = new $indicatorClass->class(
                                         reporting_period: $period,
                                         financial_year: $year,
@@ -104,7 +100,10 @@ trait ReportsTrait
                                         continue;
                                     }
 
-                                    // 3. Bulk fetch existing names for this report to avoid per-key firstOrCreate SELECTs
+                                    // 3. Bulk insert for both tables
+                                    $now = Carbon::now();
+
+                                    // For AggregatedReport
                                     $existingNames = $aggregatedReport->data()
                                         ->whereIn('name', $disaggregationKeys)
                                         ->pluck('name')
@@ -113,7 +112,6 @@ trait ReportsTrait
                                     $missingKeys = array_diff($disaggregationKeys, $existingNames);
 
                                     if (! empty($missingKeys)) {
-                                        $now  = Carbon::now();
                                         $rows = array_map(fn($key) => [
                                             'aggregated_report_id' => $aggregatedReport->id,
                                             'name'                 => $key,
@@ -122,9 +120,29 @@ trait ReportsTrait
                                             'updated_at'           => $now,
                                         ], $missingKeys);
 
-                                        // Single bulk insert instead of N firstOrCreate() calls
                                         $aggregatedReport->data()->insert($rows);
                                     }
+
+                                    // For SystemReport - ensure structural zeros exist
+                                    $existingSysNames = $systemReport->data()
+                                        ->whereIn('name', $disaggregationKeys)
+                                        ->pluck('name')
+                                        ->toArray();
+
+                                    $missingSysKeys = array_diff($disaggregationKeys, $existingSysNames);
+
+                                    if (! empty($missingSysKeys)) {
+                                        $sysRows = array_map(fn($key) => [
+                                            'system_report_id' => $systemReport->id,
+                                            'name'             => $key,
+                                            'value'            => 0,
+                                            'created_at'       => $now,
+                                            'updated_at'       => $now,
+                                        ], $missingSysKeys);
+
+                                        $systemReport->data()->insert($sysRows);
+                                    }
+
                                 } catch (\Exception $e) {
                                     Log::error("Init Ignored Year Matrix Record Failure: " . $e->getMessage(), [
                                         'indicator_class_id'  => $indicatorClass->id,
@@ -135,6 +153,8 @@ trait ReportsTrait
                                         'project_id'          => $indicator->project_id,
                                         'stack_trace'         => $e->getTraceAsString(),
                                     ]);
+
+                                    throw $e; // Rollback transaction
                                 }
                             }
                         }
@@ -150,9 +170,6 @@ trait ReportsTrait
     {
         DB::connection()->disableQueryLog();
 
-        /** ------------------------------------------------------
-         * 1. SMART FILTERING
-         * ------------------------------------------------------ */
         $indicatorClasses = IndicatorClass::get();
 
         $reportingPeriods = $this->reporting_period_id
@@ -165,12 +182,10 @@ trait ReportsTrait
 
         $crops = CoreFunctions::getCropsWithNull();
 
-        /** ------------------------------------------------------
-         * 2. PROGRESS CALCULATION
-         * ------------------------------------------------------ */
         $filteredYears = $this->filteredFinancialYears();
         $allYearsCount = count($filteredYears) + count($this->aggregateYears);
 
+        // Calculate total iterations correctly
         $this->totalIterations = count($indicatorClasses)
          * count($reportingPeriods)
          * $allYearsCount
@@ -181,20 +196,33 @@ trait ReportsTrait
         $this->errorCount = 0;
         $indicators       = Indicator::get()->keyBy('id');
 
-        /** ------------------------------------------------------
-         * 3. MAIN LOOP
-         * ------------------------------------------------------ */
         foreach ($indicatorClasses as $indicatorClass) {
             $indicator = $indicators[$indicatorClass->indicator_id] ?? null;
+            if (! $indicator) {
+                continue;
+            }
 
             foreach ($reportingPeriods as $period) {
-                $this->processYears($filteredYears, $this->aggregateYears, [
-                    $indicatorClass,
-                    $indicator,
-                    $period,
-                    $organisations,
-                    $crops,
-                ]);
+                // Process filtered years and aggregate years separately
+                if (! empty($filteredYears)) {
+                    $this->processYears($filteredYears, [
+                        $indicatorClass,
+                        $indicator,
+                        $period,
+                        $organisations,
+                        $crops,
+                    ], false);
+                }
+
+                if (! empty($this->aggregateYears)) {
+                    $this->processYears($this->aggregateYears, [
+                        $indicatorClass,
+                        $indicator,
+                        $period,
+                        $organisations,
+                        $crops,
+                    ], true);
+                }
             }
         }
 
@@ -204,12 +232,104 @@ trait ReportsTrait
         return $this->errorCount;
     }
 
+    private function processYears(array $financialYears, array $data, bool $isAggregateYear = false)
+    {
+        [$indicatorClass, $indicator, $period, $organisations, $crops] = $data;
+
+        foreach ($financialYears as $year) {
+            foreach ($organisations as $org) {
+                foreach ($crops as $crop) {
+                    // DB Transaction ensures absolute consistency
+                    DB::transaction(function () use ($period, $year, $org, $indicator, $crop, $isAggregateYear, $indicatorClass) {
+                        try {
+                            $disaggregations = [];
+                            $conditions      = [
+                                'reporting_period_id' => $period,
+                                'financial_year_id'   => $year,
+                                'organisation_id'     => $org,
+                                'project_id'          => $indicator->project_id,
+                                'indicator_id'        => $indicator->id,
+                                'crop'                => $crop,
+                            ];
+
+                            // Target destination is ALWAYS SystemReport
+                            $systemReport = SystemReport::firstOrCreate($conditions);
+
+                            if ($isAggregateYear) {
+                                // 1. Fetch data strictly from the AggregatedReport table location
+                                $existingAggregate = AggregatedReport::where($conditions)->first();
+
+                                if ($existingAggregate) {
+                                    $disaggregations = $existingAggregate->data()->pluck('value', 'name')->toArray();
+                                } else {
+                                    // Fallback explicitly pulls structural zeros initialized earlier
+                                    $existingNames = $systemReport->data()->pluck('name')->toArray();
+
+                                    if (! empty($existingNames)) {
+                                        $disaggregations = array_fill_keys($existingNames, 0);
+                                    } else {
+                                        $class = new $indicatorClass->class(
+                                            reporting_period: $period,
+                                            financial_year: $year,
+                                            organisation_id: $org,
+                                            enterprise: $crop
+                                        );
+                                        $disaggregations = array_fill_keys(array_keys($class->getDisaggregations()), 0);
+                                    }
+                                }
+                            } else {
+                                // 2. Standard Year: Calculate live from form submissions
+                                $class = new $indicatorClass->class(
+                                    reporting_period: $period,
+                                    financial_year: $year,
+                                    organisation_id: $org,
+                                    enterprise: $crop
+                                );
+                                $disaggregations = $class->getDisaggregations();
+                            }
+
+                            $this->syncDisaggregations($systemReport, $disaggregations);
+
+                        } catch (\Exception $e) {
+                            $this->errorCount++;
+
+                            Log::error("Report Error: " . $e->getMessage(), [
+                                'reporting_period_id' => $period,
+                                'financial_year_id'   => $year,
+                                'organisation_id'     => $org,
+                                'crop'                => $crop,
+                                'indicator_id'        => $indicatorClass->indicator_id,
+                                'class'               => $indicatorClass->class,
+                                'is_aggregate_year'   => $isAggregateYear,
+                                'stack'               => $e->getTraceAsString(),
+                            ]);
+
+                            // Force rollback of the active transaction
+                            throw $e;
+                        }
+                    });
+                }
+            }
+        }
+
+        // Update progress after processing all combinations in this year group
+        $this->current++;
+        if ($this->current % 100 === 0) {
+            $progress = round(($this->current / $this->totalIterations) * 100);
+            Cache::put('report_progress', $progress);
+        }
+    }
+
+    /**
+     * FIXED: Sync disaggregations with proper foreign key handling
+     */
     private function syncDisaggregations($report, array $disaggregations)
     {
-        /** DELETE REMOVED ITEMS + UPSERT ALL IN BULK
-         * Replaces the per-key updateOrCreate() loop (N queries) with a single
-         * upsert() call, and the delete is unchanged but only runs when needed.
-         */
+        if (empty($disaggregations)) {
+            return;
+        }
+
+        // Get existing records
         $existing = $report->data()->pluck('name', 'id')->toArray();
         $toDelete = array_diff($existing, array_keys($disaggregations));
 
@@ -217,118 +337,25 @@ trait ReportsTrait
             $report->data()->whereIn('id', array_keys($toDelete))->delete();
         }
 
-        if (empty($disaggregations)) {
-            return;
-        }
+        // Prepare upsert data with foreign key
+        $now        = Carbon::now();
+        $upsertData = [];
 
-        $now  = Carbon::now();
-        $rows = [];
         foreach ($disaggregations as $key => $value) {
-            $rows[] = [
-                'system_report_id' => $report->id,
+            $upsertData[] = [
+                'system_report_id' => $report->id, // CRITICAL: Include the foreign key
                 'name'             => $key,
                 'value'            => $value,
-                'created_at'       => $now,
+                'created_at'       => $now, // Include created_at for new records
                 'updated_at'       => $now,
             ];
         }
 
-        // Single upsert instead of N updateOrCreate() calls.
-        // Adjust the unique-key column list ([...]) to match your actual DB unique index
-        // on the report_data table (commonly ['system_report_id', 'name']).
-        $report->data()->getModel()->upsert(
-            $rows,
-            ['system_report_id', 'name'],
-            ['value', 'updated_at']
+        // Use upsert with composite unique key
+        $report->data()->upsert(
+            $upsertData,
+            ['system_report_id', 'name'], // Composite unique constraint
+            ['value', 'updated_at']       // Fields to update on conflict
         );
-    }
-
-    private function processCalculations(array $financialYears, array $data, bool $isAggregateYear = false)
-    {
-        [$indicatorClass, $indicator, $period, $organisations, $crops] = $data;
-
-        foreach ($financialYears as $year) {
-            foreach ($organisations as $org) {
-                foreach ($crops as $crop) {
-                    try {
-                        $disaggregations = [];
-                        $conditions      = [
-                            'reporting_period_id' => $period,
-                            'financial_year_id'   => $year,
-                            'organisation_id'     => $org,
-                            'project_id'          => $indicator->project_id,
-                            'indicator_id'        => $indicator->id,
-                            'crop'                => $crop,
-                        ];
-
-                        // Target destination is ALWAYS SystemReport
-                        $systemReport = SystemReport::firstOrCreate($conditions);
-
-                        if ($isAggregateYear) {
-                            // 1. Fetch data strictly from the AggregatedReport table location
-                            $existingAggregate = AggregatedReport::where($conditions)->first();
-
-                            if ($existingAggregate) {
-                                $disaggregations = $existingAggregate->data()->pluck('value', 'name')->toArray();
-                            } else {
-                                // Fallback explicitly pulls the structural zeros initialized earlier
-                                $existingNames = $systemReport->data()->pluck('name')->toArray();
-
-                                if (! empty($existingNames)) {
-                                    $disaggregations = array_fill_keys($existingNames, 0);
-                                } else {
-                                    $class = new $indicatorClass->class(
-                                        reporting_period: $period,
-                                        financial_year: $year,
-                                        organisation_id: $org,
-                                        enterprise: $crop
-                                    );
-                                    $disaggregations = array_fill_keys(array_keys($class->getDisaggregations()), 0);
-                                }
-                            }
-                        } else {
-                            // 2. Standard Year: Calculate live from form submissions
-                            $class = new $indicatorClass->class(
-                                reporting_period: $period,
-                                financial_year: $year,
-                                organisation_id: $org,
-                                enterprise: $crop
-                            );
-                            $disaggregations = $class->getDisaggregations();
-                        }
-
-                        $this->syncDisaggregations($systemReport, $disaggregations);
-
-                    } catch (\Exception $e) {
-                        $this->errorCount++;
-
-                        Log::error("Report Error: " . $e->getMessage(), [
-                            'reporting_period_id' => $period,
-                            'financial_year_id'   => $year,
-                            'organisation_id'     => $org,
-                            'crop'                => $crop,
-                            'indicator_id'        => $indicatorClass->indicator_id,
-                            'class'               => $indicatorClass->class,
-                            'stack'               => $e->getTraceAsString(),
-                        ]);
-                    }
-                }
-            }
-        }
-    }
-
-    private function processYears(array $financialYears, array $aggregateYears, array $data = [])
-    {
-        $this->processCalculations($financialYears, $data, false);
-
-        if (count($aggregateYears) > 0) {
-            $this->processCalculations($aggregateYears, $data, true);
-        }
-
-        $this->current++;
-        if ($this->current % 100 === 0) {
-            $progress = round(($this->current / $this->totalIterations) * 100 * 0.3);
-            Cache::put('report_progress', $progress);
-        }
     }
 }
