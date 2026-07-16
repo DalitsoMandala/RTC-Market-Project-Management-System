@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 use App\Jobs\SystemReportJob;
 use App\Models\ReportStatus;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -65,11 +66,6 @@ class UpdateInformation extends Command
         Bus::chain([
 
             new SystemReportJob(), // Run live calculations
-                                   // new AggregatedReportJob(), // Run history / closed year reports
-
-            // new PopulatePreviousValueJob(),
-            // new AdditionalReportJob(),
-            // new MarketReportJob(),
 
             function () use ($reportStatus) {
                 $reportStatus->update([
@@ -107,6 +103,8 @@ class UpdateInformation extends Command
 
             Cache::put('report_status', 'processing');
             Cache::put('report_progress', 0);
+            Artisan::call('queue:clear --queue=reports');
+            $this->info('Cache Lock Cleared.');
         }
 
     }

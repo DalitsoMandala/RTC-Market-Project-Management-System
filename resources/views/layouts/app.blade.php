@@ -498,7 +498,7 @@
 
                 <footer class="py-3 mt-auto footer bg-light">
                     <button type="button" class="btn btn-warning btn-lg rounded-circle " id="btn-back-to-top">
-                        <i class="fas fa-arrow-up"></i>
+                        <i class="fas fa-angle-up"></i>
                     </button>
                     <div class="container text-center">
                         <span class="text-muted">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights

@@ -23,7 +23,17 @@ trait SystemReportsTrait
         public readonly ?int $organisation_id = null,
         public readonly ?int $indicator_id = null,
     ) {}
-
+/**
+ * Chunk an array into smaller pieces for memory-efficient processing
+ *
+ * @param array $array
+ * @param int $size
+ * @return array
+ */
+    private function chunkArray(array $array, int $size = 50): array
+    {
+        return array_chunk($array, $size);
+    }
     private function filteredFinancialYears(): array
     {
         return FinancialYear::whereHas('project', fn($q) => $q->where('name', self::PROJECT_NAME))
@@ -34,19 +44,32 @@ trait SystemReportsTrait
 
     public function runSystemReports(): int
     {
-        DB::connection()->disableQueryLog();
-
         $indicatorClasses = IndicatorClass::get();
-        $reportingPeriods = $this->reporting_period_id ? [$this->reporting_period_id] : ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->pluck('id')->toArray();
-        $organisations    = $this->organisation_id ? [$this->organisation_id] : Organisation::pluck('id')->toArray();
-        $crops            = CoreFunctions::getCropsWithNull();
-        $filteredYears    = $this->filteredFinancialYears();
+        $reportingPeriods = $this->reporting_period_id
+            ? [$this->reporting_period_id]
+            : ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->pluck('id')->toArray();
+        $organisations = $this->organisation_id
+            ? [$this->organisation_id]
+            : Organisation::pluck('id')->toArray();
+        $crops         = CoreFunctions::getCropsWithNull();
+        $filteredYears = $this->filteredFinancialYears();
 
-        // Total iteration calculation remains perfectly aligned with the unified nested loop below
-        $this->totalIterations = count($indicatorClasses) * count($reportingPeriods) * count($filteredYears) * count($organisations) * count($crops);
-        $this->current         = 0;
-        $this->errorCount      = 0;
-        $indicators            = Indicator::get()->keyBy('id');
+        // Chunk all data arrays using helper method
+        $reportingPeriods = $this->chunkArray($reportingPeriods);
+        $organisations    = $this->chunkArray($organisations);
+        $crops            = $this->chunkArray($crops);
+        $filteredYears    = $this->chunkArray($filteredYears);
+
+        // Recalculate total iterations based on chunked counts
+        $this->totalIterations = $indicatorClasses->count()
+         * count($reportingPeriods)
+         * count($filteredYears)
+         * count($organisations)
+         * count($crops);
+
+        $this->current    = 0;
+        $this->errorCount = 0;
+        $indicators       = Indicator::get()->keyBy('id');
 
         foreach ($indicatorClasses as $indicatorClass) {
             $indicator = $indicators[$indicatorClass->indicator_id] ?? null;
@@ -54,7 +77,7 @@ trait SystemReportsTrait
                 continue;
             }
 
-            // Clean delegation: Pass all structural arrays down to be processed cleanly
+            // Process chunks with indicator data
             $this->processSystemYears($filteredYears, [
                 $indicatorClass,
                 $indicator,
@@ -68,54 +91,64 @@ trait SystemReportsTrait
         return $this->errorCount;
     }
 
-    private function processSystemYears(array $financialYears, array $data)
+    private function processSystemYears(array $financialYearChunks, array $data)
     {
-        [$indicatorClass, $indicator, $reportingPeriods, $organisations, $crops] = $data;
+        [$indicatorClass, $indicator, $periodChunks, $organisationChunks, $cropChunks] = $data;
 
-        foreach ($reportingPeriods as $period) {
-            foreach ($financialYears as $year) {
-                foreach ($organisations as $org) {
-                    foreach ($crops as $crop) {
-                        DB::transaction(function () use ($period, $year, $org, $indicator, $crop, $indicatorClass) {
-                            try {
-                                $conditions = [
-                                    'reporting_period_id' => $period,
-                                    'financial_year_id'   => $year,
-                                    'organisation_id'     => $org,
-                                    'project_id'          => $indicator->project_id,
-                                    'indicator_id'        => $indicator->id,
-                                    'crop'                => $crop,
-                                ];
+        DB::transaction(function () use ($periodChunks, $financialYearChunks, $organisationChunks, $cropChunks, $indicatorClass, $indicator) {
 
-                                $systemReport = SystemReport::updateOrCreate($conditions);
+            foreach ($periodChunks as $periodChunk) {
+                foreach ($periodChunk as $period) {
+                    foreach ($financialYearChunks as $financialYearChunk) {
+                        foreach ($financialYearChunk as $year) {
+                            foreach ($organisationChunks as $organisationChunk) {
+                                foreach ($organisationChunk as $org) {
+                                    foreach ($cropChunks as $cropChunk) {
+                                        foreach ($cropChunk as $crop) {
 
-                                $class = new $indicatorClass->class(
-                                    reporting_period: $period,
-                                    financial_year: $year,
-                                    organisation_id: $org,
-                                    enterprise: $crop
-                                );
+                                            try {
+                                                $conditions = [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id'   => $year,
+                                                    'organisation_id'     => $org,
+                                                    'project_id'          => $indicator->project_id,
+                                                    'indicator_id'        => $indicator->id,
+                                                    'crop'                => $crop,
+                                                ];
 
-                                $this->syncDisaggregations($systemReport, $class->getDisaggregations());
+                                                $systemReport = SystemReport::updateOrCreate($conditions);
 
-                            } catch (\Exception $e) {
-                                $this->errorCount++;
-                                Log::error("System Report Run Failure: " . $e->getMessage(), [
-                                    'reporting_period_id' => $period,
-                                    'financial_year_id'   => $year,
-                                    'organisation_id'     => $org,
-                                    'crop'                => $crop,
-                                    'indicator_id'        => $indicatorClass->indicator_id,
-                                    'class'               => $indicatorClass->class,
-                                ]);
-                                throw $e;
+                                                $class = new $indicatorClass->class(
+                                                    reporting_period: $period,
+                                                    financial_year: $year,
+                                                    organisation_id: $org,
+                                                    enterprise: $crop
+                                                );
+
+                                                $this->syncDisaggregations($systemReport, $class->getDisaggregations());
+
+                                            } catch (\Exception $e) {
+                                                $this->errorCount++;
+                                                Log::error("System Report Run Failure: " . $e->getMessage(), [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id'   => $year,
+                                                    'organisation_id'     => $org,
+                                                    'crop'                => $crop,
+                                                    'indicator_id'        => $indicatorClass->indicator_id,
+                                                    'class'               => $indicatorClass->class,
+                                                ]);
+                                                throw $e;
+                                            }
+
+                                            $this->updateProgress();
+                                        }
+                                    }
+                                }
                             }
-                        });
-
-                        $this->updateProgress();
+                        }
                     }
                 }
             }
-        }
+        });
     }
 }

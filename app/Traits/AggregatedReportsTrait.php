@@ -32,6 +32,18 @@ trait AggregatedReportsTrait
             ->toArray();
     }
 
+    /**
+     * Chunk an array into smaller pieces for memory-efficient processing
+     *
+     * @param array $array
+     * @param int $size
+     * @return array
+     */
+    private function chunkArray(array $array, int $size = 50): array
+    {
+        return array_chunk($array, $size);
+    }
+
     public function initIgnoredYears()
     {
         $indicatorClasses = IndicatorClass::get();
@@ -40,73 +52,87 @@ trait AggregatedReportsTrait
         $crops            = CoreFunctions::getCropsWithNull();
         $indicators       = Indicator::get()->keyBy('id');
 
+        // Chunk all data arrays using helper method
+        $reportingPeriods = $this->chunkArray($reportingPeriods);
+        $organisations    = $this->chunkArray($organisations);
+        $crops            = $this->chunkArray($crops);
+        $aggregateYears   = $this->chunkArray($this->aggregateYears);
+
         foreach ($indicatorClasses as $indicatorClass) {
             $indicator = $indicators[$indicatorClass->indicator_id] ?? null;
             if (! $indicator) {
                 continue;
             }
 
-            DB::transaction(function () use ($indicatorClass, $indicator, $reportingPeriods, $organisations, $crops) {
-                foreach ($reportingPeriods as $period) {
-                    foreach ($this->aggregateYears as $year) {
-                        foreach ($organisations as $org) {
-                            foreach ($crops as $crop) {
-                                try {
-                                    $conditions = [
-                                        'reporting_period_id' => $period,
-                                        'financial_year_id'   => $year,
-                                        'organisation_id'     => $org,
-                                        'project_id'          => $indicator->project_id,
-                                        'indicator_id'        => $indicator->id,
-                                        'crop'                => $crop,
-                                    ];
+            DB::transaction(function () use ($indicatorClass, $indicator, $reportingPeriods, $aggregateYears, $organisations, $crops) {
+                foreach ($reportingPeriods as $periodChunk) {
+                    foreach ($periodChunk as $period) {
+                        foreach ($aggregateYears as $yearChunk) {
+                            foreach ($yearChunk as $year) {
+                                foreach ($organisations as $organisationChunk) {
+                                    foreach ($organisationChunk as $org) {
+                                        foreach ($crops as $cropChunk) {
+                                            foreach ($cropChunk as $crop) {
+                                                try {
+                                                    $conditions = [
+                                                        'reporting_period_id' => $period,
+                                                        'financial_year_id'   => $year,
+                                                        'organisation_id'     => $org,
+                                                        'project_id'          => $indicator->project_id,
+                                                        'indicator_id'        => $indicator->id,
+                                                        'crop'                => $crop,
+                                                    ];
 
-                                    $aggregatedReport = AggregatedReport::firstOrCreate($conditions);
-                                    $systemReport     = SystemReport::firstOrCreate($conditions);
+                                                    $aggregatedReport = AggregatedReport::firstOrCreate($conditions);
+                                                    $systemReport     = SystemReport::firstOrCreate($conditions);
 
-                                    $class = new $indicatorClass->class(
-                                        reporting_period: $period,
-                                        financial_year: $year,
-                                        organisation_id: $org,
-                                        enterprise: $crop
-                                    );
+                                                    $class = new $indicatorClass->class(
+                                                        reporting_period: $period,
+                                                        financial_year: $year,
+                                                        organisation_id: $org,
+                                                        enterprise: $crop
+                                                    );
 
-                                    $disaggregationKeys = array_keys($class->getDisaggregations());
-                                    if (empty($disaggregationKeys)) {
-                                        continue;
+                                                    $disaggregationKeys = array_keys($class->getDisaggregations());
+                                                    if (empty($disaggregationKeys)) {
+                                                        continue;
+                                                    }
+
+                                                    $now = Carbon::now();
+
+                                                    $existingNames = $aggregatedReport->data()->whereIn('name', $disaggregationKeys)->pluck('name')->toArray();
+                                                    $missingKeys   = array_diff($disaggregationKeys, $existingNames);
+                                                    if (! empty($missingKeys)) {
+                                                        $rows = array_map(fn($key) => [
+                                                            'aggregated_report_id' => $aggregatedReport->id,
+                                                            'name'                 => $key,
+                                                            'value'                => 0,
+                                                            'created_at'           => $now,
+                                                            'updated_at'           => $now,
+                                                        ], $missingKeys);
+                                                        $aggregatedReport->data()->insert($rows);
+                                                    }
+
+                                                    $existingSysNames = $systemReport->data()->whereIn('name', $disaggregationKeys)->pluck('name')->toArray();
+                                                    $missingSysKeys   = array_diff($disaggregationKeys, $existingSysNames);
+                                                    if (! empty($missingSysKeys)) {
+                                                        $sysRows = array_map(fn($key) => [
+                                                            'system_report_id' => $systemReport->id,
+                                                            'name'             => $key,
+                                                            'value'            => 0,
+                                                            'created_at'       => $now,
+                                                            'updated_at'       => $now,
+                                                        ], $missingSysKeys);
+                                                        $systemReport->data()->insert($sysRows);
+                                                    }
+
+                                                } catch (\Exception $e) {
+                                                    Log::error("Init Ignored Year Matrix Record Failure: " . $e->getMessage());
+                                                    throw $e;
+                                                }
+                                            }
+                                        }
                                     }
-
-                                    $now = Carbon::now();
-
-                                    $existingNames = $aggregatedReport->data()->whereIn('name', $disaggregationKeys)->pluck('name')->toArray();
-                                    $missingKeys   = array_diff($disaggregationKeys, $existingNames);
-                                    if (! empty($missingKeys)) {
-                                        $rows = array_map(fn($key) => [
-                                            'aggregated_report_id' => $aggregatedReport->id,
-                                            'name'                 => $key,
-                                            'value'                => 0,
-                                            'created_at'           => $now,
-                                            'updated_at'           => $now,
-                                        ], $missingKeys);
-                                        $aggregatedReport->data()->insert($rows);
-                                    }
-
-                                    $existingSysNames = $systemReport->data()->whereIn('name', $disaggregationKeys)->pluck('name')->toArray();
-                                    $missingSysKeys   = array_diff($disaggregationKeys, $existingSysNames);
-                                    if (! empty($missingSysKeys)) {
-                                        $sysRows = array_map(fn($key) => [
-                                            'system_report_id' => $systemReport->id,
-                                            'name'             => $key,
-                                            'value'            => 0,
-                                            'created_at'       => $now,
-                                            'updated_at'       => $now,
-                                        ], $missingSysKeys);
-                                        $systemReport->data()->insert($sysRows);
-                                    }
-
-                                } catch (\Exception $e) {
-                                    Log::error("Init Ignored Year Matrix Record Failure: " . $e->getMessage());
-                                    throw $e;
                                 }
                             }
                         }
@@ -131,10 +157,22 @@ trait AggregatedReportsTrait
         $organisations    = $this->organisation_id ? [$this->organisation_id] : Organisation::pluck('id')->toArray();
         $crops            = CoreFunctions::getCropsWithNull();
 
-        $this->totalIterations = count($indicatorClasses) * count($reportingPeriods) * count($this->aggregateYears) * count($organisations) * count($crops);
-        $this->current         = 0;
-        $this->errorCount      = 0;
-        $indicators            = Indicator::get()->keyBy('id');
+        // Chunk all data arrays using helper method
+        $reportingPeriods = $this->chunkArray($reportingPeriods);
+        $organisations    = $this->chunkArray($organisations);
+        $crops            = $this->chunkArray($crops);
+        $aggregateYears   = $this->chunkArray($this->aggregateYears);
+
+        // Calculate total iterations based on chunked arrays
+        $this->totalIterations = $indicatorClasses->count()
+         * count($reportingPeriods)
+         * count($aggregateYears)
+         * count($organisations)
+         * count($crops);
+
+        $this->current    = 0;
+        $this->errorCount = 0;
+        $indicators       = Indicator::get()->keyBy('id');
 
         foreach ($indicatorClasses as $indicatorClass) {
             $indicator = $indicators[$indicatorClass->indicator_id] ?? null;
@@ -142,69 +180,85 @@ trait AggregatedReportsTrait
                 continue;
             }
 
-            foreach ($reportingPeriods as $period) {
-                $this->processAggregatedYears($this->aggregateYears, [
-                    $indicatorClass,
-                    $indicator,
-                    $period,
-                    $organisations,
-                    $crops,
-                ]);
-            }
+            // Pass all chunked arrays including reporting periods
+            $this->processAggregatedYears($aggregateYears, [
+                $indicatorClass,
+                $indicator,
+                $reportingPeriods, // Now passing chunked reporting periods
+                $organisations,
+                $crops,
+            ]);
         }
 
         Cache::put('report_error_count', $this->errorCount);
         return $this->errorCount;
     }
 
-    private function processAggregatedYears(array $financialYears, array $data)
+    private function processAggregatedYears(array $financialYearChunks, array $data)
     {
-        [$indicatorClass, $indicator, $period, $organisations, $crops] = $data;
+        [$indicatorClass, $indicator, $periodChunks, $organisationChunks, $cropChunks] = $data;
 
-        foreach ($financialYears as $year) {
-            foreach ($organisations as $org) {
-                foreach ($crops as $crop) {
-                    DB::transaction(function () use ($period, $year, $org, $indicator, $crop, $indicatorClass) {
-                        try {
-                            $conditions = [
-                                'reporting_period_id' => $period,
-                                'financial_year_id'   => $year,
-                                'organisation_id'     => $org,
-                                'project_id'          => $indicator->project_id,
-                                'indicator_id'        => $indicator->id,
-                                'crop'                => $crop,
-                            ];
+        foreach ($periodChunks as $periodChunk) {
+            foreach ($periodChunk as $period) {
+                foreach ($financialYearChunks as $financialYearChunk) {
+                    foreach ($financialYearChunk as $year) {
+                        foreach ($organisationChunks as $organisationChunk) {
+                            foreach ($organisationChunk as $org) {
+                                foreach ($cropChunks as $cropChunk) {
+                                    foreach ($cropChunk as $crop) {
+                                        DB::transaction(function () use ($period, $year, $org, $indicator, $crop, $indicatorClass) {
+                                            try {
+                                                $conditions = [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id'   => $year,
+                                                    'organisation_id'     => $org,
+                                                    'project_id'          => $indicator->project_id,
+                                                    'indicator_id'        => $indicator->id,
+                                                    'crop'                => $crop,
+                                                ];
 
-                            $systemReport      = SystemReport::firstOrCreate($conditions);
-                            $existingAggregate = AggregatedReport::where($conditions)->first();
+                                                $systemReport      = SystemReport::firstOrCreate($conditions);
+                                                $existingAggregate = AggregatedReport::where($conditions)->first();
 
-                            if ($existingAggregate) {
-                                $disaggregations = $existingAggregate->data()->pluck('value', 'name')->toArray();
-                            } else {
-                                $existingNames = $systemReport->data()->pluck('name')->toArray();
-                                if (! empty($existingNames)) {
-                                    $disaggregations = array_fill_keys($existingNames, 0);
-                                } else {
-                                    $class = new $indicatorClass->class(
-                                        reporting_period: $period,
-                                        financial_year: $year,
-                                        organisation_id: $org,
-                                        enterprise: $crop
-                                    );
-                                    $disaggregations = array_fill_keys(array_keys($class->getDisaggregations()), 0);
+                                                if ($existingAggregate) {
+                                                    $disaggregations = $existingAggregate->data()->pluck('value', 'name')->toArray();
+                                                } else {
+                                                    $existingNames = $systemReport->data()->pluck('name')->toArray();
+                                                    if (! empty($existingNames)) {
+                                                        $disaggregations = array_fill_keys($existingNames, 0);
+                                                    } else {
+                                                        $class = new $indicatorClass->class(
+                                                            reporting_period: $period,
+                                                            financial_year: $year,
+                                                            organisation_id: $org,
+                                                            enterprise: $crop
+                                                        );
+                                                        $disaggregations = array_fill_keys(array_keys($class->getDisaggregations()), 0);
+                                                    }
+                                                }
+
+                                                $this->syncDisaggregations($systemReport, $disaggregations);
+
+                                            } catch (\Exception $e) {
+                                                $this->errorCount++;
+                                                Log::error("Aggregate Report Run Failure: " . $e->getMessage(), [
+                                                    'reporting_period_id' => $period,
+                                                    'financial_year_id'   => $year,
+                                                    'organisation_id'     => $org,
+                                                    'crop'                => $crop,
+                                                    'indicator_id'        => $indicatorClass->indicator_id,
+                                                    'class'               => $indicatorClass->class,
+                                                ]);
+                                                throw $e;
+                                            }
+                                        });
+
+                                        $this->updateProgress();
+                                    }
                                 }
                             }
-
-                            $this->syncDisaggregations($systemReport, $disaggregations);
-
-                        } catch (\Exception $e) {
-                            $this->errorCount++;
-                            Log::error("Aggregate Report Run Failure: " . $e->getMessage());
-                            throw $e;
                         }
-                    });
-
-                    $this->updateProgress();
+                    }
                 }
             }
         }
