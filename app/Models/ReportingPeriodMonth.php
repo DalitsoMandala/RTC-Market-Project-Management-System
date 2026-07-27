@@ -1,20 +1,19 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReportingPeriodMonth extends Model
 {
     use HasFactory;
-    protected $table = 'reporting_period_months';
+    protected $table   = 'reporting_period_months';
     protected $guarded = [];
     public function reportingPeriod()
     {
         return $this->belongsTo(ReportingPeriod::class, 'period_id');
     }
-
 
     // From: Country (Local)
 // $this->hasManyThrough(
@@ -31,7 +30,12 @@ class ReportingPeriodMonth extends Model
     {
         // country has post through user
 
-        return $this->hasManyThrough(Submission::class, SubmissionPeriod::class, 'month_range_period_id', 'period_id','id', 'id');
+        return $this->hasManyThrough(Submission::class, SubmissionPeriod::class, 'month_range_period_id', 'period_id', 'id', 'id');
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
 }

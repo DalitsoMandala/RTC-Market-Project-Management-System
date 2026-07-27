@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Models\Recruitment;
 use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Recruitment;
 
 class indicator_A1
 {
@@ -18,9 +17,9 @@ class indicator_A1
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
 
     public function builder(): Builder
@@ -40,7 +39,7 @@ class indicator_A1
     {
         $builder = $this->builder()->where('type', '!=', 'Traders');
 
-        if ($type) {    
+        if ($type) {
             $builder->where('type', $type);
         }
 
@@ -53,29 +52,29 @@ class indicator_A1
         }
 
         $totals = [
-            'members' => 0,
+            'members'   => 0,
             'employees' => 0,
         ];
 
         foreach ($builder->get() as $row) {
 
             $members =
-                $row->mem_female_18_35 +
-                $row->mem_female_35_plus +
-                $row->mem_male_18_35 +
-                $row->mem_male_35_plus;
+            $row->mem_female_18_35 +
+            $row->mem_female_35_plus +
+            $row->mem_male_18_35 +
+            $row->mem_male_35_plus;
 
             $employees =
-                $row->emp_formal_female_18_35 +
-                $row->emp_formal_female_35_plus +
-                $row->emp_formal_male_18_35 +
-                $row->emp_formal_male_35_plus +
-                $row->emp_informal_female_18_35 +
-                $row->emp_informal_female_35_plus +
-                $row->emp_informal_male_18_35 +
-                $row->emp_informal_male_35_plus;
+            $row->emp_formal_female_18_35 +
+            $row->emp_formal_female_35_plus +
+            $row->emp_formal_male_18_35 +
+            $row->emp_formal_male_35_plus +
+            $row->emp_informal_female_18_35 +
+            $row->emp_informal_female_35_plus +
+            $row->emp_informal_male_18_35 +
+            $row->emp_informal_male_35_plus;
 
-            $totals['members'] += $members;
+            $totals['members']   += $members;
             $totals['employees'] += $employees;
         }
 
@@ -93,10 +92,10 @@ class indicator_A1
         $builder = $this->builder()->where('type', 'Traders');
 
         return [
-            'total' => $builder->count(),
-            'Cassava' => (clone $builder)->where('enterprise', 'Cassava')->count(),
-            'Potato' => (clone $builder)->where('enterprise', 'Potato')->count(),
-            'Sweet potato' => (clone $builder)->where('enterprise', 'Sweet potato')->count(),
+            'total'             => $builder->count(),
+            'Cassava'           => (clone $builder)->where('enterprise', 'Cassava')->count(),
+            'Potato'            => (clone $builder)->where('enterprise', 'Potato')->count(),
+            'Sweet potato'      => (clone $builder)->where('enterprise', 'Sweet potato')->count(),
             'New establishment' => (clone $builder)->where('establishment_status', 'New')->count(),
             'Old establishment' => (clone $builder)->where('establishment_status', 'Old')->count(),
         ];
@@ -113,12 +112,12 @@ class indicator_A1
         $traders = $this->traderTotals();
 
         $actors = ['Farmers', 'Processors', 'Aggregators', 'Transporters'];
-        $crops = ['Cassava', 'Potato', 'Sweet potato'];
+        $crops  = ['Cassava', 'Potato', 'Sweet potato'];
 
         $actorTotals = [];
-        $cropTotals = [];
+        $cropTotals  = [];
 
-        $totalMembers = 0;
+        $totalMembers   = 0;
         $totalEmployees = 0;
 
         foreach ($actors as $actor) {
@@ -127,7 +126,7 @@ class indicator_A1
             // Actors = MEMBERS ONLY
             $actorTotals[$actor] = $totals['members'];
 
-            $totalMembers += $totals['members'];
+            $totalMembers   += $totals['members'];
             $totalEmployees += $totals['employees'];
         }
 
@@ -141,13 +140,13 @@ class indicator_A1
         }
 
         $new =
-            $this->peopleTotals(estType: 'New')['members'] +
-            $this->peopleTotals(estType: 'New')['employees'] +
+        $this->peopleTotals(estType: 'New')['members'] +
+        $this->peopleTotals(estType: 'New')['employees'] +
             $traders['New establishment'];
 
         $old =
-            $this->peopleTotals(estType: 'Old')['members'] +
-            $this->peopleTotals(estType: 'Old')['employees'] +
+        $this->peopleTotals(estType: 'Old')['members'] +
+        $this->peopleTotals(estType: 'Old')['employees'] +
             $traders['Old establishment'];
 
         /*
@@ -163,27 +162,26 @@ class indicator_A1
 
         return [
 
-            'Total' => $totalPeople,
+            'Total'                          => $totalPeople,
 
             'Employees on RTC establishment' => $totalEmployees,
 
-            'Cassava' => $cropTotals['Cassava'],
-            'Potato' => $cropTotals['Potato'],
-            'Sweet potato' => $cropTotals['Sweet potato'],
+            'Cassava'                        => $cropTotals['Cassava'],
+            'Potato'                         => $cropTotals['Potato'],
+            'Sweet potato'                   => $cropTotals['Sweet potato'],
 
             // Actors now = MEMBERS ONLY
-            'Farmers' => $actorTotals['Farmers'],
-            'Processors' => $actorTotals['Processors'],
-            'Aggregators' => $actorTotals['Aggregators'],
-            'Transporters' => $actorTotals['Transporters'],
+            'Farmers'                        => $actorTotals['Farmers'],
+            'Processors'                     => $actorTotals['Processors'],
+            'Aggregators'                    => $actorTotals['Aggregators'],
+            'Transporters'                   => $actorTotals['Transporters'],
 
-            'Traders' => $traders['total'],
+            'Traders'                        => $traders['total'],
 
-            'New establishment' => $new,
-            'Old establishment' => $old,
+            'New establishment'              => $new,
+            'Old establishment'              => $old,
         ];
     }
-
 
     public function getActorGenderDisaggregation()
     {
@@ -197,56 +195,52 @@ class indicator_A1
                 ->where('type', $actor)
                 ->where('type', '!=', 'Traders');
 
-            $male_members = 0;
-            $female_members = 0;
-            $male_employees = 0;
+            $male_members     = 0;
+            $female_members   = 0;
+            $male_employees   = 0;
             $female_employees = 0;
-            $youth = 0;
-            $not_youth = 0;
-            $male = 0;
-            $female = 0;
+            $youth            = 0;
+            $not_youth        = 0;
+            $male             = 0;
+            $female           = 0;
 
             foreach ($builder->get() as $row) {
 
                 // MEMBERS
                 $female_members +=
-                    $row->mem_female_18_35 +
-                    $row->mem_female_35_plus;
-
-
+                $row->mem_female_18_35 +
+                $row->mem_female_35_plus;
 
                 $male_members +=
-                    $row->mem_male_18_35 +
-                    $row->mem_male_35_plus;
-
-
+                $row->mem_male_18_35 +
+                $row->mem_male_35_plus;
 
                 // EMPLOYEES (formal + informal)
                 $female_employees +=
-                    $row->emp_formal_female_18_35 +
-                    $row->emp_formal_female_35_plus +
-                    $row->emp_informal_female_18_35 +
-                    $row->emp_informal_female_35_plus;
+                $row->emp_formal_female_18_35 +
+                $row->emp_formal_female_35_plus +
+                $row->emp_informal_female_18_35 +
+                $row->emp_informal_female_35_plus;
 
                 $male_employees +=
-                    $row->emp_formal_male_18_35 +
-                    $row->emp_formal_male_35_plus +
-                    $row->emp_informal_male_18_35 +
-                    $row->emp_informal_male_35_plus;
+                $row->emp_formal_male_18_35 +
+                $row->emp_formal_male_35_plus +
+                $row->emp_informal_male_18_35 +
+                $row->emp_informal_male_35_plus;
 
-                $youth += $row->mem_female_18_35 + $row->mem_male_18_35 + $row->emp_formal_female_18_35 + $row->emp_formal_male_18_35 + $row->emp_informal_female_18_35 + $row->emp_informal_male_18_35;
+                $youth     += $row->mem_female_18_35 + $row->mem_male_18_35 + $row->emp_formal_female_18_35 + $row->emp_formal_male_18_35 + $row->emp_informal_female_18_35 + $row->emp_informal_male_18_35;
                 $not_youth += $row->mem_female_35_plus + $row->mem_male_35_plus + $row->emp_formal_female_35_plus + $row->emp_formal_male_35_plus + $row->emp_informal_female_35_plus + $row->emp_informal_male_35_plus;
             }
 
-            $results[$actor] = [
-                'male' => $male_employees + $male_members,
-                'female' => $female_employees + $female_members,
-                'male_members' => $male_members,
-                'female_members' => $female_members,
-                'male_employees' => $male_employees,
+            $results[$actor]  = [
+                'male'             => $male_employees + $male_members,
+                'female'           => $female_employees + $female_members,
+                'male_members'     => $male_members,
+                'female_members'   => $female_members,
+                'male_employees'   => $male_employees,
                 'female_employees' => $female_employees,
-                'youth' => $youth,
-                'not_youth' => $not_youth
+                'youth'            => $youth,
+                'not_youth'        => $not_youth,
             ];
         }
 

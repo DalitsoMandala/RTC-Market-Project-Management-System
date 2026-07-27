@@ -1,6 +1,7 @@
 <?php
 namespace App\Jobs;
 
+use App\Models\ReportStatus;
 use App\Traits\AggregatedReportsTrait;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -17,7 +18,7 @@ class AggregatedReportJob implements ShouldQueue
     use AggregatedReportsTrait;
 
     public $timeout = 3600;
-    public $tries   = 4;
+    public $tries   = 3;
     public $backoff = 0;
 
     public function handle(): void
@@ -33,5 +34,9 @@ class AggregatedReportJob implements ShouldQueue
     {
         Cache::put('report_progress', 0);
         Log::error('AggregatedReportJob failed entirely: ' . $exception->getMessage());
+        ReportStatus::whereKey(1)->update([
+            'status'   => 'completed',
+            'progress' => 100,
+        ]);
     }
 }

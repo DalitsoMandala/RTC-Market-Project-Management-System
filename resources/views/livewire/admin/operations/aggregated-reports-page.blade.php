@@ -3,7 +3,11 @@
     @section('title')
         Aggregated Reports
     @endsection
-
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
     <div class="container-fluid">
 
         {{-- Breadcrumb --}}
@@ -32,11 +36,38 @@
         {{-- ═══════════════════════════════════════════════════════════════════
              CREATE FORM
         ════════════════════════════════════════════════════════════════════ --}}
-        <div class="mb-3 border-0 shadow-sm card">
 
-            <div class="px-3 py-2 card-header d-flex align-items-center justify-content-between"
-                style="cursor:pointer; background:#f8f9fa; border-bottom:{{ $showCreateForm ? '1px solid #dee2e6' : 'none' }};"
-                wire:click="toggleCreateForm">
+        <div class="card mb-1 " x-data="{ showUploadForm: true }">
+            <!-- Card Header -->
+            <div class="px-3 py-2 card-header d-flex align-items-center justify-content-between cursor-pointer "
+                :style="showUploadForm ? 'border-bottom: 1px solid #dee2e6;' : 'border-bottom: none;'"
+                @click="showUploadForm = !showUploadForm">
+
+                <div class="gap-2 d-flex align-items-center">
+                    <div class="ar-form-icon">
+                        <i class="bi bi-plus-circle-fill"></i>
+                    </div>
+                    <div>
+                        <span class="fw-semibold text-body">Upload Report</span>
+                        <span class="ms-2 text-muted small"
+                            x-text="showUploadForm ? '(Click to collapse)' : '(Click to expand)'"></span>
+                    </div>
+                </div>
+
+                <i class="bx text-muted" :class="showUploadForm ? 'bx-chevron-up' : 'bx-chevron-down'"></i>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body" x-show="showUploadForm" x-cloak>
+                <!-- Put your form or content here -->
+                <livewire:admin.operations.upload-agg-report />
+            </div>
+        </div>
+        <div class="border-0 shadow-sm card" x-data="{ showCreateForm: false }">
+
+            <div class="px-3 py-2 card-header d-flex align-items-center justify-content-between cursor-pointer"
+                :style="showCreateForm ? 'border-bottom: 1px solid #dee2e6;' : 'border-bottom: none;'"
+                @click="showCreateForm = !showCreateForm">
                 <div class="gap-2 d-flex align-items-center">
                     <div class="ar-form-icon">
                         <i class="bi bi-plus-circle-fill"></i>
@@ -44,13 +75,14 @@
                     <div>
                         <span class="fw-semibold text-body">Add New Record</span>
                         <span class="ms-2 text-muted small">(Click to
-                            {{ $showCreateForm ? 'collapse' : 'expand' }})</span>
+                            <span x-text="showCreateForm ? 'collapse' : 'expand'"></span>)</span>
                     </div>
                 </div>
-                <i class="bx {{ $showCreateForm ? 'bx-chevron-up' : 'bx-chevron-down' }} text-muted"></i>
+                <i class="bx text-muted" :class="showCreateForm ? 'bx-chevron-up' : 'bx-chevron-down'"></i>
             </div>
 
-            <div class="{{ $showCreateForm ? '' : 'd-none' }}">
+            {{-- Uses x-show for smooth DOM toggling --}}
+            <div x-show="showCreateForm" x-cloak>
                 <div class="card-body">
                     <form wire:submit.prevent="submitCreate">
                         @if ($duplicateId)
@@ -60,19 +92,18 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     <p class="mb-1 fw-semibold text-warning-emphasis">A record with this combination
-                                        already
-                                        exists</p>
+                                        already exists</p>
                                     <p class="mb-2 small text-warning-emphasis" style="opacity:.8;">
                                         The combination of Indicator, Disaggregation, Organisation, Financial Year,
                                         Reporting Period and Enterprise already has a value in the database.
                                         You cannot create a duplicate — please edit the existing record instead.
                                     </p>
-                                    <button wire:click="jumpToDuplicate" class="btn btn-warning btn-sm">
+                                    <button type="button" wire:click="jumpToDuplicate" class="btn btn-warning btn-sm">
                                         <i class="bi bi-arrow-down-circle me-1"></i>Go to existing record &amp; edit
                                     </button>
                                 </div>
-                                <button wire:click="$set('duplicateId', null)" class="flex-shrink-0 btn-close"
-                                    title="Dismiss"></button>
+                                <button type="button" wire:click="$set('duplicateId', null)"
+                                    class="flex-shrink-0 btn-close" title="Dismiss"></button>
                             </div>
                         @endif
 
@@ -182,16 +213,16 @@
                         </div>
 
                         <div class="gap-2 mt-4 d-flex align-items-center">
-                            <button wire:loading.attr='disabled' type="submit" class="px-4 btn btn-warning btn-md">
+                            <button wire:loading.attr="disabled" type="submit" class="px-4 btn btn-warning btn-md">
                                 <span wire:loading.remove wire:target="submitCreate"><i
-                                        class="bx bx-save me-1"></i>Save
-                                    Record</span>
+                                        class="bx bx-save me-1"></i>Save Record</span>
                                 <span wire:loading wire:target="submitCreate">
                                     <span class="spinner-border spinner-border-sm"></span> Saving…
                                 </span>
                             </button>
-                            <button wire:loading.attr='disabled' wire:click="toggleCreateForm"
-                                wire:target='toggleCreateForm,submitCreate' class="btn btn-outline-danger btn-md">
+                            {{-- Updated Cancel button to trigger Alpine close directly --}}
+                            <button type="button" @click="showCreateForm = false"
+                                class="btn btn-outline-danger btn-md">
                                 <i class="bx bx-x me-1"></i>Cancel
                             </button>
                         </div>

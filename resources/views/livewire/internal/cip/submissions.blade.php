@@ -112,7 +112,8 @@
 
                     <div class="tab-pane fade" id="aggregate-submission" role="tabpanel" aria-labelledby="aggregate-tab"
                         wire:ignore>
-                        <livewire:tables.aggregate-submission-table :routePrefix="$route" :tableName="'AggregateSubmissionTable'" :userId="auth()->user()->id" />
+                        <livewire:tables.aggregate-submission-table :routePrefix="$route" :tableName="'AggregateSubmissionTable'"
+                            :userId="auth()->user()->id" />
                     </div>
 
                     <div class="tab-pane fade" id="manual-submission" role="tabpanel" aria-labelledby="manual-tab"
@@ -166,12 +167,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -180,7 +181,7 @@
                 }
             });
         })
-
+        
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -188,10 +189,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
-
+        
         $wire.on('showDataAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -199,10 +200,10 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-
-
+        
+        
             }),
-
+        
             $wire.on('deleteAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -210,14 +211,14 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-
-
+        
+        
             })
-
-
-
+        
+        
+        
         $wire.on('showMarket', (e) => {
-
+        
             console.log(e);
             setTimeout(() => {
                 $wire.dispatch('setMarket', { id: e.id });
@@ -225,8 +226,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
@@ -235,11 +236,11 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
-
-
+        
+        
         $wire.on('deleteMarketBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -247,10 +248,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })
-
+        
         $wire.on('deleteProgress', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -258,8 +259,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-
-
+        
+        
         })">
 
 
@@ -280,17 +281,17 @@
                         isManager: $wire.entangle('isManager'),
                         disableInputs: false,
                         init() {
-
-
+                    
+                    
                             if (this.isManager) {
                                 this.disableInputs = false;
                             } else {
                                 this.disableInputs = true;
-
+                    
                             }
-
+                    
                         }
-
+                    
                     }">
 
 
@@ -358,9 +359,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-
-
-
+                
+                
+                
                 }">
 
 

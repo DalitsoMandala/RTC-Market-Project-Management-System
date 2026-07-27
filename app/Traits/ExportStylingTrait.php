@@ -1,21 +1,21 @@
 <?php
-
 namespace App\Traits;
 
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 trait ExportStylingTrait
 {
-    public function styles($sheet, $highestColumn) {}
+    public function styles($sheet, $highestColumn)
+    {}
 
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet = $event->sheet->getDelegate();
+                $sheet         = $event->sheet->getDelegate();
                 $highestColumn = $sheet->getHighestColumn();
                 // Make the first row (header) bold
                 $sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
@@ -28,12 +28,12 @@ trait ExportStylingTrait
                 // Set background color for the second row (A2:ZZ2)
                 $sheet->getStyle("A2:{$highestColumn}2")->applyFromArray([
                     'font' => [
-                        'color' => ['rgb' => 'FF0000'],  // Red text
-                        'bold' => true,
+                        'color' => ['rgb' => 'FF0000'], // Red text
+                        'bold'  => true,
                     ],
                     'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'FFFFC5'],  // Pink background
+                        'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFFFC5'], // Pink background
                     ],
                 ]);
             },
@@ -52,8 +52,8 @@ trait ExportStylingTrait
 
         // 2. Access or create the hidden "Lists" sheet
         $listSheetName = 'ValidationLists';
-        $listSheet = $spreadsheet->getSheetByName($listSheetName);
-        if (!$listSheet) {
+        $listSheet     = $spreadsheet->getSheetByName($listSheetName);
+        if (! $listSheet) {
             $listSheet = $spreadsheet->createSheet();
             $listSheet->setTitle($listSheetName);
             $listSheet->setSheetState(Worksheet::SHEETSTATE_VERYHIDDEN);
@@ -74,7 +74,7 @@ trait ExportStylingTrait
 
         // 5. Define the Validation formula (range reference)
         $endOptionRow = count($options);
-        $formula = "{$listSheetName}!\${$columnLetter}\$1:\${$columnLetter}\${$endOptionRow}";
+        $formula      = "{$listSheetName}!\${$columnLetter}\$1:\${$columnLetter}\${$endOptionRow}";
 
         // 6. Create and configure the validation object
         $validation = new DataValidation();
@@ -87,8 +87,8 @@ trait ExportStylingTrait
 
         // 7. Apply to the target range (M3:M10000) using setSqref (efficient)
         $cellLetter = preg_replace('/[0-9]/', '', $cell);
-        $startRow = (int) filter_var($cell, FILTER_SANITIZE_NUMBER_INT);
-        $endRow = 10000;
+        $startRow   = (int) filter_var($cell, FILTER_SANITIZE_NUMBER_INT);
+        $endRow     = 10000;
 
         $range = "{$cellLetter}{$startRow}:{$cellLetter}{$endRow}";
         $validation->setSqref($range);

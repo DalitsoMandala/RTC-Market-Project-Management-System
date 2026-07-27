@@ -1,6 +1,7 @@
 <?php
 namespace App\Jobs;
 
+use App\Models\ReportStatus;
 use App\Traits\SystemReportsTrait;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -17,7 +18,7 @@ class SystemReportJob implements ShouldQueue
     use SystemReportsTrait;
 
     public $timeout = 3600;
-    public $tries   = 4;
+    public $tries   = 3;
     public $backoff = 0;
 
     public function handle(): void
@@ -31,7 +32,13 @@ class SystemReportJob implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
+        ReportStatus::whereKey(1)->update([
+            'status'   => 'completed',
+            'progress' => 100,
+        ]);
         Cache::put('report_progress', 0);
+        Cache::put('report_status', 'failed');
+        Cache::put('report_progress_error', 'Report update failed: ' . $exception->getMessage());
         Log::error('SystemReportJob failed entirely: ' . $exception->getMessage());
     }
 }

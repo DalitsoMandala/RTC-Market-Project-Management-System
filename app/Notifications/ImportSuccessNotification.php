@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class ImportSuccessNotification extends Notification implements ShouldQueue
 {
@@ -14,17 +13,18 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
     protected $message;
     protected $uuid, $link;
     protected $errors, $sheet;
+    protected bool $is_report = false;
     /**
      * Create a new notification instance.
      */
-    public function __construct($uuid, $link, $message = 'Your import has been processed successfully.')
+    public function __construct($uuid, $link, $message = 'Your import has been processed successfully.', $is_report = false)
     {
         //
 
-
-        $this->uuid = $uuid;
-        $this->message = $message;
-        $this->link = $link;
+        $this->uuid      = $uuid;
+        $this->message   = $message;
+        $this->link      = $link;
+        $this->is_report = $is_report;
     }
 
     public function via($notifiable)
@@ -39,19 +39,19 @@ class ImportSuccessNotification extends Notification implements ShouldQueue
             ->subject('Import Successful')
             ->greeting('Hello ' . $notifiable->name . ',')
             ->line($this->message)
-                       ->bcc(config('app.debug_email'))
+            ->bcc(config('app.debug_email'))
             ->action('View Details', $this->link) // Adjust URL
             ->line('Thank you for using our application!');
     }
 
     public function toArray(object $notifiable): array
     {
-        $this->notifyAdminsAndManagers();
+        $this->is_report === false ? null : $this->notifyAdminsAndManagers();
         return [
 
-            'uuid' => $this->uuid,
+            'uuid'    => $this->uuid,
             'message' => $this->message,
-            'link' => $this->link,
+            'link'    => $this->link,
         ];
     }
 

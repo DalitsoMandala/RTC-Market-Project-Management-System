@@ -1,8 +1,6 @@
 <?php
-
 namespace App\Livewire\tables\rtcMarket;
 
-use App\Jobs\ReportSummaryJob;
 use App\Models\Crop;
 use App\Models\FinancialYear;
 use App\Models\Indicator;
@@ -10,7 +8,6 @@ use App\Models\IndicatorDisaggregation;
 use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
 use App\Models\ReportStatus;
-use App\Models\ResponsiblePerson;
 use App\Models\SystemReport;
 use App\Models\SystemReportData;
 use App\Models\User;
@@ -18,13 +15,9 @@ use App\Traits\ExportTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
-use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
@@ -38,15 +31,8 @@ final class ReportTable extends PowerGridComponent
     use WithExport;
     use ExportTrait;
 
-    public $project;
-    public $reporting_period;
-    public $financial_year;
-    public $organisation_id;
-    public $indicator;
-    public $disaggregation;
     public bool $withSortStringNumber = true;
-    public string $sortField = 'system_reports.indicator_id';
-
+    public string $sortField          = 'system_reports.indicator_id';
 
     public function setUp(): array
     {
@@ -54,7 +40,7 @@ final class ReportTable extends PowerGridComponent
         $timestamp = Carbon::now();
         return [
             Header::make()
-                // ->showSearchInput()
+            // ->showSearchInput()
                 ->includeViewOnTop('components.report-header'),
             // ->includeViewOnBottom('components.import-button'),
             Footer::make()
@@ -63,31 +49,32 @@ final class ReportTable extends PowerGridComponent
         ];
     }
 
-
-
     public $namedExport = 'report';
 
-    #[On('export-report')]
-    public function startExport()
+    // #[On('export-report')]
+    // public function startExport()
+    // {
+
+    //     if (! $this->checkReport()) {
+    //         $this->dispatch('export-fail', message: 'Data is updating, please wait a few minutes.');
+
+    //         return;
+    //     }
+    //     $this->namedExport = 'report';
+    //     $this->execute($this->namedExport);
+    //     $this->performExport();
+    // }
+
+    #[On('report-updated')]
+    public function completedReport()
     {
 
-        if (!$this->checkReport()) {
-            $this->dispatch('export-fail', message: 'Data is updating, please wait a few minutes.');
-
-            return;
-        }
-        $this->namedExport = 'report';
-        $this->execute($this->namedExport);
-        $this->performExport();
     }
-
-
-
 
     #[On('export-report')]
     public function startProgressExport()
     {
-        if (!$this->checkReport()) {
+        if (! $this->checkReport()) {
             $this->dispatch('export-fail', message: 'Data is updating, please wait a few minutes.');
             return;
         }
@@ -111,7 +98,7 @@ final class ReportTable extends PowerGridComponent
     public function downloadExport()
     {
 
-        if (!Storage::exists('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx')) {
+        if (! Storage::exists('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx')) {
             return;
         }
         return Storage::download('public/exports/' . $this->namedExport . '_' . $this->exportUniqueId . '.xlsx');
@@ -136,16 +123,11 @@ final class ReportTable extends PowerGridComponent
 
             ]);
 
-        if (request()->get('filters')['crop'] ?? null === 'null') {
-            dd('sss');
-        }
-
         $user = User::find(auth()->user()->id);
 
         if ($user->hasAnyRole('external')) {
             $query->where('system_reports.organisation_id', $user->organisation->id);
         }
-
 
         return $query->orderBy('system_reports.crop', 'asc')
             ->orderBy('system_reports.indicator_id', 'asc');
@@ -154,15 +136,6 @@ final class ReportTable extends PowerGridComponent
     /**
      * Check if any filters are set.
      */
-    private function hasFilters(): bool
-    {
-        return !is_null($this->organisation_id) ||
-            !is_null($this->reporting_period) ||
-            !is_null($this->financial_year) ||
-            !is_null($this->disaggregation) ||
-            !is_null($this->indicator) ||
-            !is_null($this->crop);
-    }
 
     /**
      * Apply filters to the query.
@@ -176,10 +149,10 @@ final class ReportTable extends PowerGridComponent
                     $indicators = Indicator::distinct()->get();
                     return $indicators->map(function ($indicator) {
                         return [
-                            'id' => $indicator->id,
-                            'number' => $indicator->indicator_no,
+                            'id'             => $indicator->id,
+                            'number'         => $indicator->indicator_no,
                             'indicator_name' => $indicator->indicator_name,
-                            'name' => "({$indicator->indicator_no}) {$indicator->indicator_name}",
+                            'name'           => "({$indicator->indicator_no}) {$indicator->indicator_name}",
                         ];
                     });
                 })->optionLabel('name')
@@ -234,7 +207,7 @@ final class ReportTable extends PowerGridComponent
                         ->get()
                         ->map(function ($months) {
                             $start_month = $months->start_month;
-                            $end_month = $months->end_month;
+                            $end_month   = $months->end_month;
                             $unspecified = $months->start_month == $months->end_month ? $months->start_month : "{$start_month}-{$end_month}";
 
                             return [
@@ -250,18 +223,15 @@ final class ReportTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('id'),
 
-
         ];
     }
-
-
 
     public function relationSearch(): array
     {
         return [
 
-            'systemReport.indicator' => ['indicator_name', 'indicator_no'],
-            'systemReport.organisation' => ['name'],
+            'systemReport.indicator'     => ['indicator_name', 'indicator_no'],
+            'systemReport.organisation'  => ['name'],
             'systemReport.financialYear' => ['number'],
 
         ];
@@ -277,9 +247,9 @@ final class ReportTable extends PowerGridComponent
             })
             ->add('indicator_name', function ($model) {
                 // Handle null for systemReport and indicator
-                $indicatorName = $model->systemReport->indicator->indicator_name ?? null;
+                $indicatorName   = $model->systemReport->indicator->indicator_name ?? null;
                 $indicatorNumber = $model->systemReport->indicator->indicator_no ?? null;
-                return  '(' . $indicatorNumber . ') ' . $indicatorName;
+                return '(' . $indicatorNumber . ') ' . $indicatorName;
             })
             ->add('name', function ($model) {
 
@@ -294,12 +264,12 @@ final class ReportTable extends PowerGridComponent
             })
             ->add('report_period', function ($model) {
                 // Handle null for reportingPeriod
-                if (!$model->systemReport->reportingPeriod) {
+                if (! $model->systemReport->reportingPeriod) {
                     return null;
                 }
 
                 $start_month = $model->systemReport->reportingPeriod->start_month;
-                $end_month = $model->systemReport->reportingPeriod->end_month;
+                $end_month   = $model->systemReport->reportingPeriod->end_month;
 
                 return $start_month . ' - ' . $end_month;
             })
@@ -336,9 +306,6 @@ final class ReportTable extends PowerGridComponent
                 ->sortable()
                 ->searchable(),
 
-
-
-
             Column::make('Project', 'project')->hidden()->visibleInExport(true),
             Column::make('Reporting period', 'report_period')->searchable(),
             Column::make('Organisation', 'organisations', 'organisation_name')->sortable()->searchable(),
@@ -349,7 +316,6 @@ final class ReportTable extends PowerGridComponent
 
         ];
     }
-
 
     /*
      * public function actionRules($row): array

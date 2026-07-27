@@ -1,19 +1,16 @@
 <?php
-
 namespace App\Livewire\Tables;
-
 
 use App\Models\Cgiar_Project;
 use App\Models\Indicator;
 use App\Models\Organisation;
 use App\Models\User;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as ModelBuilder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
 use PowerComponents\LivewirePowerGrid\Footer;
@@ -46,32 +43,34 @@ final class IndicatorTable extends PowerGridComponent
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if ($user->hasAnyRole('manager') ||$user->hasAnyRole('monitor')|| $user->hasAnyRole('admin') || $user->hasAnyRole('project_manager') || $user->hasAnyRole('staff')) {
+        if ($user->hasAnyRole('manager') || $user->hasAnyRole('monitor') || $user->hasAnyRole('admin') || $user->hasAnyRole('project_manager') || $user->hasAnyRole('staff')) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
                 'responsiblePeopleforIndicators.organisation',
-                'forms'
-            ])->select([
+                'forms', 'class',
+            ])->join('indicator_classes', 'indicator_classes.indicator_id', '=', 'indicators.id')->select([
                 'indicators.*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                'indicator_classes.class as file_location',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
             ]);
         } else {
             //responsiblePeopleforIndicators are organisations reponsible for these indicators
-            $user = User::find($this->userId);
+            $user            = User::find($this->userId);
             $organisation_id = $user->organisation->id;
 
             $data = Indicator::query()->with([
                 'project',
                 'responsiblePeopleforIndicators',
                 'disaggregations',
-                'forms'
+                'forms',
             ])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
             });
             return $data->select([
                 'indicators.*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
             ]);
             // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
 
@@ -81,25 +80,23 @@ final class IndicatorTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'project' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'project'                                     => [ // relationship on dishes model
+                'name',                                            // column enabled to search
 
             ],
-            'disaggregations' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'disaggregations'                             => [ // relationship on dishes model
+                'name',                                            // column enabled to search
 
             ],
 
             'responsiblePeopleforIndicators.organisation' => [ // relationship on dishes model
-                'name', // column enabled to search
+                'name',                                            // column enabled to search
 
             ],
-            'forms' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'forms'                                       => [ // relationship on dishes model
+                'name',                                            // column enabled to search
 
             ],
-
-
 
         ];
     }
@@ -126,12 +123,9 @@ final class IndicatorTable extends PowerGridComponent
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-                }
-                 else if ($user->hasAnyRole('monitor')) {
+                } else if ($user->hasAnyRole('monitor')) {
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('monitor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
-                }
-
-                else {
+                } else {
                     return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
             })
@@ -145,7 +139,7 @@ final class IndicatorTable extends PowerGridComponent
 
                 $orgIds = $model->responsiblePeopleforIndicators->pluck('organisation_id');
 
-                $orgs = Organisation::whereIn('id', $orgIds)->get();
+                $orgs     = Organisation::whereIn('id', $orgIds)->get();
                 $orgNames = $orgs->pluck('name')->toArray();
                 $orgNames = implode(', ', $orgNames);
                 return $orgNames;
@@ -166,60 +160,67 @@ final class IndicatorTable extends PowerGridComponent
                     return (implode(', ', $implode));
                 }
             })
+            ->add('file_location', function ($model) {
+                $location = $model->file_location;
+
+                return $model->file_location;
+            })
             ->add('created_at')
             ->add('updated_at');
     }
 
-    public function columns(): array
+    public function ensureRtcMarketPathExists(string $location, ?string $fileName = null, string $defaultContent = ''): string
     {
+        // 1. Convert backslashes to standard forward slashes
+        $cleanPath = str_replace('\\', '/', $location);
 
-        $showActionColumn = false; // Set this variable based on your condition
+        // 2. Remove leading 'App/' or 'app/' if passed as a namespace
+        $relativePath = preg_replace('#^app/#i', '', $cleanPath);
 
-        $columns = [
-            Column::make('#', 'rn')->sortable(),
-            Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')
+        // 3. Break path into segments for Laravel's app_path()
+        $segments = explode('/', $relativePath);
 
-                ->searchable(),
-            Column::make('Indicator', 'name_link', 'indicator_name')->bodyAttribute(styleAttr: "white-space:wrap")
-            ->headerAttribute(styleAttr: "min-width:350px;")
-                ->sortable()
-                ->searchable(),
+        // 4. Resolve absolute OS-safe directory path
+        $directoryPath = app_path(...$segments);
 
-            Column::make('Lead partner', 'lead_partner'),
-            Column::make('Disaggregations', 'disaggregations')->headerAttribute(styleAttr: "min-width:300px;")
-                ->bodyAttribute(styleAttr: "white-space:wrap")
-        ];
-
-        $user = User::find(auth()->user()->id);
-        if ($user->hasAnyRole('manager')) {
-            $columns[] = Column::make('Sources', 'sources');
-            //   $columns[] = Column::action('Action');
-        } else {
-
-
-            //    $columns[] = Column::action('Action')->hidden();
+        // 5. Create directory recursively if it doesn't exist
+        if (! File::exists($directoryPath)) {
+            File::makeDirectory($directoryPath, 0755, true);
         }
 
-        return $columns;
+        // 6. Return directory path if no file name was requested
+        if (! $fileName) {
+            return $directoryPath;
+        }
+
+        // 7. Resolve absolute OS-safe file path
+        $filePath = app_path(...array_merge($segments, [$fileName]));
+
+        // 8. Create file if it doesn't exist
+        if (! File::exists($filePath)) {
+            File::put($filePath, $defaultContent);
+        }
+
+        return $filePath;
     }
 
     public function filters(): array
     {
         return [
 
-         Filter::select('name_link', 'id')
-                ->dataSource(fn() => Indicator::select(['indicator_no', 'indicator_name','id'])->distinct()->get()->map(function ($indicator) {
+            Filter::select('name_link', 'id')
+                ->dataSource(fn() => Indicator::select(['indicator_no', 'indicator_name', 'id'])->distinct()->get()->map(function ($indicator) {
                     return [
-                        'id' => $indicator->id,
+                        'id'    => $indicator->id,
                         'label' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
-                        'indicator_no' => $indicator->indicator_no,
-                        'indicator_name' => $indicator->indicator_name
+                        'indicator_no'   => $indicator->indicator_no,
+                        'indicator_name' => $indicator->indicator_name,
                     ];
                 }))
-                  ->optionLabel('label')
+                ->optionLabel('label')
                 ->optionValue('id')
 
-             ,
+            ,
         ];
     }
 
@@ -239,14 +240,65 @@ final class IndicatorTable extends PowerGridComponent
     //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal']),
     //     ];
     // }
+    public function columns(): array
+    {
+        $columns = [
+            Column::make('#', 'rn')->sortable(),
+            Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')->searchable(),
+            Column::make('Indicator', 'name_link', 'indicator_name')
+                ->bodyAttribute(styleAttr: "white-space:wrap")
+                ->headerAttribute(styleAttr: "min-width:350px;")
+                ->sortable()
+                ->searchable(),
 
+            Column::make('Disaggregations', 'disaggregations')
+                ->headerAttribute(styleAttr: "min-width:300px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap"),
+            Column::make('File Location', 'file_location')->searchable(),
+        ];
+
+        $user = User::find(auth()->user()->id);
+
+        if ($user->hasAnyRole('manager')) {
+            $columns[] = Column::make('Sources', 'sources');
+        }
+
+        // Only show actions to roles allowed to edit/delete
+        if ($user->hasAnyRole('manager', 'admin')) {
+            $columns[] = Column::action('Actions');
+        }
+
+        return $columns;
+    }
+
+    public function actions($row): array
+    {
+        return [
+            Button::add('edit')
+                ->slot('<i class="bx bx-pen"></i>')
+                ->id()
+                ->class('btn btn-sm btn-warning')
+                ->dispatch('openIndicatorModal', ['indicatorId' => $row->id]),
+
+            Button::add('delete')
+                ->slot('<i class="bx bx-trash"></i>')
+                ->id()
+                ->class('btn btn-sm btn-danger')
+                ->dispatch('openDeleteIndicatorModal', ['indicatorId' => $row->id]),
+            // ->attributes(['onclick' => "return confirm('Delete this indicator?')"])
+            //->dispatch('deleteIndicator', ['indicatorId' => $row->id]),
+            // If your PowerGrid version doesn't support ->openModal() confirmation,
+            // dispatch straight to a JS confirm() instead, e.g.:
+            // ->dispatch('confirmDeleteIndicator', ['indicatorId' => $row->id])
+        ];
+    }
     public function actionRules($row): array
     {
         return [
 
             Rule::button('edit')
                 ->when(function ($row) {
-           $user = User::find(auth()->user()->id);
+                    $user = User::find(auth()->user()->id);
 
                     if ($user->hasAnyRole('external')) {
 
@@ -256,7 +308,6 @@ final class IndicatorTable extends PowerGridComponent
                     }
                 })
                 ->disable(),
-
 
         ];
     }

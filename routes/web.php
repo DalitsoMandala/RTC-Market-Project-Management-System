@@ -198,6 +198,9 @@ Route::middleware([
     Route::get('/profile', \App\Livewire\Profile\Details::class)
         ->middleware(['auth'])
         ->name('manager-profile');
+
+    Route::get('/aggregated-reports', \App\Livewire\Admin\Operations\AggregatedReportsPage::class)->name('cip-aggregated-reports');
+
     registerFormRoutes('/forms/{project}', 'manager');
 });
 

@@ -1,4 +1,4 @@
-<div wire:ignore x-data="{}" x-init="const inputElement = $refs.input;
+<div {{ $attributes->merge(['class' => '']) }} wire:ignore x-data="{}" x-init="const inputElement = $refs.input;
 pond = FilePond.create($refs.input, {
     server: {
         process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
@@ -46,7 +46,7 @@ $wire.on('removeUploadedFile', function() {
 $wire.on('errorRemove', function() {
 
 
-   // pond.removeFiles({ revert: true });
+    // pond.removeFiles({ revert: true });
 
 
 });
@@ -67,5 +67,6 @@ pond.on('processfiles', () => {
 
 
     <!-- An unexamined life is not worth living. - Socrates -->
-    <input type="file"  {{ $attributes->merge(['class' =>'form-control']) }} x-ref="input" wire:loading.attr='disabled' />
+    <input type="file" {{ $attributes->merge(['class' => 'form-control']) }} x-ref="input"
+        wire:loading.attr='disabled' />
 </div>

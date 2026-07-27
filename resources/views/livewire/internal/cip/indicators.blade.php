@@ -26,9 +26,19 @@
             <div class="col-12">
                 <x-alerts />
                 <div class="card">
-               <div class="card-header card-title fw-bold border-bottom-0 ">
-                           Indicators
-                        </div>
+                    <div class="card-header card-title fw-bold border-bottom-0 ">
+                        Indicators
+
+                        @hasanyrole('admin|manager')
+                            <div class="mb-2 d-flex justify-content-end">
+                                <button type="button" class="btn btn-warning"
+                                    onclick="Livewire.dispatch('openIndicatorModal')">
+                                    <i class="bx bx-plus"></i> Add Indicator
+                                </button>
+                            </div>
+                        @endhasanyrole
+
+                    </div>
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -83,7 +93,7 @@
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -123,37 +133,37 @@
 
 
                     <div class="mb-1" wire:ignore x-data="{
-
+                    
                         myInput(data) {
                                 this.selected = data;
                             },
-
+                    
                     }" x-init="$('#selectElementPartner').select2({
                         width: '100%',
                         theme: 'bootstrap-5',
                         containerCssClass: 'select2--small',
                         dropdownCssClass: 'select2--small',
                     });
-
-
+                    
+                    
                     $('#selectElementPartner').on('change', function() {
-
+                    
                         data = $(this).val();
-
+                    
                         $wire.selectedLeadPartner = data;
-
-
+                    
+                    
                     });
-
-
-
+                    
+                    
+                    
                     $wire.on('select-partners', (e) => {
                         data = e.data;
                         $('#selectElementPartner').val(data).trigger('change');
-
-
-
-
+                    
+                    
+                    
+                    
                     })">
 
 
@@ -175,31 +185,31 @@
                         myInput(data) {
                             this.selected = data;
                         },
-
+                    
                     }" x-init="$('#selectSource').select2({
                         width: '100%',
                         theme: 'bootstrap-5',
                         containerCssClass: 'select2--small',
                         dropdownCssClass: 'select2--small',
                     });
-
-
+                    
+                    
                     $('#selectSource').on('change', function() {
-
+                    
                         data = $(this).val();
                         $wire.selectedSource = data;
                         // console.log(selected)
-
+                    
                     });
-
-
+                    
+                    
                     $wire.on('select-partners', (e) => {
                         data = e.data2;
                         $('#selectSource').val(data).trigger('change');
-
-
-
-
+                    
+                    
+                    
+                    
                     })">
 
 
@@ -225,7 +235,7 @@
 
         </div>
 
-
+        <livewire:indicator-form />
 
 
 

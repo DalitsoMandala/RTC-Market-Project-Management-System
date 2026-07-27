@@ -27,6 +27,7 @@
         <div class="row">
             <div class="col">
                 <x-alerts />
+                <x-alpine-alerts />
             </div>
         </div>
 
@@ -80,9 +81,10 @@
             <hr>
 
             {{-- PROGRESS AREA --}}
-            <div wire:poll.3s="checkProgress">
 
-                @if ($loading)
+
+            @if ($loading)
+                <div wire:poll.3s="checkProgress">
                     <div class="p-3 text-center">
 
                         <div class="mb-2 fw-bold">
@@ -96,9 +98,10 @@
                         </div>
 
                     </div>
-                @endif
 
-            </div>
+                </div>
+            @endif
+
 
             {{-- REPORT TABLE --}}
             <div class="@if ($loading) pe-none opacity-50 @endif p-5">
@@ -111,3 +114,10 @@
 
     </div>
 </div>
+@script
+    <script>
+        setTimeout(() => {
+            $wire.dispatch('report-updated');
+        }, 5000);
+    </script>
+@endscript

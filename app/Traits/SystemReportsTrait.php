@@ -7,6 +7,7 @@ use App\Models\Indicator;
 use App\Models\IndicatorClass;
 use App\Models\Organisation;
 use App\Models\ReportingPeriodMonth;
+use App\Models\ResponsiblePerson;
 use App\Models\SystemReport;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -36,12 +37,14 @@ trait SystemReportsTrait
     }
     private function filteredFinancialYears(): array
     {
-        return FinancialYear::whereHas('project', fn($q) => $q->where('name', self::PROJECT_NAME))
-            ->whereNotIn('id', $this->aggregateYears)
+        $this->aggregateYears = FinancialYear::whereHas('project', fn($q) => $q->where('name', self::PROJECT_NAME))
+            ->get()
+            ->filter(fn($financial_year) => ! in_array($financial_year->number, self::IGNORED_YEARS))
             ->pluck('id')
             ->toArray();
-    }
 
+        return $this->aggregateYears;
+    }
     public function runSystemReports(): int
     {
         $indicatorClasses = IndicatorClass::get();
@@ -54,18 +57,18 @@ trait SystemReportsTrait
         $crops         = CoreFunctions::getCropsWithNull();
         $filteredYears = $this->filteredFinancialYears();
 
-        // Chunk all data arrays using helper method
-        $reportingPeriods = $this->chunkArray($reportingPeriods);
-        $organisations    = $this->chunkArray($organisations);
-        $crops            = $this->chunkArray($crops);
-        $filteredYears    = $this->chunkArray($filteredYears);
-
-        // Recalculate total iterations based on chunked counts
+        // ✅ Compute total iterations BEFORE chunking (using actual counts)
         $this->totalIterations = $indicatorClasses->count()
          * count($reportingPeriods)
          * count($filteredYears)
          * count($organisations)
          * count($crops);
+
+        // Chunk arrays for memory efficiency
+        $reportingPeriods = $this->chunkArray($reportingPeriods);
+        $organisations    = $this->chunkArray($organisations);
+        $crops            = $this->chunkArray($crops);
+        $filteredYears    = $this->chunkArray($filteredYears);
 
         $this->current    = 0;
         $this->errorCount = 0;
@@ -77,7 +80,6 @@ trait SystemReportsTrait
                 continue;
             }
 
-            // Process chunks with indicator data
             $this->processSystemYears($filteredYears, [
                 $indicatorClass,
                 $indicator,
@@ -95,18 +97,48 @@ trait SystemReportsTrait
     {
         [$indicatorClass, $indicator, $periodChunks, $organisationChunks, $cropChunks] = $data;
 
-        DB::transaction(function () use ($periodChunks, $financialYearChunks, $organisationChunks, $cropChunks, $indicatorClass, $indicator) {
+        foreach ($periodChunks as $periodChunk) {
+            foreach ($periodChunk as $period) {
+                foreach ($financialYearChunks as $financialYearChunk) {
+                    foreach ($financialYearChunk as $year) {
+                        foreach ($organisationChunks as $organisationChunk) {
+                            foreach ($organisationChunk as $org) {
 
-            foreach ($periodChunks as $periodChunk) {
-                foreach ($periodChunk as $period) {
-                    foreach ($financialYearChunks as $financialYearChunk) {
-                        foreach ($financialYearChunk as $year) {
-                            foreach ($organisationChunks as $organisationChunk) {
-                                foreach ($organisationChunk as $org) {
-                                    foreach ($cropChunks as $cropChunk) {
-                                        foreach ($cropChunk as $crop) {
+                                // Only query once per organisation
+                                $currentResponsible = ResponsiblePerson::where([
+                                    'organisation_id' => $org,
+                                    'indicator_id'    => $indicatorClass->indicator_id,
+                                ])->exists();
 
-                                            try {
+                                foreach ($cropChunks as $cropChunk) {
+                                    foreach ($cropChunk as $crop) {
+
+                                        // Preserve historical reports
+                                        $hasExistingReport = SystemReport::where([
+                                            'financial_year_id'   => $year,
+                                            'reporting_period_id' => $period,
+                                            'organisation_id'     => $org,
+                                            'indicator_id'        => $indicator->id,
+                                            'crop'                => $crop,
+                                            'project_id'          => $indicator->project_id,
+                                        ])->exists();
+
+                                        // Skip only if the organisation is neither currently
+                                        // responsible nor has historical data for this combination
+                                        if (! $currentResponsible && ! $hasExistingReport) {
+                                            $this->updateProgress(capMin: 0, capMax: 50); // 👈 Fixed: Added caps
+                                            continue;
+                                        }
+                                        try {
+                                            DB::transaction(function () use (
+                                                $period,
+                                                $year,
+                                                $org,
+                                                $indicator,
+                                                $crop,
+                                                $indicatorClass
+                                            ) {
+
                                                 $conditions = [
                                                     'reporting_period_id' => $period,
                                                     'financial_year_id'   => $year,
@@ -116,7 +148,7 @@ trait SystemReportsTrait
                                                     'crop'                => $crop,
                                                 ];
 
-                                                $systemReport = SystemReport::updateOrCreate($conditions);
+                                                $systemReport = SystemReport::firstOrCreate($conditions);
 
                                                 $class = new $indicatorClass->class(
                                                     reporting_period: $period,
@@ -125,23 +157,26 @@ trait SystemReportsTrait
                                                     enterprise: $crop
                                                 );
 
-                                                $this->syncDisaggregations($systemReport, $class->getDisaggregations());
+                                                $this->syncDisaggregations(
+                                                    $systemReport,
+                                                    $class->getDisaggregations()
+                                                );
 
-                                            } catch (\Exception $e) {
-                                                $this->errorCount++;
-                                                Log::error("System Report Run Failure: " . $e->getMessage(), [
-                                                    'reporting_period_id' => $period,
-                                                    'financial_year_id'   => $year,
-                                                    'organisation_id'     => $org,
-                                                    'crop'                => $crop,
-                                                    'indicator_id'        => $indicatorClass->indicator_id,
-                                                    'class'               => $indicatorClass->class,
-                                                ]);
-                                                throw $e;
-                                            }
+                                            });
+                                        } catch (\Exception $e) {
+                                            $this->errorCount++;
 
-                                            $this->updateProgress();
+                                            Log::error("System Report Run Failure: " . $e->getMessage(), [
+                                                'reporting_period_id' => $period,
+                                                'financial_year_id'   => $year,
+                                                'organisation_id'     => $org,
+                                                'crop'                => $crop,
+                                                'indicator_id'        => $indicatorClass->indicator_id,
+                                                'class'               => $indicatorClass->class,
+                                            ]);
                                         }
+                                        // Always update progress
+                                        $this->updateProgress(capMin: 0, capMax: 50);
                                     }
                                 }
                             }
@@ -149,6 +184,6 @@ trait SystemReportsTrait
                     }
                 }
             }
-        });
+        }
     }
 }

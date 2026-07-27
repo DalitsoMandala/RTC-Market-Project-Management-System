@@ -1,6 +1,7 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Jobs\AggregatedReportJob;
 use App\Jobs\SystemReportJob;
 use App\Models\ReportStatus;
 use Illuminate\Console\Command;
@@ -44,15 +45,19 @@ class UpdateInformation extends Command
 
         if ($reportStatus->status === 'processing') {
             $this->warn('A report update is already running — skipping this run.');
+            Cache::put('report_progress_error', 'A report update is already running — skipping this run.');
             return;
         }
 
+        Cache::put('report_progress_error', null);
+
         $reportStatus->update([
             'status'   => 'processing',
-            'progress' => random_int(5, 10),
+            'progress' => 0,
         ]);
 
-        Cache::put('report_progress', $reportStatus->progress);
+        Cache::put('report_progress', 0);
+        Cache::put('report_status', 'processing');
 
         $this->info("Report status: {$reportStatus->status}, progress: {$reportStatus->progress}%");
         $this->info("Starting fresh report job chain...");
@@ -65,7 +70,8 @@ class UpdateInformation extends Command
         $reportStatus = ReportStatus::find(1);
         Bus::chain([
 
-            new SystemReportJob(), // Run live calculations
+            new SystemReportJob(),     // Run live calculations
+            new AggregatedReportJob(), // Run aggregate calculations
 
             function () use ($reportStatus) {
                 $reportStatus->update([
@@ -80,11 +86,12 @@ class UpdateInformation extends Command
                 logger()->error('Report job chain failed: ' . $e->getMessage());
 
                 $reportStatus->update([
-                    'status'   => 'completed',
-                    'progress' => 100,
+                    'status'   => 'failed',
+                    'progress' => 0,
                 ]);
-                Cache::put('report_progress', 100);
-                Cache::put('report_status', 'completed');
+                Cache::put('report_progress', 0);
+                Cache::put('report_status', 'failed');
+                Cache::put('report_progress_error', 'Report update failed: ' . $e->getMessage());
             })
             ->onQueue('reports')
             ->dispatch();

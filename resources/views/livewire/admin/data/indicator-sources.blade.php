@@ -25,7 +25,7 @@
             <div class="col-12">
                 <x-alerts />
                 <div class="card ">
-                 <x-card-header>Indicator Sources</x-card-header>
+                    <x-card-header>Indicator Sources</x-card-header>
                     <div class=" card-body">
                         <livewire:admin.organisation-forms-table />
                     </div>
@@ -36,13 +36,13 @@
 
 
         <div x-data x-init="$wire.on('showModal', (e) => {
-
+        
             const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
             myModal.show();
         })
         $wire.on('refresh', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-
+        
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -134,7 +134,7 @@
 
 
                     <div class="modal-footer border-top-0 justify-content-center">
-                           <button type="submit" class="px-5 btn btn-warning">Save changes</button>
+                        <button type="submit" class="px-5 btn btn-warning">Save changes</button>
                         <button type="button" class="px-5 btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
 

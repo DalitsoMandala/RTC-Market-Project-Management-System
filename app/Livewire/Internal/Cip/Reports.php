@@ -3,6 +3,8 @@ namespace App\Livewire\Internal\Cip;
 
 use App\Models\ReportStatus;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class Reports extends Component
@@ -27,15 +29,13 @@ class Reports extends Component
             ]);
         }
 
-        $status->update([
-            'status'   => 'pending',
-            'progress' => 0,
-        ]);
-
-        $this->loading  = true;
-        $this->progress = 0;
-
         Artisan::call('update:information');
+        $this->loading = true;
+        //  $this->progress = Cache::get('report_progress', 0);
+        if (Cache::has('report_progress_error') && Cache::get('report_progress_error') !== null) {
+            $this->dispatch('report-error', Cache::get('report_progress_error'));
+        }
+
     }
 
     public function reload()
@@ -48,6 +48,9 @@ class Reports extends Component
         $status = ReportStatus::first();
 
         if (! $status) {
+            Log::error('ReportStatus not found', [
+                'context' => 'Reports Livewire Component',
+            ]);
             return;
         }
 
@@ -55,7 +58,7 @@ class Reports extends Component
 
         if ($status->status === 'completed') {
             $this->loading = false;
-            $this->dispatch('report-completed');
+            $this->dispatch('report-updated');
         }
     }
 
