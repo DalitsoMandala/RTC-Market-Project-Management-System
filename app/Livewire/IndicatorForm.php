@@ -111,18 +111,24 @@ class IndicatorForm extends Component
     {
         $this->validate();
 
-        $oldIndicatorNo = null;
-
+        $oldIndicatorNo   = null;
+        $oldIndicatorName = null;
+        $oldIndicatorId   = null;
         if ($this->indicatorId) {
-            $indicator      = Indicator::findOrFail($this->indicatorId);
-            $oldIndicatorNo = $indicator->indicator_no; // Capture old number for file renaming
+            $indicator        = Indicator::findOrFail($this->indicatorId);
+            $oldIndicatorNo   = $indicator->indicator_no;   // Capture old number for file renaming
+            $oldIndicatorName = $indicator->indicator_name; // Capture old name for file renaming
+            $oldIndicatorId   = $indicator->id;
         } else {
             $indicator = new Indicator();
         }
 
-        $indicator->indicator_no   = $this->indicator_no;
-        $indicator->indicator_name = $this->indicator_name;
-        $indicator->project_id     = $this->project_id;
+        $indicator->indicator_no                                                   = $this->indicator_no;
+        $indicator->indicator_name                                                 = $this->indicator_name;
+        $indicator->previous_indicator_id ?? $indicator->previous_indicator_id     = $oldIndicatorId;
+        $indicator->previous_indicator_no ?? $indicator->previous_indicator_no     = $oldIndicatorNo;
+        $indicator->previous_indicator_name ?? $indicator->previous_indicator_name = $oldIndicatorName;
+        $indicator->project_id                                                     = $this->project_id;
         $indicator->save();
 
         // Handle physical file generation or renaming cross-platform
@@ -146,10 +152,10 @@ class IndicatorForm extends Component
         }
 
         $this->selectedDisaggregations = $indicator->disaggregations->pluck('name')->map(fn($id) => (string) $id)->toArray();
+
         $this->dispatch('hideModal', name: 'indicator-crud-modal');
         $this->dispatch('refresh')->to(\App\Livewire\Tables\IndicatorTable::class);
-
-        session()->flash('success', $this->indicatorId ? 'Indicator updated.' : 'Indicator created.');
+        $this->alert('success', 'Successfully updated');
     }
 
     protected function handleIndicatorFileClass(string $newNo, ?string $oldNo = null): void

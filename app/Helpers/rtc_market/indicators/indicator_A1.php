@@ -162,24 +162,19 @@ class indicator_A1
 
         return [
 
-            'Total'                          => $totalPeople,
-
-            'Employees on RTC establishment' => $totalEmployees,
-
-            'Cassava'                        => $cropTotals['Cassava'],
-            'Potato'                         => $cropTotals['Potato'],
-            'Sweet potato'                   => $cropTotals['Sweet potato'],
-
+            'Total'                          => $totalPeople ?? 0,
+            'Employees on RTC establishment' => $totalEmployees ?? 0,
+            'Cassava'                        => $cropTotals['Cassava'] ?? 0,
+            'Potato'                         => $cropTotals['Potato'] ?? 0,
+            'Sweet potato'                   => $cropTotals['Sweet potato'] ?? 0,
             // Actors now = MEMBERS ONLY
-            'Farmers'                        => $actorTotals['Farmers'],
-            'Processors'                     => $actorTotals['Processors'],
-            'Aggregators'                    => $actorTotals['Aggregators'],
-            'Transporters'                   => $actorTotals['Transporters'],
-
-            'Traders'                        => $traders['total'],
-
-            'New establishment'              => $new,
-            'Old establishment'              => $old,
+            'Farmers'                        => $actorTotals['Farmers'] ?? 0,
+            'Processors'                     => $actorTotals['Processors'] ?? 0,
+            'Aggregators'                    => $actorTotals['Aggregators'] ?? 0,
+            'Transporters'                   => $actorTotals['Transporters'] ?? 0,
+            'Traders'                        => $traders['total'] ?? 0,
+            'New establishment'              => $new ?? 0,
+            'Old establishment'              => $old ?? 0,
         ];
     }
 

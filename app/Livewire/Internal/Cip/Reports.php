@@ -29,13 +29,16 @@ class Reports extends Component
             ]);
         }
 
-        Artisan::call('update:information');
-        $this->loading = true;
-        //  $this->progress = Cache::get('report_progress', 0);
+        if ($status->status === 'processing') {
+            $this->loading = true;
+        } else {
+            Artisan::call('update:information');
+            $this->loading = true;
+        }
+
         if (Cache::has('report_progress_error') && Cache::get('report_progress_error') !== null) {
             $this->dispatch('report-error', Cache::get('report_progress_error'));
         }
-
     }
 
     public function reload()

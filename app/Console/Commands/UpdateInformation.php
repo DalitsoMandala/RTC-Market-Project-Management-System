@@ -108,8 +108,8 @@ class UpdateInformation extends Command
                 'progress' => 0,
             ]);
 
-            Cache::put('report_status', 'processing');
-            Cache::put('report_progress', 0);
+            Cache::put('report_progress', 100);
+            Cache::put('report_status', 'completed');
             Artisan::call('queue:clear --queue=reports');
             $this->info('Cache Lock Cleared.');
         }
