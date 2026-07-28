@@ -331,6 +331,10 @@ final class IndicatorTable extends PowerGridComponent
                 })
                 ->disable(),
 
+            Rule::button('delete')
+                ->when(fn($row) => true)
+                ->disable(),
+
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Models\IndicatorDisaggregation;
 use App\Models\Organisation;
 use App\Models\Project;
 use Illuminate\Support\Facades\File;
+use Illuminate\Validation\Rule;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -97,11 +98,22 @@ class IndicatorForm extends Component
         $this->indicator_name = $indicator->indicator_name;
         $this->dispatch('show-delete-indicator-modal');
     }
+
     protected function rules(): array
     {
         return [
-            'indicator_no'            => 'required|string|max:50',
-            'indicator_name'          => 'required|string|max:255',
+            'indicator_no'            => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('indicators', 'indicator_no')->ignore($this->indicatorId),
+            ],
+            'indicator_name'          => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('indicators', 'indicator_name')->ignore($this->indicatorId),
+            ],
             'project_id'              => 'required|exists:projects,id',
             'selectedDisaggregations' => 'array',
         ];
@@ -116,8 +128,8 @@ class IndicatorForm extends Component
         $oldIndicatorId   = null;
         if ($this->indicatorId) {
             $indicator        = Indicator::findOrFail($this->indicatorId);
-            $oldIndicatorNo   = $indicator->indicator_no;   // Capture old number for file renaming
-            $oldIndicatorName = $indicator->indicator_name; // Capture old name for file renaming
+            $oldIndicatorNo   = $indicator->indicator_no;
+            $oldIndicatorName = $indicator->indicator_name;
             $oldIndicatorId   = $indicator->id;
         } else {
             $indicator = new Indicator();
@@ -131,7 +143,10 @@ class IndicatorForm extends Component
         $indicator->project_id                                                     = $this->project_id;
         $indicator->save();
 
-        // Handle physical file generation or renaming cross-platform
+        // Assign the new ID so handleIndicatorFileClass() knows which record to update/create
+        $this->indicatorId = $indicator->id;
+
+        // Handle physical file generation or renaming cross-platform with git & safety measures
         $this->handleIndicatorFileClass($this->indicator_no, $oldIndicatorNo);
 
         $currentDisaggregations  = $indicator->disaggregations()->pluck('name')->sort()->values()->toArray();
@@ -139,7 +154,7 @@ class IndicatorForm extends Component
 
         if ($currentDisaggregations !== $selectedDisaggregations) {
             $indicator->update([
-                'disagg_backup' => json_encode($currentDisaggregations),
+                'disagg_backup' => count($currentDisaggregations) > 0 ? json_encode($currentDisaggregations) : null,
             ]);
 
             $indicator->disaggregations()->delete();
@@ -155,8 +170,9 @@ class IndicatorForm extends Component
 
         $this->dispatch('hideModal', name: 'indicator-crud-modal');
         $this->dispatch('refresh')->to(\App\Livewire\Tables\IndicatorTable::class);
-        $this->alert('success', 'Successfully updated');
+        $this->alert('success', 'Successfully saved');
     }
+
     protected function handleIndicatorFileClass(string $newNo, ?string $oldNo = null): void
     {
         $directory = app_path('Helpers/rtc_market/indicators');
@@ -173,17 +189,14 @@ class IndicatorForm extends Component
         $oldClassName = 'indicator_' . $formattedOldNo;
         $newClassName = 'indicator_' . $formattedNewNo;
 
+        $oldFileName = $oldClassName . '.php';
         $newFileName = $newClassName . '.php';
-        $newFilePath = $directory . '/' . $newFileName;
 
-        // Repository-relative paths for reliable git execution
-        $relativeNewFile = 'app/Helpers/rtc_market/indicators/' . $newFileName;
+        $oldFilePath = $directory . '/' . $oldFileName;
+        $newFilePath = $directory . '/' . $newFileName;
 
         // If updating and the indicator number changed, rename file and update internal class name
         if ($formattedOldNo && $formattedOldNo !== $formattedNewNo) {
-            $oldFilePath     = $directory . '/' . $oldClassName . '.php';
-            $relativeOldFile = 'app/Helpers/rtc_market/indicators/' . $oldClassName . '.php';
-
             if (File::exists($oldFilePath)) {
                 // 1. Rename the physical file
                 File::move($oldFilePath, $newFilePath);
@@ -203,106 +216,19 @@ class IndicatorForm extends Component
 
         // If the file still doesn't exist (brand new or old file wasn't found), create from stub
         if (! File::exists($newFilePath)) {
-            $stub = "<?php\n\nnamespace App\Helpers\rtc_market\indicators;\n\nclass " . $newClassName . "\n{\n    // Automatically generated for indicator {$newNo}\n}\n";
+            $stub = "<?php\n\nnamespace App\\Helpers\\rtc_market\indicators;\n\nclass " . $newClassName . "\n{\n    // Automatically generated for indicator {$newNo}\n}\n";
             File::put($newFilePath, $stub);
-        }
-
-        // Automatically stage, commit, and push changes via Git
-        try {
-            $basePath = base_path();
-
-            // 1. Ensure local git user is configured for the web server process
-            \Illuminate\Support\Facades\Process::path($basePath)->run(['git', 'config', 'user.name', 'System Automation']);
-            \Illuminate\Support\Facades\Process::path($basePath)->run(['git', 'config', 'user.email', 'system@production.local']);
-
-            // 2. Stage the new or modified file using a relative path
-            $addResult = \Illuminate\Support\Facades\Process::path($basePath)->run(['git', 'add', $relativeNewFile]);
-            if (! $addResult->successful()) {
-                \Illuminate\Support\Facades\Log::error('Git add failed: ' . $addResult->errorOutput());
-            }
-
-            // 3. If an old file existed and was renamed, stage the old file removal/change too
-            if (isset($relativeOldFile) && File::exists($directory . '/' . $oldClassName . '.php')) {
-                \Illuminate\Support\Facades\Process::path($basePath)->run(['git', 'add', $relativeOldFile]);
-            }
-
-            // 4. Commit the changes
-            $commitResult = \Illuminate\Support\Facades\Process::path($basePath)->run([
-                'git', 'commit', '-m', "chore: update indicator class file for {$newNo}",
-            ]);
-
-            if (! $commitResult->successful()) {
-                \Illuminate\Support\Facades\Log::error('Git commit failed: ' . $commitResult->errorOutput());
-            } else {
-                // 5. Push changes to the remote repository safely using HEAD
-                $pushResult = \Illuminate\Support\Facades\Process::path($basePath)->run(['git', 'push', 'origin', 'HEAD']);
-                if (! $pushResult->successful()) {
-                    \Illuminate\Support\Facades\Log::error('Git push failed: ' . $pushResult->errorOutput());
-                }
-            }
-
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Git automation exception: ' . $e->getMessage());
         }
 
         $this->fileLocation = "App\\Helpers\\rtc_market\\indicators\\" . $newClassName;
 
-        Indicator::findOrFail($this->indicatorId)->class()->update([
-            'class' => $this->fileLocation,
-        ]);
+        // Use updateOrCreate so it inserts if it doesn't exist (new indicator) or updates if it does
+        Indicator::findOrFail($this->indicatorId)->class()->updateOrCreate(
+            [],
+            ['class' => $this->fileLocation]
+        );
+
     }
-    // protected function handleIndicatorFileClass(string $newNo, ?string $oldNo = null): void
-    // {
-    //     $directory = app_path('Helpers/rtc_market/indicators');
-
-    //     // Ensure directory exists cross-platform
-    //     if (! File::exists($directory)) {
-    //         File::makeDirectory($directory, 0755, true);
-    //     }
-
-    //     // Replace dots with underscores for valid PHP class and file names
-    //     $formattedNewNo = str_replace('.', '_', $newNo);
-    //     $formattedOldNo = $oldNo ? str_replace('.', '_', $oldNo) : null;
-
-    //     $oldClassName = 'indicator_' . $formattedOldNo;
-    //     $newClassName = 'indicator_' . $formattedNewNo;
-
-    //     $newFileName = $newClassName . '.php';
-    //     $newFilePath = $directory . '/' . $newFileName;
-
-    //     // If updating and the indicator number changed, rename file and update internal class name
-    //     if ($formattedOldNo && $formattedOldNo !== $formattedNewNo) {
-    //         $oldFilePath = $directory . '/' . $oldClassName . '.php';
-
-    //         if (File::exists($oldFilePath)) {
-    //             // 1. Rename the physical file
-    //             File::move($oldFilePath, $newFilePath);
-
-    //             // 2. Read the file contents and update the class definition name
-    //             $content        = File::get($newFilePath);
-    //             $updatedContent = str_replace(
-    //                 "class {$oldClassName}",
-    //                 "class {$newClassName}",
-    //                 $content
-    //             );
-
-    //             // 3. Write back the updated PHP content
-    //             File::put($newFilePath, $updatedContent);
-    //         }
-    //     }
-
-    //     // If the file still doesn't exist (brand new or old file wasn't found), create from stub
-    //     if (! File::exists($newFilePath)) {
-    //         $stub = "<?php\n\nnamespace App\Helpers\rtc_market\indicators;\n\nclass " . $newClassName . "\n{\n    // Automatically generated for indicator {$newNo}\n}\n";
-    //         File::put($newFilePath, $stub);
-    //     }
-
-    //     $this->fileLocation = "App\\Helpers\\rtc_market\\indicators\\" . $newClassName;
-
-    //     Indicator::findOrFail($this->indicatorId)->class()->update([
-    //         'class' => $this->fileLocation,
-    //     ]);
-    // }
 
     public function checkIfFileLocationExists(): bool
     {
@@ -314,9 +240,14 @@ class IndicatorForm extends Component
         $filePath             = app_path('Helpers/rtc_market/indicators/indicator_' . $formattedIndicatorNo . '.php');
 
         if (! File::exists($filePath)) {
-            $this->alert('warning', 'Physical class file for indicator ' . $this->indicator_no . ' was missing and has been recreated.');
+            $this->alert('warning', 'Physical class file for indicator ' . $this->indicator_no . ' was missing and has been recreated. Please make sure you commit the changes in your version control system.', [
+                'timer' => 5000,
+                'toast' => false,
+            ]);
             // Automatically regenerate if missing on check
             $this->handleIndicatorFileClass($this->indicator_no);
+            $this->fileLocation = "App\\Helpers\\rtc_market\\indicators\\indicator_" . $formattedIndicatorNo;
+            $this->file_exists  = $this->checkIfFileLocationExists();
             return false;
         }
 
@@ -331,12 +262,6 @@ class IndicatorForm extends Component
             'deleteConfirm' => 'required|in:DELETE',
         ]);
         $indicator = Indicator::findOrFail($indicatorId);
-
-        // Optional: Remove physical file on delete if desired
-        // $filePath = app_path('Helpers/rtc_market/indicators/indicator_' . $indicator->indicator_no . '.php');
-        // if (File::exists($filePath)) {
-        //     File::delete($filePath);
-        // }
 
         $indicator->delete();
 
