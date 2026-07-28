@@ -149,8 +149,8 @@ class IndicatorForm extends Component
         // Handle physical file generation or renaming cross-platform with git & safety measures
         $this->handleIndicatorFileClass($this->indicator_no, $oldIndicatorNo);
 
-        $currentDisaggregations  = $indicator->disaggregations()->pluck('name')->sort()->values()->toArray();
-        $selectedDisaggregations = collect($this->selectedDisaggregations)->sort()->values()->toArray();
+        $currentDisaggregations  = $indicator->disaggregations()->orderBy('id')->pluck('name')->toArray();
+        $selectedDisaggregations = $this->selectedDisaggregations;
 
         if ($currentDisaggregations !== $selectedDisaggregations) {
             $indicator->update([
