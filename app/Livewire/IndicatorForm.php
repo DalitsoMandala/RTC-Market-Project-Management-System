@@ -115,7 +115,7 @@ class IndicatorForm extends Component
                 Rule::unique('indicators', 'indicator_name')->ignore($this->indicatorId),
             ],
             'project_id'              => 'required|exists:projects,id',
-            'selectedDisaggregations' => 'array',
+            'selectedDisaggregations' => 'array|min:1',
         ];
     }
 

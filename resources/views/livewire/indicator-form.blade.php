@@ -49,68 +49,87 @@ $wire.on('hideModal', (e) => {
             </div>
 
 
-
-            <div class="mb-1" wire:ignore x-data="{ selectedOrder: [] }" x-init="const $el = $('#formDisaggregations');
+            <div class="mb-1" wire:ignore x-data="{
+                selectedOrder: @entangle('selectedDisaggregations'),
+                initSelect2() {
+                    const $el = $('#formDisaggregations');
             
-            $el.select2({
-                width: '100%',
-                theme: 'bootstrap-5',
-                containerCssClass: 'select2--small',
-                dropdownCssClass: 'select2--small',
-                tags: true,
-                tokenSeparators: [','],
-                createTag: function(params) {
-                    var term = $.trim(params.term);
-                    if (term === '') {
-                        return null;
+                    if ($el.hasClass('select2-hidden-accessible')) {
+                        $el.select2('destroy');
                     }
-                    return {
-                        id: term,
-                        text: term,
-                        newTag: true,
+            
+                    $el.select2({
+                        width: '100%',
+                        theme: 'bootstrap-5',
+                        containerCssClass: 'select2--small',
+                        dropdownCssClass: 'select2--small',
+                        tags: true,
+                        tokenSeparators: [','],
+                        createTag: function(params) {
+                            var term = $.trim(params.term);
+                            if (term === '') {
+                                return null;
+                            }
+                            return {
+                                id: term,
+                                text: term,
+                                newTag: true
+                            };
+                        }
+                    });
+            
+                    // Helper to sync values and DOM order into Select2
+                    const updateSelect2Values = (values) => {
+                        if (!values) return;
+            
+                        // Ensure custom tags or pre-filled options exist in the DOM
+                        values.forEach(id => {
+                            let $option = $el.find(`option[value='${id}']`);
+                            if (!$option.length) {
+                                $option = new Option(id, id, true, true);
+                                $el.append($option);
+                            } else {
+                                $option.detach().appendTo($el);
+                            }
+                        });
+            
+                        $el.val(values).trigger('change');
                     };
-                },
-            });
             
-            // 1. Force DOM order AND update array chronologically
-            $el.on('select2:select', function(e) {
-                const id = e.params.data.id;
-                const element = e.params.data.element;
+                    // Initial sync on load
+                    updateSelect2Values(this.selectedOrder);
             
-                // Physically move the option to the bottom of the DOM so Select2 renders it last
-                if (element) {
-                    var $element = $(element);
-                    $element.detach();
-                    $(this).append($element);
+                    // Watch for backend changes (e.g. when openModal sets data)
+                    this.$watch('selectedOrder', (newValue) => {
+                        if (newValue && JSON.stringify(newValue) !== JSON.stringify($el.val())) {
+                            updateSelect2Values(newValue);
+                        }
+                    });
+            
+                    // 1. Force DOM order AND update array chronologically on select
+                    $el.off('select2:select').on('select2:select', (e) => {
+                        const id = e.params.data.id;
+                        const element = e.params.data.element;
+            
+                        if (element) {
+                            var $element = $(element);
+                            $element.detach();
+                            $el.append($element);
+                        }
+            
+                        if (!this.selectedOrder.includes(id)) {
+                            this.selectedOrder.push(id);
+                        }
+                    });
+            
+                    // 2. Clean up array on unselect
+                    $el.off('select2:unselect').on('select2:unselect', (e) => {
+                        const id = e.params.data.id;
+                        this.selectedOrder = this.selectedOrder.filter(item => item !== id);
+                    });
                 }
-            
-                if (!selectedOrder.includes(id)) {
-                    selectedOrder.push(id);
-                }
-                $wire.selectedDisaggregations = selectedOrder;
-            });
-            
-            // 2. Clean up array on unselect
-            $el.on('select2:unselect', function(e) {
-                const id = e.params.data.id;
-                selectedOrder = selectedOrder.filter(item => item !== id);
-                $wire.selectedDisaggregations = selectedOrder;
-            });
-            
-            // 3. Handle pre-filled backend data events
-            $wire.on('select-partners', (e) => {
-                selectedOrder = e.data3 || [];
-            
-                // Sort the actual HTML elements to match the pre-filled order before rendering
-                selectedOrder.forEach(id => {
-                    const $option = $el.find(`option[value='${id}']`);
-                    if ($option.length) {
-                        $option.detach().appendTo($el);
-                    }
-                });
-            
-                $el.val(selectedOrder).trigger('change');
-            });">
+            }" x-init="initSelect2()">
+
                 <label class="form-label">Disaggregations</label>
                 <small class="mb-1 d-block text-muted">
                     Pick from the existing list, or type a new one and press enter to create it for this indicator.
@@ -121,10 +140,10 @@ $wire.on('hideModal', (e) => {
                     @endforeach
                 </select>
             </div>
+
             @error('selectedDisaggregations')
                 <x-error>{{ $message }}</x-error>
             @enderror
-
 
 
             <div>
