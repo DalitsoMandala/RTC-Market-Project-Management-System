@@ -50,7 +50,9 @@ $wire.on('hideModal', (e) => {
 
 
 
-            <div class="mb-1" wire:ignore x-init="$('#formDisaggregations').select2({
+            <div class="mb-1" wire:ignore x-data="{ selectedOrder: [] }" x-init="const $el = $('#formDisaggregations');
+            
+            $el.select2({
                 width: '100%',
                 theme: 'bootstrap-5',
                 containerCssClass: 'select2--small',
@@ -70,12 +72,44 @@ $wire.on('hideModal', (e) => {
                 },
             });
             
-            $('#formDisaggregations').on('change', function() {
-                $wire.selectedDisaggregations = $(this).val();
+            // 1. Force DOM order AND update array chronologically
+            $el.on('select2:select', function(e) {
+                const id = e.params.data.id;
+                const element = e.params.data.element;
+            
+                // Physically move the option to the bottom of the DOM so Select2 renders it last
+                if (element) {
+                    var $element = $(element);
+                    $element.detach();
+                    $(this).append($element);
+                }
+            
+                if (!selectedOrder.includes(id)) {
+                    selectedOrder.push(id);
+                }
+                $wire.selectedDisaggregations = selectedOrder;
             });
             
+            // 2. Clean up array on unselect
+            $el.on('select2:unselect', function(e) {
+                const id = e.params.data.id;
+                selectedOrder = selectedOrder.filter(item => item !== id);
+                $wire.selectedDisaggregations = selectedOrder;
+            });
+            
+            // 3. Handle pre-filled backend data events
             $wire.on('select-partners', (e) => {
-                $('#formDisaggregations').val(e.data3).trigger('change');
+                selectedOrder = e.data3 || [];
+            
+                // Sort the actual HTML elements to match the pre-filled order before rendering
+                selectedOrder.forEach(id => {
+                    const $option = $el.find(`option[value='${id}']`);
+                    if ($option.length) {
+                        $option.detach().appendTo($el);
+                    }
+                });
+            
+                $el.val(selectedOrder).trigger('change');
             });">
                 <label class="form-label">Disaggregations</label>
                 <small class="mb-1 d-block text-muted">
@@ -86,12 +120,13 @@ $wire.on('hideModal', (e) => {
                         <option value="{{ $disagg->name }}">{{ $disagg->name }}</option>
                     @endforeach
                 </select>
-
-
             </div>
             @error('selectedDisaggregations')
                 <x-error>{{ $message }}</x-error>
             @enderror
+
+
+
             <div>
 
                 <button type="button" wire:loading.attr="disabled"
