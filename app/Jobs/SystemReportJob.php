@@ -17,10 +17,6 @@ class SystemReportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
     use SystemReportsTrait;
 
-    public $timeout = 3600;
-    public $tries   = 3;
-    public $backoff = 0;
-
     public function handle(): void
     {
         $errorCount = $this->runSystemReports();

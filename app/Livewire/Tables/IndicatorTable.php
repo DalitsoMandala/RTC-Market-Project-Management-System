@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder as ModelBuilder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
@@ -160,6 +161,17 @@ final class IndicatorTable extends PowerGridComponent
                     return (implode(', ', $implode));
                 }
             })
+
+            ->add('is_active', function ($row) {
+                $checked = $row->is_active ? 'checked' : '';
+                return '
+                <div class="square-switch d-flex align-items-baseline">
+                    <input type="checkbox" id="square-switch-' . $row->id . '" switch="none" ' . $checked . ' wire:change="toggleIndicatorStatus(' . $row->id . ')">
+                    <label for="square-switch-' . $row->id . '" data-on-label="Yes" data-off-label="No"></label>
+                </div>
+            ';
+            })
+
             ->add('file_location', function ($model) {
                 $location = $model->file_location;
 
@@ -266,11 +278,25 @@ final class IndicatorTable extends PowerGridComponent
         // Only show actions to roles allowed to edit/delete
         if ($user->hasAnyRole('manager', 'admin')) {
             $columns[] = Column::action('Actions');
+            $columns[] = Column::make('Active', 'is_active')
+                ->sortable()
+                ->searchable();
+
         }
 
         return $columns;
     }
 
+    #[On('toggleIndicatorStatus')]
+    public function toggleIndicatorStatus($indicatorId): void
+    {
+        $indicator = Indicator::find($indicatorId);
+
+        if ($indicator) {
+            $indicator->is_active = ! $indicator->is_active;
+            $indicator->save();
+        }
+    }
     public function actions($row): array
     {
         return [
@@ -285,11 +311,7 @@ final class IndicatorTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-sm btn-danger')
                 ->dispatch('openDeleteIndicatorModal', ['indicatorId' => $row->id]),
-            // ->attributes(['onclick' => "return confirm('Delete this indicator?')"])
-            //->dispatch('deleteIndicator', ['indicatorId' => $row->id]),
-            // If your PowerGrid version doesn't support ->openModal() confirmation,
-            // dispatch straight to a JS confirm() instead, e.g.:
-            // ->dispatch('confirmDeleteIndicator', ['indicatorId' => $row->id])
+
         ];
     }
     public function actionRules($row): array
