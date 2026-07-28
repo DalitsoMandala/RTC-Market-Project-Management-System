@@ -49,87 +49,69 @@ $wire.on('hideModal', (e) => {
             </div>
 
 
-            <div class="mb-1" wire:ignore x-data="{
-                selectedOrder: @entangle('selectedDisaggregations'),
-                initSelect2() {
-                    const $el = $('#formDisaggregations');
+
+            <div class="mb-1" wire:ignore x-data="{ selectedOrder: [] }" x-init="const $el = $('#formDisaggregations');
             
-                    if ($el.hasClass('select2-hidden-accessible')) {
-                        $el.select2('destroy');
+            $el.select2({
+                width: '100%',
+                theme: 'bootstrap-5',
+                containerCssClass: 'select2--small',
+                dropdownCssClass: 'select2--small',
+                tags: true,
+                tokenSeparators: [','],
+                createTag: function(params) {
+                    var term = $.trim(params.term);
+                    if (term === '') return null;
+                    return { id: term, text: term, newTag: true };
+                },
+            });
+            
+            // Helper: reorder the <option> elements in the DOM to match a given order.
+            // Select2 renders chips in DOM order, so this is what actually controls
+            // what the user sees AND what gets read back into selectedOrder later.
+            function reorderOptions(order) {
+                order.forEach(function(id) {
+                    let option = $el.find('option').filter(function() {
+                        return $(this).val() === id;
+                    });
+            
+                    if (option.length === 0) {
+                        // Value doesn't exist yet as an <option> (e.g. a tag pushed
+                        // from the backend that isn't in $disaggregationOptions) — create it.
+                        option = $(new Option(id, id, false, false));
+                        $el.append(option);
                     }
             
-                    $el.select2({
-                        width: '100%',
-                        theme: 'bootstrap-5',
-                        containerCssClass: 'select2--small',
-                        dropdownCssClass: 'select2--small',
-                        tags: true,
-                        tokenSeparators: [','],
-                        createTag: function(params) {
-                            var term = $.trim(params.term);
-                            if (term === '') {
-                                return null;
-                            }
-                            return {
-                                id: term,
-                                text: term,
-                                newTag: true
-                            };
-                        }
-                    });
+                    // Moving it re-appends (not duplicates) — pushes it to the end,
+                    // so options end up in exactly the order of `order`.
+                    $el.append(option);
+                });
+            }
             
-                    // Helper to sync values and DOM order into Select2
-                    const updateSelect2Values = (values) => {
-                        if (!values) return;
-            
-                        // Ensure custom tags or pre-filled options exist in the DOM
-                        values.forEach(id => {
-                            let $option = $el.find(`option[value='${id}']`);
-                            if (!$option.length) {
-                                $option = new Option(id, id, true, true);
-                                $el.append($option);
-                            } else {
-                                $option.detach().appendTo($el);
-                            }
-                        });
-            
-                        $el.val(values).trigger('change');
-                    };
-            
-                    // Initial sync on load
-                    updateSelect2Values(this.selectedOrder);
-            
-                    // Watch for backend changes (e.g. when openModal sets data)
-                    this.$watch('selectedOrder', (newValue) => {
-                        if (newValue && JSON.stringify(newValue) !== JSON.stringify($el.val())) {
-                            updateSelect2Values(newValue);
-                        }
-                    });
-            
-                    // 1. Force DOM order AND update array chronologically on select
-                    $el.off('select2:select').on('select2:select', (e) => {
-                        const id = e.params.data.id;
-                        const element = e.params.data.element;
-            
-                        if (element) {
-                            var $element = $(element);
-                            $element.detach();
-                            $el.append($element);
-                        }
-            
-                        if (!this.selectedOrder.includes(id)) {
-                            this.selectedOrder.push(id);
-                        }
-                    });
-            
-                    // 2. Clean up array on unselect
-                    $el.off('select2:unselect').on('select2:unselect', (e) => {
-                        const id = e.params.data.id;
-                        this.selectedOrder = this.selectedOrder.filter(item => item !== id);
-                    });
+            // 1. Capture selection chronologically, reorder DOM to match, sync to Livewire
+            $el.on('select2:select', function(e) {
+                const id = e.params.data.id;
+                if (!selectedOrder.includes(id)) {
+                    selectedOrder.push(id);
                 }
-            }" x-init="initSelect2()">
-
+                reorderOptions(selectedOrder);
+                $el.trigger('change.select2'); // re-render chips without re-firing select2:select
+                $wire.selectedDisaggregations = selectedOrder;
+            });
+            
+            // 2. Remove items seamlessly on unselect
+            $el.on('select2:unselect', function(e) {
+                const id = e.params.data.id;
+                selectedOrder = selectedOrder.filter(item => item !== id);
+                $wire.selectedDisaggregations = selectedOrder;
+            });
+            
+            // 3. Keep backend data events working correctly, in the given order
+            $wire.on('select-partners', (e) => {
+                selectedOrder = e.data3 || [];
+                reorderOptions(selectedOrder);
+                $el.val(selectedOrder).trigger('change');
+            });">
                 <label class="form-label">Disaggregations</label>
                 <small class="mb-1 d-block text-muted">
                     Pick from the existing list, or type a new one and press enter to create it for this indicator.
@@ -140,7 +122,6 @@ $wire.on('hideModal', (e) => {
                     @endforeach
                 </select>
             </div>
-
             @error('selectedDisaggregations')
                 <x-error>{{ $message }}</x-error>
             @enderror
