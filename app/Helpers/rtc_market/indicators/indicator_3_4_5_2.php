@@ -5,12 +5,12 @@ namespace App\Helpers\rtc_market\indicators;
 use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
-use App\Models\RtcProductionProcessor;
 use App\Models\SubmissionReport;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class indicator_4_1_5
+class indicator_3_4_5_2
 {
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
@@ -29,7 +29,11 @@ class indicator_4_1_5
     // public function builder(): Builder
     // {
 
-    //     $query = RtcProductionProcessor::query()->where('status', 'approved')->where('is_registered', true);
+    //     $query = RtcProductionFarmer::query()->where('status', 'approved')
+    //         ->where('approach', 'Collective marketing only')
+    //         ->where('type', 'Producer organization (PO)');
+
+
 
     //     // Check if both reporting period and financial year are set
     //     if ($this->reporting_period || $this->financial_year) {
@@ -53,59 +57,35 @@ class indicator_4_1_5
     //     if ($this->organisation_id) {
     //         $query->where('organisation_id', $this->organisation_id);
     //     }
-    //     // if ($this->organisation_id && $this->target_year_id) {
-    //     //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-    //     //     $query = $data;
-
-    //     // } else
-    //     //     if ($this->organisation_id && $this->target_year_id == null) {
-    //     //         $data = $query->where('organisation_id', $this->organisation_id);
-    //     //         $query = $data;
-
-    //     //     }
 
 
 
 
     //     return $query;
     // }
-
     // public function getTotals()
     // {
 
-    //     $builder = $this->builder()->get();
-
-    //     $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->where('indicator_no', '4.1.2')->first();
-    //     $disaggregations = $indicator->disaggregations;
-    //     $data = collect([]);
-    //     $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-    //         $data->put($item, 0);
-    //     });
+    //     $totalPotato = $this->builder()->where('enterprise', 'Potato')->count();
+    //     $totalCassava = $this->builder()->where('enterprise', 'Cassava')->count();
+    //     $totalSweetPotato = $this->builder()->where('enterprise', 'Sweet potato')->count();
 
 
-
-
-    //     $this->builder()->chunk(1000, function ($models) use (&$data) {
-    //         $models->each(function ($model) use (&$data) {
-    //             // Decode the JSON data from the model
-    //             $json = collect(json_decode($model->data, true));
-
-    //             // Add the values for each key to the totals
-    //             foreach ($data as $key => $dt) {
-    //                 if ($json->has($key)) {
-    //                     $data->put($key, $data->get($key) + $json[$key]);
-    //                 }
-    //             }
-    //         });
-    //     });
-
-    //     return $data;
+    //     return [
+    //         'Potato' => $totalPotato,
+    //         'Cassava' => $totalCassava,
+    //         'Sweet potato' => $totalSweetPotato,
+    //     ];
+    // }
+    // public function getMarketSegment()
+    // {
+    //     return $this->builder()->selectRaw('SUM(IF(market_segment_fresh = 1, 1, 0)) as Fresh, SUM(IF(market_segment_processed = 1, 1, 0)) as Processed')->first()->toArray();
     // }
 
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->first();
+        $indicator = Indicator::where('indicator_name', 'Volume (MT) of RTC products sold through collective marketing efforts by POs')->where('indicator_no', '3.4.5')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -132,7 +112,7 @@ class indicator_4_1_5
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->where('indicator_no', '4.1.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Volume (MT) of RTC products sold through collective marketing efforts by POs')->where('indicator_no', '3.4.5')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -168,29 +148,15 @@ class indicator_4_1_5
     }
     public function getDisaggregations()
     {
+        $total = $this->getTotals()['Cassava'] + $this->getTotals()['Potato'] + $this->getTotals()['Sweet potato'];
 
-        // $cassava = $this->builder()->where('enterprise', 'Cassava')->count();
-        // $sweet_potato = $this->builder()->where('enterprise', 'Sweet potato')->count();
-        // $potato = $this->builder()->where('enterprise', 'Potato')->count();
-        // $Smes = $this->builder()->where('type', 'Small medium enterprise (SME)')->count();
-        // $large_scale_commercial_farms = $this->builder()->where('type', 'Large scale Processor')->count();
-        // $po = $this->builder()->where('type', 'Producer organization (PO)')->count();
-
-        $cassava = $this->getTotals()['Cassava'];
-        $sweet_potato = $this->getTotals()['Sweet potato'];
-        $potato = $this->getTotals()['Potato'];
-        $Smes = $this->getTotals()['SMEs'];
-        $large_scale_commercial_farms = $this->getTotals()['Large scale commercial farms'];
-        $po = $this->getTotals()['POs'];
-        $total = $cassava + $potato + $sweet_potato;
         return [
             'Total' => $total,
-            'Cassava' => $cassava,
-            'Potato' => $potato,
-            'Sweet potato' => $sweet_potato,
-            'SMEs' => $Smes,
-            'Large scale commercial farms' => $large_scale_commercial_farms,
-            'POs' => $po
+            'Cassava' => $this->getTotals()['Cassava'],
+            'Potato' => $this->getTotals()['Potato'],
+            'Sweet potato' => $this->getTotals()['Sweet potato'],
+            'Fresh' => $this->getTotals()['Fresh'] ?? 0,
+            'Processed' => $this->getTotals()['Processed'] ?? 0,
         ];
     }
 }

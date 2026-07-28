@@ -6,10 +6,11 @@ use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Models\RtcProductionFarmer;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class indicator_3_5_1
+class indicator_3_4_4_2
 {
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
@@ -25,10 +26,46 @@ class indicator_3_5_1
         $this->organisation_id = $organisation_id;
         $this->enterprise = $enterprise;
     }
+    // public function builder(): Builder
+    // {
+
+    //     $query = RtcProductionFarmer::query()->where('status', 'approved')->where('type', 'Producer organization (PO)');
+
+
+
+    //     // Check if both reporting period and financial year are set
+    //     if ($this->reporting_period || $this->financial_year) {
+    //         // Apply filter for reporting period if it's set
+    //         if ($this->reporting_period) {
+    //             $query->where('period_month_id', $this->reporting_period);
+    //         }
+
+    //         // Apply filter for financial year if it's set
+    //         if ($this->financial_year) {
+    //             $query->where('financial_year_id', $this->financial_year);
+    //         }
+
+    //         // If no data is found, return an empty result
+    //         if (!$query->exists()) {
+    //             $query->whereIn('id', []); // Empty result filter
+    //         }
+    //     }
+
+    //     // Filter by organization if set
+    //     if ($this->organisation_id) {
+    //         $query->where('organisation_id', $this->organisation_id);
+    //     }
+
+
+
+
+    //     return $query;
+    // }
+
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -55,7 +92,7 @@ class indicator_3_5_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->where('indicator_no', '3.5.1')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of RTC POs selling products through aggregation centers')->where('indicator_no', '3.4.4')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -89,12 +126,17 @@ class indicator_3_5_1
 
         return $data;
     }
+
     public function getDisaggregations()
     {
-        $totals = $this->getTotals()->toArray();
+
+        $total = $this->getTotals()['Cassava'] + $this->getTotals()['Potato'] + $this->getTotals()['Sweet potato'];
 
         return [
-            'Total' => $totals['Total']
+            'Total' => $total,
+            'Cassava' => $this->getTotals()['Cassava'],
+            'Potato' => $this->getTotals()['Potato'],
+            'Sweet potato' => $this->getTotals()['Sweet potato'],
         ];
     }
 }

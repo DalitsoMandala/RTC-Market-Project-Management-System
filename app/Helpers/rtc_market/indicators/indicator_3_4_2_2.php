@@ -5,12 +5,12 @@ namespace App\Helpers\rtc_market\indicators;
 use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
-use App\Models\RtcProductionProcessor;
+use App\Models\RtcProductionFarmer;
 use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class indicator_4_1_5
+class indicator_3_4_2_2
 {
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
@@ -29,7 +29,9 @@ class indicator_4_1_5
     // public function builder(): Builder
     // {
 
-    //     $query = RtcProductionProcessor::query()->where('status', 'approved')->where('is_registered', true);
+    //     $query = RtcProductionFarmer::query()->where('status', 'approved')->where('type', 'Producer organization (PO)');
+
+
 
     //     // Check if both reporting period and financial year are set
     //     if ($this->reporting_period || $this->financial_year) {
@@ -53,59 +55,16 @@ class indicator_4_1_5
     //     if ($this->organisation_id) {
     //         $query->where('organisation_id', $this->organisation_id);
     //     }
-    //     // if ($this->organisation_id && $this->target_year_id) {
-    //     //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-    //     //     $query = $data;
-
-    //     // } else
-    //     //     if ($this->organisation_id && $this->target_year_id == null) {
-    //     //         $data = $query->where('organisation_id', $this->organisation_id);
-    //     //         $query = $data;
-
-    //     //     }
 
 
 
 
     //     return $query;
     // }
-
-    // public function getTotals()
-    // {
-
-    //     $builder = $this->builder()->get();
-
-    //     $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->where('indicator_no', '4.1.2')->first();
-    //     $disaggregations = $indicator->disaggregations;
-    //     $data = collect([]);
-    //     $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-    //         $data->put($item, 0);
-    //     });
-
-
-
-
-    //     $this->builder()->chunk(1000, function ($models) use (&$data) {
-    //         $models->each(function ($model) use (&$data) {
-    //             // Decode the JSON data from the model
-    //             $json = collect(json_decode($model->data, true));
-
-    //             // Add the values for each key to the totals
-    //             foreach ($data as $key => $dt) {
-    //                 if ($json->has($key)) {
-    //                     $data->put($key, $data->get($key) + $json[$key]);
-    //                 }
-    //             }
-    //         });
-    //     });
-
-    //     return $data;
-    // }
-
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of POs that have formal contracts with buyers')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -126,13 +85,18 @@ class indicator_4_1_5
 
         return $this->applyFilters($query, true);
     }
+    public function getMarketSegment()
+    {
+        return $this->builder()->selectRaw('SUM(IF(market_segment_fresh = 1, 1, 0)) as Fresh, SUM(IF(market_segment_processed = 1, 1, 0)) as Processed')->first()->toArray();
+    }
+
 
     public function getTotals()
     {
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors with MBS certification for producing (or processing) RTC products')->where('indicator_no', '4.1.2')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of POs that have formal contracts with buyers')->where('indicator_no', '3.4.2')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -169,28 +133,10 @@ class indicator_4_1_5
     public function getDisaggregations()
     {
 
-        // $cassava = $this->builder()->where('enterprise', 'Cassava')->count();
-        // $sweet_potato = $this->builder()->where('enterprise', 'Sweet potato')->count();
-        // $potato = $this->builder()->where('enterprise', 'Potato')->count();
-        // $Smes = $this->builder()->where('type', 'Small medium enterprise (SME)')->count();
-        // $large_scale_commercial_farms = $this->builder()->where('type', 'Large scale Processor')->count();
-        // $po = $this->builder()->where('type', 'Producer organization (PO)')->count();
-
-        $cassava = $this->getTotals()['Cassava'];
-        $sweet_potato = $this->getTotals()['Sweet potato'];
-        $potato = $this->getTotals()['Potato'];
-        $Smes = $this->getTotals()['SMEs'];
-        $large_scale_commercial_farms = $this->getTotals()['Large scale commercial farms'];
-        $po = $this->getTotals()['POs'];
-        $total = $cassava + $potato + $sweet_potato;
         return [
-            'Total' => $total,
-            'Cassava' => $cassava,
-            'Potato' => $potato,
-            'Sweet potato' => $sweet_potato,
-            'SMEs' => $Smes,
-            'Large scale commercial farms' => $large_scale_commercial_farms,
-            'POs' => $po
+            'Total' => $this->getTotals()['Fresh'] + $this->getTotals()['Processed'],
+            'Fresh' => $this->getTotals()['Fresh'] ?? 0,
+            'Processed' => $this->getTotals()['Processed'] ?? 0,
         ];
     }
 }

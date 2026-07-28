@@ -2,23 +2,15 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Models\HouseholdRtcConsumption;
+use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
-use App\Models\SchoolRtcConsumption;
 use App\Models\SubmissionReport;
-use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class indicator_3_5_4
+class indicator_4_1_4_2
 {
-    protected $disaggregations = [];
-    protected $start_date;
-    protected $end_date;
-
-
-
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
@@ -36,11 +28,9 @@ class indicator_3_5_4
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC utilization options (dishes) adopted by households (OC)')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of new RTC recipes/products adopted and branded by processors')->where('indicator_no', '4.1.4')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
-
 
 
         // if ($this->organisation_id && $this->target_year_id) {
@@ -55,6 +45,8 @@ class indicator_3_5_4
         //     }
 
 
+
+
         return $this->applyFilters($query, true);
     }
 
@@ -63,15 +55,12 @@ class indicator_3_5_4
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC utilization options (dishes) adopted by households (OC)')
-            ->first();
-
+        $indicator = Indicator::where('indicator_name', 'Number of new RTC recipes/products adopted and branded by processors')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
 
 
 

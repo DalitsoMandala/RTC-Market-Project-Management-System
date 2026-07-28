@@ -2,15 +2,23 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
+
+use App\Models\HouseholdRtcConsumption;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
 
 class indicator_3_4_3
 {
+    protected $disaggregations = [];
+    protected $start_date;
+    protected $end_date;
+
+
+
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
@@ -28,26 +36,15 @@ class indicator_3_4_3
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC aggregation centers established')->where('indicator_no', '3.4.3')->first();
+
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in households consuming RTCs as the main foodstuff (OC)')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
 
 
-
-
-        return $this->applyFilters($query, true);
+        return $this->applyFilters($query,true);
     }
 
     public function getTotals()
@@ -55,7 +52,7 @@ class indicator_3_4_3
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC aggregation centers established')->first();
+        $indicator = Indicator::where('indicator_name', 'Percentage increase in households consuming RTCs as the main foodstuff (OC)')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -92,9 +89,10 @@ class indicator_3_4_3
     public function getDisaggregations()
     {
         $totals = $this->getTotals()->toArray();
-
         return [
-            'Total' => $totals['Total']
+            'Total (% Percentage)' => 0,
+            'Total' => $totals['Total'] ?? 0
+
         ];
     }
 }

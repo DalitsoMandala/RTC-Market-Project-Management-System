@@ -3,20 +3,14 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Traits\FilterableQuery;
-
-use App\Models\Indicator;
-use App\Models\SubmissionReport;
+use App\Models\AttendanceRegister;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class indicator_3_3_2
 {
     use FilterableQuery;
-    protected $financial_year, $reporting_period, $project;
-    protected $organisation_id;
 
-
-    protected $enterprise;
+    protected $financial_year, $reporting_period, $organisation_id, $enterprise;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
@@ -25,77 +19,68 @@ class indicator_3_3_2
         $this->organisation_id = $organisation_id;
         $this->enterprise = $enterprise;
     }
+
     public function builder(): Builder
     {
+        $query = AttendanceRegister::query()
+            ->where('status', 'approved')
+            ->where('meetingCategory', 'Training')
+            ->whereIn('category', ['Farmer', 'Processor', 'Trader', 'Partner', 'Staff', 'Aggregator', 'Transporter'])
+            ->select([
+                'id', // Assuming 'id' is the unique person identifier
+                'category',
+                'rtcCrop_cassava',
+                'rtcCrop_potato',
+                'rtcCrop_sweet_potato'
+            ]);
 
-        $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->where('indicator_no', '3.3.2')->first();
-
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-
-
-        return $this->applyFilters($query, true);
+        return $this->applyAttendanceFilters($query);
     }
 
-    public function getTotals()
+    public function getDisaggregations(): array
     {
+        $records = $this->builder()->get();
 
-        $builder = $this->builder()->get();
+        // 1. Calculate Crop Counts (Unique people per crop)
+        // If a person is in both Cassava and Potato, they count +1 for each.
+        $cassava = $records->where('rtcCrop_cassava', true)->unique('id')->count();
+        $potato = $records->where('rtcCrop_potato', true)->unique('id')->count();
+        $sweetPotato = $records->where('rtcCrop_sweet_potato', true)->unique('id')->count();
 
-        $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->first();
-        $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
-        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-            $data->put($item, 0);
-        });
+        // 2. Define the Grand Total as the sum of crops
+        $grandTotal = $cassava + $potato + $sweetPotato;
+
+        // 3. Category Counts
+        // To make categories sum up to the Grand Total, we must check each category
+        // against EACH crop flag.
+        $categories = ['Farmer', 'Processor', 'Trader', 'Partner', 'Staff', 'Aggregator', 'Transporter'];
+        $categoryCounts = [];
+
+        foreach ($categories as $cat) {
+            $countForCat = 0;
+
+            // Count unique individuals for this category in each crop segment
+            $countForCat += $records->where('category', $cat)->where('rtcCrop_cassava', true)->unique('id')->count();
+            $countForCat += $records->where('category', $cat)->where('rtcCrop_potato', true)->unique('id')->count();
+            $countForCat += $records->where('category', $cat)->where('rtcCrop_sweet_potato', true)->unique('id')->count();
 
 
+         $categoryCounts[$cat] = $countForCat;
+        }
 
+       return[
+        'Total' => $grandTotal,
+        'Cassava' => $cassava,
+        'Potato' => $potato,
+        'Sweet potato' => $sweetPotato,
+        'Farmers' => $categoryCounts['Farmer'],
+        'Processors' => $categoryCounts['Processor'],
+        'Traders' => $categoryCounts['Trader'],
+        'Partners' => $categoryCounts['Partner'],
+        'Staff' => $categoryCounts['Staff'],
+        'Aggregators' => $categoryCounts['Aggregator'],
+        'Transporters' => $categoryCounts['Transporter'],
 
-        $this->builder()->chunk(1000, function ($models) use (&$data) {
-            $models->each(function ($model) use (&$data) {
-                // Decode the JSON data from the model
-                $json = collect(json_decode($model->data, true));
-
-                // Add the values for each key to the totals
-                foreach ($data as $key => $dt) {
-                    // Always process non-enterprise keys
-                    $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
-
-                    // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
-                        if ($json->has($key)) {
-                            $data->put($key, $data->get($key) + $json[$key]);
-                        }
-                    }
-                }
-            });
-        });
-
-        return $data;
-    }
-    public function getDisaggregations()
-    {
-
-        $totals = $this->getTotals()->toArray();
-
-        // Subtotal based on Cassava, Potato, and Sweet potato
-        $subTotal = $totals['Cassava'] + $totals['Sweet potato'] + $totals['Potato'];
-        $totals['Total'] = $subTotal;
-        return $totals;
+       ];
     }
 }

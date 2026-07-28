@@ -28,7 +28,7 @@ class indicator_3_4_1
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -55,7 +55,7 @@ class indicator_3_4_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC actors supported to access funds from financial service providers')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->where('indicator_no', '3.5.1')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -91,13 +91,10 @@ class indicator_3_4_1
     }
     public function getDisaggregations()
     {
-
         $totals = $this->getTotals()->toArray();
 
-        // Subtotal based on Cassava, Potato, and Sweet potato
-        $subTotal = $totals['Farmers'] + $totals['Processors'] + $totals['Large scale processors'] + $totals['SME'];
-
-        $totals['Total'] = $subTotal;
-        return $totals;
+        return [
+            'Total' => $totals['Total']
+        ];
     }
 }

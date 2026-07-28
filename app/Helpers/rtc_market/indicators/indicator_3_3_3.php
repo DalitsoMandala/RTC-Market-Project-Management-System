@@ -2,27 +2,15 @@
 
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Helpers\IncreasePercentage;
-
-use App\Models\HouseholdRtcConsumption;
-use App\Models\Indicator;
-use App\Models\SchoolRtcConsumption;
-use App\Models\SubmissionReport;
 use App\Traits\FilterableQuery;
+
+use App\Models\Indicator;
+use App\Models\SubmissionReport;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log as Logger;
-use Illuminate\Support\Facades\Log;
 
 
-class indicator_3_4_2
+class indicator_3_3_3
 {
-    protected $disaggregations = [];
-    protected $start_date;
-    protected $end_date;
-
-
-
     use FilterableQuery;
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
@@ -37,17 +25,28 @@ class indicator_3_4_2
         $this->organisation_id = $organisation_id;
         $this->enterprise = $enterprise;
     }
-
     public function builder(): Builder
     {
 
-
-        $indicator = Indicator::where('indicator_name', 'Frequency of RTC consumption by households per week (OC)')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->where('indicator_no', '3.3.2')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
 
-        return $this->applyFilters($query,true);
+        // if ($this->organisation_id && $this->target_year_id) {
+        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
+        //     $query = $data;
+
+        // } else
+        //     if ($this->organisation_id && $this->target_year_id == null) {
+        //         $data = $query->where('organisation_id', $this->organisation_id);
+        //         $query = $data;
+
+        //     }
+
+
+
+        return $this->applyFilters($query, true);
     }
 
     public function getTotals()
@@ -55,7 +54,7 @@ class indicator_3_4_2
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Frequency of RTC consumption by households per week (OC)')->first();
+        $indicator = Indicator::where('indicator_name', 'Number of contractual arrangements facilitated for commercial farmers')->first();
         $disaggregations = $indicator->disaggregations;
         $data = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
@@ -89,13 +88,14 @@ class indicator_3_4_2
 
         return $data;
     }
-
-
     public function getDisaggregations()
     {
-       $totals = $this->getTotals()->toArray();
-        return [
-            'Total' => $totals['Total'],
-        ];
+
+        $totals = $this->getTotals()->toArray();
+
+        // Subtotal based on Cassava, Potato, and Sweet potato
+        $subTotal = $totals['Cassava'] + $totals['Sweet potato'] + $totals['Potato'];
+        $totals['Total'] = $subTotal;
+        return $totals;
     }
 }
