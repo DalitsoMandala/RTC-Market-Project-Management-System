@@ -68,12 +68,17 @@
     }
 
     @media (max-width: 991.98px) {
+
         .dropdown-submenu>.dropdown-menu {
+            display: none;
             position: static;
-            left: 0;
             margin-left: 1rem;
             border: none;
             box-shadow: none;
+        }
+
+        .dropdown-submenu.show>.dropdown-menu {
+            display: block;
         }
     }
 </style>
@@ -183,6 +188,8 @@
                                         <li><a class="dropdown-item"
                                                 href="{{ route('admin-enterprise-management') }}">Enterprise
                                                 Management</a></li>
+                                        <li><a class="dropdown-item"
+                                                href="{{ route('admin-aggregated-reports') }}">Aggregated Reports</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown-submenu">
@@ -568,16 +575,46 @@
 </header>
 
 <script>
-    // Keep nested (multi-level) Bootstrap dropdowns open when a submenu toggle is clicked
-    document.addEventListener('click', function(e) {
-        var submenuToggle = e.target.closest('.dropdown-submenu > .dropdown-toggle');
-        if (submenuToggle) {
-            e.preventDefault();
-            e.stopPropagation();
-            var parentLi = submenuToggle.parentElement;
-            parentLi.classList.toggle('show');
-            var menu = parentLi.querySelector(':scope > .dropdown-menu');
-            if (menu) menu.classList.toggle('show');
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+
+        document.querySelectorAll('.dropdown-submenu > .dropdown-toggle')
+            .forEach(function(toggle) {
+
+                toggle.addEventListener('click', function(e) {
+
+                    if (window.innerWidth >= 992) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const submenu = this.nextElementSibling;
+
+                    // Close sibling submenus only
+                    const parentMenu = this.closest('.dropdown-menu');
+                    parentMenu.querySelectorAll(':scope > .dropdown-submenu > .dropdown-menu.show')
+                        .forEach(function(openMenu) {
+                            if (openMenu !== submenu) {
+                                openMenu.classList.remove('show');
+                                openMenu.parentElement.classList.remove('show');
+                            }
+                        });
+
+                    submenu.classList.toggle('show');
+                    this.parentElement.classList.toggle('show');
+                });
+
+            });
+
+        // Prevent Bootstrap from closing while navigating submenus
+        document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
+            menu.addEventListener('click', function(e) {
+                if (window.innerWidth < 992) {
+                    e.stopPropagation();
+                }
+            });
+        });
+
     });
 </script>

@@ -1,20 +1,16 @@
 <?php
-
 namespace App\Livewire\Internal\Cip;
 
 use App\Models\Form;
-use App\Models\Project;
-use Livewire\Component;
 use App\Models\Indicator;
-use Livewire\Attributes\On;
-use App\Models\Organisation;
 use App\Models\IndicatorForm;
-use Livewire\Attributes\Lazy;
+use App\Models\Organisation;
+use App\Models\Project;
 use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Log;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-
+use Livewire\Attributes\Validate;
+use Livewire\Component;
 
 class Indicators extends Component
 {
@@ -49,14 +45,14 @@ class Indicators extends Component
     public function setData($id)
     {
         $this->resetErrorBag();
-        $indicator = Indicator::find($id);
-        $this->rowId = $id;
-        $this->indicator = $indicator->indicator_name;
-        $this->selectedProject = $indicator->project->id;
-        $resp = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
+        $indicator                 = Indicator::find($id);
+        $this->rowId               = $id;
+        $this->indicator           = $indicator->indicator_name;
+        $this->selectedProject     = $indicator->project->id;
+        $resp                      = $indicator->responsiblePeopleforIndicators->pluck('organisation_id');
         $this->selectedLeadPartner = $resp->toArray();
-        $forms = $indicator->forms->pluck('id');
-        $this->selectedSource = $forms->toArray();
+        $forms                     = $indicator->forms->pluck('id');
+        $this->selectedSource      = $forms->toArray();
 
         $this->dispatch('select-partners', data: $this->selectedLeadPartner, data2: $this->selectedSource);
     }
@@ -72,7 +68,7 @@ class Indicators extends Component
             foreach ($this->selectedLeadPartner as $partner) {
                 ResponsiblePerson::create([
                     'organisation_id' => $partner,
-                    'indicator_id' => $id,
+                    'indicator_id'    => $id,
                 ]);
             }
 
@@ -81,7 +77,7 @@ class Indicators extends Component
 
             foreach ($this->selectedSource as $form) {
                 IndicatorForm::create([
-                    'form_id' => $form,
+                    'form_id'      => $form,
                     'indicator_id' => $id,
                 ]);
             }
@@ -98,14 +94,15 @@ class Indicators extends Component
         $this->reset();
     }
 
-    public function saveDisaggregations() {}
+    public function saveDisaggregations()
+    {}
     public function mount()
     {
 
-        $this->projects = Project::get();
+        $this->projects     = Project::get();
         $this->leadPartners = Organisation::get();
-        $this->sources = Form::get();
-        $this->indicators = Indicator::get();
+        $this->sources      = Form::get();
+        $this->indicators   = Indicator::get();
     }
 
     public function updatedSelectedIndicator(Indicator $value)
@@ -114,6 +111,9 @@ class Indicators extends Component
     }
     public function render()
     {
-        return view('livewire.internal.cip.indicators');
+        return view('livewire.internal.cip.indicators', [
+            'is_active'   => Indicator::where('is_active', true)->count(),
+            'is_inactive' => Indicator::where('is_active', false)->count(),
+        ]);
     }
 }

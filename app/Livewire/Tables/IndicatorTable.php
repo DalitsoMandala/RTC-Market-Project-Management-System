@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as ModelBuilder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -26,38 +25,41 @@ final class IndicatorTable extends PowerGridComponent
     use WithExport;
     public $userId;
     public $count = 1;
+
     public function setUp(): array
     {
-        //   $this->showCheckBox();
-
         return [
-            // Exportable::make('export')
-            //     ->striped()
-            //     ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
             Header::make()->showSearchInput(),
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
         ];
     }
-
     public function datasource(): ?ModelBuilder
     {
         $user = User::find($this->userId);
-        if ($user->hasAnyRole('manager') || $user->hasAnyRole('monitor') || $user->hasAnyRole('admin') || $user->hasAnyRole('project_manager') || $user->hasAnyRole('staff')) {
+
+        if ($user->hasAnyRole(['manager', 'monitor', 'admin', 'project_manager', 'staff'])) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
                 'responsiblePeopleforIndicators.organisation',
-                'forms', 'class',
-            ])->join('indicator_classes', 'indicator_classes.indicator_id', '=', 'indicators.id')->select([
-                'indicators.*',
-                'indicator_classes.class as file_location',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-            ]);
+                'forms',
+                'class',
+            ])->leftJoin('indicator_classes', 'indicator_classes.indicator_id', '=', 'indicators.id')
+                ->select([
+                    'indicators.*',
+                    'indicator_classes.class as file_location',
+                    DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
+                ])
+            // 1st: Active items (1) first, Inactive items (0) at the end
+                ->orderBy('indicators.is_active', 'desc')
+            // 2nd: Letters first, then numbers
+                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+            // 3rd: Indicator number sorting
+                ->orderBy('indicators.indicator_no', 'asc');
+
         } else {
-            //responsiblePeopleforIndicators are organisations reponsible for these indicators
-            $user            = User::find($this->userId);
             $organisation_id = $user->organisation->id;
 
             $data = Indicator::query()->with([
@@ -68,158 +70,89 @@ final class IndicatorTable extends PowerGridComponent
             ])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
             });
+
             return $data->select([
                 'indicators.*',
-
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-            ]);
-            // return Indicator::query()->with(['project', 'responsiblePeopleforIndicators']);
-
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
+            ])
+            // 1st: Active items (1) first, Inactive items (0) at the end
+                ->orderBy('indicators.is_active', 'desc')
+            // 2nd: Letters first, then numbers
+                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+            // 3rd: Indicator number sorting
+                ->orderBy('indicators.indicator_no', 'asc');
         }
     }
 
     public function relationSearch(): array
     {
         return [
-            'project'                                     => [ // relationship on dishes model
-                'name',                                            // column enabled to search
-
-            ],
-            'disaggregations'                             => [ // relationship on dishes model
-                'name',                                            // column enabled to search
-
-            ],
-
-            'responsiblePeopleforIndicators.organisation' => [ // relationship on dishes model
-                'name',                                            // column enabled to search
-
-            ],
-            'forms'                                       => [ // relationship on dishes model
-                'name',                                            // column enabled to search
-
-            ],
-
+            'project'                                     => ['name'],
+            'disaggregations'                             => ['name'],
+            'responsiblePeopleforIndicators.organisation' => ['name'],
+            'forms'                                       => ['name'],
         ];
     }
+
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
             ->add('id', fn($model) => $this->count++)
             ->add('rn')
             ->add('indicator_no')
-            ->add('indicator_no_bold', function ($model) {
-
-                return '<b>' . $model->indicator_no . '</b>';
-            })
+            ->add('indicator_no_bold', fn($model) => '<b>' . $model->indicator_no . '</b>')
             ->add('indicator_name')
             ->add('name_link', function ($model) {
                 $user = User::find($this->userId);
                 if ($user->hasAnyRole('manager')) {
-
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('cip-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('admin')) {
-
                     return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('admin-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('project_manager')) {
-                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('project_manager-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('staff')) {
-                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('cip-staff-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else if ($user->hasAnyRole('monitor')) {
-                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator"  href="' . route('monitor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline text-body custom-tooltip" title="View Indicator" href="' . route('monitor-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 } else {
-                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator"  href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
+                    return '<a class="text-decoration-underline custom-tooltip" title="View Indicator" href="' . route('external-indicator-view', $model->id) . '" >' . $model->indicator_name . '</a>';
                 }
             })
             ->add('project_id')
-            ->add('project_name', fn($model) => $model->project->name)
-            ->add('cgiar_project', function ($model) {
-                return Cgiar_Project::find($model->project_id)->name ?? null;
-            })
-
+            ->add('project_name', fn($model) => $model->project->name ?? '')
+            ->add('cgiar_project', fn($model) => Cgiar_Project::find($model->project_id)->name ?? null)
             ->add('lead_partner', function ($model) {
-
                 $orgIds = $model->responsiblePeopleforIndicators->pluck('organisation_id');
-
-                $orgs     = Organisation::whereIn('id', $orgIds)->get();
-                $orgNames = $orgs->pluck('name')->toArray();
-                $orgNames = implode(', ', $orgNames);
-                return $orgNames;
+                $orgs   = Organisation::whereIn('id', $orgIds)->get();
+                return implode(', ', $orgs->pluck('name')->toArray());
             })
-
             ->add('sources', function ($model) {
                 $forms = $model->forms->pluck('name')->toArray();
-
-                $formNames = ucfirst(strtolower(implode(', ', $forms)));
-                return $formNames;
+                return ucfirst(strtolower(implode(', ', $forms)));
             })
-
             ->add('disaggregations', function ($model) {
                 $disaggregations = $model->disaggregations;
-
                 if ($disaggregations) {
-                    $implode = $disaggregations->pluck('name')->toArray();
-                    return (implode(', ', $implode));
+                    return implode(', ', $disaggregations->pluck('name')->toArray());
                 }
             })
-
             ->add('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';
                 return '
-                <div class="square-switch d-flex align-items-baseline">
+                <div class="square-switch d-flex align-items-stretch">
                     <input type="checkbox" id="square-switch-' . $row->id . '" switch="none" ' . $checked . ' wire:change="toggleIndicatorStatus(' . $row->id . ')">
-                    <label for="square-switch-' . $row->id . '" data-on-label="Yes" data-off-label="No"></label>
+                    <label class="mb-0" for="square-switch-' . $row->id . '" data-on-label="Yes" data-off-label="No"></label>
                 </div>
             ';
             })
-
-            ->add('file_location', function ($model) {
-                $location = $model->file_location;
-
-                return $model->file_location;
-            })
+            ->add('file_location', fn($model) => $model->file_location)
             ->add('created_at')
             ->add('updated_at');
-    }
-
-    public function ensureRtcMarketPathExists(string $location, ?string $fileName = null, string $defaultContent = ''): string
-    {
-        // 1. Convert backslashes to standard forward slashes
-        $cleanPath = str_replace('\\', '/', $location);
-
-        // 2. Remove leading 'App/' or 'app/' if passed as a namespace
-        $relativePath = preg_replace('#^app/#i', '', $cleanPath);
-
-        // 3. Break path into segments for Laravel's app_path()
-        $segments = explode('/', $relativePath);
-
-        // 4. Resolve absolute OS-safe directory path
-        $directoryPath = app_path(...$segments);
-
-        // 5. Create directory recursively if it doesn't exist
-        if (! File::exists($directoryPath)) {
-            File::makeDirectory($directoryPath, 0755, true);
-        }
-
-        // 6. Return directory path if no file name was requested
-        if (! $fileName) {
-            return $directoryPath;
-        }
-
-        // 7. Resolve absolute OS-safe file path
-        $filePath = app_path(...array_merge($segments, [$fileName]));
-
-        // 8. Create file if it doesn't exist
-        if (! File::exists($filePath)) {
-            File::put($filePath, $defaultContent);
-        }
-
-        return $filePath;
     }
 
     public function filters(): array
     {
         return [
-
             Filter::select('name_link', 'id')
                 ->dataSource(fn() => Indicator::select(['indicator_no', 'indicator_name', 'id'])->distinct()->get()->map(function ($indicator) {
                     return [
@@ -230,9 +163,7 @@ final class IndicatorTable extends PowerGridComponent
                     ];
                 }))
                 ->optionLabel('label')
-                ->optionValue('id')
-
-            ,
+                ->optionValue('id'),
         ];
     }
 
@@ -242,25 +173,15 @@ final class IndicatorTable extends PowerGridComponent
         $this->refresh();
     }
 
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('<i class="bx bx-pen"></i> Edit')
-    //             ->id()
-    //             ->class('btn btn-warning')
-    //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-indicator-modal']),
-    //     ];
-    // }
     public function columns(): array
     {
         $columns = [
-            Column::make('#', 'rn')->sortable(),
-            Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')->searchable(),
+
+            Column::make('Indicator #', 'indicator_no_bold', 'indicator_no')->sortable()->searchable(),
             Column::make('Indicator', 'name_link', 'indicator_name')
                 ->bodyAttribute(styleAttr: "white-space:wrap")
                 ->headerAttribute(styleAttr: "min-width:350px;")
-                ->sortable()
+
                 ->searchable(),
 
             Column::make('Disaggregations', 'disaggregations')
@@ -271,17 +192,11 @@ final class IndicatorTable extends PowerGridComponent
 
         $user = User::find(auth()->user()->id);
 
-        if ($user->hasAnyRole('manager')) {
-            $columns[] = Column::make('Sources', 'sources');
-        }
-
-        // Only show actions to roles allowed to edit/delete
-        if ($user->hasAnyRole('manager', 'admin')) {
+        if ($user->hasAnyRole('admin')) {
             $columns[] = Column::action('Actions');
             $columns[] = Column::make('Active', 'is_active')
                 ->sortable()
                 ->searchable();
-
         }
 
         return $columns;
@@ -297,6 +212,7 @@ final class IndicatorTable extends PowerGridComponent
             $indicator->save();
         }
     }
+
     public function actions($row): array
     {
         return [
@@ -311,19 +227,16 @@ final class IndicatorTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-sm btn-danger')
                 ->dispatch('openDeleteIndicatorModal', ['indicatorId' => $row->id]),
-
         ];
     }
+
     public function actionRules($row): array
     {
         return [
-
             Rule::button('edit')
                 ->when(function ($row) {
                     $user = User::find(auth()->user()->id);
-
                     if ($user->hasAnyRole('external')) {
-
                         return true;
                     } else {
                         return false;
@@ -334,7 +247,6 @@ final class IndicatorTable extends PowerGridComponent
             Rule::button('delete')
                 ->when(fn($row) => true)
                 ->disable(),
-
         ];
     }
 }

@@ -53,8 +53,15 @@ class AggExportSheet implements FromCollection, WithHeadings, WithTitle, WithEve
             $data                     = [];
             $indiccatorDisaggregation = IndicatorDisaggregation::with(['indicator'])
                 ->join('indicators', 'indicator_disaggregations.indicator_id', '=', 'indicators.id')
+                ->where('indicators.is_active', 1)
                 ->select('indicator_disaggregations.*', 'indicators.indicator_no', 'indicators.indicator_name')
-                ->orderBy('indicators.id')->get();
+                ->orderBy('indicators.is_active', 'desc')
+            // 2nd: Letters first, then numbers
+                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+            // 3rd: Indicator number sorting
+                ->orderBy('indicators.indicator_no', 'asc')
+                ->get();
+
             $submissionTargetsDisaggregations = SubmissionTarget::all();
             $financialYears                   = FinancialYear::with('project')->whereHas('project', fn($q) => $q->where('name', self::PROJECT))->get();
             $reportingPeriodMonths            = ReportingPeriodMonth::with('project')

@@ -46,7 +46,13 @@
                                 <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
                                     data-bs-target="#home" type="button" role="tab" aria-controls="home"
                                     aria-selected="true" wire:ignore.self>
+
+
                                     Indicators List
+                                    <span class="badge bg-success-subtle text-success ms-1 me-1 ">{{ 'Active: ' }}
+                                        <b>{{ $is_active }}</b></span>
+                                    <span class="badge bg-danger-subtle text-danger ms-1 me-1 ">{{ 'Inactive: ' }}
+                                        <b>{{ $is_inactive }}</b></span>
                                 </button>
                             </li>
                             @hasanyrole('admin|manager')

@@ -13,7 +13,7 @@ trait SharedReportsHelperTrait
     protected int $errorCount             = 0;
     protected ?int $lastPersistedProgress = null;
 
-    const IGNORED_YEARS = []; // Populate with your ignored year numbers which should be skipped during report generation and should match the values in the aggregateYears array. For example, if you want to ignore years 2020 and 2021, set this to [2020, 2021].
+    const IGNORED_YEARS = [1, 2, 3]; // Populate with your ignored year numbers which should be skipped during report generation and should match the values in the aggregateYears array. For example, if you want to ignore years 2020 and 2021, set this to [2020, 2021].
     const PROJECT_NAME  = 'RTC MARKET';
 
     protected function syncDisaggregations($report, array $disaggregations)
