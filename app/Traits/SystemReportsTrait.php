@@ -47,7 +47,8 @@ trait SystemReportsTrait
     }
     public function runSystemReports(): int
     {
-        $indicatorClasses = IndicatorClass::get();
+        $indicatorClasses = IndicatorClass::with('indicator')->whereHas('indicator', fn($q) => $q->where('is_active', true))->get();
+
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
             : ReportingPeriodMonth::where('type', '!=', 'UNSPECIFIED')->pluck('id')->toArray();
@@ -173,7 +174,9 @@ trait SystemReportsTrait
                                                 'crop'                => $crop,
                                                 'indicator_id'        => $indicatorClass->indicator_id,
                                                 'class'               => $indicatorClass->class,
+                                                'stack'               => $e->getTraceAsString(),
                                             ]);
+
                                         }
                                         // Always update progress
                                         $this->updateProgress(capMin: 0, capMax: 50);

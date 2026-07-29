@@ -1,14 +1,11 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
-
-use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
-use App\Helpers\IncreasePercentage;
-use Illuminate\Support\Facades\Log;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class indicator_2_3_1_2
 {
@@ -21,9 +18,9 @@ class indicator_2_3_1_2
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
@@ -31,9 +28,6 @@ class indicator_2_3_1_2
         $indicator = Indicator::where('indicator_name', 'Number of business plans for the production of different classes of RTC seeds that are executed')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
-
-
 
         return $this->applyFilters($query, true);
     }
@@ -46,13 +40,10 @@ class indicator_2_3_1_2
         $indicator = Indicator::where('indicator_name', 'Number of business plans for the production of different classes of RTC seeds that are executed')->first();
 
         $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
+        $data            = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
-
-
 
         $this->builder()->chunk(1000, function ($models) use (&$data) {
             $models->each(function ($model) use (&$data) {
@@ -63,11 +54,11 @@ class indicator_2_3_1_2
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -82,8 +73,10 @@ class indicator_2_3_1_2
     public function findIndicator()
     {
         $indicator = Indicator::where('indicator_name', 'Number of business plans for the production of different classes of RTC seeds that are executed')->where('indicator_no', '2.3.1')->first();
-        if (!$indicator) {
-            Log::error('Indicator not found');
+        if (! $indicator) {
+            Log::error('Indicator not found', [
+
+            ]);
             return null; // Or throw an exception if needed
         }
 
@@ -94,20 +87,19 @@ class indicator_2_3_1_2
         // Get the totals from getTotals() method
         $totals = $this->getTotals()->toArray();
 
-
         // Return the disaggregated data
         return [
-            'Total' => 0,
-            'POs' => $totals['POs'],
-            'SMEs' => $totals['SMEs'],
+            'Total'                          => 0,
+            'POs'                            => $totals['POs'],
+            'SMEs'                           => $totals['SMEs'],
             'Large scale commercial farmers' => $totals['Large scale commercial farmers'],
-            'Cassava' => $totals['Cassava'],
-            'Potato' => $totals['Potato'],
-            'Sweet potato' => $totals['Sweet potato'],
-            'Basic' => $totals['Basic'],
-            'Certified' => $totals['Certified'],
-            'Business plans executed' => $totals['Business plans executed'],
-            'Business plans submitted' => $totals['Business plans submitted'],
+            'Cassava'                        => $totals['Cassava'],
+            'Potato'                         => $totals['Potato'],
+            'Sweet potato'                   => $totals['Sweet potato'],
+            'Basic'                          => $totals['Basic'],
+            'Certified'                      => $totals['Certified'],
+            'Business plans executed'        => $totals['Business plans executed'],
+            'Business plans submitted'       => $totals['Business plans submitted'],
         ];
     }
 }

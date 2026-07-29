@@ -76,14 +76,6 @@
                                 </span>
                             </button>
                         </li>
-
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="additional-report-tab" data-bs-toggle="tab"
-                                data-bs-target="#additional-report" type="button" role="tab"
-                                aria-controls="additional-report">
-                                Additional Report Submission
-                            </button>
-                        </li>
                     @endhasanyrole
 
                     <li class="nav-item" role="presentation">
@@ -132,26 +124,7 @@
                         <livewire:tables.job-progress-table :userId="auth()->user()->id" />
                     </div>
 
-                    <div class="tab-pane fade" id="additional-report" role="tabpanel"
-                        aria-labelledby="additional-report-tab" wire:ignore x-data="{ show: false }">
 
-                        <div class="gap-2 mb-3 d-flex">
-                            <button class="btn btn-warning" :disabled="show" @click="show=true">
-                                Import Report
-                            </button>
-
-                            <button class="btn btn-secondary" x-show="show" @click="show=false">
-                                Close
-                            </button>
-                        </div>
-
-                        <div x-show="show" class="mb-3">
-                            <livewire:imports.import-data />
-                            <hr>
-                        </div>
-
-                        <livewire:tables.additional-report-table />
-                    </div>
 
                 </div>
 
@@ -167,12 +140,12 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('hideModal', (e) => {
             const modals = document.querySelectorAll('.modal.show');
-        
+
             // Iterate over each modal and hide it using Bootstrap's modal hide method
             modals.forEach(modal => {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -181,7 +154,7 @@
                 }
             });
         })
-        
+
         $wire.on('showAggregate', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -189,10 +162,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('showDataAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -200,10 +173,10 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-        
-        
+
+
             }),
-        
+
             $wire.on('deleteAggregate', (e) => {
                 setTimeout(() => {
                     $wire.dispatch('set', { id: e.id });
@@ -211,14 +184,14 @@
                     const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                     myModal.show();
                 }, 500);
-        
-        
+
+
             })
-        
-        
-        
+
+
+
         $wire.on('showMarket', (e) => {
-        
+
             console.log(e);
             setTimeout(() => {
                 $wire.dispatch('setMarket', { id: e.id });
@@ -226,8 +199,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
         $wire.on('deleteBatch', (e) => {
             setTimeout(() => {
@@ -236,11 +209,11 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
-        
+
+
         $wire.on('deleteMarketBatch', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -248,10 +221,10 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })
-        
+
         $wire.on('deleteProgress', (e) => {
             setTimeout(() => {
                 $wire.dispatch('set', { id: e.id });
@@ -259,8 +232,8 @@
                 const myModal = new bootstrap.Modal(document.getElementById(e.name), {})
                 myModal.show();
             }, 500);
-        
-        
+
+
         })">
 
 
@@ -281,17 +254,17 @@
                         isManager: $wire.entangle('isManager'),
                         disableInputs: false,
                         init() {
-                    
-                    
+
+
                             if (this.isManager) {
                                 this.disableInputs = false;
                             } else {
                                 this.disableInputs = true;
-                    
+
                             }
-                    
+
                         }
-                    
+
                     }">
 
 
@@ -359,9 +332,9 @@
 
                 <div x-data="{
                     data: $wire.entangle('inputs'),
-                
-                
-                
+
+
+
                 }">
 
 

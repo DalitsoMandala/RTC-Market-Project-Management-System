@@ -25,7 +25,7 @@ class indicator_B2
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->first();
+        $indicator = Indicator::where('indicator_no', 'B2')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -79,8 +79,10 @@ class indicator_B2
 
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in value of formal RTC exports')->first();
-        return $indicator ?? Logger::error('Indicator not found');
+        $indicator = Indicator::where('indicator_no', 'B2')->first();
+        return $indicator ?? Logger::error('Indicator not found', [
+            'indicator_no' => 'B2',
+        ]);
     }
     public function getDisaggregations()
     {
@@ -90,15 +92,18 @@ class indicator_B2
         $indicator = $this->findIndicator();
 
         return [
-            'Total'           => 0,
-            'Income($)'       => 0,
-            'Farmers'         => 0,
-            'Processors'      => 0,
-            'Traders'         => 0,
-            'Rolled Baseline' => 0,
-            'Cassava'         => 0,
-            'Potato'          => 0,
-            'Sweet potato'    => 0,
+            'Total'               => 0,
+            'Income ($)'          => 0,
+            'Farmers'             => 0,
+            'Processors'          => 0,
+            'Traders'             => 0,
+            'Rolled Baseline'     => 0,
+            'Baseline Farmers'    => 0,
+            'Baseline Processors' => 0,
+            'Baseline Traders'    => 0,
+            'Cassava'             => 0,
+            'Potato'              => 0,
+            'Sweet potato'        => 0,
         ];
     }
 }

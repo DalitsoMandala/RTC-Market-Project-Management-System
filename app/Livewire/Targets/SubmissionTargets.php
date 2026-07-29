@@ -1,26 +1,20 @@
 <?php
-
 namespace App\Livewire\Targets;
 
-use Throwable;
-use Carbon\Carbon;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
-use App\Models\Organisation;
 use App\Models\FinancialYear;
-use App\Models\SubmissionTarget;
-use Livewire\Attributes\Validate;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
 use App\Models\OrganisationTarget;
+use App\Models\SubmissionTarget;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ProgresSummaryExport;
 use Illuminate\Support\Facades\Route;
-use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Exports\AttendanceImport\AttendanceRegistersExport;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Throwable;
 
 class SubmissionTargets extends Component
 {
@@ -29,49 +23,43 @@ class SubmissionTargets extends Component
     public $indicators;
     public $selectedIndicator;
     public $disaggregations = [];
-    public $financialYears = [];
+    public $financialYears  = [];
     public $selectedDisaggregation;
     public $selectedFinancialYear;
-    public $targets = [];
-    public $organisations = [];
-    public $organisationTargets = [];
+    public $targets                  = [];
+    public $organisations            = [];
+    public $organisationTargets      = [];
     public $organisationTargetsModel = [];
-    public $editingTargets = false;
+    public $editingTargets           = false;
     public $rowId;
     public $selectedSubmissionTarget;
 
-
     protected $rules = [
-        'targets.*' => 'required',
-        'targets.*.name' => 'required|string|distinct',
-        'targets.*.value' => 'required|numeric|min:0',
-        'selectedIndicator' => 'required',
+        'targets.*'             => 'required',
+        'targets.*.name'        => 'required|string|distinct',
+        'targets.*.value'       => 'required|numeric|min:0',
+        'selectedIndicator'     => 'required',
         'selectedFinancialYear' => 'required',
-
-
 
     ];
 
-
     protected $messages = [
-        'targets.*.name.required' => 'Target name required',
-        'targets.*.value.required' => 'Target value required',
-        'targets.*.value.numeric' => 'Target value must be numeric',
-        'targets.*.name.distinct' => 'Target name must be unique',
-        'targets.*.value.min' => 'Target value must be at least 0',
-        'selectedIndicator.required' => 'Indicator required',
-        'selectedFinancialYear.required' => 'Project Year required'
-
-
+        'targets.*.name.required'        => 'Target name required',
+        'targets.*.value.required'       => 'Target value required',
+        'targets.*.value.numeric'        => 'Target value must be numeric',
+        'targets.*.name.distinct'        => 'Target name must be unique',
+        'targets.*.value.min'            => 'Target value must be at least 0',
+        'selectedIndicator.required'     => 'Indicator required',
+        'selectedFinancialYear.required' => 'Project Year required',
 
     ];
     public function addTarget()
     {
 
         $this->targets[] = [
-            'name' => null,
-            'value' => null,
-            'restricted' => false
+            'name'       => null,
+            'value'      => null,
+            'restricted' => false,
         ];
     }
     /**
@@ -88,7 +76,7 @@ class SubmissionTargets extends Component
         $this->selectedSubmissionTarget = $value['id'];
 
         $financialYear = $value['financial_year']['id'];
-        $indicator = $value['indicator']['id'];
+        $indicator     = $value['indicator']['id'];
         $organisations = Indicator::find($indicator)?->organisation;
 
         $targetsData = [];
@@ -96,22 +84,22 @@ class SubmissionTargets extends Component
         foreach ($organisations as $organisation) {
             // Default values
             $targetValue = 0;
-            $database = false;
+            $database    = false;
 
             // Check if we have matching organisation targets
             foreach ($organisationTargets as $organisationTarget) {
                 if ($organisationTarget->organisation_id == $organisation->id) {
                     $targetValue = $organisationTarget->value; // or whatever field contains the value
-                    $database = true;
+                    $database    = true;
                     break; // No need to check further if we found a match
                 }
             }
 
             $targetsData[] = [
-                'name' => $organisation->name,
-                'id' => $organisation->id,
-                'value' => $targetValue,
-                'database' => $database
+                'name'     => $organisation->name,
+                'id'       => $organisation->id,
+                'value'    => $targetValue,
+                'database' => $database,
             ];
         }
 
@@ -127,8 +115,6 @@ class SubmissionTargets extends Component
         unset($this->targets[$index]);
         $this->targets = array_values($this->targets); // Reindex the array
 
-
-
     }
 
     public function saveTargets()
@@ -136,22 +122,20 @@ class SubmissionTargets extends Component
         try {
 
             $this->validate([
-                'organisationTargets.*.value' => 'required|numeric|min:0'
+                'organisationTargets.*.value' => 'required|numeric|min:0',
             ], [
-                'organisationTargets.*.value.numeric' => 'Target value must be numeric',
-                'organisationTargets.*.value.min' => 'Target value must be at least 0',
-                'organisationTargets.*.value.required' => 'Target value required'
-
+                'organisationTargets.*.value.numeric'  => 'Target value must be numeric',
+                'organisationTargets.*.value.min'      => 'Target value must be at least 0',
+                'organisationTargets.*.value.required' => 'Target value required',
 
             ]);
         } catch (Throwable $e) {
             $this->dispatch('show-alert', data: [
-                'type' => 'error', // success, error, info, warning
-                'message' => 'There are errors in the form.'
+                'type'    => 'error', // success, error, info, warning
+                'message' => 'There are errors in the form.',
             ]);
             throw $e;
         }
-
 
         try {
             DB::beginTransaction();
@@ -163,34 +147,33 @@ class SubmissionTargets extends Component
 
                 if ($organisationTarget) {
                     $organisationTarget->update([
-                        'value' => $target['value']
+                        'value' => $target['value'],
                     ]);
                 } else {
                     OrganisationTarget::create([
                         'submission_target_id' => $this->selectedSubmissionTarget,
-                        'organisation_id' => $target['id'],
-                        'value' => $target['value']
+                        'organisation_id'      => $target['id'],
+                        'value'                => $target['value'],
                     ]);
                 }
             }
 
             DB::commit();
             $this->dispatch('show-alert', data: [
-                'type' => 'success', // success, error, info, warning
-                'message' => 'Targets saved successfully.'
+                'type'    => 'success', // success, error, info, warning
+                'message' => 'Targets saved successfully.',
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('show-alert', data: [
-                'type' => 'error', // success, error, info, warning
-                'message' => 'There was an error saving the targets.'
+                'type'    => 'error', // success, error, info, warning
+                'message' => 'There was an error saving the targets.',
             ]);
         }
     }
 
     public function save()
     {
-
 
         try {
             $this->validate();
@@ -199,42 +182,33 @@ class SubmissionTargets extends Component
             throw $e;
         }
 
-
-
         try {
-
-            $submissionTargets = SubmissionTarget::where('financial_year_id', $this->selectedFinancialYear)
-                ->where('indicator_id', $this->selectedIndicator)
-                ->get();
 
             foreach ($this->targets as $target) {
 
-                if ($target['restricted']) {
-                    $submissionTarget = SubmissionTarget::where('financial_year_id', $this->selectedFinancialYear)
-                        ->where('indicator_id', $this->selectedIndicator)
-                        ->where('target_name', $target['name'])
-                        ->first();
+                $submissionTarget = SubmissionTarget::where('financial_year_id', $this->selectedFinancialYear)
+                    ->where('indicator_id', $this->selectedIndicator)
+                    ->where('target_name', $target['name'])
+                    ->first();
 
-                    if ($submissionTarget) {
-                        $submissionTarget->update([
-                            'target_value' => $target['value']
-                        ]);
-                    }
+                if ($submissionTarget) {
+                    $submissionTarget->update([
+                        'target_value' => $target['value'],
+                    ]);
                 } else {
-                    SubmissionTarget::create([
+                    $submissionTarget = SubmissionTarget::create([
                         'financial_year_id' => $this->selectedFinancialYear,
-                        'indicator_id' => $this->selectedIndicator,
-                        'target_name' => $target['name'],
-                        'target_value' => $target['value']
+                        'indicator_id'      => $this->selectedIndicator,
+                        'target_name'       => $target['name'],
+                        'target_value'      => $target['value'],
                     ]);
                 }
 
             }
 
             $this->targets = [];
-               $this->dispatch('update-targets');
+            $this->dispatch('update-targets');
             session()->flash('success', 'Targets saved successfully');
-
 
             $this->dispatch('refresh');
         } catch (\Throwable $e) {
@@ -244,13 +218,19 @@ class SubmissionTargets extends Component
         }
     }
 
+    public function correctDissagregations()
+    {
+        SubmissionTarget::with('indicator')->where('target_name', 'Total (% Percentage)')->update(['target_name' => 'Total']);
+        session()->flash('success', 'Dissagregations corrected successfully.');
+    }
+
     public function load()
     {
         $this->reset();
-        $this->routePrefix = Route::current()->getPrefix();
-        $this->indicators = Indicator::with('disaggregations')->get();
+        $this->routePrefix     = Route::current()->getPrefix();
+        $this->indicators      = Indicator::with('disaggregations')->where('is_active', true)->get();
         $this->disaggregations = IndicatorDisaggregation::get();
-        $this->financialYears = FinancialYear::get();
+        $this->financialYears  = FinancialYear::get();
     }
 
     public function mount()
@@ -258,10 +238,8 @@ class SubmissionTargets extends Component
         $this->load();
     }
 
-
-
-
-    public function updatedSelectedIndicator($value) {}
+    public function updatedSelectedIndicator($value)
+    {}
 
     #[On('update-targets')]
 
@@ -269,31 +247,30 @@ class SubmissionTargets extends Component
     {
         if ($this->selectedIndicator && $this->selectedFinancialYear) {
 
-            $this->disaggregations =  $this->indicators->where('id', $this->selectedIndicator)->first()->disaggregations->flatten();
+            $this->disaggregations = $this->indicators->where('id', $this->selectedIndicator)->first()->disaggregations->flatten();
             // dd($this->disaggregations);
             $this->organisations = Indicator::find($this->selectedIndicator)->organisation ?? collect([]);
-            $submissionTargets = SubmissionTarget::with('organisationTargets')->where('indicator_id', $this->selectedIndicator)
+            $submissionTargets   = SubmissionTarget::with('organisationTargets')->where('indicator_id', $this->selectedIndicator)
                 ->where('financial_year_id', $this->selectedFinancialYear)
                 ->get();
-
 
             if ($submissionTargets->count() > 0) {
                 $this->targets = [];
                 foreach ($submissionTargets as $target) {
                     $this->targets[] = [
-                        'name' => $target->target_name,
+                        'name'  => $target->target_name,
                         'value' => $target->target_value,
-                        'restricted' => true
+
                     ];
                 }
                 $this->editingTargets = true;
             } else {
                 $this->targets = [
                     [
-                        'name' => null,
+                        'name'  => null,
                         'value' => null,
-                        'restricted' => false
-                    ]
+
+                    ],
                 ];
                 $this->editingTargets = false;
             }
@@ -310,7 +287,7 @@ class SubmissionTargets extends Component
             ->first();
 
         if ($submissionTarget) {
-            $organisationTargets = $submissionTarget->organisationTargets;
+            $organisationTargets        = $submissionTarget->organisationTargets;
             $getOrganisationTargetValue = $organisationTargets->where('organisation_id', $items['organisationTarget']['organisation_id'])->first();
             return $getOrganisationTargetValue->value ?? 0;
         }
@@ -320,6 +297,7 @@ class SubmissionTargets extends Component
 
     public function render()
     {
+
         return view('livewire.targets.submission-targets');
     }
 }

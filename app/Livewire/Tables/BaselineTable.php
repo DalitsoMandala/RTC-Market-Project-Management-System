@@ -1,28 +1,20 @@
 <?php
-
 namespace App\Livewire\tables;
 
-use App\Models\User;
-use Nette\Utils\Html;
 use App\Models\Baseline;
-use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use App\Models\BaselineDataMultiple;
-
-use Illuminate\Support\Facades\Blade;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class BaselineTable extends PowerGridComponent
 {
@@ -52,7 +44,9 @@ final class BaselineTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Baseline::query()->with('indicator');
+        return Baseline::query()->with('indicator')->whereHas('indicator', function ($query) {
+            $query->where('is_active', 1);
+        });
     }
 
     public function fields(): PowerGridFields
@@ -70,7 +64,7 @@ final class BaselineTable extends PowerGridComponent
             ->add('baseline_value', function ($model) {
                 if ($model->baseline_is_multiple) {
                     $multipleValues = $model->baselineMultiple; // Assuming this returns a collection of multiple values.
-                    $forms = '';
+                    $forms          = '';
 
                     foreach ($multipleValues as $value) {
 
@@ -193,33 +187,26 @@ final class BaselineTable extends PowerGridComponent
             });
     }
 
-
     #[On('submit-form')]
     public function save($value, $id, $type)
     {
 
-
         if ($type == 'multiple') {
 
             BaselineDataMultiple::find($id)->update([
-                'baseline_value' => $value
+                'baseline_value' => $value,
             ]);
 
-
             $this->dispatch('refresh');
-
 
             return;
         }
         Baseline::find($id)->update([
-            'baseline_value' => $value
+            'baseline_value' => $value,
         ]);
-
-
 
         $this->dispatch('refresh');
     }
-
 
     public function columns(): array
     {
@@ -230,7 +217,7 @@ final class BaselineTable extends PowerGridComponent
             Column::make('Indicator', 'indicator_name')
                 ->searchable(),
             Column::make('Baseline value', 'baseline_value'),
-            Column::action('')
+            Column::action(''),
         ];
     }
 
@@ -239,7 +226,7 @@ final class BaselineTable extends PowerGridComponent
         return [
             'indicator' => [
                 'indicator_name',
-                'indicator_no'
+                'indicator_no',
             ],
         ];
     }
@@ -255,19 +242,16 @@ final class BaselineTable extends PowerGridComponent
         $this->refresh();
     }
 
-
-
-    public function actions($row): array{
+    public function actions($row): array
+    {
         return [
             Button::add('edit')
-            ->slot('<i class="bx bx-pen"></i>')
-            ->id()
-            ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
-            ->tooltip('Edit Record')
-            ->class('btn btn-warning goUp btn-sm custom-tooltip')
-            ->dispatch('editData', ['indicator_id' => $row->indicator_id, 'name' => 'view-baseline-modal']),
-
-
+                ->slot('<i class="bx bx-pen"></i>')
+                ->id()
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
+                ->tooltip('Edit Record')
+                ->class('btn btn-warning goUp btn-sm custom-tooltip')
+                ->dispatch('editData', ['indicator_id' => $row->indicator_id, 'name' => 'view-baseline-modal']),
 
         ];
     }

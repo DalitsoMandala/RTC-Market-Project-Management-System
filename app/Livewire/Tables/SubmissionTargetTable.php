@@ -1,28 +1,23 @@
 <?php
-
 namespace App\Livewire\tables;
 
-use App\Models\User;
-use Faker\Core\File;
-use App\Models\Indicator;
-use Livewire\Attributes\On;
 use App\Models\FinancialYear;
-use Illuminate\Support\Carbon;
-use App\Models\SubmissionTarget;
-use Illuminate\Support\Facades\DB;
+use App\Models\Indicator;
 use App\Models\IndicatorDisaggregation;
+use App\Models\SubmissionTarget;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Database\Seeders\DisaggregationSeeder;
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class SubmissionTargetTable extends PowerGridComponent
 {
@@ -31,7 +26,7 @@ final class SubmissionTargetTable extends PowerGridComponent
     public string $sortField = 'updated_at';
 
     public string $sortDirection = 'desc';
- public bool $multiSort = true;
+    public bool $multiSort       = true;
     public function setUp(): array
     {
         //$this->showCheckBox();
@@ -47,18 +42,25 @@ final class SubmissionTargetTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+//
+
         return SubmissionTarget::query()->with([
             'financialYear',
             'indicator',
-            'organisationTargets'
+            'organisationTargets',
         ])->join('financial_years', function ($join) {
             $join->on('submission_targets.financial_year_id', '=', 'financial_years.id');
-        })->select([
-            'submission_targets.*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-            'financial_years.number as year',
+        })
+            ->whereHas('indicator', function ($query) {
+                $query->where('indicators.is_active', 1);
+            })
+            ->select([
+                'submission_targets.*',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+                'financial_years.number as year',
 
-        ]);
+            ]);
+
     }
 
     public function fields(): PowerGridFields
@@ -98,8 +100,7 @@ final class SubmissionTargetTable extends PowerGridComponent
             Column::make('Indicator', 'indicator'),
             Column::make('Disaggregation', 'target_name'),
             Column::make('Value', 'target_value')->bodyAttribute('fw-bold'),
-            Column::action('')
-
+            Column::action(''),
 
         ];
     }
@@ -113,27 +114,27 @@ final class SubmissionTargetTable extends PowerGridComponent
     public function filters(): array
     {
         return [
-          Filter::select('financial_year', 'financial_years.number')
-            ->dataSource(FinancialYear::get()->map(function ($year) {
-                return [
-                    'number' => $year->number,
-                    'name' => 'Year ' . $year->number,
-                ];
-            }))
-            ->optionLabel('name')
-            ->optionValue('number'),
+            Filter::select('financial_year', 'financial_years.number')
+                ->dataSource(FinancialYear::get()->map(function ($year) {
+                    return [
+                        'number' => $year->number,
+                        'name'   => 'Year ' . $year->number,
+                    ];
+                }))
+                ->optionLabel('name')
+                ->optionValue('number'),
 
             Filter::select('indicator', 'indicator_id')
-                ->dataSource(Indicator::get()->map(function ($indicator) {
+                ->dataSource(Indicator::where('is_active', 1)->get()->map(function ($indicator) {
                     return [
-                        'id' => $indicator->id,
+                        'id'             => $indicator->id,
                         'indicator_name' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
                     ];
                 }))
                 ->optionLabel('indicator_name')
                 ->optionValue('id'),
 
-                Filter::select('target_name', 'target_name')
+            Filter::select('target_name', 'target_name')
                 ->dataSource(IndicatorDisaggregation::select(['name'])->distinct()->get())
                 ->optionLabel('name')
                 ->optionValue('name'),
@@ -146,9 +147,6 @@ final class SubmissionTargetTable extends PowerGridComponent
         $this->dispatch('show-targets', rowId: $rowId);
     }
 
-
-
-
     public function actions($row): array
     {
 
@@ -159,7 +157,7 @@ final class SubmissionTargetTable extends PowerGridComponent
                 ->tooltip('View Details')
                 ->class('btn btn-warning btn-sm custom-tooltip')
                 ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
-                ->dispatch('edit', ['rowId' => $row])
+                ->dispatch('edit', ['rowId' => $row]),
         ];
     }
 

@@ -1,31 +1,27 @@
 <?php
-
 namespace App\Livewire\targets;
 
-use App\Models\User;
-use App\Models\Indicator;
-use Illuminate\Support\Str;
-use App\Models\Organisation;
-use App\Models\SystemReport;
 use App\Models\FinancialYear;
-use Illuminate\Support\Carbon;
-use App\Models\SystemReportData;
-use Livewire\Attributes\Computed;
+use App\Models\Indicator;
+use App\Models\IndicatorDisaggregation;
+use App\Models\Organisation;
 use App\Models\OrganisationTarget;
+use App\Models\SystemReport;
+use App\Models\SystemReportData;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\IndicatorDisaggregation;
-use Illuminate\Database\Eloquent\Builder;
-use PowerComponents\LivewirePowerGrid\Button;
+use Illuminate\Support\Str;
 use PowerComponents\LivewirePowerGrid\Column;
+use PowerComponents\LivewirePowerGrid\Exportable;
+use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class TargetTable extends PowerGridComponent
 {
@@ -49,23 +45,22 @@ final class TargetTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-
-        $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $query = OrganisationTarget::query()->with([
+        $query           = OrganisationTarget::query()->with([
             'submissionTarget',
             'organisation',
             'submissionTarget.financialYear',
             'submissionTarget.Indicator',
             'submissionTarget.Indicator.project',
-            'submissionTarget.Indicator.class'
+            'submissionTarget.Indicator.class',
         ])->join('organisations', function ($join) {
             $join->on('organisation_selected_targets.organisation_id', '=', 'organisations.id');
         })
 
-        ->join('submission_targets', function ($join) {
-            $join->on('organisation_selected_targets.submission_target_id', '=', 'submission_targets.id');
-        })->join('financial_years', function ($join) {
+            ->join('submission_targets', function ($join) {
+                $join->on('organisation_selected_targets.submission_target_id', '=', 'submission_targets.id');
+            })->join('financial_years', function ($join) {
             $join->on('submission_targets.financial_year_id', '=', 'financial_years.id');
         })->join('indicators', function ($join) {
             $join->on('submission_targets.indicator_id', '=', 'indicators.id');
@@ -73,16 +68,17 @@ final class TargetTable extends PowerGridComponent
             $join->on('indicators.project_id', '=', 'projects.id');
         })->join('indicator_classes', function ($join) {
             $join->on('indicators.id', '=', 'indicator_classes.indicator_id');
-        })->select([
-            'organisation_selected_targets.*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-            'financial_years.number as year',
-            'indicators.indicator_name',
-            'indicators.indicator_no',
-            'projects.name',
+        })
+            ->where('indicators.is_active', 1)
+            ->select([
+                'organisation_selected_targets.*',
+                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+                'financial_years.number as year',
+                'indicators.indicator_name',
+                'indicators.indicator_no',
+                'projects.name',
 
-
-        ]);
+            ]);
         if ($user->hasAnyRole('external')) {
             return $query->whereHas('organisation', fn($query) => $query->where('id', $organisation_id));
         }
@@ -119,28 +115,20 @@ final class TargetTable extends PowerGridComponent
                 return '<span class="fw-bolder">' . (float) $data . '</span>';
             })
 
-
             ->add('progress', function ($model) {
-
-
 
                 $data = $this->calculateRow($model);
 
                 $setTarget = $model->value;
 
-
                 // dd($data, $setTarget);
-                $progress = $setTarget == 0 ? 0 : round(($data / $setTarget) * 100);
+                $progress      = $setTarget == 0 ? 0 : round(($data / $setTarget) * 100);
                 $progressColor = match (true) {
-                    $progress >= 0 && $progress <= 49 => 'bg-danger',
+                    $progress >= 0 && $progress <= 49  => 'bg-danger',
                     $progress >= 50 && $progress <= 99 => 'bg-warning',
-                    $progress === 100 => 'bg-success',
-                    default => 'bg-success', // Fallback for unexpected values
+                    $progress === 100                  => 'bg-success',
+                    default                            => 'bg-success', // Fallback for unexpected values
                 };
-
-
-
-
 
                 $html = "
 
@@ -151,7 +139,6 @@ final class TargetTable extends PowerGridComponent
 <span class='text-muted fw-bold'>{$progress}%</span>
 </div>
 ";
-
 
                 return $html;
             })
@@ -168,52 +155,44 @@ final class TargetTable extends PowerGridComponent
             Column::make('Lead Partner', 'organisation')->bodyAttribute(styleAttr: 'max-width:200px; white-space: wrap;'),
             Column::make('Indicator', 'indicator')->bodyAttribute(styleAttr: 'max-width:200px; white-space: wrap;'),
 
-
             Column::make('Project year', 'financial_year'),
-
 
             Column::make('Dissagregation', 'submission_target_name'),
             Column::make('Standard Target', 'submission_target_value'),
-
 
             Column::make('Partner Target', 'value')
 
                 ->searchable(),
 
             Column::make('Achieved Value', 'current_value')->bodyAttribute('fw-bold'),
-            Column::make('Percentage Achieved', 'progress')
-
+            Column::make('Percentage Achieved', 'progress'),
 
         ];
     }
 
-
     public function calculateRow($model)
     {
         $financialYear = $model->submissionTarget->financialYear->id;
-        $organisation = $model->organisation->id;
-        $indicatorId = $model->submissionTarget->indicator->id;
-        $project = $model->submissionTarget->indicator->project->id;
+        $organisation  = $model->organisation->id;
+        $indicatorId   = $model->submissionTarget->indicator->id;
+        $project       = $model->submissionTarget->indicator->project->id;
 
         $reportIds = SystemReport::where('financial_year_id', $financialYear)
             ->where('project_id', $project)
             ->whereNull('crop')
             ->where('organisation_id', $organisation)->where('indicator_id', $indicatorId)->pluck('id');
 
-
         if (count($reportIds) == 0) {
             Log::error("ReportId missing: No report found for this organisation");
             return 0;
         }
-
-
 
         $data = SystemReportData::whereIn('system_report_id', $reportIds)->where('name', $model->submissionTarget->target_name)->sum('value');
         return $data;
     }
     public function filters(): array
     {
-          $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
 
         return [
@@ -221,7 +200,7 @@ final class TargetTable extends PowerGridComponent
                 ->dataSource(FinancialYear::get()->map(function ($year) {
                     return [
                         'number' => $year->number,
-                        'name' => 'Year ' . $year->number,
+                        'name'   => 'Year ' . $year->number,
                     ];
                 }))
                 ->optionLabel('name')
@@ -230,7 +209,7 @@ final class TargetTable extends PowerGridComponent
             Filter::select('indicator', 'indicators.id')
                 ->dataSource(Indicator::get()->map(function ($indicator) {
                     return [
-                        'id' => $indicator->id,
+                        'id'             => $indicator->id,
                         'indicator_name' => "({$indicator->indicator_no}) " . $indicator->indicator_name,
                     ];
                 }))
@@ -242,7 +221,7 @@ final class TargetTable extends PowerGridComponent
                 ->optionLabel('name')
                 ->optionValue('name'),
 
-                Filter::select('organisation', 'organisations.name')
+            Filter::select('organisation', 'organisations.name')
                 ->dataSource($user->hasAnyRole('external') ? Organisation::where('id', $organisation_id)->get() : Organisation::all())
                 ->optionLabel('name')
                 ->optionValue('name'),
@@ -255,7 +234,6 @@ final class TargetTable extends PowerGridComponent
     {
         $this->js('alert(' . $rowId . ')');
     }
-
 
     /*
     public function actionRules($row): array

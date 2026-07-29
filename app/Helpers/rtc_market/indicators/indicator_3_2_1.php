@@ -1,15 +1,10 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
-
-use App\Models\Indicator;
 use App\Models\Recruitment;
 use App\Models\RtcProductionFarmer;
-use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class indicator_3_2_1
 {
@@ -17,24 +12,19 @@ class indicator_3_2_1
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-
     protected $enterprise;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
 
         $query = RtcProductionFarmer::query()->where('uses_certified_seed', true)->where('status', 'approved');
-
-
-
-
 
         return $this->applyFilters($query);
     }
@@ -43,10 +33,6 @@ class indicator_3_2_1
     {
 
         $query = Recruitment::query()->where('uses_certified_seed', true)->where('status', 'approved');
-
-
-
-
 
         return $this->applyFilters($query);
     }
@@ -62,24 +48,21 @@ class indicator_3_2_1
             ];
         }
 
-        $totalPotato = $this->builder()->where('enterprise', 'Potato')->count();
-        $totalCassava = $this->builder()->where('enterprise', 'Cassava')->count();
-        $totalSweetPotato = $this->builder()->where('enterprise', 'Sweet potato')->count();
-        $totalPotatoRecruitment = $this->builderRecruitment()->where('enterprise', 'Potato')->count();
-        $totalCassavaRecruitment = $this->builderRecruitment()->where('enterprise', 'Cassava')->count();
+        $totalPotato                 = $this->builder()->where('enterprise', 'Potato')->count();
+        $totalCassava                = $this->builder()->where('enterprise', 'Cassava')->count();
+        $totalSweetPotato            = $this->builder()->where('enterprise', 'Sweet potato')->count();
+        $totalPotatoRecruitment      = $this->builderRecruitment()->where('enterprise', 'Potato')->count();
+        $totalCassavaRecruitment     = $this->builderRecruitment()->where('enterprise', 'Cassava')->count();
         $totalSweetPotatoRecruitment = $this->builderRecruitment()->where('enterprise', 'Sweet potato')->count();
 
-
         return [
-            'potato' => $totalPotato + $totalPotatoRecruitment,
-            'cassava' => $totalCassava + $totalCassavaRecruitment,
+            'potato'       => $totalPotato + $totalPotatoRecruitment,
+            'cassava'      => $totalCassava + $totalCassavaRecruitment,
             'sweet_potato' => $totalSweetPotato + $totalSweetPotatoRecruitment,
         ];
     }
 
-
-
-    public function getDisaggregations()
+    public function getDisaggregations(): array
     {
         $crop = $this->getCropTotal();
 
@@ -91,11 +74,14 @@ class indicator_3_2_1
             'Potato'       => round($crop['potato'] ?? 0, 2),
         ];
 
-
         $total = array_sum($allCrops);
         return [
-            'Total' => $total,
-            ...$allCrops,
+            'Total'            => 0,
+            'Cassava'          => 0,
+            'Potato'           => 0,
+            'Sweet potato'     => 0,
+            'Market preferred' => 0,
+            'Ordinary'         => 0,
         ];
     }
 }

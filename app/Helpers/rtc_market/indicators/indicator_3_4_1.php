@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
-
-use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class indicator_3_4_1
 {
@@ -15,23 +12,21 @@ class indicator_3_4_1
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-
     protected $enterprise;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->first();
+        $indicator = Indicator::where('indicator_no', '3.4.1')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
 
         // if ($this->organisation_id && $this->target_year_id) {
         //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
@@ -44,9 +39,6 @@ class indicator_3_4_1
 
         //     }
 
-
-
-
         return $this->applyFilters($query, true);
     }
 
@@ -55,15 +47,12 @@ class indicator_3_4_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of households reached with RTC nutrition interventions')->where('indicator_no', '3.5.1')->first();
+        $indicator       = Indicator::where('indicator_no', '3.4.1')->first();
         $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
+        $data            = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
-
-
 
         $this->builder()->chunk(1000, function ($models) use (&$data) {
             $models->each(function ($model) use (&$data) {
@@ -74,11 +63,11 @@ class indicator_3_4_1
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -94,7 +83,7 @@ class indicator_3_4_1
         $totals = $this->getTotals()->toArray();
 
         return [
-            'Total' => $totals['Total']
+            'Total' => 0,
         ];
     }
 }

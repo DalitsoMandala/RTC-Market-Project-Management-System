@@ -1,14 +1,11 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
-
-use App\Traits\FilterableQuery;
 use App\Models\SubmissionReport;
-use Illuminate\Support\Facades\Log;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Facades\Log;
 
 class indicator_1_1_4
 {
@@ -16,20 +13,19 @@ class indicator_1_1_4
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-
     protected $enterprise;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->first();
+        $indicator = Indicator::where('indicator_no', '1.1.4')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -37,10 +33,13 @@ class indicator_1_1_4
     }
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in adoption of new RTC technologies')->first();
-        if (!$indicator) {
+        $indicator = Indicator::where('indicator_no', '1.1.4')->first();
+        if (! $indicator) {
 
-            Log::error('Indicator not found');
+            Log::error('Indicator not found',
+                [
+                    'indicator_no' => '1.1.4']
+            );
             return null; // Or throw an exception if needed
         }
 
@@ -50,15 +49,15 @@ class indicator_1_1_4
     {
         // Initialize the totals for the relevant fields
         $data = collect([
-            'Total (% Percentage)' => 0,
-            'Improved RTC variety' => 0,
-            'Seed production' => 0,
-            'Storage' => 0,
-            'Agronomic production' => 0,
+            'Total (% Percentage)'    => 0,
+            'Improved RTC variety'    => 0,
+            'Seed production'         => 0,
+            'Storage'                 => 0,
+            'Agronomic production'    => 0,
             'Post-harvest processing' => 0,
-            'Cassava' => 0,
-            'Potato' => 0,
-            'Sweet potato' => 0
+            'Cassava'                 => 0,
+            'Potato'                  => 0,
+            'Sweet potato'            => 0,
         ]);
 
         // Process the builder in chunks to prevent memory overload
@@ -71,11 +70,11 @@ class indicator_1_1_4
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -90,19 +89,17 @@ class indicator_1_1_4
     {
         $totals = $this->getTotals()->toArray();
 
-
-
         $totals['Total (% Percentage)'] = 0;
         return [
-            'Total (% Percentage)' => $totals['Total (% Percentage)'],
-            'Improved RTC variety' => $totals['Improved RTC variety'],
-            'Seed production' => $totals['Seed production'],
-            'Storage' => $totals['Storage'],
-            'Agronomic production' => $totals['Agronomic production'],
+            'Total (% Percentage)'    => $totals['Total (% Percentage)'],
+            'Improved RTC variety'    => $totals['Improved RTC variety'],
+            'Seed production'         => $totals['Seed production'],
+            'Storage'                 => $totals['Storage'],
+            'Agronomic production'    => $totals['Agronomic production'],
             'Post-harvest processing' => $totals['Post-harvest processing'],
-            'Cassava' => $totals['Cassava'],
-            'Potato' => $totals['Potato'],
-            'Sweet potato' => $totals['Sweet potato']
+            'Cassava'                 => $totals['Cassava'],
+            'Potato'                  => $totals['Potato'],
+            'Sweet potato'            => $totals['Sweet potato'],
         ];
     }
 }

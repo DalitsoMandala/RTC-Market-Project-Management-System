@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
-
-use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-
 
 class indicator_1_2_2
 {
@@ -20,14 +17,14 @@ class indicator_1_2_2
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC and derived products recorded in official trade statistics')->first();
+        $indicator = Indicator::where('indicator_no', '1.2.2')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -39,15 +36,16 @@ class indicator_1_2_2
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of RTC and derived products recorded in official trade statistics')->where('indicator_no', '1.2.2')->first();
+        $indicator       = Indicator::where('indicator_no', '1.2.2')->where('indicator_no', '1.2.2')->first();
         $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
+        $data            = collect([
+            'Cassava'      => 0,
+            'Potato'       => 0,
+            'Sweet potato' => 0,
+        ]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
-
-
 
         $this->builder()->chunk(1000, function ($models) use (&$data) {
             $models->each(function ($model) use (&$data) {
@@ -58,11 +56,11 @@ class indicator_1_2_2
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -75,9 +73,11 @@ class indicator_1_2_2
     }
     public function getDisaggregations()
     {
-        $totals = $this->getTotals()->toArray();
-        $subTotal = $totals['Cassava'] + $totals['Potato'] + $totals['Sweet potato'];
+        $totals          = $this->getTotals()->toArray();
+        $subTotal        = $totals['Cassava'] ?? 0 + $totals['Potato'] ?? 0 + $totals['Sweet potato'] ?? 0;
         $totals['Total'] = $subTotal;
-        return $totals;
+        return [
+            'Total' => 0,
+        ];
     }
 }

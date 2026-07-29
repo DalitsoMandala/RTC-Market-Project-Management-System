@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
-
-use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
 class indicator_1_2_1
@@ -19,14 +17,14 @@ class indicator_1_2_1
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
 
-        $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->first();
+        $indicator = Indicator::where('indicator_no', '1.2.1')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
 
@@ -38,15 +36,12 @@ class indicator_1_2_1
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Number of economic studies conducted')->first();
+        $indicator       = Indicator::where('indicator_no', '1.2.1')->first();
         $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
+        $data            = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
-
-
 
         $this->builder()->chunk(1000, function ($models) use (&$data) {
             $models->each(function ($model) use (&$data) {
@@ -57,11 +52,11 @@ class indicator_1_2_1
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -77,7 +72,7 @@ class indicator_1_2_1
         $totals = $this->getTotals()->toArray();
 
         return [
-            'Total' => $totals['Total']
+            'Total' => 0,
         ];
     }
 }

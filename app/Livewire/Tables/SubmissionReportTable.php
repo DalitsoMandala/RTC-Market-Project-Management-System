@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Livewire\tables;
 
 use App\Models\FinancialYear;
@@ -9,11 +8,8 @@ use App\Models\SubmissionReport;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
@@ -43,12 +39,15 @@ final class SubmissionReportTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth',])
+        $query = SubmissionReport::with(['files', 'indicator', 'organisation', 'user', 'submissionPeriod', 'periodMonth'])
+            ->whereHas('indicator', function ($query) {
+                $query->where('is_active', 1);
+            })
             ->where('status', 'approved')->select([
-                'submission_reports.*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-            ]);
-        $user = User::find(auth()->user()->id);
+            'submission_reports.*',
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+        ]);
+        $user         = User::find(auth()->user()->id);
         $organisation = $user->organisation->id;
 
         if ($user->hasAnyRole('external')) {
@@ -69,14 +68,13 @@ final class SubmissionReportTable extends PowerGridComponent
             ->add('indicator_id')
             ->add('indicator', function ($model) {
 
-
                 return $model?->indicator?->indicator_no . ' - ' . $model?->indicator?->indicator_name;
             })
             ->add('user_id', fn($model) => $model->user->name)
             ->add('data')
             ->add('submission_period_id', function ($model) {
                 $start = Carbon::parse($model->submissionPeriod->date_established)->format('d-m-Y H:i A');
-                $end = Carbon::parse($model->submissionPeriod->date_ending)->format('d-m-Y H:i A');
+                $end   = Carbon::parse($model->submissionPeriod->date_ending)->format('d-m-Y H:i A');
                 return "{$start} - {$end}";
             })
             ->add('organisation_id', function ($model) {
@@ -150,11 +148,11 @@ final class SubmissionReportTable extends PowerGridComponent
     {
         return [
             Filter::select('indicator')
-                ->dataSource(Indicator::get()->map(function ($indicator) {
+                ->dataSource(Indicator::where('is_active', 1)->get()->map(function ($indicator) {
                     return [
-                        'indicator' => $indicator->indicator_no . ' - ' . $indicator->indicator_name,
-                        'id'            => $indicator->id,
-                        'indicator_no' => $indicator->indicator_no,
+                        'indicator'      => $indicator->indicator_no . ' - ' . $indicator->indicator_name,
+                        'id'             => $indicator->id,
+                        'indicator_no'   => $indicator->indicator_no,
                         'indicator_name' => $indicator->indicator_name,
                     ];
                 }))
@@ -164,7 +162,6 @@ final class SubmissionReportTable extends PowerGridComponent
 
                     $query->where('submission_reports.indicator_id', $value);
                 }),
-
 
             Filter::select('financial_year_id', 'financial_year_id')
                 ->dataSource(function () {
@@ -186,24 +183,22 @@ final class SubmissionReportTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [
-            'indicator' => [ // relationship on dishes model
-                'indicator_name', // column enabled to search
+            'indicator'     => [ // relationship on dishes model
+                'indicator_name',    // column enabled to search
 
             ],
-            'user' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'user'          => [ // relationship on dishes model
+                'name',              // column enabled to search
 
             ],
-            'organisation' => [ // relationship on dishes model
-                'name', // column enabled to search
+            'organisation'  => [ // relationship on dishes model
+                'name',              // column enabled to search
 
             ],
             'financialYear' => [ // relationship on dishes model
-                'number', // column enabled to search
+                'number',            // column enabled to search
 
             ],
-
-
 
         ];
     }
@@ -213,8 +208,6 @@ final class SubmissionReportTable extends PowerGridComponent
     {
         $this->js('alert(' . $rowId . ')');
     }
-
-
 
     /*
     public function actionRules($row): array

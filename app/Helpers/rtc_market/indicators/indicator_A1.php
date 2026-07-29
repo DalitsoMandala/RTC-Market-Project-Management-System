@@ -107,77 +107,6 @@ class indicator_A1
     |--------------------------------------------------------------------------
     */
 
-    public function getDisaggregations()
-    {
-        $traders = $this->traderTotals();
-
-        $actors = ['Farmers', 'Processors', 'Aggregators', 'Transporters'];
-        $crops  = ['Cassava', 'Potato', 'Sweet potato'];
-
-        $actorTotals = [];
-        $cropTotals  = [];
-
-        $totalMembers   = 0;
-        $totalEmployees = 0;
-
-        foreach ($actors as $actor) {
-            $totals = $this->peopleTotals(type: $actor);
-
-            // Actors = MEMBERS ONLY
-            $actorTotals[$actor] = $totals['members'];
-
-            $totalMembers   += $totals['members'];
-            $totalEmployees += $totals['employees'];
-        }
-
-        foreach ($crops as $crop) {
-            $totals = $this->peopleTotals(enterprise: $crop);
-
-            $cropTotals[$crop] =
-                $totals['members'] +
-                $totals['employees'] +
-                $traders[$crop];
-        }
-
-        $new =
-        $this->peopleTotals(estType: 'New')['members'] +
-        $this->peopleTotals(estType: 'New')['employees'] +
-            $traders['New establishment'];
-
-        $old =
-        $this->peopleTotals(estType: 'Old')['members'] +
-        $this->peopleTotals(estType: 'Old')['employees'] +
-            $traders['Old establishment'];
-
-        /*
-        |--------------------------------------------------------------------------
-        | FINAL TOTAL (NO DOUBLE COUNTING)
-        |--------------------------------------------------------------------------
-        | Total = Members + Employees + Traders
-        */
-        $totalPeople =
-            $totalMembers +
-            $totalEmployees +
-            $traders['total'];
-
-        return [
-
-            'Total'                          => $totalPeople ?? 0,
-            'Employees on RTC establishment' => $totalEmployees ?? 0,
-            'Cassava'                        => $cropTotals['Cassava'] ?? 0,
-            'Potato'                         => $cropTotals['Potato'] ?? 0,
-            'Sweet potato'                   => $cropTotals['Sweet potato'] ?? 0,
-            // Actors now = MEMBERS ONLY
-            'Farmers'                        => $actorTotals['Farmers'] ?? 0,
-            'Processors'                     => $actorTotals['Processors'] ?? 0,
-            'Aggregators'                    => $actorTotals['Aggregators'] ?? 0,
-            'Transporters'                   => $actorTotals['Transporters'] ?? 0,
-            'Traders'                        => $traders['total'] ?? 0,
-            'New establishment'              => $new ?? 0,
-            'Old establishment'              => $old ?? 0,
-        ];
-    }
-
     public function getActorGenderDisaggregation()
     {
         $actors = ['Farmers', 'Processors', 'Aggregators', 'Transporters'];
@@ -240,5 +169,74 @@ class indicator_A1
         }
 
         return $results;
+    }
+    public function getDisaggregations()
+    {
+        $traders = $this->traderTotals();
+
+        $actors = ['Farmers', 'Processors', 'Aggregators', 'Transporters'];
+        $crops  = ['Cassava', 'Potato', 'Sweet potato'];
+
+        $actorTotals = [];
+        $cropTotals  = [];
+
+        $totalMembers   = 0;
+        $totalEmployees = 0;
+
+        foreach ($actors as $actor) {
+            $totals = $this->peopleTotals(type: $actor);
+
+            // Actors = MEMBERS ONLY
+            $actorTotals[$actor] = $totals['members'];
+
+            $totalMembers   += $totals['members'];
+            $totalEmployees += $totals['employees'];
+        }
+
+        foreach ($crops as $crop) {
+            $totals = $this->peopleTotals(enterprise: $crop);
+
+            $cropTotals[$crop] =
+                $totals['members'] +
+                $totals['employees'] +
+                $traders[$crop];
+        }
+
+        $new =
+        $this->peopleTotals(estType: 'New')['members'] +
+        $this->peopleTotals(estType: 'New')['employees'] +
+            $traders['New establishment'];
+
+        $old =
+        $this->peopleTotals(estType: 'Old')['members'] +
+        $this->peopleTotals(estType: 'Old')['employees'] +
+            $traders['Old establishment'];
+
+        /*
+        |--------------------------------------------------------------------------
+        | FINAL TOTAL (NO DOUBLE COUNTING)
+        |--------------------------------------------------------------------------
+        | Total = Members + Employees + Traders
+        */
+        $totalPeople =
+            $totalMembers +
+            $totalEmployees +
+            $traders['total'];
+
+        return [
+
+            'Total'             => $totalPeople ?? 0,
+            'Farmers'           => $actorTotals['Farmers'] ?? 0,
+            'Processors'        => $actorTotals['Processors'] ?? 0,
+            'Aggregators'       => $actorTotals['Aggregators'] ?? 0,
+            'Transporters'      => $actorTotals['Transporters'] ?? 0,
+            'Traders'           => $traders['total'] ?? 0,
+            'Employees'         => $totalEmployees ?? 0,
+            'Cassava'           => $cropTotals['Cassava'] ?? 0,
+            'Potato'            => $cropTotals['Potato'] ?? 0,
+            'Sweet potato'      => $cropTotals['Sweet potato'] ?? 0,
+            'New establishment' => $new ?? 0,
+            'Old establishment' => $old ?? 0,
+        ];
     }
 }

@@ -39,7 +39,7 @@ final class IndicatorTable extends PowerGridComponent
     {
         $user = User::find($this->userId);
 
-        if ($user->hasAnyRole(['manager', 'monitor', 'admin', 'project_manager', 'staff'])) {
+        if ($user->hasAnyRole(['admin'])) {
             return Indicator::query()->with([
                 'project',
                 'disaggregations',
@@ -57,6 +57,28 @@ final class IndicatorTable extends PowerGridComponent
             // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
             // 3rd: Indicator number sorting
+                ->orderBy('indicators.indicator_no', 'asc');
+
+        } else if ($user->hasAnyRole(['manager', 'monitor', 'project_manager', 'staff'])) {
+            return Indicator::query()->with([
+                'project',
+                'disaggregations',
+                'responsiblePeopleforIndicators.organisation',
+                'forms',
+                'class',
+            ])->leftJoin('indicator_classes', 'indicator_classes.indicator_id', '=', 'indicators.id')
+                ->where('indicators.is_active', 1)
+                ->select([
+                    'indicators.*',
+                    'indicator_classes.class as file_location',
+                    DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
+                ]);
+            x
+            // 1st: Active items (1) first, Inactive items (0) at the end
+                ->orderBy('indicators.is_active', 'desc')
+                // 2nd: Letters first, then numbers
+                ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
+                // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
 
         } else {
@@ -187,7 +209,8 @@ final class IndicatorTable extends PowerGridComponent
             Column::make('Disaggregations', 'disaggregations')
                 ->headerAttribute(styleAttr: "min-width:300px;")
                 ->bodyAttribute(styleAttr: "white-space:wrap"),
-            Column::make('File Location', 'file_location')->searchable(),
+            Column::make('File Location', 'file_location')->searchable()->hidden(),
+            $columns[] = Column::action('Actions')->hidden(),
         ];
 
         $user = User::find(auth()->user()->id);

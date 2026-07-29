@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
-use Illuminate\Database\Eloquent\Builder;
 use App\Models\Recruitment;
 use App\Models\RtcConsumption;
+use App\Traits\FilterableQuery;
+use Illuminate\Database\Eloquent\Builder;
 
 class indicator_B4
 {
@@ -16,12 +15,12 @@ class indicator_B4
     protected $organisation_id;
     protected $enterprise;
 
-    public function __construct($reporting_period=null,$financial_year=null,$organisation_id=null,$enterprise=null)
+    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
 
     /*
@@ -33,7 +32,7 @@ class indicator_B4
     public function builder(): Builder
     {
         return $this->applyFilters(
-            Recruitment::query()->where('status','approved')
+            Recruitment::query()->where('status', 'approved')
         );
     }
 
@@ -41,15 +40,15 @@ class indicator_B4
     {
         return $this->applyHouseHoldFilters(
             RtcConsumption::query()
-                ->where('status','approved')
-                ->where('entity_type','School')
+                ->where('status', 'approved')
+                ->where('entity_type', 'School')
         );
     }
 
     public function builderHousehold(): Builder
     {
         return $this->applyHouseHoldFilters(
-            RtcConsumption::query()->where('status','approved')
+            RtcConsumption::query()->where('status', 'approved')
         );
     }
 
@@ -59,20 +58,20 @@ class indicator_B4
     |--------------------------------------------------------------------------
     */
 
-    public function getMainGroup($type=null,$enterprise=null,$estType=null): Builder
+    public function getMainGroup($type = null, $enterprise = null, $estType = null): Builder
     {
         $query = $this->builder();
 
         if ($type) {
-            $query->where('type',$type);
+            $query->where('type', $type);
         }
 
         if ($enterprise) {
-            $query->where('enterprise',$enterprise);
+            $query->where('enterprise', $enterprise);
         }
 
         if ($estType) {
-            $query->where('establishment_status',$estType);
+            $query->where('establishment_status', $estType);
         }
 
         return $query;
@@ -84,9 +83,9 @@ class indicator_B4
     |--------------------------------------------------------------------------
     */
 
-    public function getTotalSum($type=null,$enterprise=null,$estType=null)
+    public function getTotalSum($type = null, $enterprise = null, $estType = null)
     {
-        $result = $this->getMainGroup($type,$enterprise,$estType)
+        $result = $this->getMainGroup($type, $enterprise, $estType)
             ->selectRaw('
                 SUM(mem_female_18_35 + mem_female_35_plus) as female_members,
                 SUM(mem_male_18_35 + mem_male_35_plus) as male_members,
@@ -107,16 +106,16 @@ class indicator_B4
             ')
             ->first();
 
-        $members = $result->female_members + $result->male_members;
+        $members   = $result->female_members + $result->male_members;
         $employees = $result->female_employees + $result->male_employees;
 
         return [
-            'members' => $members,
+            'members'   => $members,
             'employees' => $employees,
-            'female' => $result->female_members + $result->female_employees,
-            'male' => $result->male_members + $result->male_employees,
-            'youth' => $result->youth,
-            'not_youth' => $result->adults
+            'female'    => $result->female_members + $result->female_employees,
+            'male'      => $result->male_members + $result->male_employees,
+            'youth'     => $result->youth,
+            'not_youth' => $result->adults,
         ];
     }
 
@@ -126,23 +125,23 @@ class indicator_B4
     |--------------------------------------------------------------------------
     */
 
-    public function getTotalSchool($enterprise=null)
+    public function getTotalSchool($enterprise = null)
     {
         $builder = $this->builderSchool();
 
         $enterpriseColumns = [
             'Sweet potato' => 'crop_sweet_potato',
-            'Potato' => 'crop_potato',
-            'Cassava' => 'crop_cassava',
+            'Potato'       => 'crop_potato',
+            'Cassava'      => 'crop_cassava',
         ];
 
         if ($enterprise && isset($enterpriseColumns[$enterprise])) {
-            $builder->where($enterpriseColumns[$enterprise],true);
+            $builder->where($enterpriseColumns[$enterprise], true);
         }
 
         return [
-            'male' => $builder->sum('male_count'),
-            'female' => $builder->sum('female_count')
+            'male'   => $builder->sum('male_count'),
+            'female' => $builder->sum('female_count'),
         ];
     }
 
@@ -159,22 +158,24 @@ class indicator_B4
         $households = $this->builderHousehold()->sum('number_of_households');
 
         $interventions = $this->builderHousehold()
-            ->where('entity_type','Nutrition intervention group')
+            ->where('entity_type', 'Nutrition intervention group')
             ->sum('number_of_households');
 
         $school = $this->getTotalSchool();
 
-        $householdTotal = ($totals['members'] + $totals['employees']) + ($households * 5);
+        $householdTotal    = ($totals['members'] + $totals['employees']) + ($households * 5);
         $interventionTotal = $interventions * 5;
-        $schoolTotal = $school['male'] + $school['female'];
+        $schoolTotal       = $school['male'] + $school['female'];
 
         $grandTotal = $householdTotal + $interventionTotal + $schoolTotal;
 
         return [
-            "Total" => $grandTotal,
-            "RTC actors and households" => $householdTotal,
-            "School feeding beneficiaries" => $schoolTotal,
-            "Individuals from households reached with nutrition interventions" => $interventionTotal,
+            'Total'           => 0,
+            'Volume (MT)'     => 0,
+            'Cassava'         => 0,
+            'Potato'          => 0,
+            'Sweet potato'    => 0,
+            'Rolled Baseline' => 0,
         ];
     }
 }

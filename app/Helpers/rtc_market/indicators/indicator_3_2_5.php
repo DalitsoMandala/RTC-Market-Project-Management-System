@@ -1,15 +1,11 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
-
-use App\Traits\FilterableQuery;
 
 use App\Models\Indicator;
 use App\Models\SubmissionReport;
-use App\Helpers\IncreasePercentage;
-use Illuminate\Support\Facades\Log;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Facades\Log;
 
 class indicator_3_2_5
 {
@@ -17,15 +13,14 @@ class indicator_3_2_5
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-
     protected $enterprise;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
     public function builder(): Builder
     {
@@ -33,7 +28,6 @@ class indicator_3_2_5
         $indicator = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->first();
 
         $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
 
         // if ($this->organisation_id && $this->target_year_id) {
         //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
@@ -46,19 +40,16 @@ class indicator_3_2_5
 
         //     }
 
-
-
-
-        return $this->applyFilters($query,true);
+        return $this->applyFilters($query, true);
     }
-
-
 
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->where('indicator_no', '3.2.5')->first();
-        if (!$indicator) {
-            Log::error('Indicator not found');
+        $indicator = Indicator::where('indicator_no', '3.2.5')->first();
+        if (! $indicator) {
+            Log::error('Indicator not found', [
+                'indicator_no' => '3.2.5',
+            ]);
             return null; // Or throw an exception if needed
         }
 
@@ -69,15 +60,12 @@ class indicator_3_2_5
 
         $builder = $this->builder()->get();
 
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->where('indicator_no', '3.2.5')->first();
+        $indicator       = Indicator::where('indicator_name', 'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)')->where('indicator_no', '3.2.5')->first();
         $disaggregations = $indicator->disaggregations;
-        $data = collect([]);
+        $data            = collect([]);
         $disaggregations->pluck('name')->map(function ($item) use (&$data) {
             $data->put($item, 0);
         });
-
-
-
 
         $this->builder()->chunk(1000, function ($models) use (&$data) {
             $models->each(function ($model) use (&$data) {
@@ -88,11 +76,11 @@ class indicator_3_2_5
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -106,7 +94,6 @@ class indicator_3_2_5
     public function getDisaggregations()
     {
         $totals = $this->getTotals()->toArray();
-
 
         $totals['Total (% Percentage)'] = 0;
 

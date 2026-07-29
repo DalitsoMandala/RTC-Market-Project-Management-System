@@ -1,15 +1,12 @@
 <?php
-
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Models\Indicator;
-
-use App\Traits\FilterableQuery;
-use App\Models\SubmissionReport;
 use App\Helpers\IncreasePercentage;
-use Illuminate\Support\Facades\Log;
+use App\Models\Indicator;
+use App\Models\SubmissionReport;
+use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Facades\Log;
 
 class indicator_B6
 {
@@ -18,22 +15,23 @@ class indicator_B6
     protected $financial_year, $reporting_period, $project;
     protected $organisation_id;
 
-
     protected $enterprise;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
 
     public function findIndicator()
     {
-        $indicator = Indicator::where('indicator_name', 'Percentage increase in RTC investment')->first();
-        if (!$indicator) {
-            Log::error('Indicator not found');
+        $indicator = Indicator::where('indicator_no', 'B6')->first();
+        if (! $indicator) {
+            Log::error('Indicator not found', [
+                'indicator_no' => 'B6',
+            ]);
             return null; // Or throw an exception if needed
         }
 
@@ -55,9 +53,9 @@ class indicator_B6
         // Initialize the totals for the relevant fields
         $data = collect([
             'Total (% Percentage)' => 0,
-            'Cassava' => 0,
-            'Potato' => 0,
-            'Sweet potato' => 0,
+            'Cassava'              => 0,
+            'Potato'               => 0,
+            'Sweet potato'         => 0,
         ]);
 
         // Process the builder in chunks to prevent memory overload
@@ -70,11 +68,11 @@ class indicator_B6
                 foreach ($data as $key => $dt) {
                     // Always process non-enterprise keys
                     $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                        str_contains($key, 'Potato') ||
-                        str_contains($key, 'Sweet potato');
+                    str_contains($key, 'Potato') ||
+                    str_contains($key, 'Sweet potato');
 
                     // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (!$this->enterprise || !$isEnterpriseKey || str_contains($key, $this->enterprise)) {
+                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
                         if ($json->has($key)) {
                             $data->put($key, $data->get($key) + $json[$key]);
                         }
@@ -101,15 +99,15 @@ class indicator_B6
         $baseline = $indicator->baseline->baseline_value ?? 0;
 
         // Calculate the percentage increase based on the subtotal and baseline
-        $percentageIncrease = new IncreasePercentage($subTotal, $baseline);
+        $percentageIncrease   = new IncreasePercentage($subTotal, $baseline);
         $finalTotalPercentage = $percentageIncrease->percentage();
 
         // Return the disaggregated data
         return [
             "Total (% Percentage)" => 0, // Calculated percentage increase
-            'Cassava' => $totals['Cassava'],
-            'Potato' => $totals['Potato'],
-            'Sweet potato' => $totals['Sweet potato'],
+            'Cassava'              => $totals['Cassava'],
+            'Potato'               => $totals['Potato'],
+            'Sweet potato'         => $totals['Sweet potato'],
         ];
     }
 }

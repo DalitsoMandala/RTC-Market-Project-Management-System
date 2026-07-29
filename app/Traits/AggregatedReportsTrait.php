@@ -47,7 +47,7 @@ trait AggregatedReportsTrait
 
     public function initIgnoredYears()
     {
-        $indicatorClasses = IndicatorClass::get();
+        $indicatorClasses = IndicatorClass::with('indicator')->whereHas('indicator', fn($q) => $q->where('is_active', true))->get();
 
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
@@ -195,6 +195,7 @@ trait AggregatedReportsTrait
                                                         'crop'                => $crop,
                                                         'indicator_id'        => $indicatorClass->indicator_id,
                                                         'class'               => $indicatorClass->class,
+                                                        'stack'               => $e->getTraceAsString(),
                                                     ]
                                                 );
                                             }
@@ -218,7 +219,7 @@ trait AggregatedReportsTrait
         if (empty($this->aggregateYears)) {
             return 0;
         }
-        $indicatorClasses = IndicatorClass::get();
+        $indicatorClasses = IndicatorClass::with('indicator')->whereHas('indicator', fn($q) => $q->where('is_active', true))->get();
 
         $reportingPeriods = $this->reporting_period_id
             ? [$this->reporting_period_id]
@@ -336,15 +337,8 @@ trait AggregatedReportsTrait
 
                                                     } else {
 
-                                                        $class = new $indicatorClass->class(
-                                                            reporting_period: $period,
-                                                            financial_year: $year,
-                                                            organisation_id: $org,
-                                                            enterprise: $crop
-                                                        );
-
                                                         $disaggregations = array_fill_keys(
-                                                            array_keys($class->getDisaggregations()),
+                                                            array_keys($indicator->disaggregations->pluck('name')->toArray()),
                                                             0
                                                         );
                                                     }
@@ -370,6 +364,7 @@ trait AggregatedReportsTrait
                                                     'crop'                => $crop,
                                                     'indicator_id'        => $indicatorClass->indicator_id,
                                                     'class'               => $indicatorClass->class,
+                                                    'stack_trace'         => $e->getTraceAsString(),
                                                 ]
                                             );
                                         }

@@ -19,7 +19,10 @@ Route::get('/', fn() => redirect()->route('login'));
 
 //Route::get('/testing', [QueueTestController::class, 'handle']);
 //Route::get('/reset-table', [QueueTestController::class, 'initZeroReport']);
-
+Route::get('correct-diss', function () {
+    \App\Models\SubmissionTarget::with('indicator')->where('target_name', 'Total (% Percentage)')->update(['target_name' => 'Total']);
+    return response()->json(['success' => true]);
+});
 Route::get('/duo', function () {
     $aa = new App\Helpers\rtc_market\indicators\indicator_A1(financial_year: 1);
     dd($aa->getDisaggregations());
