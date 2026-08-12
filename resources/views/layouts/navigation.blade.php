@@ -13,9 +13,9 @@
 
     /* ROW 1 — brand + dashboard switch buttons */
     #topbar-row1 .btn-outline-warning.active {
-        background-color: #f1a53a;
+        background-color: #fc931d;
         color: #fff;
-        border-color: #f1a53a;
+        border-color: #fc931d;
     }
 
     /* ROW 2 — main nav */

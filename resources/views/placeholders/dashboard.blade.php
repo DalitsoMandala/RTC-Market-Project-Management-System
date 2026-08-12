@@ -7,7 +7,7 @@
     </div>
 
 
-    <div class="">
+    <div class="opacity-25">
         <div class="mt-4 mb-3 row">
             <!-- Changed gap-3 to g-3 (Bootstrap's standard gutter class) -->
             <!-- Card 1 -->
@@ -30,7 +30,7 @@
 
             <!-- Card 4 -->
             <div class="col-lg-3 col-md-6 col-sm-6">
-                 <div class="shadow card rounded-1 h-100 w-100">
+                <div class="shadow card rounded-1 h-100 w-100">
                     <div class="card-body">
                         <h6 class="card-title placeholder-glow ">
                             <span class="placeholder col-12 "></span>

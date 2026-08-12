@@ -2,11 +2,14 @@
     @section('title')
         Dashboard
     @endsection
-    <div class="container-fluid" >
+    <div class="container-fluid">
 
         @include('layouts.dashboard-layout')
 
-            <livewire:dashboard-charts />
+
+
+
+        <livewire:dashboard-charts />
 
     </div>
 

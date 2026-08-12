@@ -45,6 +45,9 @@
                 padding: 70px 0 60px 0;
             }
 
+            .dash-card .card {
+                border: 1px solid rgba(245, 160, 49, 0.4);
+            }
 
             .form-label,
             label {
@@ -239,227 +242,233 @@
                 overflow: hidden;
                 text-indent: 100%;
                 white-space: nowrap;
-                background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") 50%/.75rem auto no-repeat;
+                background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'
+ fill='%23FFFFFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293
+ 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") 50%/.75rem auto no-repeat;
 
-                border: 0;
-            }
-
-
-            label::first-letter {
-                text-transform: uppercase;
-                /* Capitalize only the first letter */
-            }
+                        border: 0;
+                }
 
 
-            /* Base requirement for sticky columns */
-            .table-sticky-col {
-                position: sticky;
-
-                z-index: 2;
-            }
-
-            /* First sticky column */
-            td.table-sticky-col:nth-child(1),
-            th.table-sticky-col:nth-child(1) {
-                left: 0;
-                z-index: 3;
-            }
-
-            /* Second sticky column */
-            td.table-sticky-col:nth-child(2),
-            th.table-sticky-col:nth-child(2) {
-                left: 50px;
-                /* width of first column */
-            }
-
-            /* Third sticky column */
-            td.table-sticky-col:nth-child(3),
-            th.table-sticky-col:nth-child(3) {
-                left: 100px;
-                /* width of first + second */
-            }
-
-            td.table-sticky-col:nth-child(4),
-            th.table-sticky-col:nth-child(4) {
-                left: 200px;
-                /* width of first + second */
-            }
-
-            td.table-sticky-col {
-                background-color: #f5f5f5 !important;
-                border: #edeaea 1px solid !important;
-            }
-
-            th.table-sticky-col {
-                background-color: #ece9e9 !important;
-            }
-
-            th {
-                text-transform: uppercase;
-                background-color: #ffc107;
-                /* Warning color in Bootstrap */
-                color: #212529;
-            }
-
-            #btn-back-to-top {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                display: block;
-                /* Leave the display as block; visibility and opacity handle appearance */
-                visibility: hidden;
-                opacity: 0;
-                transition: opacity 0.5s ease;
-            }
-
-            [readonly] {
-                background-color: #e9ecef;
-            }
-
-            /* Custom Tooltip Trigger */
-            .custom-tooltip {
-                position: relative;
-                cursor: pointer;
-                display: inline-block;
-
-            }
-
-            /* Custom Tooltip Text Styling */
-            .custom-tooltip::after {
-                content: attr(title);
-                font-family: "Be Vietnam", sans-serif;
-                /* Use the data-bs-title attribute */
-                visibility: hidden;
-                opacity: 0;
-                background-color: #333;
-                /* Dark background */
-                color: #fff;
-                /* White text */
-                text-align: center;
-                border-radius: 4px;
-                /* Rounded corners */
-                padding: 8px;
-                /* Padding inside the tooltip */
-                position: absolute;
-                bottom: 100%;
-                /* Position above the trigger */
-                left: 0;
-                transform: translateX(-50%);
-
-                transition: opacity 0.3s;
-                /* Smooth fade-in */
-                white-space: nowrap;
-                /* Prevent text wrapping */
-                font-size: 10px;
-                /* Responsive font size */
-                width: max-content;
-                max-width: 90vw;
-                /* Ensure it fits within the viewport */
-                word-wrap: break-word;
-                /* Allow breaking long words if needed */
-                margin: 10px 10px;
-
-            }
+                label::first-letter {
+                    text-transform: uppercase;
+                    /* Capitalize only the first letter */
+                }
 
 
-            /* Show the tooltip on hover */
-            .custom-tooltip:hover::after,
-            .custom-tooltip:hover::before {
-                visibility: visible;
-                opacity: 1;
+                /* Base requirement for sticky columns */
+                .table-sticky-col {
+                    position: sticky;
 
-            }
+                    z-index: 2;
+                }
 
-            .page-title-box .breadcrumb {
+                /* First sticky column */
+                td.table-sticky-col:nth-child(1),
+                th.table-sticky-col:nth-child(1) {
+                    left: 0;
+                    z-index: 3;
+                }
 
-                background-color: #ECEBEA;
-                padding: 0.6rem 0.8rem;
-                border-radius: 10px;
+                /* Second sticky column */
+                td.table-sticky-col:nth-child(2),
+                th.table-sticky-col:nth-child(2) {
+                    left: 50px;
+                    /* width of first column */
+                }
+
+                /* Third sticky column */
+                td.table-sticky-col:nth-child(3),
+                th.table-sticky-col:nth-child(3) {
+                    left: 100px;
+                    /* width of first + second */
+                }
+
+                td.table-sticky-col:nth-child(4),
+                th.table-sticky-col:nth-child(4) {
+                    left: 200px;
+                    /* width of first + second */
+                }
+
+                td.table-sticky-col {
+                    background-color: #f5f5f5 !important;
+                    border: #edeaea 1px solid !important;
+                }
+
+                th.table-sticky-col {
+                    background-color: #ece9e9 !important;
+                }
+
+                th {
+                    text-transform: uppercase;
+                    background-color: #ffc107;
+                    /* Warning color in Bootstrap */
+                    color: #212529;
+                }
+
+                #btn-back-to-top {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    display: block;
+                    /* Leave the display as block; visibility and opacity handle appearance */
+                    visibility: hidden;
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                }
+
+                [readonly] {
+                    background-color: #e9ecef;
+                }
+
+                /* Custom Tooltip Trigger */
+                .custom-tooltip {
+                    position: relative;
+                    cursor: pointer;
+                    display: inline-block;
+
+                }
+
+                /* Custom Tooltip Text Styling */
+                .custom-tooltip::after {
+                    content: attr(title);
+                    font-family: "Be Vietnam", sans-serif;
+                    /* Use the data-bs-title attribute */
+                    visibility: hidden;
+                    opacity: 0;
+                    background-color: #333;
+                    /* Dark background */
+                    color: #fff;
+                    /* White text */
+                    text-align: center;
+                    border-radius: 4px;
+                    /* Rounded corners */
+                    padding: 8px;
+                    /* Padding inside the tooltip */
+                    position: absolute;
+                    bottom: 100%;
+                    /* Position above the trigger */
+                    left: 0;
+                    transform: translateX(-50%);
+
+                    transition: opacity 0.3s;
+                    /* Smooth fade-in */
+                    white-space: nowrap;
+                    /* Prevent text wrapping */
+                    font-size: 10px;
+                    /* Responsive font size */
+                    width: max-content;
+                    max-width: 90vw;
+                    /* Ensure it fits within the viewport */
+                    word-wrap: break-word;
+                    /* Allow breaking long words if needed */
+                    margin: 10px 10px;
+
+                }
 
 
-            }
+                /* Show the tooltip on hover */
+                .custom-tooltip:hover::after,
+                .custom-tooltip:hover::before {
+                    visibility: visible;
+                    opacity: 1;
 
-            .bs5-rotate-90 {
-                transform: rotate(90deg);
-            }
+                }
 
-            .bs5-rotate-0 {
-                transform: rotate(0deg);
-            }
+                .page-title-box .breadcrumb {
 
-            .placeholder {
-                border-radius: 20px;
-                background-color: #e5e7ebc4;
-                cursor: auto;
-            }
+                    background-color: #ECEBEA;
+                    padding: 0.6rem 0.8rem;
+                    border-radius: 10px;
 
 
-            .table-secondary {
+                }
 
-                --bs-table-bg: rgb(241 241 241/1) !important;
-                --bs-table-border-color: #e5e7eb !important;
-            }
+                .bs5-rotate-90 {
+                    transform: rotate(90deg);
+                }
 
-            .role-group {
-                margin-bottom: 1rem;
-                border: 1px solid #ddd;
-                padding: 0.5rem;
-                border-radius: 6px;
-            }
+                .bs5-rotate-0 {
+                    transform: rotate(0deg);
+                }
 
-            .role-group h4 {
-                margin: 0 0 0.5rem 0;
-                font-size: 14px;
-                color: #444;
-            }
-
-            .user-chips {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-
-            .chip {
-                display: inline-flex;
-                align-items: center;
-                background: #f3f4f6;
-                border: 1px solid #ccc;
-                border-radius: 20px;
-                padding: 0.3rem 0.8rem;
-                font-size: 14px;
-                cursor: pointer;
-                transition: background 0.2s;
-            }
-
-            .chip:hover {
-                background: #e5e7eb;
-            }
+                .placeholder {
+                    border-radius: 20px;
+                    background-color: #e5e7ebc4;
+                    cursor: auto;
+                }
 
 
-            .custom-rounded-table {
-                border-collapse: separate !important;
-                border-spacing: 0;
-                border-radius: 0.5rem;
-                /* Matches Bootstrap rounded-3 */
-                overflow: hidden;
-                /* Ensures contents obey border radius */
-            }
+                .table-secondary {
 
-            /* Ensure borders look right */
-            .custom-rounded-table thead th,
-            .custom-rounded-table tbody td {
-                border-bottom: 1px solid #dee2e6;
-                /* Bootstrap border color */
-            }
+                    --bs-table-bg: rgb(241 241 241/1) !important;
+                    --bs-table-border-color: #e5e7eb !important;
+                }
 
-            .custom-rounded-table tbody tr:last-child td {
-                border-bottom: none;
-            }
+                .role-group {
+                    margin-bottom: 1rem;
+                    border: 1px solid #ddd;
+                    padding: 0.5rem;
+                    border-radius: 6px;
+                }
 
-            .main-content {
-                margin-top: 5.5rem;
-            }
+                .role-group h4 {
+                    margin: 0 0 0.5rem 0;
+                    font-size: 14px;
+                    color: #444;
+                }
+
+                .user-chips {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                }
+
+                .chip {
+                    display: inline-flex;
+                    align-items: center;
+                    background: #f3f4f6;
+                    border: 1px solid #ccc;
+                    border-radius: 20px;
+                    padding: 0.3rem 0.8rem;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+
+                .chip:hover {
+                    background: #e5e7eb;
+                }
+
+
+                .custom-rounded-table {
+                    border-collapse: separate !important;
+                    border-spacing: 0;
+                    border-radius: 0.5rem;
+                    /* Matches Bootstrap rounded-3 */
+                    overflow: hidden;
+                    /* Ensures contents obey border radius */
+                }
+
+                /* Ensure borders look right */
+                .custom-rounded-table thead th,
+                .custom-rounded-table tbody td {
+                    border-bottom: 1px solid #dee2e6;
+                    /* Bootstrap border color */
+                }
+
+                .custom-rounded-table tbody tr:last-child td {
+                    border-bottom: none;
+                }
+
+                .main-content {
+                    margin-top: 5.5rem;
+                }
         </style>
+
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/keen-slider.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
         <!-- Scripts -->
         @vite(['resources/js/app.js', 'resources/css/app.css'])
     </head>
@@ -481,7 +490,7 @@
 
                     @if (\App\Models\SystemDetail::find(1)?->maintenance_mode == 1)
                         <div class="container-fluid">
-                            <div class="alert alert-secondary ">
+                            <div class="alert alert-warning ">
                                 <span><i class="bx bx-info-circle"></i></span> <strong>The system is in maintance
                                     mode!</strong>
 
@@ -497,9 +506,9 @@
 
 
                 <footer class="py-3 mt-auto footer bg-light">
-                    <button type="button" class="btn btn-warning btn-lg rounded-circle " id="btn-back-to-top">
+                    {{-- <button type="button" class="btn btn-warning btn-lg rounded-circle " id="btn-back-to-top">
                         <i class="fas fa-angle-up"></i>
-                    </button>
+                    </button> --}}
                     <div class="container text-center">
                         <span class="text-muted">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights
                             reserved.</span>
@@ -630,85 +639,138 @@
             <!-- ✅ AutoTable plugin -->
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
+            <script src="https://cdn.jsdelivr.net/npm/keen-slider@6.8.5/keen-slider.min.js"></script>
 
 
-            @stack('scripts')
             <script>
-                $(document).ready(function() {
-                    $('.preloader').fadeOut('slow');
-                    // Get the button
-                    let mybutton = document.getElementById("btn-back-to-top");
+                document.addEventListener('DOMContentLoaded', () => {
 
-                    // Initially hide the button
-                    mybutton.style.opacity = "0";
-                    mybutton.style.visibility = "hidden";
-                    mybutton.style.transition = "opacity 0.5s ease";
+                    // Fade out preloader
+                    const preloader = document.querySelector('.preloader');
+                    if (preloader) {
+                        preloader.style.transition = 'opacity 0.6s ease';
 
-                    // When the user scrolls down 20px from the top of the document, show the button
-                    window.onscroll = function() {
-                        scrollFunction();
-                    };
+                        setTimeout(() => {
+                            preloader.style.opacity = '0';
 
-                    function scrollFunction() {
-                        if (
-                            document.body.scrollTop > 20 ||
-                            document.documentElement.scrollTop > 20
-                        ) {
-                            mybutton.style.visibility = "visible";
-                            mybutton.style.opacity = "1";
-                        } else {
-                            mybutton.style.opacity = "0";
                             setTimeout(() => {
-                                mybutton.style.visibility = "hidden";
-                            }, 500); // Match the transition duration
+                                preloader.style.display = 'none';
+                            }, 600);
+                        }, 0);
+                    }
+
+                    // Back to top button
+                    const mybutton = document.getElementById('btn-back-to-top');
+
+                    if (mybutton) {
+                        mybutton.style.opacity = '0';
+                        mybutton.style.visibility = 'hidden';
+                        mybutton.style.transition = 'opacity 0.5s ease';
+
+                        function scrollFunction() {
+                            if (
+                                document.body.scrollTop > 20 ||
+                                document.documentElement.scrollTop > 20
+                            ) {
+                                mybutton.style.visibility = 'visible';
+                                mybutton.style.opacity = '1';
+                            } else {
+                                mybutton.style.opacity = '0';
+
+                                setTimeout(() => {
+                                    mybutton.style.visibility = 'hidden';
+                                }, 500);
+                            }
                         }
+
+                        window.addEventListener('scroll', scrollFunction);
+                        scrollFunction(); // Run once on page load
+
+                        mybutton.addEventListener('click', () => {
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        });
                     }
 
-                    // When the user clicks on the button, scroll to the top of the document
-                    mybutton.addEventListener("click", backToTop);
-
-                    function backToTop() {
-                        document.body.scrollTop = 0;
-                        document.documentElement.scrollTop = 0;
-                    }
-                    if (window.location.hash !== '') {
-                        const button = document.querySelector(`a[href='${window.location.hash}']`);
+                    // Open tab from URL hash
+                    if (window.location.hash) {
+                        const button = document.querySelector(
+                            `a[href="${window.location.hash}"]`
+                        );
 
                         if (button) {
-                            setTimeout(() => {
-                                button.click();
-                            })
-
-
+                            setTimeout(() => button.click());
                         }
-
-
                     }
 
+                    // Enumerator dashboard
                     const getUserRole = @json(auth()->user()->getRoleNames()->first());
+
                     if (getUserRole === 'enumerator') {
-                        const button = document.querySelector(`a[href='#dashboard-2']`);
+                        const button = document.querySelector('a[href="#dashboard-2"]');
 
                         if (button) {
-                            setTimeout(() => {
-                                button.click();
-                            })
-
-
+                            setTimeout(() => button.click());
                         }
                     }
+
+                    // Mobile dropdown submenu
+                    document.querySelectorAll('.topnav .dropdown-menu .dropdown-toggle')
+                        .forEach(el => {
+                            el.addEventListener('click', function(e) {
+
+                                if (window.innerWidth >= 992) {
+                                    return;
+                                }
+
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                const parent = this.parentElement;
+                                parent.classList.toggle('show');
+
+                                const submenu = this.nextElementSibling;
+
+                                if (submenu) {
+                                    submenu.classList.toggle('show');
+                                }
+                            });
+                        });
                 });
 
 
+                // Global AJAX error (Fetch API)
+                const originalFetch = window.fetch;
 
-                $(document).ajaxError(function(event, jqxhr, settings, exception) {
-                    if (jqxhr.status === 419) { // 419 is the status code for Laravel's CSRF token mismatch
+                window.fetch = async (...args) => {
+                    const response = await originalFetch(...args);
 
-                        window.location.href = '/login'; // Redirect to the login page
+                    if (response.status === 419) {
+                        window.location.href = '/login';
                     }
-                });
-                document.addEventListener('livewire:init', () => {
 
+                    return response;
+                };
+
+                // Global AJAX error (XMLHttpRequest)
+                (function() {
+                    const originalOpen = XMLHttpRequest.prototype.open;
+
+                    XMLHttpRequest.prototype.open = function() {
+                        this.addEventListener('load', function() {
+                            if (this.status === 419) {
+                                window.location.href = '/login';
+                            }
+                        });
+
+                        return originalOpen.apply(this, arguments);
+                    };
+                })();
+
+                // Livewire 3
+                document.addEventListener('livewire:init', () => {
                     Livewire.hook('request', ({
                         fail
                     }) => {
@@ -717,42 +779,42 @@
                             preventDefault
                         }) => {
                             if (status === 419) {
-                                location.reload(true)
-
-                                preventDefault()
+                                location.reload(true);
+                                preventDefault();
                             }
-                        })
-                    })
-                })
-
-                document.querySelectorAll('.topnav .dropdown-menu .dropdown-toggle').forEach(function(el) {
-
-                    el.addEventListener('click', function(e) {
-
-                        if (window.innerWidth >= 992) {
-                            return;
-                        }
-
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const parent = this.parentElement;
-
-                        parent.classList.toggle('show');
-
-                        const submenu = this.nextElementSibling;
-
-                        if (submenu) {
-                            submenu.classList.toggle('show');
-                        }
-
+                        });
                     });
+
 
                 });
             </script>
 
+            <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+            <script>
+                new Swiper('.rtc-swiper', {
+                    effect: 'fade',
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                    loop: true,
+                    autoplay: {
+                        delay: 10000,
+                        disableOnInteraction: false,
+                        pauseOnMouseEnter: true
+                    },
+                    speed: 700,
+                    pagination: {
+                        el: '.rtc-swiper .swiper-pagination',
+                        clickable: true
+                    },
+                    navigation: {
+                        nextEl: '.rtc-swiper .swiper-button-next',
+                        prevEl: '.rtc-swiper .swiper-button-prev'
+                    }
+                });
+            </script>
 
-
+            @stack('scripts')
     </body>
 
 </html>

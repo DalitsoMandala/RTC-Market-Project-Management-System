@@ -5,12 +5,12 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <div class="opacity-100 pe-none">
+    <div class="opacity-25">
 
         <div class="mt-4 mb-2 row">
 
             <!-- Filter Card -->
-            <div class="border-0 shadow-sm card rounded-4" >
+            <div class="border-0 shadow-sm card rounded-4">
 
 
                 <!-- Body -->

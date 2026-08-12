@@ -1,10 +1,10 @@
 <div>
 
-    <div @update-chart.window="reRenderCharts($event.detail.data)" class="my-4" x-data="dashboard2">
+    <div @update-chart.window="reRenderCharts($event.detail.data)" class="my-4 dash-card" x-data="dashboard2">
 
 
         <!-- Volume vs Value by District (Combo Chart) -->
-        <div class="mt-4 row">
+        <div class="mt-4 row ">
             <div class="col-12">
                 <div class="shadow-sm card">
                     <x-card-header> Estimated Volume (MT) vs Value (US$) by District</x-card-header>
@@ -710,7 +710,7 @@
                     // Stroke: outline for bars + line color
                     stroke: {
                         width: [1, 1], // bar border, line width
-                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                        colors: ['#F97316', '#A85A1F'] // orange border, red line
                     },
 
                 });
@@ -781,12 +781,12 @@
                     ],
 
                     // BAR = white, LINE = red
-                    colors: ['#FFEAD8', '#FF5656'],
+                    colors: ['#FFEAD8', '#A85A1F'],
 
                     // Stroke: outline for bars + line color
                     stroke: {
                         width: [1, 1], // bar border, line width
-                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                        colors: ['#F97316', '#A85A1F'] // orange border, red line
                     },
 
                     plotOptions: {
@@ -956,12 +956,12 @@
                     ],
 
                     // BAR = white, LINE = red
-                    colors: ['#FFEAD8', '#FF5656'],
+                    colors: ['#FFEAD8', '#A85A1F'],
 
                     // Stroke: outline for bars + line color
                     stroke: {
                         width: [1, 1], // bar border, line width
-                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                        colors: ['#F97316', '#A85A1F'] // orange border, red line
                     },
 
                     plotOptions: {

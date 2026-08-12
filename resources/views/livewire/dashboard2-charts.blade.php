@@ -73,7 +73,7 @@
             setTimeout(() => {
 
                 $wire.dispatch('showCharts2');
-            }, 5000)
+            }, 1000)
         }">
 
 

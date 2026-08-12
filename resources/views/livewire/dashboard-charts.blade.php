@@ -84,7 +84,7 @@
             <livewire:charts-view :data="$data" />
 
             @hasanyrole('admin')
-                <div>
+                <div class="dash-card">
                     <div class="mt-2 row">
                         <div class="col-12">
                             <div class="card">
@@ -185,7 +185,7 @@
 
                                     <div class="overflow-hidden border table-responsive rounded-3">
                                         <table class="table align-middle table-striped table-hover ">
-                                            <thead class="table-secondary" >
+                                            <thead class="table-secondary">
 
                                                 <tr>
                                                     <th>Username</th>
@@ -201,13 +201,15 @@
                                                         <td scope="row" class="py-4">
                                                             <div class="d-flex align-items-center">
                                                                 <img src="{{ $user->image == null ? asset('assets/images/users/usr.png') : asset('storage/profiles/' . $user->image) }}"
-                                                                    class="avatar-sm rounded-circle object-fit-cover " alt="..."
-                                                                 >
+                                                                    class="avatar-sm rounded-circle object-fit-cover "
+                                                                    alt="...">
                                                                 <span class="ms-2">{{ $user->name }}</span>
                                                             </div>
 
                                                         </td>
-                                                        <td> <a href="mailto:{{ $user->email }}" style="text-decoration: underline !important;" class="text-dark">{{ $user->email }}</a></td>
+                                                        <td> <a href="mailto:{{ $user->email }}"
+                                                                style="text-decoration: underline !important;"
+                                                                class="text-dark">{{ $user->email }}</a></td>
                                                         <td>{{ $user->organisation->name }}</td>
 
                                                     </tr>
@@ -261,7 +263,7 @@
                                                     <tr>
                                                         <td scope="row" class="py-4">
                                                             <div class="d-flex align-items-center">
-                                                                <img src="{{ asset('assets/images/icons/sheet.png')  }}"
+                                                                <img src="{{ asset('assets/images/icons/sheet.png') }}"
                                                                     class="avatar-sm " alt="...">
                                                                 <span class="ms-2">
                                                                     {{ \Str::limit($item->form->name, 20, '...') }}</span>

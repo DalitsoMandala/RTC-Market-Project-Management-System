@@ -2,9 +2,9 @@
 
     <div class="main" x-data="dashboard" @updateChartData.window="updateCharts($event.detail.data)">
 
-        <div class="row">
+        <div class="row" data-aos="flip-up">
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background-color: #FFA239 !important;">
+                <div class="card bg-gradient" style="background-color: #fc931d !important;">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data.Total"></h2>
@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background: #DE8F5F">
+                <div class="card bg-gradient" style="background: #D87A24">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data.Potato"></h2>
@@ -83,7 +83,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background: #FE7743">
+                <div class="card bg-gradient" style="background: #C96B28">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text="data['Sweet potato']"></h2>
@@ -103,7 +103,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-sm-6">
-                <div class="card bg-gradient" style="background: #FF5656">
+                <div class="card bg-gradient" style="background: #A85A1F">
                     <div class="card-body d-flex align-items-center">
                         <div class="text-white me-auto">
                             <h2 class="text-white" x-text='data.Cassava'></h2>
@@ -158,8 +158,8 @@
                 </div>
             </div>
         </div>
-        <div class="row gx-2 gy-2">
-       <!-- Profession Distribution -->
+        <div class="row gx-2 gy-2 dash-card" data-aos="fade-up">
+            <!-- Profession Distribution -->
             <div class="col-12 col-xl-12">
                 <div class="shadow-sm card h-100">
                     <div class="border-0 card-header ">
@@ -326,12 +326,12 @@
                         data: this.professionChart
                     }],
                     // BAR = white, LINE = red
-                    colors: ['#FFEAD8', '#FF5656'],
+                    colors: ['#FFEAD8', '#A85A1F'],
 
                     // Stroke: outline for bars + line color
                     stroke: {
                         width: [1, 1], // bar border, line width
-                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                        colors: ['#F97316', '#A85A1F'] // orange border, red line
                     },
 
                     plotOptions: {
@@ -400,12 +400,12 @@
                     },
 
                     // BAR = white, LINE = red
-                    colors: ['#FFEAD8', '#FF5656'],
+                    colors: ['#FFEAD8', '#A85A1F'],
 
                     // Stroke: outline for bars + line color
                     stroke: {
                         width: [1, 1], // bar border, line width
-                        colors: ['#F97316', '#FF5656'] // orange border, red line
+                        colors: ['#F97316', '#A85A1F'] // orange border, red line
                     },
 
                     plotOptions: {
