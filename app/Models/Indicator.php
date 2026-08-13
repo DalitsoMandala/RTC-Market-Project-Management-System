@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Indicator extends Model
 {
@@ -26,8 +25,6 @@ class Indicator extends Model
         return $this->hasManyThrough(Organisation::class, ResponsiblePerson::class, 'indicator_id', 'id', 'id', 'organisation_id');
     }
 
-
-
     public function forms()
     {
         return $this->belongsToMany(Form::class, 'indicator_form');
@@ -38,7 +35,7 @@ class Indicator extends Model
         return $this->hasMany(IndicatorDisaggregation::class, 'indicator_id');
     }
 
-    public function class()
+    public function class ()
     {
         return $this->hasOne(IndicatorClass::class, 'indicator_id');
     }
@@ -49,19 +46,17 @@ class Indicator extends Model
         return $this->hasMany(SubmissionPeriod::class, 'indicator_id');
     }
 
-
-
     public function indicatorTargets()
     {
         return $this->hasMany(IndicatorTarget::class, 'indicator_id');
     }
 
+    public function submissionTargets()
+    {
 
-public function submissionTargets(){
-
-    return $this->hasMany(SubmissionTarget::class, 'indicator_id');
-}
-  protected static function booted()
+        return $this->hasMany(SubmissionTarget::class, 'indicator_id');
+    }
+    protected static function booted()
     {
         static::deleting(function ($indicator) {
             // This will automatically delete related records

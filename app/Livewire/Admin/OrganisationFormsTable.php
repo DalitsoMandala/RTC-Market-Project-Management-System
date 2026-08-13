@@ -1,26 +1,18 @@
 <?php
-
 namespace App\Livewire\admin;
 
-use App\Models\Form;
-use App\Models\User;
-use App\Models\Source;
 use App\Models\Indicator;
 use App\Models\Organisation;
-use Illuminate\Support\Carbon;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class OrganisationFormsTable extends PowerGridComponent
 {
@@ -28,7 +20,6 @@ final class OrganisationFormsTable extends PowerGridComponent
 
     public function setUp(): array
     {
-
 
         return [
 
@@ -62,57 +53,31 @@ final class OrganisationFormsTable extends PowerGridComponent
             ->add('indicator_id')
             ->add('indicator_no', fn($model) => $model->indicator_no)
             ->add('indicator', fn($model) => $model->indicator_name)
-            // ->add('forms', function ($model) {
-            //     $sources = $model->responsiblePeopleforIndicators->pluck('id');
+            ->add('forms', function ($model) {
+                $data = $model->forms->pluck('name');
 
-            //     $assigned = Source::whereIn('person_id', $sources)->get();
-
-            //     $arrayMap = [];
-
-            //     foreach ($assigned as $source) {
-            //         $form = Form::find($source->form_id)->name;
-            //         $person = ResponsiblePerson::where('id', $source->person_id)
-            //             ->where('indicator_id', $model->id)
-            //             ->first();
-            //         $organisation = $person->organisation->name;
-
-            //         // Append the form name to the corresponding organisation in the array map
-            //         $arrayMap[$organisation][] = $form;
-            //     }
-
-            //     // Generate the HTML for the Bootstrap list group
-            //     $html = '<ul class="list-group">';
-
-            //     foreach ($arrayMap as $organisation => $forms) {
-            //         $html .= '<li class="list-group-item"><b>' . $organisation . '</b> (' . implode(', ', $forms) . ')</li>';
-            //     }
-
-            //     $html .= '</ul>';
-
-            //     return $html;
-            // })
-
-
+                return implode(', ', $data->toArray());
+            })
             ->add('type_of_submission')
             ->add('form_id')
             ->add('created_at')
             ->add('updated_at');
     }
 
-
     public function columns(): array
     {
         return [
             Column::make('#', 'id'),
             Column::make('Indicator #', 'indicator_no')->searchable(),
-            Column::make('Indicator', 'indicator', 'indicator_name')->searchable(),
-            Column::make('Organisation', 'organisation')->searchable(),
+            Column::make('Indicator', 'indicator', 'indicator_name')->searchable()->headerAttribute(styleAttr: "min-width:300px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap"),
+            Column::make('Organisation', 'organisation')->searchable()->headerAttribute(styleAttr: "min-width:300px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap"),
 
-            //  Column::make('Assigned Forms', 'forms')->searchable(),
+            Column::make('Assigned Forms', 'forms')->headerAttribute(styleAttr: "min-width:300px;")
+                ->bodyAttribute(styleAttr: "white-space:wrap")->searchable(),
 
-
-
-            Column::action('')
+            Column::action(''),
         ];
     }
 
@@ -121,7 +86,8 @@ final class OrganisationFormsTable extends PowerGridComponent
         return [];
     }
     #[\Livewire\Attributes\On('refresh')]
-    public function refreshData(): void {}
+    public function refreshData(): void
+    {}
 
     public function actions($row): array
     {
@@ -131,10 +97,10 @@ final class OrganisationFormsTable extends PowerGridComponent
                 ->id()
                 ->class('btn btn-warning btn-sm goUp custom-tooltip')
                 ->tooltip('Edit')
-                ->can(User::find(auth()->user()->id)->hasAnyRole('admin') )
+                ->can(User::find(auth()->user()->id)->hasAnyRole('admin'))
                 ->dispatch('showModal', [
                     'rowId' => $row->id,
-                    'name' => 'view-modal'
+                    'name'  => 'view-modal',
                 ]),
 
         ];

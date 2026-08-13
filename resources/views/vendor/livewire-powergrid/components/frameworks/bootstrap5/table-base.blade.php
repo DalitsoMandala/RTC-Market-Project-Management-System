@@ -4,10 +4,8 @@
             'enabledFilters' => $enabledFilters,
         ])
     </div>
-    <div
-        class="{{ data_get($theme, 'table.divClass') }} border rounded-3 "
-        style="{{ data_get($theme, 'table.divStyle') }}"
-    >
+    <div class="{{ data_get($theme, 'table.divClass') }} border rounded-3 "
+        style="{{ data_get($theme, 'table.divStyle') }}">
         @include($table)
     </div>
     <div class="row">
