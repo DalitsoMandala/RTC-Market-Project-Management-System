@@ -72,13 +72,13 @@ final class IndicatorTable extends PowerGridComponent
                     'indicators.*',
                     'indicator_classes.class as file_location',
                     DB::Raw('ROW_NUMBER() OVER (ORDER BY indicators.id) AS rn'),
-                ]);
-            x
+                ])
+
             // 1st: Active items (1) first, Inactive items (0) at the end
                 ->orderBy('indicators.is_active', 'desc')
-                // 2nd: Letters first, then numbers
+            // 2nd: Letters first, then numbers
                 ->orderByRaw("CASE WHEN indicators.indicator_no REGEXP '^[a-zA-Z]' THEN 0 ELSE 1 END ASC")
-                // 3rd: Indicator number sorting
+            // 3rd: Indicator number sorting
                 ->orderBy('indicators.indicator_no', 'asc');
 
         } else {
@@ -91,7 +91,7 @@ final class IndicatorTable extends PowerGridComponent
                 'forms',
             ])->whereHas('responsiblePeopleforIndicators', function ($query) use ($organisation_id) {
                 $query->where('organisation_id', $organisation_id);
-            });
+            })->where('indicators.is_active', 1);
 
             return $data->select([
                 'indicators.*',
