@@ -1,26 +1,12 @@
 <?php
 namespace App\Helpers\rtc_market\indicators;
 
+use App\Helpers\rtc_market\indicators\base;
 use App\Models\Recruitment;
-use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
-class indicator_A1
+class indicator_A1 extends base
 {
-    use FilterableQuery;
-
-    protected $financial_year;
-    protected $reporting_period;
-    protected $organisation_id;
-    protected $enterprise;
-
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
-    {
-        $this->reporting_period = $reporting_period;
-        $this->financial_year   = $financial_year;
-        $this->organisation_id  = $organisation_id;
-        $this->enterprise       = $enterprise;
-    }
 
     public function builder(): Builder
     {
@@ -197,20 +183,20 @@ class indicator_A1
             $totals = $this->peopleTotals(enterprise: $crop);
 
             $cropTotals[$crop] =
-                $totals['members'] +
-                $totals['employees'] +
-                $traders[$crop];
+            $totals['members'] +
+            //         $totals['employees'] +
+            $traders[$crop];
         }
 
         $new =
         $this->peopleTotals(estType: 'New')['members'] +
-        $this->peopleTotals(estType: 'New')['employees'] +
-            $traders['New establishment'];
+        //  $this->peopleTotals(estType: 'New')['employees'] +
+        $traders['New establishment'];
 
         $old =
         $this->peopleTotals(estType: 'Old')['members'] +
-        $this->peopleTotals(estType: 'Old')['employees'] +
-            $traders['Old establishment'];
+        // $this->peopleTotals(estType: 'Old')['employees'] +
+        $traders['Old establishment'];
 
         /*
         |--------------------------------------------------------------------------
@@ -219,24 +205,25 @@ class indicator_A1
         | Total = Members + Employees + Traders
         */
         $totalPeople =
-            $totalMembers +
-            $totalEmployees +
-            $traders['total'];
+        $totalMembers +
+        // $totalEmployees +
+        $traders['total'];
 
-        return [
+        $disaggregations = $this->getIndicatorDisaggregations('A1');
 
-            'Total'             => $totalPeople ?? 0,
-            'Farmers'           => $actorTotals['Farmers'] ?? 0,
-            'Processors'        => $actorTotals['Processors'] ?? 0,
-            'Aggregators'       => $actorTotals['Aggregators'] ?? 0,
-            'Transporters'      => $actorTotals['Transporters'] ?? 0,
-            'Traders'           => $traders['total'] ?? 0,
-            'Employees'         => $totalEmployees ?? 0,
-            'Cassava'           => $cropTotals['Cassava'] ?? 0,
-            'Potato'            => $cropTotals['Potato'] ?? 0,
-            'Sweet potato'      => $cropTotals['Sweet potato'] ?? 0,
-            'New establishment' => $new ?? 0,
-            'Old establishment' => $old ?? 0,
-        ];
+        $disaggregations->put('Total', $totalPeople ?? 0);
+        $disaggregations->put('Farmers', $actorTotals['Farmers'] ?? 0);
+        $disaggregations->put('Processors', $actorTotals['Processors'] ?? 0);
+        $disaggregations->put('Aggregators', $actorTotals['Aggregators'] ?? 0);
+        $disaggregations->put('Transporters', $actorTotals['Transporters'] ?? 0);
+        $disaggregations->put('Traders', $traders['total'] ?? 0);
+        $disaggregations->put('Employees', $totalEmployees ?? 0);
+        $disaggregations->put('Cassava', $cropTotals['Cassava'] ?? 0);
+        $disaggregations->put('Potato', $cropTotals['Potato'] ?? 0);
+        $disaggregations->put('Sweet potato', $cropTotals['Sweet potato'] ?? 0);
+        $disaggregations->put('New establishment', $new ?? 0);
+        $disaggregations->put('Old establishment', $old ?? 0);
+
+        return $disaggregations->toArray();
     }
 }
