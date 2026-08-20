@@ -235,235 +235,233 @@
             }
 
             .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice .select2-selection__choice__remove {
-                width: .75rem;
-                height: .75rem;
-                padding: .55em;
-                margin-right: .25rem;
-                overflow: hidden;
-                text-indent: 100%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 0.75rem;
+                height: 0.75rem;
+                padding: 0;
+                margin-right: 0.25rem;
+                background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/contain no-repeat;
+                border: 0;
+            }
+
+
+
+            label::first-letter {
+                text-transform: uppercase;
+                /* Capitalize only the first letter */
+            }
+
+
+            /* Base requirement for sticky columns */
+            .table-sticky-col {
+                position: sticky;
+
+                z-index: 2;
+            }
+
+            /* First sticky column */
+            td.table-sticky-col:nth-child(1),
+            th.table-sticky-col:nth-child(1) {
+                left: 0;
+                z-index: 3;
+            }
+
+            /* Second sticky column */
+            td.table-sticky-col:nth-child(2),
+            th.table-sticky-col:nth-child(2) {
+                left: 50px;
+                /* width of first column */
+            }
+
+            /* Third sticky column */
+            td.table-sticky-col:nth-child(3),
+            th.table-sticky-col:nth-child(3) {
+                left: 100px;
+                /* width of first + second */
+            }
+
+            td.table-sticky-col:nth-child(4),
+            th.table-sticky-col:nth-child(4) {
+                left: 200px;
+                /* width of first + second */
+            }
+
+            td.table-sticky-col {
+                background-color: #f5f5f5 !important;
+                border: #edeaea 1px solid !important;
+            }
+
+            th.table-sticky-col {
+                background-color: #ece9e9 !important;
+            }
+
+            th {
+                text-transform: uppercase;
+                background-color: #ffc107;
+                /* Warning color in Bootstrap */
+                color: #212529;
+            }
+
+            #btn-back-to-top {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                display: block;
+                /* Leave the display as block; visibility and opacity handle appearance */
+                visibility: hidden;
+                opacity: 0;
+                transition: opacity 0.5s ease;
+            }
+
+            [readonly] {
+                background-color: #e9ecef;
+            }
+
+            /* Custom Tooltip Trigger */
+            .custom-tooltip {
+                position: relative;
+                cursor: pointer;
+                display: inline-block;
+
+            }
+
+            /* Custom Tooltip Text Styling */
+            .custom-tooltip::after {
+                content: attr(title);
+                font-family: "Be Vietnam", sans-serif;
+                /* Use the data-bs-title attribute */
+                visibility: hidden;
+                opacity: 0;
+                background-color: #333;
+                /* Dark background */
+                color: #fff;
+                /* White text */
+                text-align: center;
+                border-radius: 4px;
+                /* Rounded corners */
+                padding: 8px;
+                /* Padding inside the tooltip */
+                position: absolute;
+                bottom: 100%;
+                /* Position above the trigger */
+                left: 0;
+                transform: translateX(-50%);
+
+                transition: opacity 0.3s;
+                /* Smooth fade-in */
                 white-space: nowrap;
-                background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'
- fill='%23FFFFFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293
- 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") 50%/.75rem auto no-repeat;
+                /* Prevent text wrapping */
+                font-size: 10px;
+                /* Responsive font size */
+                width: max-content;
+                max-width: 90vw;
+                /* Ensure it fits within the viewport */
+                word-wrap: break-word;
+                /* Allow breaking long words if needed */
+                margin: 10px 10px;
 
-                        border: 0;
-                }
-
-
-                label::first-letter {
-                    text-transform: uppercase;
-                    /* Capitalize only the first letter */
-                }
-
-
-                /* Base requirement for sticky columns */
-                .table-sticky-col {
-                    position: sticky;
-
-                    z-index: 2;
-                }
-
-                /* First sticky column */
-                td.table-sticky-col:nth-child(1),
-                th.table-sticky-col:nth-child(1) {
-                    left: 0;
-                    z-index: 3;
-                }
-
-                /* Second sticky column */
-                td.table-sticky-col:nth-child(2),
-                th.table-sticky-col:nth-child(2) {
-                    left: 50px;
-                    /* width of first column */
-                }
-
-                /* Third sticky column */
-                td.table-sticky-col:nth-child(3),
-                th.table-sticky-col:nth-child(3) {
-                    left: 100px;
-                    /* width of first + second */
-                }
-
-                td.table-sticky-col:nth-child(4),
-                th.table-sticky-col:nth-child(4) {
-                    left: 200px;
-                    /* width of first + second */
-                }
-
-                td.table-sticky-col {
-                    background-color: #f5f5f5 !important;
-                    border: #edeaea 1px solid !important;
-                }
-
-                th.table-sticky-col {
-                    background-color: #ece9e9 !important;
-                }
-
-                th {
-                    text-transform: uppercase;
-                    background-color: #ffc107;
-                    /* Warning color in Bootstrap */
-                    color: #212529;
-                }
-
-                #btn-back-to-top {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    display: block;
-                    /* Leave the display as block; visibility and opacity handle appearance */
-                    visibility: hidden;
-                    opacity: 0;
-                    transition: opacity 0.5s ease;
-                }
-
-                [readonly] {
-                    background-color: #e9ecef;
-                }
-
-                /* Custom Tooltip Trigger */
-                .custom-tooltip {
-                    position: relative;
-                    cursor: pointer;
-                    display: inline-block;
-
-                }
-
-                /* Custom Tooltip Text Styling */
-                .custom-tooltip::after {
-                    content: attr(title);
-                    font-family: "Be Vietnam", sans-serif;
-                    /* Use the data-bs-title attribute */
-                    visibility: hidden;
-                    opacity: 0;
-                    background-color: #333;
-                    /* Dark background */
-                    color: #fff;
-                    /* White text */
-                    text-align: center;
-                    border-radius: 4px;
-                    /* Rounded corners */
-                    padding: 8px;
-                    /* Padding inside the tooltip */
-                    position: absolute;
-                    bottom: 100%;
-                    /* Position above the trigger */
-                    left: 0;
-                    transform: translateX(-50%);
-
-                    transition: opacity 0.3s;
-                    /* Smooth fade-in */
-                    white-space: nowrap;
-                    /* Prevent text wrapping */
-                    font-size: 10px;
-                    /* Responsive font size */
-                    width: max-content;
-                    max-width: 90vw;
-                    /* Ensure it fits within the viewport */
-                    word-wrap: break-word;
-                    /* Allow breaking long words if needed */
-                    margin: 10px 10px;
-
-                }
+            }
 
 
-                /* Show the tooltip on hover */
-                .custom-tooltip:hover::after,
-                .custom-tooltip:hover::before {
-                    visibility: visible;
-                    opacity: 1;
+            /* Show the tooltip on hover */
+            .custom-tooltip:hover::after,
+            .custom-tooltip:hover::before {
+                visibility: visible;
+                opacity: 1;
 
-                }
+            }
 
-                .page-title-box .breadcrumb {
+            .page-title-box .breadcrumb {
 
-                    background-color: #ECEBEA;
-                    padding: 0.6rem 0.8rem;
-                    border-radius: 10px;
-
-
-                }
-
-                .bs5-rotate-90 {
-                    transform: rotate(90deg);
-                }
-
-                .bs5-rotate-0 {
-                    transform: rotate(0deg);
-                }
-
-                .placeholder {
-                    border-radius: 20px;
-                    background-color: #e5e7ebc4;
-                    cursor: auto;
-                }
+                background-color: #ECEBEA;
+                padding: 0.6rem 0.8rem;
+                border-radius: 10px;
 
 
-                .table-secondary {
+            }
 
-                    --bs-table-bg: rgb(241 241 241/1) !important;
-                    --bs-table-border-color: #e5e7eb !important;
-                }
+            .bs5-rotate-90 {
+                transform: rotate(90deg);
+            }
 
-                .role-group {
-                    margin-bottom: 1rem;
-                    border: 1px solid #ddd;
-                    padding: 0.5rem;
-                    border-radius: 6px;
-                }
+            .bs5-rotate-0 {
+                transform: rotate(0deg);
+            }
 
-                .role-group h4 {
-                    margin: 0 0 0.5rem 0;
-                    font-size: 14px;
-                    color: #444;
-                }
-
-                .user-chips {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 0.5rem;
-                }
-
-                .chip {
-                    display: inline-flex;
-                    align-items: center;
-                    background: #f3f4f6;
-                    border: 1px solid #ccc;
-                    border-radius: 20px;
-                    padding: 0.3rem 0.8rem;
-                    font-size: 14px;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                }
-
-                .chip:hover {
-                    background: #e5e7eb;
-                }
+            .placeholder {
+                border-radius: 20px;
+                background-color: #e5e7ebc4;
+                cursor: auto;
+            }
 
 
-                .custom-rounded-table {
-                    border-collapse: separate !important;
-                    border-spacing: 0;
-                    border-radius: 0.5rem;
-                    /* Matches Bootstrap rounded-3 */
-                    overflow: hidden;
-                    /* Ensures contents obey border radius */
-                }
+            .table-secondary {
 
-                /* Ensure borders look right */
-                .custom-rounded-table thead th,
-                .custom-rounded-table tbody td {
-                    border-bottom: 1px solid #dee2e6;
-                    /* Bootstrap border color */
-                }
+                --bs-table-bg: rgb(241 241 241/1) !important;
+                --bs-table-border-color: #e5e7eb !important;
+            }
 
-                .custom-rounded-table tbody tr:last-child td {
-                    border-bottom: none;
-                }
+            .role-group {
+                margin-bottom: 1rem;
+                border: 1px solid #ddd;
+                padding: 0.5rem;
+                border-radius: 6px;
+            }
 
-                .main-content {
-                    margin-top: 5.5rem;
-                }
+            .role-group h4 {
+                margin: 0 0 0.5rem 0;
+                font-size: 14px;
+                color: #444;
+            }
+
+            .user-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                background: #f3f4f6;
+                border: 1px solid #ccc;
+                border-radius: 20px;
+                padding: 0.3rem 0.8rem;
+                font-size: 14px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .chip:hover {
+                background: #e5e7eb;
+            }
+
+
+            .custom-rounded-table {
+                border-collapse: separate !important;
+                border-spacing: 0;
+                border-radius: 0.5rem;
+                /* Matches Bootstrap rounded-3 */
+                overflow: hidden;
+                /* Ensures contents obey border radius */
+            }
+
+            /* Ensure borders look right */
+            .custom-rounded-table thead th,
+            .custom-rounded-table tbody td {
+                border-bottom: 1px solid #dee2e6;
+                /* Bootstrap border color */
+            }
+
+            .custom-rounded-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .main-content {
+                margin-top: 5.5rem;
+            }
         </style>
 
 

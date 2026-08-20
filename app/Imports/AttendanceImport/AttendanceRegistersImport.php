@@ -103,7 +103,7 @@ class AttendanceRegistersImport implements ToModel, WithHeadingRow, WithValidati
     {
         return [
             'Meeting Title'    => 'required|string|max:255',
-            'Meeting Category' => 'required|string|max:255|in:Training,Meeting,Workshop',
+            'Meeting Category' => 'required|string|max:255|in:Training,Meeting,Workshop,Nutrition Training,Other',
             'Cassava'          => 'boolean',
             'Potato'           => 'boolean',
             'Sweet Potato'     => 'boolean',

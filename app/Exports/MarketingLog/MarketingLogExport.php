@@ -1,7 +1,9 @@
 <?php
-namespace App\Exports\AttendanceExport;
+namespace App\Exports\MarketingLog;
 
+use App\Models\CropVariety;
 use App\Traits\ExportStylingTrait;
+use App\Traits\FormEssentials;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -10,24 +12,36 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
+class MarketingLogExport implements FromCollection, WithHeadings, WithTitle, WithStrictNullComparison, ShouldAutoSize, WithEvents
 {
     use ExportStylingTrait;
-    use \App\Traits\FormEssentials;
-    public $template           = false;
-    protected $validationTypes = [];
-    public function __construct($template = false)
-    {
+    use FormEssentials;
 
+    protected $rowNumber = 0; // Start counting from 1
+    public bool $template;
+    protected $validationTypes = [];
+
+    public function __construct(bool $template)
+    {
         $this->template        = $template;
-        $this->validationTypes = $this->forms['Attendance Register Form']['Attendance Register'];
+        $this->validationTypes = $this->forms['Production and Marketing Log']['RTC-Market Data'];
     }
 
     public function collection()
     {
+
         if ($this->template) {
             return collect([]);
         }
+    }
+
+    public function headings(): array
+    {
+        return [
+
+            array_keys($this->validationTypes),
+            array_values($this->validationTypes),
+        ];
     }
 
     public function registerEvents(): array
@@ -59,47 +73,47 @@ class AttendanceRegistersExport implements FromCollection, WithHeadings, WithTit
 
                 $sheet = $event->sheet->getDelegate();
 
-                // Define the dropdown options
                 $dropdownOptions = [
 
-                    'Training',
-                    'Meeting',
-                    'Workshop',
-                    'Nutrition Training',
-                    'Other',
+                    'Potato',
+                    'Sweet potato',
+                    'Cassava',
+                ];
+                $this->setDataValidations($dropdownOptions, 'E3', $sheet);
+
+                $dropdownOptions = [
+                    'Table Potato', 'Seed',
 
                 ]; // Includes an empty option
 
-                $this->setDataValidations($dropdownOptions, 'B3', $sheet);
+                //Group
+                $this->setDataValidations($dropdownOptions, 'F3', $sheet);
+
                 $dropdownOptions = [
+                    "Rainfed", 'Winter',
 
-                    'Farmer',
-                    'Processor',
-                    'Trader',
-                    'Partner',
-                    'Staff',
-                    'Aggregator',
-                    'Transporter',
-                    'Other',
+                ];
 
-                ]; // Includes an empty option
+                //Category
+                $this->setDataValidations($dropdownOptions, 'G3', $sheet);
+
+                $dropdownOptions = [
+                    'Male',
+                    'Female',
+                ];
+
+                //Sector
+                $this->setDataValidations($dropdownOptions, 'L3', $sheet);
+
+                $dropdownOptions = CropVariety::all()->pluck('name')->toArray();
+                //Type
                 $this->setDataValidations($dropdownOptions, 'O3', $sheet);
             },
         ];
     }
 
-    public function headings(): array
-    {
-        return [
-
-            array_keys($this->validationTypes),
-            array_values($this->validationTypes),
-
-        ];
-    }
-
     public function title(): string
     {
-        return 'Attendance Register';
+        return 'RTC-Market Data';
     }
 }

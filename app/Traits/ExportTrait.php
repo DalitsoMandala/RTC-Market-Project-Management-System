@@ -1,20 +1,18 @@
 <?php
-
 namespace App\Traits;
 
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Illuminate\Support\Str;
 use App\Jobs\ExcelExportJob;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 
 trait ExportTrait
 {
     public $batchID;
-    public $exporting = false;
+    public $exporting      = false;
     public $exportFinished = false;
 
     public $exportFailed = false;
@@ -27,19 +25,19 @@ trait ExportTrait
 
     public array $excelData = [];
 
-
     public function execute($Modelname)
     {
+
         $this->Modelname = $Modelname;
     }
     public function performExport()
     {
 
-        $user = User::find(auth()->user()->id);
-        $this->exporting = true;
+        $user                 = User::find(auth()->user()->id);
+        $this->exporting      = true;
         $this->exportFinished = false;
-        $this->exportFailed = false;
-        $id = Str::random();
+        $this->exportFailed   = false;
+        $id                   = Str::random();
         $this->exportUniqueId = $id;
 
         $batch = Bus::batch([
@@ -48,21 +46,21 @@ trait ExportTrait
             ->dispatch();
 
         $this->batchID = $batch->id;
- $this->dispatch('exporting-reports');
+        $this->dispatch('exporting-reports');
 
     }
 
-
     public function BatchProperty()
     {
-        if (!$this->batchID) {
+        if (! $this->batchID) {
             return null;
         }
 
         return Bus::findBatch($this->batchID);
     }
 
-    public function failedJobs() {}
+    public function failedJobs()
+    {}
 
     public function exportProgress()
     {
@@ -70,12 +68,12 @@ trait ExportTrait
 
         // If batch is found, check for progress and update status
         if ($batch) {
-            $this->progress = $batch->progress();  // Update progress
+            $this->progress = $batch->progress(); // Update progress
 
             if ($batch->finished()) {
-                $this->exporting = false;
+                $this->exporting      = false;
                 $this->exportFinished = true;
-                $this->exportFailed = $batch->failedJobs > 0;
+                $this->exportFailed   = $batch->failedJobs > 0;
 
                 if ($this->exportFailed) {
                     $this->failedJobErrors = [];
@@ -86,28 +84,30 @@ trait ExportTrait
                         if ($failedJob) {
                             // Collect exception messages for UI or further handling
                             $this->failedJobErrors[] = [
-                                'uuid' => $failedJob->uuid,
+                                'uuid'      => $failedJob->uuid,
                                 'exception' => $failedJob->exception,
                             ];
 
                             // Optionally log for developers
                             Log::error("Export batch job failed: {$failedJob->uuid}", [
                                 'exception' => $failedJob->exception,
-                                'payload' => $failedJob->payload,
+                                'payload'   => $failedJob->payload,
                             ]);
                         }
                     }
 
+                } else {
+                    $this->dispatch('finished-reports');
+                    sleep(1);
 
+                    if ($this->Modelname === 'seedBeneficiaries' && ! empty($this->excelData) && array_key_exists('crop_type', $this->excelData)) {
+                        $this->dispatch('download-export' . '_' . str_replace(' ', '_', $this->excelData['crop_type']));
+                        return;
+                    }
+
+                    $this->dispatch('download-export');
                 }
 
-                if ($this->Modelname === 'seedBeneficiaries' && !empty($this->excelData) && array_key_exists('crop_type', $this->excelData)) {
-                    $this->dispatch('download-export' . '_' . str_replace(' ', '_', $this->excelData['crop_type']));
-                    return;
-                }
-                   $this->dispatch('finished-reports');
-                   sleep(1);
-                $this->dispatch('download-export');
             }
         }
     }

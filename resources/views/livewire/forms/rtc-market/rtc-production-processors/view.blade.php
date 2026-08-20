@@ -13,7 +13,7 @@
 
                     <div class="page-title-left col-12" wire:ignore>
                         @php
-                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                            $routePrefix = trim(Route::current()->getPrefix(), '/');
                         @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
@@ -28,7 +28,7 @@
         <div class="card">
             <x-card-header>RTC Production Processors Table</x-card-header>
             <div class=" card-body" id="#datatable">
-                <ul class=" nav nav-tabs " id="myTab" role="tablist">
+                <ul class=" nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active text-capitalize" id="batch-tab" data-bs-toggle="tab"
                             data-bs-target="#normal" type="button" role="tab" aria-controls="home"
@@ -75,7 +75,7 @@
                     </li>
                 </ul>
                 <!-- Tab panes -->
-                <div class="tab-content mt-2">
+                <div class="mt-2 tab-content">
                     <div class=" tab-pane active fade show" id="normal" role="tabpanel" aria-labelledby="home-tab">
                         <livewire:tables.rtc-market.rtc-production-processors-table :key="'rpm1'" :userId="auth()->user()->id"
                             :routePrefix="Route::current()->getPrefix()" />

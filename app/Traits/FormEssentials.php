@@ -516,6 +516,30 @@ trait FormEssentials
             ],
 
         ],
+        'Production and Marketing Log'   => [
+            'RTC-Market Data' => [
+                'District'               => 'Required, Text',
+                'EPA'                    => 'Required, Text',
+                'Section'                => 'Required, Text',
+                'Name of group'          => 'Required, Text',
+                'Crop'                   => 'Required, Choose one option',
+                'Type of farming'        => 'Required, Choose one option',
+                'Season'                 => 'Required, Choose one option',
+                'Name of group Chair'    => 'Required, Text',
+                'Contact of group chair' => 'Required, Text',
+                'Name of farmer'         => 'Required, Text',
+                'ID No/Phone No.'        => 'Required, Text',
+                'Sex'                    => 'Required, Choose one option',
+                'Age'                    => 'Required, Number',
+                'Area grown (acre)'      => 'Required, Number',
+                'Variety'                => 'Required, Choose one option',
+                'Harvesting units'       => 'Required, Number',
+                'Unit weight (Kg)'       => 'Required, Number',
+                'QTY'                    => 'Required, Number',
+                'Selling price'          => 'Required, Number',
+                'Main buyer'             => 'Required, Text',
+            ],
+        ],
     ];
 
     protected function AggregatedReportColumns(): array

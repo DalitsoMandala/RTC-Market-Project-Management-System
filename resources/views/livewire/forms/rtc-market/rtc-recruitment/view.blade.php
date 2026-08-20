@@ -13,7 +13,7 @@
 
                     <div class="page-title-left col-12" wire:ignore>
                         @php
-                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                            $routePrefix = trim(Route::current()->getPrefix(), '/');
                         @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
@@ -29,10 +29,10 @@
 
 
         <div class="card">
-<x-card-header>RTC Actor Recruitment Table</x-card-header>
+            <x-card-header>RTC Actor Recruitment Table</x-card-header>
             <div class=" card-body">
                 <!-- Nav tabs -->
-                <ul class=" nav nav-tabs " id="myTab" role="tablist">
+                <ul class=" nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
                             type="button" role="tab" aria-controls="home" aria-selected="true">
@@ -48,8 +48,8 @@
 
                 </ul>
 
-                <div class="tab-content mt-2">
-                    <div class="tab-pane  active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <div class="mt-2 tab-content">
+                    <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
 
 
 

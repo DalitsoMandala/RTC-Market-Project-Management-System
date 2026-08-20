@@ -1,72 +1,118 @@
-<div {{ $attributes->merge(['class' => '']) }} wire:ignore x-data="{}" x-init="const inputElement = $refs.input;
-pond = FilePond.create($refs.input, {
-    server: {
-        process: (fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-
-            setTimeout(() => {
-                @this.upload('{{ $attributes['wire:model'] }}', file, load, error, progress)
-            }, 2000)
-
-
+<div {{ $attributes->except(['wire:model', 'instantUpload'])->merge(['class' => '']) }} wire:ignore x-data
+    x-init="const inputElement = $refs.input;
+    
+    const pond = FilePond.create(inputElement, {
+        server: {
+            process: (
+                fieldName,
+                file,
+                metadata,
+                load,
+                error,
+                progress,
+                abort,
+                transfer,
+                options
+            ) => {
+    
+                $wire.upload(
+                    '{{ $attributes['wire:model'] }}',
+                    file,
+                    load,
+                    error,
+                    progress
+                );
+    
+                return {
+                    abort: () => {
+                        abort();
+                    }
+                };
+            },
+    
+            revert: (filename, load, error) => {
+    
+                $wire.removeUpload(
+                    '{{ $attributes['wire:model'] }}',
+                    filename,
+                    load,
+                    error
+                );
+            }
         },
-        revert: (filename, load) => {
-
-            //      setTimeout(() => {
-            @this.removeUpload('{{ $attributes['wire:model'] }}', filename, load)
-            //  }, 5000)
-
-        },
-    },
-    acceptedFileTypes: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-    labelFileTypeNotAllowed: 'Only Excel files  are allowed.',
-    fileValidateTypeLabelExpectedTypes: 'Expects (.xlsx)',
-    labelInvalidField: 'Invalid file',
-    credits: false,
-    maxFileSize: '5MB',
-    allowRevert: true,
-    //  instantUpload: false,
-    forceRevert: true,
-    // allowProcess: true,
-    allowRemove: true,
-    onerror: (file, error) => {
-        $wire.dispatch('remove-errors');
-    },
-    instantUpload: {{ $attributes['instantUpload'] }}
-});
-
-$wire.on('removeUploadedFile', function() {
-
-    myTimeout = setTimeout(() => {
-        pond.removeFiles({ revert: true });
-    }, 5000);
-
-
-});
-
-$wire.on('errorRemove', function() {
-
-
-    // pond.removeFiles({ revert: true });
-
-
-});
-
-// Listen for upload progress event
-pond.on('addfile', (error, file) => {
-
-    $wire.dispatch('uploading-files');
-});
-
-
-
-
-pond.on('processfiles', () => {
-    $wire.dispatch('finished-uploading');
-
-});">
-
-
-    <!-- An unexamined life is not worth living. - Socrates -->
-    <input type="file" {{ $attributes->merge(['class' => 'form-control']) }} x-ref="input"
-        wire:loading.attr='disabled' />
+    
+        acceptedFileTypes: [
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ],
+    
+        labelFileTypeNotAllowed: 'Only Excel files are allowed.',
+    
+        fileValidateTypeLabelExpectedTypes: 'Expects (.xlsx)',
+    
+        labelInvalidField: 'Invalid file',
+    
+        credits: false,
+    
+        maxFileSize: '5MB',
+    
+        allowRevert: true,
+    
+        forceRevert: true,
+    
+        allowRemove: true,
+    
+        instantUpload: {{ $attributes['instantUpload'] ?? 'true' }},
+    
+        onerror: (file, error) => {
+            $wire.dispatch('remove-errors');
+        }
+    });
+    
+    
+    // File added
+    pond.on('addfile', (error, file) => {
+    
+        if (error) {
+            return;
+        }
+    
+        $wire.dispatch('uploading-files');
+    });
+    
+    
+    // Upload finished
+    pond.on('processfile', (error, file) => {
+    
+        if (error) {
+            return;
+        }
+    
+        $wire.dispatch('finished-uploading');
+    });
+    
+    
+    // Remove the FilePond file when Livewire tells us to
+    $wire.on('removeUploadedFile', () => {
+    
+        pond.removeFiles({
+            revert: true
+        });
+    
+    });
+    
+    
+    // Optional error event
+    $wire.on('errorRemove', () => {
+    
+        // Do not remove the FilePond file here.
+        // This prevents Livewire updates from accidentally
+        // clearing the selected file.
+    
+    });
+    
+    
+    // Store pond instance for debugging if necessary
+    window.filePondInstance = pond;">
+    <input type="file" x-ref="input" class="form-control">
 </div>

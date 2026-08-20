@@ -1,14 +1,15 @@
 <div>
 
     @section('title')
-        View Rtc Consumption Data
+        View Production Marketing Log Data
     @endsection
-    <div class="container-fluid">
+    <div class="my-2 container-fluid">
 
         <!-- start page title -->
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
+
 
 
                     <div class="page-title-left col-12" wire:ignore>
@@ -22,17 +23,16 @@
                         </ol>
                     </div>
 
-
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <x-card-header>RTC Consumption Table</x-card-header>
+            <x-card-header>Production Marketing Log Table</x-card-header>
             <div class=" card-body">
                 <div class="tab-content">
                     <div class="tab-pane active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <livewire:tables.rtc-market.rtc-consumption-table />
+                        <livewire:tables.rtc-market.production-marketing-log-table />
                     </div>
 
                 </div>

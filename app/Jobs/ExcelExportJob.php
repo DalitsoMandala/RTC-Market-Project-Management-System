@@ -1,55 +1,51 @@
 <?php
-
 namespace App\Jobs;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\MarketData;
-use App\Models\GrossMargin;
-use App\Models\Recruitment;
-use Illuminate\Support\Str;
-use App\Models\Organisation;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use App\Models\RtcConsumption;
-use App\Traits\FormEssentials;
-use App\Models\GrossMarginData;
-use App\Models\ReportingPeriod;
-use App\Models\SeedBeneficiary;
-use App\Models\SystemReportData;
-use App\Models\GrossMarginDetail;
-use App\Models\AttendanceRegister;
-use App\Models\GrossMarginVariety;
-use App\Models\RpmFarmerBasicSeed;
-use App\Models\RpmFarmerDomMarket;
-use Illuminate\Support\Facades\DB;
-use App\Models\RtcProductionFarmer;
-use Illuminate\Support\Facades\Log;
 use App\Exports\Reports\ReportSheet;
-use App\Models\GrossMarginItemValue;
-use App\Models\RpmFarmerInterMarket;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\RpmProcessorDomMarket;
+use App\Models\AttendanceRegister;
 use App\Models\FarmerSeedRegistration;
+use App\Models\GrossMargin;
+use App\Models\GrossMarginItemValue;
+use App\Models\GrossMarginVariety;
+use App\Models\MarketData;
+use App\Models\Organisation;
+use App\Models\ProductionMarketingLog;
+use App\Models\Recruitment;
+use App\Models\RecruitSeedRegistration;
+use App\Models\ReportingPeriod;
+use App\Models\RpmFarmerAggregationCenter;
+use App\Models\RpmFarmerAreaCultivation;
+use App\Models\RpmFarmerBasicSeed;
 use App\Models\RpmFarmerCertifiedSeed;
 use App\Models\RpmFarmerConcAgreement;
-use App\Models\RtcProductionProcessor;
-use Illuminate\Queue\SerializesModels;
-use App\Models\RecruitSeedRegistration;
-use App\Models\RpmProcessorInterMarket;
-use Illuminate\Support\Facades\Storage;
-use App\Models\RpmFarmerAreaCultivation;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\RpmFarmerDomMarket;
+use App\Models\RpmFarmerInterMarket;
+use App\Models\RpmFarmerMarketInformationSystem;
+use App\Models\RpmProcessorAggregationCenter;
 use App\Models\RpmProcessorConcAgreement;
-use Spatie\SimpleExcel\SimpleExcelWriter;
-use App\Models\RpmFarmerAggregationCenter;
+use App\Models\RpmProcessorDomMarket;
+use App\Models\RpmProcessorInterMarket;
+use App\Models\RpmProcessorMarketInformationSystem;
+use App\Models\RtcConsumption;
+use App\Models\RtcProductionFarmer;
+use App\Models\RtcProductionProcessor;
+use App\Models\SeedBeneficiary;
+use App\Models\SystemReportData;
+use App\Models\User;
+use App\Traits\FormEssentials;
+use Carbon\Carbon;
+use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Models\RpmProcessorAggregationCenter;
-use App\Models\RpmFarmerMarketInformationSystem;
-use App\Models\RpmProcessorMarketInformationSystem;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use OpenSpout\Common\Entity\Style\Style;
-use OpenSpout\Common\Entity\Style\StyleBuilder;
+use Spatie\SimpleExcel\SimpleExcelWriter;
 
 // Use Cache for progress tracking
 
@@ -75,8 +71,7 @@ class ExcelExportJob implements ShouldQueue
         $this->uniqueID = $uniqueID;
         $this->user     = $user;
         $this->filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
-        $this->data = $data;
-
+        $this->data     = $data;
 
         $this->headerStyle = (new Style())
             ->setFontBold();
@@ -99,68 +94,68 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = $this->filePath;
                 // Define the headers
                 $columns = [
-                    "ID" => "rn",
-                    "Farmer ID" => "pf_id",
-                    "Group name" => "group_name",
-                    "Date of follow up" => "date_of_followup",
-                    "Enterprise" => "enterprise",
-                    "Group" => "group",
-                    "Category" => "category",
-                    "Sector" => "sector",
-                    "District" => "district",
-                    "EPA" => "epa",
-                    "Section" => "section",
-                    "Number of plantlets produced/cassava" => "number_of_plantlets_produced->cassava",
-                    "Number of plantlets produced/potato" => "number_of_plantlets_produced->potato",
-                    "Number of plantlets produced/sweet potato" => "number_of_plantlets_produced->sweet_potato",
-                    "Number of screen house vines harvested" => "number_of_screen_house_vines_harvested",
-                    "Number of screen house min tubers harvested" => "number_of_screen_house_min_tubers_harvested",
-                    "Number of sah plants produced" => "number_of_sah_plants_produced",
-                    "Is registered seed producer" => "is_registered_seed_producer",
-                    "Uses certified seed" => "uses_certified_seed",
-                    "Market segment (Fresh)" => "market_segment_fresh",
-                    "Market segment (Processed)" => "market_segment_processed",
-                    "Market segment (Cuttings)" => "market_segment_cuttings",
-                    "Has rtc market contract" => "has_rtc_market_contract",
-                    "Volume of production (Produce)" => "total_vol_production_previous_season_produce",
-                    "Volume of production (Seed)" => "total_vol_production_previous_season_seed",
-                    "Volume of production (Cuttings)" => "total_vol_production_previous_season_cuttings",
-                    "Volume of production Seed Bundle" => "total_vol_production_previous_season_seed_bundle",
-                    "Total volume of production (Metric Tonnes)" => "total_vol_production_previous_season",
-                    "Value of Production (Produce)" => "prod_value_previous_season_produce",
-                    "Value of Production (Produce Prevailing Price)" => "prod_value_produce_prevailing_price",
-                    "Value of Production (Seed)" => "prod_value_previous_season_seed",
-                    "Value of Production (Seed Prevailing Price)" => "prod_value_seed_prevailing_price",
-                    "Value of Production (Cuttings)" => "prod_value_previous_season_cuttings",
-                    "Value of Production (Cuttings Prevailing Price)" => "prod_value_cuttings_prevailing_price",
-                    "Value of Production Seed Bundle" => "prod_value_previous_season_seed_bundle",
-                    "Total Value of Production (Metric Tonnes)" => "prod_value_previous_season_total",
-                    "Total Value of Production (USD Rate)" => "prod_value_previous_season_usd_rate",
-                    "Total Value of Production (USD)" => "prod_value_previous_season_usd_value",
-                    "Volume of irrigation production (Produce)" => "total_vol_irrigation_production_previous_season_produce",
-                    "Volume of irrigation production (Seed)" => "total_vol_irrigation_production_previous_season_seed",
-                    "Volume of irrigation production (Cuttings)" => "total_vol_irrigation_production_previous_season_cuttings",
-                    "Volume of irrigation production Seed Bundle" => "total_vol_irrigation_production_previous_season_seed_bundle",
-                    "Total volume of irrigation production (Metric Tonnes)" => "total_vol_irrigation_production_previous_season",
-                    "Value of irrigation Production (Produce)" => "irr_prod_value_previous_season_produce",
-                    "Value of irrigation Production (Produce Prevailing Price)" => "irr_prod_value_produce_prevailing_price",
-                    "Value of irrigation Production (Seed)" => "irr_prod_value_previous_season_seed",
-                    "Value of irrigation Production (Seed Prevailing Price)" => "irr_prod_value_seed_prevailing_price",
-                    "Value of irrigation Production (Cuttings)" => "irr_prod_value_previous_season_cuttings",
+                    "ID"                                                         => "rn",
+                    "Farmer ID"                                                  => "pf_id",
+                    "Group name"                                                 => "group_name",
+                    "Date of follow up"                                          => "date_of_followup",
+                    "Enterprise"                                                 => "enterprise",
+                    "Group"                                                      => "group",
+                    "Category"                                                   => "category",
+                    "Sector"                                                     => "sector",
+                    "District"                                                   => "district",
+                    "EPA"                                                        => "epa",
+                    "Section"                                                    => "section",
+                    "Number of plantlets produced/cassava"                       => "number_of_plantlets_produced->cassava",
+                    "Number of plantlets produced/potato"                        => "number_of_plantlets_produced->potato",
+                    "Number of plantlets produced/sweet potato"                  => "number_of_plantlets_produced->sweet_potato",
+                    "Number of screen house vines harvested"                     => "number_of_screen_house_vines_harvested",
+                    "Number of screen house min tubers harvested"                => "number_of_screen_house_min_tubers_harvested",
+                    "Number of sah plants produced"                              => "number_of_sah_plants_produced",
+                    "Is registered seed producer"                                => "is_registered_seed_producer",
+                    "Uses certified seed"                                        => "uses_certified_seed",
+                    "Market segment (Fresh)"                                     => "market_segment_fresh",
+                    "Market segment (Processed)"                                 => "market_segment_processed",
+                    "Market segment (Cuttings)"                                  => "market_segment_cuttings",
+                    "Has rtc market contract"                                    => "has_rtc_market_contract",
+                    "Volume of production (Produce)"                             => "total_vol_production_previous_season_produce",
+                    "Volume of production (Seed)"                                => "total_vol_production_previous_season_seed",
+                    "Volume of production (Cuttings)"                            => "total_vol_production_previous_season_cuttings",
+                    "Volume of production Seed Bundle"                           => "total_vol_production_previous_season_seed_bundle",
+                    "Total volume of production (Metric Tonnes)"                 => "total_vol_production_previous_season",
+                    "Value of Production (Produce)"                              => "prod_value_previous_season_produce",
+                    "Value of Production (Produce Prevailing Price)"             => "prod_value_produce_prevailing_price",
+                    "Value of Production (Seed)"                                 => "prod_value_previous_season_seed",
+                    "Value of Production (Seed Prevailing Price)"                => "prod_value_seed_prevailing_price",
+                    "Value of Production (Cuttings)"                             => "prod_value_previous_season_cuttings",
+                    "Value of Production (Cuttings Prevailing Price)"            => "prod_value_cuttings_prevailing_price",
+                    "Value of Production Seed Bundle"                            => "prod_value_previous_season_seed_bundle",
+                    "Total Value of Production (Metric Tonnes)"                  => "prod_value_previous_season_total",
+                    "Total Value of Production (USD Rate)"                       => "prod_value_previous_season_usd_rate",
+                    "Total Value of Production (USD)"                            => "prod_value_previous_season_usd_value",
+                    "Volume of irrigation production (Produce)"                  => "total_vol_irrigation_production_previous_season_produce",
+                    "Volume of irrigation production (Seed)"                     => "total_vol_irrigation_production_previous_season_seed",
+                    "Volume of irrigation production (Cuttings)"                 => "total_vol_irrigation_production_previous_season_cuttings",
+                    "Volume of irrigation production Seed Bundle"                => "total_vol_irrigation_production_previous_season_seed_bundle",
+                    "Total volume of irrigation production (Metric Tonnes)"      => "total_vol_irrigation_production_previous_season",
+                    "Value of irrigation Production (Produce)"                   => "irr_prod_value_previous_season_produce",
+                    "Value of irrigation Production (Produce Prevailing Price)"  => "irr_prod_value_produce_prevailing_price",
+                    "Value of irrigation Production (Seed)"                      => "irr_prod_value_previous_season_seed",
+                    "Value of irrigation Production (Seed Prevailing Price)"     => "irr_prod_value_seed_prevailing_price",
+                    "Value of irrigation Production (Cuttings)"                  => "irr_prod_value_previous_season_cuttings",
                     "Value of irrigation Production (Cuttings Prevailing Price)" => "irr_prod_value_cuttings_prevailing_price",
-                    "Value of irrigation Production Seed Bundle" => "irr_prod_value_previous_season_seed_bundle",
-                    "Total Value of irrigation Production (Metric Tonnes)" => "irr_prod_value_previous_season_total",
-                    "Total Value of irrigation Production (USD Rate)" => "irr_prod_value_previous_season_usd_rate",
-                    "Total Value of irrigation Production (USD)" => "irr_prod_value_previous_season_usd_value",
-                    "Sells to domestic markets" => "sells_to_domestic_markets",
-                    "Sells to international markets" => "sells_to_international_markets",
-                    "Uses market information systems" => "uses_market_information_systems",
-                    "Sells to aggregation centers" => "sells_to_aggregation_centers",
-                    "Total volume of aggregation center sales" => "total_vol_aggregation_center_sales",
-                    "Submitted by" => "submittedBy",
-                    'Organisation' => 'organisation_name',
-                    'Financial Year' => 'financial_year',
-                    'Reporting Period' => 'reporting_period'
+                    "Value of irrigation Production Seed Bundle"                 => "irr_prod_value_previous_season_seed_bundle",
+                    "Total Value of irrigation Production (Metric Tonnes)"       => "irr_prod_value_previous_season_total",
+                    "Total Value of irrigation Production (USD Rate)"            => "irr_prod_value_previous_season_usd_rate",
+                    "Total Value of irrigation Production (USD)"                 => "irr_prod_value_previous_season_usd_value",
+                    "Sells to domestic markets"                                  => "sells_to_domestic_markets",
+                    "Sells to international markets"                             => "sells_to_international_markets",
+                    "Uses market information systems"                            => "uses_market_information_systems",
+                    "Sells to aggregation centers"                               => "sells_to_aggregation_centers",
+                    "Total volume of aggregation center sales"                   => "total_vol_aggregation_center_sales",
+                    "Submitted by"                                               => "submittedBy",
+                    'Organisation'                                               => 'organisation_name',
+                    'Financial Year'                                             => 'financial_year',
+                    'Reporting Period'                                           => 'reporting_period',
                 ];
 
                 $headers = array_keys($columns);
@@ -173,7 +168,7 @@ class ExcelExportJob implements ShouldQueue
                 $writer->nameCurrentSheet('RTC Production Farmers');
                 $query = RtcProductionFarmer::query()->select([
                     'rtc_production_farmers.*',
-                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
@@ -185,14 +180,12 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($items) use ($writer) {
                     foreach ($items as $item) {
                         $submittedBy = '';
-                        $user        = User::find($item->user_id); {
+                        $user        = User::find($item->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
                             $submittedBy = $name . ' (' . $organisation . ')';
                         }
-
-
 
                         $writer->addRow([
                             $item->rn,
@@ -256,7 +249,7 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy,
                             $item->organisation ? $item->organisation->name : null,
                             $item->financialYear ? $item->financialYear->number : null,
-                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null
+                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null,
                         ]);
                     }
                 });
@@ -275,7 +268,7 @@ class ExcelExportJob implements ShouldQueue
                 ];
 
                 $writer->addHeader($headers);
-                $query  = RpmFarmerConcAgreement::query()->with('farmers');
+                $query = RpmFarmerConcAgreement::query()->with('farmers');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -312,7 +305,7 @@ class ExcelExportJob implements ShouldQueue
                     'Financial Value of Sales',
                 ];
                 $writer->addHeader($headers);
-                $query  = RpmFarmerDomMarket::query()->with('farmers');
+                $query = RpmFarmerDomMarket::query()->with('farmers');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -326,7 +319,7 @@ class ExcelExportJob implements ShouldQueue
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->farmers->pf_id,
-                            $farmer->date_recorded ?  Carbon::parse($farmer->date_recorded)->format('d/m/Y') : null,
+                            $farmer->date_recorded ? Carbon::parse($farmer->date_recorded)->format('d/m/Y') : null,
                             $farmer->crop_type,
                             $farmer->market_name,
                             $farmer->district,
@@ -337,7 +330,6 @@ class ExcelExportJob implements ShouldQueue
                         ]);
                     }
                 });
-
 
                 $writer->addNewSheetAndMakeItCurrent('International Markets');
                 $headers = [
@@ -447,7 +439,7 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer->addHeader($headers);
-                $query  = RpmFarmerBasicSeed::query()->with('farmers');
+                $query = RpmFarmerBasicSeed::query()->with('farmers');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -476,7 +468,7 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer->addHeader($headers);
-                $query  = RpmFarmerCertifiedSeed::query()->with('farmers');
+                $query = RpmFarmerCertifiedSeed::query()->with('farmers');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -505,7 +497,7 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer->addHeader($headers);
-                $query  = RpmFarmerAreaCultivation::query()->with('farmers');
+                $query = RpmFarmerAreaCultivation::query()->with('farmers');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -525,7 +517,6 @@ class ExcelExportJob implements ShouldQueue
                     }
                 });
 
-
                 $writer->addNewSheetAndMakeItCurrent('Seed services Unit');
                 $headers = [
                     'Farmer ID',
@@ -536,7 +527,7 @@ class ExcelExportJob implements ShouldQueue
 
                 // Create a new SimpleExcelWriter instance
                 $writer->addHeader($headers);
-                $query  = FarmerSeedRegistration::query()->with('productionFarmers');
+                $query = FarmerSeedRegistration::query()->with('productionFarmers');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -582,7 +573,7 @@ class ExcelExportJob implements ShouldQueue
                     'Submitted by',
                     'Organisation',
                     'Financial Year',
-                    'Reporting Period'
+                    'Reporting Period',
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -590,7 +581,7 @@ class ExcelExportJob implements ShouldQueue
                 $writer->nameCurrentSheet('RTC Consumption');
                 $query = RtcConsumption::with('user')->select([
                     'rtc_consumptions.*',
-                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
@@ -602,7 +593,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $item) {
                         $submittedBy = '';
-                        $user        = User::find($item->user_id); {
+                        $user        = User::find($item->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
@@ -627,7 +618,7 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy,
                             $item->organisation ? $item->organisation->name : null,
                             $item->financialYear ? $item->financialYear->number : null,
-                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null
+                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null,
                         ]);
                     }
                 });
@@ -639,50 +630,50 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = $this->filePath;
                 // Define the headers
                 $headers = [
-                    "ID" => "rn",
-                    "Processor ID" => "pp_id",
-                    "Date of follow up" => "date_of_followup_formatted",
-                    "Enterprise" => "enterprise",
-                    "Group" => "group",
-                    "Category" => "category",
-                    "Sector" => "sector",
-                    "District" => "district",
-                    "EPA" => "epa",
-                    "Section" => "section",
-                    "Market segment (Fresh)" => "market_segment_fresh",
-                    "Market segment (Processed)" => "market_segment_processed",
-                    "Has RTC Contractual Agreement" => "has_rtc_market_contract",
-                    "Volume of production (Produce)" => "total_vol_production_previous_season_produce",
-                    "Volume of production (Seed)" => "total_vol_production_previous_season_seed",
-                    "Volume of production (Cuttings)" => "total_vol_production_previous_season_cuttings",
-                    "Volume of production Seed Bundle" => "total_vol_production_previous_season_seed_bundle",
-                    "Total volume of production (Metric Tonnes)" => "total_vol_production_previous_season",
-                    "Value of Production (Produce)" => "prod_value_previous_season_produce",
-                    "Value of Production (Produce Prevailing Price)" => "prod_value_produce_prevailing_price",
-                    "Value of Production (Seed)" => "prod_value_previous_season_seed",
-                    "Value of Production (Seed Prevailing Price)" => "prod_value_seed_prevailing_price",
-                    "Value of Production (Cuttings)" => "prod_value_previous_season_cuttings",
+                    "ID"                                              => "rn",
+                    "Processor ID"                                    => "pp_id",
+                    "Date of follow up"                               => "date_of_followup_formatted",
+                    "Enterprise"                                      => "enterprise",
+                    "Group"                                           => "group",
+                    "Category"                                        => "category",
+                    "Sector"                                          => "sector",
+                    "District"                                        => "district",
+                    "EPA"                                             => "epa",
+                    "Section"                                         => "section",
+                    "Market segment (Fresh)"                          => "market_segment_fresh",
+                    "Market segment (Processed)"                      => "market_segment_processed",
+                    "Has RTC Contractual Agreement"                   => "has_rtc_market_contract",
+                    "Volume of production (Produce)"                  => "total_vol_production_previous_season_produce",
+                    "Volume of production (Seed)"                     => "total_vol_production_previous_season_seed",
+                    "Volume of production (Cuttings)"                 => "total_vol_production_previous_season_cuttings",
+                    "Volume of production Seed Bundle"                => "total_vol_production_previous_season_seed_bundle",
+                    "Total volume of production (Metric Tonnes)"      => "total_vol_production_previous_season",
+                    "Value of Production (Produce)"                   => "prod_value_previous_season_produce",
+                    "Value of Production (Produce Prevailing Price)"  => "prod_value_produce_prevailing_price",
+                    "Value of Production (Seed)"                      => "prod_value_previous_season_seed",
+                    "Value of Production (Seed Prevailing Price)"     => "prod_value_seed_prevailing_price",
+                    "Value of Production (Cuttings)"                  => "prod_value_previous_season_cuttings",
                     "Value of Production (Cuttings Prevailing Price)" => "prod_value_cuttings_prevailing_price",
-                    "Value of Production Seed Bundle" => "prod_value_previous_season_seed_bundle",
-                    "Total Value of Production (Metric Tonnes)" => "prod_value_previous_season_total",
-                    "Total Value of Production (USD Rate)" => "prod_value_previous_season_usd_rate",
-                    "Total Value of Production (USD)" => "prod_value_previous_season_usd_value",
-                    "Sells to domestic markets" => "sells_to_domestic_markets",
-                    "Sells to international markets" => "sells_to_international_markets",
-                    "Uses market information systems" => "uses_market_information_systems",
-                    "Sells to aggregation centers" => "sells_to_aggregation_centers",
-                    "Total Volume of Aggregation Center Sales" => "total_vol_aggregation_center_sales",
-                    "Submitted by" => "submitted_by",
-                    'Organisation' => 'organisation_name',
-                    'Financial Year' => 'financial_year',
-                    'Reporting Period' => 'reporting_period'
+                    "Value of Production Seed Bundle"                 => "prod_value_previous_season_seed_bundle",
+                    "Total Value of Production (Metric Tonnes)"       => "prod_value_previous_season_total",
+                    "Total Value of Production (USD Rate)"            => "prod_value_previous_season_usd_rate",
+                    "Total Value of Production (USD)"                 => "prod_value_previous_season_usd_value",
+                    "Sells to domestic markets"                       => "sells_to_domestic_markets",
+                    "Sells to international markets"                  => "sells_to_international_markets",
+                    "Uses market information systems"                 => "uses_market_information_systems",
+                    "Sells to aggregation centers"                    => "sells_to_aggregation_centers",
+                    "Total Volume of Aggregation Center Sales"        => "total_vol_aggregation_center_sales",
+                    "Submitted by"                                    => "submitted_by",
+                    'Organisation'                                    => 'organisation_name',
+                    'Financial Year'                                  => 'financial_year',
+                    'Reporting Period'                                => 'reporting_period',
                 ];
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader(array_keys($headers));
 
                 $writer->nameCurrentSheet('RTC Production Processors');
-                $query  = RtcProductionProcessor::query()->select([
+                $query = RtcProductionProcessor::query()->select([
                     'rtc_production_processors.*',
                     DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
 
@@ -697,7 +688,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($items) use ($writer) {
                     foreach ($items as $item) {
                         $submittedBy = '';
-                        $user        = User::find($item->user_id); {
+                        $user        = User::find($item->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
@@ -741,14 +732,11 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy,
                             $item->organisation ? $item->organisation->name : null,
                             $item->financialYear ? $item->financialYear->number : null,
-                             $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null
+                            $item->periodMonth ? $item->periodMonth->start_month . ' - ' . $item->periodMonth->end_month : null,
 
                         ]);
                     }
                 });
-
-
-
 
                 // add new sheet
                 $writer->addNewSheetAndMakeItCurrent('Contractual Aggrement');
@@ -765,7 +753,7 @@ class ExcelExportJob implements ShouldQueue
                 ];
 
                 $writer->addHeader($headers);
-                $query  = RpmProcessorConcAgreement::query()->with('processors');
+                $query = RpmProcessorConcAgreement::query()->with('processors');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -802,7 +790,7 @@ class ExcelExportJob implements ShouldQueue
                     'Financial Value of Sales',
                 ];
                 $writer->addHeader($headers);
-                $query  = RpmProcessorDomMarket::query()->with('processors');
+                $query = RpmProcessorDomMarket::query()->with('processors');
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
                     $organisation = User::find($user->id)->organisation;
@@ -816,7 +804,7 @@ class ExcelExportJob implements ShouldQueue
                     foreach ($followUps as $farmer) {
                         $writer->addRow([
                             $farmer->processors->pp_id,
-                            $farmer->date_recorded ?  Carbon::parse($farmer->date_recorded)->format('d/m/Y') : null,
+                            $farmer->date_recorded ? Carbon::parse($farmer->date_recorded)->format('d/m/Y') : null,
                             $farmer->crop_type,
                             $farmer->market_name,
                             $farmer->district,
@@ -827,7 +815,6 @@ class ExcelExportJob implements ShouldQueue
                         ]);
                     }
                 });
-
 
                 $writer->addNewSheetAndMakeItCurrent('International Markets');
                 $headers = [
@@ -928,18 +915,9 @@ class ExcelExportJob implements ShouldQueue
                     }
                 });
 
-
-
-
                 $writer->close(); // Finalize the file
 
                 break;
-
-
-
-
-
-
 
             case 'att':
                 $filePath = $this->filePath;
@@ -966,7 +944,7 @@ class ExcelExportJob implements ShouldQueue
                     'Submitted by',
                     'Organisation',
                     'Financial Year',
-                    'Reporting Period'
+                    'Reporting Period',
                 ];
 
                 // Create a new SimpleExcelWriter instance
@@ -974,7 +952,7 @@ class ExcelExportJob implements ShouldQueue
                 $writer->nameCurrentSheet('Attendances');
                 $query = AttendanceRegister::query()->with('user')->select([
                     'attendance_registers.*',
-                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    DB::raw(' ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $user         = $this->user;
@@ -985,7 +963,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
-                        $user        = User::find($record->user_id); {
+                        $user        = User::find($record->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
@@ -1014,7 +992,7 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy,
                             $record->organisation ? $record->organisation->name : null,
                             $record->financialYear ? $record->financialYear->number : null,
-                            $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+                            $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null,
                         ]);
                     }
                 });
@@ -1037,13 +1015,13 @@ class ExcelExportJob implements ShouldQueue
                     'Project year',
                     'Start Date',
                     'End Date',
-                    'Enterprise'
+                    'Enterprise',
                 ];
 
                 // Create a new SimpleExcelWriter instance
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
                 $writer->nameCurrentSheet('Reports');
-                $query =  SystemReportData::query()
+                $query = SystemReportData::query()
                     ->with('systemReport')
                     ->join('system_reports', function ($join) {
                         $join->on('system_reports.id', '=', 'system_report_data.system_report_id');
@@ -1087,7 +1065,7 @@ class ExcelExportJob implements ShouldQueue
                                     $record->financial_year,                    // Project year
                                     $record->financial_year_start_date ?? null, // Start year
                                     $record->financial_year_end_date ?? null,   // End Year
-                                    $record->systemReport->crop ?? 'All',                      // Crop
+                                    $record->systemReport->crop ?? 'All',       // Crop
                                 ]);
                             }
                         });
@@ -1120,7 +1098,7 @@ class ExcelExportJob implements ShouldQueue
                             $record->financial_year,                    // Project year
                             $record->financial_year_start_date ?? null, // Start year
                             $record->financial_year_end_date ?? null,   // End Year
-                            $record->systemReport->crop ?? 'All',                       // Crop
+                            $record->systemReport->crop ?? 'All',       // Crop
                         ]);
                     }
                 });
@@ -1138,7 +1116,7 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = storage_path('app/public/exports/' . $this->name . '_' . $this->uniqueID . '.xlsx');
 
                 // Build crop list based on selected crop_type
-                if (!empty($data['crop_type'])) {
+                if (! empty($data['crop_type'])) {
                     // Export only the selected crop sheet
                     $cropTypes = [$data['crop_type']];
                 } else {
@@ -1174,7 +1152,7 @@ class ExcelExportJob implements ShouldQueue
                     'Submitted By',
                     'Organisation',
                     'Financial Year',
-                    'Reporting Period'
+                    'Reporting Period',
                 ];
 
                 $PotatoHeaders = [
@@ -1203,7 +1181,7 @@ class ExcelExportJob implements ShouldQueue
                     'Submitted By',
                     'Organisation',
                     'Financial Year',
-                    'Reporting Period'
+                    'Reporting Period',
                 ];
 
                 $CassavaHeaders = [
@@ -1232,7 +1210,7 @@ class ExcelExportJob implements ShouldQueue
                     'Submitted By',
                     'Organisation',
                     'Financial Year',
-                    'Reporting Period'
+                    'Reporting Period',
                 ];
 
                 $writer = SimpleExcelWriter::create($filePath);
@@ -1284,11 +1262,10 @@ class ExcelExportJob implements ShouldQueue
                         ->join('organisations', 'seed_beneficiaries.organisation_id', '=', 'organisations.id');
 
                     if ($this->user && $this->user->hasAnyRole('external')) {
-                        $user = $this->user;
+                        $user         = $this->user;
                         $organisation = User::find($user->id)->organisation;
                         $query->where('organisation_id', $organisation->id);
                     }
-
 
                     $query->chunk(2000, function ($seedBeneficiaries) use ($writer, $crop) {
                         foreach ($seedBeneficiaries as $record) {
@@ -1323,7 +1300,7 @@ class ExcelExportJob implements ShouldQueue
                                     $submittedBy,
                                     $record->organisation ? $record->organisation->name : null,
                                     $record->financial_year ? $record->financial_year->number : null,
-                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null,
 
                                 ]);
                             } elseif ($crop === 'Cassava') {
@@ -1351,9 +1328,9 @@ class ExcelExportJob implements ShouldQueue
                                     $record->season_type,
                                     $record->financial_year->number,
                                     $submittedBy,
-                                     $record->organisation ? $record->organisation->name : null,
+                                    $record->organisation ? $record->organisation->name : null,
                                     $record->financial_year ? $record->financial_year->number : null,
-                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null,
 
                                 ]);
                             } else { // OFSP
@@ -1382,9 +1359,9 @@ class ExcelExportJob implements ShouldQueue
                                     $record->season_type,
                                     $record->financial_year->number,
                                     $submittedBy,
-                                $record->organisation ? $record->organisation->name : null,
+                                    $record->organisation ? $record->organisation->name : null,
                                     $record->financial_year ? $record->financial_year->number : null,
-                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+                                    $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null,
 
                                 ]);
                             }
@@ -1399,44 +1376,44 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = $this->filePath;
                 // Define the headers
                 $headerFromExports = [
-                    'ID' => 'Required, Unique,  Number',
-                    'EPA'                               => 'Required, Text',
-                    'Section'                           => 'Required, Text',
-                    'District'                          => 'Required, Text',
-                    'Enterprise'                        => 'Required, Text',
-                    'Date of Recruitment'               => 'Date (dd-mm-yyyy)',
-                    'Name of Actor'                     => 'Text',
-                    'Name of Representative'            => 'Text',
-                    'Phone Number'                      => 'Text',
-                    'Type'                              => 'Text, (Choose one option)',
-                    'Group'                             => 'Text, (Choose one option)',
-                    'Approach'                          => 'Text, (Choose one option)',
-                    'Sector'                            => 'Text, (Choose one option)',
-                    'Members Female 18-35'              => 'Number (>=0)',
-                    'Members Male 18-35'                => 'Number (>=0)',
-                    'Members Male 35+'                  => 'Number (>=0)',
-                    'Members Female 35+'                => 'Number (>=0)',
-                    'Category'                          => 'Text, (Choose one option)',
-                    'Establishment Status'              => 'New/Old, (Choose one option)',
-                    'Is Registered'                     => 'Boolean (1/0)',
-                    'Registration Body'                 => 'Text',
-                    'Registration Number'               => 'Text',
-                    'Registration Date'                 => 'Date (dd-mm-yyyy)',
-                    'Employees Formal Female 18-35'     => 'Number (>=0)',
-                    'Employees Formal Male 18-35'       => 'Number (>=0)',
-                    'Employees Formal Male 35+'         => 'Number (>=0)',
-                    'Employees Formal Female 35+'       => 'Number (>=0)',
-                    'Employees Informal Female 18-35'   => 'Number (>=0)',
-                    'Employees Informal Male 18-35'     => 'Number (>=0)',
-                    'Employees Informal Male 35+'       => 'Number (>=0)',
-                    'Employees Informal Female 35+'     => 'Number (>=0)',
-                    'Area Under Cultivation'            => 'Number (>=0)',
-                    'Is Registered Seed Producer'       => 'Boolean (1/0)',
-                    'Uses Certified Seed'               => 'Boolean (1/0)',
-                    'Submitted By'                      => true,
-                    'Organisation'                      => true,
-                    'Financial Year'                    => true,
-                    'Reporting Period'                  => true,
+                    'ID'                              => 'Required, Unique,  Number',
+                    'EPA'                             => 'Required, Text',
+                    'Section'                         => 'Required, Text',
+                    'District'                        => 'Required, Text',
+                    'Enterprise'                      => 'Required, Text',
+                    'Date of Recruitment'             => 'Date (dd-mm-yyyy)',
+                    'Name of Actor'                   => 'Text',
+                    'Name of Representative'          => 'Text',
+                    'Phone Number'                    => 'Text',
+                    'Type'                            => 'Text, (Choose one option)',
+                    'Group'                           => 'Text, (Choose one option)',
+                    'Approach'                        => 'Text, (Choose one option)',
+                    'Sector'                          => 'Text, (Choose one option)',
+                    'Members Female 18-35'            => 'Number (>=0)',
+                    'Members Male 18-35'              => 'Number (>=0)',
+                    'Members Male 35+'                => 'Number (>=0)',
+                    'Members Female 35+'              => 'Number (>=0)',
+                    'Category'                        => 'Text, (Choose one option)',
+                    'Establishment Status'            => 'New/Old, (Choose one option)',
+                    'Is Registered'                   => 'Boolean (1/0)',
+                    'Registration Body'               => 'Text',
+                    'Registration Number'             => 'Text',
+                    'Registration Date'               => 'Date (dd-mm-yyyy)',
+                    'Employees Formal Female 18-35'   => 'Number (>=0)',
+                    'Employees Formal Male 18-35'     => 'Number (>=0)',
+                    'Employees Formal Male 35+'       => 'Number (>=0)',
+                    'Employees Formal Female 35+'     => 'Number (>=0)',
+                    'Employees Informal Female 18-35' => 'Number (>=0)',
+                    'Employees Informal Male 18-35'   => 'Number (>=0)',
+                    'Employees Informal Male 35+'     => 'Number (>=0)',
+                    'Employees Informal Female 35+'   => 'Number (>=0)',
+                    'Area Under Cultivation'          => 'Number (>=0)',
+                    'Is Registered Seed Producer'     => 'Boolean (1/0)',
+                    'Uses Certified Seed'             => 'Boolean (1/0)',
+                    'Submitted By'                    => true,
+                    'Organisation'                    => true,
+                    'Financial Year'                  => true,
+                    'Reporting Period'                => true,
                 ];
                 $headers = array_keys($headerFromExports);
 
@@ -1444,9 +1421,9 @@ class ExcelExportJob implements ShouldQueue
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
                 $writer->nameCurrentSheet('RTC Actor Recruitment');
 
-                $query =     Recruitment::with(['user', 'user.organisation', 'financialYear', 'periodMonth','organisation'])->select([
+                $query = Recruitment::with(['user', 'user.organisation', 'financialYear', 'periodMonth', 'organisation'])->select([
                     'recruitments.*',
-                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $query = $query->where('organisation_id', $this->user->organisation->id);
@@ -1456,7 +1433,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
-                        $user        = User::find($record->user_id); {
+                        $user        = User::find($record->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
@@ -1464,27 +1441,27 @@ class ExcelExportJob implements ShouldQueue
                         }
                         $writer->addRow([
                             $record->rn,
-                            $record->epa ,
-                            $record->section ,
-                            $record->district ,
-                            $record->enterprise ,
-                            $record->date_of_recruitment ?   Carbon::parse($record->date_of_recruitment)->format('d/m/Y') : 'NA',
-                            $record->name_of_actor ,
-                            $record->name_of_representative ,
-                            $record->phone_number ,
-                            $record->type ,
-                            $record->group ,
-                            $record->approach ,
-                            $record->sector ,
+                            $record->epa,
+                            $record->section,
+                            $record->district,
+                            $record->enterprise,
+                            $record->date_of_recruitment ? Carbon::parse($record->date_of_recruitment)->format('d/m/Y') : 'NA',
+                            $record->name_of_actor,
+                            $record->name_of_representative,
+                            $record->phone_number,
+                            $record->type,
+                            $record->group,
+                            $record->approach,
+                            $record->sector,
                             $record->mem_female_18_35,
                             $record->mem_male_18_35,
                             $record->mem_male_35_plus,
                             $record->mem_female_35_plus,
-                            $record->category ,
-                            $record->establishment_status ,
+                            $record->category,
+                            $record->establishment_status,
                             $record->is_registered == 1 ? 'Yes' : 'No',
-                            $record->registration_body ,
-                            $record->registration_number ,
+                            $record->registration_body,
+                            $record->registration_number,
                             $record->registration_date ? Carbon::parse($record->registration_date)->format('d/m/Y') : 'NA',
                             $record->emp_formal_female_18_35,
                             $record->emp_formal_male_18_35,
@@ -1500,17 +1477,17 @@ class ExcelExportJob implements ShouldQueue
                             $submittedBy,
                             $record->organisation ? $record->organisation->name : null,
                             $record->financialYear ? $record->financialYear->number : null,
-                            $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null
+                            $record->periodMonth ? $record->periodMonth->start_month . ' - ' . $record->periodMonth->end_month : null,
                         ]);
                     }
                 });
 
                 $writer->addNewSheetAndMakeItCurrent('Seed services unit');
                 $headers = [
-                    'ID' => 'Number, Exists in RTC Actor Recruitment Sheet',
-                    'Registration Date' => 'Date (dd-mm-yyyy)',
+                    'ID'                  => 'Number, Exists in RTC Actor Recruitment Sheet',
+                    'Registration Date'   => 'Date (dd-mm-yyyy)',
                     'Registration Number' => 'Text',
-                    'Variety' => 'Text',
+                    'Variety'             => 'Text',
                 ];
                 $writer->addHeader(array_keys($headers));
                 RecruitSeedRegistration::query()->chunk(2000, function ($recruitments) use ($writer) {
@@ -1519,8 +1496,7 @@ class ExcelExportJob implements ShouldQueue
                             $recruitment->recruitment_id,
                             $recruitment->reg_date,
                             $recruitment->reg_no,
-                            $recruitment->variety
-
+                            $recruitment->variety,
 
                         ]);
                     }
@@ -1533,24 +1509,24 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = $this->filePath;
                 // Define the headers
                 $headerFromExports = [
-                    'ID' => 'Number, Exists in Market Data Sheet',
-                    'Entry Month' => 'Date (dd-mm-yyyy)',
+                    'ID'                                => 'Number, Exists in Market Data Sheet',
+                    'Entry Month'                       => 'Date (dd-mm-yyyy)',
                     'Off-taker Name/Vehicle Reg Number' => 'Text',
-                    'Trader Contact' => 'Text',
-                    'Buyer Location' => 'Text',
-                    'Variety Demanded' => 'Text',
-                    'Quality/Size' => 'Text',
-                    'Quantity' => 'Number (decimal)',
-                    'Units' => 'Text',
-                    'Estimated Demand (Kg)' => 'Number (decimal)',
-                    'Agreed Price per Kg (MWK)' => 'Number (decimal)',
-                    'Market Ordered From' => 'Text',
-                    'Final Market' => 'Text',
-                    'Final Market District' => 'Text',
-                    'Final Market Country' => 'Text',
-                    'Supply Frequency' => 'Text',
-                    'Estimated Total Value (MWK)' => 'Number (decimal)',
-                    'Estimated Total Value (USD)' => 'Number (decimal)',
+                    'Trader Contact'                    => 'Text',
+                    'Buyer Location'                    => 'Text',
+                    'Variety Demanded'                  => 'Text',
+                    'Quality/Size'                      => 'Text',
+                    'Quantity'                          => 'Number (decimal)',
+                    'Units'                             => 'Text',
+                    'Estimated Demand (Kg)'             => 'Number (decimal)',
+                    'Agreed Price per Kg (MWK)'         => 'Number (decimal)',
+                    'Market Ordered From'               => 'Text',
+                    'Final Market'                      => 'Text',
+                    'Final Market District'             => 'Text',
+                    'Final Market Country'              => 'Text',
+                    'Supply Frequency'                  => 'Text',
+                    'Estimated Total Value (MWK)'       => 'Number (decimal)',
+                    'Estimated Total Value (USD)'       => 'Number (decimal)',
                     'Submitted By'                      => true,
                 ];
                 $headers = array_keys($headerFromExports);
@@ -1559,9 +1535,9 @@ class ExcelExportJob implements ShouldQueue
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
                 $writer->nameCurrentSheet('Marketing Monthly Report');
 
-                $query =     MarketData::with(['user', 'user.organisation'])->select([
+                $query = MarketData::with(['user', 'user.organisation'])->select([
                     'marketing_data.*',
-                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $query = $query->where('organisation_id', $this->user->organisation->id);
@@ -1571,7 +1547,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
-                        $user        = User::find($record->user_id); {
+                        $user        = User::find($record->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
@@ -1601,6 +1577,93 @@ class ExcelExportJob implements ShouldQueue
                     }
                 });
 
+                $writer->close(); // Finalize the file
+                break;
+
+            case 'production_marketing':
+                $filePath = $this->filePath;
+
+                // Define the headers
+                $headerFromExports = [
+                    'ID'                  => 'Number',
+                    'Prod Market ID'      => 'Text',
+                    'District'            => 'Text',
+                    'EPA'                 => 'Text',
+                    'Section'             => 'Text',
+                    'Enterprise'          => 'Text',
+                    'Group Name'          => 'Text',
+                    'Type of Farming'     => 'Text',
+                    'Season'              => 'Text',
+                    'Group Chair Name'    => 'Text',
+                    'Group Chair Contact' => 'Text',
+                    'Farmer Name'         => 'Text',
+                    'Farmer ID/Phone'     => 'Text',
+                    'Sex'                 => 'Text',
+                    'Age'                 => 'Number',
+                    'Area Grown (Acre)'   => 'Number (decimal)',
+                    'Variety'             => 'Text',
+                    'Harvesting Units'    => 'Text',
+                    'Unit Weight (Kg)'    => 'Number (decimal)',
+                    'Quantity'            => 'Number (decimal)',
+                    'Selling Price'       => 'Number (decimal)',
+                    'Main Buyer'          => 'Text',
+
+                    'Submitted By'        => true,
+                ];
+                $headers = array_keys($headerFromExports);
+
+                // Create a new SimpleExcelWriter instance
+                $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
+                $writer->nameCurrentSheet('Production Marketing Log');
+
+                // Query data using eager loading to avoid N+1 query issues
+                $query = ProductionMarketingLog::with(['user', 'user.organisation'])->select([
+                    'production_marketing_logs.*',
+                    DB::raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+                ]);
+
+                if ($this->user && $this->user->hasAnyRole('external')) {
+                    $query = $query->where('organisation_id', $this->user->organisation->id);
+                }
+
+                // Process data in chunks
+                $query->chunk(2000, function ($records) use ($writer) {
+                    foreach ($records as $record) {
+                        $submittedBy = '';
+                        if ($record->user) {
+                            $organisation = optional($record->user->organisation)->name ?? 'N/A';
+                            $name         = $record->user->name;
+                            $submittedBy  = $name . ' (' . $organisation . ')';
+                        }
+
+                        $writer->addRow([
+                            $record->rn,
+                            $record->prod_market_id,
+                            $record->district,
+                            $record->epa,
+                            $record->section,
+                            $record->enterprise,
+                            $record->group_name,
+                            $record->type_of_farming,
+                            $record->season,
+                            $record->group_chair_name,
+                            $record->group_chair_contact,
+                            $record->farmer_name,
+                            $record->farmer_id_phone,
+                            $record->sex,
+                            $record->age,
+                            $record->area_grown_acre,
+                            $record->variety,
+                            $record->harvesting_units,
+                            $record->unit_weight_kg,
+                            $record->qty,
+                            $record->selling_price,
+                            $record->main_buyer,
+
+                            $submittedBy,
+                        ]);
+                    }
+                });
 
                 $writer->close(); // Finalize the file
                 break;
@@ -1609,31 +1672,31 @@ class ExcelExportJob implements ShouldQueue
                 $filePath = $this->filePath;
                 // Define the headers
                 $headerFromExports = [
-                    'ID' => 'Number, Required',
+                    'ID'                   => 'Number, Required',
 
-                    'Name of Producer' => 'Text',
-                    'Sex' => 'Text',
-                    'Season' => 'Text',
-                    'Season Dates' => 'Text',
-                    'District' => 'Text',
-                    'Gender' => 'Text',
-                    'Phone Number' => 'Text',
-                    'GPS S' => 'Number ',
-                    'GPS E' => 'Number ',
-                    'Elevation' => 'Number',
-                    'Type of Produce' => 'Text',
-                    'EPA' => 'Text',
-                    'Section' => 'Text',
-                    'TA' => 'Text',
-                    'Village' => 'Text',
-                    'Selling Price' => 'Number',
-                    'Income Price' => 'Number',
+                    'Name of Producer'     => 'Text',
+                    'Sex'                  => 'Text',
+                    'Season'               => 'Text',
+                    'Season Dates'         => 'Text',
+                    'District'             => 'Text',
+                    'Gender'               => 'Text',
+                    'Phone Number'         => 'Text',
+                    'GPS S'                => 'Number ',
+                    'GPS E'                => 'Number ',
+                    'Elevation'            => 'Number',
+                    'Type of Produce'      => 'Text',
+                    'EPA'                  => 'Text',
+                    'Section'              => 'Text',
+                    'TA'                   => 'Text',
+                    'Village'              => 'Text',
+                    'Selling Price'        => 'Number',
+                    'Income Price'         => 'Number',
                     'Total Valuable Costs' => 'Number',
-                    'Total Harvest' => 'Number',
-                    'Yield' => 'Number',
-                    'Break Even Yield' => 'Number',
-                    'Break Even Price' => 'Number',
-                    'Gross Margin' => 'Number',
+                    'Total Harvest'        => 'Number',
+                    'Yield'                => 'Number',
+                    'Break Even Yield'     => 'Number',
+                    'Break Even Price'     => 'Number',
+                    'Gross Margin'         => 'Number',
 
                 ];
                 $headers = array_keys($headerFromExports);
@@ -1642,15 +1705,13 @@ class ExcelExportJob implements ShouldQueue
                 $writer = SimpleExcelWriter::create($filePath)->addHeader($headers);
                 $writer->nameCurrentSheet('Gross Margin Report');
 
-                $query =    GrossMargin::query()
+                $query = GrossMargin::query()
 
                     ->select([
                         'gross_margins.*',
 
-
-
                         DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
-                    ]);;
+                    ]);
                 if ($this->user && $this->user->hasAnyRole('external')) {
                     $query = $query->where('organisation_id', $this->user->organisation->id);
                 }
@@ -1659,7 +1720,7 @@ class ExcelExportJob implements ShouldQueue
                 $query->chunk(2000, function ($followUps) use ($writer) {
                     foreach ($followUps as $record) {
                         $submittedBy = '';
-                        $user        = User::find($record->user_id); {
+                        $user        = User::find($record->user_id);{
                             $organisation = $user->organisation->name;
                             $name         = $user->name;
 
@@ -1699,11 +1760,11 @@ class ExcelExportJob implements ShouldQueue
                 $writer->addNewSheetAndMakeItCurrent('Valuable Costs');
                 $headers = [
                     'Gross Margin Name of Producer' => 'Text, Required',
-                    'Item Name' => 'Text, Required',
-                    'Unit' => 'Text',
-                    'Quantity' => 'Number',
-                    'Unit Price' => 'Number',
-                    'Total' => 'Number',
+                    'Item Name'                     => 'Text, Required',
+                    'Unit'                          => 'Text',
+                    'Quantity'                      => 'Number',
+                    'Unit Price'                    => 'Number',
+                    'Total'                         => 'Number',
                 ];
                 $writer->addHeader(array_keys($headers));
                 GrossMarginItemValue::query()->with(['grossMargin', 'categoryItem'])
@@ -1720,29 +1781,28 @@ class ExcelExportJob implements ShouldQueue
                         'gross_margin_category_items.item_name as item_name',
                         'gross_margin_category_items.unit as unit',
 
-                        DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                        DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                     ])->chunk(2000, function ($recruitments) use ($writer) {
-                        foreach ($recruitments as $recruitment) {
-                            $writer->addRow([
-                                $recruitment->grossMargin->name,
-                                $recruitment->item_name,
-                                $recruitment->qty,
-                                $recruitment->unit_price,
-                                $recruitment->total
+                    foreach ($recruitments as $recruitment) {
+                        $writer->addRow([
+                            $recruitment->grossMargin->name,
+                            $recruitment->item_name,
+                            $recruitment->qty,
+                            $recruitment->unit_price,
+                            $recruitment->total,
 
-                            ]);
-                        }
-                    });
-
+                        ]);
+                    }
+                });
 
                 $writer->addNewSheetAndMakeItCurrent('Varieties');
                 $headers = [
                     'Gross Margin Name of Producer' => 'Text, Required',
-                    'Variety' => 'Text, Required',
+                    'Variety'                       => 'Text, Required',
 
-                    'Quantity' => 'Number',
-                    'Unit Price' => 'Number',
-                    'Total' => 'Number',
+                    'Quantity'                      => 'Number',
+                    'Unit Price'                    => 'Number',
+                    'Total'                         => 'Number',
                 ];
                 $writer->addHeader(array_keys($headers));
 
@@ -1750,27 +1810,26 @@ class ExcelExportJob implements ShouldQueue
                     ->join('gross_margins', function ($join) {
                         $join->on('gross_margins.id', '=', 'gross_margin_varieties.gross_margin_id');
                     })->select([
-                        'gross_margin_varieties.*',
-                        'gross_margins.name as gross_margin_name',
-                    ])->chunk(2000, function ($recruitments) use ($writer) {
-                        foreach ($recruitments as $recruitment) {
-                            $writer->addRow([
-                                $recruitment->gross_margin_name,
-                                $recruitment->name,
+                    'gross_margin_varieties.*',
+                    'gross_margins.name as gross_margin_name',
+                ])->chunk(2000, function ($recruitments) use ($writer) {
+                    foreach ($recruitments as $recruitment) {
+                        $writer->addRow([
+                            $recruitment->gross_margin_name,
+                            $recruitment->name,
 
-                                $recruitment->qty,
-                                $recruitment->unit_price,
-                                $recruitment->total
+                            $recruitment->qty,
+                            $recruitment->unit_price,
+                            $recruitment->total,
 
-                            ]);
-                        }
-                    });
+                        ]);
+                    }
+                });
 
                 $writer->close(); // Finalize the file
 
                 break;
             case 'summary':
-
 
                 try {
 

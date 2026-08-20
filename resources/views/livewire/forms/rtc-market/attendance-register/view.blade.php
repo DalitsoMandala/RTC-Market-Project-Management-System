@@ -5,7 +5,7 @@
     <div class="container-fluid">
 
         <!-- start page title -->
-      <div class="row">
+        <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
 
@@ -13,7 +13,7 @@
 
                     <div class="page-title-left col-12" wire:ignore>
                         @php
-                            $routePrefix = \Illuminate\Support\Facades\Route::current()->getPrefix();
+                            $routePrefix = trim(Route::current()->getPrefix(), '/');
                         @endphp
                         <ol class="m-0 breadcrumb">
                             <li class="breadcrumb-item"><a href="/">Dashboard</a></li>

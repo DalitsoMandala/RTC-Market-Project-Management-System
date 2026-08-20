@@ -7,14 +7,14 @@
         $newUuid = Uuid::uuid4()->toString();
         $addDataRoute = $uuid ? str_replace($uuid, '', $currentUrl) : $currentUrl;
         $addDataRoute = str_replace('upload', 'add', $addDataRoute);
-        $routePrefix = Route::current()->getPrefix();
+        $routePrefix = trim(Route::current()->getPrefix(), '/');
         $formRoute = strtolower(str_replace(' ', '-', $formName));
     @endphp
     @section('title')
         {{ $pageTitle }}
     @endsection
 
-    <div class="container-fluid">
+    <div class="mt-3 container-fluid">
 
         <div class="row">
             <div class="col-12">
@@ -45,7 +45,7 @@
 
                             @role('external')
                                 <li class="breadcrumb-item">
-                                <a href="/external/submission-period">Submission Periods</a>
+                                    <a href="/external/submission-period">Submission Periods</a>
                                 </li>
                             @endrole
 
@@ -55,7 +55,7 @@
                             </li>
                             <li class="breadcrumb-item">
 
-                                <a href="{{ $routePrefix }}/forms/rtc-market/{{ $formRoute }}/view">
+                                <a href="/{{ $routePrefix }}/forms/rtc-market/{{ $formRoute }}/view">
                                     {{ ucwords(strtolower($formName)) }} Data
                                 </a>
                             </li>
@@ -74,12 +74,8 @@
 
                 <x-alerts />
 
-                @isset($selectedMonth, $selectedFinancialYear)
+                @if (isset($selectedMonth) && isset($selectedFinancialYear))
                     <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
-                @endisset
-
-                @if (!$targetSet && isset($targetIds))
-                    <livewire:forms.rtc-market.set-targets-form :submissionTargetIds="$targetIds" />
                 @endif
 
                 @if (!$openSubmission)

@@ -8,7 +8,7 @@
         $uuid = Uuid::uuid4()->toString();
         $currentUrl = url()->current();
         $replaceUrl = str_replace('add', 'upload', $currentUrl) . "/{$uuid}";
-        $routePrefix = Route::current()->getPrefix();
+        $routePrefix = trim(Route::current()->getPrefix(), '/');
         $formRoute = strtolower(str_replace(' ', '-', $formName));
 
     @endphp

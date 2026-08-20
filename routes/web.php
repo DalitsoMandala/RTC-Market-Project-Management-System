@@ -73,6 +73,11 @@ if (! function_exists('registerFormRoutes')) {
         Route::get($prefix . '/seed-distribution-register/view/{batch?}/{crop?}', App\Livewire\OtherForms\SeedBeneficiaries\View::class);
         Route::get($prefix . '/seed-distribution-register/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\OtherForms\SeedBeneficiaries\Upload::class);
         Route::get($prefix . '/seed-distribution-register/edit/{id}/{uuid}', App\Livewire\OtherForms\SeedBeneficiaries\Edit::class);
+
+        Route::get($prefix . '/production-and-marketing-log-form/add/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}', App\Livewire\Forms\RtcMarket\ProductionMarketingLog\Add::class);
+        Route::get($prefix . '/production-and-marketing-log-form/view/{batch?}/{crop?}', App\Livewire\Forms\RtcMarket\ProductionMarketingLog\View::class);
+        Route::get($prefix . '/production-and-marketing-log-form/upload/{form_id}/{indicator_id}/{financial_year_id}/{month_period_id}/{submission_period_id}/{uuid}', App\Livewire\Forms\RtcMarket\ProductionMarketingLog\Upload::class);
+        Route::get($prefix . '/production-and-marketing-log-form/edit/{id}/{uuid}', App\Livewire\Forms\RtcMarket\ProductionMarketingLog\Edit::class);
     }
 }
 // Profile route

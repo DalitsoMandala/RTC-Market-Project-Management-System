@@ -1,32 +1,28 @@
 <?php
-
 namespace App\Livewire\Tables;
 
 use App\Models\Form;
-use App\Models\User;
 use App\Models\Organisation;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+use App\Models\User;
+use App\Traits\GroupsEndingSoonSubmissionPeriods;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Column;
 use PowerComponents\LivewirePowerGrid\Footer;
 use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use App\Notifications\SubmissionPeriodsEndingSoon;
-use App\Traits\GroupsEndingSoonSubmissionPeriods;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class FormTable extends PowerGridComponent
 {
     use WithExport;
     public $organisation;
     public $num = 1;
-
 
     public function setUp(): array
     {
@@ -46,37 +42,37 @@ final class FormTable extends PowerGridComponent
     public function datasource(): Builder
     {
 
-
-
         $user = User::find(auth()->user()->id);
 
-
         if ($user->hasAnyRole('external')) {
-            return  Form::query()->with('project', 'indicators', 'indicators.responsiblePeopleforIndicators')
+            return Form::query()->with('project', 'indicators', 'indicators.responsiblePeopleforIndicators')
                 ->whereHas('indicators.responsiblePeopleforIndicators', function ($query) use ($user) {
                     $query->where('organisation_id', $user->organisation->id);
                 })
                 ->select([
                     '*',
-                    DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+                    DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
                 ]);
         }
 
-
-
-
         return Form::query()->with('project', 'indicators')->select([
             '*',
-            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
         ]);
     }
     public function relationSearch(): array
     {
         return [
             'project' => [ // relationship on dishes model
-                'name'
+                'name',
             ],
         ];
+    }
+
+    #[On('hideModal')]
+    public function resetform()
+    {
+        $this->refresh();
     }
 
     public function fields(): PowerGridFields
@@ -87,7 +83,7 @@ final class FormTable extends PowerGridComponent
             ->add('name_formatted', function ($model) {
 
                 $form_name = str_replace(' ', '-', strtolower($model->name));
-                $project = str_replace(' ', '-', strtolower($model->project->name));
+                $project   = str_replace(' ', '-', strtolower($model->project->name));
                 // if ($model->name == 'REPORT FORM') {
                 //     return '<a class="pe-none text-muted"  href="forms/' . $project . '/' . $form_name . '/view" >REPORTS</a>';
                 // }
@@ -101,15 +97,14 @@ final class FormTable extends PowerGridComponent
             })
             ->add('followup', function ($model) {
 
-
-                $form = Form::find($model->id);
-                $user = Auth::user();
+                $form         = Form::find($model->id);
+                $user         = Auth::user();
                 $organisation = $user->organisation;
-                $routePrefix = Route::current()->getPrefix();
-                $form_name = str_replace(' ', '-', strtolower($form->name));
-                $project = str_replace(' ', '-', strtolower($form->project->name));
+                $routePrefix  = Route::current()->getPrefix();
+                $form_name    = str_replace(' ', '-', strtolower($form->name));
+                $project      = str_replace(' ', '-', strtolower($form->project->name));
 
-                $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
+                $route          = $routePrefix . '/forms/' . $project . '/' . $form_name . '/followup/';
                 $projectManager = User::find(auth()->user()->id)->hasAllRoles(['manager', 'project_manager']) ? 'disabled' : '';
 
                 if ($form->name === 'RTC PRODUCTION AND MARKETING FORM FARMERS' || $form->name === 'RTC PRODUCTION AND MARKETING FORM PROCESSORS AND TRADERS') {
@@ -130,16 +125,13 @@ final class FormTable extends PowerGridComponent
             Column::make('Name', 'name_formatted', 'name')
                 ->sortable()
                 ->searchable(),
-            Column::make('Project', 'project',)
+            Column::make('Project', 'project', )
                 ->searchable(),
 
             Column::make('Type', 'type')
                 ->sortable()
                 ->hidden()
                 ->searchable(),
-
-
-
 
             // Column::make('Project id', 'project_id'),
             // Column::make('Created at', 'created_at_formatted', 'created_at')
@@ -169,17 +161,6 @@ final class FormTable extends PowerGridComponent
     {
         $this->refresh();
     }
-
-    // public function actions($row): array
-    // {
-    //     return [
-    //         Button::add('edit')
-    //             ->slot('<i class="bx bx-pen"></i> Edit')
-    //             ->id()
-    //             ->class('btn btn-warning')
-    //             ->dispatch('showModal', ['rowId' => $row->id, 'name' => 'view-form-modal'])
-    //     ];
-    // }
 
     /*
 public function actionRules($row): array

@@ -1,32 +1,26 @@
 <?php
-
 namespace App\Traits;
 
-
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use App\Models\Project;
-use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
 use App\Models\FinancialYear;
+use App\Models\Form;
+use App\Models\OrganisationTarget;
+use App\Models\ReportingPeriodMonth;
+use App\Models\Submission;
 use App\Models\SubmissionPeriod;
 use App\Models\SubmissionTarget;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Maatwebsite\Excel\Validators\ValidationException;
-
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
+
 trait UploadDataTrait
 {
     //
-
 
     public $variable;
     public $rowId;
@@ -35,7 +29,7 @@ trait UploadDataTrait
     public $period;
     public $forms = [];
     public $selectedForm;
-    public $months = [];
+    public $months         = [];
     public $financialYears = [];
     public $selectedFinancialYear;
     public $projects = [];
@@ -45,11 +39,11 @@ trait UploadDataTrait
     public $indicators;
     public $selectedIndicator;
     public $organisation_id;
-    public $loadAggregate = [];
-    public $aggregateData = [];
+    public $loadAggregate    = [];
+    public $aggregateData    = [];
     public $checkifAggregate = false;
-    public $showReport = false;
-    public $validated = true;
+    public $showReport       = false;
+    public $validated        = true;
     public $routePrefix;
     public $targetSet = false;
     public $targetIds = [];
@@ -68,18 +62,19 @@ trait UploadDataTrait
 
     public $currentRoute;
 
-    protected function rules(){
+    protected function rules()
+    {
 
         return [
-         'description' => [
+            'description' => [
                 'nullable', // Or 'required' if it's always required
                 Rule::requiredIf(function () {
                     return User::find(auth()->user()->id)->hasAnyRole(['manager', 'admin']);
                 }),
             ],
-    ];
+        ];
 
-}
+    }
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
         // Validate required IDs
@@ -116,8 +111,8 @@ trait UploadDataTrait
         $this->selectedForm = $this->findModelOrFail(Form::class, $form_id)->id;
         //   $this->selectedIndicator = $this->findModelOrFail(Indicator::class, $indicator_id)->id;
         $this->selectedFinancialYear = $this->findModelOrFail(FinancialYear::class, $financial_year_id)->id;
-        $this->selectedMonth = $this->findModelOrFail(ReportingPeriodMonth::class, $month_period_id)->id;
-        $this->submissionPeriodId = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_id)->id;
+        $this->selectedMonth         = $this->findModelOrFail(ReportingPeriodMonth::class, $month_period_id)->id;
+        $this->submissionPeriodId    = $this->findModelOrFail(SubmissionPeriod::class, $submission_period_id)->id;
     }
 
     /**
@@ -126,7 +121,7 @@ trait UploadDataTrait
     protected function findModelOrFail($modelClass, $id)
     {
         $model = $modelClass::find($id);
-        if (!$model) {
+        if (! $model) {
             Log::error("$modelClass with ID $id not found");
             abort(404);
         }
@@ -139,14 +134,13 @@ trait UploadDataTrait
     protected function checkSubmissionPeriodAndTargets()
     {
         $submissionPeriod = $this->getOpenSubmissionPeriod();
-        $targets = $this->getSubmissionTargets();
-        $this->targetIds = $targets->pluck('id')->toArray();
+        $targets          = $this->getSubmissionTargets();
+        $this->targetIds  = $targets->pluck('id')->toArray();
 
-        $this->openSubmission =  $submissionPeriod->count() > 0 ? true : false; // tempolary
-        $this->targetSet = $this->openSubmission; // tempolary
+        $this->openSubmission = $submissionPeriod->count() > 0 ? true : false; // tempolary
+        $this->targetSet      = $this->openSubmission;                         // tempolary
 
         //   $this->openSubmission = $submissionPeriod && $this->hasOrganisationTargets($targets);
-
 
         //  $this->targetSet = $this->openSubmission;
     }
@@ -157,7 +151,7 @@ trait UploadDataTrait
     protected function getOpenSubmissionPeriod()
     {
         return SubmissionPeriod::where('form_id', $this->selectedForm)
-            // ->where('indicator_id', $this->selectedIndicator)
+        // ->where('indicator_id', $this->selectedIndicator)
             ->where('financial_year_id', $this->selectedFinancialYear)
             ->where('month_range_period_id', $this->selectedMonth)
             ->where('is_open', true)
@@ -179,7 +173,7 @@ trait UploadDataTrait
      */
     protected function hasOrganisationTargets($targets)
     {
-        $user = User::find(auth()->user()->id);
+        $user      = User::find(auth()->user()->id);
         $targetIds = $targets->pluck('id');
 
         return OrganisationTarget::where('organisation_id', $user->organisation->id)
@@ -189,16 +183,15 @@ trait UploadDataTrait
             ->exists();
     }
 
-
     #[On('open-submission')]
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
-    public function uploadFile($file, $importId,  $importClass, $name_prefix = null)
+    public function uploadFile($file, $importId, $importClass, $name_prefix = null)
     {
 
         $name = $name_prefix . time() . '.' . $file->getClientOriginalExtension();
@@ -212,17 +205,17 @@ trait UploadDataTrait
                 filePath: $path,
                 submissionDetails: [
                     'submission_period_id' => $this->submissionPeriodId,
-                    'organisation_id' => Auth::user()->organisation->id,
-                    'financial_year_id' => $this->selectedFinancialYear,
-                    'period_month_id' => $this->selectedMonth,
-                    'form_id' => $this->selectedForm,
-                    'user_id' => Auth::user()->id,
-                    'batch_type' => 'batch',
-                    'is_complete' => 1,
-                    'file_link' => $name,
-                    'batch_no' => $this->importId,
-                    'route' => $this->currentRoute,
-                    'description' => $this->description
+                    'organisation_id'      => Auth::user()->organisation->id,
+                    'financial_year_id'    => $this->selectedFinancialYear,
+                    'period_month_id'      => $this->selectedMonth,
+                    'form_id'              => $this->selectedForm,
+                    'user_id'              => Auth::user()->id,
+                    'batch_type'           => 'batch',
+                    'is_complete'          => 1,
+                    'file_link'            => $name,
+                    'batch_no'             => $this->importId,
+                    'route'                => $this->currentRoute,
+                    'description'          => $this->description,
 
                 ]
             ),
