@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class indicator_A1 extends base
 {
-
     public function builder(): Builder
     {
         return $this->applyFilters(
@@ -17,212 +16,123 @@ class indicator_A1 extends base
 
     /*
     |--------------------------------------------------------------------------
-    | PEOPLE TOTALS (EXCLUDING TRADERS)
-    |--------------------------------------------------------------------------
-    */
-
-    protected function peopleTotals($type = null, $enterprise = null, $estType = null)
-    {
-        $builder = $this->builder()->where('type', '!=', 'Traders');
-
-        if ($type) {
-            $builder->where('type', $type);
-        }
-
-        if ($enterprise) {
-            $builder->where('enterprise', $enterprise);
-        }
-
-        if ($estType) {
-            $builder->where('establishment_status', $estType);
-        }
-
-        $totals = [
-            'members'   => 0,
-            'employees' => 0,
-        ];
-
-        foreach ($builder->get() as $row) {
-
-            $members =
-            $row->mem_female_18_35 +
-            $row->mem_female_35_plus +
-            $row->mem_male_18_35 +
-            $row->mem_male_35_plus;
-
-            $employees =
-            $row->emp_formal_female_18_35 +
-            $row->emp_formal_female_35_plus +
-            $row->emp_formal_male_18_35 +
-            $row->emp_formal_male_35_plus +
-            $row->emp_informal_female_18_35 +
-            $row->emp_informal_female_35_plus +
-            $row->emp_informal_male_18_35 +
-            $row->emp_informal_male_35_plus;
-
-            $totals['members']   += $members;
-            $totals['employees'] += $employees;
-        }
-
-        return $totals;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | TRADER TOTALS (COUNT ESTABLISHMENTS ONLY)
-    |--------------------------------------------------------------------------
-    */
-
-    protected function traderTotals()
-    {
-        $builder = $this->builder()->where('type', 'Traders');
-
-        return [
-            'total'             => $builder->count(),
-            'Cassava'           => (clone $builder)->where('enterprise', 'Cassava')->count(),
-            'Potato'            => (clone $builder)->where('enterprise', 'Potato')->count(),
-            'Sweet potato'      => (clone $builder)->where('enterprise', 'Sweet potato')->count(),
-            'New establishment' => (clone $builder)->where('establishment_status', 'New')->count(),
-            'Old establishment' => (clone $builder)->where('establishment_status', 'Old')->count(),
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | MAIN INDICATOR DISAGGREGATIONS
     |--------------------------------------------------------------------------
     */
 
-    public function getActorGenderDisaggregation()
-    {
-        $actors = ['Farmers', 'Processors', 'Aggregators', 'Transporters'];
-
-        $results = [];
-
-        foreach ($actors as $actor) {
-
-            $builder = $this->builder()
-                ->where('type', $actor)
-                ->where('type', '!=', 'Traders');
-
-            $male_members     = 0;
-            $female_members   = 0;
-            $male_employees   = 0;
-            $female_employees = 0;
-            $youth            = 0;
-            $not_youth        = 0;
-            $male             = 0;
-            $female           = 0;
-
-            foreach ($builder->get() as $row) {
-
-                // MEMBERS
-                $female_members +=
-                $row->mem_female_18_35 +
-                $row->mem_female_35_plus;
-
-                $male_members +=
-                $row->mem_male_18_35 +
-                $row->mem_male_35_plus;
-
-                // EMPLOYEES (formal + informal)
-                $female_employees +=
-                $row->emp_formal_female_18_35 +
-                $row->emp_formal_female_35_plus +
-                $row->emp_informal_female_18_35 +
-                $row->emp_informal_female_35_plus;
-
-                $male_employees +=
-                $row->emp_formal_male_18_35 +
-                $row->emp_formal_male_35_plus +
-                $row->emp_informal_male_18_35 +
-                $row->emp_informal_male_35_plus;
-
-                $youth     += $row->mem_female_18_35 + $row->mem_male_18_35 + $row->emp_formal_female_18_35 + $row->emp_formal_male_18_35 + $row->emp_informal_female_18_35 + $row->emp_informal_male_18_35;
-                $not_youth += $row->mem_female_35_plus + $row->mem_male_35_plus + $row->emp_formal_female_35_plus + $row->emp_formal_male_35_plus + $row->emp_informal_female_35_plus + $row->emp_informal_male_35_plus;
-            }
-
-            $results[$actor]  = [
-                'male'             => $male_employees + $male_members,
-                'female'           => $female_employees + $female_members,
-                'male_members'     => $male_members,
-                'female_members'   => $female_members,
-                'male_employees'   => $male_employees,
-                'female_employees' => $female_employees,
-                'youth'            => $youth,
-                'not_youth'        => $not_youth,
-            ];
-        }
-
-        return $results;
-    }
     public function getDisaggregations()
     {
-        $traders = $this->traderTotals();
+        // 1. Database query for non-Traders
+        $peopleStats = $this->builder()
+            ->where('type', '!=', 'Traders')
+            ->selectRaw("
+                type,
+                enterprise,
+                establishment_status,
+                SUM(mem_female_18_35 + mem_female_35_plus + mem_male_18_35 + mem_male_35_plus) as members_count,
+                SUM(profit_female_18_35 + profit_female_35_plus + profit_male_18_35 + profit_male_35_plus) as profit_count,
+                SUM(emp_formal_female_18_35 + emp_formal_female_35_plus + emp_formal_male_18_35 + emp_formal_male_35_plus) as formal_employees_count,
+                SUM(emp_informal_female_18_35 + emp_informal_female_35_plus + emp_informal_male_18_35 + emp_informal_male_35_plus) as informal_employees_count
+            ")
+            ->groupBy('type', 'enterprise', 'establishment_status')
+            ->get();
 
-        $actors = ['Farmers', 'Processors', 'Aggregators', 'Transporters'];
-        $crops  = ['Cassava', 'Potato', 'Sweet potato'];
+        // 2. Query for Traders (Counts & Establishment status breakdown)
+        $traderStats = $this->builder()
+            ->where('type', 'Traders')
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN enterprise = 'Cassava' THEN 1 END) as cassava,
+                COUNT(CASE WHEN enterprise = 'Potato' THEN 1 END) as potato,
+                COUNT(CASE WHEN enterprise = 'Sweet potato' THEN 1 END) as sweet_potato,
+                COUNT(CASE WHEN establishment_status = 'New' THEN 1 END) as new_count,
+                COUNT(CASE WHEN establishment_status = 'Old' THEN 1 END) as old_count
+            ")
+            ->first();
 
-        $actorTotals = [];
-        $cropTotals  = [];
+        // Initialize trackers
+        $actors         = ['Farmers' => 0, 'Processors' => 0, 'Aggregators' => 0, 'Transporters' => 0];
+        $cropPeople     = ['Cassava' => 0, 'Potato' => 0, 'Sweet potato' => 0];
+        $establishments = ['New' => 0, 'Old' => 0];
 
-        $totalMembers   = 0;
-        $totalEmployees = 0;
+        $totalMembers                  = 0;
+        $totalProfitablyEngagedMembers = 0;
+        $totalFormalEmployees          = 0;
+        $totalInformalEmployees        = 0;
 
-        foreach ($actors as $actor) {
-            $totals = $this->peopleTotals(type: $actor);
+        // Process non-trader aggregates
+        foreach ($peopleStats as $row) {
+            $mCount        = (int) $row->members_count;
+            $mPCount       = (int) $row->profit_count;
+            $formalCount   = (int) $row->formal_employees_count;
+            $informalCount = (int) $row->informal_employees_count;
 
-            // Actors = MEMBERS ONLY
-            $actorTotals[$actor] = $totals['members'];
+            $engagedInRow = $mPCount + $formalCount;
 
-            $totalMembers   += $totals['members'];
-            $totalEmployees += $totals['employees'];
+            // Actor disaggregations (Profitably Engaged Members + Formal Employees)
+            if (array_key_exists($row->type, $actors)) {
+                $actors[$row->type] += $engagedInRow;
+            }
+
+            // Crop disaggregations (Profitably Engaged Members + Formal Employees)
+            if (array_key_exists($row->enterprise, $cropPeople)) {
+                $cropPeople[$row->enterprise] += $engagedInRow;
+            }
+
+            // Establishment status disaggregations (Profitably Engaged Members + Formal Employees)
+            if (array_key_exists($row->establishment_status, $establishments)) {
+                $establishments[$row->establishment_status] += $engagedInRow;
+            }
+
+            $totalMembers                  += $mCount;
+            $totalProfitablyEngagedMembers += $mPCount;
+            $totalFormalEmployees          += $formalCount;
+            $totalInformalEmployees        += $informalCount;
         }
 
-        foreach ($crops as $crop) {
-            $totals = $this->peopleTotals(enterprise: $crop);
+        $totalEmployees = $totalFormalEmployees + $totalInformalEmployees;
+        $tradersTotal   = $traderStats->total ?? 0;
 
-            $cropTotals[$crop] =
-            $totals['members'] +
-            //         $totals['employees'] +
-            $traders[$crop];
-        }
+        // Formula: Total Profitably Engaged People
+        $totalProfitablyEngagedPeople = $totalProfitablyEngagedMembers + $totalFormalEmployees + $tradersTotal;
 
-        $new =
-        $this->peopleTotals(estType: 'New')['members'] +
-        //  $this->peopleTotals(estType: 'New')['employees'] +
-        $traders['New establishment'];
+        // Crop Totals = Non-Trader (Engaged Members + Formal Employees) + Traders
+        $cropTotals  = [
+            'Cassava'      => $cropPeople['Cassava'] + ($traderStats->cassava ?? 0),
+            'Potato'       => $cropPeople['Potato'] + ($traderStats->potato ?? 0),
+            'Sweet potato' => $cropPeople['Sweet potato'] + ($traderStats->sweet_potato ?? 0),
+        ];
 
-        $old =
-        $this->peopleTotals(estType: 'Old')['members'] +
-        // $this->peopleTotals(estType: 'Old')['employees'] +
-        $traders['Old establishment'];
+        // Establishment Totals = Non-Trader (Engaged Members + Formal Employees) + Traders
+        $establishmentTotals = [
+            'New' => $establishments['New'] + ($traderStats->new_count ?? 0),
+            'Old' => $establishments['Old'] + ($traderStats->old_count ?? 0),
+        ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | FINAL TOTAL (NO DOUBLE COUNTING)
-        |--------------------------------------------------------------------------
-        | Total = Members + Employees + Traders
-        */
-        $totalPeople =
-        $totalMembers +
-        // $totalEmployees +
-        $traders['total'];
-
+        // Map disaggregations collection
         $disaggregations = $this->getIndicatorDisaggregations('A1');
 
-        $disaggregations->put('Total', $totalPeople ?? 0);
-        $disaggregations->put('Farmers', $actorTotals['Farmers'] ?? 0);
-        $disaggregations->put('Processors', $actorTotals['Processors'] ?? 0);
-        $disaggregations->put('Aggregators', $actorTotals['Aggregators'] ?? 0);
-        $disaggregations->put('Transporters', $actorTotals['Transporters'] ?? 0);
-        $disaggregations->put('Traders', $traders['total'] ?? 0);
-        $disaggregations->put('Employees', $totalEmployees ?? 0);
-        $disaggregations->put('Cassava', $cropTotals['Cassava'] ?? 0);
-        $disaggregations->put('Potato', $cropTotals['Potato'] ?? 0);
-        $disaggregations->put('Sweet potato', $cropTotals['Sweet potato'] ?? 0);
-        $disaggregations->put('New establishment', $new ?? 0);
-        $disaggregations->put('Old establishment', $old ?? 0);
+        // Total
+        $disaggregations->put('Total', $totalProfitablyEngagedPeople);
+
+        // Actors disaggregation sum = Total
+        $disaggregations->put('Farmers', $actors['Farmers']);
+        $disaggregations->put('Processors', $actors['Processors']);
+        $disaggregations->put('Aggregators', $actors['Aggregators']);
+        $disaggregations->put('Transporters', $actors['Transporters']);
+        $disaggregations->put('Traders', $tradersTotal);
+
+        // Crops disaggregation sum = Total
+        $disaggregations->put('Cassava', $cropTotals['Cassava']);
+        $disaggregations->put('Potato', $cropTotals['Potato']);
+        $disaggregations->put('Sweet potato', $cropTotals['Sweet potato']);
+
+        // Establishments disaggregation sum = Total
+        $disaggregations->put('New establishment', $establishmentTotals['New']);
+        $disaggregations->put('Old establishment', $establishmentTotals['Old']);
+
+        // Breakdown disaggregations
+        $disaggregations->put('Employees', $totalEmployees);
 
         return $disaggregations->toArray();
     }

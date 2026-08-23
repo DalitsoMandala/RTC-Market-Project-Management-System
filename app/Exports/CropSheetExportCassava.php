@@ -1,11 +1,8 @@
 <?php
-
 namespace App\Exports;
 
-use App\Models\SeedBeneficiary;
 use App\Traits\ExportStylingTrait;
 use App\Traits\FormEssentials;
-use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -19,13 +16,13 @@ class CropSheetExportCassava extends CropSheetExport implements FromCollection, 
     use FormEssentials;
 
     protected $cropType;
-    public $template = false;
+    public $template           = false;
     protected $validationTypes = [];
 
     public function __construct(string $cropType, $template = false)
     {
-        $this->cropType = $cropType;
-        $this->template = $template;
+        $this->cropType        = $cropType;
+        $this->template        = $template;
         $this->validationTypes = $this->forms['Seed Beneficiaries Form']['Cassava'];
     }
 
@@ -33,7 +30,7 @@ class CropSheetExportCassava extends CropSheetExport implements FromCollection, 
     {
         return [
             array_keys($this->validationTypes),
-            array_values($this->validationTypes)
+            array_values($this->validationTypes),
         ];
     }
 
@@ -41,7 +38,7 @@ class CropSheetExportCassava extends CropSheetExport implements FromCollection, 
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet = $event->sheet->getDelegate();
+                $sheet         = $event->sheet->getDelegate();
                 $highestColumn = $sheet->getHighestColumn();
                 // Make the first row (header) bold
                 $sheet->getStyle("A1:{$highestColumn}1")->applyFromArray([
@@ -54,44 +51,44 @@ class CropSheetExportCassava extends CropSheetExport implements FromCollection, 
                 // Set background color for the second row (A2:ZZ2)
                 $sheet->getStyle("A2:{$highestColumn}2")->applyFromArray([
                     'font' => [
-                        'color' => ['rgb' => 'FF0000'],  // Red text
-                        'bold' => true,
+                        'color' => ['rgb' => 'FF0000'], // Red text
+                        'bold'  => true,
                     ],
                     'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'FFFFC5'],  // Pink background
+                        'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFFFC5'], // Pink background
                     ],
                 ]);
 
-                $sheet = $event->sheet->getDelegate();
+                $sheet           = $event->sheet->getDelegate();
                 $dropdownOptions = [
-                    'Single', 'Married', 'Divorced', 'Widowed', 'Separated', 'Polygamy'
+                    'Single', 'Married', 'Divorced', 'Widowed', 'Separated', 'Polygamy',
                 ];
                 $this->setDataValidations($dropdownOptions, 'L3', $sheet);
                 $dropdownOptions = [
-                    'FHH', 'MHH', 'CHH'
+                    'FHH', 'MHH', 'CHH',
                 ];
                 $this->setDataValidations($dropdownOptions, 'M3', $sheet);
 
                 $dropdownOptions = [
-                    'Male', 'Female'
-                ];
-                $this->setDataValidations($dropdownOptions, 'P3', $sheet);
-
-                $dropdownOptions = [
-                    'Caregroup', 'School feeding', 'Commercial'
+                    'Male', 'Female',
                 ];
                 $this->setDataValidations($dropdownOptions, 'R3', $sheet);
 
                 $dropdownOptions = [
-                    'Mother', 'Baby', 'Ordinary demonstration'
+                    'Caregroup', 'School feeding', 'Commercial',
                 ];
                 $this->setDataValidations($dropdownOptions, 'S3', $sheet);
+
+                $dropdownOptions = [
+                    'Mother', 'Baby', 'Ordinary demonstration',
+                ];
+                $this->setDataValidations($dropdownOptions, 'T3', $sheet);
                 $dropdownOptions = [
                     'Rainfed',
                     'Winter',
                 ];
-                $this->setDataValidations($dropdownOptions, 'W3', $sheet);
+                $this->setDataValidations($dropdownOptions, 'X3', $sheet);
             },
         ];
     }

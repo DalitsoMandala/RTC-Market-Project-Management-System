@@ -1,16 +1,15 @@
 <?php
-
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 
 trait FilterableQuery
 {
-    protected  $reporting_period = null;
-    protected  $financial_year = null;
-    protected  $organisation_id = null;
-    protected  $enterprise = null;
-    protected $is_report = false;
+    protected $reporting_period = null;
+    protected $financial_year   = null;
+    protected $organisation_id  = null;
+    protected $enterprise       = null;
+    protected $is_report        = false;
 
     public function applyFilters(Builder $query, $is_report = false): Builder
     {
@@ -19,8 +18,12 @@ trait FilterableQuery
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
-        if (!$is_report && $this->enterprise) {
+        if (! $is_report && $this->enterprise) {
             $query->where('enterprise', $this->enterprise);
+        }
+
+        if ($is_report) {
+            $query->where('status', 'approved');
         }
 
         return $query;
@@ -33,7 +36,7 @@ trait FilterableQuery
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
-        if (!$is_report && $this->enterprise) {
+        if (! $is_report && $this->enterprise) {
             $query->where(function ($q) {
                 switch ($this->enterprise) {
                     case 'Cassava':
@@ -59,12 +62,10 @@ trait FilterableQuery
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
-
-        $temp = $this->enterprise;
+        $temp       = $this->enterprise;
         $enterprise = $temp === 'Sweet potato' ? 'OFSP' : $temp;
 
-
-        if (!$is_report && $this->enterprise) {
+        if (! $is_report && $this->enterprise) {
             $query->where('crop', $enterprise);
         }
 
@@ -78,7 +79,7 @@ trait FilterableQuery
             ->when($this->financial_year, fn($q) => $q->where('financial_year_id', $this->financial_year))
             ->when($this->organisation_id, fn($q) => $q->where('organisation_id', $this->organisation_id));
 
-        if (!$is_report && $this->enterprise) {
+        if (! $is_report && $this->enterprise) {
             $query->where(function ($q) {
                 switch ($this->enterprise) {
                     case 'Cassava':
@@ -92,15 +93,15 @@ trait FilterableQuery
                         break;
                 }
             });
-    }
+        }
 
         return $query;
     }
-    public function setFilters($reporting_period,  $financial_year,  $organisation_id, $enterprise): void
+    public function setFilters($reporting_period, $financial_year, $organisation_id, $enterprise): void
     {
         $this->reporting_period = $reporting_period;
-        $this->financial_year = $financial_year;
-        $this->organisation_id = $organisation_id;
-        $this->enterprise = $enterprise;
+        $this->financial_year   = $financial_year;
+        $this->organisation_id  = $organisation_id;
+        $this->enterprise       = $enterprise;
     }
 }

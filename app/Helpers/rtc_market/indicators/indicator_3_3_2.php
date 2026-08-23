@@ -2,82 +2,58 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\AttendanceRegister;
-use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
-class indicator_3_3_2
+class indicator_3_3_2 extends base
 {
-    use FilterableQuery;
-
-    protected $financial_year, $reporting_period, $organisation_id, $enterprise;
-
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
-    {
-        $this->reporting_period = $reporting_period;
-        $this->financial_year   = $financial_year;
-        $this->organisation_id  = $organisation_id;
-        $this->enterprise       = $enterprise;
-    }
-
     public function builder(): Builder
     {
-        $query = AttendanceRegister::query()
-            ->where('status', 'approved')
-            ->where('meetingCategory', 'Training')
-            ->whereIn('category', ['Farmer', 'Processor', 'Trader', 'Partner', 'Staff', 'Aggregator', 'Transporter'])
-            ->select([
-                'id', // Assuming 'id' is the unique person identifier
-                'category',
-                'rtcCrop_cassava',
-                'rtcCrop_potato',
-                'rtcCrop_sweet_potato',
-            ]);
-
-        return $this->applyAttendanceFilters($query);
+        return $this->applyAttendanceFilters(
+            AttendanceRegister::query()->where('status', 'approved')
+        );
     }
 
     public function getDisaggregations(): array
     {
-        $records = $this->builder()->get();
+        $categories = ['Farmer', 'Processor', 'Partner', 'Staff', 'Aggregator', 'Transporter', 'Trader'];
 
-        // 1. Calculate Crop Counts (Unique people per crop)
-        // If a person is in both Cassava and Potato, they count +1 for each.
-        $cassava     = $records->where('rtcCrop_cassava', true)->unique('id')->count();
-        $potato      = $records->where('rtcCrop_potato', true)->unique('id')->count();
-        $sweetPotato = $records->where('rtcCrop_sweet_potato', true)->unique('id')->count();
+        $stats = $this->builder()
+            ->where('meetingCategory', 'Training')
+            ->whereIn('category', $categories)
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN rtcCrop_potato = 1 OR rtcCrop_potato = true THEN 1 ELSE 0 END) as potato,
+                SUM(CASE WHEN rtcCrop_cassava = 1 OR rtcCrop_cassava = true THEN 1 ELSE 0 END) as cassava,
+                SUM(CASE WHEN rtcCrop_sweet_potato = 1 OR rtcCrop_sweet_potato = true THEN 1 ELSE 0 END) as sweet_potato,
+                SUM(CASE WHEN category = 'Farmer' THEN 1 ELSE 0 END) as farmers,
+                SUM(CASE WHEN category = 'Processor' THEN 1 ELSE 0 END) as processors,
+                SUM(CASE WHEN category = 'Partner' THEN 1 ELSE 0 END) as partners,
+                SUM(CASE WHEN category = 'Staff' THEN 1 ELSE 0 END) as staff,
+                SUM(CASE WHEN category = 'Aggregator' THEN 1 ELSE 0 END) as aggregators,
+                SUM(CASE WHEN category = 'Transporter' THEN 1 ELSE 0 END) as transporters,
+                SUM(CASE WHEN category = 'Trader' THEN 1 ELSE 0 END) as traders
+            ")
+            ->first();
 
-        // 2. Define the Grand Total as the sum of crops
-        $grandTotal = $cassava + $potato + $sweetPotato;
+        $disaggregations = $this->getIndicatorDisaggregations('3.3.2');
 
-        // 3. Category Counts
-        // To make categories sum up to the Grand Total, we must check each category
-        // against EACH crop flag.
-        $categories     = ['Farmer', 'Processor', 'Trader', 'Partner', 'Staff', 'Aggregator', 'Transporter'];
-        $categoryCounts = [];
+        // Total unique attendees matching filtered categories
+        $disaggregations->put('Total', (int) ($stats->total ?? 0));
 
-        foreach ($categories as $cat) {
-            $countForCat = 0;
+        // Category breakdown (Mutually exclusive - sums to Total)
+        $disaggregations->put('Farmers', (int) ($stats->farmers ?? 0));
+        $disaggregations->put('Processors', (int) ($stats->processors ?? 0));
+        $disaggregations->put('Partners', (int) ($stats->partners ?? 0));
+        $disaggregations->put('Staff', (int) ($stats->staff ?? 0));
+        $disaggregations->put('Aggregators', (int) ($stats->aggregators ?? 0));
+        $disaggregations->put('Transporters', (int) ($stats->transporters ?? 0));
+        $disaggregations->put('Traders', (int) ($stats->traders ?? 0));
 
-            // Count unique individuals for this category in each crop segment
-            $countForCat += $records->where('category', $cat)->where('rtcCrop_cassava', true)->unique('id')->count();
-            $countForCat += $records->where('category', $cat)->where('rtcCrop_potato', true)->unique('id')->count();
-            $countForCat += $records->where('category', $cat)->where('rtcCrop_sweet_potato', true)->unique('id')->count();
+        // Crop breakdown (Multi-select / Overlapping counts)
+        $disaggregations->put('Potato', (int) ($stats->potato ?? 0));
+        $disaggregations->put('Cassava', (int) ($stats->cassava ?? 0));
+        $disaggregations->put('Sweet potato', (int) ($stats->sweet_potato ?? 0));
 
-            $categoryCounts[$cat] = $countForCat;
-        }
-
-        return [
-            'Total'        => 0,
-            'Cassava'      => 0,
-            'Potato'       => 0,
-            'Sweet potato' => 0,
-            'Farmers'      => 0,
-            'Processors'   => 0,
-            'Traders'      => 0,
-            'Partner'      => 0,
-            'Staff'        => 0,
-            'Aggregators'  => 0,
-            'Transporters' => 0,
-        ];
+        return $disaggregations->toArray();
     }
 }

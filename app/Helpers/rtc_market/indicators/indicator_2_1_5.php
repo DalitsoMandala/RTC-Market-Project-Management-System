@@ -1,27 +1,21 @@
 <?php
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
-use App\Traits\IndicatorClassTrait;
+use App\Models\Indicator;
+use App\Models\SubmissionReport;
 
-class indicator_2_1_5
+class indicator_2_1_5 extends base
 {
-    // Automatically generated for indicator 2.1.5
-    use FilterableQuery;
-    use IndicatorClassTrait;
+
+    public function builder()
+    {
+        $indicatorId = Indicator::where('indicator_no', '2.1.5')->first()->id;
+        return $this->applyFilters(SubmissionReport::query()->where('indicator_id', $indicatorId), true);
+    }
 
     public function getDisaggregations()
     {
-        return [
-            'Total'                           => 0,
-            'Domestic'                        => 0,
-            'International'                   => 0,
-            'Cassava'                         => 0,
-            'Potato'                          => 0,
-            'Sweet potato'                    => 0,
-            'PO\'s'                           => 0,
-            'Individual farmers not in PO\'s' => 0,
-            'Large scale commercial farmers'  => 0,
-        ];
+        return $this->getTotalReport($this->builder(), self::pullTotals('2.1.5'))->toArray();
     }
+
 }

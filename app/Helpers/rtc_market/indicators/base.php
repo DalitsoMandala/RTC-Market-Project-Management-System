@@ -9,10 +9,10 @@ use Illuminate\Support\Collection;
 class base
 {
     use FilterableQuery;
-    protected $financial_year;
-    protected $reporting_period;
-    protected $organisation_id;
-    protected $enterprise;
+    protected $financial_year   = null;
+    protected $reporting_period = null;
+    protected $organisation_id  = null;
+    protected $enterprise       = null;
 
     public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
     {

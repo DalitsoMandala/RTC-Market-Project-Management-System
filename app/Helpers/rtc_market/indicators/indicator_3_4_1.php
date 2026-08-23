@@ -2,88 +2,74 @@
 namespace App\Helpers\rtc_market\indicators;
 
 use App\Models\Indicator;
+use App\Models\RtcConsumption;
 use App\Models\SubmissionReport;
-use App\Traits\FilterableQuery;
 use Illuminate\Database\Eloquent\Builder;
 
-class indicator_3_4_1
+class indicator_3_4_1 extends base
 {
-    use FilterableQuery;
-    protected $financial_year, $reporting_period, $project;
-    protected $organisation_id;
-
-    protected $enterprise;
-
-    public function __construct($reporting_period = null, $financial_year = null, $organisation_id = null, $enterprise = null)
-    {
-        $this->reporting_period = $reporting_period;
-        $this->financial_year   = $financial_year;
-        $this->organisation_id  = $organisation_id;
-        $this->enterprise       = $enterprise;
-    }
     public function builder(): Builder
     {
-
-        $indicator = Indicator::where('indicator_no', '3.4.1')->first();
-
-        $query = SubmissionReport::query()->where('indicator_id', $indicator->id)->where('status', 'approved');
-
-        // if ($this->organisation_id && $this->target_year_id) {
-        //     $data = $query->where('organisation_id', $this->organisation_id)->where('financial_year_id', $this->target_year_id);
-        //     $query = $data;
-
-        // } else
-        //     if ($this->organisation_id && $this->target_year_id == null) {
-        //         $data = $query->where('organisation_id', $this->organisation_id);
-        //         $query = $data;
-
-        //     }
-
-        return $this->applyFilters($query, true);
+        return $this->applyFilters(
+            RtcConsumption::query()->where('status', 'approved')
+        );
     }
 
-    public function getTotals()
+    public function reportBuilder(): Builder
     {
+        $indicatorId = Indicator::where('indicator_no', '3.4.1')->first()?->id;
 
-        $builder = $this->builder()->get();
-
-        $indicator       = Indicator::where('indicator_no', '3.4.1')->first();
-        $disaggregations = $indicator->disaggregations;
-        $data            = collect([]);
-        $disaggregations->pluck('name')->map(function ($item) use (&$data) {
-            $data->put($item, 0);
-        });
-
-        $this->builder()->chunk(1000, function ($models) use (&$data) {
-            $models->each(function ($model) use (&$data) {
-                // Decode the JSON data from the model
-                $json = collect(json_decode($model->data, true));
-
-                // Add the values for each key to the totals
-                foreach ($data as $key => $dt) {
-                    // Always process non-enterprise keys
-                    $isEnterpriseKey = str_contains($key, 'Cassava') ||
-                    str_contains($key, 'Potato') ||
-                    str_contains($key, 'Sweet potato');
-
-                    // If enterprise is set, only process matching keys or non-enterprise keys
-                    if (! $this->enterprise || ! $isEnterpriseKey || str_contains($key, $this->enterprise)) {
-                        if ($json->has($key)) {
-                            $data->put($key, $data->get($key) + $json[$key]);
-                        }
-                    }
-                }
-            });
-        });
-
-        return $data;
+        return $this->applyFilters(
+            SubmissionReport::query()->where('indicator_id', $indicatorId),
+            true
+        );
     }
-    public function getDisaggregations()
+
+    public function consumptionData(): array
     {
-        $totals = $this->getTotals()->toArray();
+        $data = $this->builder()
+            ->where('entity_type', 'Household')
+            ->selectRaw('
+          COUNT(*) as total
+        ')
+            ->first();
 
         return [
-            'Total' => 0,
+            'Total' => (float) ($data->total ?? 0),
+
         ];
+    }
+
+    public function reportData(): array
+    {
+        // Fixed: Pass reportBuilder() instead of builder()
+        return $this->getTotalReport($this->reportBuilder(), self::pullTotals('3.4.1'))->toArray();
+    }
+
+    public function getMergedData(): array
+    {
+        $marketData = $this->consumptionData();
+        $reportData = $this->reportData();
+
+        $keys = array_unique(array_merge(array_keys($marketData), array_keys($reportData)));
+
+        $merged = [];
+        foreach ($keys as $key) {
+            $merged[$key] = round(($marketData[$key] ?? 0) + ($reportData[$key] ?? 0), 2);
+        }
+
+        return $merged;
+    }
+
+    public function getDisaggregations(): array
+    {
+        $disaggregations = $this->getIndicatorDisaggregations('3.4.1');
+
+        // Map merged values into disaggregations key-by-key
+        foreach ($this->getMergedData() as $key => $val) {
+            $disaggregations->put($key, $val);
+        }
+
+        return $disaggregations->toArray();
     }
 }

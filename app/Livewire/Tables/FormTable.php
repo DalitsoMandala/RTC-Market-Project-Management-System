@@ -113,8 +113,28 @@ final class FormTable extends PowerGridComponent
 
                 return '<a class="btn text-body btn-sm disabled custom-tooltip" title="Add follow up"  href="' . $route . '" ><i class="bx bx-plus-circle"></i></a>';
             })
+            ->add('is_active', function ($row) {
+                $checked = $row->is_active ? 'checked' : '';
+                return '
+                <div class="square-switch d-flex align-items-stretch">
+                    <input type="checkbox" id="square-switch-' . $row->id . '" switch="none" ' . $checked . ' wire:change="toggleIndicatorStatus(' . $row->id . ')">
+                    <label class="mb-0" for="square-switch-' . $row->id . '" data-on-label="Yes" data-off-label="No"></label>
+                </div>
+            ';
+            })
             ->add('created_at')
             ->add('updated_at');
+    }
+
+    #[On('toggleIndicatorStatus')]
+    public function toggleIndicatorStatus($formId): void
+    {
+        $form = Form::find($formId);
+
+        if ($form) {
+            $form->is_active = ! $form->is_active;
+            $form->save();
+        }
     }
 
     public function columns(): array
@@ -131,6 +151,10 @@ final class FormTable extends PowerGridComponent
             Column::make('Type', 'type')
                 ->sortable()
                 ->hidden()
+                ->searchable(),
+
+            Column::make('Active', 'is_active')
+                ->sortable()
                 ->searchable(),
 
             // Column::make('Project id', 'project_id'),

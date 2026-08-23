@@ -1,38 +1,32 @@
 <?php
-
 namespace App\Livewire\tables;
 
 use App\Models\Form;
 use App\Models\Organisation;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
+use App\Models\ResponsiblePerson;
 use App\Models\Submission;
+use App\Models\SubmissionPeriod;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
-use Illuminate\Support\Carbon;
-use App\Models\SubmissionPeriod;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Footer;
-use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\Exportable;
 use PowerComponents\LivewirePowerGrid\Facades\Rule;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
+use PowerComponents\LivewirePowerGrid\PowerGrid;
+use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Ramsey\Uuid\Uuid;
 
 final class SubmissionPeriodFormTable extends PowerGridComponent
 {
     use WithExport;
     public $indicatorIds = [];
-    public $formIds = [];
+    public $formIds      = [];
     public array $submissionPeriodRow;
     public $currentRoutePrefix;
 
@@ -41,11 +35,9 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     public function setUp(): array
     {
 
-        $data = $this->submissionPeriodRow;
-        $user = User::find(auth()->user()->id);
+        $data                  = $this->submissionPeriodRow;
+        $user                  = User::find(auth()->user()->id);
         $this->organisation_id = $user->organisation->id;
-
-
 
         $submissionPeriods = SubmissionPeriod::where('date_established', $data['date_established'])
             ->where('date_ending', $data['date_ending'])
@@ -53,37 +45,35 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
             ->where('is_open', $data['is_open'])
             ->where('financial_year_id', $data['financial_year_id'])
             ->where('month_range_period_id', $data['month_range_period_id'])
+            ->join('forms', 'submission_periods.form_id', '=', 'forms.id')
+            ->where('forms.is_active', true)
+
             ->pluck('form_id')
             ->unique()
             ->values()->toArray();
 
-
-
         $this->formIds = $submissionPeriods;
-
 
         return [];
     }
 
     public function datasource(): Builder
     {
-        $user = User::find(auth()->user()->id);
+        $user            = User::find(auth()->user()->id);
         $organisation_id = $user->organisation->id;
-        $myIndicators = ResponsiblePerson::where('organisation_id', $organisation_id)
-            // Ensure that the relationship 'sources' exists
+        $myIndicators    = ResponsiblePerson::where('organisation_id', $organisation_id)
+        // Ensure that the relationship 'sources' exists
             ->pluck('indicator_id')
             ->toArray();
 
-
-
-        $query =  Form::query()->with('indicators')
+        $query = Form::query()->with('indicators')
             ->whereHas('indicators', function ($query) use ($myIndicators) {
                 $query->whereIn('indicators.id', $myIndicators);
             })
             ->whereIn('id', $this->formIds)->select([
-                '*',
-                DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn')
-            ]);
+            '*',
+            DB::Raw('ROW_NUMBER() OVER (ORDER BY id) AS rn'),
+        ]);
         return $query;
     }
 
@@ -100,9 +90,9 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                 return Str::limit(implode(', ', $indicators), 50);
             })
             ->add('submisssions', function ($model) {
-                $data = $this->submissionPeriodRow;
+                $data            = $this->submissionPeriodRow;
                 $organisation_id = auth()->user()->organisation->id;
-                $submissions = Submission::with(['form', 'period', 'user.organisation'])->whereHas(
+                $submissions     = Submission::with(['form', 'period', 'user.organisation'])->whereHas(
                     'form',
                     function (Builder $query) use ($model) {
                         $query->where('id', $model->id);
@@ -120,11 +110,10 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                     })
                     ->get();
 
-
                 $counts = $submissions->groupBy('batch_type')->map->count();
 
-                $batch = $counts['batch'] ?? 0;
-                $manual = $counts['manual'] ?? 0;
+                $batch     = $counts['batch'] ?? 0;
+                $manual    = $counts['manual'] ?? 0;
                 $aggregate = $counts['aggregate'] ?? 0;
 
                 if ($model->name == 'REPORT FORM') {
@@ -140,12 +129,12 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
     HTML;
             })
             ->add('status', function ($model) {
-                $data = $this->submissionPeriodRow;
-                $userId = auth()->id(); // Or pass in if needed
-                $userOrganisation = User::find($userId)->organisation->id;
+                $data                     = $this->submissionPeriodRow;
+                $userId                   = auth()->id(); // Or pass in if needed
+                $userOrganisation         = User::find($userId)->organisation->id;
                 $usersForTHisOrganisation = Organisation::with('users')->find($userOrganisation);
-                $users = $usersForTHisOrganisation->users->pluck('id')->toArray();
-                $hasSubmission = Submission::whereIn('user_id', $users)
+                $users                    = $usersForTHisOrganisation->users->pluck('id')->toArray();
+                $hasSubmission            = Submission::whereIn('user_id', $users)
                     ->whereHas('form', function (Builder $query) use ($model) {
                         $query->where('id', $model->id);
                     })
@@ -180,7 +169,7 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
                 Column::make('Name', 'name'),
                 Column::make('Submission Status', 'status'),
 
-                Column::action('')
+                Column::action(''),
             ];
         }
         return [
@@ -282,47 +271,38 @@ final class SubmissionPeriodFormTable extends PowerGridComponent
         return str($value)->lower()->replace(' ', '-');
     }
 
-
-
-
     #[On('sendUploadData')]
     public function sendUploadData($model)
     {
-        $model = (object) $model;
-        $form = Form::find($model->form_id);
-        $data  = $this->submissionPeriodRow;
-        $routePrefix         = $data['routePrefix'];
-        $form_name = str_replace(' ', '-', strtolower($form->name));
-        $project = str_replace(' ', '-', strtolower($form->project->name));
-
-
+        $model       = (object) $model;
+        $form        = Form::find($model->form_id);
+        $data        = $this->submissionPeriodRow;
+        $routePrefix = $data['routePrefix'];
+        $form_name   = str_replace(' ', '-', strtolower($form->name));
+        $project     = str_replace(' ', '-', strtolower($form->project->name));
 
         $route = $routePrefix . '/forms/' . $project . '/' . $form_name . '/upload/' . $model->form_id . '/' . $model->indicator_id . '/' . $model->financial_year_id . '/' . $model->month_range_period_id . '/' . $model->id . '/' . Uuid::uuid4()->toString();
 
         $this->redirect($route);
     }
 
-
     public function actionRules($row): array
     {
 
-        $currentDate = Carbon::now();
+        $currentDate     = Carbon::now();
         $establishedDate = $this->submissionPeriodRow['date_established'];
-        $endDate = $this->submissionPeriodRow['date_ending'];
+        $endDate         = $this->submissionPeriodRow['date_ending'];
 
         $startDate = Carbon::parse($establishedDate);
-        $endDate = Carbon::parse($endDate);
+        $endDate   = Carbon::parse($endDate);
 
         $withinDateRange = $currentDate->between($startDate, $endDate);
 
-
-
         return [
-
 
             // Rules for adding data
             Rule::button('add-data')
-                ->when(fn() => !($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])))
+                ->when(fn() => ! ($row->id && in_array(Form::find($row->id)->name, ['REPORT FORM'])))
                 ->hide(),
 
             // Rules for uploading data

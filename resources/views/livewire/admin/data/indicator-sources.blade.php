@@ -27,7 +27,7 @@
                 <div class="card ">
                     <x-card-header>Indicator Sources</x-card-header>
                     <div class=" card-body">
-                        <livewire:admin.organisation-forms-table />
+                        <livewire:tables.indicator-sources-table />
                     </div>
                 </div>
             </div>

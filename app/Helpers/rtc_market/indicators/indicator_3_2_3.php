@@ -1,21 +1,19 @@
 <?php
 namespace App\Helpers\rtc_market\indicators;
 
-use App\Traits\FilterableQuery;
-use App\Traits\IndicatorClassTrait;
+use App\Models\Indicator;
+use App\Models\SubmissionReport;
 
-class indicator_3_2_3
+class indicator_3_2_3 extends base
 {
-    use IndicatorClassTrait;
-    use FilterableQuery;
-    // Automatically generated for indicator 3.2.3
-    public function getDisaggregations(): array
+    public function builder()
     {
-        return [
-            'Total'        => 0,
-            'Cassava'      => 0,
-            'Potato'       => 0,
-            'Sweet potato' => 0,
-        ];
+        $indicatorId = Indicator::where('indicator_no', '3.2.3')->first()->id;
+        return $this->applyFilters(SubmissionReport::query()->where('indicator_id', $indicatorId), true);
+    }
+
+    public function getDisaggregations()
+    {
+        return $this->getTotalReport($this->builder(), self::pullTotals('3.2.3'))->toArray();
     }
 }
