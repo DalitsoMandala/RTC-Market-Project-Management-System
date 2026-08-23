@@ -24,9 +24,9 @@
         </div>
         <!-- end page title -->
         <div class="row">
-               @isset($selectedMonth, $selectedFinancialYear)
-                    <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
-                @endisset
+            @isset($selectedMonth, $selectedFinancialYear)
+                <x-period-detail :period="$selectedMonth" :year="$selectedFinancialYear" />
+            @endisset
         </div>
         <div class="row">
 
@@ -34,7 +34,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="mb-3" x-data="{
-
+                        
                         }">
                             <label for="" class="form-label">Indicator for reports (select one) <sup
                                     class="text-danger">*</sup></label>
@@ -75,20 +75,8 @@
                     <div class="card-body @if (auth()->user()->hasAnyRole('monitor')) pe-none opacity-50 @endif">
                         @php
                             $componentMap = [
-                                'Percentage increase in value of formal RTC exports' => 'indicator-b2',
-                                'Percentage of value ($) of formal RTC imports substituted through local production' =>
-                                    'indicator-b3',
-                                    'Percentage Increase in the volume of RTC produced' => 'indicator-b5',
-                                'Percentage increase in RTC investment' => 'indicator-b6',
-                                'Percentage increase in adoption of new RTC technologies' => 'indicator-114',
-                                'Percentage seed multipliers with formal registration' => 'indicator-223',
-                                'Percentage business plans for the production of different classes of RTC seeds that are executed' =>
-                                    'indicator-231',
-                                'Percentage increase in irrigated off-season RTC production by POs and commercial farmers (from baseline)' =>
-                                    'indicator-325',
-                                    'Percentage increase in households consuming RTCs as the main foodstuff (OC)' => 'indicator-353'
+                                'Increase in revenue ($ value) for supported RTC actors' => 'indicator-b2',
                             ];
-
 
                             $componentName = $componentMap[$indicator->indicator_name] ?? 'number-indicators';
 

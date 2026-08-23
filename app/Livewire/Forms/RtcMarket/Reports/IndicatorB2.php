@@ -1,29 +1,15 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
 use App\Helpers\SubmitAggregateData;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
 use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionReport;
-use App\Models\ResponsiblePerson;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use App\Exceptions\UserErrorException;
-use App\Models\IndicatorDisaggregation;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\ManualDataAddedNotification;
-use App\Traits\ManualDataTrait;
+use App\Models\User;
 use App\Traits\NotifyAdmins;
 use App\Traits\reportDefaultValuesTrait;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
 
 class IndicatorB2 extends Component
 {
@@ -40,7 +26,7 @@ class IndicatorB2 extends Component
 
     public $selectedForm;
 
-    public $months = [];
+    public $months         = [];
     public $financialYears = [];
 
     public $projects = [];
@@ -60,77 +46,83 @@ class IndicatorB2 extends Component
     public $formData = [];
 
     //form data
-    public $total_percentage = 0;
-    public $volume;
-    public $financial_value = 0;
-    public $formal_exports = [
-        'cassava' => null,
-        'potato' => null,
-        'sweet_potato' => null,
-    ];
-    public $informal_exports = [
-        'cassava' => null,
-        'potato' => null,
-        'sweet_potato' => null,
-    ];
+    public $farmers    = 0;
+    public $processors = 0;
+    public $traders    = 0;
 
-    // Readonly fields
-    public $annual_value = 0; // Example predefined or calculated value
-    public $baseline = null; //  Example predefined or calculated value
-    public $yearNumber = 1;
+    public $baseline_farmers    = 0;
+    public $baseline_processors = 0;
+    public $baseline_traders    = 0;
 
-    protected $rules = [
+    public $income          = 0;
+    public $rolled_baseline = 0;
+    public $total           = 0;
 
-        'volume' => 'required|numeric',
-        //  'financial_value' => 'required|numeric',
-        'formal_exports.cassava' => 'required|numeric',
-        'formal_exports.potato' => 'required|numeric',
-        'formal_exports.sweet_potato' => 'required|numeric',
-        'informal_exports.cassava' => 'required|numeric',
-        'informal_exports.potato' => 'required|numeric',
-        'informal_exports.sweet_potato' => 'required|numeric',
-        'baseline' => 'required|numeric',
+    public $cassava      = 0;
+    public $potato       = 0;
+    public $sweet_potato = 0;
+    protected $rules     = [
+
+        'farmers'             => 'required|numeric',
+        'processors'          => 'required|numeric',
+        'traders'             => 'required|numeric',
+        'baseline_farmers'    => 'required|numeric',
+        'baseline_processors' => 'required|numeric',
+        'baseline_traders'    => 'required|numeric',
+        'income'              => 'required|numeric',
+        'rolled_baseline'     => 'required|numeric',
+        'total'               => 'required|numeric',
     ];
 
     protected $validationAttributes = [
 
-        'volume' => 'Volume (Metric Tonnes)',
-        // 'financial_value' => 'Financial Value ($)',
-        'formal_exports.cassava' => 'Formal Exports - Cassava',
-        'formal_exports.potato' => 'Formal Exports - Potato',
-        'formal_exports.sweet_potato' => 'Formal Exports - Sweet Potato',
-        'informal_exports.cassava' => 'Informal Exports - Cassava',
-        'informal_exports.potato' => 'Informal Exports - Potato',
-        'informal_exports.sweet_potato' => 'Informal Exports - Sweet Potato',
-        'baseline' => 'Previous value',
+        'farmers'             => 'farmers',
+        'processors'          => 'processors',
+        'traders'             => 'traders',
+        'baseline_farmers'    => 'baseline_farmers',
+        'baseline_processors' => 'baseline_processors',
+        'baseline_traders'    => 'baseline_traders',
+        'income'              => 'income',
+        'rolled_baseline'     => 'rolled_baseline',
+        'total'               => 'total',
     ];
 
     public function save()
     {
         $this->validate();
 
-        $user = User::find(Auth::user()->id);
+        $user   = User::find(Auth::user()->id);
         $submit = new SubmitAggregateData;
         // Roles for internal users
-        $formal_cassava = $this->formal_exports['cassava'];
-        $formal_potato = $this->formal_exports['potato'];
-        $formal_sweet_potato = $this->formal_exports['sweet_potato'];
-        $informal_cassava = $this->informal_exports['cassava'];
-        $informal_potato = $this->informal_exports['potato'];
-        $informal_sweet_potato = $this->informal_exports['sweet_potato'];
+
+        $disaggregations = $this->getIndicatorDisaggregations(Indicator::where('id', $this->selectedIndicator)->first()->indicator_no);
+        $disaggregations->put('Total', $this->total);
+        $disaggregations->put('Income ($)', $this->income);
+        $disaggregations->put('Farmers', $this->farmers);
+        $disaggregations->put('Processors', $this->processors);
+        $disaggregations->put('Traders', $this->traders);
+        $disaggregations->put('Rolled Baseline', $this->rolled_baseline);
+        $disaggregations->put('Baseline Farmers', $this->baseline_farmers);
+        $disaggregations->put('Baseline Processors', $this->baseline_processors);
+        $disaggregations->put('Baseline Traders', $this->baseline_traders);
+        $disaggregations->put('Cassava', $this->cassava);
+        $disaggregations->put('Potato', $this->potato);
+        $disaggregations->put('Sweet potato', $this->sweet_potato);
 
         $data = [
-            'Total(% Percentage)' => $this->total_percentage,
-            'Volume (Metric Tonnes)' => $this->volume,
-            'Financial value ($)' => $this->financial_value,
-            '(Formal) Cassava' => $formal_cassava,
-            '(Formal) Potato' => $formal_potato,
-            '(Formal) Sweet potato' => $formal_sweet_potato,
-            '(Informal) Cassava' => $informal_cassava,
-            '(Informal) Potato' => $informal_potato,
-            '(Informal) Sweet potato' => $informal_sweet_potato,
-            'Annual value' => $this->annual_value,
-            'Baseline' => $this->baseline,
+            'Farmers'             => $this->farmers,
+            'Processors'          => $this->processors,
+            'Traders'             => $this->traders,
+            'Baseline Farmers'    => $this->baseline_farmers,
+            'Baseline Processors' => $this->baseline_processors,
+            'Baseline Traders'    => $this->baseline_traders,
+            'income'              => $this->income,
+            'Rolled Baseline'     => $this->rolled_baseline,
+            'Income ($)'          => $this->income,
+            'Cassava'             => $this->cassava,
+            'Potato'              => $this->potato,
+            'Sweet potato'        => $this->sweet_potato,
+            'Total'               => $this->total,
         ];
 
         $this->notifyAdminsAndManagers();
@@ -148,7 +140,6 @@ class IndicatorB2 extends Component
             );
         } else if ($user->hasAnyRole('external')) {
 
-
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -161,7 +152,6 @@ class IndicatorB2 extends Component
             );
         } else if ($user->hasAnyRole('staff')) {
 
-
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -173,6 +163,20 @@ class IndicatorB2 extends Component
                 'staff'
             );
         }
+    }
+    protected function getIndicatorDisaggregations($number): Collection
+    {
+        $indicator = $this->baseIndicator($number);
+
+        if (! $indicator) {
+            return collect();
+        }
+
+        return $indicator->disaggregations->pluck('name')->mapWithKeys(fn($name) => [$name => 0]);
+    }
+    protected function baseIndicator($number): ?Indicator
+    {
+        return Indicator::where('indicator_no', $number)->first();
     }
 
     public function render()

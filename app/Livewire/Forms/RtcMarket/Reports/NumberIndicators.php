@@ -1,22 +1,14 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
-use App\Models\Form;
-use App\Models\User;
-use Livewire\Component;
-use App\Models\Indicator;
-use Livewire\Attributes\On;
-use App\Traits\NotifyAdmins;
-use App\Models\FinancialYear;
-use App\Models\SubmissionPeriod;
-use Livewire\Attributes\Validate;
 use App\Helpers\SubmitAggregateData;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
 use App\Models\IndicatorDisaggregation;
-use App\Traits\reportDefaultValuesTrait;
+use App\Models\User;
+use App\Traits\NotifyAdmins;
+use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
 
 class NumberIndicators extends Component
 {
@@ -36,7 +28,7 @@ class NumberIndicators extends Component
 
     public $selectedForm;
 
-    public $months = [];
+    public $months         = [];
     public $financialYears = [];
 
     public $projects = [];
@@ -53,9 +45,9 @@ class NumberIndicators extends Component
 
     public $formData = [];
 
-    public $disaggregations = [];
-    public $inputs = [];
-    public $validationRules = [];
+    public $disaggregations      = [];
+    public $inputs               = [];
+    public $validationRules      = [];
     public $validationAttributes = [];
     public function save()
     {
@@ -63,11 +55,11 @@ class NumberIndicators extends Component
         $this->validate($this->validationRules, [], $this->validationAttributes);
         $data = [];
         foreach ($this->inputs as $disaggregationId => $value) {
-            $disaggregationName = IndicatorDisaggregation::find($disaggregationId)->name;
+            $disaggregationName        = IndicatorDisaggregation::find($disaggregationId)->name;
             $data[$disaggregationName] = $value;
         }
 
-        $user = User::find(Auth::user()->id);
+        $user   = User::find(Auth::user()->id);
         $submit = new SubmitAggregateData;
 
         $this->notifyAdminsAndManagers();
@@ -86,7 +78,6 @@ class NumberIndicators extends Component
             );
         } else if ($user->hasAnyRole('external')) {
 
-
             $submit->submit_aggregate_data(
                 $data,
                 $user,
@@ -98,7 +89,6 @@ class NumberIndicators extends Component
                 'external'
             );
         } else if ($user->hasAnyRole('staff')) {
-
 
             $submit->submit_aggregate_data(
                 $data,
@@ -115,15 +105,15 @@ class NumberIndicators extends Component
 
     public function mount()
     {
-        $this->submissionPeriodId = $this->submission_period_id;
-        $this->selectedForm = $this->form_id;
-        $this->selectedIndicator = $this->indicator_id;
+        $this->submissionPeriodId    = $this->submission_period_id;
+        $this->selectedForm          = $this->form_id;
+        $this->selectedIndicator     = $this->indicator_id;
         $this->selectedFinancialYear = $this->financial_year_id;
-        $this->disaggregations = [];
-        $this->inputs = [];
-        $this->validationRules = [];
-        $this->validationAttributes = [];
-        $disaggregations = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get();
+        $this->disaggregations       = [];
+        $this->inputs                = [];
+        $this->validationRules       = [];
+        $this->validationAttributes  = [];
+        $disaggregations             = IndicatorDisaggregation::where('indicator_id', $this->selectedIndicator)->get();
 
         // Count how many disaggregations are available
         $disaggregationCount = $disaggregations->count();
@@ -132,19 +122,18 @@ class NumberIndicators extends Component
             $name = strtolower($disaggregation->name);
 
             // Skip 'total' unless it's the only disaggregation
-            if ($name === 'total' && $disaggregationCount > 1) {
-                continue;
-            }
+            // if ($name === 'total' && $disaggregationCount > 1) {
+            //     continue;
+            // }
 
-            $this->inputs[$disaggregation->id] = null;
-            $this->validationRules["inputs.{$disaggregation->id}"] = 'required|numeric|min:0';
+            $this->inputs[$disaggregation->id]                          = null;
+            $this->validationRules["inputs.{$disaggregation->id}"]      = 'required|numeric|min:0';
             $this->validationAttributes["inputs.{$disaggregation->id}"] = $disaggregation->name;
         }
 
         // Filter disaggregations to only those included in inputs
         $this->disaggregations = $disaggregations->whereIn('id', array_keys($this->inputs));
     }
-
 
     public function render()
     {

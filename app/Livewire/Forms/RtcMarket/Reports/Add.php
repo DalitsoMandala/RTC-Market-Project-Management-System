@@ -1,29 +1,15 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\Reports;
 
 use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
 use App\Models\Indicator;
-use App\Models\Submission;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionReport;
-use App\Models\SubmissionTarget;
-use App\Models\ResponsiblePerson;
-use App\Models\OrganisationTarget;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
+use App\Models\User;
+use App\Traits\ManualDataTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
-use App\Models\IndicatorDisaggregation;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\ManualDataAddedNotification;
-use App\Traits\ManualDataTrait;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Add extends Component
 {
@@ -38,7 +24,7 @@ class Add extends Component
 
     public $selectedForm;
 
-    public $months = [];
+    public $months         = [];
     public $financialYears = [];
 
     public $projects = [];
@@ -55,16 +41,14 @@ class Add extends Component
 
     public $inputs = [];
 
-    public $formData = [];
+    public $formData  = [];
     public $targetSet = false;
     public $targetIds = [];
 
     public $indicator, $array;
-    public $form_name = "REPORT FORM";
+    public $form_name        = "REPORT FORM";
     public $reportIndicators = [];
     public $selectedReportIndicator;
-
-
 
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
@@ -76,43 +60,41 @@ class Add extends Component
 
         // Check if the submission period is open and targets are set
         $this->checkSubmissionPeriodAndTargets();
-        $this->array = Route::current()->parameters;
-        $this->routePrefix = Route::current()->getPrefix();
+        $this->array            = Route::current()->parameters;
+        $this->routePrefix      = Route::current()->getPrefix();
         $this->reportIndicators = Indicator::with(['forms', 'organisation'])->whereHas('forms', function ($query) {
             $query->where('name', 'REPORT FORM');
         })->whereHas('organisation', function ($query) {
             $query->where('organisations.id', auth()->user()->organisation->id);
-        })
+        })->where('is_active', true)
 
             ->get();
 
         $getFirstIndicator = $this->reportIndicators->first();
 
         if ($getFirstIndicator) {
-            $this->selectedIndicator = $getFirstIndicator->id;
-            $this->indicator = $getFirstIndicator;
-            $this->array['indicator_id'] = $this->selectedIndicator;
+            $this->selectedIndicator       = $getFirstIndicator->id;
+            $this->indicator               = $getFirstIndicator;
+            $this->array['indicator_id']   = $this->selectedIndicator;
             $this->selectedReportIndicator = $getFirstIndicator->id;
-            $this->selectedFinancialYear = $financial_year_id;
-            $this->selectedMonth = $month_period_id;
+            $this->selectedFinancialYear   = $financial_year_id;
+            $this->selectedMonth           = $month_period_id;
         }
     }
 
     public function updatedSelectedReportIndicator($value)
     {
 
-        $this->indicator = Indicator::find($value);
-        $this->selectedIndicator = $value;
+        $this->indicator             = Indicator::find($value);
+        $this->selectedIndicator     = $value;
         $this->array['indicator_id'] = $this->selectedIndicator;
     }
-
-
 
     #[On('open-submission')]
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 
@@ -121,8 +103,6 @@ class Add extends Component
         if ($this->selectedForm) {
             $this->form_name = Form::find($this->selectedForm)->name;
         }
-
-
 
         return view('livewire.forms.rtc-market.reports.add');
     }

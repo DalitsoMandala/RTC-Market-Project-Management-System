@@ -1,47 +1,118 @@
 <div x-data="{
-    formalCassava: $wire.entangle('formal_exports.cassava'),
-    formalPotato: $wire.entangle('formal_exports.potato'),
-    formalSweetPotato: $wire.entangle('formal_exports.sweet_potato'),
-    informalCassava: $wire.entangle('informal_exports.cassava'),
-    informalPotato: $wire.entangle('informal_exports.potato'),
-    informalSweetPotato: $wire.entangle('informal_exports.sweet_potato'),
-    financialValue: $wire.entangle('financial_value'),
-    annualValue: $wire.entangle('annual_value'),
-    baselineValue: $wire.entangle('baseline'),
-    totalPercentage: $wire.entangle('total_percentage'),
-    updateFinancialValue() {
-        this.financialValue =
-            (isNaN(parseFloat(this.formalCassava)) ? 0 : parseFloat(this.formalCassava)) +
-            (isNaN(parseFloat(this.formalPotato)) ? 0 : parseFloat(this.formalPotato)) +
-            (isNaN(parseFloat(this.formalSweetPotato)) ? 0 : parseFloat(this.formalSweetPotato))
-        //+
-        //      (isNaN(parseFloat(this.informalCassava)) ? 0 : parseFloat(this.informalCassava)) +
-        //     (isNaN(parseFloat(this.informalPotato)) ? 0 : parseFloat(this.informalPotato)) +
-        //   (isNaN(parseFloat(this.informalSweetPotato)) ? 0 : parseFloat(this.informalSweetPotato));
-        this.annualValue = this.financialValue;
-        if (this.annualValue === 0) {
-            this.totalPercentage = 0;
+    /*
+    |--------------------------------------------------------------------------
+    | FARMERS / PROCESSORS / TRADERS
+    |--------------------------------------------------------------------------
+    */
 
-            return;
+    farmers: $wire.entangle('farmers'),
+    processors: $wire.entangle('processors'),
+    traders: $wire.entangle('traders'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | CROPS
+    |--------------------------------------------------------------------------
+    | These are manually entered values.
+    | DO NOT calculate anything from them.
+    */
+
+    cassava: $wire.entangle('cassava'),
+    potato: $wire.entangle('potato'),
+    sweetPotato: $wire.entangle('sweet_potato'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | BASELINE
+    |--------------------------------------------------------------------------
+    */
+
+    baselineFarmers: $wire.entangle('baseline_farmers'),
+    baselineProcessors: $wire.entangle('baseline_processors'),
+    baselineTraders: $wire.entangle('baseline_traders'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | CALCULATED VALUES
+    |--------------------------------------------------------------------------
+    */
+
+    income: $wire.entangle('income'),
+    rolledBaseline: $wire.entangle('rolled_baseline'),
+    total: $wire.entangle('total'),
+
+    number(value) {
+        const parsed = parseFloat(value);
+
+        return isNaN(parsed) ? 0 : parsed;
+    },
+
+    updateCalculations() {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Income
+        |--------------------------------------------------------------------------
+        */
+
+        const beneficiaryIncome =
+            this.number(this.farmers) +
+            this.number(this.processors) +
+            this.number(this.traders);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Only calculate Income when Farmers,
+        | Processors or Traders are being used.
+        |
+        | Crops are NOT included here.
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            this.number(this.farmers) > 0 ||
+            this.number(this.processors) > 0 ||
+            this.number(this.traders) > 0
+        ) {
+            this.income = beneficiaryIncome;
         }
-        sub = (this.annualValue - this.baselineValue ?? 0) / this.annualValue;
-        percentage = sub * 100;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Rolled Baseline
+        |--------------------------------------------------------------------------
+        */
 
+        this.rolledBaseline =
+            this.number(this.baselineFarmers) +
+            this.number(this.baselineProcessors) +
+            this.number(this.baselineTraders);
 
-        this.totalPercentage = Number(percentage.toFixed(2));
+        /*
+        |--------------------------------------------------------------------------
+        | Total
+        |--------------------------------------------------------------------------
+        */
+        const incomeVal = this.number(this.income);
+        const baselineVal = this.number(this.rolledBaseline);
+
+        if (baselineVal > 0) {
+            const percentageChange = ((incomeVal - baselineVal) / baselineVal) * 100;
+            this.total = Number(percentageChange.toFixed(2));
+        } else {
+            this.total = 0;
+        }
 
     }
-}" x-init="() => {
-    $watch('formalCassava', (v) => { updateFinancialValue() });
-    $watch('formalPotato', (v) => { updateFinancialValue() });
-    $watch('formalSweetPotato', (v) => { updateFinancialValue() });
-    $watch('informalCassava', (v) => { updateFinancialValue() });
-    $watch('informalPotato', (v) => { updateFinancialValue() });
-    $watch('informalSweetPotato', (v) => { updateFinancialValue() });
-    $watch('baselineValue', (v) => { updateFinancialValue() });
-}">
+}" x-init="$watch('farmers', () => updateCalculations());
+$watch('processors', () => updateCalculations());
+$watch('traders', () => updateCalculations());
+
+$watch('baselineFarmers', () => updateCalculations());
+$watch('baselineProcessors', () => updateCalculations());
+$watch('baselineTraders', () => updateCalculations());
+
+updateCalculations();">
     <x-alerts />
 
     <x-required-notice />
@@ -50,140 +121,243 @@
 
     <form wire:submit.prevent="save">
 
+        <div class="row">
+
+            <!-- TOTAL -->
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">
+                        Total(%)
+                    </label>
+
+                    <input type="number" x-model="total" readonly class="form-control">
+                </div>
+            </div>
+
+
+            <!-- INCOME -->
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">
+                        Income ($)
+                    </label>
+
+                    <input type="number" x-model="income" readonly class="form-control">
+                </div>
+            </div>
+
+
+            <!-- ROLLED BASELINE -->
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label class="form-label">
+                        Rolled Baseline
+                    </label>
+
+                    <input type="number" x-model="rolledBaseline" readonly class="form-control">
+                </div>
+            </div>
+
+        </div>
+
+
+        <hr>
+
+
+        <h5>Income</h5>
 
         <div class="row">
 
-            <div class="col d-none">
-                <label for="projectYear" class="form-label">Project year</label>
-                <input type="number" readonly id="project_year" wire:model="yearNumber"
-                    class="form-control @error('project_year') is-invalid @enderror" min="0">
-            </div>
-            <div class="col">
+            <!-- FARMERS -->
+
+            <div class="col-md-4">
                 <div class="mb-3">
-                    <label for="total_percentage" class="form-label">Total (% Percentage)</label>
-                    <input type="number" readonly id="total_percentage" wire:model="total_percentage"
-                        class="form-control @error('total_percentage') is-invalid @enderror">
-                    @error('total_percentage')
-                        <span class="text-danger">{{ $message }}</span>
+
+                    <label class="form-label">
+                        Farmers
+                    </label>
+
+                    <input type="number" x-model="farmers" class="form-control @error('farmers') is-invalid @enderror">
+
+                    @error('farmers')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
                     @enderror
+
                 </div>
             </div>
-            <div class="col">
+
+
+            <!-- PROCESSORS -->
+
+            <div class="col-md-4">
                 <div class="mb-3">
-                    <label for="annual_value" class="form-label">Annual Value</label>
-                    <input type="number" id="annual_value" x-model="annualValue" class="form-control" readonly>
-                </div>
-            </div>
-            <div class="col">
-                <div class="mb-3">
-                    <label for="baseline" class="form-label">Previous Value</label>
-                    <input type="number" id="baseline" x-model="baselineValue"
-                        class="form-control         @error('baseline') is-invalid @enderror">
-                    @error('baseline')
-                        <span class="text-danger">{{ $message }}</span>
+
+                    <label class="form-label">
+                        Processors
+                    </label>
+
+                    <input type="number" x-model="processors"
+                        class="form-control @error('processors') is-invalid @enderror">
+
+                    @error('processors')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
                     @enderror
+
                 </div>
-
             </div>
-        </div>
 
-        <div class="mb-3">
-            <label for="financial_value" class="form-label">Financial Value ($)</label>
-            <input type="number" id="financial_value" x-model="financialValue"
-                class="form-control @error('financial_value') is-invalid @enderror" readonly>
-            @error('financial_value')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
-        <div class="mb-3">
-            <label for="volume" class="form-label">Volume (Metric Tonnes)</label>
-            <input type="number" id="volume" wire:model="volume"
-                class="form-control @error('volume') is-invalid @enderror">
-            @error('volume')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
 
-        <h5>Formal Exports</h5>
-        <div class="mb-3">
-            <label for="formal_cassava" class="form-label">Cassava</label>
-            <input type="number" id="formal_cassava" x-model="formalCassava"
-                class="form-control @error('formal_exports.cassava') is-invalid @enderror">
-            @error('formal_exports.cassava')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
+            <!-- TRADERS -->
 
-        <div class="mb-3">
-            <label for="formal_potato" class="form-label">Potato</label>
-            <input type="number" id="formal_potato" x-model="formalPotato"
-                class="form-control @error('formal_exports.potato') is-invalid @enderror">
-            @error('formal_exports.potato')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
+            <div class="col-md-4">
+                <div class="mb-3">
 
-        <div class="mb-3">
-            <label for="formal_sweet_potato" class="form-label">Sweet Potato</label>
-            <input type="number" id="formal_sweet_potato" x-model="formalSweetPotato"
-                class="form-control @error('formal_exports.sweet_potato') is-invalid @enderror">
-            @error('formal_exports.sweet_potato')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
+                    <label class="form-label">
+                        Traders
+                    </label>
 
-        <div class="mb-3">
-            <label for="formal_sweet_potato" class="form-label">Total Formal Exports</label>
-            <input type="number" readonly
-                x-model=" (isNaN(parseFloat(formalCassava)) ? 0 : parseFloat(formalCassava)) +
-            (isNaN(parseFloat(formalPotato)) ? 0 : parseFloat(formalPotato)) +
-            (isNaN(parseFloat(formalSweetPotato)) ? 0 : parseFloat(formalSweetPotato))"
-                class="form-control">
+                    <input type="number" x-model="traders" class="form-control @error('traders') is-invalid @enderror">
+
+                    @error('traders')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+            </div>
 
         </div>
 
-        <h5>Informal Exports</h5>
-        <div class="mb-3">
-            <label for="informal_cassava" class="form-label">Cassava</label>
-            <input type="number" id="informal_cassava" x-model="informalCassava"
-                class="form-control @error('informal_exports.cassava') is-invalid @enderror">
-            @error('informal_exports.cassava')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
+
+        <hr>
+
+
+        <h5>Baseline</h5>
+
+        <div class="row">
+
+            <!-- BASELINE FARMERS -->
+
+            <div class="col-md-4">
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Baseline Farmers
+                    </label>
+
+                    <input type="number" x-model="baselineFarmers"
+                        class="form-control @error('baseline_farmers') is-invalid @enderror">
+
+                    @error('baseline_farmers')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+            </div>
+
+
+            <!-- BASELINE PROCESSORS -->
+
+            <div class="col-md-4">
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Baseline Processors
+                    </label>
+
+                    <input type="number" x-model="baselineProcessors"
+                        class="form-control @error('baseline_processors') is-invalid @enderror">
+
+                    @error('baseline_processors')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+            </div>
+
+
+            <!-- BASELINE TRADERS -->
+
+            <div class="col-md-4">
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Baseline Traders
+                    </label>
+
+                    <input type="number" x-model="baselineTraders"
+                        class="form-control @error('baseline_traders') is-invalid @enderror">
+
+                    @error('baseline_traders')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+            </div>
+
         </div>
 
-        <div class="mb-3">
-            <label for="informal_potato" class="form-label">Potato</label>
-            <input type="number" id="informal_potato" x-model="informalPotato"
-                class="form-control @error('informal_exports.potato') is-invalid @enderror">
-            @error('informal_exports.potato')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
+        <h5>Crops</h5>
 
-        <div class="mb-3">
-            <label for="informal_sweet_potato" class="form-label">Sweet Potato</label>
-            <input type="number" id="informal_sweet_potato" x-model="informalSweetPotato"
-                class="form-control @error('informal_exports.sweet_potato') is-invalid @enderror">
-            @error('informal_exports.sweet_potato')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
+        <div class="row">
 
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="cassava" class="form-label">
+                        Cassava
+                    </label>
 
-        <div class="mb-3">
-            <label for="formal_sweet_potato" class="form-label">Total Informal Exports</label>
-            <input type="number" readonly
-                x-model=" (isNaN(parseFloat(informalCassava)) ? 0 : parseFloat(informalCassava)) +
-            (isNaN(parseFloat(informalPotato)) ? 0 : parseFloat(informalPotato)) +
-            (isNaN(parseFloat(informalSweetPotato)) ? 0 : parseFloat(informalSweetPotato))"
-                class="form-control">
+                    <input type="number" id="cassava" x-model="cassava" class="form-control">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="potato" class="form-label">
+                        Potato
+                    </label>
+
+                    <input type="number" id="potato" x-model="potato" class="form-control">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="sweet_potato" class="form-label">
+                        Sweet Potato
+                    </label>
+
+                    <input type="number" id="sweet_potato" x-model="sweetPotato" class="form-control">
+                </div>
+            </div>
 
         </div>
         <div class="d-grid col-12 justify-content-center">
-            <button class="btn btn-warning " @click="window.scrollTo({ top: 0, behavior: 'smooth' })" type="submit">
-                Submit data
+
+            <button class="btn btn-warning" type="submit"
+                @click="window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })">
+                Submit Data
             </button>
+
         </div>
+
     </form>
+</div>
 </div>

@@ -24,7 +24,7 @@ Route::get('correct-diss', function () {
     return response()->json(['success' => true]);
 });
 Route::get('/duo', function () {
-    $aa = new App\Helpers\rtc_market\indicators\indicator_4_1_1(financial_year: 3);
+    $aa = new App\Helpers\rtc_market\indicators\indicator_4_1_3(financial_year: 3);
 
     dd($aa->getDisaggregations());
 })->name('duo');
