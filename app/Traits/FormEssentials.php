@@ -546,6 +546,8 @@ trait FormEssentials
                 'QTY'                    => 'Required, Number',
                 'Selling price'          => 'Required, Number',
                 'Main buyer'             => 'Required, Text',
+                'Seed Class'             => 'Required If Seed, Choose one option(Basic, Certified)',
+                'Date Recorded'          => 'Required, Date (dd-mm-yyyy)',
             ],
         ],
     ];

@@ -28,20 +28,6 @@
                         <x-error class="text-center">{{ $message }}</x-error>
                     </div>
                 @enderror
-      <div class="mb-3">
-                         <label for="" class="form-label">Description @hasanyrole('external|staff|enumerator')
-                                 (optional)
-                             @endhasanyrole
-                         </label>
-                         <textarea wire:model="description"
-                             class="form-control @error('description')
-                             is-invalid
-                         @enderror"
-                             name="" id="" rows="3"></textarea>
-                         @error('description')
-                             <x-error>{{ $message }}</x-error>
-                         @enderror
-                     </div>
 
 
                 <div class="mt-5 d-flex justify-content-center" x-data="{ disableButton: false, openSubmission: $wire.entangle('openSubmission') }">
@@ -50,7 +36,8 @@
                         :disabled="disableButton === true || openSubmission === false" class="px-5 btn btn-warning">
                         <!-- Border spinner -->
                         <div class="mx-2 opacity-30 spinner-border text-light" style="width: 1rem; height: 1rem;"
-                            wire:loading wire:target='submitUpload, downloadTemplate' wire:loading.attr='disabled' role="status">
+                            wire:loading wire:target='submitUpload, downloadTemplate' wire:loading.attr='disabled'
+                            role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
                         Submit data

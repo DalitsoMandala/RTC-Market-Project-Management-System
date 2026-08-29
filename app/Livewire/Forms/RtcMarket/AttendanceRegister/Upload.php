@@ -1,41 +1,24 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\AttendanceRegister;
 
-
-use Carbon\Carbon;
+use App\Exceptions\ExcelValidationException;
+use App\Exports\AttendanceExport\AttendanceRegistersExport;
+use App\Imports\AttendanceImport\AttendanceRegistersMultiSheetImport;
 use App\Models\Form;
 use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
-use App\Traits\UploadDataTrait;
-use Illuminate\Validation\Rule;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionTarget;
-use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
 use App\Traits\CheckProgressTrait;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\ReportingPeriodMonth;
+use App\Traits\UploadDataTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use App\Exceptions\ExcelValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Exports\SchoolExport\SchoolRtcConsumptionExport;
-use App\Exports\AttendanceExport\AttendanceRegistersExport;
-use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
-use App\Imports\SchoolImport\SchoolRtcConsumptionMultiSheetImport;
-use App\Imports\AttendanceImport\AttendanceRegistersMultiSheetImport;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
 
 class Upload extends Component
 {
@@ -71,18 +54,18 @@ class Upload extends Component
     public $targetSet = false;
     public $targetIds = [];
     public $currentRoute;
-    public function save() {}
+    public function save()
+    {}
     public $form_name;
-   protected function rules(){
+    protected function rules()
+    {
 
         return [
-         'description' => [
+            'description' => [
                 'nullable', // Or 'required' if it's always required
-                Rule::requiredIf(function () {
-                    return User::find(auth()->user()->id)->hasAnyRole(['manager', 'admin']);
-                }),
+
             ],
-    ];
+        ];
     }
     public function submitUpload()
     {
@@ -98,44 +81,39 @@ class Upload extends Component
             //code...
 
             $userId = auth()->user()->id;
-            $user = User::find($userId);
-
+            $user   = User::find($userId);
 
             if ($this->upload) {
-                $name = 'att' . time() . '.' . $this->upload->getClientOriginalExtension();
-                   $directory = 'public/imports';
-                if (!Storage::exists($directory)) {
+                $name      = 'att' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $directory = 'public/imports';
+                if (! Storage::exists($directory)) {
                     Storage::makeDirectory($directory);
                 }
 
                 $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
 
-
                 try {
-
 
                     Excel::import(new AttendanceRegistersMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
                         'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id' => Auth::user()->organisation->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'period_month_id' => $this->selectedMonth,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => Auth::user()->id,
-                        'batch_type' => 'batch',
-                        'table_name' => 'household_rtc_consumption',
-                        'is_complete' => 1,
-                        'file_link' => $name,
-                        'batch_no' => $this->importId,
-                        'route' => $this->currentRoute,
-                        'description' => $this->description
-
+                        'organisation_id'      => Auth::user()->organisation->id,
+                        'financial_year_id'    => $this->selectedFinancialYear,
+                        'period_month_id'      => $this->selectedMonth,
+                        'form_id'              => $this->selectedForm,
+                        'user_id'              => Auth::user()->id,
+                        'batch_type'           => 'batch',
+                        'table_name'           => 'household_rtc_consumption',
+                        'is_complete'          => 1,
+                        'file_link'            => $name,
+                        'batch_no'             => $this->importId,
+                        'route'                => $this->currentRoute,
+                        'description'          => $this->description,
 
                     ]), $path);
                     $this->checkProgress();
                 } catch (ExcelValidationException $th) {
-
 
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
@@ -150,11 +128,7 @@ class Upload extends Component
             $this->redirect(url()->previous());
         }
 
-
     }
-
-
-
 
     public function send()
     {
@@ -172,7 +146,6 @@ class Upload extends Component
         }
     }
 
-
     public function mount($form_id, $indicator_id, $financial_year_id, $month_period_id, $submission_period_id)
     {
         // Validate required IDs
@@ -187,10 +160,9 @@ class Upload extends Component
         //import ID
         $this->importId = Uuid::uuid4()->toString();
         // Set the route prefix
-        $this->routePrefix = Route::current()->getPrefix();
-        $this->currentRoute =  url()->current();
+        $this->routePrefix  = Route::current()->getPrefix();
+        $this->currentRoute = url()->current();
     }
-
 
     public function downloadTemplate()
     {
@@ -216,8 +188,6 @@ class Upload extends Component
             }
         }
     }
-
-
 
     public function render()
     {

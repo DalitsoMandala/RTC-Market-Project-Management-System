@@ -29,20 +29,7 @@
                      @enderror
 
 
-                     <div class="mb-3">
-                         <label for="" class="form-label">Description @hasanyrole('external|staff|enumerator')
-                                 (optional)
-                             @endhasanyrole
-                         </label>
-                         <textarea wire:model="description"
-                             class="form-control @error('description')
-                             is-invalid
-                         @enderror"
-                             name="" id="" rows="3"></textarea>
-                         @error('description')
-                             <x-error>{{ $message }}</x-error>
-                         @enderror
-                     </div>
+
 
 
 

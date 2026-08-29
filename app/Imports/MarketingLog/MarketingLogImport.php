@@ -4,6 +4,8 @@ namespace App\Imports\MarketingLog;
 use App\Models\JobProgress;
 use App\Models\ProductionMarketingLog;
 use App\Models\User;
+use App\Traits\excelDateFormat;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
@@ -27,7 +29,7 @@ WithStartRow
 {
     use RegistersEventListeners;
     use Importable, SkipsFailures;
-
+    use excelDateFormat;
     protected array $data;
     protected string $cacheKey;
     protected $totalRows = 0;
@@ -54,7 +56,11 @@ WithStartRow
         if ($user && $user->hasAnyRole('manager|admin')) {
             $status = 'approved';
         }
-
+        $usdValue = 0;
+        $usdRate  = 0;
+        $calc     = $this->calculateUsdValue($row['Date Recorded'], $row['Selling price'] ?? 0);
+        $usdValue = $calc['usd_value'];
+        $usdRate  = $calc['rate'];
         /*
         |--------------------------------------------------------------------------
         | Create Production & Marketing record
@@ -64,36 +70,42 @@ WithStartRow
         $productionMarketing = ProductionMarketingLog::create([
 
             // Location
-            'district'             => $row['District'] ?? null,
-            'epa'                  => $row['EPA'] ?? null,
-            'section'              => $row['Section'] ?? null,
+            'district'              => $row['District'] ?? null,
+            'epa'                   => $row['EPA'] ?? null,
+            'section'               => $row['Section'] ?? null,
 
             // Production information
-            'enterprise'           => $row['Crop'] ?? null,
-            'group_name'           => $row['Name of group'] ?? null,
-            'type_of_farming'      => $row['Type of farming'] ?? null,
-            'season'               => $row['Season'] ?? null,
+            'enterprise'            => $row['Crop'] ?? null,
+            'group_name'            => $row['Name of group'] ?? null,
+            'type_of_farming'       => $row['Type of farming'] ?? null,
+            'season'                => $row['Season'] ?? null,
 
             // Group chair
-            'group_chair_name'     => $row['Name of group Chair'] ?? null,
-            'group_chair_contact'  => $row['Contact of group chair'] ?? null,
+            'group_chair_name'      => $row['Name of group Chair'] ?? null,
+            'group_chair_contact'   => $row['Contact of group chair'] ?? null,
 
             // Farmer
-            'farmer_name'          => $row['Name of farmer'] ?? null,
-            'farmer_id_phone'      => $row['ID No/Phone No.'] ?? null,
-            'sex'                  => $row['Sex'] ?? null,
-            'age'                  => $row['Age'] ?? null,
+            'farmer_name'           => $row['Name of farmer'] ?? null,
+            'farmer_id_phone'       => $row['ID No/Phone No.'] ?? null,
+            'sex'                   => $row['Sex'] ?? null,
+            'age'                   => $row['Age'] ?? null,
 
             // Production
-            'area_grown_acre'      => $row['Area grown (acre)'] ?? null,
-            'variety'              => strtolower($row['Variety']) ?? null,
-            'harvesting_units'     => $row['Harvesting units'] ?? null,
-            'unit_weight_kg'       => $row['Unit weight (Kg)'] ?? null,
-            'qty'                  => $row['QTY'] ?? null,
+            'area_grown_acre'       => $row['Area grown (acre)'] ?? null,
+            'variety'               => strtolower($row['Variety']) ?? null,
+            'harvesting_units'      => $row['Harvesting units'] ?? null,
+            'unit_weight_kg'        => $row['Unit weight (Kg)'] ?? null,
+            'qty'                   => $row['QTY'] ?? null,
 
             // Marketing
-            'selling_price'        => $row['Selling price'] ?? null,
-            'main_buyer'           => $row['Main buyer'] ?? null,
+            'selling_price'         => $row['Selling price'] ?? null,
+            'main_buyer'            => $row['Main buyer'] ?? null,
+
+            // Seed
+            'seed_class'            => $row['Seed Class'] ?? null,
+            'date_recorded'         => Carbon::parse($row['Date Recorded'])->format('Y-m-d') ?? null,
+            'production_value_usd'  => $usdValue,
+            'production_value_rate' => $usdRate,
 
             /*
             |--------------------------------------------------------------------------
@@ -101,19 +113,19 @@ WithStartRow
             |--------------------------------------------------------------------------
             */
 
-            'uuid'                 => $this->data['batch_no'],
+            'uuid'                  => $this->data['batch_no'],
 
-            'user_id'              => $this->data['user_id'],
+            'user_id'               => $this->data['user_id'],
 
-            'organisation_id'      => $this->data['organisation_id'],
+            'organisation_id'       => $this->data['organisation_id'],
 
-            'submission_period_id' => $this->data['submission_period_id'],
+            'submission_period_id'  => $this->data['submission_period_id'],
 
-            'financial_year_id'    => $this->data['financial_year_id'],
+            'financial_year_id'     => $this->data['financial_year_id'],
 
-            'period_month_id'      => $this->data['period_month_id'],
+            'period_month_id'       => $this->data['period_month_id'],
 
-            'status'               => $status,
+            'status'                => $status,
         ]);
 
         /*
@@ -194,11 +206,11 @@ WithStartRow
 
     public function prepareForValidation(array $row)
     {
-        $row['EPA']      = $row['EPA'] ?? '';
-        $row['Section']  = $row['Section'] ?? '';
-        $row['District'] = $row['District'] ?? '';
-        $row['Sex']      = trim($row['Sex']) ?? '';
-
+        $row['EPA']           = $row['EPA'] ?? '';
+        $row['Section']       = $row['Section'] ?? '';
+        $row['District']      = $row['District'] ?? '';
+        $row['Sex']           = trim($row['Sex']) ?? '';
+        $row['Date Recorded'] = $this->convertExcelDate($row['Date Recorded']);
         return $row;
     }
 
@@ -227,7 +239,7 @@ WithStartRow
 
             'Name of group'          => 'nullable|string|max:255',
 
-            'Type of farming'        => 'nullable|string|max:255',
+            'Type of farming'        => 'nullable|string|in:Seed,Table Potato,Cuttings',
 
             'Season'                 => 'nullable|string|max:255',
 
@@ -261,6 +273,10 @@ WithStartRow
             'Selling price'          => 'nullable|numeric|min:0',
 
             'Main buyer'             => 'nullable|string|max:255',
+
+            'Seed Class'             => 'required_if:Type of farming,Seed|nullable|string|max:255',
+
+            'Date Recorded'          => 'required|date|date_format:d-m-Y',
         ];
     }
 
@@ -269,7 +285,22 @@ WithStartRow
     | Starting row
     |--------------------------------------------------------------------------
     */
+    private function calculateUsdValue(?string $date, ?float $mwkValue): array
+    {
+        if (! $date || ! $mwkValue) {
+            return ['rate' => 0, 'usd_value' => 0];
+        }
 
+        try {
+            $helper   = new \App\Helpers\ExchangeRateHelper();
+            $rate     = $helper->getRate($mwkValue, $date);
+            $usdValue = $rate ? round($mwkValue / $rate, 2) : 0;
+            return ['rate' => $rate, 'usd_value' => $usdValue];
+        } catch (\Exception $e) {
+            Log::error("Exchange rate calc error: " . $e->getMessage());
+            return ['rate' => 0, 'usd_value' => 0];
+        }
+    }
     public function startRow(): int
     {
         return 3;

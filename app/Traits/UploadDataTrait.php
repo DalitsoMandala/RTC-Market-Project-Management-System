@@ -12,7 +12,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Maatwebsite\Excel\Facades\Excel;
@@ -68,9 +67,7 @@ trait UploadDataTrait
         return [
             'description' => [
                 'nullable', // Or 'required' if it's always required
-                Rule::requiredIf(function () {
-                    return User::find(auth()->user()->id)->hasAnyRole(['manager', 'admin']);
-                }),
+
             ],
         ];
 
@@ -215,7 +212,7 @@ trait UploadDataTrait
                     'file_link'            => $name,
                     'batch_no'             => $this->importId,
                     'route'                => $this->currentRoute,
-                    'description'          => $this->description,
+                    'description'          => null,
 
                 ]
             ),

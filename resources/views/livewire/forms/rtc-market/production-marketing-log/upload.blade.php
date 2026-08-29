@@ -32,25 +32,6 @@
                     @enderror
 
 
-                    {{-- Description --}}
-                    <div class="mb-3" wire:loading.class="opacity-25 pe-none">
-                        <label for="description" class="form-label">
-                            Description
-
-                            @hasanyrole('external|staff|enumerator')
-                                (optional)
-                            @endhasanyrole
-                        </label>
-
-                        <textarea wire:model="description" class="form-control @error('description') is-invalid @enderror" name="description"
-                            id="description" rows="3"></textarea>
-
-                        @error('description')
-                            <x-error>
-                                {{ $message }}
-                            </x-error>
-                        @enderror
-                    </div>
 
 
                     {{-- Submit --}}

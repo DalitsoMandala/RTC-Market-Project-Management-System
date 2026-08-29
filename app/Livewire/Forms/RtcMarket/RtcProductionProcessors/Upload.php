@@ -1,53 +1,25 @@
 <?php
-
 namespace App\Livewire\Forms\RtcMarket\RtcProductionProcessors;
 
-use Throwable;
-use Carbon\Carbon;
-use App\Models\Form;
-use App\Models\User;
-
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\Submission;
-use App\Models\ImportError;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
-use App\Traits\UploadDataTrait;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionTarget;
-use App\Models\ResponsiblePerson;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
-use App\Traits\CheckProgressTrait;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\SheetNamesValidator;
-use App\Models\ReportingPeriodMonth;
-use App\Models\RpmProcessorFollowUp;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\RpmProcessorDomMarket;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
-use App\Exceptions\UserErrorException;
-use App\Models\RtcProductionProcessor;
-use App\Notifications\JobNotification;
-use App\Models\RpmProcessorInterMarket;
-use Illuminate\Support\Facades\Storage;
-use App\Exceptions\SheetImportException;
-use App\Models\RpmProcessorConcAgreement;
 use App\Exceptions\ExcelValidationException;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
-use App\Notifications\BatchDataAddedNotification;
-use App\Imports\rtcmarket\RtcProductionImport\RpmProcessorImport;
-use App\Imports\ImportFarmer\RtcProductionFarmersMultiSheetImport;
 use App\Exports\ExportProcessor\RtcProductionProcessorsMultiSheetExport;
 use App\Imports\ImportProcessor\RtcProductionProcessorsMultiSheetImport;
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionFarmerWorkbookExport;
-use App\Exports\rtcmarket\RtcProductionExport\RtcProductionProcessorWookbookExport;
+use App\Models\Form;
+use App\Models\User;
+use App\Traits\CheckProgressTrait;
+use App\Traits\UploadDataTrait;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Upload extends Component
 {
@@ -86,7 +58,8 @@ class Upload extends Component
     public $currentRoute;
     public $form_name;
 
-    public function save() {}
+    public function save()
+    {}
 
     public function submitUpload()
     {
@@ -105,42 +78,36 @@ class Upload extends Component
 
             if ($this->upload) {
 
-                $name = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $name      = 'rpmp' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $directory = 'public/imports';
-                if (!Storage::exists($directory)) {
+                if (! Storage::exists($directory)) {
                     Storage::makeDirectory($directory);
                 }
 
                 $this->upload->storeAs($directory, $name);
                 $path = storage_path('app/public/imports/' . $name);
 
-
-
-
                 try {
-
-
 
                     Excel::import(new RtcProductionProcessorsMultiSheetImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
                         'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id' => Auth::user()->organisation->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'period_month_id' => $this->selectedMonth,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => Auth::user()->id,
-                        'batch_type' => 'batch',
-                        'table_name' => 'household_rtc_consumption',
-                        'is_complete' => 1,
-                        'file_link' => $name,
-                        'batch_no' => $this->importId,
-                        'route' => $this->currentRoute,
-'description' => $this->description
+                        'organisation_id'      => Auth::user()->organisation->id,
+                        'financial_year_id'    => $this->selectedFinancialYear,
+                        'period_month_id'      => $this->selectedMonth,
+                        'form_id'              => $this->selectedForm,
+                        'user_id'              => Auth::user()->id,
+                        'batch_type'           => 'batch',
+                        'table_name'           => 'household_rtc_consumption',
+                        'is_complete'          => 1,
+                        'file_link'            => $name,
+                        'batch_no'             => $this->importId,
+                        'route'                => $this->currentRoute,
+                        'description'          => null,
 
                     ]), $path);
                     $this->checkProgress();
                 } catch (ExcelValidationException $th) {
-
 
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
@@ -156,8 +123,6 @@ class Upload extends Component
         }
 
     }
-
-
 
     public function send()
     {
@@ -189,10 +154,9 @@ class Upload extends Component
         //import ID
         $this->importId = Uuid::uuid4()->toString();
         // Set the route prefix
-        $this->routePrefix = Route::current()->getPrefix();
-        $this->currentRoute =  url()->current();
+        $this->routePrefix  = Route::current()->getPrefix();
+        $this->currentRoute = url()->current();
     }
-
 
     public function downloadTemplate()
     {
@@ -218,7 +182,6 @@ class Upload extends Component
             }
         }
     }
-
 
     public function render()
     {

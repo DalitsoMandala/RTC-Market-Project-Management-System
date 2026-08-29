@@ -1,123 +1,85 @@
 <?php
-
 namespace App\Traits;
 
-use App\Exceptions\ExcelValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Throwable;
 
-trait excelDateFormat
+trait ExcelDateFormat
 {
+    /**
+     * Formats accepted when parsing string dates, tried in order.
+     */
+    protected array $excelDateInputFormats = [
+        'd-m-Y',
+        'd/m/Y',
+        'Y-m-d',
+        'd F Y',
+        'd M Y',
+    ];
 
+    /**
+     * Output format for converted dates.
+     */
+    protected string $excelDateOutputFormat = 'd-m-Y';
 
-    public function convertExcelDate($value, $row = [])
+    /**
+     * Convert a raw Excel cell value into a normalized date string.
+     *
+     * @return string|null Returns null if the value is empty or cannot be parsed.
+     */
+    public function convertExcelDate(mixed $value, array $row = []): ?string
     {
-        try {
+        if ($value === null || $value === '') {
+            return null;
+        }
 
-            // Excel numeric date
-            if (is_numeric($value)) {
-                return Carbon::instance(
-                    Date::excelToDateTimeObject($value)
-                )->format('d-m-Y');
+        try {
+            if ($value instanceof \DateTimeInterface) {
+                return Carbon::instance($value)->format($this->excelDateOutputFormat);
             }
 
-            // Already a DateTime/Carbon instance
-            if ($value instanceof \DateTimeInterface) {
-                return Carbon::instance($value)->format('d-m-Y');
+            if (is_numeric($value)) {
+                return Carbon::instance(
+                    Date::excelToDateTimeObject((float) $value)
+                )->format($this->excelDateOutputFormat);
             }
 
             if (is_string($value)) {
-
-                $value = trim($value);
-
-                $formats = [
-                    'd-m-Y',
-                    'd/m/Y',
-                    'Y-m-d',
-                    'd F Y',
-                    'd M Y'
-                ];
-
-                foreach ($formats as $format) {
-                    try {
-                        return Carbon::createFromFormat($format, $value)->format('d-m-Y');
-                    } catch (\Exception $e) {
-                        // try next format
-                    }
-                }
-
-                // fallback flexible parser
-                return Carbon::parse($value)->format('d-m-Y');
+                return $this->parseDateString(trim($value));
             }
-        } catch (\Throwable $e) {
-
-            Log::error('Excel Date Conversion Failed', [
+        } catch (Throwable $e) {
+            Log::error('Excel date conversion failed', [
                 'value' => $value,
-                'row' => $row,
-                'error' => $e->getMessage()
+                'row'   => $row,
+                'error' => $e->getMessage(),
             ]);
         }
 
-        return 0;
+        return null;
     }
-    //     public function convertExcelDate($value, $row = [])
-    // {
-    //     if (is_numeric($value)) {
-    //         try {
-    //             return Carbon::instance(Date::excelToDateTimeObject($value))->format('d-m-Y');
-    //         } catch (\Exception $e) {
-    //             Log::error('Excel Time Object Error ' . $e->getMessage() . implode(', ', $row));
-    //             return 0;
-    //         }
-    //     }
 
-    //     if (is_string($value)) {
-    //         try {
-    //             // Try your original format first
-    //             return Carbon::createFromFormat('d-m-Y', $value)->format('d-m-Y');
-    //         } catch (\Exception $e) {
-    //             try {
-    //                 // Then try the full month name format
-    //                 return Carbon::createFromFormat('d F Y', $value)->format('d-m-Y');
-    //             } catch (\Exception $e2) {
-    //                 // Finally try Carbon's flexible parser
-    //                 return Carbon::parse($value)->format('d-m-Y');
-    //             }
-    //         }
-    //     }
+    /**
+     * Attempt to parse a string date against known formats, falling back
+     * to Carbon's flexible parser.
+     */
+    protected function parseDateString(string $value): ?string
+    {
+        if ($value === '') {
+            return null;
+        }
 
-    //     Log::error('Error conversion' . implode(', ', $row));
-    //     return 0;
-    // }
-    //
+        foreach ($this->excelDateInputFormats as $format) {
+            $date = Carbon::createFromFormat($format, $value);
 
-    // public function convertExcelDate($value, $row = [])
-    // {
-    //     try {
-    //         if (is_numeric($value)) {
-    //             // Convert Excel serial date to Y-m-d
-    //             return Carbon::instance(Date::excelToDateTimeObject($value))->format('d-m-Y');
-    //         }
-    //     } catch (\Exception $e) {
-    //         Log::error('Excel Time Object Error ' . $e->getMessage() . implode(', ', $row));
-    //         // throw new ExcelValidationException('Invalid date format: ' . json_encode($value));
-    //         return 0;
-    //     }
+            if ($date !== false && $date->format($format) === $value) {
+                return $date->format($this->excelDateOutputFormat);
+            }
+        }
 
-    //     try {
-    //         if (is_string($value)) {
-    //             // Convert d-m-Y string date to Y-m-d
-    //             return Carbon::createFromFormat('d-m-Y', $value)->format('d-m-Y');
-    //         }
-    //     } catch (\Exception $e) {
-    //         Log::error('CreateFromFormat Error ' . $e->getMessage() . implode(', ', $row));
-    //         //  throw new ExcelValidationException('Invalid date format: ' . json_encode($value));
-    //         return 0;
-    //     }
-
-    //     Log::error('Error conversion' . implode(', ', $row));
-
-    //     return 0;
-    // }
+        // Fallback: flexible parser (throws on genuinely invalid input,
+        // which is caught by the caller's try/catch)
+        return Carbon::parse($value)->format($this->excelDateOutputFormat);
+    }
 }

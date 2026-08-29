@@ -1,34 +1,24 @@
 <?php
-
 namespace App\Livewire\OtherForms\SeedBeneficiaries;
 
-use Throwable;
-use App\Models\Form;
-use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Livewire\Component;
-use App\Models\Indicator;
-use App\Models\JobProgress;
-use Livewire\Attributes\On;
-use App\Models\FinancialYear;
-use Livewire\WithFileUploads;
-use App\Traits\UploadDataTrait;
-use App\Models\SubmissionPeriod;
-use App\Models\SubmissionTarget;
-use Livewire\Attributes\Validate;
-use App\Models\OrganisationTarget;
-use App\Traits\CheckProgressTrait;
-use Illuminate\Support\Facades\Log;
-use App\Models\ReportingPeriodMonth;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
+use App\Exceptions\ExcelValidationException;
 use App\Exports\SeedBeneficiariesExport;
 use App\Imports\SeedBeneficiariesImport;
-use App\Exceptions\ExcelValidationException;
+use App\Models\Form;
+use App\Models\User;
+use App\Traits\CheckProgressTrait;
+use App\Traits\UploadDataTrait;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
 
 class Upload extends Component
 {
@@ -50,10 +40,10 @@ class Upload extends Component
 
     public $submissionPeriodId;
 
-    public $openSubmission = false;
-    public $progress = 0;
-    public $Import_errors = [];
-    public $importing = false;
+    public $openSubmission    = false;
+    public $progress          = 0;
+    public $Import_errors     = [];
+    public $importing         = false;
     public $importingFinished = false;
 
     public $importProgress = 0;
@@ -77,15 +67,13 @@ class Upload extends Component
             //code...
 
             $userId = auth()->user()->id;
-            $user = User::find($userId);
-
+            $user   = User::find($userId);
 
             if ($this->upload) {
 
-
-                $name = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
+                $name      = 'seed' . time() . '.' . $this->upload->getClientOriginalExtension();
                 $directory = 'public/imports';
-                if (!Storage::exists($directory)) {
+                if (! Storage::exists($directory)) {
                     Storage::makeDirectory($directory);
                 }
 
@@ -94,28 +82,25 @@ class Upload extends Component
 
                 try {
 
-
                     Excel::import(new SeedBeneficiariesImport(cacheKey: $this->importId, filePath: $path, submissionDetails: [
 
                         'submission_period_id' => $this->submissionPeriodId,
-                        'organisation_id' => Auth::user()->organisation->id,
-                        'financial_year_id' => $this->selectedFinancialYear,
-                        'period_month_id' => $this->selectedMonth,
-                        'form_id' => $this->selectedForm,
-                        'user_id' => Auth::user()->id,
-                        'batch_type' => 'batch',
-                        'table_name' => 'household_rtc_consumption',
-                        'is_complete' => 1,
-                        'file_link' => $name,
-                        'batch_no' => $this->importId,
-                        'route' => $this->currentRoute,
-                        'description' => $this->description
-
+                        'organisation_id'      => Auth::user()->organisation->id,
+                        'financial_year_id'    => $this->selectedFinancialYear,
+                        'period_month_id'      => $this->selectedMonth,
+                        'form_id'              => $this->selectedForm,
+                        'user_id'              => Auth::user()->id,
+                        'batch_type'           => 'batch',
+                        'table_name'           => 'household_rtc_consumption',
+                        'is_complete'          => 1,
+                        'file_link'            => $name,
+                        'batch_no'             => $this->importId,
+                        'route'                => $this->currentRoute,
+                        'description'          => null,
 
                     ]), $path);
                     $this->checkProgress();
                 } catch (ExcelValidationException $th) {
-
 
                     session()->flash('error', $th->getMessage());
                     Log::error($th);
@@ -163,7 +148,7 @@ class Upload extends Component
     public function clearTable()
     {
         $this->openSubmission = true;
-        $this->targetSet = true;
+        $this->targetSet      = true;
         session()->flash('success', 'Successfully submitted your targets! You can proceed to submit your data now.');
     }
 

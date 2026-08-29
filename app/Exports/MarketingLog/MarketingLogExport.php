@@ -82,7 +82,7 @@ class MarketingLogExport implements FromCollection, WithHeadings, WithTitle, Wit
                 $this->setDataValidations($dropdownOptions, 'E3', $sheet);
 
                 $dropdownOptions = [
-                    'Table Potato', 'Seed',
+                    'Table Potato', 'Seed', 'Cuttings',
 
                 ]; // Includes an empty option
 
@@ -108,6 +108,15 @@ class MarketingLogExport implements FromCollection, WithHeadings, WithTitle, Wit
                 $dropdownOptions = CropVariety::all()->pluck('name')->toArray();
                 //Type
                 $this->setDataValidations($dropdownOptions, 'O3', $sheet);
+
+                $dropdownOptions = [
+                    'Basic',
+                    'Certified',
+                ];
+
+                //Seed Class
+                $this->setDataValidations($dropdownOptions, 'U3', $sheet);
+
             },
         ];
     }
